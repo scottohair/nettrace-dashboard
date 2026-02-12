@@ -25,6 +25,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+# Load .env file for credentials
+_env_path = Path(__file__).parent / ".env"
+if _env_path.exists():
+    for line in _env_path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, val = line.split("=", 1)
+            os.environ.setdefault(key.strip(), val.strip().strip('"'))
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(name)s] %(levelname)s %(message)s",
@@ -129,6 +138,43 @@ class LiveTrader:
             logger.debug("Signal fetch: %s", e)
             return []
 
+    def _get_regime(self, pair):
+        """Detect market regime using C engine or Python fallback."""
+        try:
+            from fast_bridge import FastEngine
+            engine = FastEngine()
+            # Fetch recent candles from public API
+            import urllib.request as ur
+            end = int(time.time())
+            start = end - 24 * 3600  # 24h of 5-min candles
+            url = (f"https://api.exchange.coinbase.com/products/{pair}/candles"
+                   f"?start={datetime.fromtimestamp(start, tz=timezone.utc).isoformat()}"
+                   f"&end={datetime.fromtimestamp(end, tz=timezone.utc).isoformat()}"
+                   f"&granularity=300")
+            req = ur.Request(url, headers={"User-Agent": "NetTrace/1.0"})
+            with ur.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode())
+            candles = [{"open": c[3], "high": c[2], "low": c[1], "close": c[4],
+                        "volume": c[5], "time": c[0]} for c in data]
+            candles.sort(key=lambda x: x["time"])
+
+            if len(candles) < 50:
+                return {"regime": "UNKNOWN", "recommendation": "HOLD"}
+
+            ind = engine.compute_indicators(candles)
+            sig = engine.generate_signal(candles)
+            return {
+                "regime": ind["regime"],
+                "rsi": ind["rsi_14"],
+                "atr": ind["atr_14"],
+                "vwap": ind["vwap"],
+                "recommendation": "HOLD" if ind["regime"] == "DOWNTREND" else "TRADE",
+                "c_signal": sig,
+            }
+        except Exception as e:
+            logger.debug("Regime detection: %s", e)
+            return {"regime": "UNKNOWN", "recommendation": "TRADE"}
+
     def evaluate_and_trade(self, signals):
         """Evaluate signals and execute trades.
 
@@ -137,6 +183,7 @@ class LiveTrader:
         2. BUY only with high confidence (>70%) and multiple confirming signals
         3. Daily loss limit: stop after $2 loss
         4. Only BUY when we have USD/USDC available — no panic sells
+        5. Check market regime FIRST — skip downtrends
         """
         if self.daily_pnl <= -MAX_DAILY_LOSS_USD:
             logger.warning("Daily loss limit hit ($%.2f). STOPPED.", self.daily_pnl)
@@ -151,7 +198,7 @@ class LiveTrader:
         usd = holdings.get("USD", {}).get("usd_value", 0)
         available_cash = usdc + usd
 
-        # Count confirming buy signals
+        # Count confirming buy signals from NetTrace latency data
         buy_signals = {}  # pair -> list of signals
         for signal in signals:
             sig_type = signal.get("signal_type", "")
@@ -159,7 +206,7 @@ class LiveTrader:
             direction = signal.get("direction", "")
             confidence = float(signal.get("confidence", 0))
 
-            if confidence < 0.70:  # Raised from 0.55 — only high confidence
+            if confidence < 0.70:  # Only high confidence
                 continue
 
             # Map host to pair
@@ -177,7 +224,7 @@ class LiveTrader:
             # Only BUY signals — accumulate on dips
             is_buy = False
             if sig_type == "rtt_anomaly" and direction == "up":
-                is_buy = True  # Exchange latency spike = potential dip = buy
+                is_buy = True
             elif sig_type == "cross_exchange_latency_diff":
                 is_buy = True
             elif sig_type == "rtt_trend" and direction == "uptrend":
@@ -185,6 +232,24 @@ class LiveTrader:
 
             if is_buy:
                 buy_signals.setdefault(pair, []).append(signal)
+
+        # Also check C engine signals — expanded to high-volatility pairs
+        for pair in ["BTC-USD", "ETH-USD", "SOL-USD", "DOGE-USD", "AVAX-USD", "LINK-USD", "XRP-USD"]:
+            regime = self._get_regime(pair)
+
+            # Skip downtrend pairs — Rule #1
+            if regime.get("recommendation") == "HOLD":
+                logger.debug("Skipping %s — regime: %s", pair, regime.get("regime"))
+                continue
+
+            # Check if C engine generated a buy signal
+            c_sig = regime.get("c_signal", {})
+            if c_sig and c_sig.get("signal_type") == "BUY" and c_sig.get("confidence", 0) > 0.65:
+                buy_signals.setdefault(pair, []).append({
+                    "signal_type": "c_engine_" + c_sig.get("reason", ""),
+                    "confidence": c_sig.get("confidence", 0),
+                    "target_host": "fast_engine",
+                })
 
         # Only execute if 2+ signals agree on the same pair (confirmation)
         for pair, sigs in buy_signals.items():

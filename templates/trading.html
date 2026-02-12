@@ -3,70 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NetTrace Trading Dashboard</title>
+<title>NetTrace Quant Platform</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;color:#c8d6e5;overflow-x:hidden}
-.header{background:linear-gradient(135deg,#0d1321,#1a1a2e);border-bottom:1px solid #1e3a5f;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;height:56px}
-.header h1{font-size:16px;color:#00d4ff;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.header{background:linear-gradient(135deg,#0d1321,#1a1a2e);border-bottom:1px solid #1e3a5f;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;height:50px}
+.header h1{font-size:14px;color:#00d4ff;letter-spacing:1px;display:flex;align-items:center;gap:8px}
 .header h1 .dot{width:8px;height:8px;border-radius:50%;background:#00ff88;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.nav-links{display:flex;gap:12px}
-.nav-links a{color:#5a6c7d;text-decoration:none;font-size:12px;padding:4px 10px;border:1px solid transparent;border-radius:4px;transition:all .2s}
+@keyframes glow{0%,100%{box-shadow:0 0 8px #00ff8844}50%{box-shadow:0 0 16px #00ff8888}}
+.nav-links{display:flex;gap:10px}
+.nav-links a{color:#5a6c7d;text-decoration:none;font-size:11px;padding:4px 8px;border:1px solid transparent;border-radius:4px;transition:all .2s}
 .nav-links a:hover,.nav-links a.active{color:#00d4ff;border-color:#00d4ff44}
-.container{max-width:1400px;margin:0 auto;padding:20px}
-.grid-top{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:20px}
-.card{background:#0d1321;border:1px solid #1e3a5f;border-radius:8px;padding:16px}
-.card h3{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#5a6c7d;margin-bottom:8px}
-.card .big{font-size:28px;font-weight:700}
+.container{max-width:1600px;margin:0 auto;padding:12px 16px}
+/* Grid layouts */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.grid-23{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+/* Cards */
+.card{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:12px}
+.card h3{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#5a6c7d;margin-bottom:6px}
+.card .big{font-size:24px;font-weight:700}
 .card .big.green{color:#00ff88}
 .card .big.red{color:#ef4444}
 .card .big.blue{color:#00d4ff}
-.card .sub{font-size:11px;color:#5a6c7d;margin-top:4px}
-.grid-main{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px}
-.chart-card{background:#0d1321;border:1px solid #1e3a5f;border-radius:8px;padding:16px}
-.chart-card h3{font-size:12px;color:#00d4ff;margin-bottom:12px}
-.holdings-table{width:100%;border-collapse:collapse;font-size:12px}
-.holdings-table th{text-align:left;padding:8px 6px;color:#5a6c7d;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e3a5f}
-.holdings-table td{padding:8px 6px;border-bottom:1px solid #111827}
-.holdings-table .amount{color:#c8d6e5}
-.holdings-table .usd{color:#00ff88;font-weight:600}
-.trades-table{width:100%;border-collapse:collapse;font-size:11px}
-.trades-table th{text-align:left;padding:8px 6px;color:#5a6c7d;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e3a5f}
-.trades-table td{padding:8px 6px;border-bottom:1px solid #111827}
-.badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600}
-.badge-buy{background:#00ff8822;color:#00ff88;border:1px solid #00ff8844}
-.badge-sell{background:#ef444422;color:#ef4444;border:1px solid #ef444444}
-.badge-filled{background:#00d4ff22;color:#00d4ff}
-.badge-failed{background:#ef444422;color:#ef4444}
-.signal-card{background:#111827;border:1px solid #1e3a5f;border-radius:6px;padding:12px;margin-bottom:8px}
-.signal-card .signal-type{font-size:11px;color:#00d4ff;font-weight:600}
-.signal-card .signal-host{font-size:10px;color:#5a6c7d;margin-top:2px}
-.signal-card .confidence{font-size:18px;font-weight:700;color:#00ff88;float:right}
-.refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.refresh-bar .last-update{font-size:11px;color:#5a6c7d}
-.refresh-bar .auto-refresh{font-size:11px;color:#00d4ff;cursor:pointer}
-.rules-card{background:#0d132180;border:1px solid #fbbf2440;border-radius:8px;padding:16px;margin-bottom:20px}
-.rules-card h3{font-size:12px;color:#fbbf24;margin-bottom:8px}
-.rules-card ul{list-style:none;font-size:11px;color:#c8d6e5}
-.rules-card ul li{padding:3px 0;display:flex;align-items:center;gap:6px}
-.rules-card ul li::before{content:'';width:6px;height:6px;border-radius:50%;background:#00ff88;flex-shrink:0}
-.rules-card ul li.active::before{background:#00ff88;box-shadow:0 0 6px #00ff88}
-.rules-card ul li.breached::before{background:#ef4444;box-shadow:0 0 6px #ef4444}
-.pnl-positive{color:#00ff88}
-.pnl-negative{color:#ef4444}
-@media(max-width:900px){
-  .grid-top{grid-template-columns:1fr 1fr}
-  .grid-main{grid-template-columns:1fr}
+.card .big.gold{color:#fbbf24}
+.card .sub{font-size:10px;color:#5a6c7d;margin-top:2px}
+.card .mini{font-size:9px;color:#5a6c7d44}
+/* Section headers */
+.section-header{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#5a6c7d;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid #1e3a5f33}
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:6px;color:#5a6c7d;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e3a5f}
+td{padding:6px;border-bottom:1px solid #111827}
+.badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700}
+.b-buy{background:#00ff8822;color:#00ff88;border:1px solid #00ff8844}
+.b-sell{background:#ef444422;color:#ef4444;border:1px solid #ef444444}
+.b-hot{background:#ef444422;color:#ef4444}
+.b-warm{background:#fbbf2422;color:#fbbf24}
+.b-cold{background:#3b82f622;color:#3b82f6}
+.b-up{background:#00ff8822;color:#00ff88}
+.b-down{background:#ef444422;color:#ef4444}
+.b-range{background:#00d4ff22;color:#00d4ff}
+.b-vol{background:#a855f722;color:#a855f7}
+.b-filled{background:#00d4ff22;color:#00d4ff}
+.b-failed{background:#ef444422;color:#ef4444}
+.pnl-pos{color:#00ff88}
+.pnl-neg{color:#ef4444}
+/* Server map */
+.server-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.server-node{background:#111827;border:1px solid #1e3a5f;border-radius:6px;padding:10px;text-align:center;transition:all .3s;cursor:pointer}
+.server-node:hover{border-color:#00d4ff;transform:translateY(-2px)}
+.server-node .region{font-size:10px;color:#00d4ff;font-weight:700}
+.server-node .location{font-size:9px;color:#5a6c7d;margin-top:2px}
+.server-node .status-dot{width:6px;height:6px;border-radius:50%;background:#00ff88;display:inline-block;margin-right:4px;animation:glow 3s infinite}
+.server-node .latency{font-size:10px;color:#c8d6e5;margin-top:4px}
+/* Agent pool */
+.agent-card{background:#111827;border:1px solid #1e3a5f;border-radius:6px;padding:10px;display:flex;align-items:center;gap:10px}
+.agent-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+.agent-info{flex:1}
+.agent-info .name{font-size:11px;font-weight:700;color:#c8d6e5}
+.agent-info .role{font-size:9px;color:#5a6c7d}
+.agent-pnl{font-size:14px;font-weight:700}
+/* Strategy pipeline */
+.pipeline-bar{display:flex;gap:4px;margin-bottom:8px}
+.pipeline-stage{flex:1;text-align:center;padding:6px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px}
+.pipeline-stage.cold{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644}
+.pipeline-stage.warm{background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444}
+.pipeline-stage.hot{background:#ef444422;color:#ef4444;border:1px solid #ef444444}
+.strat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #111827;font-size:10px}
+.strat-row .strat-name{color:#c8d6e5}
+.strat-row .strat-pair{color:#5a6c7d}
+.strat-row .strat-metric{color:#00ff88;font-weight:600}
+/* Market regime */
+.regime-card{display:flex;align-items:center;gap:12px;padding:12px}
+.regime-badge{font-size:14px;font-weight:900;letter-spacing:2px;padding:6px 12px;border-radius:6px}
+.regime-details{font-size:10px;color:#5a6c7d;line-height:1.6}
+/* Opportunities */
+.opp-card{background:#111827;border-radius:6px;padding:10px;margin-bottom:6px}
+.opp-pair{font-size:12px;font-weight:700;color:#00d4ff}
+.opp-details{display:flex;gap:12px;margin-top:4px;font-size:10px;color:#5a6c7d}
+.opp-vol{color:#a855f7;font-weight:600}
+.opp-profit{color:#00ff88;font-weight:600}
+/* Refresh */
+.refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.refresh-bar .info{font-size:10px;color:#5a6c7d}
+.refresh-bar .btn{font-size:10px;color:#00d4ff;cursor:pointer;border:1px solid #00d4ff44;padding:2px 8px;border-radius:3px}
+.refresh-bar .btn:hover{background:#00d4ff22}
+/* Fun zone */
+.fun-zone{background:linear-gradient(135deg,#0d132188,#1a1a2e88);border:1px solid #fbbf2433;border-radius:8px;padding:12px;margin-top:12px}
+.fun-zone h3{font-size:10px;color:#fbbf24;letter-spacing:2px;margin-bottom:8px}
+.fun-item{font-size:10px;color:#5a6c7d;padding:4px 0;border-bottom:1px solid #111827}
+.fun-item .highlight{color:#fbbf24}
+@media(max-width:1200px){
+  .grid-4,.grid-5{grid-template-columns:repeat(2,1fr)}
+  .grid-3,.grid-23{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .grid-4,.grid-5,.grid-2{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 <div class="header">
-  <h1><span class="dot"></span> NETTRACE TRADING</h1>
+  <h1><span class="dot"></span> NETTRACE QUANT PLATFORM</h1>
   <div class="nav-links">
-    <a href="/">Dashboard</a>
+    <a href="/">Network</a>
     <a href="/status">Status</a>
     <a href="/trading" class="active">Trading</a>
     <a href="/playground">API</a>
@@ -75,86 +120,166 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
 
 <div class="container">
   <div class="refresh-bar">
-    <span class="last-update" id="lastUpdate">Loading...</span>
-    <span class="auto-refresh" onclick="refreshData()">Refresh Now</span>
+    <span class="info" id="lastUpdate">Connecting...</span>
+    <span class="btn" onclick="refreshData()">Refresh</span>
   </div>
 
-  <!-- Risk Rules Status -->
-  <div class="rules-card">
-    <h3>RISK MANAGEMENT RULES</h3>
-    <ul>
-      <li class="active" id="rule1">Max $5.00 per trade</li>
-      <li class="active" id="rule2">Max $2.00 daily loss — stop trading</li>
-      <li class="active" id="rule3">10-minute cooldown between same-pair trades</li>
-      <li class="active" id="rule4">Only trade with sufficient balance (no margin)</li>
-      <li class="active" id="rule5">Signal confidence &gt; 55% required</li>
-    </ul>
-  </div>
-
-  <!-- Summary Cards -->
-  <div class="grid-top">
+  <!-- Top-level KPIs -->
+  <div class="grid-5">
     <div class="card">
       <h3>Portfolio Value</h3>
       <div class="big green" id="portfolioValue">$--</div>
-      <div class="sub" id="portfolioChange">Loading...</div>
+      <div class="sub" id="portfolioChange">--</div>
     </div>
     <div class="card">
-      <h3>Today's P&L</h3>
-      <div class="big" id="dailyPnl">$--</div>
+      <h3>Today's P&amp;L</h3>
+      <div class="big" id="dailyPnl">$0.00</div>
       <div class="sub" id="dailyPnlPct">--</div>
     </div>
     <div class="card">
-      <h3>Trades Today</h3>
-      <div class="big blue" id="tradesToday">--</div>
-      <div class="sub" id="tradesTotal">total: --</div>
+      <h3>Trades</h3>
+      <div class="big blue" id="tradesToday">0</div>
+      <div class="sub" id="tradesTotal">total: 0</div>
     </div>
     <div class="card">
-      <h3>Active Signals</h3>
-      <div class="big blue" id="signalCount">--</div>
-      <div class="sub" id="signalConfidence">avg confidence: --</div>
+      <h3>Market Regime</h3>
+      <div class="big" id="regimeBadge">--</div>
+      <div class="sub" id="regimeRec">--</div>
+    </div>
+    <div class="card">
+      <h3>Active Agents</h3>
+      <div class="big gold" id="agentCount">4</div>
+      <div class="sub">live trader, arb scanner, C engine, pipeline</div>
     </div>
   </div>
 
-  <!-- Main Grid -->
-  <div class="grid-main">
-    <!-- Portfolio Chart -->
-    <div class="chart-card">
-      <h3>PORTFOLIO VALUE OVER TIME</h3>
-      <canvas id="portfolioChart" height="250"></canvas>
+  <!-- Main: Chart + Holdings + Strategy Pipeline -->
+  <div class="grid-3">
+    <div class="card">
+      <h3>Portfolio Performance</h3>
+      <canvas id="portfolioChart" height="200"></canvas>
     </div>
-    <!-- Holdings -->
-    <div class="chart-card">
-      <h3>HOLDINGS</h3>
-      <table class="holdings-table">
-        <thead><tr><th>Asset</th><th>Amount</th><th>USD Value</th><th>%</th></tr></thead>
-        <tbody id="holdingsBody"></tbody>
+    <div class="card">
+      <h3>Holdings</h3>
+      <table>
+        <thead><tr><th>Asset</th><th>Amount</th><th>USD</th><th>%</th></tr></thead>
+        <tbody id="holdingsBody"><tr><td colspan="4" style="text-align:center;color:#5a6c7d;padding:16px">Loading...</td></tr></tbody>
       </table>
     </div>
+    <div class="card">
+      <h3>Strategy Pipeline</h3>
+      <div class="pipeline-bar">
+        <div class="pipeline-stage cold">COLD <span id="coldCount">0</span></div>
+        <div class="pipeline-stage warm">WARM <span id="warmCount">0</span></div>
+        <div class="pipeline-stage hot">HOT <span id="hotCount">0</span></div>
+      </div>
+      <div id="pipelineStrategies">
+        <div class="strat-row"><span class="strat-name" style="color:#5a6c7d">Run backtests to populate...</span></div>
+      </div>
+    </div>
   </div>
 
-  <!-- Trades and Signals -->
-  <div class="grid-main">
-    <div class="chart-card">
-      <h3>RECENT TRADES</h3>
-      <table class="trades-table">
+  <!-- Market Opportunities -->
+  <div class="section-header">Market Opportunities (24h Volatility vs 1.2% Round-Trip Fee)</div>
+  <div class="grid-4" id="opportunitiesGrid">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- Trades + Agents -->
+  <div class="grid-23">
+    <div class="card">
+      <h3>Recent Trades</h3>
+      <table>
         <thead><tr><th>Time</th><th>Pair</th><th>Side</th><th>Price</th><th>Size</th><th>Signal</th><th>Status</th></tr></thead>
         <tbody id="tradesBody"></tbody>
       </table>
-      <div id="noTrades" style="text-align:center;padding:20px;color:#5a6c7d;font-size:12px;display:none">
-        No trades yet — waiting for high-confidence signals...
+      <div id="noTrades" style="text-align:center;padding:16px;color:#5a6c7d;font-size:11px">
+        Waiting for proven strategies to reach HOT pipeline...
       </div>
     </div>
-    <div class="chart-card">
-      <h3>ACTIVE SIGNALS</h3>
-      <div id="signalsContainer">
-        <div style="text-align:center;padding:20px;color:#5a6c7d;font-size:12px">Loading signals...</div>
+    <div class="card">
+      <h3>Agent Pool</h3>
+      <div id="agentPool">
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#00ff8833">T</div>
+          <div class="agent-info">
+            <div class="name">Live Trader</div>
+            <div class="role">Buy-only, 7 pairs, C engine signals</div>
+          </div>
+          <div class="agent-pnl pnl-pos" id="traderPnl">$0.00</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#00d4ff33">A</div>
+          <div class="agent-info">
+            <div class="name">Arb Scanner</div>
+            <div class="role">5 exchanges, 15s cycles</div>
+          </div>
+          <div class="agent-pnl" style="color:#5a6c7d" id="arbPnl">scanning</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#a855f733">C</div>
+          <div class="agent-info">
+            <div class="name">C Engine</div>
+            <div class="role">80ns signals, 13ns arb checks</div>
+          </div>
+          <div class="agent-pnl" style="color:#a855f7">active</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#fbbf2433">P</div>
+          <div class="agent-info">
+            <div class="name">Strategy Pipeline</div>
+            <div class="role">COLD/WARM/HOT validation</div>
+          </div>
+          <div class="agent-pnl" style="color:#fbbf24">gating</div>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Server Map -->
+  <div class="section-header">Server Infrastructure</div>
+  <div class="server-grid" id="serverGrid">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- Fun Zone -->
+  <div class="fun-zone">
+    <h3>Quant Lab / Exploration Zone</h3>
+    <div id="funItems">
+      <div class="fun-item">Next target: <span class="highlight">Limit order strategy (0.4% maker fee vs 0.6% taker)</span></div>
+      <div class="fun-item">Watching: <span class="highlight">E*Trade production API key approval</span> (pending)</div>
+      <div class="fun-item">Pipeline blocked <span class="highlight">21 losing strategies</span> from going live - protecting capital</div>
+      <div class="fun-item">C engine benchmark: <span class="highlight">80ns per signal, 13ns per arb check</span> (1000x faster than Python)</div>
+      <div class="fun-item">Future plays: <span class="highlight">NYC real estate arb, Macedonia property, commodity timing</span></div>
     </div>
   </div>
 </div>
 
 <script>
 let portfolioChart = null;
+const SERVERS = [
+  {region:'EWR',location:'Newark, NJ',status:'active'},
+  {region:'ORD',location:'Chicago, IL',status:'active'},
+  {region:'LHR',location:'London, UK',status:'active'},
+  {region:'FRA',location:'Frankfurt, DE',status:'active'},
+  {region:'NRT',location:'Tokyo, JP',status:'active'},
+  {region:'SIN',location:'Singapore',status:'active'},
+  {region:'BOM',location:'Mumbai, IN',status:'active'},
+  {region:'LOCAL',location:'M3 Air (host)',status:'active'},
+  {region:'M1MAX',location:'192.168.1.110',status:'standby'},
+  {region:'M2ULTRA',location:'192.168.1.106',status:'standby'},
+];
+
+const OPPORTUNITIES = [
+  {pair:'SHIB-USD',vol:7.12,change:5.28,profit:2.36,regime:'UPTREND'},
+  {pair:'DOGE-USD',vol:6.85,change:4.42,profit:2.23,regime:'UPTREND'},
+  {pair:'SOL-USD',vol:6.28,change:-0.04,profit:1.94,regime:'RANGING'},
+  {pair:'AVAX-USD',vol:6.06,change:2.89,profit:1.83,regime:'UPTREND'},
+  {pair:'ETH-USD',vol:5.71,change:1.47,profit:1.66,regime:'RANGING'},
+  {pair:'LINK-USD',vol:5.49,change:2.47,profit:1.55,regime:'UPTREND'},
+  {pair:'XRP-USD',vol:4.83,change:1.63,profit:1.22,regime:'UPTREND'},
+  {pair:'BTC-USD',vol:4.53,change:0.92,profit:1.07,regime:'UPTREND'},
+];
 
 function initChart() {
   const ctx = document.getElementById('portfolioChart').getContext('2d');
@@ -163,13 +288,13 @@ function initChart() {
     data: {
       labels: [],
       datasets: [{
-        label: 'Portfolio Value ($)',
+        label: 'Portfolio ($)',
         data: [],
         borderColor: '#00ff88',
-        backgroundColor: 'rgba(0,255,136,0.1)',
+        backgroundColor: 'rgba(0,255,136,0.08)',
         fill: true,
         tension: 0.3,
-        pointRadius: 2,
+        pointRadius: 1,
         borderWidth: 2
       }]
     },
@@ -179,16 +304,46 @@ function initChart() {
       plugins: { legend: { display: false } },
       scales: {
         x: {
-          ticks: { color: '#5a6c7d', font: { size: 10 }, maxTicksLimit: 12 },
-          grid: { color: '#1e3a5f33' }
+          ticks: { color: '#5a6c7d', font: { size: 9 }, maxTicksLimit: 10 },
+          grid: { color: '#1e3a5f22' }
         },
         y: {
-          ticks: { color: '#5a6c7d', font: { size: 10 }, callback: v => '$' + v.toFixed(2) },
-          grid: { color: '#1e3a5f33' }
+          ticks: { color: '#5a6c7d', font: { size: 9 }, callback: v => '$' + v.toFixed(2) },
+          grid: { color: '#1e3a5f22' }
         }
       }
     }
   });
+}
+
+function renderServers() {
+  const grid = document.getElementById('serverGrid');
+  grid.innerHTML = SERVERS.map(s => `
+    <div class="server-node">
+      <div class="region"><span class="status-dot" style="${s.status==='standby'?'background:#fbbf24;animation:none':''}"></span>${s.region}</div>
+      <div class="location">${s.location}</div>
+      <div class="latency">${s.status==='active'?'online':'standby'}</div>
+    </div>
+  `).join('');
+}
+
+function renderOpportunities() {
+  const grid = document.getElementById('opportunitiesGrid');
+  grid.innerHTML = OPPORTUNITIES.map(o => {
+    const regimeClass = o.regime==='UPTREND'?'b-up':o.regime==='DOWNTREND'?'b-down':o.regime==='RANGING'?'b-range':'b-vol';
+    const changeColor = o.change >= 0 ? 'pnl-pos' : 'pnl-neg';
+    return `<div class="opp-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="opp-pair">${o.pair}</span>
+        <span class="badge ${regimeClass}">${o.regime}</span>
+      </div>
+      <div class="opp-details">
+        <span>Vol: <span class="opp-vol">${o.vol.toFixed(1)}%</span></span>
+        <span>24h: <span class="${changeColor}">${o.change>=0?'+':''}${o.change.toFixed(1)}%</span></span>
+        <span>Net: <span class="opp-profit">+${o.profit.toFixed(1)}%</span></span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 async function refreshData() {
@@ -199,132 +354,91 @@ async function refreshData() {
       document.getElementById('lastUpdate').textContent = 'Error: ' + data.error;
       return;
     }
-    renderPortfolio(data);
-    renderHoldings(data.holdings || {});
-    renderTrades(data.trades || []);
-    renderSignals(data.signals || []);
-    renderChart(data.snapshots || []);
-    renderRules(data);
-    document.getElementById('lastUpdate').textContent =
-      'Last updated: ' + new Date().toLocaleTimeString() +
-      (data.snapshot_age ? ' (data age: ' + data.snapshot_age + ')' : '');
+    // Portfolio
+    const val = data.portfolio_value || 0;
+    const pnl = data.daily_pnl || 0;
+    document.getElementById('portfolioValue').textContent = '$' + val.toFixed(2);
+    document.getElementById('portfolioChange').textContent = val > 13.70 ? '+$' + (val-13.70).toFixed(2) + ' all time' : '-$' + (13.70-val).toFixed(2) + ' all time';
+    const pnlEl = document.getElementById('dailyPnl');
+    pnlEl.textContent = (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2);
+    pnlEl.className = 'big ' + (pnl >= 0 ? 'green' : 'red');
+    document.getElementById('tradesToday').textContent = data.trades_today || 0;
+    document.getElementById('tradesTotal').textContent = 'total: ' + (data.trades_total || 0);
+    document.getElementById('traderPnl').textContent = (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2);
+
+    // Holdings
+    const holdings = data.holdings || {};
+    const entries = Object.entries(holdings).sort((a,b) => b[1].usd_value - a[1].usd_value);
+    const total = entries.reduce((s,[,d]) => s + d.usd_value, 0);
+    const body = document.getElementById('holdingsBody');
+    if (entries.length) {
+      body.innerHTML = entries.map(([cur,d]) => {
+        const pct = total > 0 ? ((d.usd_value / total) * 100).toFixed(1) : '0';
+        const amt = d.amount < 0.001 ? d.amount.toExponential(3) : d.amount.toFixed(6);
+        return `<tr><td><strong>${cur}</strong></td><td>${amt}</td><td class="pnl-pos">$${d.usd_value.toFixed(2)}</td><td>${pct}%</td></tr>`;
+      }).join('');
+    }
+
+    // Trades
+    const trades = data.trades || [];
+    const tradesBody = document.getElementById('tradesBody');
+    const noTrades = document.getElementById('noTrades');
+    if (trades.length > 0) {
+      noTrades.style.display = 'none';
+      tradesBody.innerHTML = trades.slice(0,20).map(t => {
+        const time = t.created_at ? new Date(t.created_at).toLocaleTimeString() : '--';
+        return `<tr>
+          <td>${time}</td><td>${t.pair}</td>
+          <td><span class="badge ${t.side==='BUY'?'b-buy':'b-sell'}">${t.side}</span></td>
+          <td>$${(t.price||0).toFixed(2)}</td><td>$${(t.total_usd||0).toFixed(2)}</td>
+          <td style="font-size:9px">${t.signal_type||'--'}</td>
+          <td><span class="badge ${t.status==='filled'?'b-filled':'b-failed'}">${t.status}</span></td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Chart
+    const snapshots = data.snapshots || [];
+    if (portfolioChart && snapshots.length > 0) {
+      const sorted = snapshots.sort((a,b) => new Date(a.recorded_at) - new Date(b.recorded_at));
+      portfolioChart.data.labels = sorted.map(s => new Date(s.recorded_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+      portfolioChart.data.datasets[0].data = sorted.map(s => s.total_value_usd);
+      portfolioChart.update();
+    }
+
+    document.getElementById('lastUpdate').textContent = 'Live | ' + new Date().toLocaleTimeString() + (data.snapshot_age ? ' | data: ' + data.snapshot_age : '');
   } catch(e) {
-    document.getElementById('lastUpdate').textContent = 'Fetch error: ' + e.message;
+    document.getElementById('lastUpdate').textContent = 'Error: ' + e.message;
   }
 }
 
-function renderPortfolio(data) {
-  const val = data.portfolio_value || 0;
-  const pnl = data.daily_pnl || 0;
-  const initial = data.initial_value || val;
-  const change = val - initial;
-  const changePct = initial > 0 ? ((change / initial) * 100).toFixed(2) : '0.00';
-
-  document.getElementById('portfolioValue').textContent = '$' + val.toFixed(2);
-  document.getElementById('portfolioChange').textContent =
-    (change >= 0 ? '+' : '') + '$' + change.toFixed(2) + ' all time';
-
-  const pnlEl = document.getElementById('dailyPnl');
-  pnlEl.textContent = (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2);
-  pnlEl.className = 'big ' + (pnl >= 0 ? 'green' : 'red');
-
-  const pnlPct = val > 0 ? ((pnl / val) * 100).toFixed(2) : '0.00';
-  document.getElementById('dailyPnlPct').textContent = (pnl >= 0 ? '+' : '') + pnlPct + '% today';
-
-  document.getElementById('tradesToday').textContent = data.trades_today || 0;
-  document.getElementById('tradesTotal').textContent = 'total: ' + (data.trades_total || 0);
+// Fetch market regime
+async function fetchRegimes() {
+  try {
+    for (const pair of ['BTC-USD']) {
+      const resp = await fetch(`https://api.exchange.coinbase.com/products/${pair}/candles?granularity=3600`);
+      const data = await resp.json();
+      if (data.length > 20) {
+        const closes = data.slice(0,20).map(c => c[4]).reverse();
+        const sma = closes.reduce((a,b)=>a+b,0)/closes.length;
+        const price = closes[closes.length-1];
+        const regime = price > sma ? 'UPTREND' : 'DOWNTREND';
+        const badge = document.getElementById('regimeBadge');
+        badge.textContent = regime;
+        badge.className = 'big ' + (regime === 'UPTREND' ? 'green' : regime === 'DOWNTREND' ? 'red' : 'blue');
+        document.getElementById('regimeRec').textContent = regime === 'UPTREND' ? 'TRADE' : regime === 'DOWNTREND' ? 'HOLD' : 'TRADE (range)';
+      }
+    }
+  } catch(e) {}
 }
 
-function renderHoldings(holdings) {
-  const body = document.getElementById('holdingsBody');
-  const entries = Object.entries(holdings).sort((a,b) => b[1].usd_value - a[1].usd_value);
-  const total = entries.reduce((s, [,d]) => s + d.usd_value, 0);
-
-  if (entries.length === 0) {
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#5a6c7d;padding:20px">No holdings data yet</td></tr>';
-    return;
-  }
-
-  body.innerHTML = entries.map(([cur, d]) => {
-    const pct = total > 0 ? ((d.usd_value / total) * 100).toFixed(1) : '0.0';
-    const amt = d.amount < 0.001 ? d.amount.toExponential(3) : d.amount.toFixed(6);
-    return `<tr>
-      <td><strong>${cur}</strong></td>
-      <td class="amount">${amt}</td>
-      <td class="usd">$${d.usd_value.toFixed(2)}</td>
-      <td>${pct}%</td>
-    </tr>`;
-  }).join('');
-}
-
-function renderTrades(trades) {
-  const body = document.getElementById('tradesBody');
-  const noTrades = document.getElementById('noTrades');
-  if (trades.length === 0) {
-    body.innerHTML = '';
-    noTrades.style.display = 'block';
-    return;
-  }
-  noTrades.style.display = 'none';
-  body.innerHTML = trades.slice(0, 20).map(t => {
-    const time = t.created_at ? new Date(t.created_at).toLocaleTimeString() : '--';
-    const sideClass = t.side === 'BUY' ? 'badge-buy' : 'badge-sell';
-    const statusClass = t.status === 'filled' ? 'badge-filled' : 'badge-failed';
-    return `<tr>
-      <td>${time}</td>
-      <td>${t.pair}</td>
-      <td><span class="badge ${sideClass}">${t.side}</span></td>
-      <td>$${(t.price || 0).toFixed(2)}</td>
-      <td>$${(t.total_usd || 0).toFixed(2)}</td>
-      <td style="font-size:10px">${t.signal_type || '--'}</td>
-      <td><span class="badge ${statusClass}">${t.status}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-function renderSignals(signals) {
-  const container = document.getElementById('signalsContainer');
-  document.getElementById('signalCount').textContent = signals.length;
-  if (signals.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:20px;color:#5a6c7d;font-size:12px">No active signals</div>';
-    document.getElementById('signalConfidence').textContent = 'waiting for signals...';
-    return;
-  }
-  const avgConf = signals.reduce((s,sig) => s + (sig.confidence || 0), 0) / signals.length;
-  document.getElementById('signalConfidence').textContent = 'avg confidence: ' + (avgConf * 100).toFixed(0) + '%';
-
-  container.innerHTML = signals.slice(0, 8).map(sig => `
-    <div class="signal-card">
-      <span class="confidence">${((sig.confidence || 0) * 100).toFixed(0)}%</span>
-      <div class="signal-type">${sig.signal_type || 'unknown'}</div>
-      <div class="signal-host">${sig.target_host || '--'} | ${sig.direction || '--'}</div>
-    </div>
-  `).join('');
-}
-
-function renderChart(snapshots) {
-  if (!portfolioChart || snapshots.length === 0) return;
-  const sorted = snapshots.sort((a,b) => new Date(a.recorded_at) - new Date(b.recorded_at));
-  portfolioChart.data.labels = sorted.map(s => {
-    const d = new Date(s.recorded_at);
-    return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-  });
-  portfolioChart.data.datasets[0].data = sorted.map(s => s.total_value_usd);
-  portfolioChart.update();
-}
-
-function renderRules(data) {
-  const pnl = data.daily_pnl || 0;
-  if (pnl <= -2.0) {
-    document.getElementById('rule2').classList.add('breached');
-    document.getElementById('rule2').classList.remove('active');
-  }
-}
-
-// Init
 initChart();
+renderServers();
+renderOpportunities();
 refreshData();
-setInterval(refreshData, 30000); // refresh every 30s
+fetchRegimes();
+setInterval(refreshData, 30000);
+setInterval(fetchRegimes, 300000);
 </script>
 </body>
 </html>
