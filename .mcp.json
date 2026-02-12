@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "nettrace": {
+      "command": "python3",
+      "args": ["mcp_server.py"],
+      "cwd": "/Users/scott/traceroute-dashboard",
+      "env": {
+        "FLY_AGENT_URL": "wss://nettrace-dashboard.fly.dev",
+        "MCP_AGENT_SECRET": ""
+      }
+    }
+  }
+}

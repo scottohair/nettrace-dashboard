@@ -143,8 +143,8 @@ class QuantEngine:
 
         signals = []
         for row in rows:
-            rtt_delta = row["rtt_delta"]
-            if rtt_delta is not None and abs(float(rtt_delta)) < 1.0:
+            rtt_delta = float(row["rtt_delta"]) if row["rtt_delta"] is not None else None
+            if rtt_delta is not None and abs(rtt_delta) < 1.0:
                 continue
 
             if rtt_delta is None:
@@ -152,10 +152,10 @@ class QuantEngine:
                 confidence = 0.55
             elif rtt_delta >= 0:
                 direction = "latency_up"
-                confidence = min(0.99, 0.55 + abs(float(rtt_delta)) / 80.0)
+                confidence = min(0.99, 0.55 + abs(rtt_delta) / 80.0)
             else:
                 direction = "latency_down"
-                confidence = min(0.99, 0.55 + abs(float(rtt_delta)) / 80.0)
+                confidence = min(0.99, 0.55 + abs(rtt_delta) / 80.0)
 
             signals.append(
                 {
