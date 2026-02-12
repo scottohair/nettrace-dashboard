@@ -294,7 +294,9 @@ def execute_scan(scan_id, host, user_id, sid=None):
 def index():
     return render_template("index.html",
                            stripe_pk=STRIPE_PUBLISHABLE_KEY,
-                           price_id=STRIPE_PRICE_ID)
+                           price_id=STRIPE_PRICE_ID,
+                           stripe_live=bool(stripe.api_key and STRIPE_PRICE_ID),
+                           crypto_live=bool(COINBASE_COMMERCE_API_KEY))
 
 
 @app.route("/api/register", methods=["POST"])

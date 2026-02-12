@@ -165,14 +165,19 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
           <li>Geolocated route mapping</li>
           <li>Scan history & export</li>
         </ul>
+        {% if stripe_live %}
         <div id="apple-pay-btn" style="margin-bottom:10px;min-height:44px"></div>
         <button class="btn btn-stripe" onclick="subscribe()" style="width:100%;padding:10px;font-size:13px" id="fallback-subscribe">Pay with Card / Apple Pay / Cash App / PayPal</button>
-        <button class="btn" onclick="cryptoCheckout()" style="width:100%;padding:10px;font-size:13px;margin-top:6px;border-color:#f7931a;color:#f7931a;background:#f7931a11">Pay with Crypto</button>
-        <div style="display:flex;gap:6px;justify-content:center;margin-top:10px;opacity:.5;flex-wrap:wrap">
+        <div style="display:flex;gap:6px;justify-content:center;margin-top:8px;opacity:.5;flex-wrap:wrap">
           <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Apple Pay</span>
           <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Cash App</span>
           <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">PayPal</span>
           <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Card</span>
+        </div>
+        {% endif %}
+        {% if crypto_live %}
+        <button class="btn" onclick="cryptoCheckout()" style="width:100%;padding:10px;font-size:13px;margin-top:8px;border-color:#f7931a;color:#f7931a;background:#f7931a11">Pay with Crypto</button>
+        <div style="display:flex;gap:6px;justify-content:center;margin-top:8px;opacity:.5;flex-wrap:wrap">
           <span style="font-size:8px;border:1px solid #f7931a44;padding:2px 5px;border-radius:3px;color:#f7931a">BTC</span>
           <span style="font-size:8px;border:1px solid #627eea44;padding:2px 5px;border-radius:3px;color:#627eea">ETH</span>
           <span style="font-size:8px;border:1px solid #2775ca44;padding:2px 5px;border-radius:3px;color:#2775ca">USDC</span>
@@ -180,6 +185,10 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
           <span style="font-size:8px;border:1px solid #00aae444;padding:2px 5px;border-radius:3px;color:#00aae4">XRP</span>
           <span style="font-size:8px;border:1px solid #c3a63444;padding:2px 5px;border-radius:3px;color:#c3a634">DOGE</span>
         </div>
+        {% endif %}
+        {% if not stripe_live and not crypto_live %}
+        <div style="font-size:11px;color:#374151;padding:10px;text-align:center">Payments coming soon</div>
+        {% endif %}
       </div>
     </div>
 
