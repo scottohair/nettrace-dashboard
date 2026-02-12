@@ -32,6 +32,7 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
 .btn-stripe{background:linear-gradient(135deg,#635bff22,#635bff44);border-color:#635bff;color:#a78bfa}
 .btn-stripe:hover{background:#635bff44}
 .main{display:grid;grid-template-columns:320px 1fr;grid-template-rows:55vh 1fr;height:calc(100vh - 56px)}
+.past-due-banner:not(.hidden)~.main{height:calc(100vh - 56px - 30px)}
 .sidebar{grid-row:1/3;background:#0d1321;border-right:1px solid #1e3a5f;overflow-y:auto;display:flex;flex-direction:column}
 .sidebar::-webkit-scrollbar{width:5px}
 .sidebar::-webkit-scrollbar-track{background:#0d1321}
@@ -48,6 +49,34 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
 .modal .switch{text-align:center;font-size:11px;color:#5a6c7d;cursor:pointer}
 .modal .switch a{color:#00d4ff;text-decoration:none}
 .hidden{display:none!important}
+
+/* Toast */
+.toast-container{position:fixed;top:70px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast{padding:10px 16px;border-radius:6px;font-size:12px;font-family:inherit;animation:toastIn .3s ease;max-width:340px;border:1px solid #1e3a5f;background:#0d1321;color:#c8d6e5}
+.toast-success{border-color:#00ff8866;background:#00ff8811;color:#00ff88}
+.toast-error{border-color:#ef444466;background:#ef444411;color:#ef4444}
+.toast-warning{border-color:#f59e0b66;background:#f59e0b11;color:#f59e0b}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+
+/* Past due banner */
+.past-due-banner{background:#f59e0b18;border-bottom:1px solid #f59e0b44;padding:6px 20px;font-size:11px;color:#f59e0b;text-align:center}
+
+/* Settings Modal */
+.settings-modal{width:400px;max-width:90vw;max-height:85vh;overflow-y:auto}
+.settings-section{margin-bottom:18px}
+.settings-section h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#5a6c7d;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #1e3a5f}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px}
+.settings-label{color:#5a6c7d}
+.settings-value{color:#c8d6e5}
+.status-badge{padding:3px 8px;border-radius:3px;font-size:10px;font-weight:600}
+.status-active{background:#00ff8822;color:#00ff88;border:1px solid #00ff8844}
+.status-past-due{background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44}
+.status-cancelled{background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44}
+.status-expired{background:#ef444422;color:#ef4444;border:1px solid #ef444444}
+.status-inactive{background:#37415122;color:#5a6c7d;border:1px solid #37415144}
+.crypto-warning{background:#f59e0b11;border:1px solid #f59e0b33;border-radius:4px;padding:8px;font-size:11px;color:#f59e0b;margin-top:8px}
+.settings-actions{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.btn-settings{width:100%;padding:8px;font-size:12px}
 
 /* Paywall */
 .paywall{padding:20px;text-align:center}
@@ -117,6 +146,9 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
 </head>
 <body>
 
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
+
 <!-- Auth Modal -->
 <div id="auth-modal" class="modal-overlay hidden">
   <div class="modal">
@@ -128,6 +160,31 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
     <div class="switch">
       <span id="auth-switch-text">No account? </span>
       <a href="#" id="auth-switch" onclick="toggleAuthMode(event)">Register</a>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" class="modal-overlay hidden" onclick="if(event.target===this)hideSettings()">
+  <div class="modal settings-modal">
+    <h2>Settings</h2>
+    <div class="settings-section">
+      <h3>Account</h3>
+      <div class="settings-row"><span class="settings-label">Username</span><span class="settings-value" id="set-username">-</span></div>
+      <div class="settings-row"><span class="settings-label">Member since</span><span class="settings-value" id="set-created">-</span></div>
+    </div>
+    <div class="settings-section">
+      <h3>Subscription</h3>
+      <div class="settings-row"><span class="settings-label">Status</span><span id="set-status-badge"></span></div>
+      <div class="settings-row"><span class="settings-label">Payment</span><span class="settings-value" id="set-payment">-</span></div>
+      <div class="settings-row"><span class="settings-label">Renewal</span><span class="settings-value" id="set-renewal">-</span></div>
+      <div id="set-crypto-warning" class="crypto-warning hidden"></div>
+    </div>
+    <div class="settings-actions">
+      <button id="set-btn-billing" class="btn btn-stripe btn-settings hidden" onclick="manageBilling()">Manage Billing</button>
+      <button id="set-btn-renew" class="btn btn-settings hidden" onclick="cryptoCheckout()" style="border-color:#f7931a;color:#f7931a;background:#f7931a11">Renew with Crypto</button>
+      <button id="set-btn-cancel" class="btn btn-danger btn-settings hidden" onclick="cancelSubscription()">Cancel Subscription</button>
+      <button class="btn btn-settings" onclick="doLogout();hideSettings()">Sign Out</button>
     </div>
   </div>
 </div>
@@ -144,19 +201,21 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
     <div class="user-area">
       <span id="user-badge" class="user-badge hidden"></span>
       <span id="sub-badge" class="sub-badge hidden">PRO</span>
-      <button id="btn-billing" class="btn btn-stripe hidden" onclick="manageBilling()">Billing</button>
+      <button id="btn-settings" class="btn hidden" onclick="showSettings()">Settings</button>
       <button id="btn-auth" class="btn btn-primary" onclick="showAuth()">Sign In</button>
-      <button id="btn-logout" class="btn btn-danger hidden" onclick="doLogout()">Logout</button>
     </div>
   </div>
 </div>
+
+<div id="past-due-banner" class="past-due-banner hidden">Payment issue detected. Please update your payment method.</div>
 
 <div class="main">
   <div class="sidebar">
     <!-- Paywall (shown when logged in but not subscribed) -->
     <div id="paywall-section" class="hidden">
       <div class="paywall">
-        <h3>Unlock Scanning</h3>
+        <h3 id="paywall-title">Unlock Scanning</h3>
+        <p id="paywall-subtitle" class="hidden" style="color:#ef4444;font-size:12px;margin-bottom:10px"></p>
         <div class="price">$20<span style="font-size:12px;color:#5a6c7d">/mo</span></div>
         <div class="price-sub">Cancel anytime</div>
         <ul class="features">
@@ -239,6 +298,7 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
 const STRIPE_PK = "{{ stripe_pk }}";
 let DATA=[], userScans=[], currentUser=null, isSubscribed=false;
 let socket=null, wsId=null, authMode="login";
+let userMeta = {};
 
 const catColors = {
   "Quant APIs":{line:"#a855f7",css:"cat-quant"},
@@ -251,6 +311,16 @@ const map = L.map("map",{center:[38,-40],zoom:3,zoomControl:false,attributionCon
 L.control.zoom({position:"topright"}).addTo(map);
 L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:19}).addTo(map);
 let routeLayers=L.layerGroup().addTo(map), bgLayers=L.layerGroup().addTo(map);
+
+// ── Toast ──
+function showToast(msg, type="success", duration=5000){
+  const c=document.getElementById("toast-container");
+  const t=document.createElement("div");
+  t.className="toast toast-"+type;
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.opacity="0";t.style.transition="opacity .3s";setTimeout(()=>t.remove(),300)},duration);
+}
 
 // ── Auth ──
 function showAuth(){document.getElementById("auth-modal").classList.remove("hidden")}
@@ -276,30 +346,138 @@ async function submitAuth(){
 }
 async function doLogout(){
   await fetch("/api/logout",{method:"POST"});
-  currentUser=null; isSubscribed=false;
+  currentUser=null; isSubscribed=false; userMeta={};
   document.getElementById("btn-auth").classList.remove("hidden");
-  ["btn-logout","user-badge","sub-badge","scan-section","paywall-section","btn-billing"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  ["user-badge","sub-badge","scan-section","paywall-section","btn-settings"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  document.getElementById("past-due-banner").classList.add("hidden");
   userScans=[]; buildSidebar("all");
+}
+
+async function fetchUserMeta(){
+  try{
+    const res=await fetch("/api/me");
+    const d=await res.json();
+    if(d.authenticated){
+      userMeta=d;
+      currentUser=d.username;
+      isSubscribed=d.subscribed;
+    }
+    return d;
+  }catch(e){return{}}
 }
 
 function onLogin(){
   document.getElementById("btn-auth").classList.add("hidden");
-  document.getElementById("btn-logout").classList.remove("hidden");
+  document.getElementById("btn-settings").classList.remove("hidden");
   document.getElementById("user-badge").textContent=currentUser;
   document.getElementById("user-badge").classList.remove("hidden");
+
+  // Past due banner
+  if(userMeta.subscription_status==="past_due"){
+    document.getElementById("past-due-banner").classList.remove("hidden");
+  } else {
+    document.getElementById("past-due-banner").classList.add("hidden");
+  }
+
   if(isSubscribed){
     document.getElementById("sub-badge").classList.remove("hidden");
     document.getElementById("scan-section").classList.remove("hidden");
     document.getElementById("paywall-section").classList.add("hidden");
-    document.getElementById("btn-billing").classList.remove("hidden");
     connectSocket(); loadMyScans();
   } else {
     document.getElementById("sub-badge").classList.add("hidden");
     document.getElementById("scan-section").classList.add("hidden");
     document.getElementById("paywall-section").classList.remove("hidden");
-    document.getElementById("btn-billing").classList.add("hidden");
+    // Expired crypto paywall
+    const st=userMeta.subscription_status;
+    if(st==="expired"||st==="cancelled"){
+      document.getElementById("paywall-title").textContent="Subscription Expired";
+      const sub=document.getElementById("paywall-subtitle");
+      sub.textContent="Renew to restore your Pro access.";
+      sub.classList.remove("hidden");
+    } else {
+      document.getElementById("paywall-title").textContent="Unlock Scanning";
+      document.getElementById("paywall-subtitle").classList.add("hidden");
+    }
     mountApplePay();
   }
+}
+
+// ── Settings ──
+function showSettings(){
+  fetchUserMeta().then(()=>{
+    const m=userMeta;
+    document.getElementById("set-username").textContent=m.username||"-";
+    document.getElementById("set-created").textContent=m.created_at?new Date(m.created_at).toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"}):"-";
+
+    // Status badge
+    const sb=document.getElementById("set-status-badge");
+    const st=m.subscription_status||"none";
+    const labels={"active":"Active","trialing":"Trialing","past_due":"Past Due","cancelled":"Cancelled","expired":"Expired","canceled":"Cancelled"};
+    const classes={"active":"status-active","trialing":"status-active","past_due":"status-past-due","cancelled":"status-cancelled","canceled":"status-cancelled","expired":"status-expired"};
+    sb.textContent=labels[st]||"Inactive";
+    sb.className="status-badge "+(classes[st]||"status-inactive");
+
+    // Payment method
+    const pm=m.payment_method||"none";
+    const pmLabels={"stripe":"Card","crypto":"Crypto","none":"-"};
+    document.getElementById("set-payment").textContent=pmLabels[pm]||pm;
+
+    // Renewal info
+    const renewEl=document.getElementById("set-renewal");
+    if(pm==="stripe"&&(st==="active"||st==="trialing"||st==="past_due")){
+      renewEl.textContent="Auto-renews monthly";
+    } else if(pm==="crypto"&&m.subscription_expires_at){
+      renewEl.textContent="Expires "+new Date(m.subscription_expires_at).toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"});
+    } else {
+      renewEl.textContent="-";
+    }
+
+    // Crypto expiry warning
+    const cw=document.getElementById("set-crypto-warning");
+    if(pm==="crypto"&&m.subscription_expires_at&&(st==="active"||st==="cancelled")){
+      const days=Math.ceil((new Date(m.subscription_expires_at)-Date.now())/(1000*60*60*24));
+      if(days<=7&&days>0){
+        cw.textContent="Your subscription expires in "+days+" day"+(days===1?"":"s")+". Renew to keep access.";
+        cw.classList.remove("hidden");
+      } else if(days<=0){
+        cw.textContent="Your subscription has expired.";
+        cw.classList.remove("hidden");
+      } else {
+        cw.classList.add("hidden");
+      }
+    } else {
+      cw.classList.add("hidden");
+    }
+
+    // Action buttons
+    document.getElementById("set-btn-billing").classList.toggle("hidden",!(pm==="stripe"&&m.has_stripe_billing));
+    document.getElementById("set-btn-renew").classList.toggle("hidden",!(pm==="crypto"||st==="expired"||st==="cancelled"||st==="none"));
+    document.getElementById("set-btn-cancel").classList.toggle("hidden",!(st==="active"||st==="trialing"||st==="past_due"));
+
+    document.getElementById("settings-modal").classList.remove("hidden");
+  });
+}
+function hideSettings(){document.getElementById("settings-modal").classList.add("hidden")}
+
+async function cancelSubscription(){
+  if(!confirm("Cancel your subscription?"))return;
+  try{
+    const res=await fetch("/api/cancel-subscription",{method:"POST"});
+    const data=await res.json();
+    if(data.use_portal){
+      manageBilling();
+      return;
+    }
+    if(data.ok){
+      showToast(data.message||"Subscription cancelled","success");
+      hideSettings();
+      await fetchUserMeta();
+      onLogin();
+    } else {
+      showToast(data.error||"Could not cancel","error");
+    }
+  }catch(e){showToast("Network error","error")}
 }
 
 // ── Stripe ──
@@ -336,9 +514,8 @@ function mountApplePay(){
     }
   });
   paymentRequest.on("paymentmethod", async (ev) => {
-    // Use Checkout flow with the payment method
     ev.complete("success");
-    subscribe(); // redirect to Stripe Checkout which accepts Apple Pay
+    subscribe();
   });
 }
 async function cryptoCheckout(){
@@ -358,10 +535,33 @@ async function manageBilling(){
   }catch(e){alert("Network error")}
 }
 
-// Check for subscription success redirect
-if(new URLSearchParams(window.location.search).get("subscription")==="success"){
-  history.replaceState(null,"","/");
-}
+// ── Checkout return handling ──
+(function(){
+  const params=new URLSearchParams(window.location.search);
+  const subParam=params.get("subscription");
+  if(subParam){
+    history.replaceState(null,"","/");
+    if(subParam==="success"){
+      showToast("Payment received! Activating your subscription...","success",8000);
+      let attempts=0;
+      const poll=setInterval(async()=>{
+        attempts++;
+        if(attempts>20){clearInterval(poll);return}
+        try{
+          const res=await fetch("/api/me");const d=await res.json();
+          if(d.subscribed){
+            clearInterval(poll);
+            userMeta=d; currentUser=d.username; isSubscribed=true;
+            showToast("Subscription active! You can now run scans.","success");
+            onLogin();
+          }
+        }catch(e){}
+      },3000);
+    } else if(subParam==="cancelled"){
+      showToast("Checkout cancelled","warning");
+    }
+  }
+})();
 
 // ── WebSocket ──
 function connectSocket(){
@@ -467,7 +667,13 @@ document.getElementById("auth-pass").addEventListener("keydown",e=>{if(e.key==="
 document.getElementById("auth-modal").addEventListener("click",e=>{if(e.target===e.currentTarget)hideAuth()});
 
 async function init(){
-  try{const res=await fetch("/api/me");const d=await res.json();if(d.authenticated){currentUser=d.username;isSubscribed=d.subscribed;onLogin()}}catch(e){}
+  try{
+    const res=await fetch("/api/me");const d=await res.json();
+    if(d.authenticated){
+      userMeta=d; currentUser=d.username; isSubscribed=d.subscribed;
+      onLogin();
+    }
+  }catch(e){}
   try{const res=await fetch("/api/demo");DATA=await res.json()}catch(e){DATA=[]}
   updateStats();buildSidebar("all");drawBgRoutes();
 }

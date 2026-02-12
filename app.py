@@ -10,6 +10,7 @@ import secrets
 import time
 import urllib.request
 import threading
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import stripe
@@ -106,6 +107,14 @@ def init_db():
         db.execute("ALTER TABLE users ADD COLUMN subscription_status TEXT DEFAULT 'none'")
     except sqlite3.OperationalError:
         pass
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN subscription_expires_at TIMESTAMP")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN payment_method TEXT DEFAULT 'none'")
+    except sqlite3.OperationalError:
+        pass
     db.close()
 
 
@@ -114,15 +123,30 @@ def init_db():
 # ---------------------------------------------------------------------------
 
 class User(UserMixin):
-    def __init__(self, id, username, subscription_status="none", stripe_customer_id=None):
+    def __init__(self, id, username, subscription_status="none",
+                 stripe_customer_id=None, payment_method="none",
+                 subscription_expires_at=None, created_at=None):
         self.id = id
         self.username = username
         self.subscription_status = subscription_status
         self.stripe_customer_id = stripe_customer_id
+        self.payment_method = payment_method or "none"
+        self.subscription_expires_at = subscription_expires_at
+        self.created_at = created_at
 
     @property
     def is_subscribed(self):
-        return self.subscription_status in ("active", "trialing")
+        if self.subscription_status in ("active", "trialing", "past_due"):
+            if self.payment_method == "crypto" and self.subscription_expires_at:
+                try:
+                    exp = datetime.fromisoformat(self.subscription_expires_at)
+                    if exp.tzinfo is None:
+                        exp = exp.replace(tzinfo=timezone.utc)
+                    return datetime.now(timezone.utc) < exp
+                except (ValueError, TypeError):
+                    return False
+            return True
+        return False
 
 
 @login_manager.user_loader
@@ -134,8 +158,30 @@ def load_user(user_id):
     if row:
         return User(row["id"], row["username"],
                     row["subscription_status"] or "none",
-                    row["stripe_customer_id"])
+                    row["stripe_customer_id"],
+                    row["payment_method"] if "payment_method" in row.keys() else "none",
+                    row["subscription_expires_at"] if "subscription_expires_at" in row.keys() else None,
+                    row["created_at"] if "created_at" in row.keys() else None)
     return None
+
+
+def check_and_expire_crypto(user_id):
+    """If a crypto user's subscription has expired, flip status to 'expired'."""
+    db = sqlite3.connect(DB_PATH)
+    db.row_factory = sqlite3.Row
+    row = db.execute("SELECT payment_method, subscription_status, subscription_expires_at FROM users WHERE id=?",
+                     (user_id,)).fetchone()
+    if row and row["payment_method"] == "crypto" and row["subscription_status"] in ("active",) and row["subscription_expires_at"]:
+        try:
+            exp = datetime.fromisoformat(row["subscription_expires_at"])
+            if exp.tzinfo is None:
+                exp = exp.replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) >= exp:
+                db.execute("UPDATE users SET subscription_status='expired' WHERE id=?", (user_id,))
+                db.commit()
+        except (ValueError, TypeError):
+            pass
+    db.close()
 
 
 def require_subscription(f):
@@ -145,6 +191,7 @@ def require_subscription(f):
     def decorated(*args, **kwargs):
         if not current_user.is_authenticated:
             return jsonify({"error": "Login required"}), 401
+        check_and_expire_crypto(current_user.id)
         if not current_user.is_subscribed:
             return jsonify({"error": "Active subscription required", "needs_subscription": True}), 403
         return f(*args, **kwargs)
@@ -338,7 +385,10 @@ def login():
 
     user = User(row["id"], row["username"],
                 row["subscription_status"] or "none",
-                row["stripe_customer_id"])
+                row["stripe_customer_id"],
+                row["payment_method"] if "payment_method" in row.keys() else "none",
+                row["subscription_expires_at"] if "subscription_expires_at" in row.keys() else None,
+                row["created_at"] if "created_at" in row.keys() else None)
     login_user(user)
     return jsonify({"ok": True, "username": username, "subscribed": user.is_subscribed})
 
@@ -353,8 +403,27 @@ def logout():
 @app.route("/api/me")
 def me():
     if current_user.is_authenticated:
-        return jsonify({"authenticated": True, "username": current_user.username,
-                        "subscribed": current_user.is_subscribed})
+        check_and_expire_crypto(current_user.id)
+        # Reload user to get fresh status after possible expiry
+        db = get_db()
+        row = db.execute("SELECT * FROM users WHERE id=?", (current_user.id,)).fetchone()
+        pm = row["payment_method"] if row and "payment_method" in row.keys() else "none"
+        status = row["subscription_status"] if row else "none"
+        expires = row["subscription_expires_at"] if row and "subscription_expires_at" in row.keys() else None
+        created = row["created_at"] if row and "created_at" in row.keys() else None
+        cust_id = row["stripe_customer_id"] if row else None
+        user = User(current_user.id, current_user.username, status or "none",
+                    cust_id, pm, expires, created)
+        return jsonify({
+            "authenticated": True,
+            "username": user.username,
+            "subscribed": user.is_subscribed,
+            "subscription_status": user.subscription_status,
+            "payment_method": user.payment_method,
+            "created_at": user.created_at,
+            "subscription_expires_at": expires if pm == "crypto" else None,
+            "has_stripe_billing": bool(cust_id),
+        })
     return jsonify({"authenticated": False})
 
 
@@ -439,8 +508,11 @@ def coinbase_webhook():
     if event_type == "charge:confirmed":
         user_id = data.get("metadata", {}).get("user_id")
         if user_id:
+            expires = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
             db = sqlite3.connect(DB_PATH)
-            db.execute("UPDATE users SET subscription_status='active' WHERE id=?", (int(user_id),))
+            db.execute(
+                "UPDATE users SET subscription_status='active', payment_method='crypto', subscription_expires_at=? WHERE id=?",
+                (expires, int(user_id)))
             db.commit()
             db.close()
 
@@ -466,6 +538,29 @@ def manage_billing():
     return jsonify({"portal_url": portal.url})
 
 
+@app.route("/api/cancel-subscription", methods=["POST"])
+@login_required
+def cancel_subscription():
+    db = get_db()
+    row = db.execute("SELECT payment_method, stripe_customer_id FROM users WHERE id=?",
+                     (current_user.id,)).fetchone()
+    if not row:
+        return jsonify({"error": "User not found"}), 404
+
+    pm = row["payment_method"] if "payment_method" in row.keys() else "none"
+
+    if pm == "stripe":
+        return jsonify({"use_portal": True})
+
+    if pm == "crypto":
+        db.execute("UPDATE users SET subscription_status='cancelled' WHERE id=?",
+                   (current_user.id,))
+        db.commit()
+        return jsonify({"ok": True, "message": "Subscription cancelled. Access continues until expiry date."})
+
+    return jsonify({"error": "No active subscription to cancel"}), 400
+
+
 @app.route("/api/stripe-webhook", methods=["POST"])
 def stripe_webhook():
     payload = request.get_data()
@@ -489,7 +584,7 @@ def stripe_webhook():
         status = data_obj.get("status", "none")
         if customer_id:
             db = sqlite3.connect(DB_PATH)
-            db.execute("UPDATE users SET subscription_status=? WHERE stripe_customer_id=?",
+            db.execute("UPDATE users SET subscription_status=?, payment_method='stripe', subscription_expires_at=NULL WHERE stripe_customer_id=?",
                        (status, customer_id))
             db.commit()
             db.close()
@@ -499,7 +594,7 @@ def stripe_webhook():
         user_id = data_obj.get("metadata", {}).get("nettrace_user_id")
         if customer_id and user_id:
             db = sqlite3.connect(DB_PATH)
-            db.execute("UPDATE users SET stripe_customer_id=?, subscription_status='active' WHERE id=?",
+            db.execute("UPDATE users SET stripe_customer_id=?, subscription_status='active', payment_method='stripe', subscription_expires_at=NULL WHERE id=?",
                        (customer_id, int(user_id)))
             db.commit()
             db.close()
