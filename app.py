@@ -384,9 +384,9 @@ def create_checkout():
                    (customer_id, current_user.id))
         db.commit()
 
+    # Use automatic_payment_methods to only offer what's enabled in Stripe dashboard
     checkout_session = stripe.checkout.Session.create(
         customer=customer_id,
-        payment_method_types=["card", "cashapp", "paypal"],  # Apple Pay via card, + Cash App + PayPal
         line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
         mode="subscription",
         success_url=APP_URL + "/?subscription=success",
@@ -581,8 +581,9 @@ def ws_connect():
 # Main
 # ---------------------------------------------------------------------------
 
+init_db()
+
 if __name__ == "__main__":
-    init_db()
     port = int(os.environ.get("PORT", 12034))
     print(f">>> NetTrace running at http://localhost:{port}")
     if not stripe.api_key:
