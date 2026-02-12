@@ -166,8 +166,20 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
           <li>Scan history & export</li>
         </ul>
         <div id="apple-pay-btn" style="margin-bottom:10px;min-height:44px"></div>
-        <button class="btn btn-stripe" onclick="subscribe()" style="width:100%;padding:10px;font-size:13px" id="fallback-subscribe">Subscribe with Card</button>
-        <div style="font-size:9px;color:#374151;margin-top:8px;text-align:center">Apple Pay shown on supported devices</div>
+        <button class="btn btn-stripe" onclick="subscribe()" style="width:100%;padding:10px;font-size:13px" id="fallback-subscribe">Pay with Card / Apple Pay / Cash App / PayPal</button>
+        <button class="btn" onclick="cryptoCheckout()" style="width:100%;padding:10px;font-size:13px;margin-top:6px;border-color:#f7931a;color:#f7931a;background:#f7931a11">Pay with Crypto</button>
+        <div style="display:flex;gap:6px;justify-content:center;margin-top:10px;opacity:.5;flex-wrap:wrap">
+          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Apple Pay</span>
+          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Cash App</span>
+          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">PayPal</span>
+          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Card</span>
+          <span style="font-size:8px;border:1px solid #f7931a44;padding:2px 5px;border-radius:3px;color:#f7931a">BTC</span>
+          <span style="font-size:8px;border:1px solid #627eea44;padding:2px 5px;border-radius:3px;color:#627eea">ETH</span>
+          <span style="font-size:8px;border:1px solid #2775ca44;padding:2px 5px;border-radius:3px;color:#2775ca">USDC</span>
+          <span style="font-size:8px;border:1px solid #345d9d44;padding:2px 5px;border-radius:3px;color:#345d9d">SOL</span>
+          <span style="font-size:8px;border:1px solid #00aae444;padding:2px 5px;border-radius:3px;color:#00aae4">XRP</span>
+          <span style="font-size:8px;border:1px solid #c3a63444;padding:2px 5px;border-radius:3px;color:#c3a634">DOGE</span>
+        </div>
       </div>
     </div>
 
@@ -319,6 +331,14 @@ function mountApplePay(){
     ev.complete("success");
     subscribe(); // redirect to Stripe Checkout which accepts Apple Pay
   });
+}
+async function cryptoCheckout(){
+  try{
+    const res=await fetch("/api/create-crypto-checkout",{method:"POST",headers:{"Content-Type":"application/json"}});
+    const data=await res.json();
+    if(data.checkout_url) window.location.href=data.checkout_url;
+    else alert(data.error||"Could not start crypto checkout");
+  }catch(e){alert("Network error")}
 }
 async function manageBilling(){
   try{

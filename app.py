@@ -42,6 +42,7 @@ stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_PRICE_ID = os.environ.get("STRIPE_PRICE_ID", "")  # $20/mo recurring price
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+COINBASE_COMMERCE_API_KEY = os.environ.get("COINBASE_COMMERCE_API_KEY", "")
 APP_URL = os.environ.get("APP_URL", "http://localhost:12034")
 
 # Rate limiting
@@ -383,7 +384,7 @@ def create_checkout():
 
     checkout_session = stripe.checkout.Session.create(
         customer=customer_id,
-        payment_method_types=["card"],  # Apple Pay auto-enabled via card
+        payment_method_types=["card", "cashapp", "paypal"],  # Apple Pay via card, + Cash App + PayPal
         line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
         mode="subscription",
         success_url=APP_URL + "/?subscription=success",
@@ -391,6 +392,55 @@ def create_checkout():
         metadata={"nettrace_user_id": str(current_user.id)}
     )
     return jsonify({"checkout_url": checkout_session.url})
+
+
+@app.route("/api/create-crypto-checkout", methods=["POST"])
+@login_required
+def create_crypto_checkout():
+    if not COINBASE_COMMERCE_API_KEY:
+        return jsonify({"error": "Crypto payments not configured"}), 503
+
+    try:
+        req = urllib.request.Request(
+            "https://api.commerce.coinbase.com/charges",
+            data=json.dumps({
+                "name": "NetTrace Pro - Monthly",
+                "description": "1 month of unlimited traceroute scanning",
+                "pricing_type": "fixed_price",
+                "local_price": {"amount": "20.00", "currency": "USD"},
+                "metadata": {"user_id": str(current_user.id), "username": current_user.username},
+                "redirect_url": APP_URL + "/?subscription=success",
+                "cancel_url": APP_URL + "/?subscription=cancelled"
+            }).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "X-CC-Api-Key": COINBASE_COMMERCE_API_KEY,
+                "X-CC-Version": "2018-03-22"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode())
+        hosted_url = data["data"]["hosted_url"]
+        return jsonify({"checkout_url": hosted_url})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/coinbase-webhook", methods=["POST"])
+def coinbase_webhook():
+    payload = json.loads(request.get_data())
+    event_type = payload.get("event", {}).get("type", "")
+    data = payload.get("event", {}).get("data", {})
+
+    if event_type == "charge:confirmed":
+        user_id = data.get("metadata", {}).get("user_id")
+        if user_id:
+            db = sqlite3.connect(DB_PATH)
+            db.execute("UPDATE users SET subscription_status='active' WHERE id=?", (int(user_id),))
+            db.commit()
+            db.close()
+
+    return jsonify({"ok": True})
 
 
 @app.route("/api/manage-billing", methods=["POST"])
