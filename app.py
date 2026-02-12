@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Traceroute Dashboard - Flask app with auth, self-service scanning, and interactive map."""
+"""NetTrace - Traceroute dashboard with auth, Stripe subscriptions, and self-service scanning."""
 
 import json
 import subprocess
@@ -11,11 +11,10 @@ import time
 import urllib.request
 import threading
 from pathlib import Path
-from functools import wraps
 
+import stripe
 from flask import (
-    Flask, render_template, request, jsonify, redirect, url_for, flash,
-    session, g
+    Flask, render_template, request, jsonify, redirect, url_for, g
 )
 from flask_login import (
     LoginManager, UserMixin, login_user, logout_user,
@@ -38,7 +37,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-# Rate limiting: max scans per user
+# Stripe config - all secrets from env vars, nothing hardcoded
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_PRICE_ID = os.environ.get("STRIPE_PRICE_ID", "")  # $20/mo recurring price
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+APP_URL = os.environ.get("APP_URL", "http://localhost:12034")
+
+# Rate limiting
 MAX_SCANS_PER_HOUR = int(os.environ.get("MAX_SCANS_PER_HOUR", "10"))
 MAX_CONCURRENT_SCANS = int(os.environ.get("MAX_CONCURRENT_SCANS", "3"))
 active_scans = {}
@@ -72,6 +78,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
+            stripe_customer_id TEXT,
+            subscription_status TEXT DEFAULT 'none',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         CREATE TABLE IF NOT EXISTS scans (
@@ -88,6 +96,15 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_scans_user ON scans(user_id);
         CREATE INDEX IF NOT EXISTS idx_scans_created ON scans(created_at);
     """)
+    # Migration: add stripe columns if missing
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN stripe_customer_id TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN subscription_status TEXT DEFAULT 'none'")
+    except sqlite3.OperationalError:
+        pass
     db.close()
 
 
@@ -96,9 +113,15 @@ def init_db():
 # ---------------------------------------------------------------------------
 
 class User(UserMixin):
-    def __init__(self, id, username):
+    def __init__(self, id, username, subscription_status="none", stripe_customer_id=None):
         self.id = id
         self.username = username
+        self.subscription_status = subscription_status
+        self.stripe_customer_id = stripe_customer_id
+
+    @property
+    def is_subscribed(self):
+        return self.subscription_status in ("active", "trialing")
 
 
 @login_manager.user_loader
@@ -108,8 +131,23 @@ def load_user(user_id):
     row = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     db.close()
     if row:
-        return User(row["id"], row["username"])
+        return User(row["id"], row["username"],
+                    row["subscription_status"] or "none",
+                    row["stripe_customer_id"])
     return None
+
+
+def require_subscription(f):
+    """Decorator: require active subscription for scanning endpoints."""
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return jsonify({"error": "Login required"}), 401
+        if not current_user.is_subscribed:
+            return jsonify({"error": "Active subscription required", "needs_subscription": True}), 403
+        return f(*args, **kwargs)
+    return decorated
 
 
 # ---------------------------------------------------------------------------
@@ -117,7 +155,6 @@ def load_user(user_id):
 # ---------------------------------------------------------------------------
 
 def run_traceroute(host, max_hops=20):
-    """Run traceroute and parse output."""
     try:
         result = subprocess.run(
             ["traceroute", "-m", str(max_hops), "-q", "1", "-w", "2", host],
@@ -136,49 +173,34 @@ def run_traceroute(host, max_hops=20):
             continue
         m = re.match(r'\s*(\d+)\s+(\S+)\s+\((\d+\.\d+\.\d+\.\d+)\)\s+([\d.]+)\s*ms', line)
         if m:
-            hops.append({
-                "hop": int(m.group(1)),
-                "host": m.group(2),
-                "ip": m.group(3),
-                "rtt_ms": float(m.group(4))
-            })
+            hops.append({"hop": int(m.group(1)), "host": m.group(2),
+                         "ip": m.group(3), "rtt_ms": float(m.group(4))})
         else:
             m2 = re.match(r'\s*(\d+)\s+(\d+\.\d+\.\d+\.\d+)\s+([\d.]+)\s*ms', line)
             if m2:
-                hops.append({
-                    "hop": int(m2.group(1)),
-                    "host": m2.group(2),
-                    "ip": m2.group(2),
-                    "rtt_ms": float(m2.group(3))
-                })
+                hops.append({"hop": int(m2.group(1)), "host": m2.group(2),
+                             "ip": m2.group(2), "rtt_ms": float(m2.group(3))})
             else:
                 m3 = re.match(r'\s*(\d+)\s+\*', line)
                 if m3:
-                    hops.append({
-                        "hop": int(m3.group(1)),
-                        "host": "*",
-                        "ip": None,
-                        "rtt_ms": None
-                    })
+                    hops.append({"hop": int(m3.group(1)), "host": "*",
+                                 "ip": None, "rtt_ms": None})
     return {"hops": hops}
 
 
 def geolocate_ip(ip):
-    """Get geolocation for an IP."""
     if not ip:
         return None
-    # Skip private ranges
     for prefix in ("10.", "192.168.", "172.16.", "172.17.", "172.18.",
                     "172.19.", "172.2", "172.30.", "172.31.", "127."):
         if ip.startswith(prefix):
             return None
-
     with GEO_LOCK:
         if ip in GEO_CACHE:
             return GEO_CACHE[ip]
     try:
         url = f"http://ip-api.com/json/{ip}?fields=status,country,regionName,city,lat,lon,isp,org,as"
-        req = urllib.request.Request(url, headers={"User-Agent": "TracerouteDashboard/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "NetTrace/1.0"})
         with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read().decode())
         if data.get("status") == "success":
@@ -198,65 +220,48 @@ def geolocate_ip(ip):
 
 
 def sanitize_hops(hops, sanitize_first_n=3):
-    """Remove PII from first N hops (local network)."""
     for h in hops:
-        if h["hop"] <= sanitize_first_n:
-            if h["ip"]:
-                h["ip"] = f"10.0.0.{h['hop']}"
-                h["host"] = f"hop-{h['hop']}.local"
-                h["geo"] = None
+        if h["hop"] <= sanitize_first_n and h["ip"]:
+            h["ip"] = f"10.0.0.{h['hop']}"
+            h["host"] = f"hop-{h['hop']}.local"
+            h["geo"] = None
     return hops
 
 
 def execute_scan(scan_id, host, user_id, sid=None):
-    """Run a scan in background thread and emit progress via WebSocket."""
     def _run():
         db = sqlite3.connect(DB_PATH)
         try:
             db.execute("UPDATE scans SET status='running' WHERE id=?", (scan_id,))
             db.commit()
-
             if sid:
                 socketio.emit("scan_status", {"scan_id": scan_id, "status": "running",
                               "message": f"Tracing route to {host}..."}, to=sid)
 
             tr = run_traceroute(host)
             hops = tr["hops"]
-
-            # Geolocate
             for i, h in enumerate(hops):
                 if h["ip"]:
-                    geo = geolocate_ip(h["ip"])
-                    h["geo"] = geo
-                    time.sleep(0.15)  # rate limit
+                    h["geo"] = geolocate_ip(h["ip"])
+                    time.sleep(0.15)
                 else:
                     h["geo"] = None
                 if sid and i % 3 == 0:
-                    socketio.emit("scan_progress", {
-                        "scan_id": scan_id, "hops_done": i + 1,
-                        "total_hops": len(hops)
-                    }, to=sid)
+                    socketio.emit("scan_progress", {"scan_id": scan_id,
+                                  "hops_done": i + 1, "total_hops": len(hops)}, to=sid)
 
-            # Sanitize first hops
             hops = sanitize_hops(hops)
-
             total_rtt = None
             for h in reversed(hops):
                 if h.get("rtt_ms"):
                     total_rtt = h["rtt_ms"]
                     break
 
-            result = {
-                "host": host,
-                "hop_count": len(hops),
-                "total_rtt": total_rtt,
-                "hops": hops
-            }
-
+            result = {"host": host, "hop_count": len(hops),
+                      "total_rtt": total_rtt, "hops": hops}
             db.execute("UPDATE scans SET status='completed', result_json=? WHERE id=?",
                        (json.dumps(result), scan_id))
             db.commit()
-
             if sid:
                 socketio.emit("scan_complete", {"scan_id": scan_id, "result": result}, to=sid)
         except Exception as e:
@@ -274,21 +279,21 @@ def execute_scan(scan_id, host, user_id, sid=None):
         user_active = sum(1 for s in active_scans.values() if s == user_id)
         if user_active >= MAX_CONCURRENT_SCANS:
             return False
-
         active_scans[scan_id] = user_id
 
-    t = threading.Thread(target=_run, daemon=True)
-    t.start()
+    threading.Thread(target=_run, daemon=True).start()
     return True
 
 
 # ---------------------------------------------------------------------------
-# Routes
+# Auth routes
 # ---------------------------------------------------------------------------
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html",
+                           stripe_pk=STRIPE_PUBLISHABLE_KEY,
+                           price_id=STRIPE_PRICE_ID)
 
 
 @app.route("/api/register", methods=["POST"])
@@ -305,18 +310,16 @@ def register():
         return jsonify({"error": "Password must be at least 6 characters"}), 400
 
     db = get_db()
-    existing = db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
-    if existing:
+    if db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone():
         return jsonify({"error": "Username already taken"}), 409
 
     pw_hash = generate_password_hash(password)
     cur = db.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)",
                      (username, pw_hash))
     db.commit()
-
     user = User(cur.lastrowid, username)
     login_user(user)
-    return jsonify({"ok": True, "username": username})
+    return jsonify({"ok": True, "username": username, "subscribed": False})
 
 
 @app.route("/api/login", methods=["POST"])
@@ -330,9 +333,11 @@ def login():
     if not row or not check_password_hash(row["password_hash"], password):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    user = User(row["id"], row["username"])
+    user = User(row["id"], row["username"],
+                row["subscription_status"] or "none",
+                row["stripe_customer_id"])
     login_user(user)
-    return jsonify({"ok": True, "username": username})
+    return jsonify({"ok": True, "username": username, "subscribed": user.is_subscribed})
 
 
 @app.route("/api/logout", methods=["POST"])
@@ -345,18 +350,121 @@ def logout():
 @app.route("/api/me")
 def me():
     if current_user.is_authenticated:
-        return jsonify({"authenticated": True, "username": current_user.username})
+        return jsonify({"authenticated": True, "username": current_user.username,
+                        "subscribed": current_user.is_subscribed})
     return jsonify({"authenticated": False})
 
 
+# ---------------------------------------------------------------------------
+# Stripe routes
+# ---------------------------------------------------------------------------
+
+@app.route("/api/create-checkout", methods=["POST"])
+@login_required
+def create_checkout():
+    if not stripe.api_key or not STRIPE_PRICE_ID:
+        return jsonify({"error": "Payments not configured"}), 503
+
+    db = get_db()
+    row = db.execute("SELECT stripe_customer_id FROM users WHERE id=?",
+                     (current_user.id,)).fetchone()
+    customer_id = row["stripe_customer_id"] if row else None
+
+    # Create or reuse Stripe customer
+    if not customer_id:
+        customer = stripe.Customer.create(
+            metadata={"nettrace_user_id": str(current_user.id),
+                      "nettrace_username": current_user.username}
+        )
+        customer_id = customer.id
+        db.execute("UPDATE users SET stripe_customer_id=? WHERE id=?",
+                   (customer_id, current_user.id))
+        db.commit()
+
+    checkout_session = stripe.checkout.Session.create(
+        customer=customer_id,
+        payment_method_types=["card"],  # Apple Pay auto-enabled via card
+        line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
+        mode="subscription",
+        success_url=APP_URL + "/?subscription=success",
+        cancel_url=APP_URL + "/?subscription=cancelled",
+        metadata={"nettrace_user_id": str(current_user.id)}
+    )
+    return jsonify({"checkout_url": checkout_session.url})
+
+
+@app.route("/api/manage-billing", methods=["POST"])
+@login_required
+def manage_billing():
+    if not stripe.api_key:
+        return jsonify({"error": "Payments not configured"}), 503
+
+    db = get_db()
+    row = db.execute("SELECT stripe_customer_id FROM users WHERE id=?",
+                     (current_user.id,)).fetchone()
+    if not row or not row["stripe_customer_id"]:
+        return jsonify({"error": "No billing account found"}), 404
+
+    portal = stripe.billing_portal.Session.create(
+        customer=row["stripe_customer_id"],
+        return_url=APP_URL
+    )
+    return jsonify({"portal_url": portal.url})
+
+
+@app.route("/api/stripe-webhook", methods=["POST"])
+def stripe_webhook():
+    payload = request.get_data()
+    sig = request.headers.get("Stripe-Signature")
+
+    try:
+        if STRIPE_WEBHOOK_SECRET:
+            event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
+        else:
+            event = json.loads(payload)
+    except (ValueError, stripe.error.SignatureVerificationError):
+        return jsonify({"error": "Invalid signature"}), 400
+
+    event_type = event.get("type", "")
+    data_obj = event.get("data", {}).get("object", {})
+
+    if event_type in ("customer.subscription.created",
+                      "customer.subscription.updated",
+                      "customer.subscription.deleted"):
+        customer_id = data_obj.get("customer")
+        status = data_obj.get("status", "none")
+        if customer_id:
+            db = sqlite3.connect(DB_PATH)
+            db.execute("UPDATE users SET subscription_status=? WHERE stripe_customer_id=?",
+                       (status, customer_id))
+            db.commit()
+            db.close()
+
+    elif event_type == "checkout.session.completed":
+        customer_id = data_obj.get("customer")
+        user_id = data_obj.get("metadata", {}).get("nettrace_user_id")
+        if customer_id and user_id:
+            db = sqlite3.connect(DB_PATH)
+            db.execute("UPDATE users SET stripe_customer_id=?, subscription_status='active' WHERE id=?",
+                       (customer_id, int(user_id)))
+            db.commit()
+            db.close()
+
+    return jsonify({"ok": True})
+
+
+# ---------------------------------------------------------------------------
+# Scan routes (subscription required)
+# ---------------------------------------------------------------------------
+
 @app.route("/api/scan", methods=["POST"])
 @login_required
+@require_subscription
 def start_scan():
     data = request.get_json()
     host = data.get("host", "").strip()
     name = data.get("name", host).strip()
 
-    # Validate host
     if not host:
         return jsonify({"error": "Host is required"}), 400
     if not re.match(r'^[a-zA-Z0-9][a-zA-Z0-9\-\.]+[a-zA-Z0-9]$', host):
@@ -364,7 +472,6 @@ def start_scan():
     if len(host) > 253:
         return jsonify({"error": "Hostname too long"}), 400
 
-    # Rate limit
     db = get_db()
     hour_ago = time.time() - 3600
     count = db.execute(
@@ -382,8 +489,7 @@ def start_scan():
     scan_id = cur.lastrowid
 
     sid = request.args.get("sid") or data.get("sid")
-    ok = execute_scan(scan_id, host, current_user.id, sid=sid)
-    if not ok:
+    if not execute_scan(scan_id, host, current_user.id, sid=sid):
         return jsonify({"error": f"Max {MAX_CONCURRENT_SCANS} concurrent scans"}), 429
 
     return jsonify({"ok": True, "scan_id": scan_id})
@@ -398,63 +504,19 @@ def list_scans():
         "FROM scans WHERE user_id=? ORDER BY created_at DESC LIMIT 50",
         (current_user.id,)
     ).fetchall()
-    scans = []
-    for r in rows:
-        s = {"id": r["id"], "host": r["target_host"], "name": r["target_name"],
-             "category": r["category"], "status": r["status"],
-             "created_at": r["created_at"]}
-        if r["result_json"]:
-            s["result"] = json.loads(r["result_json"])
-        scans.append(s)
-    return jsonify(scans)
-
-
-@app.route("/api/scan/<int:scan_id>")
-@login_required
-def get_scan(scan_id):
-    db = get_db()
-    row = db.execute(
-        "SELECT * FROM scans WHERE id=? AND user_id=?",
-        (scan_id, current_user.id)
-    ).fetchone()
-    if not row:
-        return jsonify({"error": "Not found"}), 404
-    s = {"id": row["id"], "host": row["target_host"], "name": row["target_name"],
-         "status": row["status"], "created_at": row["created_at"]}
-    if row["result_json"]:
-        s["result"] = json.loads(row["result_json"])
-    return jsonify(s)
+    return jsonify([{
+        "id": r["id"], "host": r["target_host"], "name": r["target_name"],
+        "category": r["category"], "status": r["status"], "created_at": r["created_at"],
+        **({"result": json.loads(r["result_json"])} if r["result_json"] else {})
+    } for r in rows])
 
 
 @app.route("/api/demo")
 def demo_data():
-    """Return pre-loaded demo traceroute data."""
     if DEMO_RESULTS.exists():
         with open(DEMO_RESULTS) as f:
             return jsonify(json.load(f))
     return jsonify([])
-
-
-@app.route("/api/community")
-def community_scans():
-    """Return recent public scans (anonymized)."""
-    db_conn = sqlite3.connect(DB_PATH)
-    db_conn.row_factory = sqlite3.Row
-    rows = db_conn.execute(
-        "SELECT target_host, target_name, result_json, created_at "
-        "FROM scans WHERE status='completed' ORDER BY created_at DESC LIMIT 20"
-    ).fetchall()
-    db_conn.close()
-    scans = []
-    for r in rows:
-        if r["result_json"]:
-            scans.append({
-                "host": r["target_host"],
-                "name": r["target_name"],
-                "result": json.loads(r["result_json"]),
-                "created_at": r["created_at"]
-            })
-    return jsonify(scans)
 
 
 # WebSocket events
@@ -470,5 +532,7 @@ def ws_connect():
 if __name__ == "__main__":
     init_db()
     port = int(os.environ.get("PORT", 12034))
-    print(f">>> Traceroute Dashboard running at http://localhost:{port}")
+    print(f">>> NetTrace running at http://localhost:{port}")
+    if not stripe.api_key:
+        print(">>> WARNING: STRIPE_SECRET_KEY not set - payments disabled")
     socketio.run(app, host="0.0.0.0", port=port, debug=False)
