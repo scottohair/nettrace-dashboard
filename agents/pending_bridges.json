@@ -1,0 +1,11 @@
+[
+  {
+    "chain": "ethereum_stuck",
+    "amount_eth": 0.032609,
+    "amount_usd": 0,
+    "timestamp": 9999999999,
+    "status": "loss_chalked",
+    "address": "0x49048044d57e1C92A77f79988D21fA8FAF36689E",
+    "note": "LOSS: $62.68 sent to wrong portal EOA. Chalked. Never again. Address blacklisted in wallet_connector.py."
+  }
+]

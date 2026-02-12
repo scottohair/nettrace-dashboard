@@ -1591,11 +1591,13 @@ def trading_data():
                         amt_usd = amt_eth * eth_price
                     except Exception:
                         pass
-                if "stuck" in status:
+                if "loss" in status or "stuck" in status:
+                    # Chalked losses: tracked for records but NOT counted in portfolio
                     stuck_total += amt_usd
                     stuck_assets.append({
                         "asset": "ETH", "amount": amt_eth, "value_usd": round(amt_usd, 2),
-                        "state": "stuck", "chain": b.get("chain", "unknown"),
+                        "state": "loss" if "loss" in status else "stuck",
+                        "chain": b.get("chain", "unknown"),
                         "note": b.get("note", ""),
                     })
                 else:
@@ -1603,7 +1605,8 @@ def trading_data():
         except Exception:
             pass
 
-    combined_total = round(portfolio_value + wallet_total + stuck_total + in_transit_total, 2)
+    # Portfolio = liquid only. Losses are tracked separately, NOT counted.
+    combined_total = round(portfolio_value + wallet_total + in_transit_total, 2)
 
     return jsonify({
         "portfolio_value": combined_total,
@@ -1958,7 +1961,12 @@ def asset_pools():
             bridges = json.loads(bridges_file.read_text())
             for b in bridges:
                 status = b.get("status", "in_transit")
-                state = "stuck" if "stuck" in status else "in_transit"
+                if "loss" in status:
+                    state = "loss"
+                elif "stuck" in status:
+                    state = "stuck"
+                else:
+                    state = "in_transit"
                 amt_eth = b.get("amount_eth", 0)
                 amt_usd = b.get("amount_usd", 0)
                 # Try to get current ETH price for stuck assets

@@ -140,6 +140,7 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
 .state-locked{background:#a855f722;color:var(--purple);border:1px solid #a855f744}
 .state-pending{background:#00d4ff22;color:var(--blue);border:1px solid #00d4ff44;animation:pulse 2s infinite}
 .state-reserved{background:#6b728022;color:var(--muted);border:1px solid #6b728044}
+.state-loss{background:#ef444433;color:var(--red);border:1px solid #ef444466;text-decoration:line-through}
 .state-error,.state-unavailable{background:#ef444411;color:var(--muted);border:1px solid #ef444422}
 .pool-eta{font-size:9px;color:var(--gold);margin-left:4px}
 .pool-note{font-size:9px;color:var(--muted);padding:2px 4px 2px 58px;border-bottom:1px solid var(--bg3)}
@@ -289,7 +290,7 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
       <div class="pool-stat"><span class="label">Available</span><span class="value green" id="poolAvailable">$--</span></div>
       <div class="pool-stat"><span class="label">In Transit</span><span class="value" style="color:var(--gold)" id="poolInTransit">$0.00</span></div>
       <div class="pool-stat"><span class="label">Locked</span><span class="value" style="color:var(--purple)" id="poolLocked">$0.00</span></div>
-      <div class="pool-stat"><span class="label">Stuck</span><span class="value" style="color:var(--red)" id="poolStuck">$0.00</span></div>
+      <div class="pool-stat"><span class="label">Loss (chalked)</span><span class="value" style="color:var(--red);text-decoration:line-through" id="poolStuck">$0.00</span></div>
       <div class="pool-stat"><span class="label">Pools</span><span class="value blue" id="poolCount">0</span></div>
     </div>
     <div id="poolRows">
