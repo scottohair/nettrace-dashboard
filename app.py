@@ -182,6 +182,19 @@ def init_db():
             geo_json TEXT,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+
+        -- Trading dashboard: portfolio snapshots pushed from live trader
+        CREATE TABLE IF NOT EXISTS trading_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            total_value_usd REAL,
+            daily_pnl REAL,
+            trades_today INTEGER DEFAULT 0,
+            trades_total INTEGER DEFAULT 0,
+            holdings_json TEXT,
+            trades_json TEXT,
+            recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_trading_snapshots_time ON trading_snapshots(recorded_at);
     """)
     # Migration: add columns if missing
     migrations = [
@@ -1284,6 +1297,133 @@ def create_checkout_tier():
         metadata={"nettrace_user_id": str(current_user.id), "tier": tier}
     )
     return jsonify({"checkout_url": checkout_session.url})
+
+
+# ---------------------------------------------------------------------------
+# Live Trading Dashboard
+# ---------------------------------------------------------------------------
+
+@app.route("/trading")
+@login_required
+def trading_dashboard():
+    """Live trading dashboard — shows real portfolio, P&L, trades."""
+    db = get_db()
+    row = db.execute("SELECT tier FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    user_tier = row["tier"] if row and "tier" in row.keys() else "free"
+    if user_tier not in ("enterprise", "enterprise_pro", "government") and not current_user.is_subscribed:
+        return redirect(url_for("index"))
+    return render_template("trading.html")
+
+
+@app.route("/api/trading-data")
+@login_required
+def trading_data():
+    """Return latest trading snapshot + signals for the dashboard."""
+    db = get_db()
+    row = db.execute("SELECT tier FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    user_tier = row["tier"] if row and "tier" in row.keys() else "free"
+    if user_tier not in ("enterprise", "enterprise_pro", "government") and not current_user.is_subscribed:
+        return jsonify({"error": "Enterprise tier required"}), 403
+
+    # Latest snapshot
+    snap = db.execute(
+        "SELECT * FROM trading_snapshots ORDER BY id DESC LIMIT 1"
+    ).fetchone()
+
+    # All snapshots for chart (last 24h)
+    snapshots = db.execute(
+        "SELECT total_value_usd, daily_pnl, trades_today, recorded_at FROM trading_snapshots WHERE recorded_at >= datetime('now', '-24 hours') ORDER BY recorded_at ASC"
+    ).fetchall()
+
+    # Recent signals
+    signals = db.execute(
+        "SELECT signal_type, target_host, direction, confidence, created_at FROM quant_signals WHERE created_at >= datetime('now', '-1 hour') ORDER BY created_at DESC LIMIT 20"
+    ).fetchall()
+
+    holdings = {}
+    trades = []
+    portfolio_value = 0
+    daily_pnl = 0
+    trades_today = 0
+    trades_total = 0
+    initial_value = 13.66  # Starting capital
+
+    if snap:
+        portfolio_value = snap["total_value_usd"] or 0
+        daily_pnl = snap["daily_pnl"] or 0
+        trades_today = snap["trades_today"] or 0
+        trades_total = snap["trades_total"] or 0
+        if snap["holdings_json"]:
+            try:
+                holdings = json.loads(snap["holdings_json"])
+            except Exception:
+                pass
+        if snap["trades_json"]:
+            try:
+                trades = json.loads(snap["trades_json"])
+            except Exception:
+                pass
+
+    # Snapshot age
+    snapshot_age = "no data yet"
+    if snap and snap["recorded_at"]:
+        try:
+            snap_time = datetime.fromisoformat(snap["recorded_at"].replace("Z", "+00:00"))
+            if snap_time.tzinfo is None:
+                snap_time = snap_time.replace(tzinfo=timezone.utc)
+            age_s = (datetime.now(timezone.utc) - snap_time).total_seconds()
+            if age_s < 60:
+                snapshot_age = f"{int(age_s)}s ago"
+            elif age_s < 3600:
+                snapshot_age = f"{int(age_s/60)}m ago"
+            else:
+                snapshot_age = f"{int(age_s/3600)}h ago"
+        except Exception:
+            pass
+
+    return jsonify({
+        "portfolio_value": portfolio_value,
+        "daily_pnl": daily_pnl,
+        "trades_today": trades_today,
+        "trades_total": trades_total,
+        "initial_value": initial_value,
+        "holdings": holdings,
+        "trades": trades,
+        "snapshot_age": snapshot_age,
+        "snapshots": [{"total_value_usd": s["total_value_usd"], "daily_pnl": s["daily_pnl"],
+                        "recorded_at": s["recorded_at"]} for s in snapshots],
+        "signals": [{"signal_type": s["signal_type"], "target_host": s["target_host"],
+                      "direction": s["direction"], "confidence": s["confidence"]} for s in signals],
+    })
+
+
+@app.route("/api/trading-snapshot", methods=["POST"])
+def receive_trading_snapshot():
+    """Receive portfolio snapshot from local live trader."""
+    # Auth via API key
+    api_key = request.headers.get("X-Api-Key") or request.args.get("api_key") or ""
+    expected_key = os.environ.get("NETTRACE_API_KEY", "")
+    if not api_key or not expected_key or api_key != expected_key:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data"}), 400
+
+    db = get_db()
+    db.execute(
+        """INSERT INTO trading_snapshots
+           (total_value_usd, daily_pnl, trades_today, trades_total, holdings_json, trades_json)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        (data.get("total_value_usd", 0),
+         data.get("daily_pnl", 0),
+         data.get("trades_today", 0),
+         data.get("trades_total", 0),
+         json.dumps(data.get("holdings", {})),
+         json.dumps(data.get("trades", [])))
+    )
+    db.commit()
+    return jsonify({"ok": True})
 
 
 # ---------------------------------------------------------------------------

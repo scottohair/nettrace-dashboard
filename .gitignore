@@ -3,3 +3,6 @@ __pycache__/
 *.db
 traceroute.db
 .env
+agents/.env
+agents/trader.db
+agents/agents.db
