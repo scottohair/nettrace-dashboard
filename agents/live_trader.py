@@ -339,12 +339,16 @@ class LiveTrader:
         )
         self.db.commit()
 
-        # Push to Fly dashboard
-        self._push_to_fly(total, holdings)
+        # Push to Fly dashboard (skip if total is 0 — likely API error)
+        if total > 0:
+            self._push_to_fly(total, holdings)
         return total, holdings
 
     def _push_to_fly(self, total, holdings):
         """Push snapshot to Fly trading dashboard."""
+        if total <= 0:
+            logger.debug("Skipping Fly push — total is $0 (API error?)")
+            return
         try:
             # Get recent trades
             trades = self.db.execute(
@@ -354,6 +358,7 @@ class LiveTrader:
             trades_total = self.db.execute("SELECT COUNT(*) as cnt FROM live_trades").fetchone()["cnt"]
 
             payload = json.dumps({
+                "user_id": 2,
                 "total_value_usd": total,
                 "daily_pnl": self.daily_pnl,
                 "trades_today": self.trades_today,

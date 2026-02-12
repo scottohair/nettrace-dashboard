@@ -1568,12 +1568,50 @@ def trading_data():
     except Exception:
         pass
 
-    combined_total = round(portfolio_value + wallet_total, 2)
+    # Include stuck/in-transit assets from pending_bridges.json
+    stuck_total = 0
+    in_transit_total = 0
+    stuck_assets = []
+    bridges_file = BASE_DIR / "agents" / "pending_bridges.json"
+    if bridges_file.exists():
+        try:
+            bridges = json.loads(bridges_file.read_text())
+            for b in bridges:
+                amt_eth = b.get("amount_eth", 0)
+                amt_usd = b.get("amount_usd", 0)
+                status = b.get("status", "")
+                # Get live ETH price if needed
+                if amt_usd == 0 and amt_eth > 0:
+                    try:
+                        _req = urllib.request.Request(
+                            "https://api.coinbase.com/v2/prices/ETH-USD/spot",
+                            headers={"User-Agent": "NetTrace/1.0"})
+                        with urllib.request.urlopen(_req, timeout=3) as resp:
+                            eth_price = float(json.loads(resp.read().decode())["data"]["amount"])
+                        amt_usd = amt_eth * eth_price
+                    except Exception:
+                        pass
+                if "stuck" in status:
+                    stuck_total += amt_usd
+                    stuck_assets.append({
+                        "asset": "ETH", "amount": amt_eth, "value_usd": round(amt_usd, 2),
+                        "state": "stuck", "chain": b.get("chain", "unknown"),
+                        "note": b.get("note", ""),
+                    })
+                else:
+                    in_transit_total += amt_usd
+        except Exception:
+            pass
+
+    combined_total = round(portfolio_value + wallet_total + stuck_total + in_transit_total, 2)
 
     return jsonify({
         "portfolio_value": combined_total,
         "coinbase_value": portfolio_value,
         "wallet_value": round(wallet_total, 2),
+        "stuck_value": round(stuck_total, 2),
+        "in_transit_value": round(in_transit_total, 2),
+        "stuck_assets": stuck_assets,
         "wallet_chains": wallet_chains,
         "daily_pnl": daily_pnl,
         "trades_today": trades_today,

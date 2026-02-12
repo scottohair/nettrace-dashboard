@@ -257,7 +257,9 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
   <div class="grid-3">
     <div class="card">
       <h3>Portfolio Performance</h3>
-      <canvas id="portfolioChart" height="200"></canvas>
+      <div style="position:relative;height:180px;width:100%">
+        <canvas id="portfolioChart"></canvas>
+      </div>
     </div>
     <div class="card">
       <h3>Holdings</h3>
@@ -609,12 +611,16 @@ async function refreshData(){
     const val=data.portfolio_value||0;
     const cbVal=data.coinbase_value||0;
     const walVal=data.wallet_value||0;
+    const stuckVal=data.stuck_value||0;
+    const transitVal=data.in_transit_value||0;
     const pnl=data.daily_pnl||0;
     document.getElementById("portfolioValue").textContent="$"+val.toFixed(2);
     const breakdown=[];
     if(cbVal>0)breakdown.push("CB: $"+cbVal.toFixed(2));
     if(walVal>0)breakdown.push("Wallet: $"+walVal.toFixed(2));
-    document.getElementById("portfolioChange").textContent=breakdown.length?breakdown.join(" + ")+(val>13.70?" | +$"+(val-13.70).toFixed(2):""):"--";
+    if(stuckVal>0)breakdown.push("Stuck: $"+stuckVal.toFixed(2));
+    if(transitVal>0)breakdown.push("Transit: $"+transitVal.toFixed(2));
+    document.getElementById("portfolioChange").textContent=breakdown.length?breakdown.join(" + "):"--";
     // Wallet addresses in footer
     if(data.evm_address){document.getElementById("footerEvmAddr").textContent=data.evm_address.slice(0,6)+"..."+data.evm_address.slice(-4)}
     if(data.solana_address){document.getElementById("footerSolAddr").textContent=data.solana_address.slice(0,6)+"..."+data.solana_address.slice(-4)}
