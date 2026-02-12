@@ -53,9 +53,9 @@ DCA_DB = str(Path(__file__).parent / "dca_bot.db")
 
 # DCA Configuration
 ALLOCATIONS = [
-    {"pair": "BTC-USD", "weight": 0.50, "name": "Bitcoin"},
-    {"pair": "ETH-USD", "weight": 0.30, "name": "Ethereum"},
-    {"pair": "SOL-USD", "weight": 0.20, "name": "Solana"},
+    {"pair": "BTC-USDC", "weight": 0.50, "name": "Bitcoin"},
+    {"pair": "ETH-USDC", "weight": 0.30, "name": "Ethereum"},
+    {"pair": "SOL-USDC", "weight": 0.20, "name": "Solana"},
 ]
 
 DAILY_BUDGET_USD = 0.50       # Total daily DCA spend

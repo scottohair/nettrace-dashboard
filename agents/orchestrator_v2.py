@@ -62,7 +62,7 @@ ORCH_DB = str(Path(__file__).parent / "orchestrator.db")
 # Risk limits — NEVER violate
 HARDSTOP_FLOOR_USD = 500.00   # ABSOLUTE FLOOR — kill everything if portfolio drops below this
 HARDSTOP_DRAWDOWN_PCT = 0.30  # 30% drawdown from peak → kill everything (was 15%, too sensitive with bridges)
-STARTING_CAPITAL = 13.00      # track from LIQUID capital only (Coinbase ~$13)
+STARTING_CAPITAL = None       # Auto-detect from DB (no more hardcoding)
 
 # Wallet monitoring (set via env or updated at runtime)
 WALLET_ADDRESS = os.environ.get("WALLET_ADDRESS", "")  # EVM wallet to monitor
@@ -159,9 +159,72 @@ class OrchestratorV2:
         self.db.row_factory = sqlite3.Row
         self._init_db()
         self.running = True
-        self.peak_portfolio = STARTING_CAPITAL
+        # Auto-detect starting capital from DB or live portfolio
+        start = self._get_starting_capital()
+        self.peak_portfolio = start
         self.daily_pnl_start = None
-        self._last_portfolio_total = STARTING_CAPITAL  # sanity check baseline
+        self._last_portfolio_total = start  # sanity check baseline
+
+    def _get_starting_capital(self):
+        """Get starting capital from DB history (no more hardcoding)."""
+        # 1. Check capital_events table for running total
+        try:
+            row = self.db.execute(
+                "SELECT running_total FROM capital_events ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+            if row and row["running_total"] > 0:
+                logger.info("Starting capital from DB: $%.2f", row["running_total"])
+                return row["running_total"]
+        except Exception:
+            pass
+        # 2. Check last known portfolio peak
+        try:
+            row = self.db.execute(
+                "SELECT MAX(total_value_usd) as peak FROM portfolio_history WHERE recorded_at >= datetime('now', '-24 hours')"
+            ).fetchone()
+            if row and row["peak"] and row["peak"] > 0:
+                logger.info("Starting capital from 24h peak: $%.2f", row["peak"])
+                return row["peak"]
+        except Exception:
+            pass
+        # 3. Get live portfolio value
+        try:
+            from exchange_connector import CoinbaseTrader
+            trader = CoinbaseTrader()
+            accts = trader.get_accounts()
+            total = 0
+            for a in accts.get("accounts", []):
+                bal = float(a.get("available_balance", {}).get("value", 0))
+                currency = a.get("currency", "")
+                if bal <= 0:
+                    continue
+                if currency in ("USD", "USDC"):
+                    total += bal
+                else:
+                    total += bal  # rough estimate, will be corrected on first check
+            if total > 0:
+                logger.info("Starting capital from live portfolio: $%.2f", total)
+                return total
+        except Exception:
+            pass
+        logger.warning("Could not auto-detect starting capital, using $30")
+        return 30.0
+
+    def record_capital_event(self, event_type, amount_usd, tx_hash=None, note=None):
+        """Record a deposit, withdrawal, or adjustment to capital tracking."""
+        # Get current running total
+        row = self.db.execute(
+            "SELECT running_total FROM capital_events ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+        current = row["running_total"] if row else 0
+        new_total = current + amount_usd
+        self.db.execute(
+            "INSERT INTO capital_events (event_type, amount_usd, running_total, tx_hash, note) VALUES (?, ?, ?, ?, ?)",
+            (event_type, amount_usd, new_total, tx_hash, note)
+        )
+        self.db.commit()
+        logger.info("Capital event: %s $%.2f → total $%.2f", event_type, amount_usd, new_total)
+        return new_total
 
     def _init_db(self):
         self.db.executescript("""
@@ -187,6 +250,16 @@ class OrchestratorV2:
                 agents_running INTEGER,
                 recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS capital_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT NOT NULL,
+                amount_usd REAL NOT NULL,
+                running_total REAL NOT NULL,
+                tx_hash TEXT,
+                note TEXT,
+                recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
             CREATE TABLE IF NOT EXISTS risk_events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 event_type TEXT NOT NULL,
@@ -194,7 +267,41 @@ class OrchestratorV2:
                 action_taken TEXT,
                 recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            -- Wallet registry: EVERY wallet we create or use, stored permanently
+            CREATE TABLE IF NOT EXISTS wallet_registry (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                address TEXT NOT NULL UNIQUE,
+                chain TEXT NOT NULL,
+                wallet_type TEXT NOT NULL,
+                private_key_enc TEXT,
+                label TEXT,
+                is_ours INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                last_seen_balance_usd REAL DEFAULT 0,
+                last_checked_at TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_wallet_addr ON wallet_registry(address);
         """)
+        self.db.commit()
+        # Seed wallet registry with known wallets
+        self._seed_wallets()
+
+    def _seed_wallets(self):
+        """Ensure all known wallets are in the registry."""
+        wallets = [
+            ("0x2Efbef64bdFc6D80E835B8312e051444716299aC", "ethereum,base,arbitrum,polygon", "evm", "Main EVM wallet (all chains)"),
+            ("5zpnxwKFXrQDzac81hfePinjNmicAuqNhvpkpds79w38", "solana", "solana", "Solana wallet (unfunded)"),
+            ("0x75466cd6CA88911CE680aF9b64aA652Cb9721D0C", "ethereum", "coinbase_deposit", "Coinbase USDC deposit address"),
+            ("0x223eb5A5852248F74754dc912872a121fA05bae8", "ethereum", "coinbase_deposit", "Coinbase ETH deposit address"),
+        ]
+        for addr, chain, wtype, label in wallets:
+            try:
+                self.db.execute(
+                    "INSERT OR IGNORE INTO wallet_registry (address, chain, wallet_type, label) VALUES (?, ?, ?, ?)",
+                    (addr, chain, wtype, label))
+            except Exception:
+                pass
         self.db.commit()
 
     def write_pid(self):

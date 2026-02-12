@@ -59,7 +59,7 @@ GRID_DB = str(Path(__file__).parent / "grid_trader.db")
 
 # Grid configuration
 DEFAULT_CONFIG = {
-    "pair": "BTC-USD",
+    "pair": "BTC-USDC",
     "grid_spacing_pct": 0.01,    # 1.0% between grid levels
     "levels_above": 2,           # sell levels above current price
     "levels_below": 2,           # buy levels below current price
@@ -157,11 +157,11 @@ class GridTrader:
         base_increment = product["base_increment"]
         quote_increment = product["quote_increment"]
 
-        # Use adaptive risk for sizing
+        # Use adaptive risk for sizing — cap to 85% of max_trade to avoid agent_tools rejection
         self.tools.refresh_risk()
         risk = self.tools.risk
         reserve = risk.min_reserve
-        order_size = max(1.00, risk.optimal_grid_size)
+        order_size = max(1.00, min(risk.optimal_grid_size, risk.max_trade_usd * 0.85))
 
         # Override config with adaptive values
         self.config["order_size_usd"] = round(order_size, 2)

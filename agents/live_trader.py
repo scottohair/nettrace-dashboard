@@ -220,11 +220,11 @@ class LiveTrader:
             # Map host to pair
             pair = None
             if "coinbase" in host or "binance" in host or "kraken" in host:
-                pair = "BTC-USD"
+                pair = "BTC-USDC"
             elif "bybit" in host or "okx" in host:
-                pair = "BTC-USD"
+                pair = "BTC-USDC"
             elif "gemini" in host:
-                pair = "ETH-USD"
+                pair = "ETH-USDC"
 
             if not pair:
                 continue
@@ -242,7 +242,7 @@ class LiveTrader:
                 buy_signals.setdefault(pair, []).append(signal)
 
         # Also check C engine signals — expanded to high-volatility pairs
-        for pair in ["BTC-USD", "ETH-USD", "SOL-USD", "DOGE-USD", "AVAX-USD", "LINK-USD", "XRP-USD"]:
+        for pair in ["BTC-USDC", "ETH-USDC", "SOL-USDC", "DOGE-USDC", "AVAX-USDC", "LINK-USDC", "XRP-USDC"]:
             regime = self._get_regime(pair)
 
             # Skip downtrend pairs — Rule #1
@@ -446,7 +446,7 @@ if __name__ == "__main__":
         print(f"Portfolio: ${total:.2f}")
         for currency, data in holdings.items():
             if currency not in ("USD", "USDC", "BTC", "ETH") and data["usd_value"] > 1.0:
-                pair = f"{currency}-USD"
+                pair = f"{currency}-USDC"
                 print(f"Selling {data['amount']} {currency} (~${data['usd_value']:.2f})...")
                 result = trader.exchange.place_order(pair, "SELL", data["amount"])
                 print(f"  Result: {json.dumps(result)[:200]}")

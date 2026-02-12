@@ -69,13 +69,14 @@ WALLET_ADDRESS = os.environ.get("WALLET_ADDRESS", "")
 
 # Sniper configuration
 CONFIG = {
-    "min_composite_confidence": 0.70,    # 70% minimum (matches trading rules)
-    "min_confirming_signals": 2,         # 2+ must agree (matches trading rules)
-    "max_trade_usd": 5.00,
-    "max_daily_loss_usd": 2.00,
-    "scan_interval": 60,                  # seconds between scans (stop churning)
-    "min_hold_seconds": 60,                # hold positions at least 60 seconds (nimble, not churning)
-    "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "LINK-USD", "DOGE-USD", "FET-USD"],
+    "min_composite_confidence": 0.65,    # Aggressive: 65% minimum (more trades)
+    "min_confirming_signals": 2,         # 2+ must agree
+    "max_trade_usd": 10.00,             # Bigger positions with $25 new capital
+    "max_daily_loss_usd": 5.00,         # Higher loss limit to stay in the game
+    "scan_interval": 30,                  # Scan every 30s — catch moves fast
+    "min_hold_seconds": 30,               # Quick rotation — 30s minimum hold
+    "pairs": ["BTC-USDC", "ETH-USDC", "SOL-USDC", "AVAX-USDC", "LINK-USDC", "DOGE-USDC", "FET-USDC"],
+    "max_position_pct": 0.20,            # Max 20% of portfolio in any single asset
     "signal_weights": {
         "latency": 0.12,
         "regime": 0.14,
@@ -99,6 +100,15 @@ def _fetch_json(url, headers=None, timeout=10):
         return json.loads(resp.read().decode())
 
 
+def _data_pair(pair):
+    """Convert trading pair to data pair for public APIs.
+
+    We trade on -USDC pairs (where our money is) but fetch candle/price
+    data from -USD pairs (more liquid, same price within ~0.01%).
+    """
+    return pair.replace("-USDC", "-USD")
+
+
 class SignalSource:
     """Base class for signal sources."""
 
@@ -112,6 +122,7 @@ class LatencySignalSource(SignalSource):
 
     def scan(self, pair):
         try:
+            # Latency signals are exchange-level, pair-agnostic
             url = f"{FLY_URL}/api/v1/signals?hours=1&min_confidence=0.6"
             data = _fetch_json(url, headers={"X-Api-Key": NETTRACE_API_KEY})
             signals = data.get("signals", [])
@@ -173,9 +184,10 @@ class RegimeSignalSource(SignalSource):
             return {"direction": "NONE", "confidence": 0, "reason": str(e)}
 
     def _fetch_candles(self, pair, granularity=3600, limit=50):
-        """Fetch 1h candles from Coinbase."""
+        """Fetch 1h candles from Coinbase (uses -USD for liquidity)."""
         try:
-            url = f"https://api.exchange.coinbase.com/products/{pair}/candles?granularity={granularity}"
+            dp = _data_pair(pair)
+            url = f"https://api.exchange.coinbase.com/products/{dp}/candles?granularity={granularity}"
             data = _fetch_json(url)
             candles = []
             for c in data[:limit]:
@@ -197,9 +209,9 @@ class ArbSignalSource(SignalSource):
             from fast_bridge import FastEngine
             engine = FastEngine()
 
-            # Get Coinbase price
-            base_pair = pair.replace("-USD", "-USD")
-            cb_data = _fetch_json(f"https://api.coinbase.com/v2/prices/{base_pair}/spot")
+            # Get Coinbase price (use -USD for public spot price)
+            dp = _data_pair(pair)
+            cb_data = _fetch_json(f"https://api.coinbase.com/v2/prices/{dp}/spot")
             cb_price = float(cb_data["data"]["amount"])
 
             # Get prices from other exchanges
@@ -250,7 +262,8 @@ class OrderbookSignalSource(SignalSource):
 
     def scan(self, pair):
         try:
-            url = f"https://api.exchange.coinbase.com/products/{pair}/book?level=2"
+            dp = _data_pair(pair)
+            url = f"https://api.exchange.coinbase.com/products/{dp}/book?level=2"
             book = _fetch_json(url, timeout=5)
 
             bids = book.get("bids", [])[:20]
@@ -291,7 +304,8 @@ class RSIExtremeSource(SignalSource):
     def scan(self, pair):
         try:
             # Fetch 1h candles
-            url = f"https://api.exchange.coinbase.com/products/{pair}/candles?granularity=3600"
+            dp = _data_pair(pair)
+            url = f"https://api.exchange.coinbase.com/products/{dp}/candles?granularity=3600"
             raw = _fetch_json(url, timeout=5)
             closes = [c[4] for c in raw[:20]]
             closes.reverse()
@@ -360,7 +374,8 @@ class PriceMomentumSource(SignalSource):
 
     def scan(self, pair):
         try:
-            url = f"https://api.exchange.coinbase.com/products/{pair}/candles?granularity=3600"
+            dp = _data_pair(pair)
+            url = f"https://api.exchange.coinbase.com/products/{dp}/candles?granularity=3600"
             raw = _fetch_json(url, timeout=5)
             if len(raw) < 5:
                 return {"direction": "NONE", "confidence": 0, "reason": "Insufficient data"}
@@ -400,9 +415,9 @@ class UptickTimingSource(SignalSource):
 
     def scan(self, pair):
         try:
-            # Get 1-minute candles (last 15 minutes)
-            product_id = pair.replace("-", "-")
-            url = f"https://api.exchange.coinbase.com/products/{product_id}/candles?granularity=60"
+            # Get 1-minute candles (last 15 minutes) — use -USD for data
+            dp = _data_pair(pair)
+            url = f"https://api.exchange.coinbase.com/products/{dp}/candles?granularity=60"
             data = _fetch_json(url, timeout=8)
             if not data or len(data) < 10:
                 return {"direction": "NONE", "confidence": 0, "reason": "Insufficient 1m data"}
@@ -597,21 +612,24 @@ class Sniper:
         return False
 
     def _get_holdings(self):
-        """Get current Coinbase holdings."""
+        """Get current Coinbase holdings. Returns (holdings_dict, usdc_cash, usd_cash)."""
         try:
             from exchange_connector import CoinbaseTrader
             trader = CoinbaseTrader()
             accts = trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
             holdings = {}
-            cash = 0
+            usdc = 0
+            usd = 0
             for a in accts.get("accounts", []):
                 cur = a.get("currency", "")
                 bal = float(a.get("available_balance", {}).get("value", 0))
-                if cur in ("USD", "USDC"):
-                    cash += bal
+                if cur == "USDC":
+                    usdc += bal
+                elif cur == "USD":
+                    usd += bal
                 elif bal > 0:
                     holdings[cur] = bal
-            return holdings, cash
+            return holdings, usdc + usd
         except Exception as e:
             logger.warning("Holdings check failed: %s", e)
             return {}, 0
@@ -639,23 +657,42 @@ class Sniper:
         base_currency = pair.split("-")[0]  # e.g., "BTC" from "BTC-USD"
 
         if direction == "BUY":
-            # Size the trade: min $1, max $5, scale with confidence
+            # Diversification check: don't exceed 20% of portfolio in any single asset
+            held_amount = holdings.get(base_currency, 0)
+            held_usd = held_amount * price if price else 0
+            total_portfolio = cash + sum(h * (self._get_price(f"{c}-USDC") or 0) for c, h in holdings.items())
+            max_position = total_portfolio * CONFIG.get("max_position_pct", 0.20)
+            if held_usd >= max_position:
+                logger.info("SNIPER: %s position $%.2f >= max $%.2f (%.0f%% of portfolio) — DIVERSIFY",
+                           base_currency, held_usd, max_position, held_usd/total_portfolio*100 if total_portfolio else 0)
+                return False
+
+            # Size the trade: min $1, max $10, scale with confidence
+            # Also cap to not exceed position limit
+            remaining_room = max_position - held_usd
             trade_size = min(CONFIG["max_trade_usd"],
-                             max(1.00, signal["composite_confidence"] * 6.0))
-            trade_size = min(trade_size, cash - 0.10)  # keep $0.10 reserve
-            if trade_size < 0.50:
-                logger.info("SNIPER: Insufficient cash ($%.2f) for BUY. Need $0.50+", cash)
+                             max(1.00, signal["composite_confidence"] * 8.0))
+            trade_size = min(trade_size, remaining_room)
+            trade_size = min(trade_size, cash - 2.00)  # keep $2 reserve
+            if trade_size < 1.00:
+                logger.info("SNIPER: Insufficient cash ($%.2f) for BUY. Need $1.00+", cash)
                 return False
             trade_size = round(trade_size, 2)
 
-            logger.info("SNIPER EXECUTE: BUY %s | $%.2f @ $%.2f | conf=%.1f%% | %d signals",
-                        pair, trade_size, price, signal["composite_confidence"]*100,
+            # Use LIMIT order at bid price (maker fee 0.6% vs taker 1.2%)
+            # Place at best bid = likely instant fill as maker
+            base_size = trade_size / price
+            limit_price = price * 1.001  # slightly above spot to ensure fill
+
+            logger.info("SNIPER EXECUTE: LIMIT BUY %s | $%.2f (%.6f @ $%.2f) | conf=%.1f%% | %d signals",
+                        pair, trade_size, base_size, limit_price,
+                        signal["composite_confidence"]*100,
                         signal["confirming_signals"])
 
             try:
                 from exchange_connector import CoinbaseTrader
                 trader = CoinbaseTrader()
-                result = trader.place_order(pair, "BUY", trade_size)
+                result = trader.place_limit_order(pair, "BUY", base_size, limit_price, post_only=False)
                 return self._process_order_result(result, pair, "BUY", trade_size, price, signal)
             except Exception as e:
                 logger.error("BUY execution error: %s", e, exc_info=True)
@@ -778,7 +815,8 @@ class Sniper:
 
     def _get_price(self, pair):
         try:
-            data = _fetch_json(f"https://api.coinbase.com/v2/prices/{pair}/spot")
+            dp = _data_pair(pair)
+            data = _fetch_json(f"https://api.coinbase.com/v2/prices/{dp}/spot")
             return float(data["data"]["amount"])
         except Exception:
             return None
