@@ -1036,6 +1036,183 @@ socketio.on_namespace(StreamNamespace("/api/v1/stream"))
 
 
 # ---------------------------------------------------------------------------
+# Public Status Pages (SEO traffic → signups → revenue)
+# ---------------------------------------------------------------------------
+
+@app.route("/status")
+def status_index():
+    """Public status overview — indexed by search engines."""
+    db = get_db()
+    rows = db.execute("""
+        SELECT m.target_host, m.target_name, m.category, m.total_rtt,
+               m.hop_count, m.created_at
+        FROM scan_metrics m
+        INNER JOIN (
+            SELECT target_host, MAX(id) as max_id FROM scan_metrics GROUP BY target_host
+        ) latest ON m.id = latest.max_id
+        WHERE m.total_rtt IS NOT NULL
+        ORDER BY m.category, m.total_rtt ASC
+    """).fetchall()
+    categories = {}
+    for r in rows:
+        cat = r["category"] or "other"
+        categories.setdefault(cat, []).append({
+            "host": r["target_host"], "name": r["target_name"],
+            "rtt": r["total_rtt"], "hops": r["hop_count"],
+            "last_scan": r["created_at"]
+        })
+    return render_template("status.html", categories=categories, total=len(rows))
+
+
+@app.route("/status/<path:host>")
+def status_detail(host):
+    """Public status page for a single target — SEO-indexed."""
+    db = get_db()
+    latest = db.execute(
+        """SELECT target_host, target_name, category, total_rtt, hop_count,
+                  first_hop_rtt, last_hop_rtt, route_hash, created_at
+           FROM scan_metrics WHERE target_host = ? ORDER BY id DESC LIMIT 1""",
+        (host,)
+    ).fetchone()
+    if not latest:
+        return render_template("status_404.html", host=host), 404
+    history = db.execute(
+        """SELECT total_rtt, created_at FROM scan_metrics
+           WHERE target_host = ? AND total_rtt IS NOT NULL
+           ORDER BY created_at DESC LIMIT 96""",
+        (host,)
+    ).fetchall()
+    changes = db.execute(
+        """SELECT rtt_delta, detected_at FROM route_changes
+           WHERE target_host = ? ORDER BY detected_at DESC LIMIT 5""",
+        (host,)
+    ).fetchall()
+    return render_template("status_detail.html",
+                           target=dict(latest), host=host,
+                           history=[dict(r) for r in history],
+                           changes=[dict(r) for r in changes])
+
+
+# ---------------------------------------------------------------------------
+# Prometheus Metrics Endpoint (free Fly.io monitoring)
+# ---------------------------------------------------------------------------
+
+@app.route("/metrics")
+def prometheus_metrics():
+    """Expose Prometheus metrics for free Fly.io scraping + Grafana dashboards."""
+    db = get_db()
+    lines = []
+    lines.append("# HELP nettrace_target_rtt_ms Current RTT to target in milliseconds")
+    lines.append("# TYPE nettrace_target_rtt_ms gauge")
+    rows = db.execute("""
+        SELECT m.target_host, m.target_name, m.category, m.total_rtt, m.hop_count
+        FROM scan_metrics m
+        INNER JOIN (
+            SELECT target_host, MAX(id) as max_id FROM scan_metrics GROUP BY target_host
+        ) latest ON m.id = latest.max_id
+        WHERE m.total_rtt IS NOT NULL
+    """).fetchall()
+    for r in rows:
+        name = (r["target_name"] or r["target_host"]).replace('"', '\\"')
+        cat = (r["category"] or "other").replace('"', '\\"')
+        lines.append(f'nettrace_target_rtt_ms{{host="{r["target_host"]}",name="{name}",category="{cat}"}} {r["total_rtt"]}')
+    lines.append("")
+    lines.append("# HELP nettrace_target_hops Current hop count to target")
+    lines.append("# TYPE nettrace_target_hops gauge")
+    for r in rows:
+        name = (r["target_name"] or r["target_host"]).replace('"', '\\"')
+        lines.append(f'nettrace_target_hops{{host="{r["target_host"]}",name="{name}"}} {r["hop_count"]}')
+    lines.append("")
+    lines.append("# HELP nettrace_targets_total Total number of monitored targets")
+    lines.append("# TYPE nettrace_targets_total gauge")
+    lines.append(f"nettrace_targets_total {len(rows)}")
+    lines.append("")
+    # Route changes in last hour
+    rc = db.execute(
+        "SELECT COUNT(*) as cnt FROM route_changes WHERE detected_at >= datetime('now', '-1 hour')"
+    ).fetchone()
+    lines.append("# HELP nettrace_route_changes_1h Route changes in the last hour")
+    lines.append("# TYPE nettrace_route_changes_1h gauge")
+    lines.append(f"nettrace_route_changes_1h {rc['cnt']}")
+    lines.append("")
+    # Quant signals in last hour
+    qs = db.execute(
+        "SELECT COUNT(*) as cnt FROM quant_signals WHERE created_at >= datetime('now', '-1 hour')"
+    ).fetchone()
+    lines.append("# HELP nettrace_quant_signals_1h Quant signals generated in last hour")
+    lines.append("# TYPE nettrace_quant_signals_1h gauge")
+    lines.append(f"nettrace_quant_signals_1h {qs['cnt']}")
+    lines.append("")
+    # API usage today
+    au = db.execute(
+        "SELECT COUNT(*) as cnt FROM api_usage WHERE created_at >= date('now')"
+    ).fetchone()
+    lines.append("# HELP nettrace_api_calls_today Total API calls today")
+    lines.append("# TYPE nettrace_api_calls_today gauge")
+    lines.append(f"nettrace_api_calls_today {au['cnt']}")
+    lines.append("")
+    # Users
+    users = db.execute("SELECT COUNT(*) as cnt FROM users").fetchone()
+    lines.append("# HELP nettrace_users_total Total registered users")
+    lines.append("# TYPE nettrace_users_total gauge")
+    lines.append(f"nettrace_users_total {users['cnt']}")
+    lines.append("")
+    from flask import Response
+    return Response("\n".join(lines) + "\n", mimetype="text/plain; version=0.0.4; charset=utf-8")
+
+
+# ---------------------------------------------------------------------------
+# Embeddable Widget (viral distribution)
+# ---------------------------------------------------------------------------
+
+@app.route("/widget/<path:host>")
+def latency_widget(host):
+    """Embeddable latency badge — users put this on their sites."""
+    db = get_db()
+    row = db.execute(
+        "SELECT target_name, total_rtt FROM scan_metrics WHERE target_host = ? ORDER BY id DESC LIMIT 1",
+        (host,)
+    ).fetchone()
+    if not row:
+        svg = _widget_svg("Not Found", "N/A", "#ff4444")
+    elif row["total_rtt"] is None:
+        svg = _widget_svg(row["target_name"] or host, "timeout", "#ff8800")
+    elif row["total_rtt"] < 20:
+        svg = _widget_svg(row["target_name"] or host, f'{row["total_rtt"]:.1f}ms', "#00ff88")
+    elif row["total_rtt"] < 50:
+        svg = _widget_svg(row["target_name"] or host, f'{row["total_rtt"]:.1f}ms', "#00d4ff")
+    elif row["total_rtt"] < 100:
+        svg = _widget_svg(row["target_name"] or host, f'{row["total_rtt"]:.1f}ms', "#ffaa00")
+    else:
+        svg = _widget_svg(row["target_name"] or host, f'{row["total_rtt"]:.1f}ms', "#ff4444")
+    from flask import Response
+    return Response(svg, mimetype="image/svg+xml",
+                    headers={"Cache-Control": "public, max-age=300"})
+
+
+def _widget_svg(label, value, color):
+    label_w = max(80, len(label) * 7 + 10)
+    value_w = max(50, len(value) * 7 + 10)
+    total_w = label_w + value_w
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{total_w}" height="20">
+  <rect width="{label_w}" height="20" fill="#333"/>
+  <rect x="{label_w}" width="{value_w}" height="20" fill="{color}"/>
+  <text x="{label_w/2}" y="14" fill="#fff" text-anchor="middle" font-family="monospace" font-size="11">{label}</text>
+  <text x="{label_w + value_w/2}" y="14" fill="#fff" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold">{value}</text>
+</svg>'''
+
+
+# ---------------------------------------------------------------------------
+# Public API Playground (try before you buy → conversion)
+# ---------------------------------------------------------------------------
+
+@app.route("/playground")
+def api_playground():
+    """Interactive API playground — try endpoints before signing up."""
+    return render_template("playground.html")
+
+
+# ---------------------------------------------------------------------------
 # Tiered Stripe checkout
 # ---------------------------------------------------------------------------
 

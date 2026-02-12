@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ target.target_name or host }} Latency — NetTrace</title>
+<meta name="description" content="Live network latency to {{ target.target_name or host }} ({{ host }}): {{ '%.1f'|format(target.total_rtt) }}ms, {{ target.hop_count }} hops. Historical data, route changes, and API access.">
+<link rel="canonical" href="https://nettrace-dashboard.fly.dev/status/{{ host }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;color:#c8d6e5;min-height:100vh}
+.header{background:linear-gradient(135deg,#0d1321,#1a1a2e);border-bottom:1px solid #1e3a5f;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:16px;color:#00d4ff}
+.header a{color:#5a6c7d;text-decoration:none;font-size:12px}
+.container{max-width:900px;margin:0 auto;padding:24px}
+.target-hero{text-align:center;padding:32px 0}
+.target-hero .name{font-size:24px;color:#fff;font-weight:700}
+.target-hero .host{color:#5a6c7d;font-size:13px;margin-top:4px}
+.target-hero .rtt{font-size:48px;font-weight:700;margin-top:16px}
+.rtt.good{color:#00ff88}.rtt.ok{color:#00d4ff}.rtt.warn{color:#ffaa00}.rtt.bad{color:#ff4444}
+.target-hero .meta{color:#5a6c7d;font-size:12px;margin-top:8px}
+.chart-box{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:20px;margin:24px 0}
+.chart-box h3{font-size:13px;color:#00d4ff;margin-bottom:12px}
+.section{margin:24px 0}
+.section h3{font-size:13px;color:#00d4ff;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e3a5f}
+.change-row{display:flex;justify-content:space-between;padding:8px 12px;background:#0d1321;border:1px solid #1e3a5f;border-radius:4px;margin-bottom:6px;font-size:12px}
+.change-delta.up{color:#ff4444}.change-delta.down{color:#00ff88}
+.embed-box{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:16px;margin:24px 0}
+.embed-box h3{font-size:13px;color:#00d4ff;margin-bottom:8px}
+.embed-box code{display:block;background:#0a0e17;padding:8px;border-radius:4px;font-size:11px;color:#ffaa00;word-break:break-all}
+.cta{text-align:center;padding:32px;background:#0d132188;border:1px solid #1e3a5f;border-radius:8px;margin-top:32px}
+.cta h3{color:#fff;font-size:18px;margin-bottom:6px}
+.cta p{color:#5a6c7d;font-size:12px;margin-bottom:12px}
+.cta a{display:inline-block;padding:8px 20px;background:#00d4ff22;border:1px solid #00d4ff;color:#00d4ff;border-radius:4px;text-decoration:none;font-size:12px}
+.widget-preview{text-align:center;margin:12px 0}
+footer{text-align:center;padding:20px;color:#5a6c7d;font-size:10px;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>NetTrace</h1>
+  <a href="/status">&larr; All Targets</a>
+</div>
+<div class="container">
+  <div class="target-hero">
+    <div class="name">{{ target.target_name or host }}</div>
+    <div class="host">{{ host }}</div>
+    <div class="rtt {% if target.total_rtt < 20 %}good{% elif target.total_rtt < 50 %}ok{% elif target.total_rtt < 100 %}warn{% else %}bad{% endif %}">
+      {{ "%.1f"|format(target.total_rtt) }}ms
+    </div>
+    <div class="meta">{{ target.hop_count }} hops &middot; {{ target.category }} &middot; {{ target.created_at }}</div>
+  </div>
+  <div class="chart-box">
+    <h3>Latency History (last 24h)</h3>
+    <canvas id="latencyChart" height="200"></canvas>
+  </div>
+  {% if changes %}
+  <div class="section">
+    <h3>Recent Route Changes</h3>
+    {% for c in changes %}
+    <div class="change-row">
+      <span>{{ c.detected_at }}</span>
+      <span class="change-delta {% if c.rtt_delta and c.rtt_delta > 0 %}up{% else %}down{% endif %}">
+        {% if c.rtt_delta %}{{ "%+.1f"|format(c.rtt_delta) }}ms{% else %}route shift{% endif %}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="embed-box">
+    <h3>Embed This Badge</h3>
+    <div class="widget-preview">
+      <img src="/widget/{{ host }}" alt="{{ host }} latency">
+    </div>
+    <code>&lt;a href="https://nettrace-dashboard.fly.dev/status/{{ host }}"&gt;&lt;img src="https://nettrace-dashboard.fly.dev/widget/{{ host }}" alt="latency"&gt;&lt;/a&gt;</code>
+  </div>
+  <div class="cta">
+    <h3>Access Full API Data</h3>
+    <p>Get 30-day history, route data, quant signals, and bulk export via REST API.</p>
+    <a href="/">Get API Key — Plans from $0/mo</a>
+  </div>
+</div>
+<footer>NetTrace Financial Network Intelligence</footer>
+<script>
+const history = {{ history|tojson }};
+const labels = history.map(p => p.created_at).reverse();
+const data = history.map(p => p.total_rtt).reverse();
+new Chart(document.getElementById('latencyChart'), {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: 'RTT (ms)',
+      data: data,
+      borderColor: '#00d4ff',
+      backgroundColor: 'rgba(0,212,255,0.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 2,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { display: false },
+      y: {
+        ticks: { color: '#5a6c7d', font: { family: 'monospace', size: 10 } },
+        grid: { color: '#1e3a5f22' }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

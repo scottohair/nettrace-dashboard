@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetTrace Network Status — Real-Time Financial Infrastructure Latency</title>
+<meta name="description" content="Live latency monitoring for {{ total }}+ financial endpoints including crypto exchanges, brokers, NYSE, NASDAQ, and cloud providers. Updated every 15 minutes.">
+<meta name="keywords" content="network latency, financial infrastructure, crypto exchange latency, NYSE latency, API monitoring, traceroute">
+<link rel="canonical" href="https://nettrace-dashboard.fly.dev/status">
+<meta property="og:title" content="NetTrace — Financial Network Intelligence">
+<meta property="og:description" content="Real-time latency data for {{ total }}+ financial endpoints.">
+<meta property="og:type" content="website">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;color:#c8d6e5;min-height:100vh}
+.header{background:linear-gradient(135deg,#0d1321,#1a1a2e);border-bottom:1px solid #1e3a5f;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:18px;color:#00d4ff;letter-spacing:1px}
+.header a{color:#00d4ff;text-decoration:none;font-size:12px;padding:6px 14px;border:1px solid #00d4ff44;border-radius:4px}
+.header a:hover{background:#00d4ff22}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.hero{text-align:center;padding:40px 0 30px}
+.hero h2{font-size:28px;color:#fff;margin-bottom:8px}
+.hero p{color:#5a6c7d;font-size:14px}
+.hero .count{color:#00ff88;font-size:36px;font-weight:700}
+.cat-section{margin-bottom:32px}
+.cat-title{font-size:14px;text-transform:uppercase;letter-spacing:2px;color:#00d4ff;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e3a5f}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.card{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:14px;transition:border-color .2s}
+.card:hover{border-color:#00d4ff}
+.card a{text-decoration:none;color:inherit}
+.card .name{color:#fff;font-size:13px;font-weight:600}
+.card .host{color:#5a6c7d;font-size:11px;margin-top:2px}
+.card .rtt{font-size:20px;font-weight:700;margin-top:8px}
+.rtt.good{color:#00ff88}
+.rtt.ok{color:#00d4ff}
+.rtt.warn{color:#ffaa00}
+.rtt.bad{color:#ff4444}
+.card .meta{color:#5a6c7d;font-size:10px;margin-top:4px}
+.cta{text-align:center;padding:48px 0;background:linear-gradient(135deg,#0d132188,#1a1a2e88);border:1px solid #1e3a5f;border-radius:8px;margin-top:32px}
+.cta h3{color:#fff;font-size:20px;margin-bottom:8px}
+.cta p{color:#5a6c7d;font-size:13px;margin-bottom:16px}
+.cta a{display:inline-block;padding:10px 24px;background:#00d4ff22;border:1px solid #00d4ff;color:#00d4ff;border-radius:4px;text-decoration:none;font-size:13px}
+.cta a:hover{background:#00d4ff33}
+footer{text-align:center;padding:24px;color:#5a6c7d;font-size:11px;border-top:1px solid #1e3a5f;margin-top:32px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>NetTrace Status</h1>
+  <a href="/">Dashboard</a>
+</div>
+<div class="container">
+  <div class="hero">
+    <div class="count">{{ total }}</div>
+    <h2>Financial Endpoints Monitored</h2>
+    <p>Real-time latency data updated every 15 minutes from 7 global regions</p>
+  </div>
+  {% for cat, targets in categories.items() %}
+  <div class="cat-section">
+    <div class="cat-title">{{ cat }} ({{ targets|length }})</div>
+    <div class="grid">
+      {% for t in targets %}
+      <div class="card">
+        <a href="/status/{{ t.host }}">
+          <div class="name">{{ t.name }}</div>
+          <div class="host">{{ t.host }}</div>
+          <div class="rtt {% if t.rtt < 20 %}good{% elif t.rtt < 50 %}ok{% elif t.rtt < 100 %}warn{% else %}bad{% endif %}">
+            {{ "%.1f"|format(t.rtt) }}ms
+          </div>
+          <div class="meta">{{ t.hops }} hops &middot; {{ t.last_scan }}</div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+  <div class="cta">
+    <h3>Need this data via API?</h3>
+    <p>Access real-time latency, route changes, and quant signals programmatically.</p>
+    <a href="/">Get API Key &mdash; Free Tier Available</a>
+  </div>
+</div>
+<footer>NetTrace Financial Network Intelligence &middot; Data from 7 global scanner nodes</footer>
+</body>
+</html>

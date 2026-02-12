@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Playground — NetTrace Financial Network Intelligence</title>
+<meta name="description" content="Try the NetTrace API live. Query latency data for 100+ financial endpoints including Binance, Coinbase, NYSE, and more.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;color:#c8d6e5;min-height:100vh}
+.header{background:linear-gradient(135deg,#0d1321,#1a1a2e);border-bottom:1px solid #1e3a5f;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:16px;color:#00d4ff}
+.header a{color:#5a6c7d;text-decoration:none;font-size:12px}
+.container{max-width:900px;margin:0 auto;padding:24px}
+h2{font-size:20px;color:#fff;margin-bottom:8px}
+.subtitle{color:#5a6c7d;font-size:13px;margin-bottom:24px}
+.endpoint-list{margin-bottom:24px}
+.endpoint{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:14px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+.endpoint:hover{border-color:#00d4ff}
+.endpoint .method{color:#00ff88;font-weight:700;font-size:12px;display:inline-block;width:40px}
+.endpoint .path{color:#fff;font-size:13px}
+.endpoint .desc{color:#5a6c7d;font-size:11px;margin-top:4px}
+.endpoint .tier{float:right;font-size:10px;padding:2px 8px;border-radius:3px;background:#1e3a5f;color:#5a6c7d}
+.tier.free{color:#00ff88;background:#00ff8815}
+.tier.pro{color:#00d4ff;background:#00d4ff15}
+.tier.ent{color:#ffaa00;background:#ffaa0015}
+.try-box{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:20px;margin:24px 0}
+.try-box h3{font-size:13px;color:#00d4ff;margin-bottom:12px}
+.input-row{display:flex;gap:8px;margin-bottom:12px}
+.input-row input,.input-row select{flex:1;padding:8px 12px;background:#0a0e17;border:1px solid #1e3a5f;border-radius:4px;color:#c8d6e5;font-family:inherit;font-size:12px}
+.input-row button{padding:8px 20px;background:#00d4ff22;border:1px solid #00d4ff;color:#00d4ff;border-radius:4px;cursor:pointer;font-family:inherit;font-size:12px}
+.input-row button:hover{background:#00d4ff33}
+#result{background:#0a0e17;border:1px solid #1e3a5f;border-radius:4px;padding:12px;font-size:11px;max-height:400px;overflow-y:auto;white-space:pre-wrap;display:none}
+.cta{text-align:center;padding:32px;background:#0d132188;border:1px solid #1e3a5f;border-radius:8px;margin-top:32px}
+.cta h3{color:#fff;font-size:18px;margin-bottom:6px}
+.cta p{color:#5a6c7d;font-size:12px;margin-bottom:12px}
+.cta a{display:inline-block;padding:8px 20px;background:#00d4ff22;border:1px solid #00d4ff;color:#00d4ff;border-radius:4px;text-decoration:none;font-size:12px}
+.pricing-row{display:flex;gap:16px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.price-card{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:16px;text-align:center;min-width:140px}
+.price-card .tier-name{color:#00d4ff;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+.price-card .price{color:#fff;font-size:22px;font-weight:700;margin:6px 0}
+.price-card .price small{font-size:11px;color:#5a6c7d}
+.price-card .feat{color:#5a6c7d;font-size:10px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>API Playground</h1>
+  <a href="/">&larr; Dashboard</a>
+</div>
+<div class="container">
+  <h2>Try the NetTrace API</h2>
+  <p class="subtitle">Live endpoints — no signup required for demo data</p>
+  <div class="endpoint-list">
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/')">
+      <span class="method">GET</span><span class="path">/api/v1/</span><span class="tier free">open</span>
+      <div class="desc">API documentation and endpoint list</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/targets')">
+      <span class="method">GET</span><span class="path">/api/v1/targets</span><span class="tier free">free</span>
+      <div class="desc">List all 100+ monitored financial targets with latest metrics</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/latency/api.binance.com')">
+      <span class="method">GET</span><span class="path">/api/v1/latency/{host}</span><span class="tier free">free</span>
+      <div class="desc">Current latency for a specific target</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/latency/api.binance.com/history')">
+      <span class="method">GET</span><span class="path">/api/v1/latency/{host}/history</span><span class="tier free">free</span>
+      <div class="desc">Historical latency time-series (24h free, 30d Pro, 90d Enterprise)</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/rankings')">
+      <span class="method">GET</span><span class="path">/api/v1/rankings</span><span class="tier free">free</span>
+      <div class="desc">Latency rankings by category</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/signals')">
+      <span class="method">GET</span><span class="path">/api/v1/signals</span><span class="tier pro">pro+</span>
+      <div class="desc">Quant trading signals from latency anomalies and route changes</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/routes/api.binance.com')">
+      <span class="method">GET</span><span class="path">/api/v1/routes/{host}</span><span class="tier pro">pro+</span>
+      <div class="desc">Full hop-by-hop route data with geolocation</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/compare?hosts=api.binance.com,api.coinbase.com')">
+      <span class="method">GET</span><span class="path">/api/v1/compare</span><span class="tier pro">pro+</span>
+      <div class="desc">Head-to-head latency comparison between exchanges</div>
+    </div>
+  </div>
+  <div class="try-box">
+    <h3>Live Request</h3>
+    <div class="input-row">
+      <input type="text" id="apiKeyInput" placeholder="API key (optional for /api/v1/ docs)">
+      <input type="text" id="urlInput" value="/api/v1/" placeholder="/api/v1/targets">
+      <button onclick="runRequest()">Send</button>
+    </div>
+    <div id="result"></div>
+  </div>
+  <div class="cta">
+    <h3>Ready for Production?</h3>
+    <p>Get an API key and start integrating financial network intelligence into your stack.</p>
+    <div class="pricing-row">
+      <div class="price-card"><div class="tier-name">Free</div><div class="price">$0<small>/mo</small></div><div class="feat">100 calls/day, 24h history</div></div>
+      <div class="price-card"><div class="tier-name">Pro</div><div class="price">$249<small>/mo</small></div><div class="feat">10k calls/day, routes, signals</div></div>
+      <div class="price-card"><div class="tier-name">Enterprise</div><div class="price">$2,499<small>/mo</small></div><div class="feat">Unlimited, export, WebSocket</div></div>
+    </div>
+    <br>
+    <a href="/">Sign Up Free</a>
+  </div>
+</div>
+<script>
+function tryEndpoint(path) {
+  document.getElementById('urlInput').value = path;
+  runRequest();
+}
+function runRequest() {
+  const url = document.getElementById('urlInput').value;
+  const key = document.getElementById('apiKeyInput').value;
+  const el = document.getElementById('result');
+  el.style.display = 'block';
+  el.textContent = 'Loading...';
+  const headers = {};
+  if (key) headers['Authorization'] = 'Bearer ' + key;
+  fetch(url, { headers })
+    .then(r => r.json())
+    .then(data => { el.textContent = JSON.stringify(data, null, 2); })
+    .catch(e => { el.textContent = 'Error: ' + e.message; });
+}
+</script>
+</body>
+</html>
