@@ -417,7 +417,9 @@ def create_crypto_checkout():
             headers={
                 "Content-Type": "application/json",
                 "X-CC-Api-Key": COINBASE_COMMERCE_API_KEY,
-                "X-CC-Version": "2018-03-22"
+                "X-CC-Version": "2018-03-22",
+                "Accept": "application/json",
+                "User-Agent": "NetTrace/1.0"
             }
         )
         with urllib.request.urlopen(req, timeout=10) as resp:
