@@ -13,6 +13,10 @@ import threading
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import base64
+import hashlib
+import hmac
+
 import stripe
 from flask import (
     Flask, render_template, request, jsonify, redirect, url_for, g
@@ -186,6 +190,7 @@ def init_db():
         -- Trading dashboard: portfolio snapshots pushed from live trader
         CREATE TABLE IF NOT EXISTS trading_snapshots (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER DEFAULT 1,
             total_value_usd REAL,
             daily_pnl REAL,
             trades_today INTEGER DEFAULT 0,
@@ -195,6 +200,45 @@ def init_db():
             recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         CREATE INDEX IF NOT EXISTS idx_trading_snapshots_time ON trading_snapshots(recorded_at);
+
+        -- Per-user exchange/wallet credentials (encrypted at rest)
+        CREATE TABLE IF NOT EXISTS user_credentials (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            exchange TEXT NOT NULL,
+            credential_data TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_user_credentials_user ON user_credentials(user_id);
+
+        -- Stripe Treasury accounts
+        CREATE TABLE IF NOT EXISTS treasury_accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            stripe_fa_id TEXT,
+            balance_cents INTEGER DEFAULT 0,
+            yield_earned_cents INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_treasury_user ON treasury_accounts(user_id);
+
+        -- Stripe Financial Connections (linked external accounts)
+        CREATE TABLE IF NOT EXISTS financial_connections (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            fc_account_id TEXT,
+            institution TEXT,
+            account_name TEXT,
+            balance_cents INTEGER DEFAULT 0,
+            currency TEXT DEFAULT 'usd',
+            last_synced_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_fc_user ON financial_connections(user_id);
     """)
     # Migration: add columns if missing
     migrations = [
@@ -203,6 +247,8 @@ def init_db():
         "ALTER TABLE users ADD COLUMN subscription_expires_at TIMESTAMP",
         "ALTER TABLE users ADD COLUMN payment_method TEXT DEFAULT 'none'",
         "ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'free'",
+        "ALTER TABLE trading_snapshots ADD COLUMN user_id INTEGER DEFAULT 1",
+        "CREATE INDEX IF NOT EXISTS idx_trading_snapshots_user ON trading_snapshots(user_id, recorded_at)",
     ]
     for sql in migrations:
         try:
@@ -434,6 +480,16 @@ def execute_scan(scan_id, host, user_id, sid=None):
 
 @app.route("/")
 def index():
+    # Enterprise/Pro users go straight to trading dashboard
+    if current_user.is_authenticated:
+        try:
+            db = get_db()
+            row = db.execute("SELECT tier FROM users WHERE id = ?", (current_user.id,)).fetchone()
+            user_tier = row["tier"] if row and "tier" in row.keys() else "free"
+            if user_tier in ("enterprise", "enterprise_pro", "government"):
+                return redirect(url_for("trading_dashboard"))
+        except Exception:
+            pass
     return render_template("index.html",
                            stripe_pk=STRIPE_PUBLISHABLE_KEY,
                            price_id=STRIPE_PRICE_ID,
@@ -1325,14 +1381,18 @@ def trading_data():
     if user_tier not in ("enterprise", "enterprise_pro", "government") and not current_user.is_subscribed:
         return jsonify({"error": "Enterprise tier required"}), 403
 
-    # Latest snapshot
+    user_id = current_user.id
+
+    # Latest snapshot (filtered by user)
     snap = db.execute(
-        "SELECT * FROM trading_snapshots ORDER BY id DESC LIMIT 1"
+        "SELECT * FROM trading_snapshots WHERE user_id = ? ORDER BY id DESC LIMIT 1",
+        (user_id,)
     ).fetchone()
 
-    # All snapshots for chart (last 24h)
+    # All snapshots for chart (last 24h, filtered by user)
     snapshots = db.execute(
-        "SELECT total_value_usd, daily_pnl, trades_today, recorded_at FROM trading_snapshots WHERE recorded_at >= datetime('now', '-24 hours') ORDER BY recorded_at ASC"
+        "SELECT total_value_usd, daily_pnl, trades_today, recorded_at FROM trading_snapshots WHERE user_id = ? AND recorded_at >= datetime('now', '-24 hours') ORDER BY recorded_at ASC",
+        (user_id,)
     ).fetchall()
 
     # Recent signals
@@ -1410,12 +1470,16 @@ def receive_trading_snapshot():
     if not data:
         return jsonify({"error": "No data"}), 400
 
+    # Accept user_id in payload (default: 1 for Scott's agents)
+    user_id = data.get("user_id", 1)
+
     db = get_db()
     db.execute(
         """INSERT INTO trading_snapshots
-           (total_value_usd, daily_pnl, trades_today, trades_total, holdings_json, trades_json)
-           VALUES (?, ?, ?, ?, ?, ?)""",
-        (data.get("total_value_usd", 0),
+           (user_id, total_value_usd, daily_pnl, trades_today, trades_total, holdings_json, trades_json)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        (user_id,
+         data.get("total_value_usd", 0),
          data.get("daily_pnl", 0),
          data.get("trades_today", 0),
          data.get("trades_total", 0),
@@ -1424,6 +1488,474 @@ def receive_trading_snapshot():
     )
     db.commit()
     return jsonify({"ok": True})
+
+
+# ---------------------------------------------------------------------------
+# Credential encryption (AES-256-GCM via PBKDF2-derived key)
+# ---------------------------------------------------------------------------
+
+def _derive_key(password: str, salt: bytes) -> bytes:
+    """Derive a 32-byte AES key from password + salt via PBKDF2."""
+    return hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100_000, dklen=32)
+
+
+def encrypt_credential(plaintext: str, password: str) -> str:
+    """Encrypt plaintext with AES-256-GCM. Returns base64(salt + nonce + tag + ciphertext)."""
+    import os as _os
+    try:
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    except ImportError:
+        # Fallback: XOR with PBKDF2 key (not ideal but works without cryptography lib)
+        salt = _os.urandom(16)
+        key = _derive_key(password, salt)
+        data = plaintext.encode()
+        encrypted = bytes(a ^ b for a, b in zip(data, (key * ((len(data) // 32) + 1))[:len(data)]))
+        mac = hmac.new(key, encrypted, hashlib.sha256).digest()[:16]
+        return base64.b64encode(salt + mac + encrypted).decode()
+
+    salt = _os.urandom(16)
+    key = _derive_key(password, salt)
+    nonce = _os.urandom(12)
+    aesgcm = AESGCM(key)
+    ciphertext = aesgcm.encrypt(nonce, plaintext.encode(), None)
+    return base64.b64encode(salt + nonce + ciphertext).decode()
+
+
+def decrypt_credential(encrypted_b64: str, password: str) -> str:
+    """Decrypt AES-256-GCM encrypted credential."""
+    raw = base64.b64decode(encrypted_b64)
+    salt = raw[:16]
+    key = _derive_key(password, salt)
+
+    try:
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+        nonce = raw[16:28]
+        ciphertext = raw[28:]
+        aesgcm = AESGCM(key)
+        return aesgcm.decrypt(nonce, ciphertext, None).decode()
+    except ImportError:
+        # Fallback: XOR decrypt
+        mac = raw[16:32]
+        encrypted = raw[32:]
+        expected_mac = hmac.new(key, encrypted, hashlib.sha256).digest()[:16]
+        if not hmac.compare_digest(mac, expected_mac):
+            raise ValueError("Decryption failed: invalid password or corrupted data")
+        decrypted = bytes(a ^ b for a, b in zip(encrypted, (key * ((len(encrypted) // 32) + 1))[:len(encrypted)]))
+        return decrypted.decode()
+
+
+# ---------------------------------------------------------------------------
+# Credential management endpoints
+# ---------------------------------------------------------------------------
+
+@app.route("/api/credentials", methods=["GET"])
+@login_required
+def list_credentials():
+    """List connected exchanges for current user (no secrets returned)."""
+    db = get_db()
+    creds = db.execute(
+        "SELECT id, exchange, created_at FROM user_credentials WHERE user_id = ? ORDER BY created_at",
+        (current_user.id,)
+    ).fetchall()
+    return jsonify({
+        "credentials": [{"id": c["id"], "exchange": c["exchange"],
+                          "created_at": c["created_at"]} for c in creds]
+    })
+
+
+@app.route("/api/credentials", methods=["POST"])
+@login_required
+def store_credential():
+    """Store encrypted exchange credentials for current user."""
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data"}), 400
+
+    exchange = data.get("exchange", "").strip().lower()
+    if exchange not in ("coinbase", "metamask", "wallet"):
+        return jsonify({"error": "Unsupported exchange. Use: coinbase, metamask, wallet"}), 400
+
+    credential_json = json.dumps({
+        k: v for k, v in data.items() if k not in ("exchange",)
+    })
+
+    # Encrypt with the app secret key (server-side encryption at rest)
+    encrypted = encrypt_credential(credential_json, app.secret_key)
+
+    db = get_db()
+    # Upsert: replace existing credential for same user + exchange
+    db.execute(
+        "DELETE FROM user_credentials WHERE user_id = ? AND exchange = ?",
+        (current_user.id, exchange)
+    )
+    db.execute(
+        "INSERT INTO user_credentials (user_id, exchange, credential_data) VALUES (?, ?, ?)",
+        (current_user.id, exchange, encrypted)
+    )
+    db.commit()
+    return jsonify({"ok": True, "exchange": exchange})
+
+
+@app.route("/api/credentials/<int:cred_id>", methods=["DELETE"])
+@login_required
+def delete_credential(cred_id):
+    """Delete a stored credential (only own credentials)."""
+    db = get_db()
+    db.execute(
+        "DELETE FROM user_credentials WHERE id = ? AND user_id = ?",
+        (cred_id, current_user.id)
+    )
+    db.commit()
+    return jsonify({"ok": True})
+
+
+# ---------------------------------------------------------------------------
+# Wallet Balances + Venue Comparison (trading dashboard endpoints)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/wallet-balances")
+@login_required
+def wallet_balances():
+    """Return multi-chain wallet balances. Reads from wallet_connector."""
+    try:
+        import sys
+        agents_dir = str(BASE_DIR / "agents")
+        if agents_dir not in sys.path:
+            sys.path.insert(0, agents_dir)
+        from wallet_connector import WalletConnector
+
+        wallet_addr = os.environ.get("WALLET_ADDRESS", "")
+        if not wallet_addr:
+            return jsonify({"balances": [], "total_usd": 0, "error": "No wallet configured"})
+
+        chains = ["ethereum", "base", "polygon", "arbitrum"]
+        balances = []
+        total_usd = 0.0
+
+        for chain in chains:
+            try:
+                wc = WalletConnector(wallet_addr, chain)
+                bal = wc.get_balances(wallet_addr)
+                for token, amount in bal.items():
+                    if amount > 0:
+                        balances.append({
+                            "chain": chain,
+                            "token": token,
+                            "amount": round(amount, 8),
+                        })
+            except Exception as e:
+                balances.append({"chain": chain, "token": "ERROR", "amount": 0, "error": str(e)})
+
+        # Also check Solana
+        try:
+            wc_sol = WalletConnector(wallet_addr, "solana")
+            sol_bal = wc_sol.get_balances(wallet_addr)
+            for token, amount in sol_bal.items():
+                if amount > 0:
+                    balances.append({"chain": "solana", "token": token, "amount": round(amount, 8)})
+        except Exception:
+            pass
+
+        return jsonify({"balances": balances, "total_usd": round(total_usd, 2)})
+    except ImportError:
+        return jsonify({"balances": [], "total_usd": 0, "error": "wallet_connector not available"})
+    except Exception as e:
+        return jsonify({"balances": [], "total_usd": 0, "error": str(e)})
+
+
+@app.route("/api/venue-comparison")
+@login_required
+def venue_comparison():
+    """Compare prices across CEX (Coinbase) and DEX (Uniswap, Jupiter)."""
+    pair = request.args.get("pair", "ETH-USDC")
+    amount = float(request.args.get("amount", "0.1"))
+
+    parts = pair.split("-")
+    if len(parts) != 2:
+        return jsonify({"error": "pair format: TOKEN-TOKEN"}), 400
+    token_in, token_out = parts
+
+    venues = []
+
+    # Coinbase price
+    try:
+        url = f"https://api.coinbase.com/v2/prices/{token_in}-USD/spot"
+        req = urllib.request.Request(url, headers={"User-Agent": "NetTrace/1.0"})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode())
+        coinbase_price = float(data["data"]["amount"])
+        venues.append({
+            "venue": "Coinbase",
+            "price": coinbase_price,
+            "amount_out": round(amount * coinbase_price, 6) if token_out in ("USDC", "USD") else round(amount / coinbase_price, 8),
+            "fee_pct": 0.4,
+            "type": "CEX",
+        })
+    except Exception as e:
+        venues.append({"venue": "Coinbase", "error": str(e), "type": "CEX"})
+
+    # DEX prices via dex_connector (if available)
+    try:
+        import sys
+        agents_dir = str(BASE_DIR / "agents")
+        if agents_dir not in sys.path:
+            sys.path.insert(0, agents_dir)
+        from dex_connector import DEXConnector
+
+        dex = DEXConnector(chain="base")
+
+        # Uniswap quote
+        try:
+            uni_quote = dex.get_quote_uniswap(token_in, token_out, amount, "base")
+            if "error" not in uni_quote:
+                venues.append({
+                    "venue": "Uniswap (Base)",
+                    "price": uni_quote.get("price", 0),
+                    "amount_out": uni_quote.get("amount_out", 0),
+                    "fee_pct": uni_quote.get("fee_pct", 0.3),
+                    "type": "DEX",
+                })
+            else:
+                venues.append({"venue": "Uniswap (Base)", "error": uni_quote["error"], "type": "DEX"})
+        except Exception as e:
+            venues.append({"venue": "Uniswap (Base)", "error": str(e), "type": "DEX"})
+
+        # Jupiter quote (Solana pairs)
+        try:
+            from dex_connector import SOLANA_MINTS
+            if token_in in SOLANA_MINTS or token_out in SOLANA_MINTS:
+                jup_quote = dex.get_quote_jupiter(token_in, token_out, amount)
+                if "error" not in jup_quote:
+                    venues.append({
+                        "venue": "Jupiter (Solana)",
+                        "price": jup_quote.get("price", 0),
+                        "amount_out": jup_quote.get("amount_out", 0),
+                        "fee_pct": jup_quote.get("price_impact_pct", 0),
+                        "type": "DEX",
+                    })
+        except Exception:
+            pass
+
+    except ImportError:
+        pass
+
+    return jsonify({"pair": pair, "amount": amount, "venues": venues})
+
+
+# ---------------------------------------------------------------------------
+# Stripe Treasury endpoints
+# ---------------------------------------------------------------------------
+
+@app.route("/api/treasury/balance")
+@login_required
+def treasury_balance():
+    """Get treasury account balance for current user."""
+    db = get_db()
+    acct = db.execute(
+        "SELECT stripe_fa_id, balance_cents, yield_earned_cents, status, created_at "
+        "FROM treasury_accounts WHERE user_id = ? ORDER BY id DESC LIMIT 1",
+        (current_user.id,)
+    ).fetchone()
+
+    if not acct:
+        return jsonify({
+            "has_treasury": False,
+            "balance": 0,
+            "yield_earned": 0,
+            "status": "none",
+        })
+
+    # If we have a Stripe FA ID, try to sync balance from Stripe
+    if acct["stripe_fa_id"] and stripe.api_key:
+        try:
+            fa = stripe.treasury.FinancialAccount.retrieve(acct["stripe_fa_id"])
+            balance_cents = fa.balance.cash.usd if hasattr(fa, 'balance') else acct["balance_cents"]
+            db.execute(
+                "UPDATE treasury_accounts SET balance_cents = ? WHERE user_id = ? AND stripe_fa_id = ?",
+                (balance_cents, current_user.id, acct["stripe_fa_id"])
+            )
+            db.commit()
+        except Exception:
+            balance_cents = acct["balance_cents"]
+    else:
+        balance_cents = acct["balance_cents"]
+
+    return jsonify({
+        "has_treasury": True,
+        "balance": round(balance_cents / 100, 2),
+        "yield_earned": round(acct["yield_earned_cents"] / 100, 2),
+        "status": acct["status"],
+        "created_at": acct["created_at"],
+    })
+
+
+@app.route("/api/treasury/create", methods=["POST"])
+@login_required
+def treasury_create():
+    """Create a Stripe Treasury financial account."""
+    if not stripe.api_key:
+        return jsonify({"error": "Stripe not configured"}), 503
+
+    db = get_db()
+    existing = db.execute(
+        "SELECT id FROM treasury_accounts WHERE user_id = ? AND status != 'closed'",
+        (current_user.id,)
+    ).fetchone()
+    if existing:
+        return jsonify({"error": "Treasury account already exists"}), 409
+
+    try:
+        # Ensure user has a Stripe customer
+        row = db.execute("SELECT stripe_customer_id FROM users WHERE id = ?",
+                         (current_user.id,)).fetchone()
+        customer_id = row["stripe_customer_id"] if row else None
+        if not customer_id:
+            customer = stripe.Customer.create(
+                metadata={"nettrace_user_id": str(current_user.id)}
+            )
+            customer_id = customer.id
+            db.execute("UPDATE users SET stripe_customer_id = ? WHERE id = ?",
+                       (customer_id, current_user.id))
+
+        # Create Financial Account
+        fa = stripe.treasury.FinancialAccount.create(
+            supported_currencies=["usd"],
+            features={
+                "card_issuing": {"requested": True},
+                "deposit_insurance": {"requested": True},
+                "financial_addresses": {"aba": {"requested": True}},
+                "inbound_transfers": {"ach": {"requested": True}},
+                "outbound_payments": {"ach": {"requested": True}, "us_domestic_wire": {"requested": True}},
+                "outbound_transfers": {"ach": {"requested": True}, "us_domestic_wire": {"requested": True}},
+            },
+        )
+
+        db.execute(
+            "INSERT INTO treasury_accounts (user_id, stripe_fa_id, status) VALUES (?, ?, ?)",
+            (current_user.id, fa.id, fa.status)
+        )
+        db.commit()
+
+        return jsonify({
+            "ok": True,
+            "fa_id": fa.id,
+            "status": fa.status,
+        })
+    except stripe.error.StripeError as e:
+        return jsonify({"error": f"Stripe error: {str(e)}"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/treasury/deploy", methods=["POST"])
+@login_required
+def treasury_deploy():
+    """Deploy capital from treasury to an exchange or wallet."""
+    if not stripe.api_key:
+        return jsonify({"error": "Stripe not configured"}), 503
+
+    data = request.get_json() or {}
+    amount_usd = data.get("amount", 0)
+    destination = data.get("destination", "")  # "coinbase", "wallet"
+
+    if amount_usd <= 0 or amount_usd > 5:
+        return jsonify({"error": "Amount must be $0.01-$5.00 (trading rule: max $5/trade)"}), 400
+    if destination not in ("coinbase", "wallet"):
+        return jsonify({"error": "Destination must be 'coinbase' or 'wallet'"}), 400
+
+    db = get_db()
+    acct = db.execute(
+        "SELECT stripe_fa_id, balance_cents FROM treasury_accounts WHERE user_id = ? AND status = 'open'",
+        (current_user.id,)
+    ).fetchone()
+    if not acct:
+        return jsonify({"error": "No open treasury account"}), 404
+
+    amount_cents = int(amount_usd * 100)
+    if amount_cents > acct["balance_cents"]:
+        return jsonify({"error": "Insufficient treasury balance"}), 400
+
+    # Record the deployment (actual transfer handled by agent)
+    db.execute(
+        "UPDATE treasury_accounts SET balance_cents = balance_cents - ? WHERE user_id = ? AND stripe_fa_id = ?",
+        (amount_cents, current_user.id, acct["stripe_fa_id"])
+    )
+    db.commit()
+
+    return jsonify({
+        "ok": True,
+        "amount": amount_usd,
+        "destination": destination,
+        "remaining_balance": round((acct["balance_cents"] - amount_cents) / 100, 2),
+    })
+
+
+# ---------------------------------------------------------------------------
+# Financial Connections endpoints
+# ---------------------------------------------------------------------------
+
+@app.route("/api/fc/link", methods=["POST"])
+@login_required
+def fc_link():
+    """Start a Stripe Financial Connections Link session."""
+    if not stripe.api_key:
+        return jsonify({"error": "Stripe not configured"}), 503
+
+    try:
+        # Ensure Stripe customer exists
+        db = get_db()
+        row = db.execute("SELECT stripe_customer_id FROM users WHERE id = ?",
+                         (current_user.id,)).fetchone()
+        customer_id = row["stripe_customer_id"] if row else None
+        if not customer_id:
+            customer = stripe.Customer.create(
+                metadata={"nettrace_user_id": str(current_user.id)}
+            )
+            customer_id = customer.id
+            db.execute("UPDATE users SET stripe_customer_id = ? WHERE id = ?",
+                       (customer_id, current_user.id))
+            db.commit()
+
+        session = stripe.financial_connections.Session.create(
+            account_holder={"type": "customer", "customer": customer_id},
+            permissions=["balances", "transactions"],
+        )
+
+        return jsonify({
+            "ok": True,
+            "client_secret": session.client_secret,
+            "session_id": session.id,
+        })
+    except stripe.error.StripeError as e:
+        return jsonify({"error": f"Stripe error: {str(e)}"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/fc/accounts")
+@login_required
+def fc_accounts():
+    """List linked Financial Connections accounts for current user."""
+    db = get_db()
+    rows = db.execute(
+        "SELECT id, fc_account_id, institution, account_name, balance_cents, currency, last_synced_at "
+        "FROM financial_connections WHERE user_id = ? ORDER BY created_at",
+        (current_user.id,)
+    ).fetchall()
+
+    accounts = []
+    for r in rows:
+        accounts.append({
+            "id": r["id"],
+            "account_id": r["fc_account_id"],
+            "institution": r["institution"],
+            "name": r["account_name"],
+            "balance": round(r["balance_cents"] / 100, 2),
+            "currency": r["currency"],
+            "last_synced": r["last_synced_at"],
+        })
+
+    return jsonify({"accounts": accounts})
 
 
 # ---------------------------------------------------------------------------

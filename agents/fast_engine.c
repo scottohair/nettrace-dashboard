@@ -359,6 +359,131 @@ int analyze_pairs(const Candle candles[][MAX_CANDLES], const int candle_counts[]
 }
 
 /* ============================================================
+ * Adaptive Risk Engine — Kelly-inspired position sizing
+ *
+ * Scales all risk parameters with portfolio value automatically.
+ * No static constants — everything is a function of capital.
+ * ============================================================ */
+
+typedef struct {
+    double portfolio_value;
+    double max_trade_usd;
+    double max_daily_loss;
+    double min_reserve;
+    double optimal_grid_size;
+    int    optimal_grid_levels;
+    double optimal_dca_daily;
+    double streak_multiplier;
+    int    win_streak;
+    int    loss_streak;
+    double kelly_fraction;    /* optimal bet fraction */
+} AdaptiveRisk;
+
+/* Kelly Criterion: f* = (bp - q) / b
+ * where b = odds, p = win probability, q = 1-p
+ * We use fractional Kelly (25%) for safety */
+static double kelly_fraction(double win_rate, double avg_win, double avg_loss) {
+    if (avg_loss <= 0 || win_rate <= 0) return 0.01;
+    double b = avg_win / avg_loss;  /* payoff ratio */
+    double p = win_rate;
+    double q = 1.0 - p;
+    double f = (b * p - q) / b;
+    /* Fractional Kelly: use 25% of full Kelly */
+    f *= 0.25;
+    /* Clamp to [1%, 20%] of portfolio */
+    if (f < 0.01) f = 0.01;
+    if (f > 0.20) f = 0.20;
+    return f;
+}
+
+AdaptiveRisk compute_adaptive_risk(
+    double portfolio_value,
+    int win_streak,
+    int loss_streak,
+    double win_rate,    /* historical win rate 0-1 */
+    double avg_win,     /* average win in USD */
+    double avg_loss     /* average loss in USD */
+) {
+    AdaptiveRisk risk = {0};
+    risk.portfolio_value = portfolio_value;
+    risk.win_streak = win_streak;
+    risk.loss_streak = loss_streak;
+
+    /* Streak multiplier: size up on wins, down on losses */
+    if (win_streak > 0) {
+        double bonus = win_streak * 0.05;
+        if (bonus > 0.25) bonus = 0.25;
+        risk.streak_multiplier = 1.0 + bonus;
+    } else if (loss_streak > 0) {
+        risk.streak_multiplier = 1.0 / (1.0 + loss_streak * 0.5);
+        if (risk.streak_multiplier < 0.25) risk.streak_multiplier = 0.25;
+    } else {
+        risk.streak_multiplier = 1.0;
+    }
+
+    /* Kelly-optimal fraction */
+    risk.kelly_fraction = kelly_fraction(win_rate, avg_win, avg_loss);
+
+    /* Max trade: Kelly fraction * portfolio * streak */
+    risk.max_trade_usd = portfolio_value * risk.kelly_fraction * risk.streak_multiplier;
+    if (risk.max_trade_usd < 1.00) risk.max_trade_usd = 1.00;
+    /* Hard cap at 20% of portfolio */
+    if (risk.max_trade_usd > portfolio_value * 0.20)
+        risk.max_trade_usd = portfolio_value * 0.20;
+
+    /* Daily loss: 5% of portfolio */
+    risk.max_daily_loss = portfolio_value * 0.05;
+    if (risk.max_daily_loss < 1.00) risk.max_daily_loss = 1.00;
+
+    /* Reserve: 15% of portfolio, minimum $1.50 */
+    risk.min_reserve = portfolio_value * 0.15;
+    if (risk.min_reserve < 1.50) risk.min_reserve = 1.50;
+
+    /* Grid sizing: deploy up to 60% across levels */
+    double deployable = portfolio_value * 0.60;
+    risk.optimal_grid_levels = (int)(deployable / fmax(1.0, risk.max_trade_usd));
+    if (risk.optimal_grid_levels < 2) risk.optimal_grid_levels = 2;
+    if (risk.optimal_grid_levels > 10) risk.optimal_grid_levels = 10;
+    risk.optimal_grid_size = deployable / risk.optimal_grid_levels;
+    if (risk.optimal_grid_size < 1.00) risk.optimal_grid_size = 1.00;
+
+    /* DCA: 2-5% of portfolio per day */
+    risk.optimal_dca_daily = portfolio_value * 0.03;
+    if (risk.optimal_dca_daily < 0.30) risk.optimal_dca_daily = 0.30;
+    if (risk.optimal_dca_daily > 100.0) risk.optimal_dca_daily = 100.0;
+
+    return risk;
+}
+
+/* ============================================================
+ * Grid Price Calculator — compute optimal grid levels in C
+ * Returns number of levels written to output arrays
+ * ============================================================ */
+
+int compute_grid_levels(
+    double center_price,
+    double spacing_pct,
+    int levels_above,
+    int levels_below,
+    double *buy_prices,   /* output: buy level prices */
+    double *sell_prices,  /* output: sell level prices */
+    int max_levels
+) {
+    int total = 0;
+
+    for (int i = 1; i <= levels_below && total < max_levels; i++) {
+        buy_prices[i-1] = center_price * (1.0 - spacing_pct * i);
+        total++;
+    }
+    for (int i = 1; i <= levels_above && total < max_levels; i++) {
+        sell_prices[i-1] = center_price * (1.0 + spacing_pct * i);
+        total++;
+    }
+
+    return total;
+}
+
+/* ============================================================
  * Performance Benchmarking
  * ============================================================ */
 
@@ -420,6 +545,38 @@ void benchmark(void) {
 
     printf("\nRegime: %d | RSI: %.1f | ATR: %.2f | VWAP: %.2f\n",
            ind.regime, ind.rsi_14, ind.atr_14, ind.vwap);
+
+    /* Benchmark adaptive risk */
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    for (int i = 0; i < iterations * 10; i++) {
+        compute_adaptive_risk(1200.0, 3, 0, 0.65, 2.50, 1.80);
+    }
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    elapsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("Adaptive risk (%d iterations): %.3f ms total, %.1f ns/iter\n",
+           iterations * 10, elapsed * 1000, elapsed * 1e9 / (iterations * 10));
+
+    /* Show adaptive risk at different portfolio sizes */
+    printf("\nAdaptive Risk Scaling:\n");
+    double test_vals[] = {13.48, 100, 500, 1200, 5000, 10000};
+    for (int i = 0; i < 6; i++) {
+        AdaptiveRisk r = compute_adaptive_risk(test_vals[i], 0, 0, 0.60, 2.0, 1.5);
+        printf("  $%9.2f -> max_trade $%.2f | daily_loss $%.2f | reserve $%.2f | "
+               "grid $%.2f x %d | kelly %.1f%%\n",
+               r.portfolio_value, r.max_trade_usd, r.max_daily_loss, r.min_reserve,
+               r.optimal_grid_size, r.optimal_grid_levels, r.kelly_fraction * 100);
+    }
+
+    /* Benchmark grid level calculation */
+    double buy_p[20], sell_p[20];
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    for (int i = 0; i < iterations * 10; i++) {
+        compute_grid_levels(68000.0, 0.01, 5, 5, buy_p, sell_p, 20);
+    }
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    elapsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("\nGrid levels (%d iterations): %.3f ms total, %.1f ns/iter\n",
+           iterations * 10, elapsed * 1000, elapsed * 1e9 / (iterations * 10));
 }
 
 /* Entry point for testing */

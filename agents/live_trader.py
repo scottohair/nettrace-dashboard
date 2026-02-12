@@ -52,7 +52,7 @@ NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 MIN_TRADE_USD = 1.00       # Coinbase min is ~$1
 MAX_TRADE_USD = 5.00       # Never risk more than $5 per trade
 MAX_DAILY_LOSS_USD = 2.00  # Stop trading after $2 loss in a day
-SIGNAL_MIN_CONFIDENCE = 0.55
+SIGNAL_MIN_CONFIDENCE = 0.70
 CHECK_INTERVAL = 120       # Check every 2 minutes
 POSITION_HOLD_SECONDS = 300  # Hold for 5 minutes then re-evaluate
 
@@ -97,7 +97,7 @@ class LiveTrader:
         self.db.commit()
 
     def get_portfolio_value(self):
-        """Get total portfolio value in USD."""
+        """Get total portfolio value in USD (includes funds locked in open orders)."""
         accounts = self.exchange._request("GET", "/api/v3/brokerage/accounts?limit=250")
         if "accounts" not in accounts:
             logger.error("Failed to get accounts: %s", accounts)
@@ -107,19 +107,27 @@ class LiveTrader:
         holdings = {}
         for acc in accounts["accounts"]:
             bal = acc.get("available_balance", {})
+            hold = acc.get("hold", {})
             amount = float(bal.get("value", 0))
+            held = float(hold.get("value", 0))
+            total_amount = amount + held
             currency = acc.get("currency", "")
-            if amount <= 0:
+            if total_amount <= 0:
                 continue
 
             if currency in ("USD", "USDC"):
-                usd_value = amount
+                usd_value = total_amount
             else:
                 price = self.pricefeed.get_price(f"{currency}-USD")
-                usd_value = amount * price if price else 0
+                usd_value = total_amount * price if price else 0
 
             if usd_value > 0.01:
-                holdings[currency] = {"amount": amount, "usd_value": round(usd_value, 2)}
+                holdings[currency] = {
+                    "amount": total_amount,
+                    "available": amount,
+                    "held": held,
+                    "usd_value": round(usd_value, 2),
+                }
                 total_usd += usd_value
 
         return round(total_usd, 2), holdings
@@ -242,9 +250,9 @@ class LiveTrader:
                 logger.debug("Skipping %s — regime: %s", pair, regime.get("regime"))
                 continue
 
-            # Check if C engine generated a buy signal
+            # Check if C engine generated a buy signal (must meet same 0.70 threshold)
             c_sig = regime.get("c_signal", {})
-            if c_sig and c_sig.get("signal_type") == "BUY" and c_sig.get("confidence", 0) > 0.65:
+            if c_sig and c_sig.get("signal_type") == "BUY" and c_sig.get("confidence", 0) >= 0.70:
                 buy_signals.setdefault(pair, []).append({
                     "signal_type": "c_engine_" + c_sig.get("reason", ""),
                     "confidence": c_sig.get("confidence", 0),
@@ -278,22 +286,21 @@ class LiveTrader:
             break  # One trade per cycle
 
     def _execute_trade(self, pair, side, usd_amount, signal):
-        """Execute a real trade on Coinbase."""
+        """Execute a real BUY trade on Coinbase. SELL is disabled (accumulation mode)."""
+        if side.upper() != "BUY":
+            logger.warning("BLOCKED SELL on %s — accumulation mode, BUY only until portfolio > $100", pair)
+            return
+
         price = self.pricefeed.get_price(pair)
         if not price:
             logger.warning("No price for %s", pair)
             return
 
-        logger.info("EXECUTING: %s %s | $%.2f @ $%.2f | signal=%s conf=%.2f",
-                     side, pair, usd_amount, price,
+        logger.info("EXECUTING: BUY %s | $%.2f @ $%.2f | signal=%s conf=%.2f",
+                     pair, usd_amount, price,
                      signal.get("signal_type"), float(signal.get("confidence", 0)))
 
-        if side == "BUY":
-            result = self.exchange.place_order(pair, "BUY", round(usd_amount, 2))
-        else:
-            # For SELL, we need base currency amount
-            base_size = round(usd_amount / price, 8)
-            result = self.exchange.place_order(pair, "SELL", base_size)
+        result = self.exchange.place_order(pair, "BUY", round(usd_amount, 2))
 
         order_id = None
         status = "failed"

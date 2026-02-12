@@ -1,0 +1,19 @@
+# Local-only dependencies (not deployed to Fly.io — too heavy for container)
+# Install: pip install -r agents/requirements-local.txt
+
+# Production-grade Uniswap swap helpers
+web3-ethereum-defi>=0.25
+
+# Universal Router + Permit2 decoder
+uniswap-universal-router-decoder>=1.1
+
+# Solana signing (for Jupiter swaps)
+solders>=0.21
+
+# ML inference (Apple Metal / MLX)
+mlx>=0.20
+mlx-lm>=0.18
+
+# Fast numerical
+numpy>=1.26
+pandas>=2.2

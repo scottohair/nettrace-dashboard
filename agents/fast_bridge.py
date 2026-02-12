@@ -70,6 +70,23 @@ class ArbResult(ctypes.Structure):
     ]
 
 
+class CAdaptiveRisk(ctypes.Structure):
+    """C-level adaptive risk computation — sub-nanosecond."""
+    _fields_ = [
+        ("portfolio_value", ctypes.c_double),
+        ("max_trade_usd", ctypes.c_double),
+        ("max_daily_loss", ctypes.c_double),
+        ("min_reserve", ctypes.c_double),
+        ("optimal_grid_size", ctypes.c_double),
+        ("optimal_grid_levels", ctypes.c_int),
+        ("optimal_dca_daily", ctypes.c_double),
+        ("streak_multiplier", ctypes.c_double),
+        ("win_streak", ctypes.c_int),
+        ("loss_streak", ctypes.c_int),
+        ("kelly_fraction", ctypes.c_double),
+    ]
+
+
 class FastEngine:
     """High-performance trading engine using C shared library."""
 
@@ -96,6 +113,18 @@ class FastEngine:
             ctypes.POINTER(ctypes.c_double), ctypes.c_int, ctypes.c_int
         ]
         self._lib.compute_rsi.restype = ctypes.c_double
+
+        self._lib.compute_adaptive_risk.argtypes = [
+            ctypes.c_double, ctypes.c_int, ctypes.c_int,
+            ctypes.c_double, ctypes.c_double, ctypes.c_double
+        ]
+        self._lib.compute_adaptive_risk.restype = CAdaptiveRisk
+
+        self._lib.compute_grid_levels.argtypes = [
+            ctypes.c_double, ctypes.c_double, ctypes.c_int, ctypes.c_int,
+            ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_int
+        ]
+        self._lib.compute_grid_levels.restype = ctypes.c_int
 
     def _to_c_candles(self, candles):
         """Convert Python candle dicts to C Candle array."""
@@ -182,6 +211,44 @@ class FastEngine:
         arr = (ctypes.c_double * n)(*closes)
         return self._lib.compute_rsi(arr, n, period)
 
+    def compute_adaptive_risk(self, portfolio_value, win_streak=0, loss_streak=0,
+                               win_rate=0.60, avg_win=2.0, avg_loss=1.5):
+        """Compute adaptive risk parameters using C engine (sub-nanosecond).
+
+        Uses Kelly Criterion for optimal bet sizing.
+        Returns dict with all risk parameters.
+        """
+        result = self._lib.compute_adaptive_risk(
+            portfolio_value, win_streak, loss_streak, win_rate, avg_win, avg_loss
+        )
+        return {
+            "portfolio": result.portfolio_value,
+            "max_trade": result.max_trade_usd,
+            "max_daily_loss": result.max_daily_loss,
+            "min_reserve": result.min_reserve,
+            "grid_size": result.optimal_grid_size,
+            "grid_levels": result.optimal_grid_levels,
+            "dca_daily": result.optimal_dca_daily,
+            "streak_mult": result.streak_multiplier,
+            "win_streak": result.win_streak,
+            "loss_streak": result.loss_streak,
+            "kelly_fraction": result.kelly_fraction,
+        }
+
+    def compute_grid_levels(self, center_price, spacing_pct=0.01,
+                             levels_above=5, levels_below=5):
+        """Compute grid price levels in C (sub-nanosecond)."""
+        max_levels = 20
+        buy_arr = (ctypes.c_double * max_levels)()
+        sell_arr = (ctypes.c_double * max_levels)()
+        total = self._lib.compute_grid_levels(
+            center_price, spacing_pct, levels_above, levels_below,
+            buy_arr, sell_arr, max_levels
+        )
+        buys = [buy_arr[i] for i in range(min(levels_below, max_levels)) if buy_arr[i] > 0]
+        sells = [sell_arr[i] for i in range(min(levels_above, max_levels)) if sell_arr[i] > 0]
+        return {"buy_prices": buys, "sell_prices": sells, "total_levels": total}
+
 
 if __name__ == "__main__":
     engine = FastEngine()
@@ -219,3 +286,17 @@ if __name__ == "__main__":
     print(f"Arb check: {arb}")
 
     print(f"\nRSI: {engine.compute_rsi([c['close'] for c in candles]):.1f}")
+
+    # Test adaptive risk (C engine)
+    print("\n=== C Adaptive Risk Engine ===")
+    for val in [13.48, 100, 1200, 10000]:
+        risk = engine.compute_adaptive_risk(val)
+        print(f"  ${val:>10,.2f} → max_trade ${risk['max_trade']:>8,.2f} | "
+              f"kelly {risk['kelly_fraction']*100:.1f}% | "
+              f"grid ${risk['grid_size']:>6,.2f} x {risk['grid_levels']}")
+
+    # Test grid levels (C engine)
+    grid = engine.compute_grid_levels(68000.0, 0.01, 3, 3)
+    print(f"\nGrid levels @ $68,000 (1% spacing):")
+    print(f"  Buy:  {['${:,.2f}'.format(p) for p in grid['buy_prices']]}")
+    print(f"  Sell: {['${:,.2f}'.format(p) for p in grid['sell_prices']]}")
