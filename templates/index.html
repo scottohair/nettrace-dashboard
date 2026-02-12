@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetTrace - Network Traceroute Dashboard</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;color:#c8d6e5;overflow-x:hidden}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0d1321,#1a1a2e);border-bottom:1px solid #1e3a5f;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.header h1{font-size:16px;color:#00d4ff;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.header h1 .dot{width:8px;height:8px;border-radius:50%;background:#00ff88;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.header-right{display:flex;align-items:center;gap:16px}
+.stats{display:flex;gap:20px;font-size:11px}
+.stat-item{text-align:center}
+.stat-value{font-size:18px;font-weight:700;color:#00ff88}
+.stat-label{color:#5a6c7d;text-transform:uppercase;letter-spacing:1px;font-size:9px}
+.user-area{display:flex;align-items:center;gap:10px}
+.user-badge{padding:4px 10px;background:#00d4ff15;border:1px solid #00d4ff44;border-radius:4px;font-size:11px;color:#00d4ff}
+.btn{padding:6px 14px;border:1px solid #1e3a5f;border-radius:4px;background:transparent;color:#c8d6e5;font-family:inherit;font-size:11px;cursor:pointer;transition:all .2s}
+.btn:hover{border-color:#00d4ff;color:#00d4ff}
+.btn-primary{background:#00d4ff22;border-color:#00d4ff;color:#00d4ff}
+.btn-primary:hover{background:#00d4ff33}
+.btn-danger{border-color:#ef4444;color:#ef4444}
+.btn-danger:hover{background:#ef444422}
+
+/* Layout */
+.main{display:grid;grid-template-columns:320px 1fr;grid-template-rows:55vh 1fr;height:calc(100vh - 56px)}
+.sidebar{grid-row:1/3;background:#0d1321;border-right:1px solid #1e3a5f;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar::-webkit-scrollbar{width:5px}
+.sidebar::-webkit-scrollbar-track{background:#0d1321}
+.sidebar::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:3px}
+
+/* Auth modal */
+.modal-overlay{position:fixed;inset:0;background:#0009;z-index:1000;display:flex;align-items:center;justify-content:center}
+.modal{background:#0d1321;border:1px solid #1e3a5f;border-radius:8px;padding:24px;width:340px}
+.modal h2{font-size:16px;color:#00d4ff;margin-bottom:16px}
+.modal input{width:100%;padding:8px 12px;background:#111827;border:1px solid #1e3a5f;border-radius:4px;color:#c8d6e5;font-family:inherit;font-size:12px;margin-bottom:10px;outline:none}
+.modal input:focus{border-color:#00d4ff}
+.modal .btn{width:100%;margin-bottom:8px}
+.modal .error{color:#ef4444;font-size:11px;margin-bottom:8px}
+.modal .switch{text-align:center;font-size:11px;color:#5a6c7d;cursor:pointer}
+.modal .switch a{color:#00d4ff;text-decoration:none}
+.hidden{display:none!important}
+
+/* Scan bar */
+.scan-bar{padding:10px 14px;border-bottom:1px solid #1e3a5f;background:#111827}
+.scan-bar h3{font-size:10px;color:#5a6c7d;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.scan-input-row{display:flex;gap:6px}
+.scan-input-row input{flex:1;padding:6px 10px;background:#0a0e17;border:1px solid #1e3a5f;border-radius:4px;color:#c8d6e5;font-family:inherit;font-size:11px;outline:none}
+.scan-input-row input:focus{border-color:#00d4ff}
+.scan-status{font-size:10px;margin-top:6px;color:#5a6c7d}
+.scan-status.running{color:#f59e0b}
+.scan-status.done{color:#00ff88}
+.scan-status.err{color:#ef4444}
+
+/* Presets */
+.presets{padding:8px 14px;border-bottom:1px solid #1e3a5f}
+.presets h3{font-size:10px;color:#5a6c7d;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.preset-chips{display:flex;flex-wrap:wrap;gap:4px}
+.preset-chip{padding:3px 8px;border:1px solid #1e3a5f;border-radius:3px;font-size:10px;cursor:pointer;color:#5a6c7d;transition:all .2s}
+.preset-chip:hover{border-color:#00d4ff;color:#00d4ff}
+
+/* Filters & target list */
+.filter-bar{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid #1e3a5f;flex-shrink:0}
+.filter-btn{padding:3px 10px;border:1px solid #1e3a5f;border-radius:4px;background:transparent;color:#5a6c7d;font-family:inherit;font-size:10px;cursor:pointer;transition:all .2s}
+.filter-btn:hover{border-color:#00d4ff;color:#00d4ff}
+.filter-btn.active{background:#00d4ff22;border-color:#00d4ff;color:#00d4ff}
+.target-list{flex:1;overflow-y:auto}
+.cat-header{padding:8px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;position:sticky;top:0;z-index:10;border-bottom:1px solid #1e3a5f}
+.cat-quant{background:#1a0a2e;color:#a855f7}
+.cat-cloud{background:#0a1e2e;color:#3b82f6}
+.cat-finance{background:#1e1a0a;color:#f59e0b}
+.cat-custom{background:#0a2e1a;color:#00ff88}
+.target-item{padding:8px 14px;border-bottom:1px solid #111827;cursor:pointer;transition:background .2s;display:flex;justify-content:space-between;align-items:center}
+.target-item:hover{background:#111827}
+.target-item.active{background:#1e293b;border-left:3px solid #00d4ff}
+.target-name{font-size:12px;font-weight:500}
+.target-host{font-size:9px;color:#5a6c7d;margin-top:1px}
+.target-meta{text-align:right}
+.target-rtt{font-size:13px;font-weight:700}
+.rtt-good{color:#00ff88}.rtt-mid{color:#f59e0b}.rtt-bad{color:#ef4444}
+.target-hops{font-size:9px;color:#5a6c7d}
+
+/* Map */
+#map{background:#0a0e17;border-bottom:1px solid #1e3a5f}
+
+/* Detail panel */
+.detail-panel{background:#0d1321;overflow-y:auto;padding:14px}
+.detail-panel::-webkit-scrollbar{width:5px}
+.detail-panel::-webkit-scrollbar-track{background:#0d1321}
+.detail-panel::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:3px}
+.hop-table{width:100%;border-collapse:collapse;font-size:11px}
+.hop-table th{text-align:left;padding:5px 8px;background:#111827;color:#5a6c7d;text-transform:uppercase;letter-spacing:1px;font-size:9px;font-weight:600;position:sticky;top:0}
+.hop-table td{padding:4px 8px;border-bottom:1px solid #111827}
+.hop-table tr:hover td{background:#111827}
+.hop-num{color:#5a6c7d;font-weight:600}
+.hop-ip{color:#00d4ff}
+.hop-host{color:#c8d6e5;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hop-loc{color:#818cf8}
+.hop-timeout{color:#374151;font-style:italic}
+.rtt-bar{height:5px;border-radius:3px;min-width:3px;display:inline-block;vertical-align:middle;margin-right:5px}
+.detail-title{font-size:13px;margin-bottom:10px;color:#00d4ff;display:flex;align-items:center;gap:8px}
+.no-select{font-size:12px;color:#374151;padding:30px;text-align:center}
+
+/* Leaflet popup */
+.leaflet-popup-content-wrapper{background:#1a1a2e!important;color:#c8d6e5!important;border:1px solid #1e3a5f!important;border-radius:6px!important;font-family:'SF Mono',monospace!important;font-size:10px!important}
+.leaflet-popup-tip{background:#1a1a2e!important}
+
+/* Responsive */
+@media(max-width:768px){
+  .main{grid-template-columns:1fr;grid-template-rows:auto 40vh auto}
+  .sidebar{grid-row:auto;max-height:35vh}
+  .stats{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Auth Modal -->
+<div id="auth-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2 id="auth-title">Sign In</h2>
+    <div id="auth-error" class="error hidden"></div>
+    <input id="auth-user" placeholder="Username" autocomplete="username"/>
+    <input id="auth-pass" type="password" placeholder="Password" autocomplete="current-password"/>
+    <button id="auth-submit" class="btn btn-primary" onclick="submitAuth()">Sign In</button>
+    <div class="switch">
+      <span id="auth-switch-text">No account? </span>
+      <a href="#" id="auth-switch" onclick="toggleAuthMode(event)">Register</a>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <h1><span class="dot"></span> NETTRACE</h1>
+  <div class="header-right">
+    <div class="stats">
+      <div class="stat-item"><div class="stat-value" id="s-targets">0</div><div class="stat-label">Targets</div></div>
+      <div class="stat-item"><div class="stat-value" id="s-hops">0</div><div class="stat-label">Hops</div></div>
+      <div class="stat-item"><div class="stat-value" id="s-rtt">-</div><div class="stat-label">Avg RTT</div></div>
+      <div class="stat-item"><div class="stat-value" id="s-ips">0</div><div class="stat-label">IPs</div></div>
+    </div>
+    <div class="user-area">
+      <span id="user-badge" class="user-badge hidden"></span>
+      <button id="btn-auth" class="btn btn-primary" onclick="showAuth()">Sign In</button>
+      <button id="btn-logout" class="btn btn-danger hidden" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <!-- Scan bar (requires auth) -->
+    <div id="scan-section" class="hidden">
+      <div class="scan-bar">
+        <h3>Run Traceroute</h3>
+        <div class="scan-input-row">
+          <input id="scan-host" placeholder="hostname e.g. api.example.com"/>
+          <button class="btn btn-primary" onclick="startScan()">Trace</button>
+        </div>
+        <div id="scan-status" class="scan-status"></div>
+      </div>
+      <div class="presets">
+        <h3>Quick Targets</h3>
+        <div class="preset-chips">
+          <span class="preset-chip" onclick="quickScan('api.alpaca.markets','Alpaca')">Alpaca</span>
+          <span class="preset-chip" onclick="quickScan('api.polygon.io','Polygon')">Polygon</span>
+          <span class="preset-chip" onclick="quickScan('aws.amazon.com','AWS')">AWS</span>
+          <span class="preset-chip" onclick="quickScan('cloud.google.com','GCP')">GCP</span>
+          <span class="preset-chip" onclick="quickScan('www.nyse.com','NYSE')">NYSE</span>
+          <span class="preset-chip" onclick="quickScan('www.bloomberg.com','Bloomberg')">Bloomberg</span>
+          <span class="preset-chip" onclick="quickScan('www.cloudflare.com','Cloudflare')">Cloudflare</span>
+          <span class="preset-chip" onclick="quickScan('1.1.1.1','Cloudflare DNS')">1.1.1.1</span>
+          <span class="preset-chip" onclick="quickScan('8.8.8.8','Google DNS')">8.8.8.8</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="Quant APIs">Quant</button>
+      <button class="filter-btn" data-filter="Cloud Providers">Cloud</button>
+      <button class="filter-btn" data-filter="NYSE & Financial">Finance</button>
+      <button class="filter-btn" data-filter="Custom" id="filter-custom">My Scans</button>
+    </div>
+    <div id="target-list" class="target-list"></div>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="detail-panel" id="detail-panel">
+    <div class="no-select">Select a target to view route details &mdash; or sign in to run your own scans</div>
+  </div>
+</div>
+
+<script>
+// ───── State ─────
+let DATA = [];
+let userScans = [];
+let currentUser = null;
+let socket = null;
+let wsId = null;
+let authMode = "login";
+
+const catColors = {
+  "Quant APIs": {line:"#a855f7", css:"cat-quant"},
+  "Cloud Providers": {line:"#3b82f6", css:"cat-cloud"},
+  "NYSE & Financial": {line:"#f59e0b", css:"cat-finance"},
+  "Custom": {line:"#00ff88", css:"cat-custom"}
+};
+
+// ───── Map setup ─────
+const map = L.map("map",{center:[38,-40],zoom:3,zoomControl:false,attributionControl:false});
+L.control.zoom({position:"topright"}).addTo(map);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:19}).addTo(map);
+let routeLayers = L.layerGroup().addTo(map);
+let bgLayers = L.layerGroup().addTo(map);
+
+// ───── Auth ─────
+function showAuth(){document.getElementById("auth-modal").classList.remove("hidden")}
+function hideAuth(){document.getElementById("auth-modal").classList.add("hidden");document.getElementById("auth-error").classList.add("hidden")}
+function toggleAuthMode(e){
+  e.preventDefault();
+  authMode = authMode === "login" ? "register" : "login";
+  document.getElementById("auth-title").textContent = authMode === "login" ? "Sign In" : "Register";
+  document.getElementById("auth-submit").textContent = authMode === "login" ? "Sign In" : "Register";
+  document.getElementById("auth-switch-text").textContent = authMode === "login" ? "No account? " : "Have an account? ";
+  document.getElementById("auth-switch").textContent = authMode === "login" ? "Register" : "Sign In";
+}
+async function submitAuth(){
+  const u = document.getElementById("auth-user").value.trim();
+  const p = document.getElementById("auth-pass").value;
+  const errEl = document.getElementById("auth-error");
+  const endpoint = authMode === "login" ? "/api/login" : "/api/register";
+  try {
+    const res = await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})});
+    const data = await res.json();
+    if(!res.ok){errEl.textContent=data.error;errEl.classList.remove("hidden");return}
+    currentUser = data.username;
+    onLogin();
+    hideAuth();
+  } catch(e){errEl.textContent="Network error";errEl.classList.remove("hidden")}
+}
+async function doLogout(){
+  await fetch("/api/logout",{method:"POST"});
+  currentUser=null;
+  document.getElementById("btn-auth").classList.remove("hidden");
+  document.getElementById("btn-logout").classList.add("hidden");
+  document.getElementById("user-badge").classList.add("hidden");
+  document.getElementById("scan-section").classList.add("hidden");
+  userScans=[];
+  buildSidebar("all");
+}
+function onLogin(){
+  document.getElementById("btn-auth").classList.add("hidden");
+  document.getElementById("btn-logout").classList.remove("hidden");
+  document.getElementById("user-badge").textContent=currentUser;
+  document.getElementById("user-badge").classList.remove("hidden");
+  document.getElementById("scan-section").classList.remove("hidden");
+  connectSocket();
+  loadMyScans();
+}
+
+// ───── WebSocket ─────
+function connectSocket(){
+  if(socket) return;
+  socket = io({transports:["websocket","polling"]});
+  socket.on("connected", d => { wsId = d.sid; });
+  socket.on("scan_status", d => {
+    document.getElementById("scan-status").textContent = d.message;
+    document.getElementById("scan-status").className = "scan-status running";
+  });
+  socket.on("scan_progress", d => {
+    document.getElementById("scan-status").textContent = `Tracing... hop ${d.hops_done}/${d.total_hops}`;
+  });
+  socket.on("scan_complete", d => {
+    document.getElementById("scan-status").textContent = "Scan complete!";
+    document.getElementById("scan-status").className = "scan-status done";
+    loadMyScans();
+  });
+  socket.on("scan_error", d => {
+    document.getElementById("scan-status").textContent = "Error: " + d.error;
+    document.getElementById("scan-status").className = "scan-status err";
+  });
+}
+
+// ───── Scanning ─────
+async function startScan(){
+  const host = document.getElementById("scan-host").value.trim();
+  if(!host) return;
+  const statusEl = document.getElementById("scan-status");
+  statusEl.textContent = "Starting scan...";
+  statusEl.className = "scan-status running";
+  try {
+    const res = await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({host, name:host, sid:wsId})});
+    const data = await res.json();
+    if(!res.ok){statusEl.textContent=data.error;statusEl.className="scan-status err";return}
+    statusEl.textContent = `Scan #${data.scan_id} started...`;
+  } catch(e){statusEl.textContent="Network error";statusEl.className="scan-status err"}
+}
+function quickScan(host, name){
+  document.getElementById("scan-host").value = host;
+  startScan();
+}
+
+async function loadMyScans(){
+  try {
+    const res = await fetch("/api/scans");
+    const scans = await res.json();
+    userScans = scans.filter(s => s.status === "completed" && s.result).map(s => ({
+      name: s.name || s.host,
+      host: s.host,
+      category: "Custom",
+      hop_count: s.result.hop_count || 0,
+      total_rtt: s.result.total_rtt,
+      hops: s.result.hops || []
+    }));
+    buildSidebar(document.querySelector(".filter-btn.active")?.dataset.filter || "all");
+    updateStats();
+    drawBgRoutes();
+  } catch(e){}
+}
+
+// ───── Data & rendering ─────
+function allData(){return [...DATA, ...userScans]}
+
+function updateStats(){
+  const all = allData();
+  document.getElementById("s-targets").textContent = all.length;
+  document.getElementById("s-hops").textContent = all.reduce((s,t)=>s+t.hops.length,0);
+  const rtts = all.filter(t=>t.total_rtt).map(t=>t.total_rtt);
+  document.getElementById("s-rtt").textContent = rtts.length ? (rtts.reduce((a,b)=>a+b,0)/rtts.length).toFixed(1) : "-";
+  const ips = new Set(); all.forEach(t=>t.hops.forEach(h=>{if(h.ip)ips.add(h.ip)}));
+  document.getElementById("s-ips").textContent = ips.size;
+}
+
+function buildSidebar(filter){
+  const list = document.getElementById("target-list");
+  list.innerHTML = "";
+  const all = allData();
+  const filtered = filter==="all" ? all : all.filter(d=>d.category===filter);
+  let lastCat = "";
+  const catOrder={"Quant APIs":0,"Cloud Providers":1,"NYSE & Financial":2,"Custom":3};
+  filtered.sort((a,b)=>(catOrder[a.category]||9)-(catOrder[b.category]||9)||a.name.localeCompare(b.name));
+
+  filtered.forEach(t => {
+    if(t.category !== lastCat){
+      lastCat = t.category;
+      const hdr = document.createElement("div");
+      hdr.className = "cat-header " + (catColors[t.category]?.css || "cat-custom");
+      hdr.textContent = t.category;
+      list.appendChild(hdr);
+    }
+    const item = document.createElement("div");
+    item.className = "target-item";
+    const idx = all.indexOf(t);
+    item.dataset.index = idx;
+    const rc = !t.total_rtt?"rtt-mid":t.total_rtt<30?"rtt-good":t.total_rtt<80?"rtt-mid":"rtt-bad";
+    item.innerHTML=`<div><div class="target-name">${t.name}</div><div class="target-host">${t.host}</div></div><div class="target-meta"><div class="target-rtt ${rc}">${t.total_rtt?t.total_rtt.toFixed(1)+" ms":"N/A"}</div><div class="target-hops">${t.hop_count} hops</div></div>`;
+    item.addEventListener("click",()=>selectTarget(idx));
+    list.appendChild(item);
+  });
+}
+
+function drawBgRoutes(){
+  bgLayers.clearLayers();
+  allData().forEach(t=>{
+    const pts=t.hops.filter(h=>h.geo).map(h=>[h.geo.lat,h.geo.lon]);
+    if(pts.length>1) L.polyline(pts,{color:catColors[t.category]?.line||"#00ff88",weight:1,opacity:.12}).addTo(bgLayers);
+    const last=[...t.hops].reverse().find(h=>h.geo);
+    if(last) L.circleMarker([last.geo.lat,last.geo.lon],{radius:3,color:catColors[t.category]?.line||"#00ff88",fillColor:catColors[t.category]?.line||"#00ff88",fillOpacity:.5,weight:1}).bindPopup(`<b>${t.name}</b><br>${t.host}<br>${last.geo.city}, ${last.geo.country}`).addTo(bgLayers);
+  });
+}
+
+function selectTarget(idx){
+  document.querySelectorAll(".target-item").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(`.target-item[data-index="${idx}"]`).forEach(el=>el.classList.add("active"));
+  const t=allData()[idx];
+  if(!t)return;
+  const color=catColors[t.category]?.line||"#00d4ff";
+  routeLayers.clearLayers();
+  const pts=[];
+  t.hops.forEach(h=>{
+    if(!h.geo)return;
+    pts.push([h.geo.lat,h.geo.lon]);
+    L.circleMarker([h.geo.lat,h.geo.lon],{radius:5,color,fillColor:color,fillOpacity:.8,weight:2})
+      .bindPopup(`<b>Hop ${h.hop}</b><br>${h.host}<br><span style="color:#00d4ff">${h.ip}</span><br>${h.geo.city}, ${h.geo.region}, ${h.geo.country}<br>RTT: <b>${h.rtt_ms?h.rtt_ms.toFixed(1)+" ms":"N/A"}</b><br><span style="color:#5a6c7d">${h.geo.isp||""}</span>`)
+      .addTo(routeLayers);
+  });
+  if(pts.length>1){L.polyline(pts,{color,weight:3,opacity:.9}).addTo(routeLayers);L.polyline(pts,{color,weight:8,opacity:.2}).addTo(routeLayers);map.fitBounds(L.latLngBounds(pts).pad(.3))}
+  else if(pts.length===1) map.setView(pts[0],6);
+
+  const panel=document.getElementById("detail-panel");
+  const maxR=Math.max(...t.hops.filter(h=>h.rtt_ms).map(h=>h.rtt_ms),1);
+  const rows=t.hops.map(h=>{
+    if(!h.ip)return`<tr><td class="hop-num">${h.hop}</td><td class="hop-timeout" colspan="4">* * * (timeout)</td></tr>`;
+    const bw=h.rtt_ms?Math.max(4,(h.rtt_ms/maxR)*100):0;
+    const bc=!h.rtt_ms?"#374151":h.rtt_ms<20?"#00ff88":h.rtt_ms<60?"#f59e0b":"#ef4444";
+    const loc=h.geo?`${h.geo.city}${h.geo.city&&h.geo.country?", ":""}${h.geo.country}`:"";
+    return`<tr><td class="hop-num">${h.hop}</td><td class="hop-ip">${h.ip}</td><td class="hop-host" title="${h.host}">${h.host}</td><td>${h.rtt_ms?`<span class="rtt-bar" style="width:${bw}px;background:${bc}"></span>${h.rtt_ms.toFixed(1)} ms`:"-"}</td><td class="hop-loc">${loc}</td></tr>`;
+  }).join("");
+  panel.innerHTML=`<div class="detail-title">${t.name} &mdash; ${t.host}</div><table class="hop-table"><thead><tr><th>#</th><th>IP</th><th>Hostname</th><th>RTT</th><th>Location</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// Filter buttons
+document.querySelectorAll(".filter-btn").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".filter-btn").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    buildSidebar(b.dataset.filter);
+  });
+});
+
+// Enter key for scan
+document.getElementById("scan-host").addEventListener("keydown",e=>{if(e.key==="Enter")startScan()});
+// Enter key for auth
+document.getElementById("auth-pass").addEventListener("keydown",e=>{if(e.key==="Enter")submitAuth()});
+// Click outside modal to close
+document.getElementById("auth-modal").addEventListener("click",e=>{if(e.target===e.currentTarget)hideAuth()});
+
+// ───── Init ─────
+async function init(){
+  // Check auth
+  try{
+    const res=await fetch("/api/me");
+    const data=await res.json();
+    if(data.authenticated){currentUser=data.username;onLogin()}
+  }catch(e){}
+
+  // Load demo data
+  try{
+    const res=await fetch("/api/demo");
+    DATA=await res.json();
+  }catch(e){DATA=[]}
+
+  updateStats();
+  buildSidebar("all");
+  drawBgRoutes();
+}
+init();
+</script>
+</body>
+</html>
