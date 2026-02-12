@@ -1213,6 +1213,32 @@ def api_playground():
 
 
 # ---------------------------------------------------------------------------
+# SEO: Sitemap + Robots.txt (free Google traffic)
+# ---------------------------------------------------------------------------
+
+@app.route("/sitemap.xml")
+def sitemap():
+    """Dynamic sitemap for search engine indexing."""
+    db = get_db()
+    rows = db.execute("""
+        SELECT DISTINCT target_host FROM scan_metrics ORDER BY target_host
+    """).fetchall()
+    from flask import Response
+    urls = ['<url><loc>https://nettrace-dashboard.fly.dev/status</loc><changefreq>hourly</changefreq><priority>1.0</priority></url>',
+            '<url><loc>https://nettrace-dashboard.fly.dev/playground</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>']
+    for r in rows:
+        urls.append(f'<url><loc>https://nettrace-dashboard.fly.dev/status/{r["target_host"]}</loc><changefreq>hourly</changefreq><priority>0.7</priority></url>')
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(urls) + '\n</urlset>'
+    return Response(xml, mimetype="application/xml")
+
+
+@app.route("/robots.txt")
+def robots():
+    from flask import Response
+    return Response("User-agent: *\nAllow: /\nSitemap: https://nettrace-dashboard.fly.dev/sitemap.xml\n", mimetype="text/plain")
+
+
+# ---------------------------------------------------------------------------
 # Tiered Stripe checkout
 # ---------------------------------------------------------------------------
 
