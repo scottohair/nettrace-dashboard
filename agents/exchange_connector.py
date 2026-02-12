@@ -179,8 +179,35 @@ class CoinbaseTrader:
         path = f"/api/v3/brokerage/products/{product_id}/candles?start={start}&end={end}&granularity={granularity}"
         return self._request("GET", path)
 
+    # Product precision cache — maps product_id to base_increment
+    _precision_cache = {}
+
+    def _get_precision(self, product_id):
+        """Get base_increment for a product (cached)."""
+        if product_id not in self._precision_cache:
+            info = self.get_product(product_id)
+            base_incr = info.get("base_increment", "0.00000001")
+            self._precision_cache[product_id] = base_incr
+        return self._precision_cache[product_id]
+
+    @staticmethod
+    def _truncate_to_increment(value, increment):
+        """Truncate value to match Coinbase's required precision."""
+        import math
+        incr = float(increment)
+        if incr <= 0:
+            return value
+        # Count decimal places in increment
+        incr_str = increment.rstrip("0")
+        if "." in incr_str:
+            decimals = len(incr_str.split(".")[-1])
+        else:
+            decimals = 0
+        factor = 10 ** decimals
+        return math.floor(float(value) * factor) / factor
+
     def place_order(self, product_id, side, size, order_type="market"):
-        """Place a market order.
+        """Place a market order with automatic precision handling.
 
         Args:
             product_id: e.g., "BTC-USD"
@@ -189,6 +216,14 @@ class CoinbaseTrader:
             order_type: "market" only for now
         """
         import uuid
+
+        # For SELL orders, truncate base_size to product's precision
+        if side.upper() == "SELL":
+            base_incr = self._get_precision(product_id)
+            size = self._truncate_to_increment(size, base_incr)
+            if size <= 0:
+                return {"error_response": {"error": "SIZE_TOO_SMALL", "message": "Amount too small after precision truncation"}}
+
         order = {
             "client_order_id": str(uuid.uuid4()),
             "product_id": product_id,

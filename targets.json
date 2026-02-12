@@ -112,5 +112,20 @@
     {"name": "FCC", "host": "www.fcc.gov"},
     {"name": "CFPB", "host": "www.consumerfinance.gov"},
     {"name": "OCC", "host": "www.occ.gov"}
+  ],
+  "Financial Data / Banking": [
+    {"name": "Bloomberg Terminal", "host": "terminal.bloomberg.com"},
+    {"name": "Chase API", "host": "developer.chase.com"},
+    {"name": "HSBC Open Banking", "host": "developer.hsbc.com"},
+    {"name": "MUFG Japan", "host": "api.bk.mufg.jp"},
+    {"name": "Mizuho Bank", "host": "api.mizuhobank.co.jp"},
+    {"name": "SMBC Japan", "host": "api.smbc.co.jp"}
+  ],
+  "Startup / VC Data": [
+    {"name": "Crunchbase API", "host": "api.crunchbase.com"}
+  ],
+  "Tech / News Data": [
+    {"name": "Hacker News API", "host": "hacker-news.firebaseio.com"},
+    {"name": "Reddit API", "host": "oauth.reddit.com"}
   ]
 }

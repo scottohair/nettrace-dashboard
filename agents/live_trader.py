@@ -89,7 +89,7 @@ class LiveTrader:
 
     def get_portfolio_value(self):
         """Get total portfolio value in USD."""
-        accounts = self.exchange.get_accounts()
+        accounts = self.exchange._request("GET", "/api/v3/brokerage/accounts?limit=250")
         if "accounts" not in accounts:
             logger.error("Failed to get accounts: %s", accounts)
             return 0, {}
