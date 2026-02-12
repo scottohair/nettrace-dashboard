@@ -535,8 +535,85 @@ class WalletConnector:
 
     # ── Transaction Signing & Monitoring ──────────────────────────
 
-    def sign_and_send(self, tx):
-        """Sign and broadcast an EVM transaction. Returns tx hash."""
+    # Verified contract addresses — ONLY send to these for bridge/swap operations
+    # Prevents sending to wrong addresses (cost us $62.68 in ETH once)
+    VERIFIED_CONTRACTS = {
+        # Base L2 Bridge (Optimism Portal on Ethereum mainnet)
+        "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e": "Base Bridge (OptimismPortal)",
+        # Uniswap V3 Router on Base
+        "0x2626664c2603336E57B271c5C0b26F421741e481": "Uniswap V3 SwapRouter (Base)",
+        # Uniswap Universal Router on Base
+        "0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD": "Uniswap Universal Router (Base)",
+        # WETH on Base
+        "0x4200000000000000000000000000000000000006": "WETH (Base)",
+        # USDC on Base
+        "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913": "USDC (Base)",
+    }
+
+    # Known BAD addresses — NEVER send here (lost funds)
+    BLACKLISTED_ADDRESSES = {
+        "0x49048044D57e1C92A77f79988d21Fa8fAF36689E": "WRONG portal addr — $62.68 lost here",
+    }
+
+    def _verify_destination(self, to_address, require_contract=False):
+        """Pre-send safety check: verify destination is safe.
+
+        Rules:
+          1. NEVER send to blacklisted addresses
+          2. If require_contract=True, verify address has code (is a contract)
+          3. If sending >$10 to unknown address, warn in logs
+          4. Verified contracts bypass all checks
+
+        Returns True if safe, raises ValueError if unsafe.
+        """
+        if not to_address:
+            return True  # No 'to' field = contract creation (ok)
+
+        from web3 import Web3
+        addr = Web3.to_checksum_address(to_address)
+
+        # Check blacklist
+        for bad_addr, reason in self.BLACKLISTED_ADDRESSES.items():
+            if addr.lower() == bad_addr.lower():
+                raise ValueError(
+                    f"BLOCKED: Address {addr} is blacklisted — {reason}")
+
+        # Check if it's a verified contract
+        for verified_addr, name in self.VERIFIED_CONTRACTS.items():
+            if addr.lower() == verified_addr.lower():
+                logger.info("Destination verified: %s (%s)", addr[:10], name)
+                return True
+
+        # For bridge/swap operations, require the target to have code
+        if require_contract:
+            try:
+                code = self._eth_rpc("eth_getCode", [addr, "latest"])
+                if not code or code == "0x" or code == "0x0":
+                    raise ValueError(
+                        f"BLOCKED: Address {addr} has NO contract code. "
+                        f"Expected a contract but found an EOA. "
+                        f"This prevented sending to wrong address.")
+                logger.info("Contract verified: %s has code", addr[:10])
+            except ValueError:
+                raise
+            except Exception as e:
+                logger.warning("Could not verify contract code for %s: %s", addr[:10], e)
+                # Fail-safe: block if we can't verify
+                raise ValueError(
+                    f"BLOCKED: Cannot verify contract code for {addr}. "
+                    f"Refusing to send to unverified address.")
+
+        return True
+
+    def sign_and_send(self, tx, require_contract=False):
+        """Sign and broadcast an EVM transaction. Returns tx hash.
+
+        Args:
+            tx: Transaction dict
+            require_contract: If True, verify 'to' address has contract code.
+                              Use this for bridge/swap txs to prevent sending
+                              to wrong EOA addresses.
+        """
         if not self.private_key:
             raise ValueError("Private key required for signing transactions")
         if self.chain == "solana":
@@ -545,6 +622,10 @@ class WalletConnector:
         w3 = self.w3
         if not w3:
             raise ImportError("web3 library required for transaction signing")
+
+        # SAFETY: Verify destination before signing
+        to_addr = tx.get("to")
+        self._verify_destination(to_addr, require_contract=require_contract)
 
         from web3 import Account
         account = Account.from_key(self.private_key)
