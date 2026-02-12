@@ -8,6 +8,8 @@ primary_region = "ewr"
   DB_PATH = "/data/traceroute.db"
   MAX_SCANS_PER_HOUR = "10"
   MAX_CONCURRENT_SCANS = "3"
+  SCAN_INTERVAL = "900"
+  SCAN_STAGGER = "10"
 
 [http_service]
   internal_port = 8080

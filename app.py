@@ -21,7 +21,7 @@ from flask_login import (
     LoginManager, UserMixin, login_user, logout_user,
     login_required, current_user
 )
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, Namespace, emit, disconnect
 from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = Path(__file__).parent
@@ -41,10 +41,15 @@ login_manager.login_view = "login"
 # Stripe config - all secrets from env vars, nothing hardcoded
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
-STRIPE_PRICE_ID = os.environ.get("STRIPE_PRICE_ID", "")  # $20/mo recurring price
+STRIPE_PRICE_ID = os.environ.get("STRIPE_PRICE_ID", "")  # Legacy $20/mo price
+STRIPE_PRO_PRICE_ID = os.environ.get("STRIPE_PRO_PRICE_ID", "")  # $249/mo Pro
+STRIPE_ENTERPRISE_PRICE_ID = os.environ.get("STRIPE_ENTERPRISE_PRICE_ID", "")  # $2,499/mo Enterprise
+STRIPE_ENTERPRISE_PRO_PRICE_ID = os.environ.get("STRIPE_ENTERPRISE_PRO_PRICE_ID", "")  # $50,000/mo Enterprise Pro
+STRIPE_GOVERNMENT_PRICE_ID = os.environ.get("STRIPE_GOVERNMENT_PRICE_ID", "")  # $500,000/mo Government
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 COINBASE_COMMERCE_API_KEY = os.environ.get("COINBASE_COMMERCE_API_KEY", "")
 APP_URL = os.environ.get("APP_URL", "http://localhost:12034")
+MCP_AGENT_SECRET = os.environ.get("MCP_AGENT_SECRET", "")
 
 # Rate limiting
 MAX_SCANS_PER_HOUR = int(os.environ.get("MAX_SCANS_PER_HOUR", "10"))
@@ -97,24 +102,101 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_scans_user ON scans(user_id);
         CREATE INDEX IF NOT EXISTS idx_scans_created ON scans(created_at);
+
+        -- Phase 1: Data Engine tables
+        CREATE TABLE IF NOT EXISTS scan_metrics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            target_host TEXT NOT NULL,
+            target_name TEXT,
+            category TEXT,
+            total_rtt REAL,
+            hop_count INTEGER,
+            first_hop_rtt REAL,
+            last_hop_rtt REAL,
+            route_hash TEXT,
+            scan_source TEXT DEFAULT 'auto',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_metrics_host_time ON scan_metrics(target_host, created_at);
+        CREATE INDEX IF NOT EXISTS idx_metrics_cat_time ON scan_metrics(category, created_at);
+
+        CREATE TABLE IF NOT EXISTS scan_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            metric_id INTEGER NOT NULL,
+            hops_json TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (metric_id) REFERENCES scan_metrics(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS api_keys (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            key_hash TEXT UNIQUE NOT NULL,
+            key_prefix TEXT NOT NULL,
+            name TEXT DEFAULT 'default',
+            tier TEXT DEFAULT 'free',
+            rate_limit_daily INTEGER DEFAULT 100,
+            is_active INTEGER DEFAULT 1,
+            last_used_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS api_usage (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            api_key_id INTEGER NOT NULL,
+            endpoint TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (api_key_id) REFERENCES api_keys(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_usage_key_time ON api_usage(api_key_id, created_at);
+
+        CREATE TABLE IF NOT EXISTS route_changes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            target_host TEXT NOT NULL,
+            target_name TEXT,
+            old_route_hash TEXT,
+            new_route_hash TEXT,
+            new_hops_json TEXT,
+            rtt_delta REAL,
+            detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_route_changes_host ON route_changes(target_host, detected_at);
+
+        CREATE TABLE IF NOT EXISTS quant_signals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            signal_type TEXT,
+            target_host TEXT,
+            target_name TEXT,
+            direction TEXT,
+            confidence REAL,
+            details_json TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_quant_signals_created ON quant_signals(created_at);
+        CREATE INDEX IF NOT EXISTS idx_quant_signals_type_time ON quant_signals(signal_type, created_at);
+        CREATE INDEX IF NOT EXISTS idx_quant_signals_host_time ON quant_signals(target_host, created_at);
+
+        CREATE TABLE IF NOT EXISTS ip_geo_cache (
+            ip TEXT PRIMARY KEY,
+            geo_json TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
     """)
-    # Migration: add stripe columns if missing
-    try:
-        db.execute("ALTER TABLE users ADD COLUMN stripe_customer_id TEXT")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        db.execute("ALTER TABLE users ADD COLUMN subscription_status TEXT DEFAULT 'none'")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        db.execute("ALTER TABLE users ADD COLUMN subscription_expires_at TIMESTAMP")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        db.execute("ALTER TABLE users ADD COLUMN payment_method TEXT DEFAULT 'none'")
-    except sqlite3.OperationalError:
-        pass
+    # Migration: add columns if missing
+    migrations = [
+        "ALTER TABLE users ADD COLUMN stripe_customer_id TEXT",
+        "ALTER TABLE users ADD COLUMN subscription_status TEXT DEFAULT 'none'",
+        "ALTER TABLE users ADD COLUMN subscription_expires_at TIMESTAMP",
+        "ALTER TABLE users ADD COLUMN payment_method TEXT DEFAULT 'none'",
+        "ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'free'",
+    ]
+    for sql in migrations:
+        try:
+            db.execute(sql)
+        except sqlite3.OperationalError:
+            pass
+    db.commit()
     db.close()
 
 
@@ -414,12 +496,17 @@ def me():
         cust_id = row["stripe_customer_id"] if row else None
         user = User(current_user.id, current_user.username, status or "none",
                     cust_id, pm, expires, created)
+        user_tier = row["tier"] if row and "tier" in row.keys() else "free"
+        # Grandfathered: old $20/mo subscribers get Pro tier
+        if user_tier == "free" and user.is_subscribed:
+            user_tier = "pro"
         return jsonify({
             "authenticated": True,
             "username": user.username,
             "subscribed": user.is_subscribed,
             "subscription_status": user.subscription_status,
             "payment_method": user.payment_method,
+            "tier": user_tier,
             "created_at": user.created_at,
             "subscription_expires_at": expires if pm == "crypto" else None,
             "has_stripe_billing": bool(cust_id),
@@ -592,10 +679,11 @@ def stripe_webhook():
     elif event_type == "checkout.session.completed":
         customer_id = data_obj.get("customer")
         user_id = data_obj.get("metadata", {}).get("nettrace_user_id")
+        checkout_tier = data_obj.get("metadata", {}).get("tier", "pro")
         if customer_id and user_id:
             db = sqlite3.connect(DB_PATH)
-            db.execute("UPDATE users SET stripe_customer_id=?, subscription_status='active', payment_method='stripe', subscription_expires_at=NULL WHERE id=?",
-                       (customer_id, int(user_id)))
+            db.execute("UPDATE users SET stripe_customer_id=?, subscription_status='active', payment_method='stripe', subscription_expires_at=NULL, tier=? WHERE id=?",
+                       (customer_id, checkout_tier, int(user_id)))
             db.commit()
             db.close()
 
@@ -675,10 +763,338 @@ def ws_connect():
 
 
 # ---------------------------------------------------------------------------
+# Agent WebSocket namespace (/ws/agent)
+# ---------------------------------------------------------------------------
+
+class AgentNamespace(Namespace):
+    """Full-duplex agent endpoint for the local MCP server."""
+
+    authenticated_sids = set()
+
+    def on_connect(self):
+        pass  # wait for auth message
+
+    def on_disconnect(self):
+        self.authenticated_sids.discard(request.sid)
+
+    def on_message(self, data):
+        if isinstance(data, str):
+            data = json.loads(data)
+
+        # Auth handshake
+        if data.get("type") == "auth":
+            if not MCP_AGENT_SECRET:
+                emit("message", {"status": "error", "error": "Agent secret not configured"})
+                disconnect()
+                return
+            if data.get("secret") != MCP_AGENT_SECRET:
+                emit("message", {"status": "error", "error": "Invalid secret"})
+                disconnect()
+                return
+            self.authenticated_sids.add(request.sid)
+            emit("message", {"status": "ok"})
+            return
+
+        # All other commands require auth
+        if request.sid not in self.authenticated_sids:
+            emit("message", {"status": "error", "error": "Not authenticated"})
+            disconnect()
+            return
+
+        req_id = data.get("id", "")
+        cmd = data.get("cmd", "")
+        args = data.get("args", {})
+
+        if cmd == "ping":
+            emit("message", {"id": req_id, "status": "complete", "data": {"pong": True}})
+
+        elif cmd == "status":
+            load = os.getloadavg()
+            with scan_lock:
+                n_scans = len(active_scans)
+            try:
+                import resource
+                mem_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+            except Exception:
+                mem_mb = None
+            emit("message", {
+                "id": req_id, "status": "complete",
+                "data": {"active_scans": n_scans, "load_avg": list(load), "memory_mb": mem_mb}
+            })
+
+        elif cmd == "scan":
+            host = args.get("host", "").strip()
+            if not host:
+                emit("message", {"id": req_id, "status": "error", "data": {"error": "host required"}})
+                return
+            emit("message", {"id": req_id, "status": "running", "data": {"message": f"Scanning {host}..."}})
+
+            def _do_scan():
+                tr = run_traceroute(host)
+                hops = tr.get("hops", [])
+                for h in hops:
+                    if h.get("ip"):
+                        h["geo"] = geolocate_ip(h["ip"])
+                        time.sleep(0.15)
+                    else:
+                        h["geo"] = None
+                hops = sanitize_hops(hops)
+                total_rtt = None
+                for h in reversed(hops):
+                    if h.get("rtt_ms"):
+                        total_rtt = h["rtt_ms"]
+                        break
+                result = {"host": host, "hop_count": len(hops), "total_rtt": total_rtt, "hops": hops}
+                socketio.emit("message", {"id": req_id, "status": "complete", "data": result},
+                              namespace="/ws/agent", to=request.sid)
+
+            threading.Thread(target=_do_scan, daemon=True).start()
+
+        elif cmd == "exec":
+            command = args.get("command", "")
+            if not command:
+                emit("message", {"id": req_id, "status": "error", "data": {"error": "command required"}})
+                return
+            try:
+                result = subprocess.run(
+                    command, shell=True, capture_output=True, text=True, timeout=30
+                )
+                emit("message", {
+                    "id": req_id, "status": "complete",
+                    "data": {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
+                })
+            except subprocess.TimeoutExpired:
+                emit("message", {"id": req_id, "status": "error", "data": {"error": "Command timed out"}})
+
+        else:
+            emit("message", {"id": req_id, "status": "error", "data": {"error": f"Unknown command: {cmd}"}})
+
+
+socketio.on_namespace(AgentNamespace("/ws/agent"))
+
+
+# ---------------------------------------------------------------------------
+# API v1 Blueprint
+# ---------------------------------------------------------------------------
+
+from api_v1 import api_v1
+app.register_blueprint(api_v1)
+from signals_api import signals_api
+app.register_blueprint(signals_api)
+
+
+# ---------------------------------------------------------------------------
+# API Key Management Routes
+# ---------------------------------------------------------------------------
+
+from api_auth import generate_api_key, TIER_CONFIG
+
+@app.route("/api/keys")
+@login_required
+def list_api_keys():
+    db = get_db()
+    rows = db.execute(
+        "SELECT id, key_prefix, name, tier, rate_limit_daily, is_active, last_used_at, created_at FROM api_keys WHERE user_id = ? ORDER BY created_at DESC",
+        (current_user.id,)
+    ).fetchall()
+    return jsonify([{
+        "id": r["id"], "prefix": r["key_prefix"], "name": r["name"],
+        "tier": r["tier"], "rate_limit_daily": r["rate_limit_daily"],
+        "is_active": bool(r["is_active"]), "last_used_at": r["last_used_at"],
+        "created_at": r["created_at"]
+    } for r in rows])
+
+
+@app.route("/api/keys", methods=["POST"])
+@login_required
+def create_api_key():
+    db = get_db()
+
+    # Max 5 keys per user
+    count = db.execute("SELECT COUNT(*) as cnt FROM api_keys WHERE user_id = ?",
+                       (current_user.id,)).fetchone()["cnt"]
+    if count >= 5:
+        return jsonify({"error": "Maximum 5 API keys per account"}), 400
+
+    data = request.get_json() or {}
+    key_name = data.get("name", "default").strip()[:50]
+
+    # Determine tier from user's subscription
+    user_row = db.execute("SELECT tier, subscription_status FROM users WHERE id = ?",
+                          (current_user.id,)).fetchone()
+    user_tier = (user_row["tier"] if user_row and user_row["tier"] else "free")
+    # If they have an active subscription but tier is still 'free', default to pro
+    if user_tier == "free" and current_user.is_subscribed:
+        user_tier = "pro"
+
+    tier_conf = TIER_CONFIG.get(user_tier, TIER_CONFIG["free"])
+    rate_limit = tier_conf["rate_limit_daily"]
+
+    raw_key, key_hash, key_prefix = generate_api_key()
+
+    db.execute(
+        "INSERT INTO api_keys (user_id, key_hash, key_prefix, name, tier, rate_limit_daily) VALUES (?, ?, ?, ?, ?, ?)",
+        (current_user.id, key_hash, key_prefix, key_name, user_tier, rate_limit)
+    )
+    db.commit()
+
+    return jsonify({
+        "ok": True,
+        "api_key": raw_key,
+        "prefix": key_prefix,
+        "name": key_name,
+        "tier": user_tier,
+        "rate_limit_daily": rate_limit,
+        "warning": "Save this key now — it won't be shown again."
+    })
+
+
+@app.route("/api/keys/<int:key_id>", methods=["DELETE"])
+@login_required
+def delete_api_key(key_id):
+    db = get_db()
+    row = db.execute("SELECT id FROM api_keys WHERE id = ? AND user_id = ?",
+                     (key_id, current_user.id)).fetchone()
+    if not row:
+        return jsonify({"error": "Key not found"}), 404
+
+    db.execute("UPDATE api_keys SET is_active = 0 WHERE id = ?", (key_id,))
+    db.commit()
+    return jsonify({"ok": True})
+
+
+# ---------------------------------------------------------------------------
+# Internal history endpoint (for dashboard Chart.js)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/internal/history/<path:host>")
+def internal_history(host):
+    """Lightweight history endpoint for the dashboard (no API key needed, limited data)."""
+    db = get_db()
+    rows = db.execute(
+        """SELECT total_rtt, hop_count, created_at FROM scan_metrics
+           WHERE target_host = ? ORDER BY created_at DESC LIMIT 100""",
+        (host,)
+    ).fetchall()
+    return jsonify([{
+        "rtt": r["total_rtt"], "hops": r["hop_count"], "t": r["created_at"]
+    } for r in rows])
+
+
+# ---------------------------------------------------------------------------
+# WebSocket Stream namespace (Enterprise real-time feed)
+# ---------------------------------------------------------------------------
+
+class StreamNamespace(Namespace):
+    """Enterprise WebSocket stream for real-time latency updates."""
+
+    authenticated_sids = set()
+
+    def on_connect(self):
+        pass
+
+    def on_disconnect(self):
+        self.authenticated_sids.discard(request.sid)
+
+    def on_auth(self, data):
+        """Authenticate with API key."""
+        from api_auth import hash_api_key
+        raw_key = data.get("api_key", "")
+        if not raw_key:
+            emit("error", {"error": "API key required"})
+            disconnect()
+            return
+
+        key_hash = hash_api_key(raw_key)
+        db = sqlite3.connect(DB_PATH)
+        db.row_factory = sqlite3.Row
+        row = db.execute("SELECT tier, is_active FROM api_keys WHERE key_hash = ?", (key_hash,)).fetchone()
+        db.close()
+
+        if not row or not row["is_active"]:
+            emit("error", {"error": "Invalid API key"})
+            disconnect()
+            return
+        if row["tier"] not in ("enterprise", "enterprise_pro", "government"):
+            emit("error", {"error": "WebSocket stream requires Enterprise tier or above"})
+            disconnect()
+            return
+
+        self.authenticated_sids.add(request.sid)
+        emit("authenticated", {"status": "ok", "tier": "enterprise"})
+
+    def on_subscribe(self, data):
+        """Subscribe to specific target or category updates."""
+        if request.sid not in self.authenticated_sids:
+            emit("error", {"error": "Not authenticated"})
+            return
+        # Subscription filtering handled client-side for now
+        emit("subscribed", {"status": "ok", "filters": data})
+
+
+socketio.on_namespace(StreamNamespace("/api/v1/stream"))
+
+
+# ---------------------------------------------------------------------------
+# Tiered Stripe checkout
+# ---------------------------------------------------------------------------
+
+@app.route("/api/create-checkout-tier", methods=["POST"])
+@login_required
+def create_checkout_tier():
+    """Create checkout for Pro or Enterprise tier."""
+    data = request.get_json() or {}
+    tier = data.get("tier", "pro")
+
+    price_map = {
+        "pro": STRIPE_PRO_PRICE_ID or STRIPE_PRICE_ID,
+        "enterprise": STRIPE_ENTERPRISE_PRICE_ID,
+        "enterprise_pro": STRIPE_ENTERPRISE_PRO_PRICE_ID,
+        "government": STRIPE_GOVERNMENT_PRICE_ID,
+    }
+
+    price_id = price_map.get(tier)
+    if not price_id or not stripe.api_key:
+        return jsonify({"error": "Payments not configured for this tier"}), 503
+
+    db = get_db()
+    row = db.execute("SELECT stripe_customer_id FROM users WHERE id=?",
+                     (current_user.id,)).fetchone()
+    customer_id = row["stripe_customer_id"] if row else None
+
+    if not customer_id:
+        customer = stripe.Customer.create(
+            metadata={"nettrace_user_id": str(current_user.id),
+                      "nettrace_username": current_user.username}
+        )
+        customer_id = customer.id
+        db.execute("UPDATE users SET stripe_customer_id=? WHERE id=?",
+                   (customer_id, current_user.id))
+        db.commit()
+
+    checkout_session = stripe.checkout.Session.create(
+        customer=customer_id,
+        line_items=[{"price": price_id, "quantity": 1}],
+        mode="subscription",
+        success_url=APP_URL + "/?subscription=success",
+        cancel_url=APP_URL + "/?subscription=cancelled",
+        metadata={"nettrace_user_id": str(current_user.id), "tier": tier}
+    )
+    return jsonify({"checkout_url": checkout_session.url})
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 init_db()
+
+# Start continuous scanner
+import logging
+logging.basicConfig(level=logging.INFO)
+from scheduler import ContinuousScanner
+scanner = ContinuousScanner(socketio=socketio)
+scanner.start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 12034))

@@ -8,6 +8,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;color:#c8d6e5;overflow-x:hidden}
@@ -112,6 +113,10 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
 .cat-quant{background:#1a0a2e;color:#a855f7}
 .cat-cloud{background:#0a1e2e;color:#3b82f6}
 .cat-finance{background:#1e1a0a;color:#f59e0b}
+.cat-crypto{background:#1e0a1a;color:#f472b6}
+.cat-forex{background:#0a2e2e;color:#2dd4bf}
+.cat-cdn{background:#1a1a0a;color:#fbbf24}
+.cat-gov{background:#0a1a2e;color:#60a5fa}
 .cat-custom{background:#0a2e1a;color:#00ff88}
 .target-item{padding:8px 14px;border-bottom:1px solid #111827;cursor:pointer;transition:background .2s;display:flex;justify-content:space-between;align-items:center}
 .target-item:hover{background:#111827}
@@ -141,6 +146,31 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
 .no-select{font-size:12px;color:#374151;padding:30px;text-align:center}
 .leaflet-popup-content-wrapper{background:#1a1a2e!important;color:#c8d6e5!important;border:1px solid #1e3a5f!important;border-radius:6px!important;font-family:'SF Mono',monospace!important;font-size:10px!important}
 .leaflet-popup-tip{background:#1a1a2e!important}
+/* API Key Management */
+.api-keys-section{padding:12px;border-bottom:1px solid #1e3a5f}
+.api-keys-section h3{font-size:10px;color:#5a6c7d;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.api-key-item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:#111827;border:1px solid #1e3a5f;border-radius:4px;margin-bottom:4px;font-size:11px}
+.api-key-prefix{color:#00d4ff;font-family:monospace}
+.api-key-tier{font-size:9px;padding:2px 6px;border-radius:3px;background:#00d4ff15;color:#00d4ff}
+.api-key-new{background:#00ff8811;border:1px solid #00ff8833;border-radius:4px;padding:8px;margin-top:6px;font-size:10px;color:#00ff88;word-break:break-all}
+/* Chart panel */
+.chart-panel{padding:14px;border-bottom:1px solid #1e3a5f}
+.chart-panel h3{font-size:10px;color:#5a6c7d;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.chart-container{height:180px;position:relative}
+/* Rankings */
+.rankings-table{width:100%;border-collapse:collapse;font-size:11px}
+.rankings-table th{text-align:left;padding:5px 8px;background:#111827;color:#5a6c7d;text-transform:uppercase;letter-spacing:1px;font-size:9px;font-weight:600;position:sticky;top:0}
+.rankings-table td{padding:4px 8px;border-bottom:1px solid #111827}
+.rankings-table tr:hover td{background:#111827}
+.rank-num{color:#00d4ff;font-weight:700;width:30px}
+/* Route change indicator */
+.route-changed{animation:routePulse 2s infinite}
+@keyframes routePulse{0%,100%{box-shadow:none}50%{box-shadow:inset 0 0 12px #f59e0b44}}
+/* View toggle */
+.view-toggle{display:flex;gap:4px;padding:6px 14px;border-bottom:1px solid #1e3a5f}
+.view-btn{padding:3px 10px;border:1px solid #1e3a5f;border-radius:4px;background:transparent;color:#5a6c7d;font-family:inherit;font-size:10px;cursor:pointer;transition:all .2s}
+.view-btn:hover{border-color:#00d4ff;color:#00d4ff}
+.view-btn.active{background:#00d4ff22;border-color:#00d4ff;color:#00d4ff}
 @media(max-width:768px){.main{grid-template-columns:1fr;grid-template-rows:auto 40vh auto}.sidebar{grid-row:auto;max-height:35vh}.stats{display:none}}
 </style>
 </head>
@@ -180,6 +210,12 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
       <div class="settings-row"><span class="settings-label">Renewal</span><span class="settings-value" id="set-renewal">-</span></div>
       <div id="set-crypto-warning" class="crypto-warning hidden"></div>
     </div>
+    <div class="settings-section">
+      <h3>API Keys</h3>
+      <div id="api-keys-list"></div>
+      <button class="btn btn-primary" onclick="generateApiKey()" style="width:100%;margin-top:6px;padding:6px;font-size:11px">Generate New API Key</button>
+      <div id="new-api-key-display" class="api-key-new hidden"></div>
+    </div>
     <div class="settings-actions">
       <button id="set-btn-billing" class="btn btn-stripe btn-settings hidden" onclick="manageBilling()">Manage Billing</button>
       <button id="set-btn-renew" class="btn btn-settings hidden" onclick="cryptoCheckout()" style="border-color:#f7931a;color:#f7931a;background:#f7931a11">Renew with Crypto</button>
@@ -214,37 +250,90 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
     <!-- Paywall (shown when logged in but not subscribed) -->
     <div id="paywall-section" class="hidden">
       <div class="paywall">
-        <h3 id="paywall-title">Unlock Scanning</h3>
+        <h3 id="paywall-title">Network Intelligence Plans</h3>
         <p id="paywall-subtitle" class="hidden" style="color:#ef4444;font-size:12px;margin-bottom:10px"></p>
-        <div class="price">$20<span style="font-size:12px;color:#5a6c7d">/mo</span></div>
-        <div class="price-sub">Cancel anytime</div>
-        <ul class="features">
-          <li>Run unlimited traceroutes from NYC edge</li>
-          <li>Real-time hop-by-hop visualization</li>
-          <li>Geolocated route mapping</li>
-          <li>Scan history & export</li>
-        </ul>
+
+        <!-- Pro Tier -->
+        <div style="border:1px solid #00d4ff33;border-radius:6px;padding:12px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="color:#00d4ff;font-weight:700;font-size:13px">Pro</span>
+            <div class="price" style="font-size:20px;margin:0">$249<span style="font-size:10px;color:#5a6c7d">/mo</span></div>
+          </div>
+          <ul class="features" style="margin-bottom:10px;font-size:10px">
+            <li>10,000 API calls/day</li>
+            <li>30-day latency history</li>
+            <li>Route change alerts</li>
+            <li>100+ financial targets monitored</li>
+          </ul>
         {% if stripe_live %}
-        <div id="apple-pay-btn" style="margin-bottom:10px;min-height:44px"></div>
-        <button class="btn btn-stripe" onclick="subscribe()" style="width:100%;padding:10px;font-size:13px" id="fallback-subscribe">Pay with Card / Apple Pay / Cash App / PayPal</button>
-        <div style="display:flex;gap:6px;justify-content:center;margin-top:8px;opacity:.5;flex-wrap:wrap">
-          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Apple Pay</span>
-          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Cash App</span>
-          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">PayPal</span>
-          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Card</span>
-        </div>
+          <div id="apple-pay-btn" style="margin-bottom:6px;min-height:44px"></div>
+          <button class="btn btn-stripe" onclick="subscribeTier('pro')" style="width:100%;padding:8px;font-size:12px" id="fallback-subscribe">Subscribe Pro</button>
         {% endif %}
         {% if crypto_live %}
-        <button class="btn" onclick="cryptoCheckout()" style="width:100%;padding:10px;font-size:13px;margin-top:8px;border-color:#f7931a;color:#f7931a;background:#f7931a11">Pay with Crypto</button>
+          <button class="btn" onclick="cryptoCheckout()" style="width:100%;padding:8px;font-size:12px;margin-top:6px;border-color:#f7931a;color:#f7931a;background:#f7931a11">Pay with Crypto</button>
+        {% endif %}
+        </div>
+
+        <!-- Enterprise Tier -->
+        <div style="border:1px solid #a855f733;border-radius:6px;padding:12px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="color:#a855f7;font-weight:700;font-size:13px">Enterprise</span>
+            <div style="font-size:20px;font-weight:700;color:#a855f7">$2,499<span style="font-size:10px;color:#5a6c7d">/mo</span></div>
+          </div>
+          <ul class="features" style="margin-bottom:10px;font-size:10px">
+            <li>Unlimited API access</li>
+            <li>90-day deep history</li>
+            <li>Real-time WebSocket stream</li>
+            <li>Bulk CSV/JSON export</li>
+            <li>Route change detection</li>
+          </ul>
+        {% if stripe_live %}
+          <button class="btn" onclick="subscribeTier('enterprise')" style="width:100%;padding:8px;font-size:12px;border-color:#a855f7;color:#a855f7;background:#a855f711">Subscribe Enterprise</button>
+        {% endif %}
+        </div>
+
+        <!-- Enterprise Pro Tier -->
+        <div style="border:1px solid #f59e0b33;border-radius:6px;padding:12px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="color:#f59e0b;font-weight:700;font-size:13px">Enterprise Pro</span>
+            <div style="font-size:20px;font-weight:700;color:#f59e0b">$50k<span style="font-size:10px;color:#5a6c7d">/mo</span></div>
+          </div>
+          <ul class="features" style="margin-bottom:10px;font-size:10px">
+            <li>Everything in Enterprise</li>
+            <li>Dedicated scanning infrastructure</li>
+            <li>365-day deep history</li>
+            <li>Custom target lists & scan intervals</li>
+            <li>SLA guarantee</li>
+          </ul>
+        {% if stripe_live %}
+          <button class="btn" onclick="subscribeTier('enterprise_pro')" style="width:100%;padding:8px;font-size:12px;border-color:#f59e0b;color:#f59e0b;background:#f59e0b11">Subscribe Enterprise Pro</button>
+        {% endif %}
+        </div>
+
+        <!-- Government Tier -->
+        <div style="border:1px solid #ef444433;border-radius:6px;padding:12px;margin-bottom:10px;background:linear-gradient(135deg,#ef444406,#0d1321)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="color:#ef4444;font-weight:700;font-size:13px">Government</span>
+            <div style="font-size:20px;font-weight:700;color:#ef4444">$500k<span style="font-size:10px;color:#5a6c7d">/mo</span></div>
+          </div>
+          <ul class="features" style="margin-bottom:10px;font-size:10px">
+            <li>Everything in Enterprise Pro</li>
+            <li>FedRAMP-ready compliance</li>
+            <li>2-year historical data retention</li>
+            <li>Dedicated isolated infrastructure</li>
+            <li>24/7 SLA with dedicated support</li>
+            <li>Custom integration & onboarding</li>
+          </ul>
+          <button class="btn" onclick="window.location.href='mailto:sales@nettrace.dev?subject=Government%20Tier%20Inquiry'" style="width:100%;padding:8px;font-size:12px;border-color:#ef4444;color:#ef4444;background:#ef444411">Contact Sales</button>
+        </div>
+
         <div style="display:flex;gap:6px;justify-content:center;margin-top:8px;opacity:.5;flex-wrap:wrap">
+          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Card</span>
+          <span style="font-size:8px;border:1px solid #374151;padding:2px 5px;border-radius:3px">Apple Pay</span>
           <span style="font-size:8px;border:1px solid #f7931a44;padding:2px 5px;border-radius:3px;color:#f7931a">BTC</span>
           <span style="font-size:8px;border:1px solid #627eea44;padding:2px 5px;border-radius:3px;color:#627eea">ETH</span>
           <span style="font-size:8px;border:1px solid #2775ca44;padding:2px 5px;border-radius:3px;color:#2775ca">USDC</span>
-          <span style="font-size:8px;border:1px solid #345d9d44;padding:2px 5px;border-radius:3px;color:#345d9d">SOL</span>
-          <span style="font-size:8px;border:1px solid #00aae444;padding:2px 5px;border-radius:3px;color:#00aae4">XRP</span>
-          <span style="font-size:8px;border:1px solid #c3a63444;padding:2px 5px;border-radius:3px;color:#c3a634">DOGE</span>
         </div>
-        {% endif %}
         {% if not stripe_live and not crypto_live %}
         <div style="font-size:11px;color:#374151;padding:10px;text-align:center">Payments coming soon</div>
         {% endif %}
@@ -277,11 +366,19 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
       </div>
     </div>
 
+    <div class="view-toggle">
+      <button class="view-btn active" data-view="targets" onclick="setView('targets')">Targets</button>
+      <button class="view-btn" data-view="rankings" onclick="setView('rankings')">Rankings</button>
+    </div>
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="Quant APIs">Quant</button>
       <button class="filter-btn" data-filter="Cloud Providers">Cloud</button>
       <button class="filter-btn" data-filter="NYSE & Financial">Finance</button>
+      <button class="filter-btn" data-filter="Crypto Exchanges">Crypto</button>
+      <button class="filter-btn" data-filter="Forex & Brokers">Forex</button>
+      <button class="filter-btn" data-filter="CDN & DNS">CDN</button>
+      <button class="filter-btn" data-filter="Gov & Data">Gov</button>
       <button class="filter-btn" data-filter="Custom" id="filter-custom">My Scans</button>
     </div>
     <div id="target-list" class="target-list"></div>
@@ -304,8 +401,15 @@ const catColors = {
   "Quant APIs":{line:"#a855f7",css:"cat-quant"},
   "Cloud Providers":{line:"#3b82f6",css:"cat-cloud"},
   "NYSE & Financial":{line:"#f59e0b",css:"cat-finance"},
+  "Crypto Exchanges":{line:"#f472b6",css:"cat-crypto"},
+  "Forex & Brokers":{line:"#2dd4bf",css:"cat-forex"},
+  "CDN & DNS":{line:"#fbbf24",css:"cat-cdn"},
+  "Gov & Data":{line:"#60a5fa",css:"cat-gov"},
   "Custom":{line:"#00ff88",css:"cat-custom"}
 };
+let currentView = "targets";
+let latencyChart = null;
+let routeChanges = {}; // host -> true if recently changed
 
 const map = L.map("map",{center:[38,-40],zoom:3,zoomControl:false,attributionControl:false});
 L.control.zoom({position:"topright"}).addTo(map);
@@ -380,6 +484,9 @@ function onLogin(){
   }
 
   if(isSubscribed){
+    const tierLabels={"free":"FREE","pro":"PRO","enterprise":"ENTERPRISE","enterprise_pro":"ENT PRO","government":"GOV"};
+    const tierLabel=tierLabels[userMeta.tier]||(userMeta.tier||"pro").toUpperCase();
+    document.getElementById("sub-badge").textContent=tierLabel;
     document.getElementById("sub-badge").classList.remove("hidden");
     document.getElementById("scan-section").classList.remove("hidden");
     document.getElementById("paywall-section").classList.add("hidden");
@@ -456,6 +563,7 @@ function showSettings(){
     document.getElementById("set-btn-cancel").classList.toggle("hidden",!(st==="active"||st==="trialing"||st==="past_due"));
 
     document.getElementById("settings-modal").classList.remove("hidden");
+    loadApiKeys();
   });
 }
 function hideSettings(){document.getElementById("settings-modal").classList.add("hidden")}
@@ -501,7 +609,7 @@ function mountApplePay(){
   if(!s) return;
   const paymentRequest = s.paymentRequest({
     country: "US", currency: "usd",
-    total: {label: "NetTrace Pro - Monthly", amount: 2000},
+    total: {label: "NetTrace Pro - Monthly", amount: 24900},
     requestPayerName: true, requestPayerEmail: true
   });
   const prButton = s.elements().create("paymentRequestButton", {paymentRequest, style:{paymentRequestButton:{type:"subscribe",theme:"dark"}}});
@@ -515,7 +623,7 @@ function mountApplePay(){
   });
   paymentRequest.on("paymentmethod", async (ev) => {
     ev.complete("success");
-    subscribe();
+    subscribeTier("pro");
   });
 }
 async function cryptoCheckout(){
@@ -533,6 +641,53 @@ async function manageBilling(){
     if(data.portal_url) window.location.href=data.portal_url;
     else alert(data.error||"Could not open billing");
   }catch(e){alert("Network error")}
+}
+async function subscribeTier(tier){
+  try{
+    const res=await fetch("/api/create-checkout-tier",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tier})});
+    const data=await res.json();
+    if(data.checkout_url) window.location.href=data.checkout_url;
+    else{
+      // Fallback to legacy checkout
+      const res2=await fetch("/api/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"}});
+      const data2=await res2.json();
+      if(data2.checkout_url) window.location.href=data2.checkout_url;
+      else alert(data2.error||"Could not start checkout");
+    }
+  }catch(e){alert("Network error")}
+}
+
+// ── API Key Management ──
+async function loadApiKeys(){
+  try{
+    const res=await fetch("/api/keys");
+    if(!res.ok) return;
+    const keys=await res.json();
+    const list=document.getElementById("api-keys-list");
+    if(!list) return;
+    if(keys.length===0){list.innerHTML='<div style="font-size:10px;color:#374151;padding:4px">No API keys yet</div>';return}
+    list.innerHTML=keys.map(k=>`<div class="api-key-item"><div><span class="api-key-prefix">${k.prefix}...</span> <span style="color:#5a6c7d">${k.name}</span></div><div style="display:flex;gap:6px;align-items:center"><span class="api-key-tier">${k.tier}</span>${k.is_active?`<button class="btn btn-danger" style="padding:2px 6px;font-size:9px" onclick="deleteApiKey(${k.id})">Revoke</button>`:'<span style="color:#ef4444;font-size:9px">Revoked</span>'}</div></div>`).join("");
+  }catch(e){}
+}
+async function generateApiKey(){
+  try{
+    const res=await fetch("/api/keys",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:"default"})});
+    const data=await res.json();
+    if(!res.ok){showToast(data.error||"Failed to generate key","error");return}
+    const display=document.getElementById("new-api-key-display");
+    display.innerHTML=`<strong>New API Key (save now!):</strong><br><code style="color:#00ff88;font-size:11px;word-break:break-all">${data.api_key}</code><br><span style="color:#f59e0b;font-size:9px">This key won't be shown again.</span>`;
+    display.classList.remove("hidden");
+    loadApiKeys();
+    showToast("API key generated","success");
+  }catch(e){showToast("Network error","error")}
+}
+async function deleteApiKey(id){
+  if(!confirm("Revoke this API key?"))return;
+  try{
+    await fetch(`/api/keys/${id}`,{method:"DELETE"});
+    loadApiKeys();
+    showToast("API key revoked","success");
+  }catch(e){showToast("Network error","error")}
 }
 
 // ── Checkout return handling ──
@@ -612,19 +767,39 @@ function updateStats(){
 }
 function buildSidebar(filter){
   const list=document.getElementById("target-list");list.innerHTML="";
+  if(currentView==="rankings"){buildRankings(filter);return}
   const all=allData();
   const filtered=filter==="all"?all:all.filter(d=>d.category===filter);
   let lastCat="";
-  const co={"Quant APIs":0,"Cloud Providers":1,"NYSE & Financial":2,"Custom":3};
+  const co={"Quant APIs":0,"Cloud Providers":1,"NYSE & Financial":2,"Crypto Exchanges":3,"Forex & Brokers":4,"CDN & DNS":5,"Gov & Data":6,"Custom":7};
   filtered.sort((a,b)=>(co[a.category]||9)-(co[b.category]||9)||a.name.localeCompare(b.name));
   filtered.forEach(t=>{
     if(t.category!==lastCat){lastCat=t.category;const h=document.createElement("div");h.className="cat-header "+(catColors[t.category]?.css||"cat-custom");h.textContent=t.category;list.appendChild(h)}
-    const item=document.createElement("div");item.className="target-item";
+    const item=document.createElement("div");item.className="target-item"+(routeChanges[t.host]?" route-changed":"");
     const idx=all.indexOf(t);item.dataset.index=idx;
     const rc=!t.total_rtt?"rtt-mid":t.total_rtt<30?"rtt-good":t.total_rtt<80?"rtt-mid":"rtt-bad";
     item.innerHTML=`<div><div class="target-name">${t.name}</div><div class="target-host">${t.host}</div></div><div class="target-meta"><div class="target-rtt ${rc}">${t.total_rtt?t.total_rtt.toFixed(1)+" ms":"N/A"}</div><div class="target-hops">${t.hop_count} hops</div></div>`;
     item.addEventListener("click",()=>selectTarget(idx));list.appendChild(item);
   });
+}
+function buildRankings(filter){
+  const list=document.getElementById("target-list");
+  const all=allData();
+  const filtered=(filter==="all"?all:all.filter(d=>d.category===filter)).filter(t=>t.total_rtt);
+  filtered.sort((a,b)=>a.total_rtt-b.total_rtt);
+  let html='<table class="rankings-table"><thead><tr><th>#</th><th>Target</th><th>RTT</th><th>Hops</th></tr></thead><tbody>';
+  filtered.forEach((t,i)=>{
+    const rc=t.total_rtt<30?"rtt-good":t.total_rtt<80?"rtt-mid":"rtt-bad";
+    const idx=all.indexOf(t);
+    html+=`<tr style="cursor:pointer" onclick="selectTarget(${idx})"><td class="rank-num">${i+1}</td><td><div style="font-size:11px">${t.name}</div><div style="font-size:8px;color:#5a6c7d">${t.host}</div></td><td class="${rc}" style="font-weight:700">${t.total_rtt.toFixed(1)} ms</td><td style="color:#5a6c7d">${t.hop_count}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  list.innerHTML=html;
+}
+function setView(view){
+  currentView=view;
+  document.querySelectorAll(".view-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  buildSidebar(document.querySelector(".filter-btn.active")?.dataset.filter||"all");
 }
 function drawBgRoutes(){
   bgLayers.clearLayers();
@@ -658,7 +833,25 @@ function selectTarget(idx){
     const loc=h.geo?`${h.geo.city}${h.geo.city&&h.geo.country?", ":""}${h.geo.country}`:"";
     return`<tr><td class="hop-num">${h.hop}</td><td class="hop-ip">${h.ip}</td><td class="hop-host" title="${h.host}">${h.host}</td><td>${h.rtt_ms?`<span class="rtt-bar" style="width:${bw}px;background:${bc}"></span>${h.rtt_ms.toFixed(1)} ms`:"-"}</td><td class="hop-loc">${loc}</td></tr>`;
   }).join("");
-  panel.innerHTML=`<div class="detail-title">${t.name} &mdash; ${t.host}</div><table class="hop-table"><thead><tr><th>#</th><th>IP</th><th>Hostname</th><th>RTT</th><th>Location</th></tr></thead><tbody>${rows}</tbody></table>`;
+  panel.innerHTML=`<div class="detail-title">${t.name} &mdash; ${t.host}</div><div class="chart-panel"><h3>Latency History</h3><div class="chart-container"><canvas id="latency-chart"></canvas></div></div><table class="hop-table"><thead><tr><th>#</th><th>IP</th><th>Hostname</th><th>RTT</th><th>Location</th></tr></thead><tbody>${rows}</tbody></table>`;
+  loadLatencyChart(t.host, t.name);
+}
+async function loadLatencyChart(host, name){
+  try{
+    const res=await fetch(`/api/internal/history/${encodeURIComponent(host)}`);
+    const data=await res.json();
+    if(!data.length)return;
+    const canvas=document.getElementById("latency-chart");
+    if(!canvas)return;
+    if(latencyChart){latencyChart.destroy();latencyChart=null}
+    const labels=data.reverse().map(d=>d.t?new Date(d.t).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}):"");
+    const rtts=data.map(d=>d.rtt);
+    latencyChart=new Chart(canvas,{
+      type:"line",
+      data:{labels,datasets:[{label:"RTT (ms)",data:rtts,borderColor:"#00d4ff",backgroundColor:"#00d4ff11",fill:true,tension:.3,pointRadius:1,borderWidth:1.5}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:true,ticks:{color:"#374151",font:{size:8},maxTicksLimit:8},grid:{color:"#111827"}},y:{display:true,ticks:{color:"#5a6c7d",font:{size:9}},grid:{color:"#111827"}}}}
+    });
+  }catch(e){}
 }
 
 document.querySelectorAll(".filter-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".filter-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");buildSidebar(b.dataset.filter)}));
