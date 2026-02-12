@@ -64,7 +64,7 @@ DEFAULT_CONFIG = {
     "levels_above": 2,           # sell levels above current price
     "levels_below": 2,           # buy levels below current price
     "order_size_usd": 1.00,     # USD per grid level (fits $13 budget)
-    "min_reserve_usd": 2.00,    # keep $2 reserve (rest deployed)
+    "min_reserve_usd": 10.00,   # keep $10 reserve — prevent cash burnout
     "check_interval": 60,        # seconds between order checks
     "max_open_orders": 6,        # max concurrent open orders
     "recenter_threshold": 0.03,  # recenter grid if price moves 3% from center

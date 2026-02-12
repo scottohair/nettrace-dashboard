@@ -1635,8 +1635,12 @@ def trading_data():
 @app.route("/api/trading-snapshot", methods=["POST"])
 def receive_trading_snapshot():
     """Receive portfolio snapshot from local live trader."""
-    # Auth via API key
-    api_key = request.headers.get("X-Api-Key") or request.args.get("api_key") or ""
+    # Auth via API key — accept Authorization: Bearer, X-Api-Key header, or query param
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        api_key = auth_header[7:].strip()
+    else:
+        api_key = request.headers.get("X-Api-Key") or request.args.get("api_key") or ""
     expected_key = os.environ.get("NETTRACE_API_KEY", "")
     if not api_key or not expected_key or api_key != expected_key:
         return jsonify({"error": "Unauthorized"}), 401
@@ -2079,7 +2083,12 @@ def record_asset_transition():
       {asset, venue, from_state, to_state, amount, value_usd, cost_usd,
        duration_seconds, trigger, tx_hash, metadata}
     """
-    api_key = request.headers.get("X-Api-Key") or request.args.get("api_key") or ""
+    # Auth via API key — accept Authorization: Bearer, X-Api-Key header, or query param
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        api_key = auth_header[7:].strip()
+    else:
+        api_key = request.headers.get("X-Api-Key") or request.args.get("api_key") or ""
     expected_key = os.environ.get("NETTRACE_API_KEY", "")
     if not api_key or not expected_key or api_key != expected_key:
         return jsonify({"error": "Unauthorized"}), 401

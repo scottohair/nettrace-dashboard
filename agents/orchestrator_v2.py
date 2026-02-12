@@ -86,15 +86,15 @@ AGENT_CONFIGS = [
         "name": "grid_trader",
         "script": "grid_trader.py",
         "args": ["run"],
-        "enabled": True,
-        "critical": True,    # must always be running
+        "enabled": False,  # FIRED: -$2.49 P&L, unprofitable at Intro 1 fee tier (0.6% maker)
+        "critical": False,
         "description": "Grid trading on BTC-USD (primary money maker)",
     },
     {
         "name": "dca_bot",
         "script": "dca_bot.py",
         "args": [],
-        "enabled": True,
+        "enabled": False,  # FIRED: Blind buying with no trend awareness, bought into downtrend
         "critical": False,
         "description": "DCA accumulation into BTC, ETH, SOL",
     },
@@ -102,7 +102,7 @@ AGENT_CONFIGS = [
         "name": "live_trader",
         "script": "live_trader.py",
         "args": [],
-        "enabled": True,
+        "enabled": False,  # FIRED: BUY-only with no trend detection, no exit strategy
         "critical": False,
         "description": "Signal-based BUY-only trading",
     },
@@ -145,6 +145,46 @@ AGENT_CONFIGS = [
         "enabled": False,  # DISABLED: exits immediately with code 0, crash-loops
         "critical": False,
         "description": "SEC/NIST/data.gov JIT signal generation",
+    },
+    {
+        "name": "forex_arb",
+        "script": "forex_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Forex correlation + stablecoin arb",
+    },
+    {
+        "name": "latency_arb",
+        "script": "latency_arb_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Latency-based arb using Fly.io proximity signals",
+    },
+    {
+        "name": "momentum_scalper",
+        "script": "momentum_scalper.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Short-timeframe momentum scalper (1-5min)",
+    },
+    {
+        "name": "exchange_scanner",
+        "script": "exchange_scanner.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Multi-exchange correlation scanner (CME, ICE, NYMEX, LSE, etc.)",
+    },
+    {
+        "name": "advanced_team",
+        "script": "advanced_team/coordinator.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "5-agent research/strategy/risk/execution/learning team",
     },
 ]
 

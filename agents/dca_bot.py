@@ -59,7 +59,7 @@ ALLOCATIONS = [
 ]
 
 DAILY_BUDGET_USD = 0.50       # Total daily DCA spend
-MIN_RESERVE_USD = 4.00        # Always keep in reserve
+MIN_RESERVE_USD = 10.00       # Always keep $10 in reserve — prevent cash burnout
 DIP_THRESHOLD_PCT = 0.02      # Buy extra on 2%+ dips
 DIP_MULTIPLIER = 2.0          # Double allocation on dips
 BELOW_SPOT_PCT = 0.002        # Place orders 0.2% below spot

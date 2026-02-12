@@ -372,7 +372,7 @@ class LiveTrader:
                 url, data=payload,
                 headers={
                     "Content-Type": "application/json",
-                    "X-Api-Key": NETTRACE_API_KEY,
+                    "Authorization": f"Bearer {NETTRACE_API_KEY}",
                     "User-Agent": "NetTrace-Trader/1.0",
                 },
                 method="POST"

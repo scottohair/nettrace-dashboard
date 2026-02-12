@@ -67,16 +67,28 @@ NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 FLY_URL = "https://nettrace-dashboard.fly.dev"
 WALLET_ADDRESS = os.environ.get("WALLET_ADDRESS", "")
 
-# Sniper configuration
+# Dynamic risk controller — NO hardcoded values
+try:
+    from risk_controller import get_controller
+    _risk_ctrl = get_controller()
+except Exception:
+    _risk_ctrl = None
+
+# Exit strategy manager — every position gets an exit plan
+try:
+    from exit_manager import get_exit_manager
+    _exit_mgr = get_exit_manager()
+except Exception:
+    _exit_mgr = None
+
+# Sniper configuration — static signal settings only
+# Trade sizes, reserves, position limits come from risk_controller dynamically
 CONFIG = {
-    "min_composite_confidence": 0.65,    # Aggressive: 65% minimum (more trades)
+    "min_composite_confidence": 0.70,    # 70% minimum — quality over quantity
     "min_confirming_signals": 2,         # 2+ must agree
-    "max_trade_usd": 10.00,             # Bigger positions with $25 new capital
-    "max_daily_loss_usd": 5.00,         # Higher loss limit to stay in the game
-    "scan_interval": 30,                  # Scan every 30s — catch moves fast
-    "min_hold_seconds": 30,               # Quick rotation — 30s minimum hold
+    "scan_interval": 30,                  # Scan every 30s
+    "min_hold_seconds": 60,               # 60s minimum hold
     "pairs": ["BTC-USDC", "ETH-USDC", "SOL-USDC", "AVAX-USDC", "LINK-USDC", "DOGE-USDC", "FET-USDC"],
-    "max_position_pct": 0.20,            # Max 20% of portfolio in any single asset
     "signal_weights": {
         "latency": 0.12,
         "regime": 0.14,
@@ -85,7 +97,7 @@ CONFIG = {
         "rsi_extreme": 0.10,
         "fear_greed": 0.10,
         "momentum": 0.08,
-        "uptick": 0.22,   # highest weight — timing-based buy_low_sell_high
+        "uptick": 0.22,
     },
 }
 
@@ -124,7 +136,7 @@ class LatencySignalSource(SignalSource):
         try:
             # Latency signals are exchange-level, pair-agnostic
             url = f"{FLY_URL}/api/v1/signals?hours=1&min_confidence=0.6"
-            data = _fetch_json(url, headers={"X-Api-Key": NETTRACE_API_KEY})
+            data = _fetch_json(url, headers={"Authorization": f"Bearer {NETTRACE_API_KEY}"})
             signals = data.get("signals", [])
 
             # Find high-confidence signals related to crypto exchanges
@@ -637,14 +649,9 @@ class Sniper:
     def execute_trade(self, signal):
         """Execute a high-confidence trade on Coinbase.
 
-        Supports both BUY and SELL:
-        - BUY: uses available USD/USDC cash
-        - SELL: only sells assets we already hold (no short selling)
+        ALL risk parameters are DYNAMIC from risk_controller.
+        No hardcoded values for trade size, reserves, or position limits.
         """
-        if self.daily_loss >= CONFIG["max_daily_loss_usd"]:
-            logger.warning("HARDSTOP: Daily loss limit reached")
-            return False
-
         pair = signal["pair"]
         direction = signal["direction"]
 
@@ -654,28 +661,71 @@ class Sniper:
             return False
 
         holdings, cash = self._get_holdings()
-        base_currency = pair.split("-")[0]  # e.g., "BTC" from "BTC-USD"
+        base_currency = pair.split("-")[0]
+
+        # Calculate total portfolio value
+        total_portfolio = cash + sum(
+            h * (self._get_price(f"{c}-USDC") or 0) for c, h in holdings.items()
+        )
+
+        # Get DYNAMIC risk parameters from centralized controller
+        if _risk_ctrl:
+            params = _risk_ctrl.get_risk_params(total_portfolio, pair)
+            max_trade = params["max_trade_usd"]
+            max_daily_loss = params["max_daily_loss"]
+            reserve = params["min_reserve"]
+            max_pos_pct = params["max_position_pct"]
+            can_buy = params["can_buy"]
+            regime = params["regime"]
+        else:
+            # Fallback: derive from portfolio (still no hardcoded values)
+            max_trade = max(1.0, total_portfolio * 0.06)
+            max_daily_loss = max(1.0, total_portfolio * 0.04)
+            reserve = max(5.0, total_portfolio * 0.12)
+            max_pos_pct = 0.20
+            can_buy = True
+            regime = "UNKNOWN"
+
+        # HARDSTOP check
+        if self.daily_loss >= max_daily_loss:
+            logger.warning("HARDSTOP: Daily loss $%.2f >= dynamic limit $%.2f",
+                          self.daily_loss, max_daily_loss)
+            return False
 
         if direction == "BUY":
-            # Diversification check: don't exceed 20% of portfolio in any single asset
-            held_amount = holdings.get(base_currency, 0)
-            held_usd = held_amount * price if price else 0
-            total_portfolio = cash + sum(h * (self._get_price(f"{c}-USDC") or 0) for c, h in holdings.items())
-            max_position = total_portfolio * CONFIG.get("max_position_pct", 0.20)
-            if held_usd >= max_position:
-                logger.info("SNIPER: %s position $%.2f >= max $%.2f (%.0f%% of portfolio) — DIVERSIFY",
-                           base_currency, held_usd, max_position, held_usd/total_portfolio*100 if total_portfolio else 0)
+            # Trend check — don't buy in strong downtrends
+            if not can_buy:
+                logger.info("SNIPER: %s blocked — %s regime, trend too negative", pair, regime)
                 return False
 
-            # Size the trade: min $1, max $10, scale with confidence
-            # Also cap to not exceed position limit
+            # Diversification check with DYNAMIC position limit
+            held_amount = holdings.get(base_currency, 0)
+            held_usd = held_amount * price if price else 0
+            max_position = total_portfolio * max_pos_pct
+            if held_usd >= max_position:
+                logger.info("SNIPER: %s position $%.2f >= dynamic max $%.2f (%.0f%%) — DIVERSIFY",
+                           base_currency, held_usd, max_position,
+                           held_usd / total_portfolio * 100 if total_portfolio else 0)
+                return False
+
+            # Size with DYNAMIC limits — scale with confidence
             remaining_room = max_position - held_usd
-            trade_size = min(CONFIG["max_trade_usd"],
-                             max(1.00, signal["composite_confidence"] * 8.0))
+            trade_size = min(max_trade, max(1.00, signal["composite_confidence"] * max_trade * 1.2))
             trade_size = min(trade_size, remaining_room)
-            trade_size = min(trade_size, cash - 2.00)  # keep $2 reserve
+            trade_size = min(trade_size, cash - reserve)  # DYNAMIC reserve
+
+            # Risk controller approval
+            if _risk_ctrl:
+                approved, reason, adj_size = _risk_ctrl.approve_trade(
+                    "sniper", pair, "BUY", trade_size, total_portfolio)
+                if not approved:
+                    logger.info("SNIPER: Risk controller blocked: %s", reason)
+                    return False
+                trade_size = adj_size
+
             if trade_size < 1.00:
-                logger.info("SNIPER: Insufficient cash ($%.2f) for BUY. Need $1.00+", cash)
+                logger.info("SNIPER: Insufficient for BUY after dynamic sizing ($%.2f cash, $%.2f reserve)",
+                           cash, reserve)
                 return False
             trade_size = round(trade_size, 2)
 
@@ -739,8 +789,8 @@ class Sniper:
                                    pair, loss_pct * 100, buy_price, price)
                         return False
 
-            # Sell up to $5 worth, but never more than we hold
-            trade_size = min(CONFIG["max_trade_usd"], held_usd * 0.5)
+            # Sell up to dynamic max_trade, but never more than we hold
+            trade_size = min(max_trade, held_usd * 0.5)
             if trade_size < 0.50:
                 return False
 
@@ -811,6 +861,18 @@ class Sniper:
                                     metadata={"side": "SELL", "pair": pair,
                                               "confidence": signal["composite_confidence"]})
 
+        # Register filled BUY orders with ExitManager for exit monitoring
+        if _exit_mgr and status == "filled" and side == "BUY":
+            try:
+                base_amount = trade_size / price if price else 0
+                _exit_mgr.register_position(
+                    pair, price, datetime.now(timezone.utc).isoformat(),
+                    base_amount, trade_id=order_id)
+                logger.info("SNIPER: Registered %s BUY with ExitManager (%.8f @ $%.2f)",
+                           pair, base_amount, price)
+            except Exception as e:
+                logger.warning("SNIPER: Failed to register with ExitManager: %s", e)
+
         return status == "filled"
 
     def _get_price(self, pair):
@@ -852,8 +914,10 @@ class Sniper:
         print(f"\n  Config:")
         print(f"    Min confidence: {CONFIG['min_composite_confidence']:.0%}")
         print(f"    Min signals:    {CONFIG['min_confirming_signals']}")
-        print(f"    Max trade:      ${CONFIG['max_trade_usd']:.2f}")
-        print(f"    Daily loss lim: ${CONFIG['max_daily_loss_usd']:.2f}")
+        if _risk_ctrl:
+            params = _risk_ctrl.get_risk_params(0, "BTC-USDC")
+            print(f"    Max trade:      ${params['max_trade_usd']:.2f} (dynamic)")
+            print(f"    Daily loss lim: ${params['max_daily_loss']:.2f} (dynamic)")
         print(f"{'='*70}\n")
 
     def run(self):
@@ -862,6 +926,13 @@ class Sniper:
                     len(CONFIG["pairs"]), CONFIG["scan_interval"])
         logger.info("Thresholds: conf >= %.0f%%, signals >= %d",
                     CONFIG["min_composite_confidence"]*100, CONFIG["min_confirming_signals"])
+
+        # Start ExitManager background monitor for exit strategy enforcement
+        if _exit_mgr:
+            _exit_mgr.start()
+            logger.info("Sniper: ExitManager background monitor started")
+        else:
+            logger.warning("Sniper: ExitManager not available — positions will NOT be monitored for exits")
 
         cycle = 0
         while True:
@@ -875,11 +946,15 @@ class Sniper:
                 # Report every 30 cycles (~15 min)
                 if cycle % 30 == 0:
                     self.print_report()
+                    if _exit_mgr:
+                        _exit_mgr.print_status()
 
                 time.sleep(CONFIG["scan_interval"])
 
             except KeyboardInterrupt:
                 logger.info("Sniper shutting down...")
+                if _exit_mgr:
+                    _exit_mgr.stop()
                 self.print_report()
                 break
             except Exception as e:

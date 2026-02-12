@@ -131,7 +131,7 @@ class AssetTracker:
             url, data=data,
             headers={
                 "Content-Type": "application/json",
-                "X-Api-Key": self.api_key,
+                "Authorization": f"Bearer {self.api_key}",
             })
         with urllib.request.urlopen(req, timeout=5) as resp:
             return json.loads(resp.read().decode())
