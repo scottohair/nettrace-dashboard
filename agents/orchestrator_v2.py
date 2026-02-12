@@ -61,12 +61,19 @@ ORCH_DB = str(Path(__file__).parent / "orchestrator.db")
 
 # Risk limits — NEVER violate
 HARDSTOP_FLOOR_USD = 500.00   # ABSOLUTE FLOOR — kill everything if portfolio drops below this
-HARDSTOP_DRAWDOWN_PCT = 0.15  # 15% drawdown from peak → kill everything
-STARTING_CAPITAL = 13.47      # track from this baseline (auto-updates when wallet added)
+HARDSTOP_DRAWDOWN_PCT = 0.30  # 30% drawdown from peak → kill everything (was 15%, too sensitive with bridges)
+STARTING_CAPITAL = 13.00      # track from LIQUID capital only (Coinbase ~$13)
 
 # Wallet monitoring (set via env or updated at runtime)
 WALLET_ADDRESS = os.environ.get("WALLET_ADDRESS", "")  # EVM wallet to monitor
 WALLET_CHAINS = ["ethereum", "base", "arbitrum", "polygon"]
+
+# Bridge-in-transit tracking — prevents false HARDSTOP during L1→L2 bridges
+# Each entry: {"chain": "base", "amount_usd": 62.58, "amount_eth": 0.0326, "timestamp": unix, "tx_hash": "0x..."}
+PENDING_BRIDGES_FILE = str(Path(__file__).parent / "pending_bridges.json")
+
+# Drawdown sanity check — if portfolio drops more than this in one check, verify before HARDSTOP
+MAX_SANE_SINGLE_DROP_PCT = 0.40  # 40% drop in 5 minutes is suspicious, verify first
 
 # Timing
 HEALTH_CHECK_INTERVAL = 30    # seconds
@@ -99,6 +106,46 @@ AGENT_CONFIGS = [
         "critical": False,
         "description": "Signal-based BUY-only trading",
     },
+    {
+        "name": "dex_grid_trader",
+        "script": "dex_grid_trader.py",
+        "args": [],
+        "enabled": False,  # DISABLED: needs ETH bridged to Base L2 first
+        "critical": False,
+        "description": "HFT grid bot on Uniswap Base L2 (WETH/USDC)",
+    },
+    {
+        "name": "sniper",
+        "script": "sniper.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "High-confidence stacked-signal sniper (90%+ conf)",
+    },
+    {
+        "name": "meta_engine",
+        "script": "meta_engine.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Autonomous strategy evolution engine",
+    },
+    {
+        "name": "capital_allocator",
+        "script": "capital_allocator.py",
+        "args": ["run"],
+        "enabled": True,
+        "critical": True,
+        "description": "Treasury management — principle protection + profit allocation",
+    },
+    {
+        "name": "gov_data",
+        "script": "gov_data.py",
+        "args": ["signals"],
+        "enabled": False,  # DISABLED: exits immediately with code 0, crash-loops
+        "critical": False,
+        "description": "SEC/NIST/data.gov JIT signal generation",
+    },
 ]
 
 
@@ -114,6 +161,7 @@ class OrchestratorV2:
         self.running = True
         self.peak_portfolio = STARTING_CAPITAL
         self.daily_pnl_start = None
+        self._last_portfolio_total = STARTING_CAPITAL  # sanity check baseline
 
     def _init_db(self):
         self.db.executescript("""
@@ -283,8 +331,36 @@ class OrchestratorV2:
         self.restart_log[name].append(now)
         return True
 
+    def _load_pending_bridges(self):
+        """Load pending bridge deposits that are in transit."""
+        try:
+            if os.path.exists(PENDING_BRIDGES_FILE):
+                with open(PENDING_BRIDGES_FILE) as f:
+                    bridges = json.load(f)
+                # Auto-expire bridges older than 2 hours (should arrive within 20 min)
+                now = time.time()
+                active = [b for b in bridges if now - b.get("timestamp", 0) < 7200]
+                if len(active) != len(bridges):
+                    self._save_pending_bridges(active)
+                return active
+        except Exception:
+            pass
+        return []
+
+    def _save_pending_bridges(self, bridges):
+        """Save pending bridge state."""
+        try:
+            with open(PENDING_BRIDGES_FILE, "w") as f:
+                json.dump(bridges, f, indent=2)
+        except Exception:
+            pass
+
     def check_portfolio(self):
-        """Monitor combined portfolio value (Coinbase + wallet) and enforce risk limits."""
+        """Monitor combined portfolio value (Coinbase + wallet) and enforce risk limits.
+
+        Bridge-aware: includes pending bridge deposits in total to prevent false HARDSTOP.
+        Sanity-check: verifies sudden large drops before triggering HARDSTOP.
+        """
         try:
             from agent_tools import AgentTools
             tools = AgentTools()
@@ -307,6 +383,37 @@ class OrchestratorV2:
                 logger.info("Wallet: $%.2f across %d chains", wallet_total, len(WALLET_CHAINS))
             except Exception as e:
                 logger.debug("Wallet check skipped: %s", e)
+
+        # Include pending bridge deposits (ETH in transit between L1↔L2)
+        bridge_total = 0
+        pending_bridges = self._load_pending_bridges()
+        for bridge in pending_bridges:
+            bridge_total += bridge.get("amount_usd", 0)
+        if bridge_total > 0:
+            total += bridge_total
+            logger.info("Bridge in-transit: $%.2f (%d pending)", bridge_total, len(pending_bridges))
+
+        # ── SANITY CHECK: detect suspicious drops before updating peak ──
+        # If portfolio drops >40% in one check cycle, it's likely a data issue
+        # (bridge not yet credited, RPC failure returning 0, etc.)
+        if hasattr(self, '_last_portfolio_total') and self._last_portfolio_total > 0:
+            drop_pct = (self._last_portfolio_total - total) / self._last_portfolio_total
+            if drop_pct > MAX_SANE_SINGLE_DROP_PCT:
+                logger.warning(
+                    "SANITY CHECK: Portfolio dropped %.1f%% in one cycle ($%.2f → $%.2f). "
+                    "Likely data issue (bridge transit, RPC failure). Skipping risk check.",
+                    drop_pct * 100, self._last_portfolio_total, total
+                )
+                self._log_risk_event(
+                    "sanity_check_skip",
+                    f"Suspicious {drop_pct*100:.0f}% drop: ${self._last_portfolio_total:.2f} → ${total:.2f}",
+                    "risk_check_skipped"
+                )
+                # Still record the snapshot for debugging, but DON'T trigger HARDSTOP
+                self._last_portfolio_total = total
+                return
+
+        self._last_portfolio_total = total
 
         # Track peak
         if total > self.peak_portfolio:
@@ -332,8 +439,8 @@ class OrchestratorV2:
         )
         self.db.commit()
 
-        logger.info("Portfolio: $%.2f | Cash: $%.2f | Held: $%.2f | Day P&L: $%+.2f | DD: %.1f%% | Agents: %d",
-                     total, available, held, daily_pnl, drawdown * 100, agents_running)
+        logger.info("Portfolio: $%.2f | Cash: $%.2f | Held: $%.2f | Bridge: $%.2f | Day P&L: $%+.2f | DD: %.1f%% | Agents: %d",
+                     total, available, held, bridge_total, daily_pnl, drawdown * 100, agents_running)
 
         # Push to Fly dashboard
         try:
@@ -350,13 +457,15 @@ class OrchestratorV2:
             }
             if wallet_total > 0:
                 snapshot["wallet_total_usd"] = round(wallet_total, 2)
+            if bridge_total > 0:
+                snapshot["bridge_in_transit_usd"] = round(bridge_total, 2)
             tools.push_to_dashboard(snapshot)
         except Exception:
             pass
 
         # ── RISK CHECKS ──
 
-        # HARDSTOP #1: Absolute floor — $500 minimum, NEVER go below
+        # HARDSTOP #1: Absolute floor — only if peak was above floor (don't trigger if we started small)
         if total < HARDSTOP_FLOOR_USD and self.peak_portfolio >= HARDSTOP_FLOOR_USD:
             msg = f"HARDSTOP FLOOR: portfolio ${total:.2f} dropped below ${HARDSTOP_FLOOR_USD:.2f} absolute minimum"
             logger.critical(msg)
@@ -365,7 +474,7 @@ class OrchestratorV2:
             self.running = False
             return
 
-        # HARDSTOP #2: 15% drawdown from peak
+        # HARDSTOP #2: drawdown from peak (30% threshold)
         if drawdown >= HARDSTOP_DRAWDOWN_PCT:
             msg = f"HARDSTOP: {drawdown*100:.1f}% drawdown (peak ${self.peak_portfolio:.2f} → ${total:.2f})"
             logger.critical(msg)

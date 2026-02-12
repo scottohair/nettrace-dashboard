@@ -121,6 +121,32 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
 .wallet-chain{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg3);font-size:11px}
 .wallet-chain .chain-name{color:var(--blue);font-weight:700;min-width:80px}
 .wallet-chain .chain-balance{color:var(--text)}.wallet-chain .chain-usd{color:var(--green);margin-left:auto}
+/* Asset Pool */
+.pool-summary{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.pool-stat{display:flex;flex-direction:column;gap:2px;padding:6px 10px;background:var(--bg3);border-radius:4px;min-width:90px}
+.pool-stat .label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.pool-stat .value{font-size:14px;font-weight:700}
+.pool-row{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--bg3);font-size:11px;transition:background .2s}
+.pool-row:hover{background:var(--bg3)}
+.pool-row .pool-asset{color:var(--blue);font-weight:700;min-width:50px}
+.pool-row .pool-venue{color:var(--muted);font-size:9px;min-width:70px}
+.pool-row .pool-amount{color:var(--text);min-width:90px;text-align:right}
+.pool-row .pool-usd{color:var(--green);min-width:70px;text-align:right;font-weight:600}
+.pool-row .pool-state{margin-left:auto}
+.state-badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:8px;font-weight:700;letter-spacing:0.5px}
+.state-available{background:#00ff8822;color:var(--green);border:1px solid #00ff8844}
+.state-in_transit{background:#fbbf2422;color:var(--gold);border:1px solid #fbbf2444;animation:pulse 2s infinite}
+.state-stuck{background:#ef444422;color:var(--red);border:1px solid #ef444444}
+.state-locked{background:#a855f722;color:var(--purple);border:1px solid #a855f744}
+.state-pending{background:#00d4ff22;color:var(--blue);border:1px solid #00d4ff44;animation:pulse 2s infinite}
+.state-reserved{background:#6b728022;color:var(--muted);border:1px solid #6b728044}
+.state-error,.state-unavailable{background:#ef444411;color:var(--muted);border:1px solid #ef444422}
+.pool-eta{font-size:9px;color:var(--gold);margin-left:4px}
+.pool-note{font-size:9px;color:var(--muted);padding:2px 4px 2px 58px;border-bottom:1px solid var(--bg3)}
+.transition-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--bg3);font-size:10px}
+.transition-arrow{color:var(--gold);font-weight:700}
+.insight-bar{display:flex;gap:10px;padding:8px 0;font-size:10px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px}
+.insight-bar .insight{display:flex;gap:4px}.insight-bar .insight-val{color:var(--blue);font-weight:600}
 /* Venue comparison */
 .venue-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bg3);font-size:10px}
 .venue-row .venue-name{color:var(--text);min-width:100px}.venue-row .venue-price{color:var(--blue)}
@@ -253,23 +279,39 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     </div>
   </div>
 
-  <!-- Wallet Balances + Venue Comparison -->
-  <div class="grid-2" id="walletVenueSection">
-    <div class="card">
-      <h3>Wallet Balances (Multi-Chain)</h3>
-      <div id="walletBalances">
-        <div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">
-          Connect a wallet to see balances across chains
-        </div>
-      </div>
-      <div id="walletTotal" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:12px;font-weight:700;text-align:right">
-        Total: <span class="pnl-pos" id="walletTotalUsd">$0.00</span>
-      </div>
+  <!-- Asset Pools (Unified View) -->
+  <div class="section-header">Asset Pools — All Venues, All States</div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="pool-summary" id="poolSummary">
+      <div class="pool-stat"><span class="label">Total</span><span class="value green" id="poolTotal">$--</span></div>
+      <div class="pool-stat"><span class="label">Available</span><span class="value green" id="poolAvailable">$--</span></div>
+      <div class="pool-stat"><span class="label">In Transit</span><span class="value" style="color:var(--gold)" id="poolInTransit">$0.00</span></div>
+      <div class="pool-stat"><span class="label">Locked</span><span class="value" style="color:var(--purple)" id="poolLocked">$0.00</span></div>
+      <div class="pool-stat"><span class="label">Stuck</span><span class="value" style="color:var(--red)" id="poolStuck">$0.00</span></div>
+      <div class="pool-stat"><span class="label">Pools</span><span class="value blue" id="poolCount">0</span></div>
     </div>
+    <div id="poolRows">
+      <div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">Loading asset pools...</div>
+    </div>
+    <div class="insight-bar" id="poolInsights" style="display:none">
+      <span class="insight">Avg Bridge: <span class="insight-val" id="insightBridgeTime">--</span></span>
+      <span class="insight">Bridge Cost: <span class="insight-val" id="insightBridgeCost">--</span></span>
+      <span class="insight">Transitions (24h): <span class="insight-val" id="insightTransitions">0</span></span>
+    </div>
+  </div>
+
+  <!-- Venue Comparison + State Transitions -->
+  <div class="grid-2" id="walletVenueSection">
     <div class="card">
       <h3>Venue Comparison (ETH-USDC)</h3>
       <div id="venueComparison">
         <div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">Loading venues...</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>State Transitions (Learning Feed)</h3>
+      <div id="transitionFeed">
+        <div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">No transitions recorded yet</div>
       </div>
     </div>
   </div>
@@ -367,6 +409,41 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
       <div class="fun-item">LP target: <span class="highlight">Uniswap V3 USDC/ETH on Base — earn 0.3% on swaps through our range</span></div>
     </div>
   </div>
+
+  <!-- Sitemap -->
+  <footer style="margin-top:24px;padding:16px 0;border-top:1px solid var(--border);font-size:9px;color:var(--muted)">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:12px">
+      <div>
+        <div style="font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Platform</div>
+        <a href="/" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Network Map</a>
+        <a href="/status" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Status</a>
+        <a href="/trading" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Trading</a>
+        <a href="/playground" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">API Playground</a>
+      </div>
+      <div>
+        <div style="font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Wallets</div>
+        <div style="padding:2px 0">EVM: <span id="footerEvmAddr" style="color:var(--text)">--</span></div>
+        <div style="padding:2px 0">Solana: <span id="footerSolAddr" style="color:var(--text)">--</span></div>
+        <div style="padding:2px 0">Chains: ETH, Base, Arb, Polygon, SOL</div>
+      </div>
+      <div>
+        <div style="font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Agents</div>
+        <div style="padding:2px 0">Grid Trader (BTC-USD)</div>
+        <div style="padding:2px 0">DEX Grid (WETH-USDC Base)</div>
+        <div style="padding:2px 0">Sniper (90%+ conf)</div>
+        <div style="padding:2px 0">Meta Engine + Gov Data</div>
+        <div style="padding:2px 0">Capital Allocator</div>
+      </div>
+      <div>
+        <div style="font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Infrastructure</div>
+        <div style="padding:2px 0">Fly.io: 7 regions</div>
+        <div style="padding:2px 0">Local: M3 Air + M1 Max + M2 Ultra</div>
+        <div style="padding:2px 0">C Engine: 80ns/signal</div>
+        <div style="padding:2px 0">Path Router: 37 nodes, 75 edges</div>
+      </div>
+    </div>
+    <div style="text-align:center;padding-top:8px;border-top:1px solid var(--border)33">NetTrace Quant Platform v2.0 | Running 24/7</div>
+  </footer>
 </div>
 
 <!-- Connect Exchange Modal -->
@@ -530,9 +607,17 @@ async function refreshData(){
     const data=await resp.json();
     if(data.error){document.getElementById("lastUpdate").textContent="Error: "+data.error;return}
     const val=data.portfolio_value||0;
+    const cbVal=data.coinbase_value||0;
+    const walVal=data.wallet_value||0;
     const pnl=data.daily_pnl||0;
     document.getElementById("portfolioValue").textContent="$"+val.toFixed(2);
-    document.getElementById("portfolioChange").textContent=val>13.70?"+$"+(val-13.70).toFixed(2)+" all time":"-$"+(13.70-val).toFixed(2)+" all time";
+    const breakdown=[];
+    if(cbVal>0)breakdown.push("CB: $"+cbVal.toFixed(2));
+    if(walVal>0)breakdown.push("Wallet: $"+walVal.toFixed(2));
+    document.getElementById("portfolioChange").textContent=breakdown.length?breakdown.join(" + ")+(val>13.70?" | +$"+(val-13.70).toFixed(2):""):"--";
+    // Wallet addresses in footer
+    if(data.evm_address){document.getElementById("footerEvmAddr").textContent=data.evm_address.slice(0,6)+"..."+data.evm_address.slice(-4)}
+    if(data.solana_address){document.getElementById("footerSolAddr").textContent=data.solana_address.slice(0,6)+"..."+data.solana_address.slice(-4)}
     const pnlEl=document.getElementById("dailyPnl");
     pnlEl.textContent=(pnl>=0?"+":"")+"$"+pnl.toFixed(2);
     pnlEl.className="big "+(pnl>=0?"green":"red");
@@ -620,33 +705,90 @@ async function fetchOpportunities(){
   }).join("");
 }
 
-// ── Wallet Balances ──
-async function refreshWallet(){
+// ── Asset Pools (replaces simple wallet view) ──
+async function refreshWallet(){ return refreshAssetPools(); }
+
+async function refreshAssetPools(){
   try{
-    const r=await fetch("/api/wallet-balances");
+    const r=await fetch("/api/asset-pools");
     const d=await r.json();
-    if(d.error){return}
-    const wb=document.getElementById("walletBalances");
-    if(d.chains){
-      let html="";
-      let total=0;
-      for(const[chain,data] of Object.entries(d.chains)){
-        if(data.error){
-          html+=`<div class="wallet-chain"><span class="chain-name">${chain}</span><span style="color:var(--red);font-size:10px">${data.error}</span></div>`;
-          continue;
-        }
-        const native=data.native||{};
-        html+=`<div class="wallet-chain"><span class="chain-name">${chain}</span><span class="chain-balance">${native.amount||0} ${native.symbol||""}</span><span class="chain-usd">$${(native.usd||0).toFixed(2)}</span></div>`;
-        for(const tok of (data.tokens||[])){
-          html+=`<div class="wallet-chain" style="padding-left:16px"><span class="chain-name" style="color:var(--muted)">${tok.symbol}</span><span class="chain-balance">${tok.amount}</span><span class="chain-usd">$${tok.usd.toFixed(2)}</span></div>`;
-        }
-        total+=data.total_usd||0;
-      }
-      wb.innerHTML=html;
-      document.getElementById("walletTotal").style.display="block";
-      document.getElementById("walletTotalUsd").textContent="$"+total.toFixed(2);
+    if(d.error) return;
+
+    // Summary stats
+    const s=d.summary||{};
+    document.getElementById("poolTotal").textContent="$"+(s.total_usd||0).toFixed(2);
+    document.getElementById("poolAvailable").textContent="$"+(s.available_usd||0).toFixed(2);
+    document.getElementById("poolInTransit").textContent="$"+(s.in_transit_usd||0).toFixed(2);
+    document.getElementById("poolLocked").textContent="$"+(s.locked_usd||0).toFixed(2);
+    document.getElementById("poolStuck").textContent="$"+(s.stuck_usd||0).toFixed(2);
+    document.getElementById("poolCount").textContent=s.pool_count||0;
+
+    // Pool rows
+    const pools=d.pools||[];
+    const container=document.getElementById("poolRows");
+    if(pools.length===0){
+      container.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">No assets found</div>';
+      return;
     }
-  }catch(e){}
+    // Sort: available first, then by USD value desc
+    const stateOrder={"available":0,"pending":1,"in_transit":2,"locked":3,"reserved":4,"stuck":5,"error":6,"unavailable":7};
+    pools.sort((a,b)=>(stateOrder[a.state]||9)-(stateOrder[b.state]||9)||(b.value_usd||0)-(a.value_usd||0));
+
+    let html="";
+    for(const p of pools){
+      if(p.state==="error"||p.state==="unavailable") continue; // skip RPC errors
+      const amt=p.amount<0.001&&p.amount>0?p.amount.toExponential(3):p.amount.toFixed(6);
+      const eta=p.eta_seconds?`<span class="pool-eta">ETA ${Math.ceil(p.eta_seconds/60)}m</span>`:"";
+      const addrTip=p.address?` title="${p.address}"`:"";
+      const txTip=p.tx_hash?` title="tx: ${p.tx_hash}"`:"";
+      html+=`<div class="pool-row"${txTip}>`;
+      html+=`<span class="pool-asset">${p.asset}</span>`;
+      html+=`<span class="pool-venue"${addrTip}>${p.venue}${p.chain&&p.chain!==p.venue?" ("+p.chain+")":""}</span>`;
+      html+=`<span class="pool-amount">${amt}</span>`;
+      html+=`<span class="pool-usd">$${(p.value_usd||0).toFixed(2)}</span>`;
+      html+=`<span class="pool-state"><span class="state-badge state-${p.state}">${p.state.replace("_"," ").toUpperCase()}</span>${eta}</span>`;
+      html+=`</div>`;
+      // Show note for stuck/in_transit
+      const note=p.metadata?.note;
+      if(note){
+        html+=`<div class="pool-note">${note}</div>`;
+      }
+    }
+    container.innerHTML=html;
+
+    // Learning insights
+    const insights=d.learning_insights||{};
+    const insightBar=document.getElementById("poolInsights");
+    if(Object.keys(insights).length>0){
+      insightBar.style.display="flex";
+      if(insights.avg_bridge_time_s) document.getElementById("insightBridgeTime").textContent=Math.round(insights.avg_bridge_time_s)+"s";
+      if(insights.avg_bridge_cost_usd) document.getElementById("insightBridgeCost").textContent="$"+insights.avg_bridge_cost_usd.toFixed(4);
+      const tc=insights.transition_counts||{};
+      const total=Object.values(tc).reduce((a,b)=>a+b,0);
+      document.getElementById("insightTransitions").textContent=total;
+    }
+
+    // State transitions feed
+    const transitions=d.transitions||[];
+    const feed=document.getElementById("transitionFeed");
+    if(transitions.length>0){
+      feed.innerHTML=transitions.slice(0,15).map(t=>{
+        const time=t.created_at?new Date(t.created_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"}):"--";
+        const cost=t.cost_usd>0?` <span style="color:var(--red)">-$${t.cost_usd.toFixed(4)}</span>`:"";
+        const dur=t.duration_seconds?` <span style="color:var(--muted)">(${Math.round(t.duration_seconds)}s)</span>`:"";
+        return`<div class="transition-row">
+          <span style="color:var(--muted);min-width:60px">${time}</span>
+          <span style="color:var(--blue);font-weight:700;min-width:40px">${t.asset}</span>
+          <span class="state-badge state-${t.from_state}" style="font-size:7px">${t.from_state}</span>
+          <span class="transition-arrow">&rarr;</span>
+          <span class="state-badge state-${t.to_state}" style="font-size:7px">${t.to_state}</span>
+          <span style="color:var(--muted);font-size:9px">${t.venue}${cost}${dur}</span>
+        </div>`;
+      }).join("");
+    }
+  }catch(e){
+    console.log("Asset pools error:",e);
+  }
 }
 
 // ── Venue Comparison ──
@@ -746,14 +888,16 @@ fetchOpportunities();
 fetchVenueComparison();
 fetchTreasury();
 loadCredentials();
+refreshAssetPools();  // Load asset pools on page load
 
 // Refresh intervals
-setInterval(refreshData,15000);     // Trading data every 15s
-setInterval(fetchTicker,10000);     // Prices every 10s
-setInterval(fetchRegimes,300000);   // Regime every 5m
-setInterval(fetchOpportunities,60000); // Opportunities every 1m
+setInterval(refreshData,15000);       // Trading data every 15s
+setInterval(fetchTicker,10000);       // Prices every 10s
+setInterval(refreshAssetPools,30000); // Asset pools every 30s
+setInterval(fetchRegimes,300000);     // Regime every 5m
+setInterval(fetchOpportunities,60000);// Opportunities every 1m
 setInterval(fetchVenueComparison,30000); // Venues every 30s
-setInterval(fetchTreasury,60000);   // Treasury every 1m
+setInterval(fetchTreasury,60000);     // Treasury every 1m
 </script>
 </body>
 </html>

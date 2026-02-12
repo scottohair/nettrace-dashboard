@@ -65,6 +65,38 @@ GEO_CACHE = {}
 GEO_LOCK = threading.Lock()
 
 # ---------------------------------------------------------------------------
+# Fly.io Region Guard — only primary region can sign transactions
+# ---------------------------------------------------------------------------
+
+PRIMARY_REGION = os.environ.get("PRIMARY_REGION", "ewr")
+FLY_REGION = os.environ.get("FLY_REGION", "local")
+
+WALLET_ADDRESS = os.environ.get("WALLET_ADDRESS", "")
+
+# Wallet sub-accounts (logical partitions of one on-chain address)
+WALLET_ACCOUNTS = {
+    "checking": {"label": "Checking", "purpose": "Active trading capital"},
+    "savings": {"label": "Savings", "purpose": "Reserve capital, no auto-trade"},
+    "growth": {"label": "Growth", "purpose": "Reinvestment pool (20-35% of profits)"},
+    "subsavings": {"label": "Sub-Savings", "purpose": "Long-term hold, manual withdrawal only"},
+}
+
+
+def require_primary_region(f):
+    """Decorator: only allow transaction-signing on the primary Fly.io region."""
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if FLY_REGION != "local" and FLY_REGION != PRIMARY_REGION:
+            return jsonify({
+                "error": f"Trade execution only available on primary region ({PRIMARY_REGION})",
+                "region": FLY_REGION,
+                "primary": PRIMARY_REGION,
+            }), 403
+        return f(*args, **kwargs)
+    return decorated
+
+# ---------------------------------------------------------------------------
 # Database
 # ---------------------------------------------------------------------------
 
@@ -225,6 +257,32 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_treasury_user ON treasury_accounts(user_id);
 
+        -- Wallet sub-accounts (logical partitions of one on-chain wallet)
+        CREATE TABLE IF NOT EXISTS wallet_accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            account_type TEXT NOT NULL,
+            balance_usd REAL DEFAULT 0.0,
+            notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            UNIQUE(user_id, account_type)
+        );
+        CREATE INDEX IF NOT EXISTS idx_wallet_accts_user ON wallet_accounts(user_id);
+
+        -- Wallet transfers (between sub-accounts)
+        CREATE TABLE IF NOT EXISTS wallet_transfers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            from_account TEXT NOT NULL,
+            to_account TEXT NOT NULL,
+            amount_usd REAL NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_wallet_xfers_user ON wallet_transfers(user_id);
+
         -- Stripe Financial Connections (linked external accounts)
         CREATE TABLE IF NOT EXISTS financial_connections (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -239,6 +297,48 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
         CREATE INDEX IF NOT EXISTS idx_fc_user ON financial_connections(user_id);
+
+        -- Asset Pool: unified view of ALL assets across all venues
+        CREATE TABLE IF NOT EXISTS asset_pool (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL DEFAULT 1,
+            asset TEXT NOT NULL,            -- e.g. ETH, BTC, USDC, SOL
+            venue TEXT NOT NULL,            -- coinbase, base, ethereum, arbitrum, polygon, solana, bridge, stuck
+            chain TEXT,                     -- blockchain if on-chain
+            amount REAL DEFAULT 0.0,
+            value_usd REAL DEFAULT 0.0,
+            state TEXT DEFAULT 'available', -- available, in_transit, stuck, locked, pending, reserved
+            eta_seconds INTEGER,            -- estimated time to available (bridges, confirms)
+            tx_hash TEXT,                   -- transaction hash if relevant
+            address TEXT,                   -- contract/wallet address
+            metadata_json TEXT,             -- JSON blob for deep metadata
+            last_seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_asset_pool_user ON asset_pool(user_id, state);
+        CREATE INDEX IF NOT EXISTS idx_asset_pool_venue ON asset_pool(venue, asset);
+
+        -- Asset State Transitions: every change feeds into learning
+        CREATE TABLE IF NOT EXISTS asset_state_transitions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL DEFAULT 1,
+            asset TEXT NOT NULL,
+            venue TEXT NOT NULL,
+            from_state TEXT NOT NULL,
+            to_state TEXT NOT NULL,
+            amount REAL,
+            value_usd REAL,
+            cost_usd REAL DEFAULT 0.0,      -- gas, fees, slippage
+            duration_seconds REAL,           -- time spent in previous state
+            trigger TEXT,                    -- what caused the transition (agent, bridge, trade, manual)
+            tx_hash TEXT,
+            metadata_json TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_ast_user_time ON asset_state_transitions(user_id, created_at);
+        CREATE INDEX IF NOT EXISTS idx_ast_asset ON asset_state_transitions(asset, venue);
     """)
     # Migration: add columns if missing
     migrations = [
@@ -1441,8 +1541,40 @@ def trading_data():
         except Exception:
             pass
 
+    # Pool wallet balances into total
+    wallet_total = 0
+    wallet_chains = {}
+    try:
+        import sys as _sys
+        _agents = str(BASE_DIR / "agents")
+        if _agents not in _sys.path:
+            _sys.path.insert(0, _agents)
+        from wallet_connector import MultiChainWallet
+        _wa = os.environ.get("WALLET_ADDRESS", "")
+        _sa = os.environ.get("SOLANA_WALLET_ADDRESS", "")
+        if _wa:
+            mcw = MultiChainWallet(_wa, ["ethereum", "base", "arbitrum", "polygon"])
+            if _sa:
+                mcw.add_solana_wallet(_sa)
+            wb = mcw.get_all_balances()
+            wallet_total = wb.get("total_usd", 0)
+            for chain, data in wb.get("chains", {}).items():
+                if "error" not in data:
+                    wallet_chains[chain] = {
+                        "native": data.get("native", {}),
+                        "tokens": data.get("tokens", []),
+                        "total_usd": data.get("total_usd", 0),
+                    }
+    except Exception:
+        pass
+
+    combined_total = round(portfolio_value + wallet_total, 2)
+
     return jsonify({
-        "portfolio_value": portfolio_value,
+        "portfolio_value": combined_total,
+        "coinbase_value": portfolio_value,
+        "wallet_value": round(wallet_total, 2),
+        "wallet_chains": wallet_chains,
         "daily_pnl": daily_pnl,
         "trades_today": trades_today,
         "trades_total": trades_total,
@@ -1450,6 +1582,8 @@ def trading_data():
         "holdings": holdings,
         "trades": trades,
         "snapshot_age": snapshot_age,
+        "evm_address": os.environ.get("WALLET_ADDRESS", ""),
+        "solana_address": os.environ.get("SOLANA_WALLET_ADDRESS", ""),
         "snapshots": [{"total_value_usd": s["total_value_usd"], "daily_pnl": s["daily_pnl"],
                         "recorded_at": s["recorded_at"]} for s in snapshots],
         "signals": [{"signal_type": s["signal_type"], "target_host": s["target_host"],
@@ -1616,51 +1750,320 @@ def delete_credential(cred_id):
 @app.route("/api/wallet-balances")
 @login_required
 def wallet_balances():
-    """Return multi-chain wallet balances. Reads from wallet_connector."""
+    """Return multi-chain wallet balances pooled into a single view."""
     try:
         import sys
         agents_dir = str(BASE_DIR / "agents")
         if agents_dir not in sys.path:
             sys.path.insert(0, agents_dir)
-        from wallet_connector import WalletConnector
+        from wallet_connector import WalletConnector, MultiChainWallet
 
         wallet_addr = os.environ.get("WALLET_ADDRESS", "")
+        solana_addr = os.environ.get("SOLANA_WALLET_ADDRESS", "")
         if not wallet_addr:
-            return jsonify({"balances": [], "total_usd": 0, "error": "No wallet configured"})
+            return jsonify({"chains": {}, "total_usd": 0, "error": "No wallet configured"})
 
-        chains = ["ethereum", "base", "polygon", "arbitrum"]
-        balances = []
-        total_usd = 0.0
+        # EVM chains — same address works on all
+        evm_chains = ["ethereum", "base", "arbitrum", "polygon"]
+        mcw = MultiChainWallet(wallet_addr, evm_chains)
 
-        for chain in chains:
-            try:
-                wc = WalletConnector(wallet_addr, chain)
-                bal = wc.get_balances(wallet_addr)
-                for token, amount in bal.items():
-                    if amount > 0:
-                        balances.append({
+        # Add Solana if configured
+        if solana_addr:
+            mcw.add_solana_wallet(solana_addr)
+
+        result = mcw.get_all_balances()
+
+        # Flatten for easy display
+        chain_details = []
+        for chain, data in result.get("chains", {}).items():
+            if "error" in data:
+                chain_details.append({"chain": chain, "total_usd": 0, "error": data["error"]})
+                continue
+            entry = {
+                "chain": chain,
+                "address": solana_addr if chain == "solana" else wallet_addr,
+                "native": data.get("native", {}),
+                "tokens": data.get("tokens", []),
+                "total_usd": data.get("total_usd", 0),
+            }
+            chain_details.append(entry)
+
+        return jsonify({
+            "chains": chain_details,
+            "total_usd": result.get("total_usd", 0),
+            "evm_address": wallet_addr,
+            "solana_address": solana_addr or None,
+        })
+    except ImportError as e:
+        return jsonify({"chains": [], "total_usd": 0, "error": f"wallet_connector not available: {e}"})
+    except Exception as e:
+        return jsonify({"chains": [], "total_usd": 0, "error": str(e)})
+
+
+@app.route("/api/asset-pools")
+@login_required
+def asset_pools():
+    """Unified view of ALL assets across all venues with state metadata.
+
+    Returns every asset pool with:
+    - state: available | in_transit | stuck | locked | pending | reserved
+    - venue: coinbase | base | ethereum | arbitrum | polygon | solana | bridge
+    - metadata: ETA, tx_hash, fees, transition history
+    """
+    import sys as _sys
+    _agents = str(BASE_DIR / "agents")
+    if _agents not in _sys.path:
+        _sys.path.insert(0, _agents)
+
+    pools = []       # All asset entries
+    total_available = 0.0
+    total_locked = 0.0
+    total_in_transit = 0.0
+    total_stuck = 0.0
+    now = datetime.now(timezone.utc)
+
+    # ── 1. Coinbase holdings (state=available) ──
+    try:
+        from exchange_connector import CoinbaseTrader
+        trader = CoinbaseTrader()
+        accts = trader.client.get_accounts()
+        for a in accts.get("accounts", []):
+            bal = float(a.get("available_balance", {}).get("value", 0))
+            if bal <= 0:
+                continue
+            currency = a.get("currency", "?")
+            # Get USD value
+            usd_val = bal
+            if currency not in ("USD", "USDC"):
+                try:
+                    import urllib.request as _ur
+                    _req = _ur.Request(
+                        f"https://api.coinbase.com/v2/prices/{currency}-USD/spot",
+                        headers={"User-Agent": "NetTrace/1.0"})
+                    with _ur.urlopen(_req, timeout=3) as resp:
+                        price = float(json.loads(resp.read().decode())["data"]["amount"])
+                    usd_val = bal * price
+                except Exception:
+                    usd_val = 0
+            pools.append({
+                "asset": currency,
+                "venue": "coinbase",
+                "chain": None,
+                "amount": round(bal, 8),
+                "value_usd": round(usd_val, 4),
+                "state": "available",
+                "eta_seconds": None,
+                "address": None,
+                "metadata": {"account_id": a.get("uuid", "")},
+            })
+            total_available += usd_val
+    except Exception as e:
+        pools.append({"asset": "ERROR", "venue": "coinbase", "state": "error",
+                       "metadata": {"error": str(e)}, "amount": 0, "value_usd": 0})
+
+    # ── 2. On-chain wallet balances (state=available) ──
+    try:
+        from wallet_connector import MultiChainWallet
+        _wa = os.environ.get("WALLET_ADDRESS", "")
+        _sa = os.environ.get("SOLANA_WALLET_ADDRESS", "")
+        if _wa:
+            evm_chains = ["ethereum", "base", "arbitrum", "polygon"]
+            mcw = MultiChainWallet(_wa, evm_chains)
+            if _sa:
+                mcw.add_solana_wallet(_sa)
+            wb = mcw.get_all_balances()
+            for chain, data in wb.get("chains", {}).items():
+                if "error" in data:
+                    pools.append({
+                        "asset": chain.upper(),
+                        "venue": chain,
+                        "chain": chain,
+                        "amount": 0, "value_usd": 0,
+                        "state": "unavailable",
+                        "metadata": {"error": data["error"]},
+                    })
+                    continue
+                native = data.get("native", {})
+                if native.get("amount", 0) > 0:
+                    usd = native.get("usd", 0)
+                    pools.append({
+                        "asset": native.get("symbol", chain.upper()),
+                        "venue": chain,
+                        "chain": chain,
+                        "amount": round(native["amount"], 8),
+                        "value_usd": round(usd, 4),
+                        "state": "available",
+                        "address": _sa if chain == "solana" else _wa,
+                        "metadata": {},
+                    })
+                    total_available += usd
+                for tok in data.get("tokens", []):
+                    if tok.get("amount", 0) > 0:
+                        pools.append({
+                            "asset": tok.get("symbol", "?"),
+                            "venue": chain,
                             "chain": chain,
-                            "token": token,
-                            "amount": round(amount, 8),
+                            "amount": round(tok["amount"], 8),
+                            "value_usd": round(tok.get("usd", 0), 4),
+                            "state": "available",
+                            "address": _sa if chain == "solana" else _wa,
+                            "metadata": {"contract": tok.get("contract", "")},
                         })
-            except Exception as e:
-                balances.append({"chain": chain, "token": "ERROR", "amount": 0, "error": str(e)})
+                        total_available += tok.get("usd", 0)
+    except Exception:
+        pass
 
-        # Also check Solana
+    # ── 3. Pending bridges / in-transit / stuck assets ──
+    bridges_file = BASE_DIR / "agents" / "pending_bridges.json"
+    if bridges_file.exists():
         try:
-            wc_sol = WalletConnector(wallet_addr, "solana")
-            sol_bal = wc_sol.get_balances(wallet_addr)
-            for token, amount in sol_bal.items():
-                if amount > 0:
-                    balances.append({"chain": "solana", "token": token, "amount": round(amount, 8)})
+            bridges = json.loads(bridges_file.read_text())
+            for b in bridges:
+                status = b.get("status", "in_transit")
+                state = "stuck" if "stuck" in status else "in_transit"
+                amt_eth = b.get("amount_eth", 0)
+                amt_usd = b.get("amount_usd", 0)
+                # Try to get current ETH price for stuck assets
+                if amt_usd == 0 and amt_eth > 0:
+                    try:
+                        import urllib.request as _ur
+                        _req = _ur.Request(
+                            "https://api.coinbase.com/v2/prices/ETH-USD/spot",
+                            headers={"User-Agent": "NetTrace/1.0"})
+                        with _ur.urlopen(_req, timeout=3) as resp:
+                            eth_price = float(json.loads(resp.read().decode())["data"]["amount"])
+                        amt_usd = amt_eth * eth_price
+                    except Exception:
+                        pass
+                # ETA calculation
+                eta = None
+                ts = b.get("timestamp", 0)
+                if state == "in_transit" and ts < 9999999999:
+                    elapsed = (now - datetime.fromtimestamp(ts, tz=timezone.utc)).total_seconds()
+                    # Base L2 bridge typically takes 5-15 min
+                    expected_duration = 900  # 15 min
+                    eta = max(0, int(expected_duration - elapsed))
+
+                pools.append({
+                    "asset": "ETH",
+                    "venue": "bridge",
+                    "chain": b.get("chain", "unknown"),
+                    "amount": round(amt_eth, 8),
+                    "value_usd": round(amt_usd, 4),
+                    "state": state,
+                    "eta_seconds": eta,
+                    "address": b.get("address", ""),
+                    "tx_hash": b.get("tx_hash", ""),
+                    "metadata": {
+                        "note": b.get("note", ""),
+                        "original_status": status,
+                        "timestamp": ts,
+                    },
+                })
+                if state == "stuck":
+                    total_stuck += amt_usd
+                else:
+                    total_in_transit += amt_usd
         except Exception:
             pass
 
-        return jsonify({"balances": balances, "total_usd": round(total_usd, 2)})
-    except ImportError:
-        return jsonify({"balances": [], "total_usd": 0, "error": "wallet_connector not available"})
-    except Exception as e:
-        return jsonify({"balances": [], "total_usd": 0, "error": str(e)})
+    # ── 4. Recent state transitions (for learning feedback) ──
+    transitions = []
+    try:
+        db = get_db()
+        rows = db.execute(
+            """SELECT asset, venue, from_state, to_state, amount, value_usd,
+                      cost_usd, duration_seconds, trigger, tx_hash, created_at
+               FROM asset_state_transitions
+               WHERE user_id = ? AND created_at >= datetime('now', '-24 hours')
+               ORDER BY created_at DESC LIMIT 50""",
+            (current_user.id,)
+        ).fetchall()
+        transitions = [dict(r) for r in rows]
+    except Exception:
+        pass
+
+    # ── 5. Learning insights (derived from transitions) ──
+    insights = {}
+    try:
+        db = get_db()
+        # Average bridge time
+        avg_bridge = db.execute(
+            """SELECT AVG(duration_seconds) as avg_time, AVG(cost_usd) as avg_cost
+               FROM asset_state_transitions
+               WHERE to_state = 'available' AND from_state = 'in_transit'
+               AND user_id = ?""",
+            (current_user.id,)
+        ).fetchone()
+        if avg_bridge and avg_bridge["avg_time"]:
+            insights["avg_bridge_time_s"] = round(avg_bridge["avg_time"], 1)
+            insights["avg_bridge_cost_usd"] = round(avg_bridge["avg_cost"] or 0, 4)
+        # State distribution over time
+        state_counts = db.execute(
+            """SELECT to_state, COUNT(*) as cnt
+               FROM asset_state_transitions WHERE user_id = ?
+               GROUP BY to_state""",
+            (current_user.id,)
+        ).fetchall()
+        insights["transition_counts"] = {r["to_state"]: r["cnt"] for r in state_counts}
+    except Exception:
+        pass
+
+    return jsonify({
+        "pools": pools,
+        "summary": {
+            "total_usd": round(total_available + total_locked + total_in_transit + total_stuck, 2),
+            "available_usd": round(total_available, 2),
+            "in_transit_usd": round(total_in_transit, 2),
+            "locked_usd": round(total_locked, 2),
+            "stuck_usd": round(total_stuck, 2),
+            "pool_count": len(pools),
+        },
+        "transitions": transitions,
+        "learning_insights": insights,
+        "updated_at": now.isoformat(),
+    })
+
+
+@app.route("/api/asset-pools/transition", methods=["POST"])
+def record_asset_transition():
+    """Record an asset state transition (called by agents for learning).
+
+    POST JSON:
+      {asset, venue, from_state, to_state, amount, value_usd, cost_usd,
+       duration_seconds, trigger, tx_hash, metadata}
+    """
+    api_key = request.headers.get("X-Api-Key") or request.args.get("api_key") or ""
+    expected_key = os.environ.get("NETTRACE_API_KEY", "")
+    if not api_key or not expected_key or api_key != expected_key:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    if not data or "asset" not in data:
+        return jsonify({"error": "asset required"}), 400
+
+    user_id = data.get("user_id", 1)
+    db = get_db()
+    db.execute(
+        """INSERT INTO asset_state_transitions
+           (user_id, asset, venue, from_state, to_state, amount, value_usd,
+            cost_usd, duration_seconds, trigger, tx_hash, metadata_json)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (user_id,
+         data["asset"],
+         data.get("venue", "unknown"),
+         data.get("from_state", "unknown"),
+         data.get("to_state", "unknown"),
+         data.get("amount", 0),
+         data.get("value_usd", 0),
+         data.get("cost_usd", 0),
+         data.get("duration_seconds"),
+         data.get("trigger", "agent"),
+         data.get("tx_hash"),
+         json.dumps(data.get("metadata", {})))
+    )
+    db.commit()
+    return jsonify({"ok": True})
 
 
 @app.route("/api/venue-comparison")
@@ -1740,6 +2143,145 @@ def venue_comparison():
         pass
 
     return jsonify({"pair": pair, "amount": amount, "venues": venues})
+
+
+# ---------------------------------------------------------------------------
+# Wallet Accounts (logical sub-accounts: checking, savings, growth, subsavings)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/wallet-accounts")
+@login_required
+def list_wallet_accounts():
+    """List wallet sub-accounts with balances."""
+    db = get_db()
+    rows = db.execute(
+        "SELECT account_type, balance_usd, notes, updated_at FROM wallet_accounts WHERE user_id = ? ORDER BY created_at",
+        (current_user.id,)
+    ).fetchall()
+
+    # Build response with defaults for any missing account types
+    existing = {r["account_type"]: r for r in rows}
+    accounts = []
+    for acct_type, meta in WALLET_ACCOUNTS.items():
+        if acct_type in existing:
+            r = existing[acct_type]
+            accounts.append({
+                "type": acct_type,
+                "label": meta["label"],
+                "purpose": meta["purpose"],
+                "balance_usd": round(r["balance_usd"], 2),
+                "notes": r["notes"],
+                "updated_at": r["updated_at"],
+            })
+        else:
+            accounts.append({
+                "type": acct_type,
+                "label": meta["label"],
+                "purpose": meta["purpose"],
+                "balance_usd": 0.0,
+                "notes": None,
+                "updated_at": None,
+            })
+
+    return jsonify({
+        "wallet_address": WALLET_ADDRESS or None,
+        "region": FLY_REGION,
+        "primary_region": PRIMARY_REGION,
+        "accounts": accounts,
+        "total_usd": round(sum(a["balance_usd"] for a in accounts), 2),
+    })
+
+
+@app.route("/api/wallet-accounts/init", methods=["POST"])
+@login_required
+def init_wallet_accounts():
+    """Initialize all sub-accounts for the current user (idempotent)."""
+    db = get_db()
+    for acct_type in WALLET_ACCOUNTS:
+        db.execute(
+            "INSERT OR IGNORE INTO wallet_accounts (user_id, account_type) VALUES (?, ?)",
+            (current_user.id, acct_type)
+        )
+    db.commit()
+    return jsonify({"ok": True, "accounts": list(WALLET_ACCOUNTS.keys())})
+
+
+@app.route("/api/wallet-accounts/transfer", methods=["POST"])
+@login_required
+@require_primary_region
+def transfer_between_accounts():
+    """Move money between sub-accounts (checking <-> savings, etc.)."""
+    data = request.get_json() or {}
+    from_acct = data.get("from", "").strip().lower()
+    to_acct = data.get("to", "").strip().lower()
+    amount = float(data.get("amount", 0))
+
+    if from_acct not in WALLET_ACCOUNTS or to_acct not in WALLET_ACCOUNTS:
+        return jsonify({"error": f"Valid accounts: {', '.join(WALLET_ACCOUNTS.keys())}"}), 400
+    if from_acct == to_acct:
+        return jsonify({"error": "Cannot transfer to same account"}), 400
+    if amount <= 0:
+        return jsonify({"error": "Amount must be positive"}), 400
+
+    db = get_db()
+    # Check source balance
+    src = db.execute(
+        "SELECT balance_usd FROM wallet_accounts WHERE user_id = ? AND account_type = ?",
+        (current_user.id, from_acct)
+    ).fetchone()
+    if not src or src["balance_usd"] < amount:
+        return jsonify({"error": "Insufficient balance"}), 400
+
+    # Atomic transfer
+    db.execute(
+        "UPDATE wallet_accounts SET balance_usd = balance_usd - ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND account_type = ?",
+        (amount, current_user.id, from_acct)
+    )
+    db.execute(
+        "UPDATE wallet_accounts SET balance_usd = balance_usd + ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND account_type = ?",
+        (amount, current_user.id, to_acct)
+    )
+    db.execute(
+        "INSERT INTO wallet_transfers (user_id, from_account, to_account, amount_usd) VALUES (?, ?, ?, ?)",
+        (current_user.id, from_acct, to_acct, amount)
+    )
+    db.commit()
+
+    return jsonify({
+        "ok": True,
+        "from": from_acct,
+        "to": to_acct,
+        "amount": amount,
+    })
+
+
+@app.route("/api/wallet-accounts/deposit", methods=["POST"])
+@login_required
+@require_primary_region
+def deposit_to_account():
+    """Record a deposit into a specific sub-account (from on-chain or external)."""
+    data = request.get_json() or {}
+    account = data.get("account", "checking").strip().lower()
+    amount = float(data.get("amount", 0))
+
+    if account not in WALLET_ACCOUNTS:
+        return jsonify({"error": f"Valid accounts: {', '.join(WALLET_ACCOUNTS.keys())}"}), 400
+    if amount <= 0:
+        return jsonify({"error": "Amount must be positive"}), 400
+
+    db = get_db()
+    # Ensure account exists
+    db.execute(
+        "INSERT OR IGNORE INTO wallet_accounts (user_id, account_type) VALUES (?, ?)",
+        (current_user.id, account)
+    )
+    db.execute(
+        "UPDATE wallet_accounts SET balance_usd = balance_usd + ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND account_type = ?",
+        (amount, current_user.id, account)
+    )
+    db.commit()
+
+    return jsonify({"ok": True, "account": account, "deposited": amount})
 
 
 # ---------------------------------------------------------------------------
@@ -1849,6 +2391,7 @@ def treasury_create():
 
 @app.route("/api/treasury/deploy", methods=["POST"])
 @login_required
+@require_primary_region
 def treasury_deploy():
     """Deploy capital from treasury to an exchange or wallet."""
     if not stripe.api_key:
