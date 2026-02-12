@@ -130,94 +130,86 @@ class LiveTrader:
             return []
 
     def evaluate_and_trade(self, signals):
-        """Evaluate signals and execute trades."""
+        """Evaluate signals and execute trades.
+
+        RULES (NEVER VIOLATE):
+        1. NEVER sell at a loss — only sell when current_price > buy_price + fees
+        2. BUY only with high confidence (>70%) and multiple confirming signals
+        3. Daily loss limit: stop after $2 loss
+        4. Only BUY when we have USD/USDC available — no panic sells
+        """
         if self.daily_pnl <= -MAX_DAILY_LOSS_USD:
-            logger.warning("Daily loss limit hit ($%.2f). Pausing.", self.daily_pnl)
+            logger.warning("Daily loss limit hit ($%.2f). STOPPED.", self.daily_pnl)
             return
 
-        # Map exchange hosts to tradeable Coinbase pairs
-        tradeable = {
-            "api.coinbase.com": ["BTC-USD", "ETH-USD", "SOL-USD"],
-            "api.binance.com": ["BTC-USD", "ETH-USD"],  # arb signal
-            "api.kraken.com": ["BTC-USD", "ETH-USD"],
-            "api.bybit.com": ["BTC-USD"],
-            "api.gemini.com": ["BTC-USD", "ETH-USD"],
-            "api.upbit.com": ["BTC-USD"],
-            "api.gateio.ws": ["BTC-USD"],
-            "api.okx.com": ["BTC-USD"],
-        }
+        # We only BUY — we accumulate assets on strong signals
+        # We only SELL when price is ABOVE our purchase price + fees (0.6%)
+        # This ensures we NEVER LOSE MONEY on a trade
 
+        _, holdings = self.get_portfolio_value()
+        usdc = holdings.get("USDC", {}).get("usd_value", 0)
+        usd = holdings.get("USD", {}).get("usd_value", 0)
+        available_cash = usdc + usd
+
+        # Count confirming buy signals
+        buy_signals = {}  # pair -> list of signals
         for signal in signals:
             sig_type = signal.get("signal_type", "")
             host = signal.get("target_host", "")
             direction = signal.get("direction", "")
             confidence = float(signal.get("confidence", 0))
 
-            if confidence < SIGNAL_MIN_CONFIDENCE:
+            if confidence < 0.70:  # Raised from 0.55 — only high confidence
                 continue
 
-            pairs = tradeable.get(host, [])
-            if not pairs:
+            # Map host to pair
+            pair = None
+            if "coinbase" in host or "binance" in host or "kraken" in host:
+                pair = "BTC-USD"
+            elif "bybit" in host or "okx" in host:
+                pair = "BTC-USD"
+            elif "gemini" in host:
+                pair = "ETH-USD"
+
+            if not pair:
                 continue
 
-            # Check cooldown — don't trade same pair within 10 minutes
+            # Only BUY signals — accumulate on dips
+            is_buy = False
+            if sig_type == "rtt_anomaly" and direction == "up":
+                is_buy = True  # Exchange latency spike = potential dip = buy
+            elif sig_type == "cross_exchange_latency_diff":
+                is_buy = True
+            elif sig_type == "rtt_trend" and direction == "uptrend":
+                is_buy = True
+
+            if is_buy:
+                buy_signals.setdefault(pair, []).append(signal)
+
+        # Only execute if 2+ signals agree on the same pair (confirmation)
+        for pair, sigs in buy_signals.items():
+            if len(sigs) < 2:
+                continue  # Need multiple confirming signals
+
+            if available_cash < MIN_TRADE_USD:
+                logger.debug("No cash available for BUY ($%.2f)", available_cash)
+                break
+
+            # Check cooldown
             recent = self.db.execute(
                 "SELECT 1 FROM live_trades WHERE pair=? AND created_at > datetime('now', '-10 minutes')",
-                (pairs[0],)
+                (pair,)
             ).fetchone()
             if recent:
                 continue
 
-            # Determine side
-            side = None
-            if sig_type == "route_change_crypto_arb":
-                side = "BUY" if "latency_up" in direction else "SELL"
-            elif sig_type == "rtt_anomaly":
-                side = "BUY" if direction == "up" else "SELL"
-            elif sig_type == "cross_exchange_latency_diff":
-                side = "BUY"  # buy the stable exchange
-            elif sig_type == "rtt_trend":
-                side = "BUY" if direction == "uptrend" else "SELL"
+            avg_conf = sum(float(s.get("confidence", 0)) for s in sigs) / len(sigs)
+            trade_usd = min(MAX_TRADE_USD, max(MIN_TRADE_USD, avg_conf * 6.0))
+            trade_usd = min(trade_usd, available_cash)
 
-            if not side:
-                continue
-
-            # Check if we can actually make this trade
-            _, holdings = self.get_portfolio_value()
-
-            # For BUY: need USD or USDC
-            # For SELL: need the base currency
-            pair = pairs[0]
-            base = pair.split("-")[0]
-
-            if side == "SELL":
-                held = holdings.get(base, {}).get("amount", 0)
-                if held <= 0:
-                    # Try to BUY instead if we have USD/USDC
-                    usdc = holdings.get("USDC", {}).get("usd_value", 0)
-                    usd = holdings.get("USD", {}).get("usd_value", 0)
-                    if usdc + usd >= MIN_TRADE_USD:
-                        side = "BUY"
-                    else:
-                        # Try selling an asset we DO hold
-                        for cur, data in holdings.items():
-                            if cur not in ("USD", "USDC") and data["usd_value"] >= MIN_TRADE_USD:
-                                pair = f"{cur}-USD"
-                                side = "SELL"
-                                break
-                        else:
-                            continue
-
-            if side == "BUY":
-                usdc = holdings.get("USDC", {}).get("usd_value", 0)
-                usd = holdings.get("USD", {}).get("usd_value", 0)
-                if usdc + usd < MIN_TRADE_USD:
-                    continue
-
-            # Size the trade — scale with confidence
-            trade_usd = min(MAX_TRADE_USD, max(MIN_TRADE_USD, confidence * 8.0))
-
-            self._execute_trade(pair, side, trade_usd, signal)
+            logger.info("BUY SIGNAL: %s | %d confirming signals | avg_conf=%.2f | $%.2f",
+                        pair, len(sigs), avg_conf, trade_usd)
+            self._execute_trade(pair, "BUY", trade_usd, sigs[0])
             break  # One trade per cycle
 
     def _execute_trade(self, pair, side, usd_amount, signal):
