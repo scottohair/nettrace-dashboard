@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;color:#c8d6e5;overflow-x:hidden}
@@ -163,9 +164,10 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
           <li>Real-time hop-by-hop visualization</li>
           <li>Geolocated route mapping</li>
           <li>Scan history & export</li>
-          <li>Apple Pay & all cards accepted</li>
         </ul>
-        <button class="btn btn-stripe" onclick="subscribe()" style="width:100%;padding:10px;font-size:13px">Subscribe Now</button>
+        <div id="apple-pay-btn" style="margin-bottom:10px;min-height:44px"></div>
+        <button class="btn btn-stripe" onclick="subscribe()" style="width:100%;padding:10px;font-size:13px" id="fallback-subscribe">Subscribe with Card</button>
+        <div style="font-size:9px;color:#374151;margin-top:8px;text-align:center">Apple Pay shown on supported devices</div>
       </div>
     </div>
 
@@ -275,10 +277,17 @@ function onLogin(){
     document.getElementById("scan-section").classList.add("hidden");
     document.getElementById("paywall-section").classList.remove("hidden");
     document.getElementById("btn-billing").classList.add("hidden");
+    mountApplePay();
   }
 }
 
 // ── Stripe ──
+let stripeInstance = null;
+function getStripe(){
+  if(!stripeInstance && STRIPE_PK) stripeInstance = Stripe(STRIPE_PK);
+  return stripeInstance;
+}
+
 async function subscribe(){
   try{
     const res=await fetch("/api/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"}});
@@ -286,6 +295,30 @@ async function subscribe(){
     if(data.checkout_url) window.location.href=data.checkout_url;
     else alert(data.error||"Could not start checkout");
   }catch(e){alert("Network error")}
+}
+
+function mountApplePay(){
+  const s = getStripe();
+  if(!s) return;
+  const paymentRequest = s.paymentRequest({
+    country: "US", currency: "usd",
+    total: {label: "NetTrace Pro - Monthly", amount: 2000},
+    requestPayerName: true, requestPayerEmail: true
+  });
+  const prButton = s.elements().create("paymentRequestButton", {paymentRequest, style:{paymentRequestButton:{type:"subscribe",theme:"dark"}}});
+  paymentRequest.canMakePayment().then(result => {
+    if(result){
+      prButton.mount("#apple-pay-btn");
+      document.getElementById("fallback-subscribe").style.display="none";
+    } else {
+      document.getElementById("apple-pay-btn").style.display="none";
+    }
+  });
+  paymentRequest.on("paymentmethod", async (ev) => {
+    // Use Checkout flow with the payment method
+    ev.complete("success");
+    subscribe(); // redirect to Stripe Checkout which accepts Apple Pay
+  });
 }
 async function manageBilling(){
   try{
