@@ -1104,24 +1104,28 @@ class ExitManager:
                     pairs_to_check = list(self._positions.keys())
 
                 # === CONCENTRATION CHECK: sell over-weighted positions to free cash ===
+                # Scans ALL holdings (not just tracked positions) so it works on fresh deploys
                 MAX_CONCENTRATION_PCT = 0.25  # 25% max per asset
                 TARGET_CONCENTRATION_PCT = 0.18  # sell down to 18%
-                for pair in pairs_to_check:
+                QUOTE_CURRENCIES = {"USDC", "USD"}
+                for base_currency, held_amount in holdings.items():
+                    if base_currency in QUOTE_CURRENCIES or held_amount <= 0:
+                        continue
                     try:
-                        pos = self._positions.get(pair)
-                        if not pos:
+                        # Try common pair formats
+                        pair = None
+                        for suffix in ("-USDC", "-USD"):
+                            test_pair = f"{base_currency}{suffix}"
+                            p = _get_price(test_pair)
+                            if p and p > 0:
+                                pair = test_pair
+                                current_price = p
+                                break
+                        if not pair or portfolio_value <= 0:
                             continue
-                        base_currency = pair.split("-")[0]
-                        actual_held = holdings.get(base_currency, 0)
-                        if actual_held <= 0:
-                            continue
-                        current_price = _get_price(pair)
-                        if not current_price or portfolio_value <= 0:
-                            continue
-                        position_value = actual_held * current_price
+                        position_value = held_amount * current_price
                         concentration = position_value / portfolio_value
                         if concentration > MAX_CONCENTRATION_PCT:
-                            # Sell excess to bring back to target
                             target_value = portfolio_value * TARGET_CONCENTRATION_PCT
                             sell_value = position_value - target_value
                             sell_amount = sell_value / current_price
@@ -1137,7 +1141,7 @@ class ExitManager:
                                     f"selling ${sell_value:.2f} to reach {TARGET_CONCENTRATION_PCT:.0%}",
                                     "concentration_rebalance")
                     except Exception as e:
-                        logger.error("EXIT_MGR: Concentration check error %s: %s", pair, e)
+                        logger.error("EXIT_MGR: Concentration check error %s: %s", base_currency, e)
 
                 for pair in pairs_to_check:
                     try:
