@@ -52,6 +52,10 @@ STRIPE_ENTERPRISE_PRO_PRICE_ID = os.environ.get("STRIPE_ENTERPRISE_PRO_PRICE_ID"
 STRIPE_GOVERNMENT_PRICE_ID = os.environ.get("STRIPE_GOVERNMENT_PRICE_ID", "")  # $500,000/mo Government
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 COINBASE_COMMERCE_API_KEY = os.environ.get("COINBASE_COMMERCE_API_KEY", "")
+COINBASE_WEBHOOK_SECRET = (
+    os.environ.get("COINBASE_WEBHOOK_SECRET", "")
+    or os.environ.get("COINBASE_WEBHOOK_SHARED_SECRET", "")
+)
 APP_URL = os.environ.get("APP_URL", "http://localhost:12034")
 MCP_AGENT_SECRET = os.environ.get("MCP_AGENT_SECRET", "")
 
@@ -757,18 +761,42 @@ def create_crypto_checkout():
 
 @app.route("/api/coinbase-webhook", methods=["POST"])
 def coinbase_webhook():
-    payload = json.loads(request.get_data())
+    if not COINBASE_WEBHOOK_SECRET:
+        return jsonify({"error": "Webhook not configured"}), 503
+
+    raw_payload = request.get_data()
+    sig = request.headers.get("X-CC-Webhook-Signature", "")
+    if not sig:
+        return jsonify({"error": "Missing signature"}), 400
+
+    expected_sig = hmac.new(
+        COINBASE_WEBHOOK_SECRET.encode(),
+        raw_payload,
+        hashlib.sha256
+    ).hexdigest()
+    if not hmac.compare_digest(sig, expected_sig):
+        return jsonify({"error": "Invalid signature"}), 400
+
+    try:
+        payload = json.loads(raw_payload.decode("utf-8"))
+    except ValueError:
+        return jsonify({"error": "Invalid payload"}), 400
+
     event_type = payload.get("event", {}).get("type", "")
     data = payload.get("event", {}).get("data", {})
 
     if event_type == "charge:confirmed":
         user_id = data.get("metadata", {}).get("user_id")
         if user_id:
+            try:
+                user_id_int = int(user_id)
+            except (TypeError, ValueError):
+                return jsonify({"error": "Invalid user metadata"}), 400
             expires = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
             db = sqlite3.connect(DB_PATH)
             db.execute(
                 "UPDATE users SET subscription_status='active', payment_method='crypto', subscription_expires_at=? WHERE id=?",
-                (expires, int(user_id)))
+                (expires, user_id_int))
             db.commit()
             db.close()
 
@@ -819,15 +847,19 @@ def cancel_subscription():
 
 @app.route("/api/stripe-webhook", methods=["POST"])
 def stripe_webhook():
+    if not STRIPE_WEBHOOK_SECRET:
+        return jsonify({"error": "Webhook not configured"}), 503
+
     payload = request.get_data()
     sig = request.headers.get("Stripe-Signature")
+    if not sig:
+        return jsonify({"error": "Missing signature"}), 400
 
     try:
-        if STRIPE_WEBHOOK_SECRET:
-            event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
-        else:
-            event = json.loads(payload)
-    except (ValueError, stripe.error.SignatureVerificationError):
+        event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
+    except ValueError:
+        return jsonify({"error": "Invalid payload"}), 400
+    except stripe.error.SignatureVerificationError:
         return jsonify({"error": "Invalid signature"}), 400
 
     event_type = event.get("type", "")
@@ -850,9 +882,13 @@ def stripe_webhook():
         user_id = data_obj.get("metadata", {}).get("nettrace_user_id")
         checkout_tier = data_obj.get("metadata", {}).get("tier", "pro")
         if customer_id and user_id:
+            try:
+                user_id_int = int(user_id)
+            except (TypeError, ValueError):
+                return jsonify({"error": "Invalid user metadata"}), 400
             db = sqlite3.connect(DB_PATH)
             db.execute("UPDATE users SET stripe_customer_id=?, subscription_status='active', payment_method='stripe', subscription_expires_at=NULL, tier=? WHERE id=?",
-                       (customer_id, checkout_tier, int(user_id)))
+                       (customer_id, checkout_tier, user_id_int))
             db.commit()
             db.close()
 
@@ -1608,6 +1644,124 @@ def trading_data():
     # Portfolio = liquid only. Losses are tracked separately, NOT counted.
     combined_total = round(portfolio_value + wallet_total + in_transit_total, 2)
 
+    # Claude optimization feed from advanced_team dashboard optimizer
+    claude_insights = {}
+    try:
+        insights_file = BASE_DIR / "agents" / "advanced_team" / "dashboard_insights.json"
+        if insights_file.exists():
+            claude_insights = json.loads(insights_file.read_text())
+    except Exception:
+        pass
+
+    # Claude Quant 100 status/feed
+    quant100_summary = {}
+    quant100_agent = {}
+    try:
+        q100_results = BASE_DIR / "agents" / "quant_100_results.json"
+        if q100_results.exists():
+            q100 = json.loads(q100_results.read_text())
+            quant100_summary = q100.get("summary", {})
+    except Exception:
+        pass
+    try:
+        q100_status = BASE_DIR / "agents" / "quant_100_agent_status.json"
+        if q100_status.exists():
+            quant100_agent = json.loads(q100_status.read_text())
+    except Exception:
+        pass
+
+    # AmiCoin network (simulation-only; excluded from real holdings/portfolio math)
+    amicoin = {
+        "summary": {
+            "network_name": "AmiCoin Network",
+            "network_mode": "simulation_only",
+            "excluded_from_real_holdings": True,
+            "counts_toward_portfolio": False,
+            "go_live_ready": False,
+            "go_live_checklist": {},
+        },
+        "wallets": [],
+        "pool": [],
+        "excluded_from_portfolio": True,
+    }
+    amicoin_agent = {}
+    try:
+        ami_state_file = BASE_DIR / "agents" / "amicoin_state.json"
+        if ami_state_file.exists():
+            ami_state = json.loads(ami_state_file.read_text())
+            network = ami_state.get("network", {})
+            reserve = ami_state.get("reserve", {})
+            checklist = ami_state.get("go_live_checklist", {})
+            coins = ami_state.get("coins", [])
+            wallets = ami_state.get("wallets", {})
+            stats = ami_state.get("stats", {})
+
+            pool_rows = []
+            for c in coins:
+                start_px = float(c.get("day_start_price_usd", 0) or 0)
+                now_px = float(c.get("price_usd", 0) or 0)
+                day_change = ((now_px - start_px) / start_px * 100) if start_px > 0 else 0
+                pool_rows.append({
+                    "symbol": c.get("symbol", ""),
+                    "network": c.get("network", ""),
+                    "anchor_pair": c.get("anchor_pair", ""),
+                    "price_usd": round(now_px, 6),
+                    "day_change_pct": round(day_change, 4),
+                    "open_positions": int(c.get("open_positions", 0)),
+                    "realized_pnl_usd": round(float(c.get("realized_pnl_usd", 0.0)), 4),
+                    "unrealized_pnl_usd": round(float(c.get("unrealized_pnl_usd", 0.0)), 4),
+                    "trades": int(c.get("trades", 0)),
+                })
+            pool_rows.sort(key=lambda x: x["symbol"])
+
+            wallet_rows = []
+            for net in ("ethereum", "solana", "bitcoin"):
+                w = wallets.get(net, {})
+                wallet_rows.append({
+                    "network": net,
+                    "address": w.get("address", ""),
+                    "reserve_usd": round(float(w.get("reserve_usd", 0.0)), 4),
+                    "allocated_usd": round(float(w.get("allocated_usd", 0.0)), 4),
+                    "realized_pnl_usd": round(float(w.get("realized_pnl_usd", 0.0)), 4),
+                })
+
+            amicoin = {
+                "summary": {
+                    "network_name": network.get("name", "AmiCoin Network"),
+                    "network_mode": network.get("mode", "simulation_only"),
+                    "excluded_from_real_holdings": bool(network.get("excluded_from_real_holdings", True)),
+                    "counts_toward_portfolio": bool(network.get("counts_toward_portfolio", False)),
+                    "go_live_ready": bool(network.get("go_live_ready", False)),
+                    "go_live_checklist": checklist,
+                    "reserve_symbol": reserve.get("symbol", "AMIR"),
+                    "liquid_usd": round(float(reserve.get("liquid_usd", 0.0)), 4),
+                    "allocated_usd": round(float(reserve.get("allocated_usd", 0.0)), 4),
+                    "reserve_equity_usd": round(float(reserve.get("liquid_usd", 0.0)) + float(reserve.get("allocated_usd", 0.0)), 4),
+                    "realized_pnl_usd": round(float(reserve.get("realized_pnl_usd", 0.0)), 4),
+                    "max_drawdown_pct": round(float(reserve.get("max_drawdown_pct", 0.0)), 4),
+                    "risk_lock": bool(reserve.get("risk_lock", False)),
+                    "lock_reason": reserve.get("lock_reason", ""),
+                    "coins_total": len(pool_rows),
+                    "open_positions": sum(int(p.get("open_positions", 0)) for p in pool_rows),
+                    "closed_trades": int(stats.get("closed_trades", 0)),
+                    "wins": int(stats.get("wins", 0)),
+                    "blocked_losses": int(stats.get("blocked_losses", 0)),
+                    "cycles": int(stats.get("cycles", 0)),
+                },
+                "wallets": wallet_rows,
+                "pool": pool_rows,
+                "excluded_from_portfolio": True,
+                "updated_at": ami_state.get("updated_at"),
+            }
+    except Exception:
+        pass
+    try:
+        ami_agent_file = BASE_DIR / "agents" / "amicoin_agent_status.json"
+        if ami_agent_file.exists():
+            amicoin_agent = json.loads(ami_agent_file.read_text())
+    except Exception:
+        pass
+
     return jsonify({
         "portfolio_value": combined_total,
         "coinbase_value": portfolio_value,
@@ -1629,6 +1783,65 @@ def trading_data():
                         "recorded_at": s["recorded_at"]} for s in snapshots],
         "signals": [{"signal_type": s["signal_type"], "target_host": s["target_host"],
                       "direction": s["direction"], "confidence": s["confidence"]} for s in signals],
+        "claude_insights": claude_insights,
+        "quant100_summary": quant100_summary,
+        "quant100_agent": quant100_agent,
+        "amicoin": amicoin,
+        "amicoin_agent": amicoin_agent,
+    })
+
+
+@app.route("/api/amicoin-data")
+@login_required
+def amicoin_data():
+    """AmiCoin simulation feed (always isolated from real holdings)."""
+    db = get_db()
+    row = db.execute("SELECT tier FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    user_tier = row["tier"] if row and "tier" in row.keys() else "free"
+    if user_tier not in ("enterprise", "enterprise_pro", "government") and not current_user.is_subscribed:
+        return jsonify({"error": "Enterprise tier required"}), 403
+
+    data = {
+        "summary": {
+            "network_name": "AmiCoin Network",
+            "network_mode": "simulation_only",
+            "excluded_from_real_holdings": True,
+            "counts_toward_portfolio": False,
+            "go_live_ready": False,
+            "go_live_checklist": {},
+        },
+        "wallets": [],
+        "pool": [],
+        "excluded_from_portfolio": True,
+    }
+    try:
+        import sys as _sys
+        _agents = str(BASE_DIR / "agents")
+        if _agents not in _sys.path:
+            _sys.path.insert(0, _agents)
+        import amicoin_system as _amc
+        data = _amc.get_snapshot()
+    except Exception:
+        try:
+            ami_state_file = BASE_DIR / "agents" / "amicoin_state.json"
+            if ami_state_file.exists():
+                data = json.loads(ami_state_file.read_text())
+        except Exception:
+            pass
+
+    agent = {}
+    try:
+        ami_agent_file = BASE_DIR / "agents" / "amicoin_agent_status.json"
+        if ami_agent_file.exists():
+            agent = json.loads(ami_agent_file.read_text())
+    except Exception:
+        pass
+
+    return jsonify({
+        "amicoin": data,
+        "amicoin_agent": agent,
+        "excluded_from_real_holdings": True,
+        "counts_toward_portfolio": False,
     })
 
 

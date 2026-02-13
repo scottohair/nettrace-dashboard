@@ -69,6 +69,18 @@ class RiskAgent:
             "cycle_count": 0,
         }
 
+    @staticmethod
+    def _clamp(value, lo, hi):
+        return max(lo, min(hi, value))
+
+    def _get_quant_risk_overrides(self):
+        """Read latest quant risk overrides from broadcast bus."""
+        msgs = self.bus.read_latest("risk", msg_type="quant_risk_overrides", count=5)
+        if not msgs:
+            return {}
+        payload = msgs[-1].get("payload", {})
+        return payload if isinstance(payload, dict) else {}
+
     def _reset_daily_if_needed(self):
         """Reset daily counters at midnight UTC."""
         today = datetime.now(timezone.utc).date().isoformat()
@@ -133,13 +145,18 @@ class RiskAgent:
                     return False, f"Cooldown: {pair} traded {int(elapsed)}s ago (min {COOLDOWN_SECONDS}s)"
         return True, ""
 
-    def evaluate_proposal(self, proposal, portfolio):
+    def evaluate_proposal(self, proposal, portfolio, overrides=None):
         """Evaluate a single strategy proposal. Returns (verdict, adjusted_proposal, reason)."""
+        overrides = overrides or {}
         pair = proposal.get("pair", "NONE")
         direction = proposal.get("direction", "HOLD")
         confidence = proposal.get("confidence", 0)
         suggested_size = proposal.get("suggested_size_usd", 0)
         confirming = proposal.get("confirming_signals", 0)
+
+        min_confidence = float(overrides.get("min_confidence", MIN_CONFIDENCE))
+        max_trade_usd = float(overrides.get("max_trade_usd", MAX_TRADE_USD))
+        blocked_pairs = set(overrides.get("blocked_pairs", []) or [])
 
         reasons = []
 
@@ -149,9 +166,13 @@ class RiskAgent:
         if direction == "HOLD":
             return "HOLD", proposal, "No trade proposed"
 
+        # Quant blocklist check
+        if pair in blocked_pairs:
+            return "REJECTED", proposal, f"{pair} blocked by quant risk override"
+
         # Confidence check
-        if confidence < MIN_CONFIDENCE:
-            return "REJECTED", proposal, f"Confidence {confidence:.2f} < {MIN_CONFIDENCE} minimum"
+        if confidence < min_confidence:
+            return "REJECTED", proposal, f"Confidence {confidence:.2f} < dynamic min {min_confidence:.2f}"
 
         # Confirming signals check
         if confirming < MIN_CONFIRMING_SIGNALS:
@@ -171,9 +192,9 @@ class RiskAgent:
         adjusted_size = suggested_size
 
         # Cap at max trade size
-        if adjusted_size > MAX_TRADE_USD:
-            adjusted_size = MAX_TRADE_USD
-            reasons.append(f"Capped size: ${suggested_size:.2f} -> ${MAX_TRADE_USD:.2f}")
+        if adjusted_size > max_trade_usd:
+            adjusted_size = max_trade_usd
+            reasons.append(f"Capped size: ${suggested_size:.2f} -> ${max_trade_usd:.2f}")
 
         # Portfolio-based checks
         if portfolio:
@@ -226,6 +247,17 @@ class RiskAgent:
         logger.info("RiskAgent cycle %d starting", cycle)
         self.state["cycle_count"] = cycle
 
+        overrides = self._get_quant_risk_overrides()
+        max_trades_cycle = int(self._clamp(overrides.get("max_trades_per_cycle", MAX_TRADES_PER_CYCLE), 1, 5))
+        if overrides:
+            logger.info(
+                "Quant overrides: min_conf=%.2f max_trade=$%.2f max_trades=%d blocked=%d",
+                float(overrides.get("min_confidence", MIN_CONFIDENCE)),
+                float(overrides.get("max_trade_usd", MAX_TRADE_USD)),
+                max_trades_cycle,
+                len(overrides.get("blocked_pairs", []) or []),
+            )
+
         # Read strategy proposals
         proposals = self.bus.read_latest("risk", msg_type="strategy_proposal", count=10)
         if not proposals:
@@ -249,12 +281,12 @@ class RiskAgent:
             proposal = msg.get("payload", {})
 
             # Max trades per cycle
-            if approved_this_cycle >= MAX_TRADES_PER_CYCLE:
+            if approved_this_cycle >= max_trades_cycle:
                 verdict = "REJECTED"
-                reason = f"Max {MAX_TRADES_PER_CYCLE} trades per cycle already approved"
+                reason = f"Max {max_trades_cycle} trades per cycle already approved"
                 adjusted = proposal
             else:
-                verdict, adjusted, reason = self.evaluate_proposal(proposal, portfolio)
+                verdict, adjusted, reason = self.evaluate_proposal(proposal, portfolio, overrides=overrides)
 
             if verdict == "APPROVED":
                 approved_this_cycle += 1

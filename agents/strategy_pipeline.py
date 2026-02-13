@@ -63,6 +63,9 @@ WARM_TO_HOT = {
 COINBASE_FEE = 0.006  # 0.6% taker fee
 SLIPPAGE = 0.001      # 0.1% slippage assumption
 
+# Strict capital protection: no realized-loss trades are allowed to pass COLD.
+STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("0", "false", "no")
+
 
 class HistoricalPrices:
     """Fetch and cache historical price data for backtesting."""
@@ -565,6 +568,8 @@ class Backtester:
         trades = []
         equity_curve = [capital]
         peak_equity = capital
+        final_open_position_blocked = False
+        final_unrealized_pnl = 0.0
 
         for sig in signals:
             price = sig["price"]
@@ -630,8 +635,29 @@ class Backtester:
         if position > 0 and len(candles) > 0:
             final_price = candles[-1]["close"]
             final_value = position * final_price * (1 - self.fee_rate)
-            capital += final_value
-            position = 0
+            cost_basis = position * entry_price
+            final_unrealized_pnl = final_value - cost_basis
+
+            # Profit-only policy: never force a losing close at end of sample.
+            if final_value > cost_basis:
+                pnl = final_value - cost_basis
+                capital += final_value
+                trades.append({
+                    "time": candles[-1]["time"],
+                    "side": "SELL",
+                    "price": final_price,
+                    "amount": position,
+                    "usd": final_value,
+                    "pnl": round(pnl, 4),
+                    "reason": "finalize_profitable_position",
+                    "confidence": 0.5,
+                })
+                position = 0
+            else:
+                # Keep mark-to-market equity for reporting, but flag as blocked close.
+                final_open_position_blocked = True
+                capital += final_value
+                position = 0
 
         # Compute metrics
         total_return = (capital - self.initial_capital) / self.initial_capital
@@ -678,6 +704,8 @@ class Backtester:
             "trades": trades,
             "equity_curve_start": equity_curve[0] if equity_curve else 0,
             "equity_curve_end": equity_curve[-1] if equity_curve else 0,
+            "final_open_position_blocked": final_open_position_blocked,
+            "final_unrealized_pnl": round(final_unrealized_pnl, 4),
         }
 
 
@@ -829,6 +857,16 @@ class StrategyValidator:
         if results["max_drawdown_pct"] > COLD_TO_WARM["max_drawdown_pct"]:
             passed = False
             reasons.append(f"drawdown {results['max_drawdown_pct']:.2f}% > {COLD_TO_WARM['max_drawdown_pct']}%")
+
+        if STRICT_PROFIT_ONLY:
+            if results.get("losses", 0) > 0:
+                passed = False
+                reasons.append(f"strict mode: {results['losses']} realized losing trades")
+            if results.get("final_open_position_blocked"):
+                passed = False
+                reasons.append(
+                    "strict mode: backtest ended with underwater open position (loss close blocked)"
+                )
 
         if passed:
             self.db.execute(

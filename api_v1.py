@@ -23,6 +23,33 @@ def get_db():
     return g.db
 
 
+def parse_int_query_param(name, default, max_value=None):
+    """Parse an integer query param and return a 400 JSON response if malformed."""
+    raw_value = request.args.get(name)
+
+    if raw_value is None:
+        value = default
+    else:
+        try:
+            value = int(raw_value)
+        except (TypeError, ValueError):
+            return None, (
+                jsonify({"error": f"Invalid query parameter '{name}': expected integer"}),
+                400,
+            )
+
+    if value < 1:
+        return None, (
+            jsonify({"error": f"Invalid query parameter '{name}': must be >= 1"}),
+            400,
+        )
+
+    if max_value is not None:
+        value = min(value, max_value)
+
+    return value, None
+
+
 @api_v1.after_request
 def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
@@ -142,7 +169,9 @@ def get_latency_history(host):
     history_days = tier_conf["history_days"]
 
     # Allow limit param (max 1000)
-    limit = min(int(request.args.get("limit", "500")), 1000)
+    limit, error_response = parse_int_query_param("limit", default=500, max_value=1000)
+    if error_response:
+        return error_response
 
     cutoff = (datetime.now(timezone.utc) - timedelta(days=history_days)).isoformat()
 
@@ -227,7 +256,9 @@ def get_routes(host):
 @require_tier("pro", "enterprise", "enterprise_pro", "government")
 def get_route_changes(host):
     """Get route change history for a target."""
-    limit = min(int(request.args.get("limit", "50")), 200)
+    limit, error_response = parse_int_query_param("limit", default=50, max_value=200)
+    if error_response:
+        return error_response
 
     db = get_db()
     rows = db.execute(
@@ -261,7 +292,9 @@ def get_route_changes(host):
 def get_rankings():
     """Get latency rankings by category."""
     category = request.args.get("category")
-    limit = min(int(request.args.get("limit", "50")), 100)
+    limit, error_response = parse_int_query_param("limit", default=50, max_value=100)
+    if error_response:
+        return error_response
 
     db = get_db()
 
@@ -368,7 +401,9 @@ def compare_targets():
 def export_data(host):
     """Bulk export historical data (Enterprise only)."""
     fmt = request.args.get("format", "json").lower()
-    limit = min(int(request.args.get("limit", "10000")), 50000)
+    limit, error_response = parse_int_query_param("limit", default=10000, max_value=50000)
+    if error_response:
+        return error_response
 
     tier_conf = g.tier_config
     cutoff = (datetime.now(timezone.utc) - timedelta(days=tier_conf["history_days"])).isoformat()

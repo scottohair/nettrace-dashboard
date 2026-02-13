@@ -89,6 +89,34 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
 .opp-pair{font-size:12px;font-weight:700;color:var(--blue)}
 .opp-details{display:flex;gap:12px;margin-top:4px;font-size:10px;color:var(--muted)}
 .opp-vol{color:var(--purple);font-weight:600}.opp-profit{color:var(--green);font-weight:600}
+/* Claude optimization feed */
+.claude-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.claude-col{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px}
+.claude-col h4{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+.claude-list{font-size:10px;color:var(--muted);line-height:1.4}
+.claude-list .item{padding:4px 0;border-bottom:1px solid var(--border)22}
+.claude-meta{display:flex;gap:10px;font-size:10px;color:var(--muted);margin-top:8px}
+.claude-pill{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px}
+.claude-def{background:#ef444422;color:var(--red);border:1px solid #ef444444}
+.claude-bal{background:#00d4ff22;color:var(--blue);border:1px solid #00d4ff44}
+.claude-off{background:#00ff8822;color:var(--green);border:1px solid #00ff8844}
+/* AmiCoin (simulation) */
+.amicoin-banner{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid #22d3ee55;background:#22d3ee11;border-radius:6px;margin-bottom:10px;font-size:10px}
+.amicoin-banner .flag{font-weight:700;color:#22d3ee}
+.ami-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px}
+.ami-stat{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px}
+.ami-stat .label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.ami-stat .value{font-size:14px;font-weight:700;color:var(--text);margin-top:2px}
+.ami-table{font-size:10px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.ami-head,.ami-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;padding:6px 8px}
+.ami-head{background:var(--bg3);color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-size:8px}
+.ami-row{border-top:1px solid var(--border)}
+.ami-row .sym{color:var(--blue);font-weight:700}
+.ami-wallet-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:6px 8px;border-top:1px solid var(--border);font-size:10px}
+.ami-checklist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ami-check{font-size:9px;padding:3px 6px;border-radius:4px;border:1px solid var(--border);color:var(--muted)}
+.ami-check.ok{color:var(--green);border-color:#00ff8844;background:#00ff8811}
+.ami-check.no{color:var(--gold);border-color:#fbbf2444;background:#fbbf2411}
 /* Refresh */
 .refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .refresh-bar .info{font-size:10px;color:var(--muted)}
@@ -176,6 +204,7 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
 .toast-error{border-color:var(--red)66;background:var(--red)11;color:var(--red)}
 @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
 @media(max-width:1200px){.grid-4,.grid-5{grid-template-columns:repeat(2,1fr)}.grid-3,.grid-23{grid-template-columns:1fr}}
+@media(max-width:1200px){.claude-grid{grid-template-columns:1fr}.ami-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){.grid-4,.grid-5,.grid-2{grid-template-columns:1fr}.ticker-bar{display:none}}
 </style>
 </head>
@@ -249,8 +278,8 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     </div>
     <div class="card">
       <h3>Active Agents</h3>
-      <div class="big gold" id="agentCount">4</div>
-      <div class="sub">live trader, arb, C engine, pipeline</div>
+      <div class="big gold" id="agentCount">11</div>
+      <div class="sub">trading + optimization + claude quant + AmiCoin simulation</div>
     </div>
   </div>
 
@@ -352,6 +381,42 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
   <div class="section-header">Market Opportunities (24h Volatility vs 1.2% Round-Trip Fee)</div>
   <div class="grid-4" id="opportunitiesGrid"></div>
 
+  <!-- Claude Optimization Feed -->
+  <div class="section-header">Claude Optimization Feed</div>
+  <div class="card" style="margin-bottom:12px">
+    <div id="claudeFeed">
+      <div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">Waiting for optimizer cycles...</div>
+    </div>
+  </div>
+
+  <!-- AmiCoin Network -->
+  <div class="section-header">AmiCoin Network (Simulation Only)</div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="amicoin-banner">
+      <span class="flag" id="amiNetworkMode">AmiCoin Network | simulation_only</span>
+      <span style="color:var(--gold);font-weight:700" id="amiNotCounted">Excluded from real holdings and portfolio value</span>
+    </div>
+    <div class="ami-grid">
+      <div class="ami-stat"><div class="label">Reserve Equity</div><div class="value" id="amiReserveEq">$--</div></div>
+      <div class="ami-stat"><div class="label">Liquid</div><div class="value" id="amiLiquid">$--</div></div>
+      <div class="ami-stat"><div class="label">Allocated</div><div class="value" id="amiAllocated">$--</div></div>
+      <div class="ami-stat"><div class="label">Realized P&L</div><div class="value" id="amiRealized">$--</div></div>
+      <div class="ami-stat"><div class="label">Open Positions</div><div class="value" id="amiOpenPos">0</div></div>
+      <div class="ami-stat"><div class="label">Go Live</div><div class="value" id="amiGoLive">Not Ready</div></div>
+    </div>
+    <h3 style="margin-top:4px">Coin Pool (10 Synthetic Coins)</h3>
+    <div id="amiCoins" class="ami-table">
+      <div class="ami-head"><span>Coin</span><span>Network</span><span>Price</span><span>24h</span><span>P&L</span></div>
+      <div class="ami-row"><span class="sym">--</span><span>--</span><span>--</span><span>--</span><span>--</span></div>
+    </div>
+    <h3 style="margin-top:8px">Network Wallets</h3>
+    <div id="amiWallets" class="ami-table">
+      <div class="ami-head" style="grid-template-columns:1fr 1fr 1fr 1fr"><span>Network</span><span>Reserve</span><span>Allocated</span><span>Address</span></div>
+      <div class="ami-wallet-row"><span>--</span><span>--</span><span>--</span><span>--</span></div>
+    </div>
+    <div class="ami-checklist" id="amiChecklist"></div>
+  </div>
+
   <!-- Trades + Agents -->
   <div class="grid-23">
     <div class="card">
@@ -391,6 +456,31 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
           <div class="agent-avatar" style="background:#635bff33">L</div>
           <div class="agent-info"><div class="name">LP Provider</div><div class="role">Uniswap V3 concentrated liquidity</div></div>
           <div class="agent-pnl" style="color:#a78bfa" id="lpPnl">--</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#22c55e33">AO</div>
+          <div class="agent-info"><div class="name">Algorithm Optimizer</div><div class="role">Dynamic confidence + factor tuning</div></div>
+          <div class="agent-pnl" style="color:var(--green)" id="algoAgentState">syncing</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#0ea5e933">QO</div>
+          <div class="agent-info"><div class="name">Quant Optimizer</div><div class="role">Pair alpha + risk posture overrides</div></div>
+          <div class="agent-pnl" style="color:var(--blue)" id="quantAgentState">syncing</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#f59e0b33">DO</div>
+          <div class="agent-info"><div class="name">Dashboard Optimizer</div><div class="role">Operator directives + UI feed</div></div>
+          <div class="agent-pnl" style="color:var(--gold)" id="dashAgentState">syncing</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#14b8a633">CQ</div>
+          <div class="agent-info"><div class="name">Claude Quant Agent</div><div class="role">Runs Quant 100 validation, promotion, and budgets</div></div>
+          <div class="agent-pnl" style="color:#14b8a6" id="quant100AgentState">booting</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#22d3ee33">AMI</div>
+          <div class="agent-info"><div class="name">AmiCoin Agent</div><div class="role">10-coin simulation pool, reserve routing, go-live checklist</div></div>
+          <div class="agent-pnl" style="color:#22d3ee" id="amicoinAgentState">booting</div>
         </div>
       </div>
     </div>
@@ -603,6 +693,143 @@ function renderServers(){
     </div>`).join("");
 }
 
+function renderClaudeInsights(insights){
+  const feed=document.getElementById("claudeFeed");
+  if(!feed) return;
+  if(!insights || Object.keys(insights).length===0){
+    feed.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">Waiting for optimizer cycles...</div>';
+    return;
+  }
+  const posture=(insights.risk_posture||"BALANCED").toUpperCase();
+  const postureClass=posture==="DEFENSIVE"?"claude-def":(posture==="OFFENSIVE"?"claude-off":"claude-bal");
+  const mkItems=(arr)=> (arr&&arr.length?arr.slice(0,4).map(x=>`<div class="item">${x}</div>`).join(""):'<div class="item">No updates</div>');
+  const focus=(insights.focus_pairs&&insights.focus_pairs.length)?insights.focus_pairs.join(", "):"none";
+  const snap=insights.learning_snapshot||{};
+  feed.innerHTML=`
+    <div class="claude-grid">
+      <div class="claude-col">
+        <h4>Algorithm</h4>
+        <div class="claude-list">${mkItems(insights.algorithm_recommendations)}</div>
+      </div>
+      <div class="claude-col">
+        <h4>Quant</h4>
+        <div class="claude-list">${mkItems(insights.quant_recommendations)}</div>
+      </div>
+      <div class="claude-col">
+        <h4>Dashboard</h4>
+        <div class="claude-list">${mkItems(insights.dashboard_recommendations)}</div>
+      </div>
+    </div>
+    <div class="claude-meta">
+      <span>Posture: <span class="claude-pill ${postureClass}">${posture}</span></span>
+      <span>Focus: <span style="color:var(--blue)">${focus}</span></span>
+      <span>Sharpe: <span style="color:var(--green)">${Number(snap.sharpe_ratio||0).toFixed(2)}</span></span>
+      <span>Drawdown: <span style="color:var(--gold)">${Number(snap.max_drawdown_pct||0).toFixed(2)}%</span></span>
+    </div>`;
+
+  const statusMap={};
+  (insights.agent_status||[]).forEach(s=>{statusMap[s.agent]=s});
+  const algo=statusMap.algorithm_optimizer;
+  const quant=statusMap.quant_optimizer;
+  const dash=statusMap.dashboard_optimizer;
+  if(algo) document.getElementById("algoAgentState").textContent=algo.detail||algo.state||"active";
+  if(quant) document.getElementById("quantAgentState").textContent=quant.detail||quant.state||"active";
+  if(dash) document.getElementById("dashAgentState").textContent=dash.detail||dash.state||"active";
+}
+
+function renderQuant100Status(summary, agent){
+  const el=document.getElementById("quant100AgentState");
+  if(!el) return;
+  const state=(agent&&agent.state)?agent.state:"idle";
+  const promoted=Number((summary&&summary.promoted_warm)||0);
+  const total=Number((summary&&summary.total)||0);
+  const noData=Number((summary&&summary.no_data)||0);
+  if(total>0){
+    if(noData===total){
+      el.textContent=`${state} | no data`;
+    }else{
+      el.textContent=`${state} | ${promoted}/${total} warm`;
+    }
+  }else{
+    el.textContent=state;
+  }
+}
+
+function renderAmiCoin(amicoin, agent){
+  const summary=(amicoin&&amicoin.summary)?amicoin.summary:{};
+  const pool=(amicoin&&amicoin.pool)?amicoin.pool:[];
+  const wallets=(amicoin&&amicoin.wallets)?amicoin.wallets:[];
+  const checklist=summary.go_live_checklist||{};
+
+  const networkName=summary.network_name||"AmiCoin Network";
+  const mode=summary.network_mode||"simulation_only";
+  document.getElementById("amiNetworkMode").textContent=`${networkName} | ${mode}`;
+  document.getElementById("amiNotCounted").textContent=(summary.counts_toward_portfolio===false||amicoin.excluded_from_portfolio)?
+    "Excluded from real holdings and portfolio value":"Counts toward portfolio";
+
+  const reserveEq=Number(summary.reserve_equity_usd||0);
+  const liquid=Number(summary.liquid_usd||0);
+  const allocated=Number(summary.allocated_usd||0);
+  const realized=Number(summary.realized_pnl_usd||0);
+  const openPos=Number(summary.open_positions||0);
+  document.getElementById("amiReserveEq").textContent="$"+reserveEq.toFixed(2);
+  document.getElementById("amiLiquid").textContent="$"+liquid.toFixed(2);
+  document.getElementById("amiAllocated").textContent="$"+allocated.toFixed(2);
+  document.getElementById("amiRealized").textContent=(realized>=0?"+$":"-$")+Math.abs(realized).toFixed(2);
+  document.getElementById("amiRealized").style.color=realized>=0?"var(--green)":"var(--red)";
+  document.getElementById("amiOpenPos").textContent=openPos;
+
+  const liveTxt=summary.go_live_ready?"Ready":"Not Ready";
+  document.getElementById("amiGoLive").textContent=liveTxt;
+  document.getElementById("amiGoLive").style.color=summary.go_live_ready?"var(--green)":"var(--gold)";
+
+  const coinBox=document.getElementById("amiCoins");
+  if(!pool.length){
+    coinBox.innerHTML='<div class="ami-head"><span>Coin</span><span>Network</span><span>Price</span><span>24h</span><span>P&L</span></div><div class="ami-row"><span class="sym">--</span><span>--</span><span>--</span><span>--</span><span>--</span></div>';
+  }else{
+    let html='<div class="ami-head"><span>Coin</span><span>Network</span><span>Price</span><span>24h</span><span>P&L</span></div>';
+    for(const c of pool){
+      const d=Number(c.day_change_pct||0);
+      const p=Number(c.realized_pnl_usd||0)+Number(c.unrealized_pnl_usd||0);
+      html+=`<div class="ami-row"><span class="sym">${c.symbol}</span><span>${c.network}</span><span>$${Number(c.price_usd||0).toFixed(5)}</span><span style="color:${d>=0?'var(--green)':'var(--red)'}">${d>=0?'+':''}${d.toFixed(2)}%</span><span style="color:${p>=0?'var(--green)':'var(--red)'}">${p>=0?'+':''}$${p.toFixed(2)}</span></div>`;
+    }
+    coinBox.innerHTML=html;
+  }
+
+  const walletBox=document.getElementById("amiWallets");
+  if(!wallets.length){
+    walletBox.innerHTML='<div class="ami-head" style="grid-template-columns:1fr 1fr 1fr 1fr"><span>Network</span><span>Reserve</span><span>Allocated</span><span>Address</span></div><div class="ami-wallet-row"><span>--</span><span>--</span><span>--</span><span>--</span></div>';
+  }else{
+    let html='<div class="ami-head" style="grid-template-columns:1fr 1fr 1fr 1fr"><span>Network</span><span>Reserve</span><span>Allocated</span><span>Address</span></div>';
+    for(const w of wallets){
+      const addr=(w.address||"--");
+      const short=addr.length>14?addr.slice(0,8)+"..."+addr.slice(-6):addr;
+      html+=`<div class="ami-wallet-row"><span>${w.network}</span><span>$${Number(w.reserve_usd||0).toFixed(2)}</span><span>$${Number(w.allocated_usd||0).toFixed(2)}</span><span title="${addr}">${short}</span></div>`;
+    }
+    walletBox.innerHTML=html;
+  }
+
+  const checks=[
+    ["Coinbase listen", checklist.coinbase_market_listening===true],
+    ["Coinbase listed", checklist.coinbase_listing===true],
+    ["DEX listed", checklist.dex_listing===true],
+    ["USDC route", checklist.conversion_routes&&checklist.conversion_routes.USDC===true],
+    ["BTC route", checklist.conversion_routes&&checklist.conversion_routes.BTC===true],
+    ["ETH route", checklist.conversion_routes&&checklist.conversion_routes.ETH===true],
+    ["SOL route", checklist.conversion_routes&&checklist.conversion_routes.SOL===true],
+  ];
+  document.getElementById("amiChecklist").innerHTML=checks.map(([label,ok])=>
+    `<span class="ami-check ${ok?'ok':'no'}">${ok?'READY':'PENDING'}: ${label}</span>`
+  ).join("");
+
+  const aState=document.getElementById("amicoinAgentState");
+  if(aState){
+    const s=(agent&&agent.state)?agent.state:"idle";
+    const cyc=(summary&&summary.cycles)?summary.cycles:0;
+    aState.textContent=`${s} | cycle ${cyc}`;
+  }
+}
+
 // ── Data Refresh ──
 async function refreshData(){
   try{
@@ -654,6 +881,9 @@ async function refreshData(){
         return`<tr><td>${time}</td><td>${t.pair}</td><td><span class="badge ${t.side==="BUY"?"b-buy":"b-sell"}">${t.side}</span></td><td>$${(t.price||0).toFixed(2)}</td><td>$${(t.total_usd||0).toFixed(2)}</td><td style="font-size:9px">${t.signal_type||"--"}</td><td><span class="badge ${t.status==="filled"?"b-filled":"b-failed"}">${t.status}</span></td></tr>`;
       }).join("");
     }
+    renderClaudeInsights(data.claude_insights||{});
+    renderQuant100Status(data.quant100_summary||{}, data.quant100_agent||{});
+    renderAmiCoin(data.amicoin||{}, data.amicoin_agent||{});
     // Chart
     const snapshots=data.snapshots||[];
     if(portfolioChart&&snapshots.length>0){

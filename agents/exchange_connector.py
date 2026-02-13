@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import secrets
+import sqlite3
 import time
 import urllib.request
 import urllib.parse
@@ -24,6 +25,66 @@ logger = logging.getLogger("exchange")
 # Load from env — CDP (Coinbase Developer Platform) JWT auth
 COINBASE_API_KEY_ID = os.environ.get("COINBASE_API_KEY_ID", "")
 COINBASE_API_KEY_SECRET = os.environ.get("COINBASE_API_KEY_SECRET", "")
+
+TRADER_DB = str(Path(__file__).parent / "trader.db")
+LOCK_FILE = Path(__file__).parent / "trading_lock.json"
+STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("0", "false", "no")
+# Require enough upside to cover fees/slippage and still be net positive.
+ROUND_TRIP_COST_PCT = float(os.environ.get("ROUND_TRIP_COST_PCT", "0.013"))  # ~1.3%
+MIN_NET_PROFIT_PCT = float(os.environ.get("MIN_NET_PROFIT_PCT", "0.002"))    # +0.2%
+
+
+def _load_trading_lock():
+    if not LOCK_FILE.exists():
+        return {"locked": False}
+    try:
+        data = json.loads(LOCK_FILE.read_text())
+        if not isinstance(data, dict):
+            return {"locked": True, "reason": "Invalid lock file format", "source": "exchange_connector"}
+        return data
+    except Exception:
+        return {"locked": True, "reason": "Unreadable lock file", "source": "exchange_connector"}
+
+
+def _is_trading_locked():
+    lock = _load_trading_lock()
+    return bool(lock.get("locked", False)), str(lock.get("reason", "")), str(lock.get("source", ""))
+
+
+def _normalize_pair_variants(product_id):
+    variants = {product_id}
+    if product_id.endswith("-USD"):
+        variants.add(product_id.replace("-USD", "-USDC"))
+    if product_id.endswith("-USDC"):
+        variants.add(product_id.replace("-USDC", "-USD"))
+    return tuple(variants)
+
+
+def _last_buy_price(product_id):
+    """Read latest BUY cost basis from shared trade ledger."""
+    variants = _normalize_pair_variants(product_id)
+    try:
+        db = sqlite3.connect(TRADER_DB)
+        db.row_factory = sqlite3.Row
+        placeholders = ",".join("?" for _ in variants)
+        row = db.execute(
+            f"""SELECT price
+                FROM agent_trades
+                WHERE side='BUY' AND pair IN ({placeholders}) AND price > 0
+                ORDER BY id DESC
+                LIMIT 1""",
+            variants
+        ).fetchone()
+        db.close()
+        if row:
+            return float(row["price"])
+    except Exception:
+        return None
+    return None
+
+
+def _sell_break_even_min(entry_price):
+    return entry_price * (1.0 + ROUND_TRIP_COST_PCT + MIN_NET_PROFIT_PCT)
 
 
 class PriceFeed:
@@ -394,9 +455,39 @@ class CoinbaseTrader:
             order_type: "market" only for now
         """
         import uuid
+        side_u = side.upper()
+
+        # Global lock guard (applies to ALL order flow).
+        locked, lock_reason, lock_source = _is_trading_locked()
+        if locked:
+            msg = f"Trading locked by {lock_source}: {lock_reason}"
+            logger.error("Order blocked: %s", msg)
+            return {"error_response": {"error": "TRADING_LOCKED", "message": msg}}
+
+        # Profit-only SELL guard.
+        if side_u == "SELL" and STRICT_PROFIT_ONLY:
+            entry = _last_buy_price(product_id)
+            if entry is None:
+                msg = f"SELL blocked for {product_id}: missing cost basis in trader.db"
+                logger.warning(msg)
+                return {"error_response": {"error": "NO_COST_BASIS", "message": msg}}
+
+            # Market sell uses reference spot for safety check.
+            market_price = PriceFeed.get_price(product_id.replace("-USDC", "-USD")) or PriceFeed.get_price(product_id)
+            if market_price is None:
+                msg = f"SELL blocked for {product_id}: no reference market price"
+                logger.warning(msg)
+                return {"error_response": {"error": "NO_MARKET_PRICE", "message": msg}}
+
+            min_ok = _sell_break_even_min(entry)
+            if market_price < min_ok:
+                msg = (f"SELL blocked for {product_id}: ${market_price:.4f} < "
+                       f"required ${min_ok:.4f} (entry ${entry:.4f})")
+                logger.warning(msg)
+                return {"error_response": {"error": "SELL_AT_LOSS_BLOCKED", "message": msg}}
 
         # For SELL orders, truncate base_size to product's precision
-        if side.upper() == "SELL":
+        if side_u == "SELL":
             base_incr = self._get_precision(product_id)
             size = self._truncate_to_increment(size, base_incr)
             if size <= 0:
@@ -405,11 +496,11 @@ class CoinbaseTrader:
         order = {
             "client_order_id": str(uuid.uuid4()),
             "product_id": product_id,
-            "side": side.upper(),
+            "side": side_u,
             "order_configuration": {
                 "market_market_ioc": {
-                    "quote_size": str(size) if side.upper() == "BUY" else None,
-                    "base_size": str(size) if side.upper() == "SELL" else None,
+                    "quote_size": str(size) if side_u == "BUY" else None,
+                    "base_size": str(size) if side_u == "SELL" else None,
                 }
             }
         }
@@ -435,6 +526,14 @@ class CoinbaseTrader:
             post_only: if True, reject order if it would take liquidity
         """
         import uuid
+        side_u = side.upper()
+
+        # Global lock guard (applies to ALL order flow).
+        locked, lock_reason, lock_source = _is_trading_locked()
+        if locked:
+            msg = f"Trading locked by {lock_source}: {lock_reason}"
+            logger.error("Limit order blocked: %s", msg)
+            return {"error_response": {"error": "TRADING_LOCKED", "message": msg}}
 
         # Truncate to product precision
         base_incr = self._get_precision(product_id)
@@ -447,10 +546,25 @@ class CoinbaseTrader:
         quote_incr = info.get("quote_increment", "0.01")
         limit_price = self._truncate_to_increment(limit_price, quote_incr)
 
+        # Profit-only SELL guard.
+        if side_u == "SELL" and STRICT_PROFIT_ONLY:
+            entry = _last_buy_price(product_id)
+            if entry is None:
+                msg = f"LIMIT SELL blocked for {product_id}: missing cost basis in trader.db"
+                logger.warning(msg)
+                return {"error_response": {"error": "NO_COST_BASIS", "message": msg}}
+
+            min_ok = _sell_break_even_min(entry)
+            if float(limit_price) < min_ok:
+                msg = (f"LIMIT SELL blocked for {product_id}: ${float(limit_price):.4f} < "
+                       f"required ${min_ok:.4f} (entry ${entry:.4f})")
+                logger.warning(msg)
+                return {"error_response": {"error": "SELL_AT_LOSS_BLOCKED", "message": msg}}
+
         order = {
             "client_order_id": str(uuid.uuid4()),
             "product_id": product_id,
-            "side": side.upper(),
+            "side": side_u,
             "order_configuration": {
                 "limit_limit_gtc": {
                     "base_size": str(base_size),

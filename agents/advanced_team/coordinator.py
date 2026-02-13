@@ -2,7 +2,8 @@
 """AdvancedTeam Coordinator — runs the round-robin DFA loop.
 
 DFA (Deterministic Finite Automaton) pattern:
-  Research -> Strategy -> Risk -> Execution -> Learning -> Research -> ...
+  Research -> Strategy -> Risk -> Execution -> Learning ->
+  AlgorithmOptimizer -> QuantOptimizer -> DashboardOptimizer -> Research -> ...
 
 Each cycle:
   1. ResearchAgent gathers market data -> publishes research_memo
@@ -10,7 +11,9 @@ Each cycle:
   3. RiskAgent evaluates proposals -> publishes risk_verdicts
   4. ExecutionAgent processes verdicts -> publishes execution_results
   5. LearningAgent reviews results -> publishes learning_insights
-  6. (back to Research with insights from Learning)
+  6. AlgorithmOptimizerAgent tunes thresholds/weights -> publishes algorithm_tuning
+  7. QuantOptimizerAgent computes pair alpha + risk overrides -> publishes quant_optimization
+  8. DashboardOptimizerAgent packages operator directives -> writes dashboard_insights.json
 
 Timing:
   - Full cycle every 2 minutes (research is the bottleneck — HTTP calls)
@@ -64,6 +67,9 @@ from advanced_team.strategy_agent import StrategyAgent
 from advanced_team.risk_agent import RiskAgent
 from advanced_team.execution_agent import ExecutionAgent
 from advanced_team.learning_agent import LearningAgent
+from advanced_team.algorithm_optimizer_agent import AlgorithmOptimizerAgent
+from advanced_team.quant_optimizer_agent import QuantOptimizerAgent
+from advanced_team.dashboard_optimizer_agent import DashboardOptimizerAgent
 
 # DFA cycle timing
 CYCLE_INTERVAL = 120   # seconds between full cycles
@@ -74,7 +80,7 @@ MAX_AGENT_ERRORS = 5    # max consecutive errors before skipping an agent
 
 
 class Coordinator:
-    """Runs the round-robin DFA loop across all 5 agents."""
+    """Runs the round-robin DFA loop across all advanced-team agents."""
 
     def __init__(self):
         self.bus = MessageBus()
@@ -84,8 +90,20 @@ class Coordinator:
             "risk": RiskAgent(),
             "execution": ExecutionAgent(),
             "learning": LearningAgent(),
+            "algorithm_optimizer": AlgorithmOptimizerAgent(),
+            "quant_optimizer": QuantOptimizerAgent(),
+            "dashboard_optimizer": DashboardOptimizerAgent(),
         }
-        self.dfa_order = ["research", "strategy", "risk", "execution", "learning"]
+        self.dfa_order = [
+            "research",
+            "strategy",
+            "risk",
+            "execution",
+            "learning",
+            "algorithm_optimizer",
+            "quant_optimizer",
+            "dashboard_optimizer",
+        ]
         self.cycle = 0
         self.running = True
         self.error_counts = {name: 0 for name in self.dfa_order}
@@ -149,6 +167,21 @@ class Coordinator:
                     portfolio = result.get("portfolio_value", 0) if isinstance(result, dict) else 0
                     logger.info("  [%s] %.1fs — portfolio=$%.2f Sharpe=%.2f",
                                 agent_name, elapsed, portfolio, sharpe)
+                elif agent_name == "algorithm_optimizer":
+                    conf = result.get("min_confidence", 0) if isinstance(result, dict) else 0
+                    pair_biases = len(result.get("pair_bias", {})) if isinstance(result, dict) else 0
+                    logger.info("  [%s] %.1fs — min_conf=%.2f pair_biases=%d",
+                                agent_name, elapsed, conf, pair_biases)
+                elif agent_name == "quant_optimizer":
+                    posture = result.get("risk_overrides", {}).get("risk_posture", "BALANCED") if isinstance(result, dict) else "?"
+                    top = len(result.get("ranking", [])) if isinstance(result, dict) else 0
+                    logger.info("  [%s] %.1fs — posture=%s ranked_pairs=%d",
+                                agent_name, elapsed, posture, top)
+                elif agent_name == "dashboard_optimizer":
+                    posture = result.get("risk_posture", "BALANCED") if isinstance(result, dict) else "?"
+                    focus = result.get("focus_pairs", []) if isinstance(result, dict) else []
+                    logger.info("  [%s] %.1fs — posture=%s focus=%s",
+                                agent_name, elapsed, posture, ",".join(focus[:3]) if focus else "none")
 
             except Exception as e:
                 self.error_counts[agent_name] += 1

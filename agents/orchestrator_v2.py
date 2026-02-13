@@ -184,7 +184,51 @@ AGENT_CONFIGS = [
         "args": [],
         "enabled": True,
         "critical": False,
-        "description": "5-agent research/strategy/risk/execution/learning team",
+        "description": "8-agent research/strategy/risk/execution/learning/optimization team",
+    },
+    {
+        "name": "claude_quant",
+        "script": "claude_quant_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Claude Quant 100 validator + pipeline promotion + budgeting",
+    },
+    {
+        "name": "amicoin",
+        "script": "amicoin_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "AmiCoin Network simulation agent (isolated, not counted in real holdings)",
+    },
+    # ── DETERMINISTIC STRATEGIES (work in ANY market regime) ──
+    {
+        "name": "market_maker",
+        "script": "market_maker.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Spread collection via limit orders (BUY below bid, SELL above ask). "
+                       "No directional bet — profits from liquidity provision in any regime.",
+    },
+    {
+        "name": "mean_reversion",
+        "script": "mean_reversion_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Statistical arb on correlated pairs (BTC/ETH, ETH/SOL). "
+                       "Trades z-score deviations — deterministic, no confidence needed.",
+    },
+    {
+        "name": "arb_scanner",
+        "script": "arb_scanner.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Cross-exchange price arb (5 exchanges). DETERMINISTIC: "
+                       "spread > fees = trade. No confidence gate.",
     },
 ]
 
@@ -611,11 +655,21 @@ class OrchestratorV2:
             pass
 
         # ── RISK CHECKS ──
+        try:
+            from trading_guard import set_trading_lock
+        except Exception:
+            def set_trading_lock(reason, source="orchestrator_v2", metadata=None):
+                return {"locked": True, "reason": reason, "source": source, "metadata": metadata or {}}
 
         # HARDSTOP #1: Absolute floor — only if peak was above floor (don't trigger if we started small)
         if total < HARDSTOP_FLOOR_USD and self.peak_portfolio >= HARDSTOP_FLOOR_USD:
             msg = f"HARDSTOP FLOOR: portfolio ${total:.2f} dropped below ${HARDSTOP_FLOOR_USD:.2f} absolute minimum"
             logger.critical(msg)
+            set_trading_lock(
+                reason=msg,
+                source="orchestrator_v2",
+                metadata={"event": "HARDSTOP_FLOOR", "portfolio": round(total, 2)},
+            )
             self._log_risk_event("HARDSTOP_FLOOR", msg, "all_agents_killed")
             self.stop_all("HARDSTOP_FLOOR")
             self.running = False
@@ -625,6 +679,11 @@ class OrchestratorV2:
         if drawdown >= HARDSTOP_DRAWDOWN_PCT:
             msg = f"HARDSTOP: {drawdown*100:.1f}% drawdown (peak ${self.peak_portfolio:.2f} → ${total:.2f})"
             logger.critical(msg)
+            set_trading_lock(
+                reason=msg,
+                source="orchestrator_v2",
+                metadata={"event": "HARDSTOP_DRAWDOWN", "drawdown_pct": round(drawdown * 100, 2)},
+            )
             self._log_risk_event("HARDSTOP_DRAWDOWN", msg, "all_agents_killed")
             self.stop_all("HARDSTOP_DRAWDOWN")
             self.running = False
@@ -635,8 +694,16 @@ class OrchestratorV2:
         if daily_pnl <= -daily_loss_limit:
             msg = f"Daily loss limit hit: ${daily_pnl:.2f} (adaptive limit: -${daily_loss_limit:.2f})"
             logger.warning(msg)
-            self._log_risk_event("daily_loss_limit", msg, "trading_paused")
-            # Don't kill agents, but they should check can_trade() themselves
+            set_trading_lock(
+                reason=msg,
+                source="orchestrator_v2",
+                metadata={"event": "DAILY_LOSS_LIMIT", "daily_pnl": round(daily_pnl, 2),
+                          "daily_loss_limit": round(daily_loss_limit, 2)},
+            )
+            self._log_risk_event("daily_loss_limit", msg, "all_agents_killed")
+            self.stop_all("DAILY_LOSS_LIMIT")
+            self.running = False
+            return
 
     def _record_agent_status(self, name, status, pid=None, error=None):
         agent = self.agents.get(name, {})

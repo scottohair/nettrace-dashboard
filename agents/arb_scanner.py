@@ -42,17 +42,18 @@ logging.basicConfig(
 logger = logging.getLogger("arb_scanner")
 
 # Risk parameters — NEVER LOSE MONEY
-COINBASE_FEE_PCT = 0.006      # 0.60% taker fee
-MIN_SPREAD_PCT = 0.008         # 0.80% minimum spread (fee + 0.2% buffer)
-SAFE_SPREAD_PCT = 0.012        # 1.2% = high confidence
-MAX_TRADE_USD = 5.00           # Max per trade
-MIN_TRADE_USD = 1.00           # Coinbase minimum
-MIN_SOURCES = 3                # Need 3+ price sources to validate
-SCAN_INTERVAL = 15             # Check every 15 seconds
-COOLDOWN_SECONDS = 120         # 2 min between trades on same pair
+COINBASE_MAKER_FEE_PCT = 0.004  # 0.40% maker fee (limit orders)
+COINBASE_TAKER_FEE_PCT = 0.006  # 0.60% taker fee (market orders)
+MIN_SPREAD_PCT = 0.006          # 0.60% minimum spread (maker fee + 0.2% buffer)
+SAFE_SPREAD_PCT = 0.010         # 1.0% = high confidence, scale up size
+MAX_TRADE_USD = 8.00            # Max per trade (dynamic via risk_controller)
+MIN_TRADE_USD = 1.00            # Coinbase minimum
+MIN_SOURCES = 3                 # Need 3+ price sources to validate
+SCAN_INTERVAL = 10              # Check every 10 seconds (faster = more opportunities)
+COOLDOWN_SECONDS = 60           # 1 min between trades on same pair (was 2 min)
 
-# Pairs we can trade on Coinbase
-PAIRS = ["BTC-USD", "ETH-USD", "SOL-USD"]
+# Pairs we can trade on Coinbase — expanded set
+PAIRS = ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "LINK-USD", "DOGE-USD"]
 
 # Track last trade time per pair
 last_trade = {}
@@ -187,15 +188,15 @@ def find_arbitrage(pair, prices):
     if price_range > 0.003:  # Other exchanges disagree too much
         return None
 
-    # Determine direction
+    # Determine direction — use maker fee (limit orders)
     if spread > 0:
         # Coinbase is expensive — SELL on Coinbase (sell high)
         side = "SELL"
-        expected_profit_pct = abs_spread - COINBASE_FEE_PCT
+        expected_profit_pct = abs_spread - COINBASE_MAKER_FEE_PCT
     else:
         # Coinbase is cheap — BUY on Coinbase (buy low)
         side = "BUY"
-        expected_profit_pct = abs_spread - COINBASE_FEE_PCT
+        expected_profit_pct = abs_spread - COINBASE_MAKER_FEE_PCT
 
     if expected_profit_pct <= 0:
         return None  # Not profitable after fees
@@ -217,7 +218,11 @@ def find_arbitrage(pair, prices):
 
 
 def execute_arb(opportunity):
-    """Execute an arbitrage trade on Coinbase."""
+    """Execute an arbitrage trade on Coinbase using LIMIT orders (maker fee 0.4%).
+
+    Deterministic: spread > fees = trade. No confidence gate.
+    Uses limit orders at the spread edge for best execution.
+    """
     from exchange_connector import CoinbaseTrader
 
     pair = opportunity["pair"]
@@ -229,19 +234,27 @@ def execute_arb(opportunity):
         logger.debug("Cooldown active for %s", pair)
         return False
 
-    # Size the trade based on confidence
-    trade_usd = min(MAX_TRADE_USD, max(MIN_TRADE_USD, opportunity["confidence"] * 5.0))
+    # Size scales with spread magnitude: bigger spread = more confident = bigger trade
+    spread_mult = min(2.0, abs(opportunity["spread_pct"]) / (SAFE_SPREAD_PCT * 100))
+    trade_usd = min(MAX_TRADE_USD, max(MIN_TRADE_USD, MIN_TRADE_USD + (MAX_TRADE_USD - MIN_TRADE_USD) * spread_mult))
 
-    logger.info("ARB OPPORTUNITY: %s %s | spread=%.4f%% | profit=%.4f%% | conf=%.3f | $%.2f",
-                side, pair, opportunity["spread_pct"], opportunity["expected_profit_pct"],
-                opportunity["confidence"], trade_usd)
+    logger.info("ARB EXECUTE: %s %s | spread=%.4f%% | profit=%.4f%% | $%.2f",
+                side, pair, opportunity["spread_pct"], opportunity["expected_profit_pct"], trade_usd)
 
     trader = CoinbaseTrader()
+    cb_price = opportunity["coinbase_price"]
 
     if side == "BUY":
-        result = trader.place_order(pair, "BUY", round(trade_usd, 2))
+        # Place limit BUY slightly below Coinbase spot (capture the discount)
+        limit_price = cb_price * 0.999  # 0.1% below spot
+        base_size = trade_usd / limit_price
+        result = trader.place_limit_order(pair, "BUY", base_size, limit_price, post_only=True)
+        if result.get("error_response"):
+            # Fallback to market if post_only rejected (price moved)
+            logger.info("Limit rejected, using market order for %s BUY", pair)
+            result = trader.place_order(pair, "BUY", round(trade_usd, 2))
     else:
-        # For SELL, need to check we hold the asset
+        # For SELL, check we hold the asset first
         accounts = trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
         base = pair.split("-")[0]
         held = 0
@@ -254,9 +267,13 @@ def execute_arb(opportunity):
             logger.warning("No %s to sell for arb", base)
             return False
 
-        # Sell up to trade_usd worth
-        sell_amount = min(held, trade_usd / opportunity["coinbase_price"])
-        result = trader.place_order(pair, "SELL", sell_amount)
+        # Sell up to trade_usd worth at a premium (limit order above spot)
+        sell_amount = min(held, trade_usd / cb_price)
+        limit_price = cb_price * 1.001  # 0.1% above spot
+        result = trader.place_limit_order(pair, "SELL", sell_amount, limit_price, post_only=True)
+        if result.get("error_response"):
+            logger.info("Limit rejected, using market order for %s SELL", pair)
+            result = trader.place_order(pair, "SELL", sell_amount)
 
     success = "success_response" in result or ("order_id" in result and "error" not in result)
     if success:
@@ -291,12 +308,15 @@ def scan_loop():
 
                     if opp:
                         opportunities_found += 1
-                        logger.info("FOUND: %s %s spread=%.4f%% sources=%d",
-                                   opp["side"], pair, opp["spread_pct"], opp["sources"])
+                        logger.info("FOUND: %s %s spread=%.4f%% profit=%.4f%% sources=%d",
+                                   opp["side"], pair, opp["spread_pct"],
+                                   opp["expected_profit_pct"], opp["sources"])
 
-                        if opp["confidence"] >= 0.6:
-                            if execute_arb(opp):
-                                trades_executed += 1
+                        # Arb is DETERMINISTIC — spread > fees = execute
+                        # No confidence gate needed; find_arbitrage already
+                        # validates spread > fees + buffer and 3+ sources agree
+                        if execute_arb(opp):
+                            trades_executed += 1
 
                     elif cycle % 20 == 0:  # Log price comparison every ~5 min
                         cb = prices.get("coinbase", 0)

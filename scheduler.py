@@ -10,7 +10,7 @@ import subprocess
 import threading
 import time
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 from quant_engine import QuantEngine
@@ -350,37 +350,46 @@ class ContinuousScanner:
         db = sqlite3.connect(DB_PATH)
         db.row_factory = sqlite3.Row
         try:
-            # Check last cleanup
-            row = db.execute(
-                "SELECT MAX(created_at) as last FROM scan_metrics WHERE scan_source = 'cleanup'"
-            ).fetchone()
-            if row and row["last"]:
-                try:
-                    last = datetime.fromisoformat(row["last"])
-                    if (datetime.now() - last).total_seconds() < 86400:
-                        db.close()
-                        return
-                except (ValueError, TypeError):
-                    pass
+            # Serialize guard + cleanup so concurrent schedulers cannot run it twice per UTC day.
+            db.execute("BEGIN IMMEDIATE")
+            db.execute("""
+                CREATE TABLE IF NOT EXISTS scheduler_metadata (
+                    key TEXT PRIMARY KEY,
+                    value TEXT NOT NULL,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
 
-            now = datetime.now(timezone.utc)
-            # 90d metrics
-            cutoff_90d = (now - timedelta(days=90)).isoformat()
-            r1 = db.execute("DELETE FROM scan_metrics WHERE created_at < ?", (cutoff_90d,))
-            # 30d snapshots
-            cutoff_30d = (now - timedelta(days=30)).isoformat()
-            r2 = db.execute("DELETE FROM scan_snapshots WHERE created_at < ?", (cutoff_30d,))
-            # 180d route changes
-            cutoff_180d = (now - timedelta(days=180)).isoformat()
-            r3 = db.execute("DELETE FROM route_changes WHERE detected_at < ?", (cutoff_180d,))
-            # 7d api_usage
-            cutoff_7d = (now - timedelta(days=7)).isoformat()
-            r4 = db.execute("DELETE FROM api_usage WHERE created_at < ?", (cutoff_7d,))
+            today_utc = db.execute("SELECT date('now') AS day_utc").fetchone()["day_utc"]
+            marker = db.execute(
+                "SELECT value FROM scheduler_metadata WHERE key = 'last_cleanup_utc_day'"
+            ).fetchone()
+            if marker and marker["value"] == today_utc:
+                db.commit()
+                return
+
+            # Use SQLite datetime math so retention comparisons match DB timestamp format.
+            r1 = db.execute("DELETE FROM scan_metrics WHERE created_at < datetime('now', '-90 days')")
+            r2 = db.execute("DELETE FROM scan_snapshots WHERE created_at < datetime('now', '-30 days')")
+            r3 = db.execute("DELETE FROM route_changes WHERE detected_at < datetime('now', '-180 days')")
+            r4 = db.execute("DELETE FROM api_usage WHERE created_at < datetime('now', '-7 days')")
+
+            db.execute(
+                """INSERT OR REPLACE INTO scheduler_metadata (key, value, updated_at)
+                   VALUES ('last_cleanup_utc_day', ?, CURRENT_TIMESTAMP)""",
+                (today_utc,)
+            )
 
             db.commit()
-            logger.info("Cleanup: metrics=%d, snapshots=%d, routes=%d, usage=%d rows deleted",
-                        r1.rowcount, r2.rowcount, r3.rowcount, r4.rowcount)
+            logger.info(
+                "Cleanup complete (day=%s): metrics=%d, snapshots=%d, routes=%d, usage=%d rows deleted",
+                today_utc, r1.rowcount, r2.rowcount, r3.rowcount, r4.rowcount
+            )
         except Exception as e:
+            try:
+                db.rollback()
+            except sqlite3.Error:
+                pass
             logger.error("Cleanup error: %s", e)
         finally:
             db.close()

@@ -82,6 +82,55 @@ class StrategyAgent:
             "cycle_count": 0,
         }
 
+    @staticmethod
+    def _clamp(value, lo, hi):
+        return max(lo, min(hi, value))
+
+    def _read_latest_payload(self, recipient, msg_type, count=5):
+        msgs = self.bus.read_latest(recipient, msg_type=msg_type, count=count)
+        if not msgs:
+            return {}
+        return msgs[-1].get("payload", {})
+
+    def _merge_signal_weights(self, overrides):
+        """Merge dynamic factor overrides while preserving stable normalization."""
+        if not isinstance(overrides, dict) or not overrides:
+            return SIGNAL_WEIGHTS
+
+        merged = dict(SIGNAL_WEIGHTS)
+        for factor, value in overrides.items():
+            if factor in merged:
+                try:
+                    merged[factor] = float(value)
+                except Exception:
+                    pass
+
+        # Keep weights bounded and renormalized.
+        for factor in merged:
+            merged[factor] = self._clamp(merged[factor], 0.05, 0.35)
+        total = sum(merged.values()) or 1.0
+        return {k: v / total for k, v in merged.items()}
+
+    def _get_optimization_context(self):
+        """Read latest algorithm/quant optimization hints from previous cycles."""
+        algo = self._read_latest_payload("strategy", "algorithm_tuning", count=5)
+        quant = self._read_latest_payload("strategy", "quant_optimization", count=5)
+
+        pair_bias = {}
+        pair_bias.update(algo.get("pair_bias", {}))
+        pair_bias.update(quant.get("pair_alpha", {}))
+
+        blocked = set(algo.get("blocked_pairs", []) or [])
+        blocked.update((quant.get("risk_overrides", {}) or {}).get("blocked_pairs", []) or [])
+
+        return {
+            "weights": self._merge_signal_weights(algo.get("factor_weight_overrides", {})),
+            "min_confidence": float(algo.get("min_confidence", MIN_CONFIDENCE)),
+            "size_multiplier": float(algo.get("size_multiplier", 1.0)) * float(quant.get("size_multiplier", 1.0)),
+            "pair_bias": pair_bias,
+            "blocked_pairs": blocked,
+        }
+
     def _score_price_momentum(self, memo, pair):
         """Score based on 24h price change and candle data."""
         base = pair.split("-")[0]
@@ -250,8 +299,15 @@ class StrategyAgent:
         """Analyze research memo and generate strategy proposals."""
         proposals = []
         cycle = memo.get("cycle", 0)
+        opt = self._get_optimization_context()
+        min_conf = self._clamp(opt["min_confidence"], 0.50, 0.80)
+        size_mult = self._clamp(opt["size_multiplier"], 0.6, 1.2)
 
         for research_pair, trade_pair in TRADEABLE_PAIRS.items():
+            if research_pair in opt["blocked_pairs"] or trade_pair in opt["blocked_pairs"]:
+                logger.info("Skipping %s due to quant blocklist", trade_pair)
+                continue
+
             scores = []
             reasons = []
 
@@ -288,12 +344,19 @@ class StrategyAgent:
             # Compute weighted composite confidence
             composite = 0.0
             for factor_name, score, _ in scores:
-                weight = SIGNAL_WEIGHTS.get(factor_name, 0.1)
+                weight = opt["weights"].get(factor_name, SIGNAL_WEIGHTS.get(factor_name, 0.1))
                 composite += score * weight
+
+            # Pair-level alpha/bias from optimizer agents.
+            pair_bias = float(
+                opt["pair_bias"].get(research_pair, opt["pair_bias"].get(trade_pair, 0.0))
+            )
+            if pair_bias:
+                composite = self._clamp(composite + pair_bias, 0.0, 0.99)
+                reasons.append(f"[optimizer] Pair bias applied: {pair_bias:+.3f}")
 
             # Count confirming BUY signals
             buy_count = sum(1 for _, _, d in scores if d == "BUY")
-            hold_count = sum(1 for _, _, d in scores if d == "HOLD")
 
             # Determine direction: majority vote
             if buy_count >= 3:
@@ -309,10 +372,10 @@ class StrategyAgent:
             )
 
             # Only propose if above minimum confidence AND direction is BUY
-            if composite >= MIN_CONFIDENCE and direction == "BUY":
+            if composite >= min_conf and direction == "BUY":
                 # Determine trade size based on confidence
                 # Higher confidence = larger position (up to $5 max)
-                suggested_size = round(min(5.0, max(1.0, composite * 7.0)), 2)
+                suggested_size = round(min(5.0, max(1.0, composite * 7.0 * size_mult)), 2)
 
                 # Get current price for entry/exit levels
                 price_data = memo.get("prices", {}).get(research_pair, {})
@@ -333,6 +396,11 @@ class StrategyAgent:
                     "strategy_type": "multi_factor_momentum",
                     "reasons": reasons,
                     "score_breakdown": {n: round(s, 3) for n, s, _ in scores},
+                    "optimizer_context": {
+                        "dynamic_min_confidence": round(min_conf, 4),
+                        "size_multiplier": round(size_mult, 4),
+                        "pair_bias": round(pair_bias, 4),
+                    },
                 }
                 proposals.append(proposal)
 
@@ -374,6 +442,7 @@ class StrategyAgent:
         self.state["proposals_generated"] += len(proposals)
 
         if not proposals:
+            opt = self._get_optimization_context()
             # Still publish a HOLD summary so the DFA continues
             self.bus.publish(
                 sender=self.NAME,
@@ -384,7 +453,9 @@ class StrategyAgent:
                     "direction": "HOLD",
                     "pair": "NONE",
                     "confidence": 0.0,
-                    "reasons": ["No signals met minimum confidence threshold"],
+                    "reasons": [
+                        f"No signals met dynamic confidence threshold ({opt['min_confidence']:.2f})"
+                    ],
                 },
                 cycle=cycle,
             )
