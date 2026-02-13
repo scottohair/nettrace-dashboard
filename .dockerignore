@@ -6,3 +6,9 @@ traceroute.db
 .env
 server.py
 index.html
+agents/trading_lock.json
+agents/*.log
+agents/*.pid
+agents/*_stdout.log
+agents/flywheel_status.json
+agents/flywheel_cycles.jsonl
