@@ -311,13 +311,13 @@ def crypto_latency():
 
     # Route changes = infrastructure events
     route_changes = db.execute("""
-        SELECT target_host, target_name, rtt_delta, created_at
+        SELECT target_host, target_name, rtt_delta, detected_at
         FROM route_changes
-        WHERE created_at >= datetime('now', ?)
+        WHERE detected_at >= datetime('now', ?)
           AND target_host IN (
               SELECT DISTINCT target_host FROM scan_metrics WHERE category = 'Crypto Exchanges'
           )
-        ORDER BY created_at DESC
+        ORDER BY detected_at DESC
         LIMIT 20
     """, (window_expr,)).fetchall()
 
@@ -328,7 +328,7 @@ def crypto_latency():
         "signals": signals,
         "route_changes": [
             {"host": r["target_host"], "name": r["target_name"],
-             "rtt_delta": r["rtt_delta"], "at": r["created_at"]}
+             "rtt_delta": r["rtt_delta"], "at": r["detected_at"]}
             for r in route_changes
         ],
         "total_exchanges": len(host_data),
