@@ -65,6 +65,10 @@ MIN_MONITOR_INTERVAL_SECONDS = int(os.environ.get("EXIT_MONITOR_MIN_SECONDS", "8
 MAX_MONITOR_INTERVAL_SECONDS = int(os.environ.get("EXIT_MONITOR_MAX_SECONDS", "75"))
 EXIT_EXECUTION_RETRY_LIMIT = int(os.environ.get("EXIT_EXECUTION_RETRY_LIMIT", "2"))
 EXIT_EXECUTION_SLIPPAGE_BPS = float(os.environ.get("EXIT_EXECUTION_SLIPPAGE_BPS", "8"))
+EXIT_MIN_SELL_USD = float(os.environ.get("EXIT_MIN_SELL_USD", "1.0"))
+EXIT_DUST_UNTRACK_USD = float(os.environ.get("EXIT_DUST_UNTRACK_USD", "0.75"))
+EXIT_LOCK_GAIN_PCT = float(os.environ.get("EXIT_LOCK_GAIN_PCT", "0.01"))
+EXIT_LOCK_GAIN_MAX_NOTIONAL_USD = float(os.environ.get("EXIT_LOCK_GAIN_MAX_NOTIONAL_USD", "25.0"))
 
 try:
     from smart_router import SmartRouter
@@ -807,6 +811,25 @@ class ExitManager:
                     "label": "tp2",
                 }
 
+        # === CHECK 3b: Known-gain lock for small positions ===
+        # Realize wins for small notional positions instead of letting them churn.
+        position_notional = held_amount * current_price
+        if (
+            profit_pct >= EXIT_LOCK_GAIN_PCT
+            and position_notional > 0
+            and position_notional <= EXIT_LOCK_GAIN_MAX_NOTIONAL_USD
+        ):
+            return {
+                "action": "EXIT_FULL",
+                "reason": (
+                    f"Known-gain lock: {profit_pct:.2%} >= {EXIT_LOCK_GAIN_PCT:.2%} "
+                    f"on small position ${position_notional:.2f} <= ${EXIT_LOCK_GAIN_MAX_NOTIONAL_USD:.2f}"
+                ),
+                "exit_type": "known_gain_lock",
+                "amount": held_amount,
+                "fraction": 1.0,
+            }
+
         # === CHECK 4: Scale-out at time + profit threshold ===
         if (hold_hours >= params["scale_out_hours"]
                 and profit_pct >= params["scale_out_profit_pct"]
@@ -910,9 +933,35 @@ class ExitManager:
             amount = actual_balance
 
         sell_value_usd = amount * current_price
-        if sell_value_usd < 0.50:
-            logger.info("EXIT SKIP: %s sell value $%.2f too small", pair, sell_value_usd)
-            return False
+        full_value_usd = actual_balance * current_price
+        if sell_value_usd < EXIT_MIN_SELL_USD:
+            # If a partial is below executable notional, escalate to full close when possible.
+            if amount < actual_balance and full_value_usd >= EXIT_MIN_SELL_USD:
+                logger.info(
+                    "EXIT: %s partial $%.2f below min $%.2f, escalating to full close $%.2f",
+                    pair,
+                    sell_value_usd,
+                    EXIT_MIN_SELL_USD,
+                    full_value_usd,
+                )
+                amount = actual_balance
+                sell_value_usd = full_value_usd
+            else:
+                logger.info(
+                    "EXIT SKIP: %s sell value $%.2f below executable min $%.2f",
+                    pair,
+                    sell_value_usd,
+                    EXIT_MIN_SELL_USD,
+                )
+                if full_value_usd < EXIT_DUST_UNTRACK_USD:
+                    logger.info(
+                        "EXIT_MGR: %s notional $%.2f is dust (<$%.2f), removing from tracking",
+                        pair,
+                        full_value_usd,
+                        EXIT_DUST_UNTRACK_USD,
+                    )
+                    self.unregister_position(pair)
+                return False
 
         portfolio_value = self._estimate_portfolio_value()
         if _risk_ctrl:
@@ -1168,8 +1217,14 @@ class ExitManager:
             logger.info("EXIT_MGR: No holdings found on Coinbase for auto-discovery")
             return
 
+        # Reserve assets — never exit these (treasury)
+        reserve_assets = {"BTC", "USD", "USDC"}
+
         discovered = 0
         for currency, amount in holdings.items():
+            if currency in reserve_assets:
+                continue  # Skip reserve assets — they are treasury
+
             pair = f"{currency}-USD"
             if pair in self._positions:
                 continue
@@ -1303,6 +1358,18 @@ class ExitManager:
                             self._consecutive_api_failures += 1
                             continue
                         self._consecutive_api_failures = 0
+
+                        # Stop cycling on non-executable dust positions.
+                        held_value = actual_held * current_price
+                        if held_value < EXIT_DUST_UNTRACK_USD:
+                            logger.info(
+                                "EXIT_MGR: %s value $%.2f below dust threshold $%.2f, untracking",
+                                pair,
+                                held_value,
+                                EXIT_DUST_UNTRACK_USD,
+                            )
+                            self.unregister_position(pair)
+                            continue
 
                         # Check exit conditions
                         decision = self.check_exit(

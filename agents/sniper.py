@@ -31,8 +31,10 @@ RULES (NEVER VIOLATE):
 import json
 import logging
 import os
+import re
 import sqlite3
 import sys
+import threading
 import time
 import urllib.request
 from datetime import datetime, timezone
@@ -100,22 +102,25 @@ except Exception as _rc_err:
 try:
     from exit_manager import get_exit_manager
     _exit_mgr = get_exit_manager()
-except Exception:
+except Exception as _em_err:
     _exit_mgr = None
+    logging.getLogger("sniper").error("EXIT_MANAGER FAILED TO LOAD: %s — positions will NOT be monitored!", _em_err)
 
 # Growth engine — algebraic signal fusion + optimal trade selection
 try:
     from growth_engine import get_growth_engine
     _growth = get_growth_engine()
-except Exception:
+except Exception as _ge_err:
     _growth = None
+    logging.getLogger("sniper").error("GROWTH_ENGINE FAILED TO LOAD: %s", _ge_err)
 
 # Strategic planner — 3D Go game theory (long chain moves, influence, ko detection)
 try:
     from strategic_planner import get_strategic_planner
     _planner = get_strategic_planner()
-except Exception:
+except Exception as _sp_err:
     _planner = None
+    logging.getLogger("sniper").error("STRATEGIC_PLANNER FAILED TO LOAD: %s", _sp_err)
 
 # Sniper configuration — static signal settings only
 # Trade sizes, reserves, position limits come from risk_controller dynamically
@@ -125,8 +130,12 @@ CONFIG = {
     "min_quant_signals": 1,              # at least 1 quantitative signal required
     "scan_interval": int(os.environ.get("SNIPER_SCAN_INTERVAL_SECONDS", "30")),  # Scan cadence (can be tightened)
     "min_hold_seconds": 60,               # 60s minimum hold
-    # Trade in quote currencies we actually hold (USDC-first). Data fetches still use -USD.
-    "pairs": ["BTC-USDC", "ETH-USDC", "SOL-USDC", "AVAX-USDC", "DOGE-USDC", "LINK-USDC", "FET-USDC"],
+    # PRIMARY: ETH + SOL (active trading vehicles)
+    # SECONDARY: AVAX, LINK, DOGE, FET (opportunistic)
+    # RESERVE: BTC, USD, USDC — held as treasury, NOT actively traded away
+    "pairs": ["ETH-USD", "SOL-USD", "AVAX-USD", "LINK-USD", "DOGE-USD", "FET-USD"],
+    "reserve_assets": ["BTC", "USD", "USDC"],  # Never sell these — treasury
+    "primary_pairs": ["ETH-USD", "SOL-USD"],    # Priority allocation
     # Signal weights: quantitative signals DRIVE decisions, qualitative SUPPLEMENTS
     # Quantitative: regime, arb, orderbook, rsi_extreme, momentum, latency
     # Computational edge: latency (our private NetTrace data), meta_engine (ML ensemble)
@@ -151,6 +160,10 @@ CONFIG = {
     # Expected Value parameters (fees + slippage)
     "round_trip_fee_pct": 0.008,   # 0.4% maker buy + 0.4% maker sell
     "expected_slippage_pct": 0.001, # ~0.1% average slippage
+    # Long-chain game-theory gate (entry must model profitable path to exit).
+    "min_chain_net_edge": float(os.environ.get("SNIPER_MIN_CHAIN_NET_EDGE_PCT", "0.012")),
+    "min_chain_worst_case_edge": float(os.environ.get("SNIPER_MIN_CHAIN_WORST_EDGE_PCT", "0.001")),
+    "min_chain_steps": int(os.environ.get("SNIPER_MIN_CHAIN_STEPS", "2")),
 }
 
 
@@ -165,11 +178,7 @@ def _fetch_json(url, headers=None, timeout=10):
 
 
 def _data_pair(pair):
-    """Convert trading pair to data pair for public APIs.
-
-    We trade on -USDC pairs (where our money is) but fetch candle/price
-    data from -USD pairs (more liquid, same price within ~0.01%).
-    """
+    """Normalize pair for public data APIs (identity for -USD pairs)."""
     return pair.replace("-USDC", "-USD")
 
 
@@ -635,7 +644,8 @@ class Sniper:
     """High-confidence signal aggregator and trade executor."""
 
     def __init__(self):
-        self.db = sqlite3.connect(SNIPER_DB)
+        self._db_lock = threading.Lock()
+        self.db = sqlite3.connect(SNIPER_DB, check_same_thread=False)
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA busy_timeout=5000")
@@ -690,6 +700,166 @@ class Sniper:
             except sqlite3.OperationalError:
                 pass
         self.db.commit()
+
+    def _latest_filled_buy_price(self, pair, fallback_price=0.0):
+        """Get last filled BUY entry price for a pair, fallback to current price."""
+        try:
+            with self._db_lock:
+                row = self.db.execute(
+                    "SELECT entry_price FROM sniper_trades "
+                    "WHERE pair=? AND direction='BUY' AND status='filled' "
+                    "ORDER BY id DESC LIMIT 1",
+                    (pair,),
+                ).fetchone()
+            if row and row[0]:
+                return float(row[0])
+        except Exception:
+            pass
+        return float(fallback_price or 0.0)
+
+    def _extract_regime(self, pair_result):
+        """Infer market regime from source reasons + growth engine hints."""
+        growth = pair_result.get("growth_engine", {}) if isinstance(pair_result, dict) else {}
+        regime = str(growth.get("regime", "") or "").strip().lower()
+        if regime:
+            return regime
+
+        details = pair_result.get("details", {}) if isinstance(pair_result, dict) else {}
+        regime_reason = str(details.get("regime", {}).get("reason", "") or "")
+        if regime_reason:
+            m = re.search(r"regime=([A-Za-z_]+)", regime_reason)
+            if m:
+                token = m.group(1).strip().lower()
+                mapping = {
+                    "uptrend": "markup",
+                    "downtrend": "markdown",
+                    "sideways": "accumulation",
+                }
+                return mapping.get(token, token)
+            if "downtrend" in regime_reason.lower():
+                return "markdown"
+
+        direction = str(pair_result.get("direction", "NONE")).upper()
+        if direction == "BUY":
+            return "accumulation"
+        if direction == "SELL":
+            return "distribution"
+        return "neutral"
+
+    def _extract_momentum(self, pair_result):
+        """Infer signed momentum in [-1, 1] from momentum/uptick sources."""
+        details = pair_result.get("details", {}) if isinstance(pair_result, dict) else {}
+        m = details.get("momentum", {}) if isinstance(details, dict) else {}
+        u = details.get("uptick", {}) if isinstance(details, dict) else {}
+
+        def _signed_component(obj):
+            if not isinstance(obj, dict):
+                return 0.0
+            conf = max(0.0, min(1.0, float(obj.get("confidence", 0.0) or 0.0)))
+            d = str(obj.get("direction", "NONE")).upper()
+            if d == "BUY":
+                return conf
+            if d == "SELL":
+                return -conf
+            return 0.0
+
+        # Momentum is primary, uptick refines timing.
+        raw = _signed_component(m) * 0.7 + _signed_component(u) * 0.3
+        return max(-1.0, min(1.0, raw))
+
+    def _build_market_signals_for_planner(self, scan_results):
+        """Translate sniper scan output into planner-friendly signal map."""
+        market_signals = {}
+        for pair, result in scan_results.items():
+            direction = str(result.get("direction", "NONE")).upper()
+            confidence = max(0.0, min(1.0, float(result.get("composite_confidence", 0.0) or 0.0)))
+            market_signals[pair] = {
+                "direction": direction,
+                "confidence": confidence,
+                "momentum": self._extract_momentum(result),
+                "regime": self._extract_regime(result),
+            }
+        return market_signals
+
+    def _build_portfolio_state_for_planner(self, holdings, market_signals):
+        """Build planner portfolio state from live holdings and recent entries."""
+        portfolio = {}
+        for asset, amount in holdings.items():
+            pair = f"{asset}-USDC"
+            if pair not in market_signals:
+                pair = f"{asset}-USD"
+            price = self._get_price(pair)
+            if not price:
+                continue
+            value = float(amount) * float(price)
+            if value < 0.25:
+                continue
+            entry_price = self._latest_filled_buy_price(pair, fallback_price=price)
+            portfolio[pair] = {
+                "amount": float(amount),
+                "entry_price": float(entry_price or price),
+                "current_price": float(price),
+            }
+        return portfolio
+
+    def _build_strategic_context(self, scan_results):
+        """Run 3D-Go strategic analysis once per scan cycle."""
+        if _planner is None:
+            return {}
+        try:
+            holdings, cash = self._get_holdings()
+            market_signals = self._build_market_signals_for_planner(scan_results)
+            portfolio_state = self._build_portfolio_state_for_planner(holdings, market_signals)
+            analysis = _planner.analyze(portfolio_state, market_signals, cash)
+            return {
+                "cash": float(cash or 0.0),
+                "market_signals": market_signals,
+                "portfolio_state": portfolio_state,
+                "analysis": analysis if isinstance(analysis, dict) else {},
+            }
+        except Exception as e:
+            logger.warning("SNIPER: Strategic planner context failed: %s", e)
+            return {}
+
+    def _validate_long_chain(self, pair, strategic_ctx):
+        """Enforce long-chain viability: entry must show profitable path to EXIT."""
+        if _planner is None:
+            return {"viable": True, "reason": "planner unavailable", "net_edge": 0.0, "worst_case_edge": 0.0}
+        if not strategic_ctx:
+            return {"viable": False, "reason": "planner context unavailable", "net_edge": 0.0, "worst_case_edge": 0.0}
+
+        analysis = strategic_ctx.get("analysis", {})
+        validations = analysis.get("entry_validations", {}) if isinstance(analysis, dict) else {}
+        val = validations.get(pair)
+        if not isinstance(val, dict):
+            # Fallback direct call if analysis omitted this pair for any reason.
+            val = _planner.chain_planner.evaluate_entry_chain(
+                pair,
+                strategic_ctx.get("market_signals", {}),
+                min_net_edge=CONFIG["min_chain_net_edge"],
+                min_worst_case_edge=CONFIG["min_chain_worst_case_edge"],
+            )
+
+        net_edge = float(val.get("net_edge", 0.0) or 0.0)
+        worst_edge = float(val.get("worst_case_edge", 0.0) or 0.0)
+        steps = int(val.get("steps", 0) or 0)
+        has_exit = bool(val.get("has_exit", False))
+        viable = (
+            bool(val.get("viable", False))
+            and has_exit
+            and steps >= int(CONFIG["min_chain_steps"])
+            and net_edge >= float(CONFIG["min_chain_net_edge"])
+            and worst_edge >= float(CONFIG["min_chain_worst_case_edge"])
+        )
+        out = dict(val)
+        out.update({
+            "viable": viable,
+            "net_edge": net_edge,
+            "worst_case_edge": worst_edge,
+            "steps": steps,
+            "has_exit": has_exit,
+        })
+        return out
 
     def scan_pair(self, pair):
         """Scan all signal sources for a pair in parallel using ThreadPoolExecutor.
@@ -760,11 +930,12 @@ class Sniper:
         ev_positive = expected_value > 0
 
         # Record scan
-        self.db.execute(
-            "INSERT INTO sniper_scans (pair, composite_confidence, direction, confirming_signals, signal_details) VALUES (?, ?, ?, ?, ?)",
-            (pair, composite, direction, len(confirming), json.dumps({n: r for n, r in results.items()}))
-        )
-        self.db.commit()
+        with self._db_lock:
+            self.db.execute(
+                "INSERT INTO sniper_scans (pair, composite_confidence, direction, confirming_signals, signal_details) VALUES (?, ?, ?, ?, ?)",
+                (pair, composite, direction, len(confirming), json.dumps({n: r for n, r in results.items()}))
+            )
+            self.db.commit()
 
         # Growth engine algebraic enhancement
         growth_boost = {}
@@ -798,6 +969,14 @@ class Sniper:
             except Exception as e:
                 logger.debug("Growth engine analysis failed for %s: %s", pair, e)
 
+        normalized = {
+            "direction": direction,
+            "details": results,
+            "growth_engine": growth_boost,
+        }
+        inferred_regime = self._extract_regime(normalized)
+        inferred_momentum = self._extract_momentum(normalized)
+
         return {
             "pair": pair,
             "direction": direction,
@@ -807,6 +986,8 @@ class Sniper:
             "qual_signals": len(qual_confirming),
             "expected_value": round(expected_value, 6),
             "ev_positive": ev_positive,
+            "regime": inferred_regime,
+            "momentum": inferred_momentum,
             "details": results,
             "growth_engine": growth_boost,
         }
@@ -822,6 +1003,7 @@ class Sniper:
 
         logger.info("=== SNIPER SCAN ===")
         actionable = []
+        scan_results = {}
 
         with ThreadPoolExecutor(max_workers=min(4, len(CONFIG["pairs"]))) as executor:
             futures = {executor.submit(self.scan_pair, pair): pair for pair in CONFIG["pairs"]}
@@ -832,48 +1014,77 @@ class Sniper:
                 except Exception as e:
                     logger.error("Scan failed for %s: %s", pair, e)
                     continue
+                scan_results[pair] = result
 
-                conf = result["composite_confidence"]
-                n_signals = result["confirming_signals"]
-                n_quant = result.get("quant_signals", 0)
-                ev_ok = result.get("ev_positive", False)
+        strategic_ctx = self._build_strategic_context(scan_results)
+        analysis = strategic_ctx.get("analysis", {}) if isinstance(strategic_ctx, dict) else {}
+        if analysis:
+            territory = analysis.get("territory", {}) if isinstance(analysis, dict) else {}
+            logger.info(
+                "  [planner] territory=%.2f | chain_moves=%s | entry_checks=%d",
+                float(territory.get("score", 0.0) or 0.0),
+                int(analysis.get("chain_length", 0) or 0),
+                len(analysis.get("entry_validations", {}) or {}),
+            )
 
-                if conf >= CONFIG["min_composite_confidence"] and n_signals >= CONFIG["min_confirming_signals"]:
-                    # QUANTITATIVE GATE: at least 1 quant signal must confirm
-                    if n_quant < CONFIG["min_quant_signals"]:
-                        logger.info("  %s: BLOCKED — only qualitative signals (%d quant < %d required)",
-                                   pair, n_quant, CONFIG["min_quant_signals"])
+        for pair in CONFIG["pairs"]:
+            result = scan_results.get(pair)
+            if not result:
+                continue
+            conf = result["composite_confidence"]
+            n_signals = result["confirming_signals"]
+            n_quant = result.get("quant_signals", 0)
+            ev_ok = result.get("ev_positive", False)
+
+            if conf >= CONFIG["min_composite_confidence"] and n_signals >= CONFIG["min_confirming_signals"]:
+                # QUANTITATIVE GATE: at least 1 quant signal must confirm
+                if n_quant < CONFIG["min_quant_signals"]:
+                    logger.info("  %s: BLOCKED — only qualitative signals (%d quant < %d required)",
+                               pair, n_quant, CONFIG["min_quant_signals"])
+                    continue
+
+                # EXPECTED VALUE GATE: trade must have positive EV after fees
+                if not ev_ok and result["direction"] == "BUY":
+                    logger.info("  %s: BLOCKED — negative EV (%.4f%%) after fees",
+                               pair, result.get("expected_value", 0) * 100)
+                    continue
+
+                # GoalValidator gate — encoded rules check
+                if _goals and not _goals.should_trade(
+                    conf, n_signals, result["direction"],
+                    result.get("regime", "neutral"),
+                ):
+                    logger.info("  %s: BLOCKED by GoalValidator (conf=%.1f%%, %d signals, %s)",
+                               pair, conf*100, n_signals, result["direction"])
+                    continue
+                if result["direction"] == "BUY":
+                    if _exit_mgr is None:
+                        logger.info("  %s: BLOCKED — no ExitManager available for end-to-end buy/sell plan", pair)
                         continue
-
-                    # EXPECTED VALUE GATE: trade must have positive EV after fees
-                    if not ev_ok and result["direction"] == "BUY":
-                        logger.info("  %s: BLOCKED — negative EV (%.4f%%) after fees",
-                                   pair, result.get("expected_value", 0) * 100)
+                    if not _exit_mgr.has_exit_plan(pair):
+                        logger.info("  %s: BLOCKED — dynamic exit plan unavailable (quant buy/sell gate)", pair)
                         continue
-
-                    # GoalValidator gate — encoded rules check
-                    if _goals and not _goals.should_trade(
-                        conf, n_signals, result["direction"],
-                        result.get("regime", "neutral"),
-                    ):
-                        logger.info("  %s: BLOCKED by GoalValidator (conf=%.1f%%, %d signals, %s)",
-                                   pair, conf*100, n_signals, result["direction"])
+                    chain_eval = self._validate_long_chain(pair, strategic_ctx)
+                    if not chain_eval.get("viable", False):
+                        logger.info(
+                            "  %s: BLOCKED — long-chain gate failed (%s)",
+                            pair,
+                            chain_eval.get("reason", "no viable chain"),
+                        )
                         continue
-                    if result["direction"] == "BUY":
-                        if _exit_mgr is None:
-                            logger.info("  %s: BLOCKED — no ExitManager available for end-to-end buy/sell plan", pair)
-                            continue
-                        if not _exit_mgr.has_exit_plan(pair):
-                            logger.info("  %s: BLOCKED — dynamic exit plan unavailable (quant buy/sell gate)", pair)
-                            continue
-                    actionable.append(result)
-                    logger.info(">>> ACTIONABLE: %s %s | conf=%.1f%% | %d signals (%dQ/%dS) | EV=%.3f%%",
-                               result["direction"], pair, conf*100,
-                               n_signals, n_quant, result.get("qual_signals", 0),
-                               result.get("expected_value", 0) * 100)
-                else:
-                    logger.info("  %s: %s conf=%.1f%% (%d signals, %dQ) — below threshold",
-                               pair, result["direction"], conf*100, n_signals, n_quant)
+                    result["strategic_chain"] = chain_eval
+                    planner_signal = strategic_ctx.get("market_signals", {}).get(pair, {})
+                    if planner_signal:
+                        result["regime"] = planner_signal.get("regime", result.get("regime", "neutral"))
+                        result["momentum"] = planner_signal.get("momentum", 0.0)
+                actionable.append(result)
+                logger.info(">>> ACTIONABLE: %s %s | conf=%.1f%% | %d signals (%dQ/%dS) | EV=%.3f%%",
+                           result["direction"], pair, conf*100,
+                           n_signals, n_quant, result.get("qual_signals", 0),
+                           result.get("expected_value", 0) * 100)
+            else:
+                logger.info("  %s: %s conf=%.1f%% (%d signals, %dQ) — below threshold",
+                           pair, result["direction"], conf*100, n_signals, n_quant)
 
         # Strategic planner: feed influence map + check Ko bans
         if _planner:
@@ -980,10 +1191,46 @@ class Sniper:
                     usd += bal
                 elif bal > 0:
                     holdings[cur] = bal
+            self._last_quote_balances = {"USD": float(usd), "USDC": float(usdc)}
             return holdings, usdc + usd
         except Exception as e:
             logger.warning("Holdings check failed: %s", e)
+            self._last_quote_balances = {"USD": 0.0, "USDC": 0.0}
             return {}, 0
+
+    def _get_quote_balances(self):
+        """Get latest USD/USDC balances used to pick executable quote pairs."""
+        balances = getattr(self, "_last_quote_balances", None)
+        if isinstance(balances, dict) and ("USD" in balances or "USDC" in balances):
+            return {"USD": float(balances.get("USD", 0.0) or 0.0), "USDC": float(balances.get("USDC", 0.0) or 0.0)}
+        # Populate cache if unavailable.
+        self._get_holdings()
+        balances = getattr(self, "_last_quote_balances", None) or {}
+        return {"USD": float(balances.get("USD", 0.0) or 0.0), "USDC": float(balances.get("USDC", 0.0) or 0.0)}
+
+    def _resolve_buy_pair_for_balance(self, pair, min_quote_needed):
+        """Route BUY to USD/USDC quote with sufficient available balance."""
+        if "-" not in pair:
+            return pair
+        base, quote = pair.split("-", 1)
+        quote = quote.upper()
+        balances = self._get_quote_balances()
+        current_balance = float(balances.get(quote, 0.0) or 0.0)
+        needed = max(1.0, float(min_quote_needed or 0.0))
+
+        if current_balance >= needed:
+            return pair
+
+        alt_quote = "USD" if quote == "USDC" else "USDC" if quote == "USD" else quote
+        alt_balance = float(balances.get(alt_quote, 0.0) or 0.0)
+        if alt_quote != quote and alt_balance >= needed:
+            alt_pair = f"{base}-{alt_quote}"
+            logger.info(
+                "SNIPER ROUTE: %s -> %s (need %.2f %s, have %.2f %s / %.2f %s)",
+                pair, alt_pair, needed, quote, current_balance, quote, alt_balance, alt_quote,
+            )
+            return alt_pair
+        return pair
 
     def execute_trade(self, signal):
         """Execute a high-confidence trade on Coinbase.
@@ -991,6 +1238,7 @@ class Sniper:
         ALL risk parameters are DYNAMIC from risk_controller.
         No hardcoded values for trade size, reserves, or position limits.
         """
+        signal = dict(signal)
         pair = signal["pair"]
         direction = signal["direction"]
 
@@ -1016,6 +1264,50 @@ class Sniper:
                 return False
             if not _exit_mgr.has_exit_plan(pair):
                 logger.info("SNIPER: %s BUY blocked — no valid quant exit plan", pair)
+                return False
+            if _planner is not None:
+                chain = signal.get("strategic_chain") or signal.get("entry_validation")
+                if not isinstance(chain, dict):
+                    fallback_signals = {
+                        pair: {
+                            "direction": "BUY",
+                            "confidence": float(signal.get("composite_confidence", 0.0) or 0.0),
+                            "momentum": float(signal.get("momentum", 0.0) or 0.0),
+                            "regime": str(signal.get("regime", "neutral")),
+                        }
+                    }
+                    try:
+                        chain = _planner.chain_planner.evaluate_entry_chain(
+                            pair,
+                            fallback_signals,
+                            min_net_edge=CONFIG["min_chain_net_edge"],
+                            min_worst_case_edge=CONFIG["min_chain_worst_case_edge"],
+                        )
+                    except Exception as ce:
+                        logger.info("SNIPER: %s BUY blocked — chain validation error (%s)", pair, ce)
+                        return False
+                if not isinstance(chain, dict):
+                    logger.info("SNIPER: %s BUY blocked — missing long-chain validation", pair)
+                    return False
+                if not bool(chain.get("viable", False)):
+                    logger.info("SNIPER: %s BUY blocked — long-chain not viable (%s)",
+                               pair, chain.get("reason", "unknown"))
+                    return False
+                if float(chain.get("net_edge", 0.0) or 0.0) < float(CONFIG["min_chain_net_edge"]):
+                    logger.info("SNIPER: %s BUY blocked — chain net edge below floor", pair)
+                    return False
+                if float(chain.get("worst_case_edge", 0.0) or 0.0) < float(CONFIG["min_chain_worst_case_edge"]):
+                    logger.info("SNIPER: %s BUY blocked — chain worst-case edge below floor", pair)
+                    return False
+                if int(chain.get("steps", 0) or 0) < int(CONFIG["min_chain_steps"]):
+                    logger.info("SNIPER: %s BUY blocked — chain depth too shallow", pair)
+                    return False
+            routed_pair = self._resolve_buy_pair_for_balance(pair, min_quote_needed=1.0)
+            if routed_pair != pair:
+                pair = routed_pair
+                signal["pair"] = pair
+            if not _exit_mgr.has_exit_plan(pair):
+                logger.info("SNIPER: %s BUY blocked — no valid quant exit plan after quote routing", pair)
                 return False
 
         price = self._get_price(pair)
@@ -1108,6 +1400,25 @@ class Sniper:
             trade_size = min(trade_size, remaining_room)
             trade_size = min(trade_size, effective_cash - reserve)  # DYNAMIC reserve
 
+            # Quote-aware reroute with actual order size (fixes USD-vs-USDC funding mismatches).
+            sized_pair = self._resolve_buy_pair_for_balance(pair, min_quote_needed=trade_size)
+            if sized_pair != pair:
+                pair = sized_pair
+                signal["pair"] = pair
+                if _exit_mgr and not _exit_mgr.has_exit_plan(pair):
+                    logger.info("SNIPER: %s BUY blocked — routed pair missing exit plan", pair)
+                    return False
+                price = self._get_price(pair)
+                if not price:
+                    logger.warning("Cannot get price for routed pair %s", pair)
+                    return False
+                base_currency = pair.split("-")[0]
+                held_amount = holdings.get(base_currency, 0)
+                held_usd = held_amount * price if price else 0
+                max_position = total_portfolio * max_pos_pct
+                remaining_room = max_position - held_usd
+                trade_size = min(trade_size, remaining_room)
+
             # Risk controller approval
             if _risk_ctrl:
                 approved, reason, adj_size = _risk_ctrl.approve_trade(
@@ -1152,6 +1463,11 @@ class Sniper:
                 return False
 
         elif direction == "SELL":
+            # RESERVE PROTECTION: never sell reserve assets (BTC, USD, USDC)
+            if base_currency in CONFIG.get("reserve_assets", []):
+                logger.info("SNIPER: BLOCKED SELL %s — reserve asset (treasury)", pair)
+                return False
+
             # Check if we hold this asset
             held = holdings.get(base_currency, 0)
             held_usd = held * price
@@ -1159,10 +1475,11 @@ class Sniper:
                 return False
 
             # Check minimum hold period — don't sell what we just bought (prevents churn)
-            last_buy = self.db.execute(
-                "SELECT entry_price, created_at FROM sniper_trades WHERE pair=? AND direction='BUY' AND status='filled' ORDER BY id DESC LIMIT 1",
-                (pair,)
-            ).fetchone()
+            with self._db_lock:
+                last_buy = self.db.execute(
+                    "SELECT entry_price, created_at FROM sniper_trades WHERE pair=? AND direction='BUY' AND status='filled' ORDER BY id DESC LIMIT 1",
+                    (pair,)
+                ).fetchone()
             if last_buy:
                 buy_price = last_buy[0] or 0
                 buy_time = last_buy[1] or ""
@@ -1245,10 +1562,11 @@ class Sniper:
         # Calculate P&L on SELL trades
         pnl = None
         if side == "SELL" and status in ("filled", "pending"):
-            last_buy = self.db.execute(
-                "SELECT entry_price FROM sniper_trades WHERE pair=? AND direction='BUY' AND status='filled' ORDER BY id DESC LIMIT 1",
-                (pair,)
-            ).fetchone()
+            with self._db_lock:
+                last_buy = self.db.execute(
+                    "SELECT entry_price FROM sniper_trades WHERE pair=? AND direction='BUY' AND status='filled' ORDER BY id DESC LIMIT 1",
+                    (pair,)
+                ).fetchone()
             if last_buy and last_buy[0] and last_buy[0] > 0:
                 fees = trade_size * 0.008  # 0.4% maker fee x2 legs
                 pnl = (price - last_buy[0]) / last_buy[0] * trade_size - fees
@@ -1264,34 +1582,35 @@ class Sniper:
             else "failed"
         )
 
-        try:
-            self.db.execute(
-                """
-                INSERT INTO sniper_trades
-                    (pair, direction, composite_confidence, amount_usd, venue, entry_price, pnl, status, order_id, trade_uuid, lifecycle_status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    pair,
-                    signal["direction"],
-                    signal["composite_confidence"],
-                    trade_size,
-                    "coinbase",
-                    price,
-                    pnl,
-                    status,
-                    order_id,
-                    trade_uuid,
-                    lifecycle_status,
-                ),
-            )
-        except sqlite3.OperationalError:
-            # Fallback for older schema snapshots.
-            self.db.execute(
-                "INSERT INTO sniper_trades (pair, direction, composite_confidence, amount_usd, venue, entry_price, pnl, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (pair, signal["direction"], signal["composite_confidence"], trade_size, "coinbase", price, pnl, status)
-            )
-        self.db.commit()
+        with self._db_lock:
+            try:
+                self.db.execute(
+                    """
+                    INSERT INTO sniper_trades
+                        (pair, direction, composite_confidence, amount_usd, venue, entry_price, pnl, status, order_id, trade_uuid, lifecycle_status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        pair,
+                        signal["direction"],
+                        signal["composite_confidence"],
+                        trade_size,
+                        "coinbase",
+                        price,
+                        pnl,
+                        status,
+                        order_id,
+                        trade_uuid,
+                        lifecycle_status,
+                    ),
+                )
+            except sqlite3.OperationalError:
+                # Fallback for older schema snapshots.
+                self.db.execute(
+                    "INSERT INTO sniper_trades (pair, direction, composite_confidence, amount_usd, venue, entry_price, pnl, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (pair, signal["direction"], signal["composite_confidence"], trade_size, "coinbase", price, pnl, status)
+                )
+            self.db.commit()
         self.trades_today += 1
 
         # Record to KPI tracker for scorecard
