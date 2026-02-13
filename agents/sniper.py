@@ -89,6 +89,8 @@ NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 FLY_URL = "https://nettrace-dashboard.fly.dev"
 WALLET_ADDRESS = os.environ.get("WALLET_ADDRESS", "")
 ORCH_OWNER_ENV = "ORCHESTRATOR_OWNER_ID"
+EXECUTION_HEALTH_STATUS_PATH = Path(__file__).parent / "execution_health_status.json"
+EXIT_MANAGER_STATUS_PATH = Path(__file__).parent / "exit_manager_status.json"
 
 # Dynamic risk controller — NO hardcoded values
 # CRITICAL: If risk_controller fails to load, refuse all NEW trades (still allow exits)
@@ -165,6 +167,13 @@ CONFIG = {
     "min_chain_net_edge": float(os.environ.get("SNIPER_MIN_CHAIN_NET_EDGE_PCT", "0.012")),
     "min_chain_worst_case_edge": float(os.environ.get("SNIPER_MIN_CHAIN_WORST_EDGE_PCT", "0.001")),
     "min_chain_steps": int(os.environ.get("SNIPER_MIN_CHAIN_STEPS", "2")),
+    "require_execution_health_for_buy": os.environ.get("SNIPER_REQUIRE_EXECUTION_HEALTH_FOR_BUY", "1").lower() not in ("0", "false", "no"),
+    "execution_health_max_age_seconds": int(os.environ.get("SNIPER_EXECUTION_HEALTH_MAX_AGE_SECONDS", "300")),
+    "require_exit_manager_status_for_buy": os.environ.get("SNIPER_REQUIRE_EXIT_MANAGER_STATUS_FOR_BUY", "1").lower() not in ("0", "false", "no"),
+    "exit_manager_status_max_age_seconds": int(os.environ.get("SNIPER_EXIT_MANAGER_STATUS_MAX_AGE_SECONDS", "300")),
+    "pair_failure_cooldown_seconds": int(os.environ.get("SNIPER_PAIR_FAILURE_COOLDOWN_SECONDS", "180")),
+    "scan_interval_healthy": int(os.environ.get("SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS", "20")),
+    "scan_interval_degraded": int(os.environ.get("SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS", "45")),
 }
 
 
@@ -666,6 +675,8 @@ class Sniper:
         self._holdings_cache_lock = threading.Lock()
         self._holdings_cache_ttl = float(os.environ.get("SNIPER_HOLDINGS_CACHE_SECONDS", "8"))
         self._holdings_cache = {"ts": 0.0, "holdings": {}, "cash": 0.0, "quotes": {"USD": 0.0, "USDC": 0.0}}
+        self._pair_buy_cooldown_until = {}
+        self._last_interval_logged = None
         self.sources = {
             "latency": LatencySignalSource(),
             "regime": RegimeSignalSource(),
@@ -1264,6 +1275,97 @@ class Sniper:
             return alt_pair
         return pair
 
+    _fear_greed_cache = (0, None)  # (timestamp, value)
+
+    def _get_fear_greed_value(self):
+        """Get Fear & Greed index, cached for 5 minutes."""
+        now = time.time()
+        cached_ts, cached_val = Sniper._fear_greed_cache
+        if now - cached_ts < 300:
+            return cached_val
+        try:
+            data = _fetch_json("https://api.alternative.me/fng/?limit=1", timeout=3)
+            val = int(data["data"][0]["value"])
+            Sniper._fear_greed_cache = (now, val)
+            return val
+        except Exception:
+            return cached_val
+
+    def _execution_health_allows_buy(self):
+        """Buy only when execution health is green and fresh."""
+        if not bool(CONFIG.get("require_execution_health_for_buy", True)):
+            return True, "gate_disabled"
+        try:
+            if not EXECUTION_HEALTH_STATUS_PATH.exists():
+                return False, "execution_health_status_missing"
+            payload = json.loads(EXECUTION_HEALTH_STATUS_PATH.read_text())
+            if not isinstance(payload, dict):
+                return False, "execution_health_status_invalid"
+            green = bool(payload.get("green", False))
+            if not green:
+                return False, f"execution_health_not_green:{payload.get('reason', 'unknown')}"
+            updated = str(payload.get("updated_at", "") or "").strip()
+            if not updated:
+                return False, "execution_health_updated_at_missing"
+            dt = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            age = (datetime.now(timezone.utc) - dt).total_seconds()
+            max_age = max(30, int(CONFIG.get("execution_health_max_age_seconds", 300) or 300))
+            if age > max_age:
+                return False, f"execution_health_stale:{int(age)}s>{max_age}s"
+            return True, "execution_health_green"
+        except Exception as e:
+            return False, f"execution_health_gate_error:{e}"
+
+    def _exit_manager_status_allows_buy(self):
+        """Require exit manager runtime status to be fresh before opening new BUYs."""
+        if not bool(CONFIG.get("require_exit_manager_status_for_buy", True)):
+            return True, "gate_disabled"
+        try:
+            if not EXIT_MANAGER_STATUS_PATH.exists():
+                return False, "exit_manager_status_missing"
+            payload = json.loads(EXIT_MANAGER_STATUS_PATH.read_text())
+            if not isinstance(payload, dict):
+                return False, "exit_manager_status_invalid"
+            running = payload.get("running")
+            if isinstance(running, bool) and not running:
+                return False, "exit_manager_not_running"
+            updated = str(payload.get("updated_at", "") or "").strip()
+            if not updated:
+                return False, "exit_manager_status_updated_at_missing"
+            dt = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            age = (datetime.now(timezone.utc) - dt).total_seconds()
+            max_age = max(30, int(CONFIG.get("exit_manager_status_max_age_seconds", 300) or 300))
+            if age > max_age:
+                return False, f"exit_manager_status_stale:{int(age)}s>{max_age}s"
+            return True, "exit_manager_status_fresh"
+        except Exception as e:
+            return False, f"exit_manager_status_gate_error:{e}"
+
+    def _pair_buy_cooldown_active(self, pair):
+        until = float(self._pair_buy_cooldown_until.get(str(pair), 0.0) or 0.0)
+        now = time.time()
+        if until <= now:
+            if str(pair) in self._pair_buy_cooldown_until:
+                self._pair_buy_cooldown_until.pop(str(pair), None)
+            return False, 0
+        return True, int(until - now)
+
+    def _set_pair_buy_cooldown(self, pair, reason="order_failed"):
+        seconds = max(30, int(CONFIG.get("pair_failure_cooldown_seconds", 180) or 180))
+        until = time.time() + float(seconds)
+        self._pair_buy_cooldown_until[str(pair)] = until
+        logger.info("SNIPER: %s BUY cooldown armed %ss (%s)", pair, seconds, reason)
+
+    def _effective_scan_interval(self):
+        healthy = max(5, int(CONFIG.get("scan_interval_healthy", CONFIG.get("scan_interval", 30)) or 20))
+        degraded = max(healthy, int(CONFIG.get("scan_interval_degraded", max(healthy, 45)) or 45))
+        ok, _ = self._execution_health_allows_buy()
+        return healthy if ok else degraded
+
     def execute_trade(self, signal):
         """Execute a high-confidence trade on Coinbase.
 
@@ -1275,6 +1377,24 @@ class Sniper:
         direction = signal["direction"]
 
         if direction == "BUY":
+            # Fear & Greed circuit breaker — NEVER buy in extreme fear
+            fg_val = self._get_fear_greed_value()
+            if fg_val is not None and fg_val < 15:
+                logger.info("SNIPER: %s BUY BLOCKED — Extreme Fear (F&G=%d), preserving cash", pair, fg_val)
+                return False
+
+            health_ok, health_reason = self._execution_health_allows_buy()
+            if not health_ok:
+                logger.info("SNIPER: %s BUY blocked — %s", pair, health_reason)
+                return False
+            em_ok, em_reason = self._exit_manager_status_allows_buy()
+            if not em_ok:
+                logger.info("SNIPER: %s BUY blocked — %s", pair, em_reason)
+                return False
+            cooldown_active, remaining = self._pair_buy_cooldown_active(pair)
+            if cooldown_active:
+                logger.info("SNIPER: %s BUY blocked — cooldown active (%ss remaining)", pair, remaining)
+                return False
             if not bool(signal.get("ev_positive", False)):
                 logger.info(
                     "SNIPER: %s BUY blocked — negative/non-validated expected value (expected_value=%.4f%%)",
@@ -1718,6 +1838,12 @@ class Sniper:
             except Exception as e:
                 logger.warning("SNIPER: Failed to register with ExitManager: %s", e)
 
+        if side == "BUY":
+            if status in ("filled", "pending"):
+                self._pair_buy_cooldown_until.pop(str(pair), None)
+            elif status == "failed":
+                self._set_pair_buy_cooldown(pair, reason="buy_order_failed")
+
         return status == "filled"
 
     def _get_price(self, pair):
@@ -1859,7 +1985,11 @@ class Sniper:
                     if _exit_mgr:
                         _exit_mgr.print_status()
 
-                time.sleep(CONFIG["scan_interval"])
+                scan_interval = self._effective_scan_interval()
+                if scan_interval != self._last_interval_logged:
+                    logger.info("SNIPER: scan interval now %ss (health-adaptive)", scan_interval)
+                    self._last_interval_logged = scan_interval
+                time.sleep(scan_interval)
 
             except KeyboardInterrupt:
                 logger.info("Sniper shutting down...")
