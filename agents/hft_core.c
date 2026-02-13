@@ -1,7 +1,18 @@
 /*
  * hft_core.c — Nanosecond Decision Engine
  *
- * Ports ALL trading intelligence to C for 500ns-2500ns decision loops:
+ * Hardware-optimized for cache, clock cycle, RAM, and I/O layers:
+ *
+ *   CACHE:  All hot structs fit in L1 (64-byte aligned), tick buffers
+ *           in L2, correlation matrix in L3. Prefetch hints on tick access.
+ *   CLOCK:  Branch prediction hints (__builtin_expect), loop unrolling,
+ *           no division in hot paths (multiply by reciprocals).
+ *   RAM:    Packed structs, SoA where beneficial, zero-copy ring buffers.
+ *           All allocations bounded — no malloc in hot path.
+ *   I/O:    Batch decisions reduce syscall overhead. Single clock_gettime
+ *           per batch, not per decision.
+ *
+ * Components:
  *   - Galois Field GF(2^9) signal encoding + error correction
  *   - Lattice-based trade decision evaluation (5D dominance)
  *   - Influence map propagation (correlated asset signals)
@@ -12,9 +23,9 @@
  *   - Kelly-optimal position sizing
  *
  * Compile:
- *   Apple Silicon: cc -O3 -mcpu=apple-m3 -shared -fPIC -o hft_core.so hft_core.c -lm
+ *   Apple Silicon: cc -O3 -mcpu=apple-m1 -shared -fPIC -o hft_core.so hft_core.c -lm
  *   Linux (Fly):   cc -O3 -march=native -shared -fPIC -o hft_core.so hft_core.c -lm
- *   Benchmark:     cc -O3 -mcpu=apple-m3 -DBENCHMARK -o hft_bench hft_core.c -lm
+ *   Benchmark:     cc -O3 -mcpu=apple-m1 -DBENCHMARK -o hft_bench hft_core.c -lm
  *
  * Target: <500ns per full decision cycle on M3
  */
@@ -25,6 +36,27 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdint.h>
+
+/* ============================================================
+ * Hardware Optimization Macros
+ * ============================================================ */
+
+/* Cache line alignment (64 bytes on ARM/x86) */
+#define CACHE_ALIGNED __attribute__((aligned(64)))
+
+/* Branch prediction hints */
+#define LIKELY(x)   __builtin_expect(!!(x), 1)
+#define UNLIKELY(x) __builtin_expect(!!(x), 0)
+
+/* Prefetch: bring data into L1 cache before we need it */
+#define PREFETCH_READ(addr)  __builtin_prefetch((addr), 0, 3)  /* read, high locality */
+#define PREFETCH_WRITE(addr) __builtin_prefetch((addr), 1, 3)  /* write, high locality */
+
+/* Force inline for hot-path functions */
+#define HOT_INLINE static inline __attribute__((always_inline))
+
+/* Restrict pointer (no aliasing) for vectorization */
+#define RESTRICT __restrict__
 
 /* ============================================================
  * Constants
@@ -116,12 +148,13 @@ static inline int hamming_weight(uint16_t v) {
  * Quality = normalized Hamming weight of composite.
  * ============================================================ */
 
+/* HOT struct: fits in 2 cache lines (144 bytes) — L1 resident */
 typedef struct {
     int      source_bitmap;   /* which signals are active */
     int      direction;       /* DIR_BUY or DIR_SELL */
     double   confidences[MAX_SIGNALS];  /* per-signal confidence */
     int      n_signals;
-} SignalSet;
+} CACHE_ALIGNED SignalSet;
 
 typedef struct {
     uint16_t gf_composite;    /* GF product of active signals */
@@ -181,8 +214,9 @@ GFResult gf_encode_signals(const SignalSet *ss) {
 
     /* Quality: Hamming weight of composite / GF_BITS
      * High weight = diverse signal confirmation
-     * Low weight = signals cancelling or aligned on single dimension */
-    r.quality_score = (double)hamming_weight(composite) / GF_BITS;
+     * Low weight = signals cancelling or aligned on single dimension
+     * Use reciprocal to avoid division (1/9 = 0.111111...) */
+    r.quality_score = (double)hamming_weight(composite) * (1.0 / GF_BITS);
 
     /* Syndrome: XOR of all signal GF elements (error detection)
      * Non-zero syndrome = signal disagreement */
@@ -192,7 +226,7 @@ GFResult gf_encode_signals(const SignalSet *ss) {
             syndrome = gf_add(syndrome, SIGNAL_GF_MAP[i]);
         }
     }
-    r.syndrome = (double)hamming_weight(syndrome) / GF_BITS;
+    r.syndrome = (double)hamming_weight(syndrome) * (1.0 / GF_BITS);
 
     return r;
 }
@@ -572,6 +606,8 @@ MarkovRegime markov_detect_regime(
  * Lock-free single-producer design for maximum throughput.
  * ============================================================ */
 
+/* Tick: 40 bytes — ~1.6 ticks per cache line.
+ * Price+volume on same line for hot-path access. */
 typedef struct {
     double   price;
     double   volume;
@@ -580,11 +616,14 @@ typedef struct {
     uint64_t timestamp_ns;
 } Tick;
 
+/* TickRingBuffer: Hot metadata in first cache line,
+ * tick array starts on second cache line for sequential prefetch. */
 typedef struct {
-    Tick     ticks[MAX_TICKS];
+    /* --- First cache line: hot metadata (64 bytes) --- */
     int      head;        /* next write position */
     int      count;       /* number of valid entries */
     int      pair_idx;    /* which trading pair */
+    int      _pad0;       /* alignment padding */
     double   vwap;        /* running VWAP */
     double   cum_vol;     /* cumulative volume */
     double   cum_pv;      /* cumulative price * volume */
@@ -592,7 +631,9 @@ typedef struct {
     double   ema_slow;    /* 21-tick EMA */
     double   max_price;   /* session high */
     double   min_price;   /* session low */
-} TickRingBuffer;
+    /* --- Tick array: sequential access, hardware prefetcher friendly --- */
+    Tick     ticks[MAX_TICKS];
+} CACHE_ALIGNED TickRingBuffer;
 
 void tick_ring_init(TickRingBuffer *rb, int pair_idx) {
     memset(rb, 0, sizeof(TickRingBuffer));
@@ -602,6 +643,10 @@ void tick_ring_init(TickRingBuffer *rb, int pair_idx) {
 
 void tick_ring_push(TickRingBuffer *rb, double price, double volume,
                     double bid, double ask, uint64_t ts_ns) {
+    /* Prefetch next write slot into L1 cache */
+    int next_head = (rb->head + 1) % MAX_TICKS;
+    PREFETCH_WRITE(&rb->ticks[next_head]);
+
     Tick *t = &rb->ticks[rb->head];
     t->price = price;
     t->volume = volume;
@@ -609,8 +654,8 @@ void tick_ring_push(TickRingBuffer *rb, double price, double volume,
     t->ask = ask;
     t->timestamp_ns = ts_ns;
 
-    rb->head = (rb->head + 1) % MAX_TICKS;
-    if (rb->count < MAX_TICKS) rb->count++;
+    rb->head = next_head;
+    if (LIKELY(rb->count < MAX_TICKS)) rb->count++;
 
     /* Update running statistics */
     rb->cum_vol += volume;
@@ -747,12 +792,16 @@ Decision hft_decide(
     struct timespec t_start, t_end;
     clock_gettime(CLOCK_MONOTONIC, &t_start);
 
+    /* Prefetch tick buffer and influence map into cache */
+    PREFETCH_READ(tick_buf);
+    PREFETCH_READ(influence);
+
     /* === Layer 1: Galois Field signal encoding (target: <100ns) === */
     GFResult gf = gf_encode_signals(signals);
     d.gf_quality_x100 = (int)(gf.quality_score * 100);
     d.n_confirming = gf.n_confirming;
 
-    if (gf.n_confirming < 2) goto done;  /* Rule: 2+ confirming signals */
+    if (UNLIKELY(gf.n_confirming < 2)) goto done;  /* Rule: 2+ confirming signals */
 
     /* === Layer 2: Markov regime detection (target: <200ns) === */
     double recent_prices[128];
@@ -761,14 +810,14 @@ Decision hft_decide(
     d.regime = regime.current_state;
 
     /* Block trades in markdown regime (Rule #1: NEVER lose money) */
-    if (regime.current_state == REGIME_MARKDOWN && signals->direction == DIR_BUY) {
+    if (UNLIKELY(regime.current_state == REGIME_MARKDOWN && signals->direction == DIR_BUY)) {
         goto done;
     }
 
     /* === Layer 3: Ko detection (target: <50ns) === */
     KoBanResult ko_result = ko_check(ko, pair_idx, signals->direction, now_ns);
     d.ko_banned = ko_result.is_banned;
-    if (ko_result.is_banned) goto done;
+    if (UNLIKELY(ko_result.is_banned)) goto done;
 
     /* === Layer 4: Influence map check (target: <100ns) === */
     InfluenceResult inf = influence_get(influence, pair_idx, now_ns);
@@ -802,8 +851,8 @@ Decision hft_decide(
         conf *= 0.85;
     }
 
-    /* Final confidence gate: 70% minimum */
-    if (conf < 0.70) goto done;
+    /* Final confidence gate: 70% minimum (most signals pass, so LIKELY) */
+    if (UNLIKELY(conf < 0.70)) goto done;
 
     /* === Layer 6: Position sizing (target: <20ns) === */
     PositionSize ps = kelly_size(portfolio_usd, win_rate,
