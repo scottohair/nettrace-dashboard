@@ -490,12 +490,19 @@ class CoinbaseTrader:
                 dt_ms = (time.perf_counter() - t0) * 1000.0
                 error_body = e.read().decode()
                 last_error = {"error": error_body, "status": e.code}
+                # Business logic errors (insufficient balance, etc.) mean the venue is
+                # healthy — don't poison the failure rate metric with balance issues
+                is_business_error = (
+                    e.code == 400 and
+                    any(msg in error_body.lower() for msg in
+                        ("insufficient", "balance", "too small", "minimum"))
+                )
                 _record_api_call(
                     "coinbase",
                     method,
                     sign_path,
                     dt_ms,
-                    ok=False,
+                    ok=is_business_error,  # venue is OK, it's our balance
                     status_code=e.code,
                     error_text=error_body[:300],
                     context={"attempt": attempt + 1},
