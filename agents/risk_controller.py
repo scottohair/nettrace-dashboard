@@ -401,10 +401,10 @@ class RiskController:
                 adjusted = size_usd  # sells aren't limited by same rules
 
             # 5. Check total pending allocations across ALL agents (cross-process safe)
-            # Clean up stale pending allocations older than 1 hour (orders that were never resolved)
+            # Clean up stale pending allocations older than 5 minutes (orders that fail fast)
             cur.execute(
                 "UPDATE pending_allocations SET status='expired', resolved_at=CURRENT_TIMESTAMP "
-                "WHERE status='pending' AND created_at < datetime('now', '-1 hours')")
+                "WHERE status='pending' AND created_at < datetime('now', '-5 minutes')")
             row = cur.execute(
                 "SELECT COALESCE(SUM(size_usd), 0) FROM pending_allocations WHERE status='pending'"
             ).fetchone()

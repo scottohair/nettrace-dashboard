@@ -825,6 +825,8 @@ class Sniper:
                 return self._process_order_result(result, pair, "BUY", trade_size, price, signal)
             except Exception as e:
                 logger.error("BUY execution error: %s", e, exc_info=True)
+                if _risk_ctrl:
+                    _risk_ctrl.resolve_allocation("sniper", pair)
                 return False
 
         elif direction == "SELL":
@@ -910,8 +912,13 @@ class Sniper:
         elif "error_response" in result:
             err = result["error_response"]
             logger.warning("SNIPER ORDER FAILED: %s %s | %s", pair, side, err.get("message", err))
+            # Release pending allocation so capital isn't phantom-locked
+            if _risk_ctrl:
+                _risk_ctrl.resolve_allocation("sniper", pair)
         else:
             logger.warning("SNIPER ORDER UNKNOWN: %s", json.dumps(result)[:300])
+            if _risk_ctrl:
+                _risk_ctrl.resolve_allocation("sniper", pair)
 
         # Calculate P&L on SELL trades
         pnl = None
