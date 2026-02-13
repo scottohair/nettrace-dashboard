@@ -176,6 +176,7 @@ class RiskController:
         self._daily_reset = datetime.now(timezone.utc).date()
         self._agent_allocations = {}  # agent_name -> allocated_usd
         self._trade_count_today = 0
+        self._daily_state_date = str(datetime.now(timezone.utc).date())
 
     def _init_db(self):
         self._db.executescript("""
@@ -222,12 +223,76 @@ class RiskController:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 completed_at TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS daily_risk_state (
+                state_date TEXT PRIMARY KEY,
+                daily_loss REAL NOT NULL DEFAULT 0,
+                trade_count INTEGER NOT NULL DEFAULT 0,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         """)
         self._db.execute("PRAGMA journal_mode=WAL")
         self._db.execute("PRAGMA busy_timeout=5000")
         self._db.commit()
+        self._ensure_db_schema()
         # Flush ALL stale pending allocations on startup (leftover from previous process/OOM)
         self._flush_stale_allocations()
+        self._load_or_init_daily_state()
+
+    def _ensure_db_schema(self):
+        """Migrate lightweight schema updates in an idempotent way."""
+        try:
+            cols = self._db.execute("PRAGMA table_info(pending_allocations)").fetchall()
+            col_names = {c[1] for c in cols}
+            if "trade_id" not in col_names:
+                self._db.execute("ALTER TABLE pending_allocations ADD COLUMN trade_id TEXT")
+                logger.info("MIGRATION: Added trade_id to pending_allocations")
+            self._db.execute(
+                "CREATE INDEX IF NOT EXISTS idx_pending_allocations_agent_pair_status "
+                "ON pending_allocations(agent, pair, status)"
+            )
+            self._db.execute(
+                "CREATE INDEX IF NOT EXISTS idx_pending_allocations_trade_id "
+                "ON pending_allocations(trade_id)"
+            )
+            self._db.commit()
+        except Exception as e:
+            logger.warning("Schema migration warning: %s", e)
+
+    def _load_or_init_daily_state(self):
+        today = str(datetime.now(timezone.utc).date())
+        row = self._db.execute(
+            "SELECT daily_loss, trade_count FROM daily_risk_state WHERE state_date=?",
+            (today,)
+        ).fetchone()
+        if row:
+            self._daily_loss = float(row["daily_loss"] or 0.0)
+            self._trade_count_today = int(row["trade_count"] or 0)
+            self._daily_reset = datetime.now(timezone.utc).date()
+            self._daily_state_date = today
+            return
+
+        self._daily_reset = datetime.now(timezone.utc).date()
+        self._daily_state_date = today
+        self._daily_loss = 0.0
+        self._trade_count_today = 0
+        self._db.execute(
+            "INSERT OR REPLACE INTO daily_risk_state (state_date, daily_loss, trade_count) "
+            "VALUES (?, 0, 0)",
+            (today,),
+        )
+        self._db.commit()
+
+    def _persist_daily_state(self):
+        today = str(datetime.now(timezone.utc).date())
+        try:
+            self._db.execute(
+                "INSERT OR REPLACE INTO daily_risk_state (state_date, daily_loss, trade_count, updated_at) "
+                "VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
+                (today, float(self._daily_loss), int(self._trade_count_today)),
+            )
+            self._db.commit()
+        except Exception as e:
+            logger.warning("persist_daily_state error: %s", e)
 
     def _flush_stale_allocations(self):
         """Expire all pending allocations on startup — previous process may have died mid-trade."""
@@ -252,7 +317,16 @@ class RiskController:
             self._daily_loss = 0.0
             self._trade_count_today = 0
             self._daily_reset = today
+            self._daily_state_date = str(today)
+            self._persist_daily_state()
             self._log_event("daily_reset", details=f"Reset for {today}")
+
+    def _normalize_direction(self, direction):
+        return str(direction or "").strip().upper()
+
+    def _normalize_pair(self, pair):
+        text = str(pair or "").strip().upper()
+        return text if text else "UNKNOWN"
 
     def _log_event(self, event_type, agent=None, pair=None, details=None):
         try:
@@ -312,13 +386,13 @@ class RiskController:
 
         return max(1.00, round(portfolio_value * loss_fraction, 2))
 
-    def min_reserve(self, portfolio_value, volatility=None):
+    def min_reserve(self, portfolio_value, volatility=None, available_cash=None):
         """Dynamic cash reserve — scales with portfolio and volatility.
 
         Formula: portfolio * reserve_fraction
         reserve_fraction = 0.08 + volatility_adj, clamped [0.06, 0.25]
         Higher vol = larger reserve but capped to leave room for trades.
-        IMPORTANT: Reserve must never consume more than 60% of available cash.
+        Reserve never consumes more than 60% of available cash.
         """
         if portfolio_value <= 0:
             return 5.00
@@ -331,7 +405,13 @@ class RiskController:
             base_fraction += vol_adj
 
         base_fraction = max(0.06, min(0.25, base_fraction))
-        return max(5.00, round(portfolio_value * base_fraction, 2))
+        reserve = max(5.00, round(portfolio_value * base_fraction, 2))
+
+        # Enforce: reserve never consumes more than 60% of available cash
+        if available_cash is not None and available_cash > 0:
+            reserve = min(reserve, round(available_cash * 0.60, 2))
+
+        return reserve
 
     def max_position_pct(self, portfolio_value, volatility=None):
         """Dynamic max position per asset — scales inversely with volatility.
@@ -381,6 +461,19 @@ class RiskController:
         # threading.Lock only works within a single process — useless for
         # separate agent processes that each import risk_controller
         try:
+            direction = self._normalize_direction(direction)
+            if direction not in {"BUY", "SELL"}:
+                return False, f"INVALID_DIRECTION:{direction}", 0
+
+            pair = self._normalize_pair(pair)
+            try:
+                size_usd = float(size_usd)
+            except (TypeError, ValueError):
+                return False, f"INVALID_SIZE:{size_usd}", 0
+
+            if not math.isfinite(size_usd) or size_usd <= 0:
+                return False, f"INVALID_SIZE:{size_usd}", 0
+
             cur = self._db.cursor()
             cur.execute("BEGIN IMMEDIATE")  # acquire DB write lock atomically
 
@@ -441,8 +534,9 @@ class RiskController:
             # 7. Record allocation and approve (atomic with the checks above)
             trade_id = str(uuid.uuid4())[:12]
             cur.execute(
-                "INSERT INTO pending_allocations (agent, pair, direction, size_usd) VALUES (?, ?, ?, ?)",
-                (agent_name, pair, direction, adjusted))
+                "INSERT INTO pending_allocations (agent, pair, direction, size_usd, trade_id) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (agent_name, pair, direction, adjusted, trade_id))
             cur.execute(
                 "INSERT INTO trade_audit (trade_id, agent, pair, direction, requested_size, "
                 "approved_size, status, reason, volatility, trend, portfolio_value) "
@@ -467,13 +561,34 @@ class RiskController:
             logger.error("approve_trade error: %s", e)
             return False, f"Risk controller error: {e}", 0
 
-    def resolve_allocation(self, agent_name, pair):
+    def resolve_allocation(self, agent_name, pair, trade_id=None):
         """Mark a pending allocation as resolved after trade completes or fails."""
         try:
-            self._db.execute(
-                "UPDATE pending_allocations SET status='resolved', resolved_at=CURRENT_TIMESTAMP "
-                "WHERE agent=? AND pair=? AND status='pending'",
-                (agent_name, pair))
+            agent_name = str(agent_name or "").strip()
+            pair = self._normalize_pair(pair)
+            if trade_id:
+                cur = self._db.execute(
+                    "UPDATE pending_allocations SET status='resolved', resolved_at=CURRENT_TIMESTAMP "
+                    "WHERE trade_id=? AND agent=? AND status='pending'",
+                    (str(trade_id), agent_name,)
+                )
+                rowcount = cur.rowcount
+                if rowcount == 0:
+                    self._db.execute(
+                        "UPDATE pending_allocations SET status='resolved', resolved_at=CURRENT_TIMESTAMP "
+                        "WHERE id = ("
+                        "SELECT id FROM pending_allocations WHERE agent=? AND pair=? AND status='pending' "
+                        "ORDER BY created_at DESC LIMIT 1)",
+                        (agent_name, pair),
+                    )
+            else:
+                self._db.execute(
+                    "UPDATE pending_allocations SET status='resolved', resolved_at=CURRENT_TIMESTAMP "
+                    "WHERE id = ("
+                    "SELECT id FROM pending_allocations WHERE agent=? AND pair=? AND status='pending' "
+                    "ORDER BY created_at DESC LIMIT 1)",
+                    (agent_name, pair),
+                )
             self._db.commit()
         except Exception:
             pass
@@ -520,6 +635,18 @@ class RiskController:
     def record_trade_result(self, agent_name, pnl):
         """Record trade result for agent performance tracking."""
         with self._lock:
+            self._check_daily_reset()
+
+            try:
+                pnl = float(pnl)
+            except (TypeError, ValueError):
+                logger.warning("record_trade_result invalid pnl=%r for %s", pnl, agent_name)
+                return
+
+            if not math.isfinite(pnl):
+                logger.warning("record_trade_result non-finite pnl=%r for %s", pnl, agent_name)
+                return
+
             if pnl < 0:
                 self._daily_loss += abs(pnl)
 
@@ -540,6 +667,7 @@ class RiskController:
                       1 if pnl < 0 else 0,
                       pnl))
                 self._db.commit()
+                self._persist_daily_state()
             except Exception:
                 pass
 

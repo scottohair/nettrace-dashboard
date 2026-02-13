@@ -15,6 +15,7 @@ import os
 import secrets
 import socket
 import sqlite3
+import math
 import threading
 import time
 import urllib.request
@@ -540,6 +541,26 @@ class CoinbaseTrader:
     _dns_degraded_reason = ""
     _execution_health_cache = {"ts": 0.0, "payload": {}}
     _dns_override_lock = threading.Lock()
+
+    @staticmethod
+    def _normalize_product_id(product_id):
+        if product_id is None:
+            return ""
+        return str(product_id).strip().upper().replace("/", "-")
+
+    @staticmethod
+    def _normalize_side(side):
+        return str(side or "").strip().upper()
+
+    @staticmethod
+    def _to_positive_float(value, field_name):
+        try:
+            parsed = float(value)
+        except (TypeError, ValueError):
+            raise ValueError(f"Invalid {field_name}: {value!r}")
+        if not math.isfinite(parsed) or parsed <= 0:
+            raise ValueError(f"{field_name} must be a positive finite number: {value!r}")
+        return parsed
 
     @staticmethod
     def _is_dns_failure(exc):
@@ -1159,7 +1180,52 @@ class CoinbaseTrader:
             market_regime: optional regime label
         """
         import uuid
-        side_u = side.upper()
+        product_id = self._normalize_product_id(product_id)
+        if not product_id:
+            msg = f"Invalid product_id: {product_id!r}"
+            logger.error("Order blocked: %s", msg)
+            return {"error_response": {"error": "INVALID_PRODUCT_ID", "message": msg}}
+
+        side_u = self._normalize_side(side)
+        if side_u not in {"BUY", "SELL"}:
+            msg = f"Invalid side: {side!r}"
+            logger.error("Order blocked: %s", msg)
+            _record_order_lifecycle(
+                "coinbase",
+                pair=product_id,
+                side=side_u,
+                status="blocked_invalid_side",
+                details={"request_size": size},
+            )
+            return {"error_response": {"error": "INVALID_SIDE", "message": msg}}
+
+        try:
+            size = self._to_positive_float(size, "size")
+        except ValueError as e:
+            msg = str(e)
+            logger.error("Order blocked: %s", msg)
+            _record_order_lifecycle(
+                "coinbase",
+                pair=product_id,
+                side=side_u,
+                status="blocked_invalid_size",
+                details={"request_size": size},
+            )
+            return {"error_response": {"error": "INVALID_SIZE", "message": msg}}
+
+        order_type = str(order_type or "market").strip().lower()
+        if order_type != "market":
+            msg = f"Invalid order_type '{order_type}'. Supported values: market"
+            logger.error("Order blocked: %s", msg)
+            _record_order_lifecycle(
+                "coinbase",
+                pair=product_id,
+                side=side_u,
+                status="blocked_invalid_order_type",
+                requested_usd=size,
+                details={"order_type": order_type},
+            )
+            return {"error_response": {"error": "INVALID_ORDER_TYPE", "message": msg}}
 
         # Global lock guard (SELLs exempt — must always be able to exit).
         locked, lock_reason, lock_source = _is_trading_locked(side=side_u)
@@ -1171,7 +1237,7 @@ class CoinbaseTrader:
                 pair=product_id,
                 side=side_u,
                 status="blocked_lock",
-                requested_usd=float(size or 0.0) if side_u == "BUY" else None,
+                requested_usd=size if side_u == "BUY" else None,
                 details={"reason": msg},
             )
             return {"error_response": {"error": "TRADING_LOCKED", "message": msg}}
@@ -1199,7 +1265,7 @@ class CoinbaseTrader:
                     pair=product_id,
                     side=side_u,
                     status="blocked_no_loss",
-                    requested_usd=float(size or 0.0),
+                    requested_usd=size,
                     details=no_loss,
                 )
                 return {"error_response": {"error": "NO_LOSS_POLICY_BLOCKED", "message": msg, "policy": no_loss}}
@@ -1279,10 +1345,10 @@ class CoinbaseTrader:
                 order_id = result["success_response"].get("order_id")
             elif "order_id" in result:
                 order_id = result.get("order_id")
-        requested_usd = float(size or 0.0) if side_u == "BUY" else None
+        requested_usd = size if side_u == "BUY" else None
         if side_u == "SELL" and requested_usd is None:
             px = PriceFeed.get_price(product_id.replace("-USDC", "-USD")) or PriceFeed.get_price(product_id) or 0.0
-            requested_usd = float(size or 0.0) * float(px or 0.0)
+            requested_usd = size * float(px or 0.0)
         status = "ack_ok" if order_id else "ack_failed"
         details = {"response": result if isinstance(result, dict) else {"raw": str(result)}}
         _record_order_lifecycle(
@@ -1331,7 +1397,51 @@ class CoinbaseTrader:
             post_only: if True, reject order if it would take liquidity
         """
         import uuid
-        side_u = side.upper()
+        product_id = self._normalize_product_id(product_id)
+        if not product_id:
+            msg = f"Invalid product_id: {product_id!r}"
+            logger.error("Limit order blocked: %s", msg)
+            return {"error_response": {"error": "INVALID_PRODUCT_ID", "message": msg}}
+
+        side_u = self._normalize_side(side)
+        if side_u not in {"BUY", "SELL"}:
+            msg = f"Invalid side: {side!r}"
+            logger.error("Limit order blocked: %s", msg)
+            _record_order_lifecycle(
+                "coinbase",
+                pair=product_id,
+                side=side_u,
+                status="blocked_invalid_side",
+                details={"base_size": base_size, "limit_price": limit_price},
+            )
+            return {"error_response": {"error": "INVALID_SIDE", "message": msg}}
+
+        try:
+            base_size = self._to_positive_float(base_size, "base_size")
+        except ValueError as e:
+            msg = str(e)
+            logger.error("Limit order blocked: %s", msg)
+            _record_order_lifecycle(
+                "coinbase",
+                pair=product_id,
+                side=side_u,
+                status="blocked_invalid_size",
+                details={"base_size": base_size, "limit_price": limit_price},
+            )
+            return {"error_response": {"error": "INVALID_SIZE", "message": msg}}
+        try:
+            limit_price = self._to_positive_float(limit_price, "limit_price")
+        except ValueError as e:
+            msg = str(e)
+            logger.error("Limit order blocked: %s", msg)
+            _record_order_lifecycle(
+                "coinbase",
+                pair=product_id,
+                side=side_u,
+                status="blocked_invalid_price",
+                details={"base_size": base_size, "limit_price": limit_price},
+            )
+            return {"error_response": {"error": "INVALID_PRICE", "message": msg}}
 
         # Global lock guard (SELLs exempt — must always be able to exit).
         locked, lock_reason, lock_source = _is_trading_locked(side=side_u)
@@ -1355,8 +1465,16 @@ class CoinbaseTrader:
 
         # Get quote increment for price precision
         info = self.get_product(product_id)
+        if not isinstance(info, dict):
+            return {"error_response": {"error": "PRODUCT_NOT_FOUND", "message": f"Unable to fetch product details for {product_id}"}}
         quote_incr = info.get("quote_increment", "0.01")
+
         limit_price = self._truncate_to_increment(limit_price, quote_incr)
+        limit_price = float(limit_price or 0.0)
+        if not math.isfinite(limit_price) or limit_price <= 0:
+            msg = f"limit_price invalid after increment normalization: {limit_price}"
+            logger.error("Limit order blocked: %s", msg)
+            return {"error_response": {"error": "INVALID_PRICE", "message": msg}}
 
         if side_u == "BUY" and STRICT_PROFIT_ONLY:
             # Use maker round-trip cost estimate for strict buy gating.
@@ -1383,7 +1501,7 @@ class CoinbaseTrader:
                     pair=product_id,
                     side=side_u,
                     status="blocked_no_loss",
-                    requested_usd=float(base_size or 0.0) * float(limit_price or 0.0),
+                    requested_usd=base_size * limit_price,
                     details=no_loss,
                 )
                 return {"error_response": {"error": "NO_LOSS_POLICY_BLOCKED", "message": msg, "policy": no_loss}}
@@ -1441,7 +1559,7 @@ class CoinbaseTrader:
                 order_id = result["success_response"].get("order_id")
             elif "order_id" in result:
                 order_id = result.get("order_id")
-        requested_usd = float(base_size or 0.0) * float(limit_price or 0.0)
+        requested_usd = base_size * limit_price
         status = "ack_ok" if order_id else "ack_failed"
         details = {"response": result if isinstance(result, dict) else {"raw": str(result)}}
         _record_order_lifecycle(

@@ -55,6 +55,7 @@ import time
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Dict, List, Tuple
 
 logger = logging.getLogger("strategic_planner")
 
@@ -64,6 +65,11 @@ try:
     _risk_ctrl = get_controller()
 except Exception:
     _risk_ctrl = None
+
+try:
+    from fast_exec_bridge import FastExec
+except Exception:
+    FastExec = None
 
 
 # ============================================================
@@ -388,6 +394,259 @@ class ChainMovePlanner:
         self.influence = influence_map or InfluenceMap()
         self.ko = ko_detector or KoDetector()
         self.life_reader = life_reader or LifeDeathReader()
+        # Long-chain planning controls (env-tunable for live experimentation)
+        self.max_chain_depth = max(2, int(os.environ.get("LONG_CHAIN_MAX_DEPTH", str(self.MAX_DEPTH))))
+        self.max_rotation_branches = max(1, int(os.environ.get("LONG_CHAIN_MAX_BRANCHES", "3")))
+        self.min_chain_net_edge = float(os.environ.get("LONG_CHAIN_MIN_NET_EDGE_PCT", "0.012"))
+        self.min_chain_worst_case_edge = float(os.environ.get("LONG_CHAIN_MIN_WORST_EDGE_PCT", "0.001"))
+        self.horizon_decay = float(os.environ.get("LONG_CHAIN_HORIZON_DECAY", "0.84"))
+        self._c_gate = None
+        if str(os.environ.get("LONG_CHAIN_USE_C_GATE", "1")).strip() != "0" and FastExec is not None:
+            try:
+                self._c_gate = FastExec()
+            except Exception:
+                self._c_gate = None
+
+    @staticmethod
+    def _base_asset(pair: str) -> str:
+        return pair.split("-")[0] if "-" in pair else pair
+
+    @staticmethod
+    def _pair_candidates_for_asset(asset: str, signals: Dict[str, dict]) -> List[str]:
+        out = []
+        for pair in signals:
+            if ChainMovePlanner._base_asset(pair) == asset:
+                out.append(pair)
+        # Prefer USDC execution pairs, then USD
+        out.sort(key=lambda p: (0 if p.endswith("-USDC") else 1 if p.endswith("-USD") else 2, p))
+        return out
+
+    @staticmethod
+    def _pick_pair_for_asset(asset: str, signals: Dict[str, dict]) -> str:
+        candidates = ChainMovePlanner._pair_candidates_for_asset(asset, signals)
+        return candidates[0] if candidates else ""
+
+    def _signal_edge(self, pair: str, signals: Dict[str, dict]) -> float:
+        sig = signals.get(pair, {})
+        conf = max(0.0, min(1.0, float(sig.get("confidence", 0.0) or 0.0)))
+        momentum = max(-1.0, min(1.0, float(sig.get("momentum", 0.0) or 0.0)))
+        regime = str(sig.get("regime", "neutral")).lower()
+        regime_bonus = (
+            0.0015 if regime in {"accumulation", "markup", "bullish", "uptrend"}
+            else -0.001 if regime in {"distribution", "markdown", "bearish", "downtrend"}
+            else 0.0
+        )
+        # Confidence is the core probabilistic edge; momentum/regime are tie-breakers.
+        return (conf - 0.5) * 0.022 + momentum * 0.006 + regime_bonus
+
+    def _signal_risk(self, pair: str, signals: Dict[str, dict]) -> float:
+        sig = signals.get(pair, {})
+        conf = max(0.0, min(1.0, float(sig.get("confidence", 0.0) or 0.0)))
+        momentum = max(-1.0, min(1.0, float(sig.get("momentum", 0.0) or 0.0)))
+        direction = str(sig.get("direction", "NONE")).upper()
+        base = (1.0 - conf) * 0.02 + max(0.0, -momentum) * 0.012
+        # If a node is not even BUY-biased, treat as adversarial pressure.
+        if direction != "BUY":
+            base += 0.006
+        return base
+
+    def _rotation_targets(self, pair: str, signals: Dict[str, dict]) -> List[Tuple[str, float]]:
+        base = self._base_asset(pair)
+        corr = self.influence.CORRELATIONS.get(base, {})
+        ranked = sorted(corr.items(), key=lambda x: -x[1])
+        out = []
+        for asset, strength in ranked:
+            next_pair = self._pick_pair_for_asset(asset, signals)
+            if not next_pair:
+                continue
+            sig = signals.get(next_pair, {})
+            if str(sig.get("direction", "NONE")).upper() != "BUY":
+                continue
+            if float(sig.get("confidence", 0.0) or 0.0) < 0.55:
+                continue
+            out.append((next_pair, strength))
+            if len(out) >= self.max_rotation_branches:
+                break
+        return out
+
+    def evaluate_entry_chain(
+        self,
+        pair: str,
+        market_signals: Dict[str, dict],
+        max_depth: int = None,
+        min_net_edge: float = None,
+        min_worst_case_edge: float = None,
+    ) -> dict:
+        """Evaluate whether entering `pair` has a profitable multi-step exit chain.
+
+        Game-theoretic framing:
+          - We assume an adversary (market noise/other participants) that pushes
+            against weak-confidence nodes.
+          - We only approve entries that keep positive expected edge after fees
+            and after an adversarial risk haircut.
+        """
+        signal = market_signals.get(pair, {})
+        if str(signal.get("direction", "NONE")).upper() != "BUY":
+            return {
+                "pair": pair,
+                "viable": False,
+                "reason": "Not a BUY signal",
+                "net_edge": 0.0,
+                "worst_case_edge": 0.0,
+                "path": [],
+                "steps": 0,
+                "has_exit": False,
+            }
+
+        depth = max(2, int(max_depth if max_depth is not None else self.max_chain_depth))
+        min_edge = float(min_net_edge if min_net_edge is not None else self.min_chain_net_edge)
+        min_worst = float(
+            min_worst_case_edge if min_worst_case_edge is not None else self.min_chain_worst_case_edge
+        )
+
+        best = {
+            "objective": -1e9,
+            "net_edge": -1.0,
+            "risk_penalty": 1.0,
+            "path": [],
+            "has_exit": False,
+        }
+
+        entry_edge = self._signal_edge(pair, market_signals)
+        entry_risk = self._signal_risk(pair, market_signals)
+        path = [{
+            "step": 1,
+            "action": "BUY",
+            "pair": pair,
+            "edge": round(entry_edge, 5),
+            "cost": self.MOVE_TYPES["BUY"]["cost"],
+            "note": "entry node",
+        }]
+
+        def _register(net_edge: float, risk_penalty: float, candidate_path: List[dict], has_exit: bool):
+            objective = net_edge - risk_penalty
+            if objective > best["objective"]:
+                best["objective"] = objective
+                best["net_edge"] = net_edge
+                best["risk_penalty"] = risk_penalty
+                best["path"] = list(candidate_path)
+                best["has_exit"] = has_exit
+
+        def _dfs(current_pair: str, depth_left: int, net_edge: float, risk_penalty: float):
+            # Voluntary early exit is always considered.
+            exit_cost = self.MOVE_TYPES["SELL"]["cost"]
+            exit_step = len(path) + 1
+            exit_path = list(path) + [{
+                "step": exit_step,
+                "action": "EXIT",
+                "pair": current_pair,
+                "edge": 0.0,
+                "cost": exit_cost,
+                "note": "realize PnL and de-risk",
+            }]
+            _register(net_edge - exit_cost, risk_penalty + 0.001, exit_path, has_exit=True)
+
+            if depth_left <= 0:
+                return
+
+            # HOLD branch (staying in current thesis for another step)
+            hold_edge_raw = self._signal_edge(current_pair, market_signals)
+            hold_decay = math.pow(self.horizon_decay, max(0, len(path) - 1))
+            hold_edge = hold_edge_raw * hold_decay
+            hold_risk = self._signal_risk(current_pair, market_signals)
+            path.append({
+                "step": len(path) + 1,
+                "action": "HOLD",
+                "pair": current_pair,
+                "edge": round(hold_edge, 5),
+                "cost": 0.0,
+                "note": "let thesis mature",
+            })
+            _dfs(current_pair, depth_left - 1, net_edge + hold_edge, risk_penalty + hold_risk)
+            path.pop()
+
+            # ROTATE branches (multi-hop chain logic)
+            for nxt_pair, corr in self._rotation_targets(current_pair, market_signals):
+                rot_cost = self.MOVE_TYPES["ROTATE"]["cost"]
+                rot_edge_raw = self._signal_edge(nxt_pair, market_signals)
+                rot_decay = math.pow(self.horizon_decay, max(0, len(path) - 1))
+                rot_edge = rot_edge_raw * rot_decay
+                corr_penalty = (1.0 - float(corr)) * 0.006
+                rot_risk = self._signal_risk(nxt_pair, market_signals) + corr_penalty
+                path.append({
+                    "step": len(path) + 1,
+                    "action": "ROTATE",
+                    "pair": f"{current_pair} -> {nxt_pair}",
+                    "edge": round(rot_edge, 5),
+                    "cost": rot_cost,
+                    "note": f"correlation hop ({corr:.2f})",
+                })
+                _dfs(
+                    nxt_pair,
+                    depth_left - 1,
+                    net_edge + rot_edge - rot_cost,
+                    risk_penalty + rot_risk,
+                )
+                path.pop()
+
+        # Entry includes fee cost immediately.
+        _dfs(
+            pair,
+            depth_left=depth - 1,
+            net_edge=entry_edge - self.MOVE_TYPES["BUY"]["cost"],
+            risk_penalty=entry_risk,
+        )
+
+        net_edge = float(best.get("net_edge", -1.0))
+        risk_penalty = float(best.get("risk_penalty", 1.0))
+        worst_case_edge = net_edge - risk_penalty
+        steps = len(best.get("path", []))
+        viable = (
+            bool(best.get("has_exit"))
+            and steps >= 2
+            and net_edge >= min_edge
+            and worst_case_edge >= min_worst
+        )
+        c_gate = None
+        if self._c_gate is not None:
+            try:
+                sig_conf = float(signal.get("confidence", 0.0) or 0.0)
+                # C gate treats this as a strict final guard after planner's chain simulation.
+                c_gate = self._c_gate.no_loss_gate(
+                    expected_edge_pct=net_edge,
+                    total_cost_pct=float(os.environ.get("LONG_CHAIN_COST_PCT", "0.009")),
+                    spread_pct=float(os.environ.get("LONG_CHAIN_SPREAD_PCT", "0.002")),
+                    latency_ms=float(os.environ.get("LONG_CHAIN_LATENCY_MS", "120")),
+                    failure_rate=float(os.environ.get("LONG_CHAIN_FAILURE_RATE", "0.01")),
+                    signal_confidence=sig_conf,
+                    min_expected_edge_pct=min_edge,
+                    max_spread_pct=float(os.environ.get("LONG_CHAIN_MAX_SPREAD_PCT", "0.02")),
+                    max_latency_ms=float(os.environ.get("LONG_CHAIN_MAX_LATENCY_MS", "450")),
+                    max_failure_rate=float(os.environ.get("LONG_CHAIN_MAX_FAILURE_RATE", "0.08")),
+                    confidence_floor=float(os.environ.get("LONG_CHAIN_CONFIDENCE_FLOOR", "0.65")),
+                    buy_blocked_regime=False,
+                )
+                viable = viable and bool(c_gate.get("approved", False))
+            except Exception:
+                c_gate = None
+        reason = (
+            f"chain edge {net_edge:.2%} (worst {worst_case_edge:.2%}) "
+            f"vs mins {min_edge:.2%}/{min_worst:.2%}"
+        )
+        return {
+            "pair": pair,
+            "viable": viable,
+            "reason": reason if viable else f"blocked: {reason}",
+            "net_edge": round(net_edge, 5),
+            "risk_penalty": round(risk_penalty, 5),
+            "worst_case_edge": round(worst_case_edge, 5),
+            "path": best.get("path", []),
+            "steps": steps,
+            "has_exit": bool(best.get("has_exit")),
+            "required_min_edge": round(min_edge, 5),
+            "required_min_worst_case": round(min_worst, 5),
+            "c_gate": c_gate,
+        }
 
     def plan_chain(self, portfolio_state, market_signals, available_capital):
         """Plan the optimal chain of moves.
@@ -558,10 +817,13 @@ class ChainMovePlanner:
             regime_bonus = 0.15 if regime in ("accumulation", "markup") else 0.0
 
             total_score = direct_score + influence_bonus + novelty + regime_bonus
-            expected_return = total_score * 0.04  # Rough: high score ≈ 4% return
+            entry_eval = self.evaluate_entry_chain(pair, market_signals)
+            if not entry_eval.get("viable"):
+                continue
+            expected_return = float(entry_eval.get("net_edge", 0.0) or 0.0)
 
             # Allocation: proportional to score, capped at 15% of deployable
-            allocation_pct = min(0.15, total_score * 0.2)
+            allocation_pct = min(0.15, max(0.03, total_score * 0.2))
             size_usd = deployable * allocation_pct
 
             if size_usd < 1.0:
@@ -577,10 +839,14 @@ class ChainMovePlanner:
                 "expected_return": round(expected_return, 4),
                 "allocation_pct": round(allocation_pct, 4),
                 "size_usd": round(size_usd, 2),
-                "reason": (f"Score={total_score:.2f} | conf={signal.get('confidence', 0):.0%} | "
-                          f"influence={inf_dir} {inf_str:.2f} | regime={regime}"),
-                "enables": [f"exposure to {base} ({regime} phase)"],
+                "reason": (
+                    f"Score={total_score:.2f} | conf={signal.get('confidence', 0):.0%} | "
+                    f"influence={inf_dir} {inf_str:.2f} | regime={regime} | "
+                    f"chain={entry_eval.get('net_edge', 0.0):.2%}"
+                ),
+                "enables": [f"exposure to {base} ({regime} phase)", "multi-step exit chain validated"],
                 "priority": int(total_score * 100),
+                "entry_validation": entry_eval,
             })
 
         candidates.sort(key=lambda x: -x["score"])
@@ -774,6 +1040,27 @@ class StrategicPlanner:
         chain = self.chain_planner.plan_chain(
             portfolio_state, market_signals, available_capital)
 
+        # Step 4b: Validate BUY entries through long-chain viability checks.
+        entry_validations = {}
+        for pair, signal in market_signals.items():
+            if str(signal.get("direction", "NONE")).upper() != "BUY":
+                continue
+            try:
+                entry_validations[pair] = self.chain_planner.evaluate_entry_chain(
+                    pair, market_signals
+                )
+            except Exception as e:
+                entry_validations[pair] = {
+                    "pair": pair,
+                    "viable": False,
+                    "reason": f"validation_error: {e}",
+                    "net_edge": 0.0,
+                    "worst_case_edge": 0.0,
+                    "path": [],
+                    "steps": 0,
+                    "has_exit": False,
+                }
+
         # Step 5: Compile analysis
         # Count position health
         health_summary = {"alive": 0, "danger": 0, "dead": 0}
@@ -798,6 +1085,7 @@ class StrategicPlanner:
             "position_health": health_summary,
             "chain_moves": chain,
             "chain_length": len(chain),
+            "entry_validations": entry_validations,
             "available_capital": available_capital,
             "ko_bans": {pair: {"banned": True, "reason": self.ko.is_banned(pair)[1]}
                        for pair in market_signals

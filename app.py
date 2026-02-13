@@ -2991,11 +2991,11 @@ def agent_control_status():
 @verify_api_key
 @require_write
 def agent_control_pause():
-    """Pause agent runner by setting running=False. Requires write-capable key."""
+    """Pause agent runner via stop(). Requires write-capable key."""
     if agent_runner is None:
         return jsonify({"error": "Agent runner not enabled"}), 404
     try:
-        agent_runner.running = False
+        agent_runner.stop()
         return jsonify({"status": "paused", "running": agent_runner.running})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

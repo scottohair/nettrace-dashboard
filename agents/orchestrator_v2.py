@@ -156,7 +156,7 @@ AGENT_CONFIGS = [
         "script": "exit_manager.py",
         "args": ["monitor"],
         "enabled": True,
-        "critical": False,
+        "critical": True,
         "description": "Centralized exit manager to drive SELL-close completion and realized PnL evidence.",
     },
     {
@@ -822,7 +822,7 @@ class OrchestratorV2:
                 "log_file": log_file,
             }
 
-            logger.info("Started agent '%s' (PID %d): %s", name, proc.pid, config["description"])
+            logger.info("Started agent '%s' (PID %d): %s", name, proc.pid, config.get("description", name))
             self._record_agent_status(name, "running", proc.pid)
             return True
 

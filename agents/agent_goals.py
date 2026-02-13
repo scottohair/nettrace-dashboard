@@ -70,19 +70,48 @@ class GoalValidator:
         Returns:
             bool: True if trade passes all goal checks
         """
-        # Rule 1: minimum confidence + confirmation
-        if confidence < MIN_CONFIDENCE:
-            logger.debug("BLOCKED: confidence %.2f < %.2f minimum",
-                         confidence, MIN_CONFIDENCE)
+        try:
+            conf = float(confidence)
+        except (TypeError, ValueError):
+            logger.warning("BLOCKED: non-numeric confidence=%r", confidence)
             return False
 
-        if confirming_signals < MIN_CONFIRMING_SIGNALS:
+        if not math.isfinite(conf):
+            logger.warning("BLOCKED: non-finite confidence=%r", confidence)
+            return False
+
+        try:
+            signals = int(confirming_signals)
+        except (TypeError, ValueError):
+            logger.warning("BLOCKED: invalid confirming_signals=%r", confirming_signals)
+            return False
+
+        direction_u = str(direction or "").strip().upper()
+        if direction_u not in {"BUY", "SELL"}:
+            logger.warning("BLOCKED: invalid direction=%r", direction)
+            return False
+
+        regime_n = str(market_regime or "").strip().lower()
+        regime_tags = {
+            "downtrend",
+            "markdown",
+            "bearish",
+            "down",
+        }
+
+        # Rule 1: minimum confidence + confirmation
+        if conf < MIN_CONFIDENCE:
+            logger.debug("BLOCKED: confidence %.2f < %.2f minimum",
+                         conf, MIN_CONFIDENCE)
+            return False
+
+        if signals < MIN_CONFIRMING_SIGNALS:
             logger.debug("BLOCKED: %d confirming signals < %d minimum",
-                         confirming_signals, MIN_CONFIRMING_SIGNALS)
+                         signals, MIN_CONFIRMING_SIGNALS)
             return False
 
         # Rule 1: no buying in downtrends
-        if DOWNTREND_BLOCKED and direction == "BUY" and market_regime == "downtrend":
+        if DOWNTREND_BLOCKED and direction_u == "BUY" and regime_n in regime_tags:
             logger.debug("BLOCKED: BUY in downtrend regime (Rule #1)")
             return False
 
@@ -90,9 +119,9 @@ class GoalValidator:
         # EV = (confidence * avg_win) - ((1 - confidence) * avg_loss)
         # With maker fees, need confidence > fee_drag to be positive EV
         fee_drag = MAKER_FEE  # best case (limit order)
-        if confidence <= fee_drag:
+        if conf <= fee_drag:
             logger.debug("BLOCKED: confidence %.2f <= fee drag %.3f (negative EV)",
-                         confidence, fee_drag)
+                         conf, fee_drag)
             return False
 
         return True

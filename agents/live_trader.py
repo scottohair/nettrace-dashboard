@@ -18,6 +18,7 @@ import logging
 import os
 import sqlite3
 import sys
+import math
 import time
 import urllib.request
 from datetime import datetime, timezone, timedelta
@@ -290,6 +291,21 @@ class LiveTrader:
                 uniq.append(p)
         return uniq
 
+    @staticmethod
+    def _extract_trade_id(reason):
+        """Parse trade_id from risk controller reason string."""
+        if not isinstance(reason, str):
+            return None
+        marker = "trade_id="
+        idx = reason.find(marker)
+        if idx == -1:
+            return None
+        value = reason[idx + len(marker):].strip()
+        if not value:
+            return None
+        # strip optional suffixes from future reason formats
+        return value.split("|")[0].strip()
+
     def _place_buy_with_fallback(
         self,
         pair,
@@ -500,6 +516,7 @@ class LiveTrader:
                 expected_edge_pct=expected_edge_pct,
                 signal_confidence=avg_conf,
                 market_regime=regime_name,
+                risk_portfolio_value=total_val,
             )
             break  # One trade per cycle
 
@@ -512,111 +529,158 @@ class LiveTrader:
         expected_edge_pct=0.0,
         signal_confidence=0.75,
         market_regime="UNKNOWN",
+        risk_portfolio_value=None,
     ):
         """Execute a real BUY trade on Coinbase. SELL is disabled (accumulation mode)."""
         if side.upper() != "BUY":
             logger.warning("BLOCKED SELL on %s — accumulation mode, BUY only until portfolio > $100", pair)
             return
 
-        price = self.pricefeed.get_price(pair)
-        if not price:
-            logger.warning("No price for %s", pair)
+        if not _live_risk_ctrl:
+            logger.error("Risk controller unavailable — BLOCKING execution for %s", pair)
             return
 
-        decision, route = self._evaluate_no_loss_gate(
-            pair=pair,
-            side=side,
-            amount_usd=usd_amount,
-            expected_edge_pct=expected_edge_pct,
-            confidence=signal_confidence,
-            regime=market_regime,
-        )
-        if not decision.get("approved", False):
-            reason = decision.get("reason", "blocked")
-            logger.warning("NO-LOSS BLOCK: %s %s $%.2f | %s", side, pair, usd_amount, reason)
-            _record_no_loss_root_cause(
-                pair,
-                side,
-                "pre_trade_policy_block",
-                reason,
-                details={"decision": decision, "route": route, "signal": signal},
-            )
+        if not isinstance(risk_portfolio_value, (int, float)) or risk_portfolio_value <= 0:
+            logger.warning("Invalid portfolio value for risk check on %s: %r", pair, risk_portfolio_value)
             return
 
-        logger.info("EXECUTING: BUY %s | $%.2f @ $%.2f | signal=%s conf=%.2f",
-                     pair, usd_amount, price,
-                     signal.get("signal_type"), float(signal.get("confidence", 0)))
-        # HFT-style maker entry: post-only limit near best bid to reduce fee/slippage.
-        book = self.exchange.get_order_book(pair, level=1)
-        pb = book.get("pricebook", {}) if isinstance(book, dict) else {}
-        bids = pb.get("bids", []) if isinstance(pb, dict) else []
-        asks = pb.get("asks", []) if isinstance(pb, dict) else []
-        best_bid = float(bids[0].get("price", 0.0) or 0.0) if bids else 0.0
-        best_ask = float(asks[0].get("price", 0.0) or 0.0) if asks else 0.0
-        if best_bid > 0 and best_ask > 0:
-            limit_price = min(best_ask * 0.9999, best_bid * 1.0002)
-        elif best_bid > 0:
-            limit_price = best_bid
-        else:
-            limit_price = price
-        if limit_price <= 0:
-            limit_price = price
-        fallback = self._place_buy_with_fallback(
-            pair=pair,
-            usd_amount=usd_amount,
-            limit_price=limit_price,
-            expected_edge_pct=expected_edge_pct,
-            signal_confidence=signal_confidence,
-            market_regime=market_regime,
+        approved, rc_reason, approved_size = _live_risk_ctrl.approve_trade(
+            "live_trader",
+            pair,
+            side,
+            usd_amount,
+            risk_portfolio_value,
         )
-        result = fallback.get("result", {}) if isinstance(fallback, dict) else {}
-        executed_pair = str(fallback.get("pair", pair) if isinstance(fallback, dict) else pair)
+        if not approved:
+            logger.warning("Risk check blocked: %s %s $%.2f | %s", side, pair, usd_amount, rc_reason)
+            return
 
+        trade_id = self._extract_trade_id(rc_reason)
+        try:
+            usd_amount = float(approved_size)
+        except (TypeError, ValueError):
+            logger.warning("Risk controller returned invalid adjusted size for %s: %r", pair, approved_size)
+            _live_risk_ctrl.resolve_allocation("live_trader", pair, trade_id=trade_id)
+            _live_risk_ctrl.complete_trade(trade_id or "unknown", status="failed")
+            return
+        if not math.isfinite(usd_amount) or usd_amount <= 0:
+            logger.warning("Risk controller returned non-positive adjusted size for %s: %r", pair, approved_size)
+            _live_risk_ctrl.resolve_allocation("live_trader", pair, trade_id=trade_id)
+            _live_risk_ctrl.complete_trade(trade_id or "unknown", status="failed")
+            return
+
+        execution_status = "failed"
+        executed_pair = pair
         order_id = None
-        status = "failed"
-        ok, oid = self._order_success(result)
-        if ok:
-            order_id = oid
-            status = "filled"
-            logger.info(
-                "ORDER FILLED: %s | order_id=%s | route=%s",
-                executed_pair,
-                order_id,
-                fallback.get("route", "direct"),
-            )
-        elif "error_response" in result:
-            err = result["error_response"]
-            logger.warning("ORDER FAILED: %s | %s", executed_pair, err.get("message", err))
-            _record_no_loss_root_cause(
-                executed_pair,
-                side,
-                "order_rejected",
-                str(err.get("message", err)),
-                details={"response": result, "signal": signal, "attempts": fallback.get("attempts", [])},
-            )
-            status = "failed"
-        else:
-            logger.warning("ORDER RESPONSE: %s", json.dumps(result)[:300])
-            _record_no_loss_root_cause(
-                executed_pair,
-                side,
-                "order_all_routes_failed",
-                "all execution routes failed",
-                details={"attempts": fallback.get("attempts", []), "signal": signal},
-            )
+        try:
+            price = self.pricefeed.get_price(pair)
+            if not price:
+                logger.warning("No price for %s", pair)
+                execution_status = "failed_price"
+                return
 
-        # Record trade
-        exec_price = self.pricefeed.get_price(executed_pair) or price
-        self.db.execute(
-            """INSERT INTO live_trades (pair, side, price, quantity, total_usd,
-               signal_type, signal_confidence, signal_host, coinbase_order_id, status)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (executed_pair, side, exec_price, usd_amount / exec_price if exec_price else 0, usd_amount,
-             signal.get("signal_type"), signal.get("confidence"),
-             signal.get("target_host"), order_id, status)
-        )
-        self.db.commit()
-        self.trades_today += 1
+            decision, route = self._evaluate_no_loss_gate(
+                pair=pair,
+                side=side,
+                amount_usd=usd_amount,
+                expected_edge_pct=expected_edge_pct,
+                confidence=signal_confidence,
+                regime=market_regime,
+            )
+            if not decision.get("approved", False):
+                reason = decision.get("reason", "blocked")
+                logger.warning("NO-LOSS BLOCK: %s %s $%.2f | %s", side, pair, usd_amount, reason)
+                _record_no_loss_root_cause(
+                    pair,
+                    side,
+                    "pre_trade_policy_block",
+                    reason,
+                    details={"decision": decision, "route": route, "signal": signal},
+                )
+                execution_status = "blocked_no_loss"
+                return
+
+            logger.info("EXECUTING: BUY %s | $%.2f @ $%.2f | signal=%s conf=%.2f",
+                         pair, usd_amount, price,
+                         signal.get("signal_type"), float(signal.get("confidence", 0)))
+            # HFT-style maker entry: post-only limit near best bid to reduce fee/slippage.
+            book = self.exchange.get_order_book(pair, level=1)
+            pb = book.get("pricebook", {}) if isinstance(book, dict) else {}
+            bids = pb.get("bids", []) if isinstance(pb, dict) else []
+            asks = pb.get("asks", []) if isinstance(pb, dict) else []
+            best_bid = float(bids[0].get("price", 0.0) or 0.0) if bids else 0.0
+            best_ask = float(asks[0].get("price", 0.0) or 0.0) if asks else 0.0
+            if best_bid > 0 and best_ask > 0:
+                limit_price = min(best_ask * 0.9999, best_bid * 1.0002)
+            elif best_bid > 0:
+                limit_price = best_bid
+            else:
+                limit_price = price
+            if limit_price <= 0:
+                limit_price = price
+            fallback = self._place_buy_with_fallback(
+                pair=pair,
+                usd_amount=usd_amount,
+                limit_price=limit_price,
+                expected_edge_pct=expected_edge_pct,
+                signal_confidence=signal_confidence,
+                market_regime=market_regime,
+            )
+            result = fallback.get("result", {}) if isinstance(fallback, dict) else {}
+            executed_pair = str(fallback.get("pair", pair) if isinstance(fallback, dict) else pair)
+
+            ok, oid = self._order_success(result)
+            if ok:
+                order_id = oid
+                execution_status = "filled"
+                logger.info(
+                    "ORDER FILLED: %s | order_id=%s | route=%s",
+                    executed_pair,
+                    order_id,
+                    fallback.get("route", "direct"),
+                )
+            elif "error_response" in result:
+                err = result["error_response"]
+                logger.warning("ORDER FAILED: %s | %s", executed_pair, err.get("message", err))
+                _record_no_loss_root_cause(
+                    executed_pair,
+                    side,
+                    "order_rejected",
+                    str(err.get("message", err)),
+                    details={"response": result, "signal": signal, "attempts": fallback.get("attempts", [])},
+                )
+                execution_status = "failed"
+            else:
+                logger.warning("ORDER RESPONSE: %s", json.dumps(result)[:300])
+                _record_no_loss_root_cause(
+                    executed_pair,
+                    side,
+                    "order_all_routes_failed",
+                    "all execution routes failed",
+                    details={"attempts": fallback.get("attempts", []), "signal": signal},
+                )
+                execution_status = "failed"
+
+            # Record trade
+            exec_price = self.pricefeed.get_price(executed_pair) or price
+            self.db.execute(
+                """INSERT INTO live_trades (pair, side, price, quantity, total_usd,
+                   signal_type, signal_confidence, signal_host, coinbase_order_id, status)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (executed_pair, side, exec_price, usd_amount / exec_price if exec_price else 0, usd_amount,
+                 signal.get("signal_type"), signal.get("confidence"),
+                 signal.get("target_host"), order_id, execution_status)
+            )
+            self.db.commit()
+            self.trades_today += 1
+
+        finally:
+            if trade_id:
+                _live_risk_ctrl.complete_trade(trade_id, status=execution_status)
+                _live_risk_ctrl.resolve_allocation("live_trader", executed_pair, trade_id=trade_id)
+            else:
+                _live_risk_ctrl.resolve_allocation("live_trader", executed_pair)
+
 
     def snapshot(self):
         """Record portfolio snapshot locally and push to Fly dashboard."""

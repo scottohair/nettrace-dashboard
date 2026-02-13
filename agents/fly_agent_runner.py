@@ -69,6 +69,7 @@ class FlyAgentRunner:
         self.running = False
         self.goals = GoalValidator()
         self._started_at = None
+        self._lock = threading.RLock()
 
         logger.info("FlyAgentRunner init: region=%s, is_primary=%s",
                      self.region, self.is_primary)
@@ -79,40 +80,51 @@ class FlyAgentRunner:
 
     def start(self):
         """Start agents appropriate for this region."""
-        if self.running:
-            logger.warning("Agent runner already running")
-            return
+        with self._lock:
+            if self.running:
+                logger.warning("Agent runner already running")
+                return
 
-        self.running = True
-        self._started_at = time.time()
+            self.running = True
+            self._started_at = time.time()
 
-        # Log the goals every agent is trained on
-        logger.info("=== AGENT GOALS (encoded in every decision) ===")
-        for num, rule in RULES.items():
-            logger.info("  Rule #%d: %s", num, rule)
-        logger.info("  Order type: %s (fee: %.1f%%)",
-                     GoalValidator.optimal_order_type()["order_type"],
-                     GoalValidator.optimal_order_type()["fee"] * 100)
-        logger.info("================================================")
+            # Log the goals every agent is trained on
+            logger.info("=== AGENT GOALS (encoded in every decision) ===")
+            for num, rule in RULES.items():
+                logger.info("  Rule #%d: %s", num, rule)
+            logger.info("  Order type: %s (fee: %.1f%%)",
+                        GoalValidator.optimal_order_type()["order_type"],
+                        GoalValidator.optimal_order_type()["fee"] * 100)
+            logger.info("================================================")
 
-        if self.is_primary:
-            self._start_primary_agents()
-        else:
-            self._start_scout_agent()
+            if self.is_primary:
+                self._start_primary_agents()
+            else:
+                self._start_scout_agent()
 
-        agent_names = list(self.agents.keys())
-        logger.info("Started %d agent(s) in region %s: %s",
-                     len(agent_names), self.region, agent_names)
+            agent_names = list(self.agents.keys())
+            logger.info("Started %d agent(s) in region %s: %s",
+                        len(agent_names), self.region, agent_names)
 
     def stop(self):
         """Signal all agents to stop."""
         logger.info("Stopping agent runner...")
-        self.running = False
-        # Threads are daemons — they'll die with the process
-        # But give them a moment to clean up
-        time.sleep(2)
-        self.agents.clear()
-        self.assistants.clear()
+        with self._lock:
+            if not self.running:
+                return
+            self.running = False
+            running_threads = list(self.agents.items())
+
+        # Give cooperative loops a chance to exit cleanly.
+        for name, thread in running_threads:
+            thread.join(timeout=3)
+            if thread.is_alive():
+                logger.warning("Agent thread still alive after stop timeout: %s", name)
+
+        with self._lock:
+            self.agents.clear()
+            self.assistants.clear()
+            self._started_at = None
         logger.info("Agent runner stopped")
 
     def _start_primary_agents(self):
@@ -130,6 +142,12 @@ class FlyAgentRunner:
 
     def _start_agent_thread(self, name):
         """Start a named agent as a daemon thread."""
+        with self._lock:
+            existing = self.agents.get(name)
+            if existing is not None and existing.is_alive():
+                logger.warning("Agent '%s' already running; skipping duplicate start", name)
+                return
+
         target = self._get_agent_run_fn(name)
         if target is None:
             logger.warning("No run function found for agent '%s', skipping", name)
@@ -142,8 +160,9 @@ class FlyAgentRunner:
             daemon=True,
         )
         thread.start()
-        self.agents[name] = thread
-        self.assistants[name] = AgentAssistant(name)
+        with self._lock:
+            self.agents[name] = thread
+            self.assistants[name] = AgentAssistant(name)
         logger.info("Started agent thread: %s (tid=%s)", name, thread.ident)
 
     def _get_agent_run_fn(self, name):
@@ -412,6 +431,9 @@ class FlyAgentRunner:
 
     def status(self):
         """Return current runner status."""
+        with self._lock:
+            agents = list(self.agents.items())
+            assistants = dict(self.assistants)
         return {
             "region": self.region,
             "is_primary": self.is_primary,
@@ -420,9 +442,9 @@ class FlyAgentRunner:
             "agents": {
                 name: {
                     "alive": thread.is_alive(),
-                    "metrics": self.assistants[name].get_metrics() if name in self.assistants else {},
+                    "metrics": assistants[name].get_metrics() if name in assistants else {},
                 }
-                for name, thread in self.agents.items()
+                for name, thread in agents
             },
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
