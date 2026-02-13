@@ -91,18 +91,32 @@ HTTP_TIMEOUT = 15    # seconds per request
 # Crypto trading pairs we feed signals to (via CoinbaseTrader)
 CRYPTO_PAIRS = ["BTC-USDC", "ETH-USDC", "SOL-USDC"]
 
-# Risk limits (this agent emits signals, not direct trades)
-MAX_TRADE_USD = 5.00
-MAX_DAILY_LOSS_USD = 2.00
+# Risk limits — dynamic from risk_controller, these are only fallback floors
 MIN_CONFIDENCE = 0.70
 MIN_CONFIRMING_SIGNALS = 2
 
+try:
+    from risk_controller import get_controller as _get_rc_exc
+    _exc_risk_ctrl = _get_rc_exc()
+except Exception:
+    _exc_risk_ctrl = None
+
+def _get_max_trade_usd(portfolio_value=290):
+    if _exc_risk_ctrl:
+        return _exc_risk_ctrl.get_risk_params(portfolio_value).get("max_trade_usd", 5.0)
+    return max(1.0, portfolio_value * 0.06)
+
+def _get_max_daily_loss(portfolio_value=290):
+    if _exc_risk_ctrl:
+        return _exc_risk_ctrl.get_risk_params(portfolio_value).get("max_daily_loss", 2.0)
+    return max(1.0, portfolio_value * 0.04)
+
 # Correlation thresholds — minimum % move to trigger a signal
-GOLD_MOVE_THRESHOLD = 0.005      # 0.5% gold move
-OIL_MOVE_THRESHOLD = 0.010       # 1.0% oil move
-FOREX_MOVE_THRESHOLD = 0.003     # 0.3% DXY/EUR-USD move
-ENERGY_MOVE_THRESHOLD = 0.015    # 1.5% energy move
-VIX_MOVE_THRESHOLD = 0.05        # 5% VIX move
+GOLD_MOVE_THRESHOLD = 0.002      # 0.2% gold move (was 0.5% — too strict for 2-min snapshots)
+OIL_MOVE_THRESHOLD = 0.005       # 0.5% oil move (was 1.0%)
+FOREX_MOVE_THRESHOLD = 0.001     # 0.1% DXY/EUR-USD move (was 0.3%)
+ENERGY_MOVE_THRESHOLD = 0.008    # 0.8% energy move (was 1.5%)
+VIX_MOVE_THRESHOLD = 0.03        # 3% VIX move (was 5%)
 
 # Free API endpoints (no auth required)
 API_ENDPOINTS = {
@@ -451,6 +465,7 @@ class ExchangeScanner:
         self.db = ScannerDB()
         self._price_cache = {}   # asset -> {"price": float, "time": float}
         self._prev_prices = {}   # asset -> float (previous scan's price for change calc)
+        self._price_windows = {}  # asset -> deque of (price, time) — rolling 30-entry window (1 hour at 2-min interval)
         self._daily_signals = 0
         self._daily_reset = datetime.now(timezone.utc).date()
         logger.info("ExchangeScanner initialized | DB=%s", DB_FILE)
@@ -657,17 +672,26 @@ class ExchangeScanner:
     # ── Cache & change tracking ──
 
     def _store_and_cache(self, source, asset, price):
-        """Store price in DB and update cache, compute change from previous."""
+        """Store price in DB and update cache, compute change from rolling window."""
+        from collections import deque
         now = time.time()
-        prev = self._prev_prices.get(asset)
+
+        # Maintain rolling 30-entry window (~1 hour at 2-min interval)
+        if asset not in self._price_windows:
+            self._price_windows[asset] = deque(maxlen=30)
+        self._price_windows[asset].append((price, now))
+
+        # Calculate change from oldest price in rolling window (not just previous scan)
+        window = self._price_windows[asset]
         change_pct = 0.0
-        if prev and prev > 0:
-            change_pct = (price - prev) / prev
+        if len(window) >= 2:
+            oldest_price = window[0][0]
+            if oldest_price > 0:
+                change_pct = (price - oldest_price) / oldest_price
 
         self.db.store_price(source, asset, price, change_pct,
-                           {"cached_at": now})
+                           {"cached_at": now, "window_size": len(window)})
         self._price_cache[asset] = {"price": price, "time": now}
-        # Update previous for next cycle
         self._prev_prices[asset] = price
 
     def _get_cached_price(self, asset):

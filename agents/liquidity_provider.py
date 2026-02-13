@@ -103,9 +103,27 @@ FEE_TO_TICK_SPACING = {
     10000: 200,   # 1.0%
 }
 
-# Maximum position value in USD (trading rules: max $5 per position)
-MAX_POSITION_USD = 5.00
-MAX_DAILY_LOSS_USD = 2.00
+# Risk limits — dynamic from risk_controller (no hardcoded values per user's rule)
+try:
+    from risk_controller import get_controller as _get_rc_lp
+    _lp_risk_ctrl = _get_rc_lp()
+except Exception:
+    _lp_risk_ctrl = None
+
+def _get_max_position_usd(portfolio_value=290):
+    if _lp_risk_ctrl:
+        params = _lp_risk_ctrl.get_risk_params(portfolio_value)
+        return portfolio_value * params.get("max_position_pct", 0.25)
+    return max(5.0, portfolio_value * 0.20)
+
+def _get_max_daily_loss_lp(portfolio_value=290):
+    if _lp_risk_ctrl:
+        return _lp_risk_ctrl.get_risk_params(portfolio_value).get("max_daily_loss", 2.0)
+    return max(1.0, portfolio_value * 0.04)
+
+# Backward compat — some code references these as constants
+MAX_POSITION_USD = _get_max_position_usd()
+MAX_DAILY_LOSS_USD = _get_max_daily_loss_lp()
 
 # Uniswap V3 math constants
 Q96 = 2 ** 96

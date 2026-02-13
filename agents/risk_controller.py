@@ -20,6 +20,7 @@ import math
 import os
 import sqlite3
 import time
+import uuid
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,7 +38,7 @@ if _env_path.exists():
             os.environ.setdefault(k.strip(), v.strip().strip('"'))
 
 DB_PATH = Path(__file__).parent / "risk_controller.db"
-CACHE_TTL = 30  # seconds
+CACHE_TTL = 5  # seconds — reduced from 30s to catch flash crashes faster
 
 
 class MarketState:
@@ -47,10 +48,10 @@ class MarketState:
         self._price_cache = {}  # pair -> (price, timestamp)
         self._candle_cache = {}  # pair -> (candles, timestamp)
 
-    def get_price(self, pair):
-        """Get spot price with caching."""
+    def get_price(self, pair, urgent=False):
+        """Get spot price with caching. Pass urgent=True to bypass cache."""
         cache = self._price_cache.get(pair)
-        if cache and time.time() - cache[1] < CACHE_TTL:
+        if not urgent and cache and time.time() - cache[1] < CACHE_TTL:
             return cache[0]
         try:
             # Use USD pair for data (more liquid)
@@ -195,7 +196,35 @@ class RiskController:
                 last_trade TIMESTAMP,
                 status TEXT DEFAULT 'active'
             );
+            CREATE TABLE IF NOT EXISTS pending_allocations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                agent TEXT NOT NULL,
+                pair TEXT NOT NULL,
+                direction TEXT NOT NULL,
+                size_usd REAL NOT NULL,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                resolved_at TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS trade_audit (
+                trade_id TEXT PRIMARY KEY,
+                agent TEXT NOT NULL,
+                pair TEXT NOT NULL,
+                direction TEXT NOT NULL,
+                requested_size REAL,
+                approved_size REAL,
+                status TEXT DEFAULT 'approved',
+                reason TEXT,
+                volatility REAL,
+                trend REAL,
+                portfolio_value REAL,
+                pnl REAL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                completed_at TIMESTAMP
+            );
         """)
+        self._db.execute("PRAGMA journal_mode=WAL")
+        self._db.execute("PRAGMA busy_timeout=5000")
         self._db.commit()
 
     def _check_daily_reset(self):
@@ -326,14 +355,23 @@ class RiskController:
         """Central trade approval — returns (approved, reason, adjusted_size).
 
         Every agent MUST call this before executing any trade.
+        Uses SQLite-based atomic locking so cross-process agents can't
+        simultaneously approve trades exceeding combined limits.
         Returns tuple: (bool approved, str reason, float adjusted_size)
         """
-        with self._lock:
+        # Use SQLite transaction for atomic cross-process coordination
+        # threading.Lock only works within a single process — useless for
+        # separate agent processes that each import risk_controller
+        try:
+            cur = self._db.cursor()
+            cur.execute("BEGIN IMMEDIATE")  # acquire DB write lock atomically
+
             self._check_daily_reset()
 
             # 1. Daily loss check
             max_loss = self.max_daily_loss(portfolio_value)
             if self._daily_loss >= max_loss:
+                self._db.rollback()
                 self._log_event("hardstop", agent_name, pair,
                                 f"Daily loss ${self._daily_loss:.2f} >= limit ${max_loss:.2f}")
                 return False, f"HARDSTOP: Daily loss ${self._daily_loss:.2f} >= ${max_loss:.2f}", 0
@@ -345,33 +383,114 @@ class RiskController:
             if direction == "BUY":
                 trend = self.market.compute_trend(pair)
                 if trend < -0.5:
+                    self._db.rollback()
                     self._log_event("trend_block", agent_name, pair,
                                     f"Strong downtrend ({trend:.2f}), blocking BUY")
                     return False, f"BLOCKED: Strong downtrend ({trend:.2f}) on {pair}", 0
 
             # 4. Dynamic reserve check
             reserve = self.min_reserve(portfolio_value, vol)
-            # Get USDC balance estimate from portfolio (caller should provide actual)
-            # For now, ensure size doesn't exceed portfolio - reserve
             if direction == "BUY":
                 max_size = self.max_trade_usd(portfolio_value, vol,
                                                self.market.compute_trend(pair))
                 adjusted = min(size_usd, max_size)
                 if adjusted < 1.00:
+                    self._db.rollback()
                     return False, f"Trade too small after adjustments (${adjusted:.2f})", 0
             else:
                 adjusted = size_usd  # sells aren't limited by same rules
 
-            # 5. Rate limiting: max trades per day scales with portfolio
+            # 5. Check total pending allocations across ALL agents (cross-process safe)
+            row = cur.execute(
+                "SELECT COALESCE(SUM(size_usd), 0) FROM pending_allocations WHERE status='pending'"
+            ).fetchone()
+            total_pending = row[0] if row else 0
+            if direction == "BUY" and (total_pending + adjusted) > portfolio_value * 0.80:
+                self._db.rollback()
+                return False, f"Total pending ${total_pending + adjusted:.2f} exceeds 80% of portfolio ${portfolio_value:.2f}", 0
+
+            # 6. Rate limiting: max trades per day scales with portfolio
             max_trades = max(10, int(math.log10(max(1, portfolio_value)) * 20))
             if self._trade_count_today >= max_trades:
+                self._db.rollback()
                 return False, f"Trade limit reached ({self._trade_count_today}/{max_trades})", 0
 
-            # 6. Approve
+            # 7. Record allocation and approve (atomic with the checks above)
+            trade_id = str(uuid.uuid4())[:12]
+            cur.execute(
+                "INSERT INTO pending_allocations (agent, pair, direction, size_usd) VALUES (?, ?, ?, ?)",
+                (agent_name, pair, direction, adjusted))
+            cur.execute(
+                "INSERT INTO trade_audit (trade_id, agent, pair, direction, requested_size, "
+                "approved_size, status, reason, volatility, trend, portfolio_value) "
+                "VALUES (?, ?, ?, ?, ?, ?, 'approved', 'APPROVED', ?, ?, ?)",
+                (trade_id, agent_name, pair, direction, size_usd, adjusted,
+                 vol, self.market.compute_trend(pair) if direction == "BUY" else 0,
+                 portfolio_value))
             self._trade_count_today += 1
-            self._log_event("approved", agent_name, pair,
-                            f"{direction} ${adjusted:.2f} (vol={vol:.3f})")
-            return True, "APPROVED", round(adjusted, 2)
+            self._db.commit()
+
+            logger.info("TRADE %s: APPROVED %s %s %s $%.2f (vol=%.3f)",
+                        trade_id, agent_name, direction, pair, adjusted, vol)
+            return True, f"APPROVED|trade_id={trade_id}", round(adjusted, 2)
+
+        except Exception as e:
+            try:
+                self._db.rollback()
+            except Exception:
+                pass
+            logger.error("approve_trade error: %s", e)
+            return False, f"Risk controller error: {e}", 0
+
+    def resolve_allocation(self, agent_name, pair):
+        """Mark a pending allocation as resolved after trade completes or fails."""
+        try:
+            self._db.execute(
+                "UPDATE pending_allocations SET status='resolved', resolved_at=CURRENT_TIMESTAMP "
+                "WHERE agent=? AND pair=? AND status='pending'",
+                (agent_name, pair))
+            self._db.commit()
+        except Exception:
+            pass
+
+    def complete_trade(self, trade_id, status="filled", pnl=None):
+        """Mark a trade as completed in the audit log for post-mortem analysis."""
+        try:
+            self._db.execute(
+                "UPDATE trade_audit SET status=?, pnl=?, completed_at=CURRENT_TIMESTAMP "
+                "WHERE trade_id=?",
+                (status, pnl, trade_id))
+            self._db.commit()
+        except Exception:
+            pass
+
+    def request_trade(self, agent_name, pair, direction, size_usd, portfolio_value=None):
+        """Unified trade request entry point — ALL agents should call this.
+
+        Wraps approve_trade with automatic portfolio estimation if not provided.
+        Returns tuple: (bool approved, str reason, float adjusted_size)
+        """
+        if portfolio_value is None:
+            # Auto-estimate from Coinbase holdings
+            try:
+                from exchange_connector import CoinbaseTrader
+                trader = CoinbaseTrader()
+                accts = trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
+                total = 0.0
+                for a in accts.get("accounts", []):
+                    cur = a.get("currency", "")
+                    bal = float(a.get("available_balance", {}).get("value", 0))
+                    if cur in ("USDC", "USD"):
+                        total += bal
+                    elif bal > 0:
+                        price = self.market.get_price(f"{cur}-USDC")
+                        if price:
+                            total += bal * price
+                portfolio_value = max(1.0, total)
+            except Exception:
+                portfolio_value = 100.0  # safe fallback
+
+        return self.approve_trade(agent_name, pair, direction, size_usd, portfolio_value)
 
     def record_trade_result(self, agent_name, pnl):
         """Record trade result for agent performance tracking."""

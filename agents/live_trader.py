@@ -48,13 +48,19 @@ TRADER_DB = str(Path(__file__).parent / "trader.db")
 SIGNAL_API = "https://nettrace-dashboard.fly.dev/api/v1/signals"
 NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 
-# Risk parameters — conservative with $13
+# Risk parameters — ALL dynamic from risk_controller, these are only absolute floors
 MIN_TRADE_USD = 1.00       # Coinbase min is ~$1
-MAX_TRADE_USD = 5.00       # Never risk more than $5 per trade
-MAX_DAILY_LOSS_USD = 2.00  # Stop trading after $2 loss in a day
 SIGNAL_MIN_CONFIDENCE = 0.70
 CHECK_INTERVAL = 120       # Check every 2 minutes
 POSITION_HOLD_SECONDS = 300  # Hold for 5 minutes then re-evaluate
+
+# Dynamic risk controller — NO hardcoded limits
+try:
+    from risk_controller import get_controller as _get_rc
+    _live_risk_ctrl = _get_rc()
+except Exception:
+    _live_risk_ctrl = None
+    logging.getLogger("live_trader").error("Risk controller failed to load — trades will be BLOCKED")
 
 
 class LiveTrader:
@@ -64,6 +70,8 @@ class LiveTrader:
         self.pricefeed = PriceFeed
         self.db = sqlite3.connect(TRADER_DB)
         self.db.row_factory = sqlite3.Row
+        self.db.execute("PRAGMA journal_mode=WAL")
+        self.db.execute("PRAGMA busy_timeout=5000")
         self._init_db()
         self.daily_pnl = 0.0
         self.trades_today = 0
@@ -193,15 +201,25 @@ class LiveTrader:
         4. Only BUY when we have USD/USDC available — no panic sells
         5. Check market regime FIRST — skip downtrends
         """
-        if self.daily_pnl <= -MAX_DAILY_LOSS_USD:
-            logger.warning("Daily loss limit hit ($%.2f). STOPPED.", self.daily_pnl)
+        # Block trades if risk controller unavailable
+        if not _live_risk_ctrl:
+            logger.error("Risk controller unavailable — BLOCKING all trades")
+            return
+
+        # Get dynamic limits from risk controller
+        total_val, holdings = self.get_portfolio_value()
+        risk_params = _live_risk_ctrl.get_risk_params(total_val)
+        max_trade_usd = risk_params["max_trade_usd"]
+        max_daily_loss = risk_params["max_daily_loss"]
+
+        if self.daily_pnl <= -max_daily_loss:
+            logger.warning("Daily loss limit hit ($%.2f >= $%.2f). STOPPED.", self.daily_pnl, max_daily_loss)
             return
 
         # We only BUY — we accumulate assets on strong signals
         # We only SELL when price is ABOVE our purchase price + fees (0.6%)
         # This ensures we NEVER LOSE MONEY on a trade
 
-        _, holdings = self.get_portfolio_value()
         usdc = holdings.get("USDC", {}).get("usd_value", 0)
         usd = holdings.get("USD", {}).get("usd_value", 0)
         available_cash = usdc + usd
@@ -277,7 +295,7 @@ class LiveTrader:
                 continue
 
             avg_conf = sum(float(s.get("confidence", 0)) for s in sigs) / len(sigs)
-            trade_usd = min(MAX_TRADE_USD, max(MIN_TRADE_USD, avg_conf * 6.0))
+            trade_usd = min(max_trade_usd, max(MIN_TRADE_USD, avg_conf * max_trade_usd * 1.2))
             trade_usd = min(trade_usd, available_cash)
 
             logger.info("BUY SIGNAL: %s | %d confirming signals | avg_conf=%.2f | $%.2f",

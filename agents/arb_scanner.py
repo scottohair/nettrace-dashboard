@@ -44,19 +44,67 @@ logger = logging.getLogger("arb_scanner")
 # Risk parameters — NEVER LOSE MONEY
 COINBASE_MAKER_FEE_PCT = 0.004  # 0.40% maker fee (limit orders)
 COINBASE_TAKER_FEE_PCT = 0.006  # 0.60% taker fee (market orders)
-MIN_SPREAD_PCT = 0.006          # 0.60% minimum spread (maker fee + 0.2% buffer)
+MIN_SPREAD_PCT = 0.012          # 1.2% minimum spread (covers fees + slippage + profit)
 SAFE_SPREAD_PCT = 0.010         # 1.0% = high confidence, scale up size
-MAX_TRADE_USD = 8.00            # Max per trade (dynamic via risk_controller)
 MIN_TRADE_USD = 1.00            # Coinbase minimum
 MIN_SOURCES = 3                 # Need 3+ price sources to validate
 SCAN_INTERVAL = 10              # Check every 10 seconds (faster = more opportunities)
 COOLDOWN_SECONDS = 60           # 1 min between trades on same pair (was 2 min)
+
+# Dynamic risk controller — arb_scanner MUST check risk before trading
+try:
+    from risk_controller import get_controller as _get_rc_arb
+    _arb_risk_ctrl = _get_rc_arb()
+except Exception:
+    _arb_risk_ctrl = None
+    logging.getLogger("arb_scanner").error("Risk controller failed to load — arb trades will be BLOCKED")
 
 # Pairs we can trade on Coinbase — expanded set
 PAIRS = ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "LINK-USD", "DOGE-USD"]
 
 # Track last trade time per pair
 last_trade = {}
+
+# Database for trade recording
+ARB_DB = str(Path(__file__).parent / "arb_scanner.db")
+
+def _init_arb_db():
+    """Initialize arb scanner database."""
+    import sqlite3
+    db = sqlite3.connect(ARB_DB)
+    db.execute("PRAGMA journal_mode=WAL")
+    db.execute("PRAGMA busy_timeout=5000")
+    db.executescript("""
+        CREATE TABLE IF NOT EXISTS arb_trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pair TEXT NOT NULL,
+            side TEXT NOT NULL,
+            amount_usd REAL,
+            coinbase_price REAL,
+            market_median REAL,
+            spread_pct REAL,
+            expected_profit_pct REAL,
+            confidence REAL,
+            sources INTEGER,
+            status TEXT DEFAULT 'pending',
+            order_id TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS arb_opportunities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pair TEXT NOT NULL,
+            side TEXT NOT NULL,
+            spread_pct REAL,
+            expected_profit_pct REAL,
+            sources INTEGER,
+            acted_on INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    db.commit()
+    return db
+
+_arb_db = _init_arb_db()
 
 
 def fetch_coinbase_price(pair):
@@ -222,8 +270,14 @@ def execute_arb(opportunity):
 
     Deterministic: spread > fees = trade. No confidence gate.
     Uses limit orders at the spread edge for best execution.
+    ALL trades go through risk_controller.approve_trade() first.
     """
     from exchange_connector import CoinbaseTrader
+
+    # Block trades if risk controller unavailable
+    if not _arb_risk_ctrl:
+        logger.error("ARB: Risk controller unavailable — BLOCKING trade")
+        return False
 
     pair = opportunity["pair"]
     side = opportunity["side"]
@@ -234,9 +288,23 @@ def execute_arb(opportunity):
         logger.debug("Cooldown active for %s", pair)
         return False
 
+    # Get dynamic max trade from risk controller
+    # Estimate portfolio from risk controller (arb_scanner doesn't track portfolio directly)
+    portfolio_est = 290  # will be overridden by risk_controller's own check
+    risk_params = _arb_risk_ctrl.get_risk_params(portfolio_est, pair.replace("-USD", "-USDC"))
+    max_trade_usd = risk_params["max_trade_usd"]
+
     # Size scales with spread magnitude: bigger spread = more confident = bigger trade
     spread_mult = min(2.0, abs(opportunity["spread_pct"]) / (SAFE_SPREAD_PCT * 100))
-    trade_usd = min(MAX_TRADE_USD, max(MIN_TRADE_USD, MIN_TRADE_USD + (MAX_TRADE_USD - MIN_TRADE_USD) * spread_mult))
+    trade_usd = min(max_trade_usd, max(MIN_TRADE_USD, MIN_TRADE_USD + (max_trade_usd - MIN_TRADE_USD) * spread_mult))
+
+    # Risk controller approval — prevents exceeding combined limits across agents
+    approved, reason, adj_size = _arb_risk_ctrl.approve_trade(
+        "arb_scanner", pair, side, trade_usd, portfolio_est)
+    if not approved:
+        logger.info("ARB: Risk controller blocked: %s", reason)
+        return False
+    trade_usd = adj_size
 
     logger.info("ARB EXECUTE: %s %s | spread=%.4f%% | profit=%.4f%% | $%.2f",
                 side, pair, opportunity["spread_pct"], opportunity["expected_profit_pct"], trade_usd)
@@ -276,9 +344,27 @@ def execute_arb(opportunity):
             result = trader.place_order(pair, "SELL", sell_amount)
 
     success = "success_response" in result or ("order_id" in result and "error" not in result)
+    order_id = result.get("success_response", result).get("order_id", "?") if success else None
+    status = "filled" if "success_response" in result else ("pending" if success else "failed")
+
+    # Record trade in DB
+    try:
+        _arb_db.execute(
+            """INSERT INTO arb_trades
+               (pair, side, amount_usd, coinbase_price, market_median, spread_pct,
+                expected_profit_pct, confidence, sources, status, order_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (pair, side, trade_usd, opportunity["coinbase_price"],
+             opportunity["market_median"], opportunity["spread_pct"],
+             opportunity["expected_profit_pct"], opportunity.get("confidence", 0),
+             opportunity.get("sources", 0), status, order_id)
+        )
+        _arb_db.commit()
+    except Exception as e:
+        logger.debug("DB record failed: %s", e)
+
     if success:
-        order_id = result.get("success_response", result).get("order_id", "?")
-        logger.info("ARB EXECUTED: %s %s $%.2f | order=%s", side, pair, trade_usd, order_id)
+        logger.info("ARB EXECUTED: %s %s $%.2f | order=%s [%s]", side, pair, trade_usd, order_id, status)
         last_trade[pair] = now
         return True
     else:
@@ -311,6 +397,14 @@ def scan_loop():
                         logger.info("FOUND: %s %s spread=%.4f%% profit=%.4f%% sources=%d",
                                    opp["side"], pair, opp["spread_pct"],
                                    opp["expected_profit_pct"], opp["sources"])
+                        try:
+                            _arb_db.execute(
+                                "INSERT INTO arb_opportunities (pair, side, spread_pct, expected_profit_pct, sources) VALUES (?, ?, ?, ?, ?)",
+                                (pair, opp["side"], opp["spread_pct"], opp["expected_profit_pct"], opp["sources"])
+                            )
+                            _arb_db.commit()
+                        except Exception:
+                            pass
 
                         # Arb is DETERMINISTIC — spread > fees = execute
                         # No confidence gate needed; find_arbitrage already

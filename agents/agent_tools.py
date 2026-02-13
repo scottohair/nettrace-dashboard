@@ -34,12 +34,38 @@ if _env_path.exists():
 TRADER_DB = str(Path(__file__).parent / "trader.db")
 NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 FLY_URL = "https://nettrace-dashboard.fly.dev"
+STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("0", "false", "no")
+
+try:
+    from trading_guard import is_trading_locked, set_trading_lock, clear_trading_lock
+except Exception:
+    # Fallback so tools remain usable even if trading_guard import fails.
+    def is_trading_locked():
+        return False, "", ""
+
+    def set_trading_lock(reason, source="system", metadata=None):
+        return {"locked": True, "reason": reason, "source": source, "metadata": metadata or {}}
+
+    def clear_trading_lock(source="system", note=""):
+        return {"locked": False, "reason": note, "source": source}
 
 # Adaptive risk — scales with portfolio size automatically
-# These are FLOORS, the adaptive engine scales up from here
-BASE_MAX_TRADE_USD = 5.00
-BASE_DAILY_LOSS_USD = 2.00
+# These floors now come from risk_controller when available
 MAX_EXPOSURE_PCT = 0.80  # never have more than 80% in positions
+
+try:
+    from risk_controller import get_controller as _get_rc_at
+    _at_risk_ctrl = _get_rc_at()
+except Exception:
+    _at_risk_ctrl = None
+
+def _get_base_limits(portfolio_value=290):
+    if _at_risk_ctrl:
+        params = _at_risk_ctrl.get_risk_params(portfolio_value)
+        return params["max_trade_usd"], params["max_daily_loss"]
+    return max(1.0, portfolio_value * 0.06), max(1.0, portfolio_value * 0.04)
+
+BASE_MAX_TRADE_USD, BASE_DAILY_LOSS_USD = _get_base_limits()
 
 
 class AdaptiveRisk:
@@ -273,7 +299,11 @@ class AgentTools:
     def place_limit_buy(self, pair, price, base_size, agent_name="unknown"):
         """Place a limit BUY order (maker, 0.4% fee). Returns order_id or None."""
         if not self.can_trade():
-            logger.warning("[%s] Trading blocked — daily loss limit hit", agent_name)
+            locked, reason, source = is_trading_locked()
+            if locked:
+                logger.warning("[%s] Trading blocked by global lock (%s): %s", agent_name, source, reason)
+            else:
+                logger.warning("[%s] Trading blocked — daily loss limit hit", agent_name)
             return None
 
         usd_cost = base_size * price
@@ -293,6 +323,9 @@ class AgentTools:
     def place_limit_sell(self, pair, price, base_size, agent_name="unknown"):
         """Place a limit SELL order (maker, 0.4% fee). Returns order_id or None."""
         if not self.can_trade():
+            locked, reason, source = is_trading_locked()
+            if locked:
+                logger.warning("[%s] SELL blocked by global lock (%s): %s", agent_name, source, reason)
             return None
 
         result = self.exchange.place_limit_order(pair, "SELL", base_size, price, post_only=True)
@@ -413,7 +446,25 @@ class AgentTools:
 
     def can_trade(self):
         """Check if trading is allowed (adaptive daily loss limit not hit)."""
+        locked, _reason, _source = is_trading_locked()
+        if locked:
+            return False
         return self.check_daily_loss() > -self.risk.max_daily_loss
+
+    def trading_guard_state(self):
+        """Return current global trading lock state."""
+        locked, reason, source = is_trading_locked()
+        return {"locked": locked, "reason": reason, "source": source}
+
+    def lock_trading(self, reason, source="agent_tools", metadata=None):
+        """Activate global trading lock."""
+        return set_trading_lock(reason=reason, source=source, metadata=metadata or {})
+
+    def unlock_trading(self, source="agent_tools", note="manual unlock"):
+        """Clear global trading lock."""
+        if STRICT_PROFIT_ONLY:
+            logger.warning("STRICT_PROFIT_ONLY is enabled; unlock should be manual and explicit.")
+        return clear_trading_lock(source=source, note=note)
 
     def max_position_size(self, pair):
         """Maximum USD to deploy on a single position (adaptive)."""

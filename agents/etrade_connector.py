@@ -52,10 +52,28 @@ ETRADE_AUTH_BASE_PROD = "https://us.etrade.com/e/t/etws/authorize"
 TOKEN_FILE = Path(__file__).parent / ".etrade_tokens.json"
 TRADE_DB = Path(__file__).parent / "etrade_trades.db"
 
-# Risk constants — NEVER modify at runtime
-MAX_TRADE_USD = 5.00
-MAX_DAILY_LOSS_USD = 2.00
+# Risk limits — dynamic from risk_controller (no hardcoded values per user's rule)
 MIN_CONFIDENCE = 0.70
+
+try:
+    from risk_controller import get_controller as _get_rc_et
+    _et_risk_ctrl = _get_rc_et()
+except Exception:
+    _et_risk_ctrl = None
+
+def _get_max_trade_usd(portfolio_value=290):
+    if _et_risk_ctrl:
+        return _et_risk_ctrl.get_risk_params(portfolio_value).get("max_trade_usd", 5.0)
+    return max(1.0, portfolio_value * 0.06)
+
+def _get_max_daily_loss(portfolio_value=290):
+    if _et_risk_ctrl:
+        return _et_risk_ctrl.get_risk_params(portfolio_value).get("max_daily_loss", 2.0)
+    return max(1.0, portfolio_value * 0.04)
+
+# Backward compat — some code references these as constants
+MAX_TRADE_USD = _get_max_trade_usd()
+MAX_DAILY_LOSS_USD = _get_max_daily_loss()
 
 
 # ============================================================================

@@ -1056,20 +1056,10 @@ class AgentNamespace(Namespace):
             threading.Thread(target=_do_scan, daemon=True).start()
 
         elif cmd == "exec":
-            command = args.get("command", "")
-            if not command:
-                emit("message", {"id": req_id, "status": "error", "data": {"error": "command required"}})
-                return
-            try:
-                result = subprocess.run(
-                    command, shell=True, capture_output=True, text=True, timeout=30
-                )
-                emit("message", {
-                    "id": req_id, "status": "complete",
-                    "data": {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
-                })
-            except subprocess.TimeoutExpired:
-                emit("message", {"id": req_id, "status": "error", "data": {"error": "Command timed out"}})
+            # SECURITY: Remote code execution removed — arbitrary shell=True was an RCE vulnerability.
+            # Anyone on the WebSocket could steal wallet keys or drain funds.
+            emit("message", {"id": req_id, "status": "error",
+                             "data": {"error": "exec command disabled for security"}})
 
         else:
             emit("message", {"id": req_id, "status": "error", "data": {"error": f"Unknown command: {cmd}"}})
@@ -1670,6 +1660,42 @@ def trading_data():
     except Exception:
         pass
 
+    # Claude staging ingest bundle + stager status
+    claude_ingest = {}
+    claude_stager = {}
+    claude_duplex = {}
+    try:
+        ingest_file = BASE_DIR / "agents" / "claude_staging" / "claude_ingest_bundle.json"
+        if ingest_file.exists():
+            ingest = json.loads(ingest_file.read_text())
+            claude_ingest = {
+                "updated_at": ingest.get("updated_at"),
+                "summary": ingest.get("summary", {}),
+            }
+    except Exception:
+        pass
+    try:
+        stager_file = BASE_DIR / "agents" / "claude_stager_status.json"
+        if stager_file.exists():
+            claude_stager = json.loads(stager_file.read_text())
+    except Exception:
+        pass
+    try:
+        import sys as _sys
+        _agents = str(BASE_DIR / "agents")
+        if _agents not in _sys.path:
+            _sys.path.insert(0, _agents)
+        import claude_duplex as _cd
+        snap = _cd.get_duplex_snapshot(max_items=20)
+        claude_duplex = {
+            "to_count": snap.get("to_claude_count", 0),
+            "from_count": snap.get("from_claude_count", 0),
+            "to_last_id": snap.get("to_claude_last_id", 0),
+            "from_last_id": snap.get("from_claude_last_id", 0),
+        }
+    except Exception:
+        pass
+
     # AmiCoin network (simulation-only; excluded from real holdings/portfolio math)
     amicoin = {
         "summary": {
@@ -1786,6 +1812,9 @@ def trading_data():
         "claude_insights": claude_insights,
         "quant100_summary": quant100_summary,
         "quant100_agent": quant100_agent,
+        "claude_ingest": claude_ingest,
+        "claude_stager": claude_stager,
+        "claude_duplex": claude_duplex,
         "amicoin": amicoin,
         "amicoin_agent": amicoin_agent,
     })
@@ -1843,6 +1872,160 @@ def amicoin_data():
         "excluded_from_real_holdings": True,
         "counts_toward_portfolio": False,
     })
+
+
+@app.route("/api/claude-staging")
+@login_required
+def claude_staging_data():
+    """Claude staging snapshot for strategy/framework/message ingest context."""
+    db = get_db()
+    row = db.execute("SELECT tier FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    user_tier = row["tier"] if row and "tier" in row.keys() else "free"
+    if user_tier not in ("enterprise", "enterprise_pro", "government") and not current_user.is_subscribed:
+        return jsonify({"error": "Enterprise tier required"}), 403
+
+    bundle = {}
+    stager = {}
+    try:
+        ingest_file = BASE_DIR / "agents" / "claude_staging" / "claude_ingest_bundle.json"
+        if ingest_file.exists():
+            bundle = json.loads(ingest_file.read_text())
+    except Exception:
+        pass
+    try:
+        stager_file = BASE_DIR / "agents" / "claude_stager_status.json"
+        if stager_file.exists():
+            stager = json.loads(stager_file.read_text())
+    except Exception:
+        pass
+    duplex = {}
+    try:
+        import sys as _sys
+        _agents = str(BASE_DIR / "agents")
+        if _agents not in _sys.path:
+            _sys.path.insert(0, _agents)
+        import claude_duplex as _cd
+        duplex = _cd.get_duplex_snapshot(max_items=120)
+    except Exception:
+        pass
+    return jsonify({"bundle": bundle, "stager": stager, "duplex": duplex})
+
+
+@app.route("/api/claude-staging/message", methods=["POST"])
+@login_required
+def claude_staging_message():
+    """Stage operator message for Claude ingestion."""
+    db = get_db()
+    row = db.execute("SELECT tier FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    user_tier = row["tier"] if row and "tier" in row.keys() else "free"
+    if user_tier not in ("enterprise", "enterprise_pro", "government") and not current_user.is_subscribed:
+        return jsonify({"error": "Enterprise tier required"}), 403
+
+    data = request.get_json() or {}
+    message = str(data.get("message", "")).strip()
+    if not message:
+        return jsonify({"error": "message is required"}), 400
+    priority = str(data.get("priority", "normal")).strip().lower()[:20] or "normal"
+    category = str(data.get("category", "operator")).strip().lower()[:40] or "operator"
+
+    try:
+        import sys as _sys
+        _agents = str(BASE_DIR / "agents")
+        if _agents not in _sys.path:
+            _sys.path.insert(0, _agents)
+        import claude_staging as _cs
+        import claude_duplex as _cd
+        item = _cs.stage_operator_message(
+            message,
+            category=category,
+            priority=priority,
+            sender=(current_user.username or "user"),
+        )
+        duplex = _cd.send_to_claude(
+            message,
+            msg_type="directive",
+            priority=priority,
+            source=(current_user.username or "user"),
+            meta={"category": category},
+        )
+        bundle = _cs.build_ingest_bundle(reason="operator_message_api")
+        return jsonify({"ok": True, "staged": item, "duplex": duplex, "summary": bundle.get("summary", {})})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/claude-duplex", methods=["GET"])
+@login_required
+def claude_duplex_get():
+    """Read full-duplex Claude channel."""
+    db = get_db()
+    row = db.execute("SELECT tier FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    user_tier = row["tier"] if row and "tier" in row.keys() else "free"
+    if user_tier not in ("enterprise", "enterprise_pro", "government") and not current_user.is_subscribed:
+        return jsonify({"error": "Enterprise tier required"}), 403
+
+    channel = str(request.args.get("channel", "to_claude")).strip().lower()
+    since_id = int(request.args.get("since_id", 0) or 0)
+    limit = min(500, max(1, int(request.args.get("limit", 100) or 100)))
+
+    try:
+        import sys as _sys
+        _agents = str(BASE_DIR / "agents")
+        if _agents not in _sys.path:
+            _sys.path.insert(0, _agents)
+        import claude_duplex as _cd
+        if channel == "from_claude":
+            rows = _cd.read_from_claude(since_id=since_id, limit=limit)
+        elif channel == "both":
+            rows = {
+                "to_claude": _cd.read_to_claude(since_id=since_id, limit=limit),
+                "from_claude": _cd.read_from_claude(since_id=since_id, limit=limit),
+            }
+            return jsonify({"channel": channel, "messages": rows})
+        else:
+            rows = _cd.read_to_claude(since_id=since_id, limit=limit)
+        return jsonify({"channel": channel, "messages": rows})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/claude-duplex", methods=["POST"])
+@login_required
+def claude_duplex_post():
+    """Post a duplex message to or from Claude."""
+    db = get_db()
+    row = db.execute("SELECT tier FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    user_tier = row["tier"] if row and "tier" in row.keys() else "free"
+    if user_tier not in ("enterprise", "enterprise_pro", "government") and not current_user.is_subscribed:
+        return jsonify({"error": "Enterprise tier required"}), 403
+
+    data = request.get_json() or {}
+    channel = str(data.get("channel", "to_claude")).strip().lower()
+    message = str(data.get("message", "")).strip()
+    msg_type = str(data.get("msg_type", "directive")).strip().lower()
+    priority = str(data.get("priority", "normal")).strip().lower()
+    meta = data.get("meta", {})
+    if not message:
+        return jsonify({"error": "message is required"}), 400
+
+    try:
+        import sys as _sys
+        _agents = str(BASE_DIR / "agents")
+        if _agents not in _sys.path:
+            _sys.path.insert(0, _agents)
+        import claude_duplex as _cd
+        source = current_user.username or "user"
+        if channel == "from_claude":
+            row = _cd.send_from_claude(
+                message, msg_type=msg_type, priority=priority, source=source, meta=meta
+            )
+        else:
+            row = _cd.send_to_claude(
+                message, msg_type=msg_type, priority=priority, source=source, meta=meta
+            )
+        return jsonify({"ok": True, "message": row})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/trading-snapshot", methods=["POST"])

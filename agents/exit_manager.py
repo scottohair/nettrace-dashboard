@@ -54,12 +54,14 @@ logger = logging.getLogger("exit_manager")
 EXIT_DB = str(Path(__file__).parent / "exit_manager.db")
 
 # Dynamic risk controller -- ALL parameters come from here
+# NOTE: exit_manager still operates with fallback calculations if risk_controller fails,
+# because exits MUST still happen to protect capital (unlike new entries which should be blocked)
 try:
     from risk_controller import get_controller
     _risk_ctrl = get_controller()
-except Exception:
+except Exception as _rc_err:
     _risk_ctrl = None
-    logger.warning("Risk controller not available -- exit_manager will use fallback calculations")
+    logger.error("RISK CONTROLLER FAILED TO LOAD: %s — exit_manager using fallback calculations", _rc_err)
 
 
 def _fetch_json(url, headers=None, timeout=10):
@@ -168,6 +170,8 @@ class ExitManager:
     def __init__(self):
         self._db = sqlite3.connect(EXIT_DB, check_same_thread=False)
         self._db.row_factory = sqlite3.Row
+        self._db.execute("PRAGMA journal_mode=WAL")
+        self._db.execute("PRAGMA busy_timeout=5000")
         self._init_db()
         self._positions = {}  # pair -> PositionState
         self._lock = threading.Lock()
@@ -564,6 +568,7 @@ class ExitManager:
 
         Uses risk_controller.approve_trade for the SELL side.
         Records the exit in the database and reports to agent_performance.
+        Verifies actual Coinbase balance before selling to prevent insufficient balance errors.
         """
         trader = self._get_trader()
         if not trader:
@@ -574,6 +579,29 @@ class ExitManager:
         if not current_price:
             logger.error("EXIT FAILED: Cannot get price for %s", pair)
             return False
+
+        # Verify actual balance before selling — don't rely on stale position state
+        base_currency = pair.split("-")[0]
+        actual_balance = 0.0
+        try:
+            accts = trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
+            for a in accts.get("accounts", []):
+                if a.get("currency") == base_currency:
+                    actual_balance = float(a.get("available_balance", {}).get("value", 0))
+                    break
+        except Exception as e:
+            logger.warning("EXIT: Balance check failed for %s: %s — proceeding with requested amount", pair, e)
+            actual_balance = amount  # fallback to requested amount
+
+        if actual_balance <= 0:
+            logger.info("EXIT SKIP: %s actual balance is 0", pair)
+            return False
+
+        # Adjust amount if we hold less than requested
+        if amount > actual_balance:
+            logger.info("EXIT: Adjusting %s sell amount from %.8f to actual balance %.8f",
+                        pair, amount, actual_balance)
+            amount = actual_balance
 
         sell_value_usd = amount * current_price
 
@@ -834,10 +862,9 @@ class ExitManager:
                                      decision["action"], pair, reason)
 
                         success = self.execute_exit(pair, exit_amount, reason, exit_type)
-
-                        if success and decision.get("label"):
-                            pos.record_partial_exit(
-                                decision["label"], exit_amount, current_price)
+                        # NOTE: record_partial_exit is already called inside execute_exit()
+                        # when success=True — do NOT call it again here (was causing double-recording,
+                        # held_amount going to zero prematurely, positions lost from tracking)
 
                     except Exception as e:
                         logger.error("EXIT_MGR: Error checking %s: %s", pair, e, exc_info=True)

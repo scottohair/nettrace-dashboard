@@ -376,32 +376,85 @@ class CoinbaseTrader:
         token = jwt.encode(payload, self.key_secret, algorithm="ES256", headers=headers)
         return token
 
+    # Circuit breaker state
+    _consecutive_failures = 0
+    _circuit_open_until = 0  # timestamp when circuit should try half-open
+
     def _request(self, method, path, body=None):
-        # Strip query params from the URI used for JWT signing
-        sign_path = path.split("?")[0]
-        token = self._build_jwt(method, sign_path)
+        """Make API request with retry logic and circuit breaker."""
+        return self._request_with_retry(method, path, body)
 
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-            "User-Agent": "NetTrace/1.0",
-        }
+    def _request_with_retry(self, method, path, body=None, max_retries=3):
+        """Make API request with exponential backoff retry on transient errors.
 
-        url = self.BASE_URL + path
-        body_data = json.dumps(body).encode() if body else None
+        Retries on: 429 (rate limit), 500, 502, 503 (server errors), timeouts.
+        Does NOT retry on: 400, 401, 403, 404 (client errors — retrying won't help).
+        """
+        # Circuit breaker: if open, skip calls until cooldown expires
+        now = time.time()
+        if self._circuit_open_until > now:
+            remaining = int(self._circuit_open_until - now)
+            logger.warning("Circuit breaker OPEN — skipping API call (retry in %ds)", remaining)
+            return {"error": "Circuit breaker open", "status": 503}
 
-        req = urllib.request.Request(url, data=body_data, headers=headers, method=method)
+        last_error = None
+        for attempt in range(max_retries):
+            # Rebuild JWT for each attempt (they have short expiry)
+            sign_path = path.split("?")[0]
+            token = self._build_jwt(method, sign_path)
 
-        try:
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                return json.loads(resp.read().decode())
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode()
-            logger.error("Coinbase API error %d: %s", e.code, error_body)
-            return {"error": error_body, "status": e.code}
-        except Exception as e:
-            logger.error("Coinbase request failed: %s", e)
-            return {"error": str(e)}
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+                "User-Agent": "NetTrace/1.0",
+            }
+
+            url = self.BASE_URL + path
+            body_data = json.dumps(body).encode() if body else None
+            req = urllib.request.Request(url, data=body_data, headers=headers, method=method)
+
+            try:
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    result = json.loads(resp.read().decode())
+                    # Success — reset circuit breaker
+                    CoinbaseTrader._consecutive_failures = 0
+                    if CoinbaseTrader._circuit_open_until > 0:
+                        logger.info("Circuit breaker CLOSED — API recovered")
+                        CoinbaseTrader._circuit_open_until = 0
+                    return result
+
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode()
+                last_error = {"error": error_body, "status": e.code}
+
+                # Only retry on transient server errors
+                if e.code in (429, 500, 502, 503):
+                    backoff = 0.5 * (2 ** attempt)  # 0.5s, 1s, 2s
+                    logger.warning("Coinbase API %d (attempt %d/%d) — retrying in %.1fs: %s",
+                                   e.code, attempt + 1, max_retries, backoff, error_body[:200])
+                    time.sleep(backoff)
+                    continue
+                else:
+                    # Client error — don't retry
+                    logger.error("Coinbase API error %d: %s", e.code, error_body)
+                    return last_error
+
+            except Exception as e:
+                last_error = {"error": str(e)}
+                backoff = 0.5 * (2 ** attempt)
+                logger.warning("Coinbase request failed (attempt %d/%d) — retrying in %.1fs: %s",
+                               attempt + 1, max_retries, backoff, e)
+                time.sleep(backoff)
+
+        # All retries exhausted — update circuit breaker
+        CoinbaseTrader._consecutive_failures += 1
+        if CoinbaseTrader._consecutive_failures >= 3:
+            CoinbaseTrader._circuit_open_until = time.time() + 30  # OPEN for 30s
+            logger.error("Circuit breaker OPEN — %d consecutive failures, pausing for 30s",
+                         CoinbaseTrader._consecutive_failures)
+
+        logger.error("Coinbase request failed after %d attempts: %s", max_retries, last_error)
+        return last_error or {"error": "All retries exhausted"}
 
     def get_accounts(self):
         """List all accounts/wallets."""
@@ -594,6 +647,42 @@ class CoinbaseTrader:
         """Get order book to find optimal limit price placement."""
         path = f"/api/v3/brokerage/product_book?product_id={product_id}&limit=10"
         return self._request("GET", path)
+
+    def get_order_fill(self, order_id, max_wait=10, poll_interval=1.0):
+        """Poll an order until it settles and return actual filled size.
+
+        Limit orders may partially fill. This returns the real filled amount
+        so agents don't assume full fills when registering with exit_manager.
+
+        Returns: dict with {filled_size, filled_value, status, avg_price} or None on error.
+        """
+        start = time.time()
+        while time.time() - start < max_wait:
+            try:
+                result = self._request("GET", f"/api/v3/brokerage/orders/historical/{order_id}")
+                order = result.get("order", result)
+                status = order.get("status", "UNKNOWN")
+                filled_size = float(order.get("filled_size", 0))
+                filled_value = float(order.get("filled_value", 0))
+                avg_price = filled_value / filled_size if filled_size > 0 else 0
+
+                if status in ("FILLED", "CANCELLED", "EXPIRED", "FAILED"):
+                    return {
+                        "filled_size": filled_size,
+                        "filled_value": filled_value,
+                        "avg_price": avg_price,
+                        "status": status,
+                    }
+
+                # Still pending — wait and poll again
+                time.sleep(poll_interval)
+            except Exception as e:
+                logger.debug("get_order_fill error for %s: %s", order_id, e)
+                time.sleep(poll_interval)
+
+        # Timed out — return what we know from last poll
+        logger.warning("Order %s did not settle within %ds", order_id, max_wait)
+        return None
 
 
 if __name__ == "__main__":
