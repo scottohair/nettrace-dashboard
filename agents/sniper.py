@@ -80,7 +80,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger("sniper")
 
-SNIPER_DB = str(Path(__file__).parent / "sniper.db")
+# Use persistent volume on Fly (/data/), local agents/ dir otherwise
+_persistent_dir = Path("/data") if Path("/data").is_dir() else Path(__file__).parent
+SNIPER_DB = str(_persistent_dir / "sniper.db")
 NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 FLY_URL = "https://nettrace-dashboard.fly.dev"
 WALLET_ADDRESS = os.environ.get("WALLET_ADDRESS", "")
@@ -106,20 +108,34 @@ except Exception:
 CONFIG = {
     "min_composite_confidence": 0.70,    # 70% minimum — quality over quantity
     "min_confirming_signals": 2,         # 2+ must agree
+    "min_quant_signals": 1,              # at least 1 quantitative signal required
     "scan_interval": 30,                  # Scan every 30s
     "min_hold_seconds": 60,               # 60s minimum hold
     "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "DOGE-USD", "LINK-USD", "FET-USD"],
+    # Signal weights: quantitative signals DRIVE decisions, qualitative SUPPLEMENTS
+    # Quantitative: regime, arb, orderbook, rsi_extreme, momentum, latency
+    # Computational edge: latency (our private NetTrace data), meta_engine (ML ensemble)
+    # Qualitative: fear_greed, uptick (accelerate but don't drive)
     "signal_weights": {
-        "latency": 0.12,
-        "regime": 0.14,
-        "arb": 0.12,
-        "orderbook": 0.12,
-        "rsi_extreme": 0.10,
-        "fear_greed": 0.10,
-        "momentum": 0.08,
-        "uptick": 0.22,
-        "meta_engine": 0.15,
+        # --- QUANTITATIVE (core decision drivers) ---
+        "regime": 0.20,        # C engine: SMA/RSI/BB/VWAP/ATR — most computational
+        "arb": 0.15,           # Cross-exchange spread — pure math
+        "orderbook": 0.15,     # Market microstructure depth analysis
+        "rsi_extreme": 0.10,   # Technical oversold/overbought
+        "momentum": 0.08,      # 4h trend analysis
+        # --- COMPUTATIONAL EDGE (private alpha) ---
+        "latency": 0.15,       # NetTrace infrastructure monitoring — our unique edge
+        "meta_engine": 0.10,   # ML ensemble predictions from evolution engine
+        # --- QUALITATIVE (supplementary only) ---
+        "fear_greed": 0.04,    # Sentiment — supplements, doesn't drive
+        "uptick": 0.03,        # Simple bounce — supplements, doesn't drive
     },
+    # Classify which signals are quantitative vs qualitative
+    "quant_signals": {"regime", "arb", "orderbook", "rsi_extreme", "momentum", "latency", "meta_engine"},
+    "qual_signals": {"fear_greed", "uptick"},
+    # Expected Value parameters (fees + slippage)
+    "round_trip_fee_pct": 0.008,   # 0.4% maker buy + 0.4% maker sell
+    "expected_slippage_pct": 0.001, # ~0.1% average slippage
 }
 
 
@@ -677,6 +693,7 @@ class Sniper:
                                name, result["direction"], result["confidence"]*100, result["reason"])
 
         # Aggregate: count confirming signals for each direction
+        quant_set = CONFIG["quant_signals"]
         buy_signals = [(n, r) for n, r in results.items()
                        if r["direction"] == "BUY" and r["confidence"] > 0]
         sell_signals = [(n, r) for n, r in results.items()
@@ -692,16 +709,30 @@ class Sniper:
         else:
             return {
                 "pair": pair, "direction": "NONE", "composite_confidence": 0,
-                "confirming_signals": 0, "details": results,
+                "confirming_signals": 0, "quant_signals": 0, "details": results,
             }
 
-        # Weighted confidence
+        # Count quantitative vs qualitative confirming signals
+        quant_confirming = [(n, r) for n, r in confirming if n in quant_set]
+        qual_confirming = [(n, r) for n, r in confirming if n not in quant_set]
+
+        # Weighted confidence (quantitative signals dominate due to higher weights)
         weights = CONFIG["signal_weights"]
         total_weight = sum(weights.get(n, 0.1) for n, _ in confirming)
         if total_weight > 0:
             composite = sum(weights.get(n, 0.1) * r["confidence"] for n, r in confirming) / total_weight
         else:
             composite = 0
+
+        # Expected Value calculation — trade must have positive EV after costs
+        # EV = (win_prob * avg_gain) - (loss_prob * avg_loss) - round_trip_costs
+        fees = CONFIG["round_trip_fee_pct"] + CONFIG["expected_slippage_pct"]
+        # Conservative: assume avg gain ≈ 2x avg loss for a good signal
+        win_prob = composite
+        avg_gain_pct = 0.02   # 2% average winner
+        avg_loss_pct = 0.01   # 1% average loser (tight stops)
+        expected_value = (win_prob * avg_gain_pct) - ((1 - win_prob) * avg_loss_pct) - fees
+        ev_positive = expected_value > 0
 
         # Record scan
         self.db.execute(
@@ -715,6 +746,10 @@ class Sniper:
             "direction": direction,
             "composite_confidence": composite,
             "confirming_signals": len(confirming),
+            "quant_signals": len(quant_confirming),
+            "qual_signals": len(qual_confirming),
+            "expected_value": round(expected_value, 6),
+            "ev_positive": ev_positive,
             "details": results,
         }
 
@@ -740,29 +775,40 @@ class Sniper:
                     logger.error("Scan failed for %s: %s", pair, e)
                     continue
 
-                if (result["composite_confidence"] >= CONFIG["min_composite_confidence"]
-                        and result["confirming_signals"] >= CONFIG["min_confirming_signals"]):
+                conf = result["composite_confidence"]
+                n_signals = result["confirming_signals"]
+                n_quant = result.get("quant_signals", 0)
+                ev_ok = result.get("ev_positive", False)
+
+                if conf >= CONFIG["min_composite_confidence"] and n_signals >= CONFIG["min_confirming_signals"]:
+                    # QUANTITATIVE GATE: at least 1 quant signal must confirm
+                    if n_quant < CONFIG["min_quant_signals"]:
+                        logger.info("  %s: BLOCKED — only qualitative signals (%d quant < %d required)",
+                                   pair, n_quant, CONFIG["min_quant_signals"])
+                        continue
+
+                    # EXPECTED VALUE GATE: trade must have positive EV after fees
+                    if not ev_ok and result["direction"] == "BUY":
+                        logger.info("  %s: BLOCKED — negative EV (%.4f%%) after fees",
+                                   pair, result.get("expected_value", 0) * 100)
+                        continue
+
                     # GoalValidator gate — encoded rules check
                     if _goals and not _goals.should_trade(
-                        result["composite_confidence"],
-                        result["confirming_signals"],
-                        result["direction"],
+                        conf, n_signals, result["direction"],
                         result.get("regime", "neutral"),
                     ):
                         logger.info("  %s: BLOCKED by GoalValidator (conf=%.1f%%, %d signals, %s)",
-                                   pair, result["composite_confidence"]*100,
-                                   result["confirming_signals"], result["direction"])
+                                   pair, conf*100, n_signals, result["direction"])
                         continue
                     actionable.append(result)
-                    logger.info(">>> ACTIONABLE: %s %s | conf=%.1f%% | %d signals",
-                               result["direction"], pair,
-                               result["composite_confidence"]*100,
-                               result["confirming_signals"])
+                    logger.info(">>> ACTIONABLE: %s %s | conf=%.1f%% | %d signals (%dQ/%dS) | EV=%.3f%%",
+                               result["direction"], pair, conf*100,
+                               n_signals, n_quant, result.get("qual_signals", 0),
+                               result.get("expected_value", 0) * 100)
                 else:
-                    logger.info("  %s: %s conf=%.1f%% (%d signals) — below threshold",
-                               pair, result["direction"],
-                               result["composite_confidence"]*100,
-                               result["confirming_signals"])
+                    logger.info("  %s: %s conf=%.1f%% (%d signals, %dQ) — below threshold",
+                               pair, result["direction"], conf*100, n_signals, n_quant)
 
         # Store actionable signals for opportunity-cost selling
         self._pending_buys = [s for s in actionable if s["direction"] == "BUY"]
@@ -1225,10 +1271,28 @@ class Sniper:
             try:
                 cycle += 1
                 self._cycle_cash_spent = 0.0  # track cash committed this cycle
+
+                # Early cash check — skip BUY execution when broke
+                # Still scan for signals (logging/analytics) but don't waste API calls
+                _, cycle_cash = self._get_holdings()
+                cash_too_low = cycle_cash < 2.0
+
+                if cash_too_low and cycle % 10 == 1:
+                    logger.info("SNIPER: Cash $%.2f < $2 — waiting for exit_manager to free capital", cycle_cash)
+
                 actionable = self.scan_all()
 
-                for signal in actionable:
-                    self.execute_trade(signal)
+                if not cash_too_low:
+                    for signal in actionable:
+                        if signal.get("direction") == "BUY":
+                            self.execute_trade(signal)
+                        elif signal.get("direction") == "SELL":
+                            self.execute_trade(signal)  # always allow sells
+                else:
+                    # Still execute SELL signals even when cash is low
+                    for signal in actionable:
+                        if signal.get("direction") == "SELL":
+                            self.execute_trade(signal)
 
                 # Report every 30 cycles (~15 min)
                 if cycle % 30 == 0:

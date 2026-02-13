@@ -52,7 +52,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger("exit_manager")
 
-EXIT_DB = str(Path(__file__).parent / "exit_manager.db")
+# Use persistent volume on Fly (/data/), local agents/ dir otherwise
+_persistent_dir = Path("/data") if Path("/data").is_dir() else Path(__file__).parent
+EXIT_DB = str(_persistent_dir / "exit_manager.db")
 EXIT_STATUS_FILE = Path(__file__).parent / "exit_manager_status.json"
 EXIT_IMPROVEMENTS_FILE = Path(__file__).parent / "exit_manager_improvements_registry.json"
 MCP_HINTS_FILE = Path(__file__).parent / "mcp_exit_hints.json"
@@ -1020,45 +1022,95 @@ class ExitManager:
         """Load open positions from sniper_trades table on startup.
 
         Looks for BUY trades that don't have matching SELL trades.
+        Falls back to auto-discovery from Coinbase holdings if no DB records found.
         """
         try:
-            sniper_db_path = str(Path(__file__).parent / "sniper.db")
-            if not Path(sniper_db_path).exists():
-                logger.info("EXIT_MGR: No sniper.db found, starting with empty positions")
-                return
+            # Check both persistent volume and local path for sniper.db
+            candidates = [
+                str(Path("/data") / "sniper.db"),
+                str(Path(__file__).parent / "sniper.db"),
+            ]
+            sniper_db_path = None
+            for p in candidates:
+                if Path(p).exists():
+                    sniper_db_path = p
+                    break
 
-            sdb = sqlite3.connect(sniper_db_path)
-            sdb.row_factory = sqlite3.Row
+            if sniper_db_path:
+                sdb = sqlite3.connect(sniper_db_path)
+                sdb.row_factory = sqlite3.Row
 
-            # Get all filled BUY trades
-            buys = sdb.execute(
-                "SELECT pair, entry_price, created_at, amount_usd "
-                "FROM sniper_trades WHERE direction='BUY' AND status='filled' "
-                "ORDER BY id ASC"
-            ).fetchall()
+                buys = sdb.execute(
+                    "SELECT pair, entry_price, created_at, amount_usd "
+                    "FROM sniper_trades WHERE direction='BUY' AND status='filled' "
+                    "ORDER BY id ASC"
+                ).fetchall()
 
-            if not buys:
+                if buys:
+                    holdings = self._get_holdings_map()
+                    for buy in buys:
+                        pair = buy["pair"]
+                        base_currency = pair.split("-")[0]
+                        held = holdings.get(base_currency, 0)
+                        if held > 0 and pair not in self._positions:
+                            entry_price = buy["entry_price"] or 0
+                            entry_time = buy["created_at"] or datetime.now(timezone.utc).isoformat()
+                            self.register_position(pair, entry_price, entry_time, held)
+
                 sdb.close()
+
+            if self._positions:
+                logger.info("EXIT_MGR: Loaded %d positions from sniper_trades", len(self._positions))
                 return
 
-            # Get current holdings from Coinbase to verify
-            holdings = self._get_holdings_map()
-
-            for buy in buys:
-                pair = buy["pair"]
-                base_currency = pair.split("-")[0]
-                held = holdings.get(base_currency, 0)
-
-                if held > 0 and pair not in self._positions:
-                    entry_price = buy["entry_price"] or 0
-                    entry_time = buy["created_at"] or datetime.now(timezone.utc).isoformat()
-                    self.register_position(pair, entry_price, entry_time, held)
-
-            sdb.close()
-            logger.info("EXIT_MGR: Loaded %d positions from sniper_trades", len(self._positions))
+            # Fallback: auto-discover from Coinbase holdings
+            # This ensures exits work even after deploys that wipe ephemeral DBs
+            self._auto_discover_positions()
 
         except Exception as e:
             logger.error("EXIT_MGR: Failed to load positions from DB: %s", e)
+            # Still try auto-discovery as last resort
+            try:
+                self._auto_discover_positions()
+            except Exception:
+                pass
+
+    def _auto_discover_positions(self):
+        """Auto-discover positions from Coinbase holdings when no DB records exist.
+
+        Uses current price as entry price (conservative — may undercount profit).
+        This ensures exit_manager ALWAYS monitors positions even after deploys.
+        """
+        holdings = self._get_holdings_map()
+        if not holdings:
+            logger.info("EXIT_MGR: No holdings found on Coinbase for auto-discovery")
+            return
+
+        discovered = 0
+        for currency, amount in holdings.items():
+            pair = f"{currency}-USD"
+            if pair in self._positions:
+                continue
+
+            current_price = _get_price(pair)
+            if not current_price or current_price <= 0:
+                continue
+
+            position_value = amount * current_price
+            if position_value < 1.0:  # skip dust
+                continue
+
+            # Register with current price as entry (conservative)
+            self.register_position(
+                pair, current_price,
+                datetime.now(timezone.utc).isoformat(),
+                amount)
+            discovered += 1
+            logger.info("EXIT_MGR: AUTO-DISCOVERED %s | %.8f units ($%.2f) @ $%.4f",
+                       pair, amount, position_value, current_price)
+
+        if discovered:
+            logger.info("EXIT_MGR: Auto-discovered %d positions from Coinbase holdings", discovered)
 
     def _get_holdings_map(self):
         """Get current Coinbase holdings as {currency: amount} dict."""
