@@ -368,9 +368,9 @@ class RiskController:
 
             self._check_daily_reset()
 
-            # 1. Daily loss check
+            # 1. Daily loss check (BUY only — SELL/exits ALWAYS allowed to stop bleeding)
             max_loss = self.max_daily_loss(portfolio_value)
-            if self._daily_loss >= max_loss:
+            if direction == "BUY" and self._daily_loss >= max_loss:
                 self._db.rollback()
                 self._log_event("hardstop", agent_name, pair,
                                 f"Daily loss ${self._daily_loss:.2f} >= limit ${max_loss:.2f}")
@@ -401,10 +401,10 @@ class RiskController:
                 adjusted = size_usd  # sells aren't limited by same rules
 
             # 5. Check total pending allocations across ALL agents (cross-process safe)
-            # Clean up stale pending allocations older than 6 hours (orders that were never resolved)
+            # Clean up stale pending allocations older than 1 hour (orders that were never resolved)
             cur.execute(
                 "UPDATE pending_allocations SET status='expired', resolved_at=CURRENT_TIMESTAMP "
-                "WHERE status='pending' AND created_at < datetime('now', '-6 hours')")
+                "WHERE status='pending' AND created_at < datetime('now', '-1 hours')")
             row = cur.execute(
                 "SELECT COALESCE(SUM(size_usd), 0) FROM pending_allocations WHERE status='pending'"
             ).fetchone()
@@ -432,7 +432,9 @@ class RiskController:
                 (trade_id, agent_name, pair, direction, size_usd, adjusted,
                  vol, self.market.compute_trend(pair) if direction == "BUY" else 0,
                  portfolio_value))
-            self._trade_count_today += 1
+            # Only count BUYs toward daily trade limit — sells must never be capped
+            if direction == "BUY":
+                self._trade_count_today += 1
             self._db.commit()
 
             logger.info("TRADE %s: APPROVED %s %s %s $%.2f (vol=%.3f)",
