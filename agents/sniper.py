@@ -853,9 +853,11 @@ class Sniper:
 
             # Size with DYNAMIC limits — scale with confidence
             remaining_room = max_position - held_usd
+            cycle_spent = getattr(self, '_cycle_cash_spent', 0.0)
+            effective_cash = cash - cycle_spent  # account for orders placed earlier this cycle
             trade_size = min(max_trade, max(1.00, signal["composite_confidence"] * max_trade * 1.2))
             trade_size = min(trade_size, remaining_room)
-            trade_size = min(trade_size, cash - reserve)  # DYNAMIC reserve
+            trade_size = min(trade_size, effective_cash - reserve)  # DYNAMIC reserve
 
             # Risk controller approval
             if _risk_ctrl:
@@ -891,6 +893,8 @@ class Sniper:
                     signal_confidence=signal["composite_confidence"],
                     market_regime=signal.get("regime", "neutral"),
                 )
+                # Track cash committed this cycle so subsequent orders don't over-spend
+                self._cycle_cash_spent = getattr(self, '_cycle_cash_spent', 0.0) + trade_size
                 return self._process_order_result(result, pair, "BUY", trade_size, price, signal)
             except Exception as e:
                 logger.error("BUY execution error: %s", e, exc_info=True)
@@ -1140,6 +1144,7 @@ class Sniper:
         while True:
             try:
                 cycle += 1
+                self._cycle_cash_spent = 0.0  # track cash committed this cycle
                 actionable = self.scan_all()
 
                 for signal in actionable:
