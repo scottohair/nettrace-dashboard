@@ -585,6 +585,22 @@ class ExitManager:
         }
         return self._apply_mcp_overrides(pair, params)
 
+    def has_exit_plan(self, pair):
+        """Return True only when dynamic exit thresholds are valid for a pair."""
+        try:
+            params = self._get_dynamic_params(pair)
+            if not isinstance(params, dict):
+                return False
+            required = ("wide_stop_pct", "tp1_pct", "tp2_pct", "max_position_loss_usd")
+            for key in required:
+                value = float(params.get(key, 0.0) or 0.0)
+                if value <= 0:
+                    return False
+            return True
+        except Exception as e:
+            logger.warning("EXIT_MGR: exit-plan validation failed for %s: %s", pair, e)
+            return False
+
     def _estimate_portfolio_value(self):
         """Estimate total portfolio value from Coinbase holdings."""
         try:

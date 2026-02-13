@@ -49,7 +49,8 @@ def verify_api_key(f):
         key_hash = hash_api_key(raw_key)
         db = _get_db()
         row = db.execute(
-            "SELECT id, user_id, tier, rate_limit_daily, is_active FROM api_keys WHERE key_hash = ?",
+            "SELECT id, user_id, tier, rate_limit_daily, is_active, "
+            "COALESCE(read_only, 0) as read_only FROM api_keys WHERE key_hash = ?",
             (key_hash,)
         ).fetchone()
 
@@ -99,7 +100,17 @@ def verify_api_key(f):
         g.api_tier = row["tier"]
         g.api_rate_limit = rate_limit
         g.api_usage_today = usage_count + 1
+        g.api_read_only = bool(row["read_only"])
         g.tier_config = TIER_CONFIG.get(row["tier"], TIER_CONFIG["free"])
+
+        # Read-only keys: block all write operations (POST/PUT/DELETE)
+        # except explicitly allowlisted read-safe POST endpoints
+        if g.api_read_only and request.method in ("POST", "PUT", "DELETE"):
+            return jsonify({
+                "error": "This API key is read-only",
+                "method": request.method,
+                "hint": "Use a full-access key for write operations"
+            }), 403
 
         return f(*args, **kwargs)
     return decorated
@@ -120,6 +131,43 @@ def require_tier(*allowed_tiers):
             return f(*args, **kwargs)
         return decorated
     return decorator
+
+
+def require_write(f):
+    """Decorator: block read-only API keys from write endpoints."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if getattr(g, "api_read_only", False):
+            return jsonify({
+                "error": "This API key is read-only",
+                "endpoint": request.path,
+                "hint": "Use a full-access key for write operations"
+            }), 403
+        return f(*args, **kwargs)
+    return decorated
+
+
+def create_api_key(user_id, name, tier="free", read_only=False):
+    """Create an API key. Returns (raw_key, key_id) — raw_key shown only once."""
+    raw, key_hash, key_prefix = generate_api_key()
+    rate_limit = TIER_CONFIG.get(tier, TIER_CONFIG["free"])["rate_limit_daily"]
+    db = _get_db()
+    cur = db.execute(
+        "INSERT INTO api_keys (user_id, key_hash, key_prefix, name, tier, rate_limit_daily, read_only) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (user_id, key_hash, key_prefix, name, tier, rate_limit, 1 if read_only else 0)
+    )
+    db.commit()
+    return raw, cur.lastrowid
+
+
+def ensure_read_only_column(db):
+    """Add read_only column to api_keys if it doesn't exist (safe migration)."""
+    try:
+        db.execute("SELECT read_only FROM api_keys LIMIT 1")
+    except sqlite3.OperationalError:
+        db.execute("ALTER TABLE api_keys ADD COLUMN read_only INTEGER DEFAULT 0")
+        db.commit()
 
 
 def _get_db():

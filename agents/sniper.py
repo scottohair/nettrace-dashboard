@@ -801,6 +801,13 @@ class Sniper:
                         logger.info("  %s: BLOCKED by GoalValidator (conf=%.1f%%, %d signals, %s)",
                                    pair, conf*100, n_signals, result["direction"])
                         continue
+                    if result["direction"] == "BUY":
+                        if _exit_mgr is None:
+                            logger.info("  %s: BLOCKED — no ExitManager available for end-to-end buy/sell plan", pair)
+                            continue
+                        if not _exit_mgr.has_exit_plan(pair):
+                            logger.info("  %s: BLOCKED — dynamic exit plan unavailable (quant buy/sell gate)", pair)
+                            continue
                     actionable.append(result)
                     logger.info(">>> ACTIONABLE: %s %s | conf=%.1f%% | %d signals (%dQ/%dS) | EV=%.3f%%",
                                result["direction"], pair, conf*100,
@@ -894,6 +901,30 @@ class Sniper:
         """
         pair = signal["pair"]
         direction = signal["direction"]
+
+        if direction == "BUY":
+            if not bool(signal.get("ev_positive", False)):
+                logger.info(
+                    "SNIPER: %s BUY blocked — negative/non-validated expected value (expected_value=%.4f%%)",
+                    pair,
+                    float(signal.get("expected_value", 0.0) or 0.0) * 100.0,
+                )
+                return False
+            quant_signals = int(signal.get("quant_signals", 0) or 0)
+            if quant_signals < int(CONFIG["min_quant_signals"]):
+                logger.info(
+                    "SNIPER: %s BUY blocked — quant confirmations below threshold (%d < %d)",
+                    pair,
+                    quant_signals,
+                    CONFIG["min_quant_signals"],
+                )
+                return False
+            if _exit_mgr is None:
+                logger.info("SNIPER: %s BUY blocked — ExitManager unavailable", pair)
+                return False
+            if not _exit_mgr.has_exit_plan(pair):
+                logger.info("SNIPER: %s BUY blocked — no valid quant exit plan", pair)
+                return False
 
         price = self._get_price(pair)
         if not price:

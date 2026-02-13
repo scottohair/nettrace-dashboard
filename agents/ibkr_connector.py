@@ -1,26 +1,40 @@
 #!/usr/bin/env python3
-"""Interactive Brokers connector — scaffold ready for when IBKR account is approved.
+"""Interactive Brokers connector — live trading via TWS/IB Gateway.
 
 Same interface as exchange_connector.py CoinbaseTrader so agents can seamlessly
 route orders to IBKR for stocks, options, futures, forex, and bonds.
 
-Uses ib_insync library (pip install ib_insync) for TWS API communication.
+Uses ib_async library (pip install ib_async), drop-in replacement for ib_insync.
+Falls back to ib_insync if ib_async is not installed.
 
-STATUS: Account pending (submitted 2026-02-12, email: ohariscott@gmail.com)
-        Usually approved within 1-3 business days.
+STATUS: Account APPROVED 2026-02-13 (email: ohariscott@gmail.com)
         Priority #1 exchange — gives access to all asset classes.
 
-SETUP WHEN APPROVED:
+SETUP:
   1. Install TWS or IB Gateway
   2. Enable API access in TWS settings (port 7497 for paper, 7496 for live)
-  3. pip install ib_insync
+  3. pip install ib_async  (or ib_insync as fallback)
   4. Set IBKR_HOST, IBKR_PORT, IBKR_CLIENT_ID in agents/.env
+  5. Set IBKR_PAPER_ONLY=1 to prevent accidental live connections
 """
 
 import logging
 import os
 import time
+import threading
 from pathlib import Path
+
+# ib_async is a drop-in replacement for ib_insync — try it first, fall back
+try:
+    import ib_async as _ib_api
+    _IB_BACKEND = "ib_async"
+except ImportError:
+    try:
+        import ib_insync as _ib_api
+        _IB_BACKEND = "ib_insync"
+    except ImportError:
+        _ib_api = None
+        _IB_BACKEND = None
 
 logger = logging.getLogger("ibkr_connector")
 
@@ -40,38 +54,118 @@ class IBKRTrader:
       - get_order_fill(order_id)
     """
 
+    # Exponential backoff parameters for auto-reconnect
+    RECONNECT_BASE_DELAY = 5    # seconds
+    RECONNECT_MAX_DELAY = 60    # seconds
+    RECONNECT_MULTIPLIER = 2
+
     def __init__(self, host=None, port=None, client_id=None):
         self.host = host or IBKR_HOST
         self.port = port or IBKR_PORT
         self.client_id = client_id or IBKR_CLIENT_ID
         self._ib = None
         self._connected = False
+        self._reconnect_attempts = 0
+        self._reconnecting = False
+        self._auto_reconnect = True
 
     def connect(self):
-        """Connect to TWS/IB Gateway."""
+        """Connect to TWS/IB Gateway.
+
+        Logs whether connecting to PAPER (7497) or LIVE (7496) mode.
+        Refuses to connect to LIVE port if IBKR_PAPER_ONLY env var is set.
+        Registers auto-reconnect handler on disconnect.
+        """
+        if _ib_api is None:
+            logger.error("Neither ib_async nor ib_insync installed — run: pip install ib_async")
+            return False
+
+        # Paper/live safety guard
+        paper_only = os.environ.get("IBKR_PAPER_ONLY", "").strip()
+        if paper_only and paper_only not in ("0", "false", "no"):
+            if self.port == 7496:
+                logger.error(
+                    "SAFETY GUARD: IBKR_PAPER_ONLY is set but port is 7496 (LIVE). "
+                    "Refusing to connect. Use port 7497 for paper trading or unset IBKR_PAPER_ONLY."
+                )
+                return False
+
+        mode = "PAPER" if self.port == 7497 else "LIVE" if self.port == 7496 else f"CUSTOM(port={self.port})"
+        logger.info("Connecting to IBKR %s mode at %s:%d (client %d) [backend: %s]",
+                     mode, self.host, self.port, self.client_id, _IB_BACKEND)
+
         try:
-            from ib_insync import IB
+            IB = _ib_api.IB
             self._ib = IB()
             self._ib.connect(self.host, self.port, clientId=self.client_id)
             self._connected = True
-            logger.info("Connected to IBKR at %s:%d (client %d)", self.host, self.port, self.client_id)
+            self._reconnect_attempts = 0
+            logger.info("Connected to IBKR %s at %s:%d (client %d)",
+                         mode, self.host, self.port, self.client_id)
+
+            # Register auto-reconnect on disconnect
+            self._ib.disconnectedEvent += self._on_disconnected
             return True
-        except ImportError:
-            logger.error("ib_insync not installed — run: pip install ib_insync")
-            return False
         except Exception as e:
             logger.error("IBKR connection failed: %s", e)
             return False
 
+    def _on_disconnected(self):
+        """Handle unexpected disconnection — trigger auto-reconnect."""
+        self._connected = False
+        logger.warning("IBKR disconnected unexpectedly")
+        if self._auto_reconnect and not self._reconnecting:
+            logger.info("Auto-reconnect enabled — will attempt reconnection in %ds",
+                         self.RECONNECT_BASE_DELAY)
+            t = threading.Thread(target=self._reconnect, daemon=True)
+            t.start()
+
+    def _reconnect(self):
+        """Reconnect with exponential backoff (5s, 10s, 20s, max 60s)."""
+        self._reconnecting = True
+        delay = self.RECONNECT_BASE_DELAY
+        try:
+            while self._auto_reconnect and not self._connected:
+                self._reconnect_attempts += 1
+                logger.info("Reconnect attempt #%d (delay=%ds)...", self._reconnect_attempts, delay)
+                time.sleep(delay)
+
+                if self.connect():
+                    logger.info("Reconnected to IBKR after %d attempt(s)", self._reconnect_attempts)
+                    self._reconnect_attempts = 0
+                    return
+
+                # Exponential backoff
+                delay = min(delay * self.RECONNECT_MULTIPLIER, self.RECONNECT_MAX_DELAY)
+        finally:
+            self._reconnecting = False
+
+    def _check_connection(self):
+        """Verify connection health. Returns True if connected, False otherwise."""
+        if self._ib is None:
+            return False
+        try:
+            return self._ib.isConnected()
+        except Exception:
+            return False
+
     def disconnect(self):
         """Disconnect from TWS."""
+        self._auto_reconnect = False  # Prevent auto-reconnect on intentional disconnect
         if self._ib and self._connected:
+            try:
+                self._ib.disconnectedEvent -= self._on_disconnected
+            except Exception:
+                pass
             self._ib.disconnect()
             self._connected = False
             logger.info("Disconnected from IBKR")
+        self._auto_reconnect = True  # Re-enable for future connections
 
     def _ensure_connected(self):
-        if not self._connected:
+        """Ensure we have an active connection, reconnecting if needed."""
+        if not self._connected or not self._check_connection():
+            self._connected = False
             if not self.connect():
                 raise ConnectionError("Not connected to IBKR")
 
@@ -85,7 +179,9 @@ class IBKRTrader:
           - "AAPL_C_200_20260320" → Option
           - "EUR-USD" → Forex
         """
-        from ib_insync import Stock, Crypto, Forex, Future, Contract
+        Stock, Crypto, Forex, Future, Contract = (
+            _ib_api.Stock, _ib_api.Crypto, _ib_api.Forex, _ib_api.Future, _ib_api.Contract
+        )
 
         if "-" in product_id:
             base, quote = product_id.split("-", 1)
@@ -101,7 +197,7 @@ class IBKRTrader:
             parts = product_id.split("_")
             if len(parts) == 4:
                 sym, opt_type, strike, expiry = parts
-                from ib_insync import Option
+                Option = _ib_api.Option
                 return Option(sym, expiry, float(strike), opt_type[0].upper(), "SMART")
 
         # Futures: check common symbols
@@ -151,7 +247,7 @@ class IBKRTrader:
             size: number of shares/contracts/coins
             order_type: "market" only for now
         """
-        from ib_insync import MarketOrder
+        MarketOrder = _ib_api.MarketOrder
 
         self._ensure_connected()
         contract = self._make_contract(product_id)
@@ -170,7 +266,7 @@ class IBKRTrader:
 
     def place_limit_order(self, product_id, side, base_size, limit_price, post_only=False):
         """Place a limit order (matches CoinbaseTrader.place_limit_order interface)."""
-        from ib_insync import LimitOrder
+        LimitOrder = _ib_api.LimitOrder
 
         self._ensure_connected()
         contract = self._make_contract(product_id)
@@ -233,14 +329,16 @@ class IBKRTrader:
 
 if __name__ == "__main__":
     print("=== IBKR Connector ===")
-    print("Status: Account PENDING (submitted 2026-02-12)")
-    print("Priority: #1 exchange — stocks, options, futures, forex, bonds")
+    print(f"Status: Account APPROVED 2026-02-13")
+    print(f"Backend: {_IB_BACKEND or 'NOT INSTALLED (pip install ib_async)'}")
+    print("Priority: #1 exchange — stocks, options, futures, forex, bonds, crypto")
     print()
-    print("To test when approved:")
+    print("To test:")
     print("  1. Start TWS/IB Gateway")
     print("  2. Enable API on port 7497 (paper) or 7496 (live)")
-    print("  3. pip install ib_insync")
+    print("  3. pip install ib_async  (or ib_insync as fallback)")
     print("  4. python ibkr_connector.py test")
+    print("  5. Set IBKR_PAPER_ONLY=1 to prevent accidental live connections")
     print()
 
     import sys

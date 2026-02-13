@@ -64,9 +64,24 @@ VENUES = {
     "ibkr": {
         "type": "cex", "maker_fee": 0.001, "taker_fee": 0.002,  # Very low
         "latency_ms": 10, "min_order_usd": 0.01,  # Fractional shares
-        "pairs": ["BTC-USD", "ETH-USD", "AAPL-USD", "TSLA-USD",
-                  "SPY-USD", "QQQ-USD", "AMZN-USD", "NVDA-USD",
-                  "COIN-USD", "MSTR-USD"],
+        # Asset classes: stocks, options, futures, forex, bonds, crypto
+        "asset_classes": ["stocks", "options", "futures", "forex", "bonds", "crypto"],
+        "pairs": [
+            # Crypto
+            "BTC-USD", "ETH-USD",
+            # Stocks (US equities via SMART routing)
+            "AAPL-USD", "TSLA-USD", "SPY-USD", "QQQ-USD",
+            "AMZN-USD", "NVDA-USD", "COIN-USD", "MSTR-USD",
+            "MSFT-USD", "GOOGL-USD", "META-USD", "JPM-USD",
+            # Futures (CME/NYMEX/CBOT via IBKR)
+            "ES-USD", "NQ-USD", "YM-USD", "RTY-USD",
+            "CL-USD", "GC-USD", "SI-USD", "ZB-USD", "ZN-USD",
+            # Forex (interbank via IBKR, very tight spreads)
+            "EUR-USD", "GBP-USD", "JPY-USD", "CHF-USD",
+            "AUD-USD", "CAD-USD", "NZD-USD",
+            # Bonds (US Treasuries via IBKR)
+            "TLT-USD", "IEF-USD", "SHY-USD", "AGG-USD",
+        ],
     },
     # DEX venues (per chain)
     "uniswap_base": {
@@ -143,11 +158,11 @@ BRIDGES = {
 
 # Token equivalences across chains (same asset, different addresses)
 TOKEN_EQUIVALENCES = {
-    "ETH": ["ethereum:ETH", "base:ETH", "arbitrum:ETH", "polygon:WETH"],
+    "ETH": ["ethereum:ETH", "base:ETH", "arbitrum:ETH", "polygon:WETH", "ibkr:ETH"],
     "USDC": ["ethereum:USDC", "base:USDC", "arbitrum:USDC", "polygon:USDC", "solana:USDC"],
-    "BTC": ["coinbase:BTC", "ethereum:WBTC", "arbitrum:WBTC"],
+    "BTC": ["coinbase:BTC", "ibkr:BTC", "ethereum:WBTC", "arbitrum:WBTC"],
     "SOL": ["coinbase:SOL", "solana:SOL"],
-    "USD": ["coinbase:USD"],
+    "USD": ["coinbase:USD", "ibkr:USD", "alpaca:USD"],
 }
 
 
@@ -390,6 +405,50 @@ class PathRouter:
                        fee_pct=0, gas_usd=0, latency_ms=10, hops=0,
                        slippage_pct=0, venue="coinbase", action="convert",
                        pair="USDC→USD")
+
+        # Add IBKR↔Coinbase cross-venue transfer edges
+        # Wire transfer / ACH between venues for shared assets (USD, BTC, ETH)
+        xfer_tokens = ["USD", "BTC", "ETH"]
+        for token in xfer_tokens:
+            ibkr_node = f"ibkr:{token}"
+            cb_node = f"coinbase:{token}"
+            if G.has_node(ibkr_node) and G.has_node(cb_node):
+                # IBKR → Coinbase (wire/ACH transfer, ~1 day)
+                xfer_cost = self._compute_edge_cost(
+                    fee_pct=0, gas_usd=0, latency_ms=86_400_000,
+                    hops=2, slippage_pct=0,
+                )
+                G.add_edge(ibkr_node, cb_node,
+                           weight=xfer_cost, fee_pct=0, gas_usd=0,
+                           latency_ms=86_400_000, hops=2, slippage_pct=0,
+                           venue="ibkr_transfer", action="transfer",
+                           pair=f"{token}:ibkr→coinbase")
+                # Coinbase → IBKR
+                G.add_edge(cb_node, ibkr_node,
+                           weight=xfer_cost, fee_pct=0, gas_usd=0,
+                           latency_ms=86_400_000, hops=2, slippage_pct=0,
+                           venue="coinbase_transfer", action="transfer",
+                           pair=f"{token}:coinbase→ibkr")
+
+        # Add IBKR↔Alpaca cross-venue edges for shared assets
+        for token in ["USD"]:
+            ibkr_node = f"ibkr:{token}"
+            alpaca_node = f"alpaca:{token}"
+            if G.has_node(ibkr_node) and G.has_node(alpaca_node):
+                xfer_cost = self._compute_edge_cost(
+                    fee_pct=0, gas_usd=0, latency_ms=86_400_000,
+                    hops=2, slippage_pct=0,
+                )
+                G.add_edge(ibkr_node, alpaca_node,
+                           weight=xfer_cost, fee_pct=0, gas_usd=0,
+                           latency_ms=86_400_000, hops=2, slippage_pct=0,
+                           venue="ibkr_transfer", action="transfer",
+                           pair=f"{token}:ibkr→alpaca")
+                G.add_edge(alpaca_node, ibkr_node,
+                           weight=xfer_cost, fee_pct=0, gas_usd=0,
+                           latency_ms=86_400_000, hops=2, slippage_pct=0,
+                           venue="alpaca_transfer", action="transfer",
+                           pair=f"{token}:alpaca→ibkr")
 
         logger.info("Built route graph: %d nodes, %d edges",
                      G.number_of_nodes(), G.number_of_edges())

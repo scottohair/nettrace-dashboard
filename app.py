@@ -1083,7 +1083,7 @@ app.register_blueprint(signals_api)
 # API Key Management Routes
 # ---------------------------------------------------------------------------
 
-from api_auth import generate_api_key, TIER_CONFIG
+from api_auth import generate_api_key, TIER_CONFIG, verify_api_key, require_write, ensure_read_only_column
 
 @app.route("/api/keys")
 @login_required
@@ -2965,10 +2965,128 @@ def fc_accounts():
 
 
 # ---------------------------------------------------------------------------
+# Agent Control API (for OpenClaw skills / external automation)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/agent-control/status")
+@verify_api_key
+def agent_control_status():
+    """Return current agent runner status. Works with read-only API keys."""
+    if agent_runner is None:
+        return jsonify({
+            "running": False,
+            "agents": {},
+            "region": None,
+            "is_primary": False,
+            "uptime_seconds": 0,
+            "note": "Agent runner not enabled (ENABLE_AGENTS != 1)",
+        })
+    try:
+        return jsonify(agent_runner.status())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/agent-control/pause", methods=["POST"])
+@verify_api_key
+@require_write
+def agent_control_pause():
+    """Pause agent runner by setting running=False. Requires write-capable key."""
+    if agent_runner is None:
+        return jsonify({"error": "Agent runner not enabled"}), 404
+    try:
+        agent_runner.running = False
+        return jsonify({"status": "paused", "running": agent_runner.running})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/agent-control/resume", methods=["POST"])
+@verify_api_key
+@require_write
+def agent_control_resume():
+    """Resume agent runner via start(). Requires write-capable key."""
+    if agent_runner is None:
+        return jsonify({"error": "Agent runner not enabled"}), 404
+    try:
+        agent_runner.start()
+        return jsonify({"status": "resumed", "running": agent_runner.running})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/agent-control/portfolio")
+@verify_api_key
+def agent_control_portfolio():
+    """Lightweight portfolio view: holdings + cash from Coinbase. Read-only."""
+    import sys as _sys
+    _agents = str(BASE_DIR / "agents")
+    if _agents not in _sys.path:
+        _sys.path.insert(0, _agents)
+    try:
+        from exchange_connector import CoinbaseTrader
+        trader = CoinbaseTrader()
+        accts = trader.client.get_accounts()
+        holdings = []
+        total_usd = 0.0
+        for a in accts.get("accounts", []):
+            bal = float(a.get("available_balance", {}).get("value", 0))
+            if bal <= 0:
+                continue
+            currency = a.get("currency", "?")
+            usd_val = bal
+            if currency not in ("USD", "USDC"):
+                try:
+                    _req = urllib.request.Request(
+                        f"https://api.coinbase.com/v2/prices/{currency}-USD/spot",
+                        headers={"User-Agent": "NetTrace/1.0"})
+                    with urllib.request.urlopen(_req, timeout=3) as resp:
+                        price = float(json.loads(resp.read().decode())["data"]["amount"])
+                    usd_val = bal * price
+                except Exception:
+                    usd_val = 0.0
+            total_usd += usd_val
+            holdings.append({
+                "currency": currency,
+                "balance": round(bal, 8),
+                "value_usd": round(usd_val, 4),
+            })
+        return jsonify({
+            "venue": "coinbase",
+            "holdings": holdings,
+            "total_usd": round(total_usd, 2),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({
+            "error": f"Coinbase unavailable: {str(e)}",
+            "venue": "coinbase",
+            "holdings": [],
+            "total_usd": 0.0,
+        }), 503
+
+
+@app.route("/api/agent-control/force-scan", methods=["POST"])
+@verify_api_key
+@require_write
+def agent_control_force_scan():
+    """Queue an immediate market scan. Not yet implemented."""
+    return jsonify({"status": "scan_queued"})
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 init_db()
+
+# Migrate: add read_only column to api_keys table
+try:
+    _mig_db_ro = sqlite3.connect(DB_PATH)
+    ensure_read_only_column(_mig_db_ro)
+    _mig_db_ro.close()
+except Exception:
+    pass
 
 # Migrate: add source_region column to existing quant_signals tables
 try:
@@ -2987,6 +3105,7 @@ scanner = ContinuousScanner(socketio=socketio)
 scanner.start()
 
 # Start autonomous agent runner (Fly.io multi-region trading network)
+agent_runner = None  # Set below if ENABLE_AGENTS=1
 if os.environ.get("ENABLE_AGENTS", "0") == "1":
     try:
         from agents.fly_agent_runner import FlyAgentRunner
