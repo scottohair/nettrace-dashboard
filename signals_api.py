@@ -379,6 +379,9 @@ def push_signal():
     Scout regions (lhr, nrt, sin, etc.) push anomaly signals here.
     The primary region (ewr) collects them for cross-region divergence analysis.
 
+    On non-primary regions, Fly proxy replays the request to ewr so all signals
+    land in the primary DB (SQLite is per-machine, not shared).
+
     Auth: Either API key (Authorization: Bearer ...) or internal secret
     (X-Internal-Secret header matching SECRET_KEY env var).
 
@@ -390,6 +393,12 @@ def push_signal():
         source_region: str (optional, auto-detected from FLY_REGION header)
         details: dict (optional, extra metadata)
     """
+    # Route all signal writes to ewr (primary) — SQLite is per-machine
+    current_region = os.environ.get("FLY_REGION", "")
+    primary_region = os.environ.get("PRIMARY_REGION", "ewr")
+    if current_region and current_region != primary_region:
+        return "", 307, {"fly-replay": f"region={primary_region}"}
+
     data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "JSON body required"}), 400

@@ -385,9 +385,11 @@ class FlyAgentRunner:
                 headers["Authorization"] = f"Bearer {NETTRACE_API_KEY}"
 
             req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-            urllib.request.urlopen(req, timeout=10)
+            resp = urllib.request.urlopen(req, timeout=10)
+            logger.info("Signal pushed to %s: %s (status=%d)",
+                        self.region, payload.get("signal_type", "?"), resp.status)
         except Exception as e:
-            logger.debug("Signal push failed: %s", e)
+            logger.warning("Signal push failed from %s: %s", self.region, e)
 
     def _interruptible_sleep(self, seconds):
         """Sleep in small increments so we can stop quickly."""

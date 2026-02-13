@@ -29,6 +29,7 @@ import sqlite3
 import time
 import threading
 import urllib.request
+import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -52,6 +53,38 @@ logging.basicConfig(
 logger = logging.getLogger("exit_manager")
 
 EXIT_DB = str(Path(__file__).parent / "exit_manager.db")
+EXIT_STATUS_FILE = Path(__file__).parent / "exit_manager_status.json"
+EXIT_IMPROVEMENTS_FILE = Path(__file__).parent / "exit_manager_improvements_registry.json"
+MCP_HINTS_FILE = Path(__file__).parent / "mcp_exit_hints.json"
+MCP_OUTBOX_FILE = Path(__file__).parent / "mcp_exit_outbox.json"
+BASE_MONITOR_INTERVAL_SECONDS = int(os.environ.get("EXIT_MONITOR_INTERVAL_SECONDS", "30"))
+MIN_MONITOR_INTERVAL_SECONDS = int(os.environ.get("EXIT_MONITOR_MIN_SECONDS", "8"))
+MAX_MONITOR_INTERVAL_SECONDS = int(os.environ.get("EXIT_MONITOR_MAX_SECONDS", "75"))
+EXIT_EXECUTION_RETRY_LIMIT = int(os.environ.get("EXIT_EXECUTION_RETRY_LIMIT", "2"))
+EXIT_EXECUTION_SLIPPAGE_BPS = float(os.environ.get("EXIT_EXECUTION_SLIPPAGE_BPS", "8"))
+
+try:
+    from smart_router import SmartRouter
+except Exception:
+    SmartRouter = None
+
+try:
+    from exit_manager_improvements import load_or_create_registry
+except Exception:
+    try:
+        from agents.exit_manager_improvements import load_or_create_registry  # type: ignore
+    except Exception:
+        def load_or_create_registry(path):
+            return {
+                "program": "exit_manager_upgrade",
+                "summary": {
+                    "advanced_total": 0,
+                    "hyper_total": 0,
+                    "advanced_active": 0,
+                    "hyper_active": 0,
+                },
+                "items": [],
+            }
 
 # Dynamic risk controller -- ALL parameters come from here
 # NOTE: exit_manager still operates with fallback calculations if risk_controller fails,
@@ -178,6 +211,21 @@ class ExitManager:
         self._running = False
         self._monitor_thread = None
         self._trader = None  # lazy-loaded CoinbaseTrader
+        self._router = SmartRouter() if SmartRouter else None
+        self._monitor_interval_seconds = max(5, int(BASE_MONITOR_INTERVAL_SECONDS))
+        self._consecutive_api_failures = 0
+        self._execution_failures = 0
+        self._cycle_index = 0
+        self._last_cycle_latency_ms = 0.0
+        self._last_hints = {}
+        self._improvements = load_or_create_registry(EXIT_IMPROVEMENTS_FILE)
+        self._toolset = {
+            "risk_controller": bool(_risk_ctrl),
+            "smart_router": bool(self._router),
+            "mcp_hints_file": str(MCP_HINTS_FILE),
+            "mcp_outbox_file": str(MCP_OUTBOX_FILE),
+            "status_file": str(EXIT_STATUS_FILE),
+        }
 
     def _init_db(self):
         """Initialize exit tracking database."""
@@ -210,6 +258,32 @@ class ExitManager:
                 action TEXT DEFAULT 'hold',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS exit_decision_telemetry (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                pair TEXT NOT NULL,
+                action TEXT NOT NULL,
+                exit_type TEXT,
+                confidence REAL,
+                priority INTEGER DEFAULT 0,
+                decision_hash TEXT,
+                decision_json TEXT,
+                cycle_index INTEGER,
+                latency_ms REAL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS exit_execution_attempts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                pair TEXT NOT NULL,
+                exit_type TEXT,
+                order_type TEXT,
+                attempt INTEGER DEFAULT 1,
+                amount REAL,
+                price REAL,
+                success INTEGER DEFAULT 0,
+                order_id TEXT,
+                details_json TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         """)
         self._db.commit()
 
@@ -222,6 +296,173 @@ class ExitManager:
             except Exception as e:
                 logger.error("Failed to load CoinbaseTrader: %s", e)
         return self._trader
+
+    def _active_improvement_counts(self):
+        items = self._improvements.get("items", []) if isinstance(self._improvements, dict) else []
+        if not isinstance(items, list):
+            items = []
+        adv = [x for x in items if isinstance(x, dict) and str(x.get("tier", "")) == "advanced"]
+        hyp = [x for x in items if isinstance(x, dict) and str(x.get("tier", "")) == "hyper"]
+        return {
+            "advanced_total": len(adv),
+            "hyper_total": len(hyp),
+            "advanced_active": sum(1 for x in adv if str(x.get("status", "")).lower() == "active"),
+            "hyper_active": sum(1 for x in hyp if str(x.get("status", "")).lower() == "active"),
+        }
+
+    def _load_mcp_hints(self):
+        if not MCP_HINTS_FILE.exists():
+            return {}
+        try:
+            payload = json.loads(MCP_HINTS_FILE.read_text())
+            if not isinstance(payload, dict):
+                return {}
+            self._last_hints = payload
+            return payload
+        except Exception:
+            return {}
+
+    @staticmethod
+    def _clamp(value, lo, hi):
+        return max(lo, min(hi, value))
+
+    def _apply_mcp_overrides(self, pair, params):
+        hints = self._load_mcp_hints()
+        if not hints:
+            return params
+        global_cfg = hints.get("global", {}) if isinstance(hints.get("global"), dict) else {}
+        pair_cfg = hints.get("pairs", {}).get(pair, {}) if isinstance(hints.get("pairs"), dict) else {}
+        merged = dict(params)
+        merged["hint_source"] = "mcp"
+        vol_scale = float(pair_cfg.get("vol_scale", global_cfg.get("vol_scale", 1.0)) or 1.0)
+        stop_scale = float(pair_cfg.get("stop_scale", global_cfg.get("stop_scale", 1.0)) or 1.0)
+        dead_mult = float(pair_cfg.get("dead_money_hours_mult", global_cfg.get("dead_money_hours_mult", 1.0)) or 1.0)
+        force_mult = float(pair_cfg.get("force_eval_hours_mult", global_cfg.get("force_eval_hours_mult", 1.0)) or 1.0)
+        tp_bias = float(pair_cfg.get("tp_bias_pct", global_cfg.get("tp_bias_pct", 0.0)) or 0.0)
+        merged["volatility"] = self._clamp(float(merged["volatility"]) * vol_scale, 0.001, 0.25)
+        merged["wide_stop_pct"] = self._clamp(float(merged["wide_stop_pct"]) * stop_scale, 0.004, 0.12)
+        merged["medium_stop_pct"] = self._clamp(float(merged["medium_stop_pct"]) * stop_scale, 0.003, 0.10)
+        merged["tight_stop_pct"] = self._clamp(float(merged["tight_stop_pct"]) * stop_scale, 0.002, 0.08)
+        merged["dead_money_hours"] = self._clamp(float(merged["dead_money_hours"]) * dead_mult, 0.5, 72.0)
+        merged["force_eval_hours"] = self._clamp(float(merged["force_eval_hours"]) * force_mult, 2.0, 168.0)
+        merged["tp1_pct"] = self._clamp(float(merged["tp1_pct"]) + tp_bias, 0.002, 0.25)
+        merged["tp2_pct"] = self._clamp(float(merged["tp2_pct"]) + tp_bias, 0.004, 0.40)
+        return merged
+
+    def _decision_confidence(self, params, profit_pct, drawdown_pct, hold_hours, action):
+        base = 0.42
+        base += min(0.18, max(0.0, abs(float(profit_pct)) * 2.0))
+        base += min(0.18, max(0.0, float(drawdown_pct) * 2.5))
+        base += min(0.12, max(0.0, float(hold_hours) / 48.0))
+        if str(action).upper().startswith("EXIT"):
+            base += 0.10
+        vol = float(params.get("volatility", 0.02) or 0.02)
+        if vol > 0.08:
+            base += 0.04
+        return round(self._clamp(base, 0.05, 0.99), 4)
+
+    def _decision_hash(self, pair, decision):
+        payload = {
+            "pair": pair,
+            "action": decision.get("action"),
+            "exit_type": decision.get("exit_type"),
+            "amount": round(float(decision.get("amount", 0.0) or 0.0), 8),
+            "reason": str(decision.get("reason", "")),
+            "cycle": self._cycle_index,
+        }
+        raw = json.dumps(payload, sort_keys=True).encode()
+        return hashlib.sha256(raw).hexdigest()[:20]
+
+    def _record_decision_telemetry(self, pair, decision, cycle_latency_ms):
+        decision_hash = self._decision_hash(pair, decision)
+        confidence = float(decision.get("confidence", 0.0) or 0.0)
+        priority = int(decision.get("priority", 0) or 0)
+        self._db.execute(
+            """
+            INSERT INTO exit_decision_telemetry
+                (pair, action, exit_type, confidence, priority, decision_hash, decision_json, cycle_index, latency_ms)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                pair,
+                str(decision.get("action", "HOLD")),
+                str(decision.get("exit_type", "none")),
+                confidence,
+                priority,
+                decision_hash,
+                json.dumps(decision),
+                int(self._cycle_index),
+                float(cycle_latency_ms),
+            ),
+        )
+        self._db.commit()
+        return decision_hash
+
+    def _record_execution_attempt(self, pair, exit_type, order_type, attempt, amount, price, success, order_id, details):
+        self._db.execute(
+            """
+            INSERT INTO exit_execution_attempts
+                (pair, exit_type, order_type, attempt, amount, price, success, order_id, details_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                pair,
+                str(exit_type or "manual"),
+                str(order_type or "market"),
+                int(attempt),
+                float(amount or 0.0),
+                float(price or 0.0),
+                1 if success else 0,
+                None if order_id is None else str(order_id),
+                json.dumps(details or {}),
+            ),
+        )
+        self._db.commit()
+
+    def _adaptive_interval_seconds(self):
+        active = len(self._positions)
+        if active <= 0:
+            base = BASE_MONITOR_INTERVAL_SECONDS + 10
+        elif active <= 2:
+            base = BASE_MONITOR_INTERVAL_SECONDS
+        else:
+            base = max(MIN_MONITOR_INTERVAL_SECONDS, BASE_MONITOR_INTERVAL_SECONDS - min(14, active * 3))
+        if self._consecutive_api_failures > 0:
+            base += min(30, self._consecutive_api_failures * 3)
+        if self._execution_failures > 0:
+            base += min(20, self._execution_failures * 2)
+        return int(self._clamp(base, MIN_MONITOR_INTERVAL_SECONDS, MAX_MONITOR_INTERVAL_SECONDS))
+
+    def _write_status(self):
+        improvements = self._active_improvement_counts()
+        payload = {
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "running": bool(self._running),
+            "cycle_index": int(self._cycle_index),
+            "monitor_interval_seconds": int(self._monitor_interval_seconds),
+            "active_positions": len(self._positions),
+            "consecutive_api_failures": int(self._consecutive_api_failures),
+            "execution_failures": int(self._execution_failures),
+            "last_cycle_latency_ms": round(float(self._last_cycle_latency_ms), 3),
+            "improvements": improvements,
+            "toolset": dict(self._toolset),
+            "mcp_hints_present": bool(self._last_hints),
+        }
+        EXIT_STATUS_FILE.write_text(json.dumps(payload, indent=2))
+        try:
+            MCP_OUTBOX_FILE.write_text(
+                json.dumps(
+                    {
+                        "timestamp": payload["updated_at"],
+                        "agent": "exit_manager",
+                        "event": "status",
+                        "payload": payload,
+                    },
+                    indent=2,
+                )
+            )
+        except Exception:
+            pass
 
     # ==========================================
     # DYNAMIC EXIT PARAMETER CALCULATIONS
@@ -311,7 +552,7 @@ class ExitManager:
         n_positions = max(1, len(self._positions))
         max_position_loss_usd = max_daily_loss / max(2, n_positions)
 
-        return {
+        params = {
             "volatility": volatility,
             "vol_multiplier": vol_multiplier,
             "regime": regime,
@@ -340,6 +581,7 @@ class ExitManager:
             # Loss limits
             "max_position_loss_usd": round(max_position_loss_usd, 2),
         }
+        return self._apply_mcp_overrides(pair, params)
 
     def _estimate_portfolio_value(self):
         """Estimate total portfolio value from Coinbase holdings."""
@@ -564,12 +806,7 @@ class ExitManager:
     # ==========================================
 
     def execute_exit(self, pair, amount, reason, exit_type="manual"):
-        """Execute a sell order on Coinbase for the given pair and amount.
-
-        Uses risk_controller.approve_trade for the SELL side.
-        Records the exit in the database and reports to agent_performance.
-        Verifies actual Coinbase balance before selling to prevent insufficient balance errors.
-        """
+        """Execute a SELL with optimized exit routing and retry logic."""
         trader = self._get_trader()
         if not trader:
             logger.error("EXIT FAILED: No trader available for %s", pair)
@@ -580,7 +817,6 @@ class ExitManager:
             logger.error("EXIT FAILED: Cannot get price for %s", pair)
             return False
 
-        # Verify actual balance before selling — don't rely on stale position state
         base_currency = pair.split("-")[0]
         actual_balance = 0.0
         try:
@@ -589,37 +825,33 @@ class ExitManager:
                 if a.get("currency") == base_currency:
                     actual_balance = float(a.get("available_balance", {}).get("value", 0))
                     break
+            self._consecutive_api_failures = 0
         except Exception as e:
             logger.warning("EXIT: Balance check failed for %s: %s — proceeding with requested amount", pair, e)
-            actual_balance = amount  # fallback to requested amount
+            self._consecutive_api_failures += 1
+            actual_balance = amount
 
         if actual_balance <= 0:
             logger.info("EXIT SKIP: %s actual balance is 0", pair)
             return False
-
-        # Adjust amount if we hold less than requested
         if amount > actual_balance:
             logger.info("EXIT: Adjusting %s sell amount from %.8f to actual balance %.8f",
                         pair, amount, actual_balance)
             amount = actual_balance
 
         sell_value_usd = amount * current_price
-
-        # Minimum order check (Coinbase requires ~$1 minimum)
         if sell_value_usd < 0.50:
             logger.info("EXIT SKIP: %s sell value $%.2f too small", pair, sell_value_usd)
             return False
 
-        # Risk controller approval for SELL (sells are generally always approved)
         portfolio_value = self._estimate_portfolio_value()
         if _risk_ctrl:
-            approved, rc_reason, adj_size = _risk_ctrl.approve_trade(
+            approved, rc_reason, _adj_size = _risk_ctrl.approve_trade(
                 "exit_manager", pair, "SELL", sell_value_usd, portfolio_value)
             if not approved:
                 logger.warning("EXIT BLOCKED by risk controller: %s -- %s", pair, rc_reason)
                 return False
 
-        # Get position state for PnL calculation
         pos = self._positions.get(pair)
         entry_price = pos.entry_price if pos else 0
         pnl_usd = amount * (current_price - entry_price) if entry_price > 0 else 0
@@ -627,71 +859,119 @@ class ExitManager:
         hold_hours = pos.hold_duration_hours() if pos else 0
         peak_price = pos.peak_price if pos else current_price
 
-        logger.info("EXIT EXECUTING: %s %s | amount=%.8f | value=$%.2f | reason=%s",
-                     exit_type.upper(), pair, amount, sell_value_usd, reason)
+        route_hint = {}
+        if self._router is not None:
+            try:
+                route_hint = self._router.find_best_execution(pair, "SELL", sell_value_usd) or {}
+            except Exception:
+                route_hint = {}
 
-        try:
-            # Use market order for exits (speed > cost)
-            # bypass_profit_guard=True: exit_manager already made the strategic exit decision
-            result = trader.place_order(pair, "SELL", amount, bypass_profit_guard=True)
+        logger.info(
+            "EXIT EXECUTING: %s %s | amount=%.8f | value=$%.2f | reason=%s | route=%s",
+            str(exit_type).upper(), pair, amount, sell_value_usd, reason, route_hint.get("venue", "coinbase")
+        )
 
-            success = False
-            order_id = None
+        urgent_types = {"loss_limit", "trailing_stop", "force_eval_stop"}
+        urgent = str(exit_type) in urgent_types
+        slippage_frac = max(1e-6, float(EXIT_EXECUTION_SLIPPAGE_BPS) / 10000.0)
+        limit_price = current_price * (1.0 - slippage_frac)
+
+        plan = []
+        if not urgent:
+            plan.append(("limit", {"price": limit_price, "post_only": False}))
+        plan.append(("market", {}))
+        plan = plan[:max(1, int(EXIT_EXECUTION_RETRY_LIMIT))]
+
+        success = False
+        order_id = None
+        last_error = ""
+        attempt = 0
+        for order_type, cfg in plan:
+            attempt += 1
+            try:
+                if order_type == "limit":
+                    result = trader.place_limit_order(
+                        pair,
+                        "SELL",
+                        amount,
+                        cfg["price"],
+                        post_only=bool(cfg.get("post_only", False)),
+                        bypass_profit_guard=True,
+                    )
+                else:
+                    result = trader.place_order(pair, "SELL", amount, bypass_profit_guard=True)
+            except Exception as e:
+                result = {"error_response": {"message": str(e)}}
+
             if "success_response" in result:
                 order_id = result["success_response"].get("order_id")
-                success = True
+                success = bool(order_id)
             elif "order_id" in result:
-                order_id = result["order_id"]
-                success = True
-            elif "error_response" in result:
-                err = result["error_response"]
-                logger.error("EXIT ORDER FAILED: %s | %s", pair, err.get("message", err))
+                order_id = result.get("order_id")
+                success = bool(order_id)
             else:
-                logger.warning("EXIT ORDER UNKNOWN RESULT: %s", json.dumps(result)[:300])
+                err = result.get("error_response", {}) if isinstance(result, dict) else {}
+                last_error = str(err.get("message", "unknown_error"))
+                success = False
 
+            # Safely serialize result for telemetry (avoid MagicMock/non-serializable)
+            try:
+                safe_result = json.loads(json.dumps(result, default=str))
+            except Exception:
+                safe_result = str(result)[:500]
+            self._record_execution_attempt(
+                pair=pair,
+                exit_type=exit_type,
+                order_type=order_type,
+                attempt=attempt,
+                amount=amount,
+                price=(cfg.get("price", current_price) if isinstance(cfg, dict) else current_price),
+                success=success,
+                order_id=order_id,
+                details={"result": safe_result, "reason": reason, "route_hint": route_hint},
+            )
             if success:
-                logger.info("EXIT FILLED: %s | order=%s | PnL=$%.4f (%.2f%%) | held %.1fh",
-                             pair, order_id, pnl_usd, pnl_pct * 100, hold_hours)
+                break
 
-                # Record exit event
+        if not success:
+            self._execution_failures += 1
+            logger.error("EXIT ORDER FAILED: %s | %s", pair, last_error or "unknown_failure")
+            return False
+
+        self._execution_failures = 0
+        logger.info("EXIT FILLED: %s | order=%s | PnL=$%.4f (%.2f%%) | held %.1fh",
+                    pair, order_id, pnl_usd, pnl_pct * 100, hold_hours)
+
+        vol = 0.0
+        if _risk_ctrl:
+            try:
+                vol = _risk_ctrl.market.compute_volatility(pair)
+            except Exception:
                 vol = 0.0
-                if _risk_ctrl:
-                    try:
-                        vol = _risk_ctrl.market.compute_volatility(pair)
-                    except Exception:
-                        pass
 
-                self._db.execute(
-                    "INSERT INTO exit_events (pair, exit_type, reason, entry_price, exit_price, "
-                    "amount, pnl_usd, pnl_pct, hold_duration_hours, peak_price, volatility) "
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                    (pair, exit_type, reason, entry_price, current_price, amount,
-                     round(pnl_usd, 6), round(pnl_pct, 6), round(hold_hours, 3),
-                     peak_price, round(vol, 6))
-                )
-                self._db.commit()
+        self._db.execute(
+            "INSERT INTO exit_events (pair, exit_type, reason, entry_price, exit_price, "
+            "amount, pnl_usd, pnl_pct, hold_duration_hours, peak_price, volatility) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (pair, exit_type, reason, entry_price, current_price, amount,
+             round(pnl_usd, 6), round(pnl_pct, 6), round(hold_hours, 3),
+             peak_price, round(vol, 6))
+        )
+        self._db.commit()
 
-                # Report to risk controller for agent performance tracking
-                if _risk_ctrl:
-                    _risk_ctrl.record_trade_result("exit_manager", pnl_usd)
+        if _risk_ctrl:
+            _risk_ctrl.record_trade_result("exit_manager", pnl_usd)
 
-                # Update position state
-                if pos:
-                    label = exit_type.replace("take_profit_", "").replace("time_exit_", "")
-                    pos.record_partial_exit(label, amount, current_price)
-                    if pos.held_amount <= 0:
-                        # Position fully closed
-                        with self._lock:
-                            if pair in self._positions:
-                                del self._positions[pair]
-                        logger.info("EXIT COMPLETE: %s position fully closed", pair)
+        if pos:
+            label = exit_type.replace("take_profit_", "").replace("time_exit_", "")
+            pos.record_partial_exit(label, amount, current_price)
+            if pos.held_amount <= 0:
+                with self._lock:
+                    if pair in self._positions:
+                        del self._positions[pair]
+                logger.info("EXIT COMPLETE: %s position fully closed", pair)
 
-                return True
-            return False
-
-        except Exception as e:
-            logger.error("EXIT EXECUTION ERROR: %s | %s", pair, e, exc_info=True)
-            return False
+        return True
 
     # ==========================================
     # POSITION REGISTRATION
@@ -799,30 +1079,69 @@ class ExitManager:
             return {}
 
     def monitor_positions(self):
-        """Main monitoring loop -- runs every 30 seconds.
-
-        For each tracked position:
-        1. Gets current price
-        2. Checks all exit conditions
-        3. Executes exits when triggered
-        4. Logs every decision
-        """
-        logger.info("EXIT_MGR: Position monitor started (30s interval)")
+        """Main monitoring loop with adaptive timing and telemetry."""
+        logger.info("EXIT_MGR: Position monitor started (base interval=%ss)", BASE_MONITOR_INTERVAL_SECONDS)
 
         # Load existing positions from sniper DB on first run
         self._load_positions_from_db()
 
         while self._running:
+            cycle_started = time.perf_counter()
+            self._cycle_index += 1
             try:
                 # Also sync with actual holdings periodically
                 holdings = self._get_holdings_map()
+                if not holdings:
+                    self._consecutive_api_failures += 1
+                else:
+                    self._consecutive_api_failures = 0
+
+                # Compute portfolio value once for concentration checks
+                portfolio_value = self._estimate_portfolio_value()
 
                 # Check each tracked position
                 with self._lock:
                     pairs_to_check = list(self._positions.keys())
 
+                # === CONCENTRATION CHECK: sell over-weighted positions to free cash ===
+                MAX_CONCENTRATION_PCT = 0.25  # 25% max per asset
+                TARGET_CONCENTRATION_PCT = 0.18  # sell down to 18%
                 for pair in pairs_to_check:
                     try:
+                        pos = self._positions.get(pair)
+                        if not pos:
+                            continue
+                        base_currency = pair.split("-")[0]
+                        actual_held = holdings.get(base_currency, 0)
+                        if actual_held <= 0:
+                            continue
+                        current_price = _get_price(pair)
+                        if not current_price or portfolio_value <= 0:
+                            continue
+                        position_value = actual_held * current_price
+                        concentration = position_value / portfolio_value
+                        if concentration > MAX_CONCENTRATION_PCT:
+                            # Sell excess to bring back to target
+                            target_value = portfolio_value * TARGET_CONCENTRATION_PCT
+                            sell_value = position_value - target_value
+                            sell_amount = sell_value / current_price
+                            if sell_value >= 1.0:  # minimum $1 for concentration rebalance
+                                logger.info(
+                                    "EXIT_MGR: CONCENTRATION REBALANCE %s | %.0f%% > %.0f%% max | "
+                                    "selling $%.2f to reach %.0f%% target",
+                                    pair, concentration * 100, MAX_CONCENTRATION_PCT * 100,
+                                    sell_value, TARGET_CONCENTRATION_PCT * 100)
+                                self.execute_exit(
+                                    pair, sell_amount,
+                                    f"Concentration rebalance: {concentration:.0%} > {MAX_CONCENTRATION_PCT:.0%} max, "
+                                    f"selling ${sell_value:.2f} to reach {TARGET_CONCENTRATION_PCT:.0%}",
+                                    "concentration_rebalance")
+                    except Exception as e:
+                        logger.error("EXIT_MGR: Concentration check error %s: %s", pair, e)
+
+                for pair in pairs_to_check:
+                    try:
+                        pair_started = time.perf_counter()
                         pos = self._positions.get(pair)
                         if not pos:
                             continue
@@ -843,15 +1162,50 @@ class ExitManager:
                         current_price = _get_price(pair)
                         if not current_price:
                             logger.debug("EXIT_MGR: Cannot get price for %s, skipping", pair)
+                            self._consecutive_api_failures += 1
                             continue
+                        self._consecutive_api_failures = 0
 
                         # Check exit conditions
                         decision = self.check_exit(
                             pair, pos.entry_price, pos.entry_time,
                             current_price, actual_held, pos.trade_id)
 
+                        params = self._get_dynamic_params(pair)
+                        profit_pct = pos.profit_pct(current_price)
+                        drawdown_pct = pos.drawdown_from_peak_pct(current_price)
+                        hold_hours = pos.hold_duration_hours()
+                        decision["confidence"] = self._decision_confidence(
+                            params=params,
+                            profit_pct=profit_pct,
+                            drawdown_pct=drawdown_pct,
+                            hold_hours=hold_hours,
+                            action=decision.get("action", "HOLD"),
+                        )
+                        decision["priority"] = {
+                            "loss_limit": 100,
+                            "trailing_stop": 95,
+                            "force_eval_stop": 90,
+                            "force_eval": 80,
+                            "time_exit_dead_money": 75,
+                            "take_profit_tp2": 65,
+                            "take_profit_tp1": 60,
+                            "scale_out": 55,
+                        }.get(str(decision.get("exit_type", "none")), 10)
+                        decision["cycle_index"] = self._cycle_index
+                        decision_latency_ms = (time.perf_counter() - pair_started) * 1000.0
+                        decision_hash = self._record_decision_telemetry(
+                            pair, decision, cycle_latency_ms=decision_latency_ms
+                        )
+
                         if decision["action"] == "HOLD":
-                            logger.debug("EXIT_MGR: %s -- %s", pair, decision["reason"])
+                            logger.debug(
+                                "EXIT_MGR: %s -- %s [conf=%.2f hash=%s]",
+                                pair,
+                                decision["reason"],
+                                float(decision.get("confidence", 0.0)),
+                                decision_hash,
+                            )
                             continue
 
                         # Execute the exit
@@ -863,6 +1217,8 @@ class ExitManager:
                                      decision["action"], pair, reason)
 
                         success = self.execute_exit(pair, exit_amount, reason, exit_type)
+                        if not success:
+                            logger.warning("EXIT_MGR: execution failed for %s [hash=%s]", pair, decision_hash)
                         # NOTE: record_partial_exit is already called inside execute_exit()
                         # when success=True — do NOT call it again here (was causing double-recording,
                         # held_amount going to zero prematurely, positions lost from tracking)
@@ -873,8 +1229,12 @@ class ExitManager:
             except Exception as e:
                 logger.error("EXIT_MGR: Monitor loop error: %s", e, exc_info=True)
 
-            # Sleep 30 seconds between checks
-            for _ in range(30):
+            self._last_cycle_latency_ms = (time.perf_counter() - cycle_started) * 1000.0
+            self._monitor_interval_seconds = self._adaptive_interval_seconds()
+            self._write_status()
+
+            # Sleep between checks with adaptive cadence
+            for _ in range(max(1, int(self._monitor_interval_seconds))):
                 if not self._running:
                     break
                 time.sleep(1)
@@ -888,6 +1248,7 @@ class ExitManager:
             return
 
         self._running = True
+        self._write_status()
         self._monitor_thread = threading.Thread(
             target=self.monitor_positions, daemon=True, name="exit_monitor")
         self._monitor_thread.start()
@@ -899,6 +1260,7 @@ class ExitManager:
         if self._monitor_thread:
             self._monitor_thread.join(timeout=10)
             self._monitor_thread = None
+        self._write_status()
         logger.info("EXIT_MGR: Background monitor stopped")
 
     # ==========================================
@@ -937,13 +1299,52 @@ class ExitManager:
         ).fetchall()
         return [dict(r) for r in rows]
 
+    def get_decision_telemetry(self, limit=50):
+        """Get recent decision telemetry rows."""
+        rows = self._db.execute(
+            """
+            SELECT pair, action, exit_type, confidence, priority, decision_hash, cycle_index, latency_ms, created_at
+            FROM exit_decision_telemetry
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (max(1, int(limit)),),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_execution_attempts(self, limit=50):
+        """Get recent execution attempt rows."""
+        rows = self._db.execute(
+            """
+            SELECT pair, exit_type, order_type, attempt, amount, price, success, order_id, created_at
+            FROM exit_execution_attempts
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (max(1, int(limit)),),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
     def print_status(self):
         """Print full exit manager status."""
+        improvements = self._active_improvement_counts()
         print(f"\n{'='*70}")
         print(f"  EXIT MANAGER STATUS")
         print(f"{'='*70}")
         print(f"  Running: {self._running}")
         print(f"  Tracked positions: {len(self._positions)}")
+        print(
+            f"  Improvements: advanced={improvements['advanced_active']}/{improvements['advanced_total']} "
+            f"hyper={improvements['hyper_active']}/{improvements['hyper_total']}"
+        )
+        print(
+            f"  Monitor cadence: {self._monitor_interval_seconds}s | "
+            f"cycle={self._cycle_index} | last_cycle={self._last_cycle_latency_ms:.1f}ms"
+        )
+        print(
+            f"  Toolset: risk_controller={self._toolset['risk_controller']} "
+            f"smart_router={self._toolset['smart_router']} mcp_hints={MCP_HINTS_FILE.exists()}"
+        )
 
         positions = self.get_active_positions()
         if positions:
@@ -1077,6 +1478,39 @@ if __name__ == "__main__":
         else:
             print("  No exit history yet")
 
+    elif len(sys.argv) > 1 and sys.argv[1] == "improvements":
+        registry = em._improvements if isinstance(em._improvements, dict) else {}
+        summary = em._active_improvement_counts()
+        print("=== EXIT MANAGER IMPROVEMENTS ===")
+        print(json.dumps(summary, indent=2))
+        if len(sys.argv) > 2 and sys.argv[2] == "--full":
+            print(json.dumps(registry, indent=2))
+
+    elif len(sys.argv) > 1 and sys.argv[1] == "telemetry":
+        limit = 20
+        if len(sys.argv) > 2:
+            try:
+                limit = max(1, int(sys.argv[2]))
+            except Exception:
+                limit = 20
+        decisions = em.get_decision_telemetry(limit=limit)
+        attempts = em.get_execution_attempts(limit=limit)
+        print("=== EXIT MANAGER TELEMETRY ===")
+        print(f"Decisions ({len(decisions)}):")
+        for row in decisions:
+            print(
+                f"  {row['created_at']} | {row['pair']:12s} | {row['action']:11s} | "
+                f"{row.get('exit_type', 'none'):18s} | conf={float(row.get('confidence', 0.0)):.2f} | "
+                f"prio={int(row.get('priority', 0) or 0):3d} | lat={float(row.get('latency_ms', 0.0)):.1f}ms"
+            )
+        print(f"\nExecution attempts ({len(attempts)}):")
+        for row in attempts:
+            print(
+                f"  {row['created_at']} | {row['pair']:12s} | {row.get('exit_type', 'manual'):18s} | "
+                f"{row.get('order_type', 'market'):6s} | try={int(row.get('attempt', 0) or 0)} | "
+                f"ok={int(row.get('success', 0) or 0)} | order={row.get('order_id') or '-'}"
+            )
+
     else:
-        print("Usage: exit_manager.py [status|monitor|test|params|history]")
+        print("Usage: exit_manager.py [status|monitor|test|params|history|improvements|telemetry]")
         em.print_status()

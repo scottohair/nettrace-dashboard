@@ -2042,9 +2042,20 @@ def receive_trading_snapshot():
     if not api_key or not expected_key or api_key != expected_key:
         return jsonify({"error": "Unauthorized"}), 401
 
+    # Route all writes to the primary region (ewr) where the persistent DB lives
+    current_region = os.environ.get("FLY_REGION", "")
+    primary_region = os.environ.get("PRIMARY_REGION", "ewr")
+    if current_region and current_region != primary_region:
+        return "", 307, {"fly-replay": f"region={primary_region}"}
+
     data = request.get_json()
     if not data:
         return jsonify({"error": "No data"}), 400
+
+    # Reject $0 snapshots (likely API timeout — don't pollute dashboard)
+    total = data.get("total_value_usd", 0)
+    if total is not None and float(total) <= 0:
+        return jsonify({"ok": False, "reason": "Rejected $0 snapshot"}), 200
 
     # Accept user_id in payload (default: 1 for Scott's agents)
     user_id = data.get("user_id", 1)
