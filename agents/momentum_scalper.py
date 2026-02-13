@@ -544,7 +544,7 @@ class MomentumScalper:
         held_amount = holdings.get(base_currency, 0)
         held_usd = held_amount * price if price else 0
         total_portfolio = cash + sum(
-            h * (self._get_price(f"{c}-USDC") or 0) for c, h in holdings.items()
+            h * (self._get_price(f"{c}-USD") or 0) for c, h in holdings.items()
         )
         if total_portfolio <= 0:
             logger.warning("Portfolio value is $0 — cannot trade")
