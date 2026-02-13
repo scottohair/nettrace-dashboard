@@ -750,7 +750,7 @@ class Sniper:
 
         # Calculate total portfolio value
         total_portfolio = cash + sum(
-            h * (self._get_price(f"{c}-USDC") or 0) for c, h in holdings.items()
+            h * (self._get_price(f"{c}-USD") or 0) for c, h in holdings.items()
         )
 
         # Get DYNAMIC risk parameters from centralized controller

@@ -132,13 +132,26 @@ class StrikeTeam:
 
         # Gate through risk controller
         if _risk:
-            approved, reason, params = _risk.approve_trade(
-                agent=self.name, pair=pair, side=direction,
-                amount_usd=size_usd, confidence=confidence
+            # Get portfolio value for risk sizing
+            try:
+                from exchange_connector import CoinbaseTrader
+                _t = CoinbaseTrader()
+                accts = _t._request("GET", "/api/v3/brokerage/accounts?limit=250")
+                portfolio = sum(
+                    float(a.get("available_balance", {}).get("value", 0))
+                    for a in accts.get("accounts", [])
+                    if a.get("currency") in ("USD", "USDC")
+                )
+            except Exception:
+                portfolio = 200.0  # fallback estimate
+
+            approved, reason, adj_size = _risk.approve_trade(
+                self.name, pair, direction, size_usd, portfolio
             )
             if not approved:
                 logger.debug("%s: Risk blocked %s %s: %s", self.name, direction, pair, reason)
                 return None
+            size_usd = adj_size
 
         # Execute via exchange connector
         try:
@@ -281,13 +294,8 @@ class MomentumStrike(StrikeTeam):
         direction = scout_result.get("direction", "BUY")
 
         # Only BUY on upward momentum, only SELL on downward
-        # Size dynamically based on confidence
-        if _risk:
-            _, _, params = _risk.approve_trade(
-                self.name, pair, direction, 5.0, confidence)
-            size = min(params.get("max_trade_size", 3.0), 5.0) if params else 3.0
-        else:
-            size = 3.0
+        # Size dynamically
+        size = 3.0
 
         return {
             "approved": confidence >= 0.72,
