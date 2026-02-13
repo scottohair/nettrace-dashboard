@@ -148,7 +148,7 @@ def venue_health_snapshot(venue, window_minutes=30):
     total = len(rows)
     success = sum(ok)
     failure = max(0, total - success)
-    failure_rate = (failure / total) if total > 0 else 1.0
+    failure_rate = (failure / total) if total > 0 else 0.0  # assume healthy until proven otherwise
     return {
         "venue": str(venue),
         "window_minutes": int(window_minutes),
