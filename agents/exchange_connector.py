@@ -95,7 +95,10 @@ def _load_trading_lock():
         return {"locked": True, "reason": "Unreadable lock file", "source": "exchange_connector"}
 
 
-def _is_trading_locked():
+def _is_trading_locked(side="BUY"):
+    """Check if trading is locked. SELL orders are NEVER locked — you must always exit."""
+    if str(side).upper() == "SELL":
+        return False, "", ""
     lock = _load_trading_lock()
     return bool(lock.get("locked", False)), str(lock.get("reason", "")), str(lock.get("source", ""))
 
@@ -687,8 +690,8 @@ class CoinbaseTrader:
         import uuid
         side_u = side.upper()
 
-        # Global lock guard (applies to ALL order flow).
-        locked, lock_reason, lock_source = _is_trading_locked()
+        # Global lock guard (SELLs exempt — must always be able to exit).
+        locked, lock_reason, lock_source = _is_trading_locked(side=side_u)
         if locked:
             msg = f"Trading locked by {lock_source}: {lock_reason}"
             logger.error("Order blocked: %s", msg)
@@ -859,8 +862,8 @@ class CoinbaseTrader:
         import uuid
         side_u = side.upper()
 
-        # Global lock guard (applies to ALL order flow).
-        locked, lock_reason, lock_source = _is_trading_locked()
+        # Global lock guard (SELLs exempt — must always be able to exit).
+        locked, lock_reason, lock_source = _is_trading_locked(side=side_u)
         if locked:
             msg = f"Trading locked by {lock_source}: {lock_reason}"
             logger.error("Limit order blocked: %s", msg)
