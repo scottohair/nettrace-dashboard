@@ -224,6 +224,7 @@ class ExitManager:
         self._execution_failures = 0
         self._cycle_index = 0
         self._last_cycle_latency_ms = 0.0
+        self._fear_greed_cache = (0, 1.0)  # (timestamp, multiplier)
         self._last_hints = {}
         self._improvements = load_or_create_registry(EXIT_IMPROVEMENTS_FILE)
         self._toolset = {
@@ -503,6 +504,33 @@ class ExitManager:
     # DYNAMIC EXIT PARAMETER CALCULATIONS
     # ==========================================
 
+    def _get_fear_multiplier(self):
+        """Get fear-based stop multiplier, cached for 5 minutes."""
+        now = time.time()
+        cached_ts, cached_val = self._fear_greed_cache
+        if now - cached_ts < 300:  # 5 minute cache
+            return cached_val
+
+        multiplier = 1.0
+        try:
+            import urllib.request, json as _json
+            _fg_data = _json.loads(urllib.request.urlopen(
+                "https://api.alternative.me/fng/?limit=1", timeout=3
+            ).read())
+            fg_value = int(_fg_data["data"][0]["value"])
+            if fg_value < 15:       # Extreme Fear
+                multiplier = 0.3   # 70% tighter stops
+                logger.info("EXIT_MGR: EXTREME FEAR (F&G=%d) — stops at 30%%", fg_value)
+            elif fg_value < 25:     # Fear
+                multiplier = 0.5   # 50% tighter stops
+            elif fg_value < 40:     # Mild Fear
+                multiplier = 0.75  # 25% tighter stops
+        except Exception:
+            pass  # can't reach API, use defaults
+
+        self._fear_greed_cache = (now, multiplier)
+        return multiplier
+
     def _get_dynamic_params(self, pair):
         """Get all dynamic exit parameters from risk_controller and market state.
 
@@ -522,6 +550,11 @@ class ExitManager:
             max_daily_loss = max(1.0, portfolio_value * 0.04)
             regime = "UNKNOWN"
 
+        # === FEAR & GREED CIRCUIT BREAKER ===
+        # In extreme fear (market crashing), tighten ALL stops aggressively
+        # Rule #1: NEVER lose money — cut losses fast in crashes
+        fear_multiplier = self._get_fear_multiplier()
+
         # === TRAILING STOP TIERS ===
         # Base stop distances scale with volatility
         # Higher vol = wider stops (prevent noise shakeouts)
@@ -529,16 +562,16 @@ class ExitManager:
         vol_multiplier = max(0.5, min(3.0, volatility / 0.02))  # 1.0x at 2% vol
 
         # Tier 1: 0 to low_profit_threshold -- wide stop, let it breathe
-        # Base: 2% from peak, scaled by volatility
-        wide_stop = 0.02 * vol_multiplier
+        # Base: 2% from peak, scaled by volatility and fear
+        wide_stop = 0.02 * vol_multiplier * fear_multiplier
 
         # Tier 2: low_profit to mid_profit -- tighten
-        # Base: 1.5% from peak, scaled by volatility
-        medium_stop = 0.015 * vol_multiplier
+        # Base: 1.5% from peak, scaled by volatility and fear
+        medium_stop = 0.015 * vol_multiplier * fear_multiplier
 
         # Tier 3: above mid_profit -- lock in gains
-        # Base: 1% from peak, scaled by volatility
-        tight_stop = 0.01 * vol_multiplier
+        # Base: 1% from peak, scaled by volatility and fear
+        tight_stop = 0.01 * vol_multiplier * fear_multiplier
 
         # Profit thresholds for tier transitions (scale with volatility)
         # In high vol, you need bigger moves to transition tiers
@@ -555,7 +588,8 @@ class ExitManager:
 
         # Dead money threshold: hours before we consider a position stale
         # Base: 3 hours (was 4h — faster capital recycling at small portfolio)
-        dead_money_hours = 3.0 * regime_time_mult
+        # In extreme fear: cut dead money time aggressively (get out fast)
+        dead_money_hours = 3.0 * regime_time_mult * fear_multiplier
         # Minimum gain to avoid being considered dead money
         # Scales with volatility -- in high vol, 0.5% is nothing
         dead_money_min_gain = 0.005 * vol_multiplier
