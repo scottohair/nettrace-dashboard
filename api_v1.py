@@ -458,3 +458,143 @@ def export_data(host):
         "history_days": tier_conf["history_days"],
         "data": data
     })
+
+
+# ── GET /api/v1/meta-engine/status ────────────────────────────────────────
+
+def _get_meta_engine_db_path():
+    """Resolve meta_engine.db path: /app/agents/ on Fly, agents/ locally."""
+    fly_path = "/app/agents/meta_engine.db"
+    local_path = str(Path(__file__).parent / "agents" / "meta_engine.db")
+    if os.path.exists(fly_path):
+        return fly_path
+    return local_path
+
+
+def _read_meta_engine_status():
+    """Read meta_engine.db and return status dict. Returns empty data if DB missing."""
+    db_path = _get_meta_engine_db_path()
+    empty = {
+        "agents": [],
+        "recent_ideas": [],
+        "recent_predictions": [],
+        "evolution_log": [],
+        "cycle_count": 0,
+    }
+
+    if not os.path.exists(db_path):
+        return empty
+
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+
+        # Agents
+        agents = []
+        try:
+            rows = conn.execute("""
+                SELECT name, strategy_type, status, sharpe_ratio, trades, wins,
+                       losses, total_pnl, max_drawdown, last_active, created_at
+                FROM meta_agents ORDER BY sharpe_ratio DESC
+            """).fetchall()
+            for r in rows:
+                agents.append({
+                    "name": r["name"],
+                    "strategy_type": r["strategy_type"],
+                    "status": r["status"],
+                    "sharpe": r["sharpe_ratio"] or 0.0,
+                    "trades": r["trades"] or 0,
+                    "wins": r["wins"] or 0,
+                    "losses": r["losses"] or 0,
+                    "total_pnl": r["total_pnl"] or 0.0,
+                    "max_drawdown": r["max_drawdown"] or 0.0,
+                    "last_active": r["last_active"],
+                    "created_at": r["created_at"],
+                })
+        except sqlite3.OperationalError:
+            pass
+
+        # Recent ideas
+        recent_ideas = []
+        try:
+            rows = conn.execute("""
+                SELECT source, idea_type, description, confidence, status, created_at
+                FROM meta_ideas ORDER BY id DESC LIMIT 20
+            """).fetchall()
+            for r in rows:
+                recent_ideas.append({
+                    "source": r["source"],
+                    "type": r["idea_type"],
+                    "description": r["description"],
+                    "confidence": r["confidence"] or 0.0,
+                    "status": r["status"],
+                    "created_at": r["created_at"],
+                })
+        except sqlite3.OperationalError:
+            pass
+
+        # Recent predictions (paper trades as proxy)
+        recent_predictions = []
+        try:
+            rows = conn.execute("""
+                SELECT pair, direction, confidence, entry_price, current_price,
+                       paper_pnl, status, created_at
+                FROM meta_paper_trades ORDER BY id DESC LIMIT 20
+            """).fetchall()
+            for r in rows:
+                recent_predictions.append({
+                    "pair": r["pair"],
+                    "direction": r["direction"],
+                    "confidence": r["confidence"] or 0.0,
+                    "entry_price": r["entry_price"],
+                    "current_price": r["current_price"],
+                    "paper_pnl": r["paper_pnl"] or 0.0,
+                    "status": r["status"],
+                    "created_at": r["created_at"],
+                })
+        except sqlite3.OperationalError:
+            pass
+
+        # Evolution log
+        evolution_log = []
+        try:
+            rows = conn.execute("""
+                SELECT action, details, created_at
+                FROM meta_evolution_log ORDER BY id DESC LIMIT 20
+            """).fetchall()
+            for r in rows:
+                evolution_log.append({
+                    "action": r["action"],
+                    "details": r["details"],
+                    "timestamp": r["created_at"],
+                })
+        except sqlite3.OperationalError:
+            pass
+
+        # Cycle count = number of evolution log entries
+        cycle_count = 0
+        try:
+            row = conn.execute("SELECT COUNT(*) as cnt FROM meta_evolution_log").fetchone()
+            cycle_count = row["cnt"] if row else 0
+        except sqlite3.OperationalError:
+            pass
+
+        conn.close()
+
+        return {
+            "agents": agents,
+            "recent_ideas": recent_ideas,
+            "recent_predictions": recent_predictions,
+            "evolution_log": evolution_log,
+            "cycle_count": cycle_count,
+        }
+    except Exception:
+        return empty
+
+
+@api_v1.route("/meta-engine/status")
+@verify_api_key
+def meta_engine_status():
+    """Get meta-engine status: agents, ideas, predictions, evolution log."""
+    status = _read_meta_engine_status()
+    return jsonify(status)

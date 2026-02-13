@@ -4,6 +4,7 @@
 import asyncio
 import json
 import os
+import sqlite3
 import subprocess
 import time
 import uuid
@@ -138,6 +139,85 @@ def fly_cmd(args: list[str], timeout: int = 30) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Meta-engine DB helpers (read-only, graceful on missing DB)
+# ---------------------------------------------------------------------------
+
+def _meta_db_path() -> str:
+    """Resolve meta_engine.db path: /app/agents/ on Fly, agents/ locally."""
+    fly_path = "/app/agents/meta_engine.db"
+    local_path = os.path.join(os.path.dirname(__file__), "agents", "meta_engine.db")
+    if os.path.exists(fly_path):
+        return fly_path
+    return local_path
+
+
+def _meta_engine_read(query: str, params: tuple = ()) -> list[dict]:
+    """Execute a read-only query against meta_engine.db. Returns list of dicts."""
+    db_path = _meta_db_path()
+    if not os.path.exists(db_path):
+        return []
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(query, params).fetchall()
+        result = [dict(r) for r in rows]
+        conn.close()
+        return result
+    except (sqlite3.OperationalError, sqlite3.DatabaseError):
+        return []
+
+
+def meta_engine_get_status() -> dict:
+    """Full meta-engine status: agents, ideas, predictions, evolution log."""
+    agents = _meta_engine_read("""
+        SELECT name, strategy_type, status, sharpe_ratio, trades, wins, losses,
+               total_pnl, max_drawdown, last_active, created_at
+        FROM meta_agents ORDER BY sharpe_ratio DESC
+    """)
+    ideas = _meta_engine_read("""
+        SELECT source, idea_type, description, confidence, status, created_at
+        FROM meta_ideas ORDER BY id DESC LIMIT 20
+    """)
+    predictions = _meta_engine_read("""
+        SELECT pair, direction, confidence, entry_price, current_price,
+               paper_pnl, status, created_at
+        FROM meta_paper_trades ORDER BY id DESC LIMIT 20
+    """)
+    evolution = _meta_engine_read("""
+        SELECT action, details, created_at FROM meta_evolution_log
+        ORDER BY id DESC LIMIT 20
+    """)
+    cycle_rows = _meta_engine_read("SELECT COUNT(*) as cnt FROM meta_evolution_log")
+    cycle_count = cycle_rows[0]["cnt"] if cycle_rows else 0
+
+    return {
+        "agents": agents,
+        "recent_ideas": ideas,
+        "recent_predictions": predictions,
+        "evolution_log": evolution,
+        "cycle_count": cycle_count,
+    }
+
+
+def meta_engine_get_agents() -> list[dict]:
+    """All agents with performance metrics."""
+    return _meta_engine_read("""
+        SELECT name, strategy_type, status, sharpe_ratio, trades, wins, losses,
+               total_pnl, max_drawdown, last_active, created_at
+        FROM meta_agents ORDER BY sharpe_ratio DESC
+    """)
+
+
+def meta_engine_get_predictions() -> list[dict]:
+    """Latest ML predictions (paper trades) for all pairs."""
+    return _meta_engine_read("""
+        SELECT pair, direction, confidence, entry_price, current_price,
+               paper_pnl, status, agent_name, created_at
+        FROM meta_paper_trades ORDER BY id DESC LIMIT 50
+    """)
+
+
+# ---------------------------------------------------------------------------
 # MCP Server
 # ---------------------------------------------------------------------------
 
@@ -216,6 +296,21 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["command"],
             },
+        ),
+        Tool(
+            name="meta_engine.get_status",
+            description="Get full meta-engine status: agent pool, recent ideas, predictions, evolution log, and cycle count.",
+            inputSchema={"type": "object", "properties": {}},
+        ),
+        Tool(
+            name="meta_engine.get_agents",
+            description="Get all meta-engine agents with performance metrics (Sharpe, trades, wins, PnL, status).",
+            inputSchema={"type": "object", "properties": {}},
+        ),
+        Tool(
+            name="meta_engine.get_predictions",
+            description="Get latest ML predictions (paper trades) for all pairs from the meta-engine.",
+            inputSchema={"type": "object", "properties": {}},
         ),
     ]
 
@@ -310,6 +405,21 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             return [TextContent(type="text", text=json.dumps(data, indent=2))]
         except Exception as e:
             return [TextContent(type="text", text=f"Remote exec failed: {e}")]
+
+    # ------ meta_engine.get_status ------
+    elif name == "meta_engine.get_status":
+        data = await asyncio.to_thread(meta_engine_get_status)
+        return [TextContent(type="text", text=json.dumps(data, indent=2, default=str))]
+
+    # ------ meta_engine.get_agents ------
+    elif name == "meta_engine.get_agents":
+        data = await asyncio.to_thread(meta_engine_get_agents)
+        return [TextContent(type="text", text=json.dumps(data, indent=2, default=str))]
+
+    # ------ meta_engine.get_predictions ------
+    elif name == "meta_engine.get_predictions":
+        data = await asyncio.to_thread(meta_engine_get_predictions)
+        return [TextContent(type="text", text=json.dumps(data, indent=2, default=str))]
 
     return [TextContent(type="text", text=f"Unknown tool: {name}")]
 

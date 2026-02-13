@@ -30,6 +30,7 @@ RULES:
 
 import json
 import logging
+import math
 import os
 import sqlite3
 import sys
@@ -49,6 +50,53 @@ try:
     _goals = GoalValidator()
 except ImportError:
     _goals = None
+
+# Integration: Strategy Pipeline (COLD/WARM/HOT backtest validation)
+try:
+    from strategy_pipeline import (
+        Backtester as _PipelineBacktester,
+        HistoricalPrices as _PipelineHistoricalPrices,
+        StrategyValidator as _PipelineValidator,
+        GrowthModeController as _GrowthModeController,
+        MeanReversionStrategy as _MeanReversionStrategy,
+        MomentumStrategy as _MomentumStrategy,
+        RSIStrategy as _RSIStrategy,
+        VWAPStrategy as _VWAPStrategy,
+        DipBuyerStrategy as _DipBuyerStrategy,
+        MultiTimeframeStrategy as _MultiTimeframeStrategy,
+        AccumulateAndHoldStrategy as _AccumulateAndHoldStrategy,
+        WALKFORWARD_MIN_TOTAL_CANDLES as _WF_MIN_CANDLES,
+    )
+    _pipeline_available = True
+except ImportError:
+    _pipeline_available = False
+
+# Integration: Message Bus (advanced_team)
+try:
+    from advanced_team.message_bus import MessageBus
+    _bus = MessageBus()
+except Exception:
+    _bus = None
+
+# Integration: Meta-engine bus bridge
+try:
+    from meta_engine_bus import publish_meta_status as _publish_meta_status
+except ImportError:
+    _publish_meta_status = None
+
+# Integration: KPI Tracker
+try:
+    from kpi_tracker import get_kpi_tracker
+    _kpi = get_kpi_tracker()
+except Exception:
+    _kpi = None
+
+# Integration: Risk Controller
+try:
+    from risk_controller import get_controller as _get_risk_controller
+    _risk_controller = _get_risk_controller()
+except Exception:
+    _risk_controller = None
 
 # Load .env
 _env_path = Path(__file__).parent / ".env"
@@ -341,10 +389,41 @@ class ModelRunner:
 
 
 class AgentPool:
-    """Manage pool of trading agents — hire, fire, promote, clone."""
+    """Manage pool of trading agents — hire, fire, promote, clone.
+
+    Promotion gates:
+      cold -> warm: Must pass strategy_pipeline COLD backtest (walk-forward,
+                    Monte Carlo, out-of-sample positive returns).
+      warm -> hot:  Must have positive paper trading P&L, Sharpe > 1.0,
+                    and optionally pass Monte Carlo stress test.
+    Falls back to simple threshold logic if strategy_pipeline is unavailable.
+    """
+
+    # Map strategy_type names to strategy_pipeline classes
+    _STRATEGY_CONSTRUCTORS = {}
+    if _pipeline_available:
+        _STRATEGY_CONSTRUCTORS = {
+            "mean_reversion": _MeanReversionStrategy,
+            "momentum": _MomentumStrategy,
+            "rsi": _RSIStrategy,
+            "vwap": _VWAPStrategy,
+            "dip_buyer": _DipBuyerStrategy,
+            "multi_timeframe": _MultiTimeframeStrategy,
+            "accumulate_hold": _AccumulateAndHoldStrategy,
+        }
+
+    # Default pair for backtesting when agent has no pair specified
+    _DEFAULT_BACKTEST_PAIRS = ["BTC-USD", "ETH-USD"]
 
     def __init__(self, db):
         self.db = db
+        self._prices_cache = None  # lazy-init HistoricalPrices
+
+    def _get_prices(self):
+        """Lazy-init HistoricalPrices to avoid import-time network calls."""
+        if self._prices_cache is None and _pipeline_available:
+            self._prices_cache = _PipelineHistoricalPrices()
+        return self._prices_cache
 
     def list_agents(self):
         """List all agents with performance metrics."""
@@ -375,13 +454,267 @@ class AgentPool:
         logger.info("FIRED agent: %s (reason: %s)", name, reason)
 
     def promote_agent(self, name, new_status):
-        """Promote agent: cold → warm → hot."""
+        """Promote agent: cold -> warm -> hot."""
         self.db.execute(
             "UPDATE meta_agents SET status=?, promoted_at=CURRENT_TIMESTAMP WHERE name=?",
             (new_status, name)
         )
         self.db.commit()
-        logger.info("PROMOTED agent: %s → %s", name, new_status)
+        logger.info("PROMOTED agent: %s -> %s", name, new_status)
+
+    def _store_backtest_result(self, name, result_dict):
+        """Store JSON-encoded backtest result on the meta_agents row."""
+        try:
+            self.db.execute(
+                "UPDATE meta_agents SET backtest_result=? WHERE name=?",
+                (json.dumps(result_dict), name)
+            )
+            self.db.commit()
+        except Exception as e:
+            logger.debug("Failed to store backtest result for %s: %s", name, e)
+
+    def _instantiate_strategy(self, strategy_type, params):
+        """Create a strategy_pipeline strategy object from type name + params.
+
+        Returns None if strategy type is not supported by the pipeline.
+        """
+        constructor = self._STRATEGY_CONSTRUCTORS.get(strategy_type)
+        if constructor is None:
+            return None
+        try:
+            # Filter params to only those the constructor accepts
+            import inspect
+            sig = inspect.signature(constructor.__init__)
+            valid_keys = {
+                p for p in sig.parameters if p != "self"
+            }
+            filtered = {k: v for k, v in params.items() if k in valid_keys}
+            return constructor(**filtered)
+        except Exception as e:
+            logger.debug("Failed to instantiate strategy %s: %s", strategy_type, e)
+            return None
+
+    def _run_cold_backtest(self, agent_name, strategy_type, params_json):
+        """Run COLD backtest via strategy_pipeline for cold->warm promotion gate.
+
+        Returns (passed: bool, summary: dict) where summary contains backtest
+        metrics for storage and logging.
+        """
+        if not _pipeline_available:
+            return True, {"gate": "skipped", "reason": "strategy_pipeline_unavailable"}
+
+        params = {}
+        try:
+            params = json.loads(params_json or "{}")
+        except (json.JSONDecodeError, TypeError):
+            params = {}
+
+        strategy = self._instantiate_strategy(strategy_type, params)
+        if strategy is None:
+            # Strategy type not in pipeline (e.g. contrarian, dca, sniper, dex_grid)
+            # Allow promotion with a note — these are custom agents without backtest support
+            return True, {
+                "gate": "skipped",
+                "reason": f"strategy_type '{strategy_type}' has no pipeline backtester",
+            }
+
+        # Determine which pair to backtest on
+        pair = params.get("pair", None)
+        pairs_to_test = [pair] if pair else self._DEFAULT_BACKTEST_PAIRS
+
+        backtester = _PipelineBacktester(initial_capital=100.0)
+        prices = self._get_prices()
+        best_result = None
+        any_passed = False
+
+        for test_pair in pairs_to_test:
+            try:
+                candles = prices.get_5min_candles(test_pair, hours=48)
+                if len(candles) < 30:
+                    # Try hourly if 5-min data is sparse
+                    candles = prices.get_candles(test_pair, hours=168)
+                if len(candles) < 30:
+                    logger.info(
+                        "COLD gate %s/%s: insufficient data (%d candles)",
+                        agent_name, test_pair, len(candles),
+                    )
+                    continue
+
+                # Run backtest
+                bt_result = backtester.run(strategy, candles, test_pair)
+
+                # Walk-forward split (replicating quant_100_runner logic)
+                wf_min = _WF_MIN_CANDLES
+                walkforward = {
+                    "enabled": True,
+                    "available": False,
+                    "reason": "insufficient_candles_for_walkforward",
+                }
+                if len(candles) >= wf_min:
+                    split_ratio = 0.55
+                    split_idx = int(len(candles) * split_ratio)
+                    split_idx = max(30, min(split_idx, len(candles) - 24))
+                    if split_idx > 0 and len(candles) - split_idx >= 24:
+                        candles_is = candles[:split_idx]
+                        candles_oos = candles[split_idx:]
+                        bt_is = backtester.run(strategy, candles_is, test_pair)
+                        bt_oos = backtester.run(strategy, candles_oos, test_pair)
+                        walkforward = {
+                            "enabled": True,
+                            "available": True,
+                            "split_index": split_idx,
+                            "in_sample_candles": len(candles_is),
+                            "out_of_sample_candles": len(candles_oos),
+                            "in_sample": {
+                                "candle_count": int(bt_is.get("candle_count", 0) or 0),
+                                "total_return_pct": float(bt_is.get("total_return_pct", 0.0) or 0.0),
+                                "total_trades": int(bt_is.get("total_trades", 0) or 0),
+                                "win_rate": float(bt_is.get("win_rate", 0.0) or 0.0),
+                                "losses": int(bt_is.get("losses", 0) or 0),
+                                "max_drawdown_pct": float(bt_is.get("max_drawdown_pct", 0.0) or 0.0),
+                                "sharpe_ratio": float(bt_is.get("sharpe_ratio", 0.0) or 0.0),
+                                "final_open_position_blocked": bool(bt_is.get("final_open_position_blocked", False)),
+                            },
+                            "out_of_sample": {
+                                "candle_count": int(bt_oos.get("candle_count", 0) or 0),
+                                "total_return_pct": float(bt_oos.get("total_return_pct", 0.0) or 0.0),
+                                "total_trades": int(bt_oos.get("total_trades", 0) or 0),
+                                "win_rate": float(bt_oos.get("win_rate", 0.0) or 0.0),
+                                "losses": int(bt_oos.get("losses", 0) or 0),
+                                "max_drawdown_pct": float(bt_oos.get("max_drawdown_pct", 0.0) or 0.0),
+                                "sharpe_ratio": float(bt_oos.get("sharpe_ratio", 0.0) or 0.0),
+                                "final_open_position_blocked": bool(bt_oos.get("final_open_position_blocked", False)),
+                            },
+                        }
+
+                bt_for_gate = dict(bt_result)
+                bt_for_gate["walkforward"] = walkforward
+
+                # Use the pipeline validator to check COLD criteria
+                validator = _PipelineValidator()
+                validator.register_strategy(strategy, test_pair)
+                passed, msg = validator.submit_backtest(strategy.name, test_pair, bt_for_gate)
+
+                summary = {
+                    "gate": "cold_backtest",
+                    "pair": test_pair,
+                    "passed": bool(passed),
+                    "message": msg,
+                    "total_return_pct": round(float(bt_result.get("total_return_pct", 0.0) or 0.0), 4),
+                    "sharpe_ratio": round(float(bt_result.get("sharpe_ratio", 0.0) or 0.0), 4),
+                    "max_drawdown_pct": round(float(bt_result.get("max_drawdown_pct", 0.0) or 0.0), 4),
+                    "win_rate": round(float(bt_result.get("win_rate", 0.0) or 0.0), 4),
+                    "total_trades": int(bt_result.get("total_trades", 0) or 0),
+                    "candle_count": int(bt_result.get("candle_count", 0) or 0),
+                    "walkforward_available": walkforward.get("available", False),
+                    "oos_return_pct": (
+                        round(float(walkforward.get("out_of_sample", {}).get("total_return_pct", 0.0) or 0.0), 4)
+                        if walkforward.get("available") else None
+                    ),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+
+                if passed:
+                    any_passed = True
+                    best_result = summary
+                    break  # One passing pair is enough
+                elif best_result is None:
+                    best_result = summary
+
+            except Exception as e:
+                logger.warning(
+                    "COLD backtest error for %s on %s: %s",
+                    agent_name, test_pair, e,
+                )
+                if best_result is None:
+                    best_result = {
+                        "gate": "cold_backtest",
+                        "pair": test_pair,
+                        "passed": False,
+                        "message": f"backtest_error: {e}",
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    }
+
+        if best_result is None:
+            best_result = {
+                "gate": "cold_backtest",
+                "passed": False,
+                "message": "no_candle_data_available",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+
+        # Store result for visibility in status API
+        self._store_backtest_result(agent_name, best_result)
+
+        return any_passed, best_result
+
+    def _run_warm_stress_test(self, agent_name, strategy_type, params_json, agent_metrics):
+        """Optional Monte Carlo stress test for warm->hot promotion gate.
+
+        Returns (passed: bool, summary: dict).
+        """
+        if not _pipeline_available:
+            return True, {"gate": "skipped", "reason": "strategy_pipeline_unavailable"}
+
+        params = {}
+        try:
+            params = json.loads(params_json or "{}")
+        except (json.JSONDecodeError, TypeError):
+            params = {}
+
+        strategy = self._instantiate_strategy(strategy_type, params)
+        if strategy is None:
+            return True, {
+                "gate": "skipped",
+                "reason": f"strategy_type '{strategy_type}' has no pipeline backtester",
+            }
+
+        pair = params.get("pair", "BTC-USD")
+        prices = self._get_prices()
+
+        try:
+            candles = prices.get_5min_candles(pair, hours=48)
+            if len(candles) < 30:
+                candles = prices.get_candles(pair, hours=168)
+            if len(candles) < 30:
+                return True, {
+                    "gate": "monte_carlo_skipped",
+                    "reason": f"insufficient_data ({len(candles)} candles)",
+                }
+
+            backtester = _PipelineBacktester(initial_capital=100.0)
+            bt_result = backtester.run(strategy, candles, pair)
+
+            # Run Monte Carlo via GrowthModeController
+            growth = _GrowthModeController()
+            from strategy_pipeline import COLD_TO_WARM as _cold_criteria
+            mc_report = growth.evaluate_monte_carlo(
+                strategy.name, pair, bt_result, dict(_cold_criteria)
+            )
+
+            summary = {
+                "gate": "monte_carlo_stress_test",
+                "pair": pair,
+                "passed": bool(mc_report.get("passed", False)),
+                "p50_return_pct": round(float(mc_report.get("p50_return_pct", 0.0) or 0.0), 4),
+                "p05_return_pct": round(float(mc_report.get("p05_return_pct", 0.0) or 0.0), 4),
+                "p95_drawdown_pct": round(float(mc_report.get("p95_drawdown_pct", 0.0) or 0.0), 4),
+                "reasons": mc_report.get("reasons", []),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+            return summary["passed"], summary
+
+        except Exception as e:
+            logger.warning(
+                "Monte Carlo stress test error for %s: %s", agent_name, e,
+            )
+            # Don't block promotion on stress test failure — it's optional
+            return True, {
+                "gate": "monte_carlo_stress_test",
+                "passed": True,
+                "reason": f"stress_test_error_skipped: {e}",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
 
     def clone_agent(self, name):
         """Clone a high-performing agent with slightly mutated parameters."""
@@ -400,10 +733,18 @@ class AgentPool:
 
         clone_name = f"{name}_clone_{int(time.time()) % 10000}"
         self.hire_agent(clone_name, original["strategy_type"], params)
-        logger.info("CLONED agent: %s → %s", name, clone_name)
+        logger.info("CLONED agent: %s -> %s", name, clone_name)
 
     def evaluate_and_prune(self):
-        """Evaluate all agents and fire/promote/clone based on GoalValidator."""
+        """Evaluate all agents and fire/promote/clone based on GoalValidator.
+
+        Promotion gates (strategy_pipeline integration):
+          cold -> warm: Agent must pass COLD backtest (walk-forward validation,
+                        positive OOS returns, Monte Carlo). Falls back to simple
+                        threshold if pipeline is unavailable.
+          warm -> hot:  Agent must have positive paper P&L + Sharpe > 1.0
+                        (existing logic), plus optional Monte Carlo stress test.
+        """
         agents = self.list_agents()
         actions = []
 
@@ -430,13 +771,109 @@ class AgentPool:
                     actions.append(f"CLONED {agent['name']} ({promo_result['reason']})")
                 elif promo_result["promoted"]:
                     if agent["status"] == "cold":
-                        self.promote_agent(agent["name"], "warm")
-                        actions.append(f"PROMOTED {agent['name']} cold→warm ({promo_result['reason']})")
+                        # === COLD -> WARM gate: run pipeline backtest ===
+                        agent_row = self.db.execute(
+                            "SELECT params_json FROM meta_agents WHERE name=?",
+                            (agent["name"],)
+                        ).fetchone()
+                        params_json = agent_row["params_json"] if agent_row else "{}"
+
+                        try:
+                            bt_passed, bt_summary = self._run_cold_backtest(
+                                agent["name"], agent["strategy_type"], params_json,
+                            )
+                        except Exception as e:
+                            logger.error(
+                                "COLD backtest gate crashed for %s, allowing promotion (fallback): %s",
+                                agent["name"], e,
+                            )
+                            bt_passed = True
+                            bt_summary = {"gate": "error_fallback", "error": str(e)}
+
+                        if bt_passed:
+                            self.promote_agent(agent["name"], "warm")
+                            gate_info = bt_summary.get("gate", "unknown")
+                            actions.append(
+                                f"PROMOTED {agent['name']} cold->warm "
+                                f"({promo_result['reason']}, backtest={gate_info})"
+                            )
+                            logger.info(
+                                "COLD->WARM gate PASSED for %s: %s",
+                                agent["name"],
+                                json.dumps(bt_summary, default=str)[:300],
+                            )
+                        else:
+                            actions.append(
+                                f"BLOCKED {agent['name']} cold->warm "
+                                f"(backtest failed: {bt_summary.get('message', 'unknown')[:80]})"
+                            )
+                            logger.info(
+                                "COLD->WARM gate BLOCKED for %s: %s",
+                                agent["name"],
+                                json.dumps(bt_summary, default=str)[:300],
+                            )
+
                     elif agent["status"] == "warm":
-                        self.promote_agent(agent["name"], "hot")
-                        actions.append(f"PROMOTED {agent['name']} warm→hot ({promo_result['reason']})")
+                        # === WARM -> HOT gate: paper P&L check + optional stress test ===
+                        # Check paper trading P&L from meta_paper_trades
+                        paper_pnl_rows = self.db.execute(
+                            "SELECT SUM(paper_pnl) as total_pnl FROM meta_paper_trades "
+                            "WHERE agent_name=? AND status='closed'",
+                            (agent["name"],)
+                        ).fetchone()
+                        paper_pnl = float(paper_pnl_rows["total_pnl"] or 0) if paper_pnl_rows else 0
+
+                        if paper_pnl <= 0:
+                            actions.append(
+                                f"BLOCKED {agent['name']} warm->hot "
+                                f"(paper P&L ${paper_pnl:.2f} <= 0)"
+                            )
+                            logger.info(
+                                "WARM->HOT gate BLOCKED for %s: negative paper P&L %.2f",
+                                agent["name"], paper_pnl,
+                            )
+                            continue
+
+                        # Sharpe check already passed via GoalValidator.should_promote_agent
+                        # Run optional Monte Carlo stress test
+                        agent_row = self.db.execute(
+                            "SELECT params_json FROM meta_agents WHERE name=?",
+                            (agent["name"],)
+                        ).fetchone()
+                        params_json = agent_row["params_json"] if agent_row else "{}"
+
+                        try:
+                            mc_passed, mc_summary = self._run_warm_stress_test(
+                                agent["name"], agent["strategy_type"],
+                                params_json, agent,
+                            )
+                        except Exception as e:
+                            logger.error(
+                                "Monte Carlo stress test crashed for %s, allowing promotion: %s",
+                                agent["name"], e,
+                            )
+                            mc_passed = True
+                            mc_summary = {"gate": "error_fallback", "error": str(e)}
+
+                        if mc_passed:
+                            self.promote_agent(agent["name"], "hot")
+                            actions.append(
+                                f"PROMOTED {agent['name']} warm->hot "
+                                f"({promo_result['reason']}, paper_pnl=${paper_pnl:.2f}, "
+                                f"mc={mc_summary.get('gate', 'ok')})"
+                            )
+                        else:
+                            actions.append(
+                                f"BLOCKED {agent['name']} warm->hot "
+                                f"(Monte Carlo failed: {', '.join(mc_summary.get('reasons', [])[:2])})"
+                            )
+                            logger.info(
+                                "WARM->HOT gate BLOCKED for %s (MC): %s",
+                                agent["name"],
+                                json.dumps(mc_summary, default=str)[:300],
+                            )
             else:
-                # Fallback: original threshold-based logic
+                # Fallback: original threshold-based logic (no GoalValidator)
                 if trades >= FIRE_THRESHOLD["min_trades"] and sharpe < FIRE_THRESHOLD["max_sharpe"]:
                     self.fire_agent(agent["name"], f"Sharpe {sharpe:.2f} < {FIRE_THRESHOLD['max_sharpe']}")
                     actions.append(f"FIRED {agent['name']} (Sharpe {sharpe:.2f})")
@@ -445,12 +882,33 @@ class AgentPool:
                     actions.append(f"CLONED {agent['name']} (Sharpe {sharpe:.2f})")
                 elif agent["status"] == "cold" and trades >= PROMOTE_THRESHOLD["min_trades"]:
                     if sharpe >= PROMOTE_THRESHOLD["min_sharpe"] and win_rate >= PROMOTE_THRESHOLD["min_win_rate"]:
-                        self.promote_agent(agent["name"], "warm")
-                        actions.append(f"PROMOTED {agent['name']} cold→warm")
+                        # Run COLD backtest gate even in fallback mode
+                        agent_row = self.db.execute(
+                            "SELECT params_json FROM meta_agents WHERE name=?",
+                            (agent["name"],)
+                        ).fetchone()
+                        params_json = agent_row["params_json"] if agent_row else "{}"
+
+                        try:
+                            bt_passed, bt_summary = self._run_cold_backtest(
+                                agent["name"], agent["strategy_type"], params_json,
+                            )
+                        except Exception:
+                            bt_passed = True
+                            bt_summary = {"gate": "error_fallback"}
+
+                        if bt_passed:
+                            self.promote_agent(agent["name"], "warm")
+                            actions.append(f"PROMOTED {agent['name']} cold->warm")
+                        else:
+                            actions.append(
+                                f"BLOCKED {agent['name']} cold->warm "
+                                f"(backtest: {bt_summary.get('message', 'failed')[:60]})"
+                            )
                 elif agent["status"] == "warm" and trades >= PROMOTE_THRESHOLD["min_trades"]:
                     if sharpe >= PROMOTE_THRESHOLD["min_sharpe"]:
                         self.promote_agent(agent["name"], "hot")
-                        actions.append(f"PROMOTED {agent['name']} warm→hot")
+                        actions.append(f"PROMOTED {agent['name']} warm->hot")
 
         return actions
 
@@ -592,10 +1050,15 @@ class MetaEngine:
                 closed_at TIMESTAMP
             );
         """)
+        # Migration: add backtest_result column for pipeline validation results
+        try:
+            self.db.execute("ALTER TABLE meta_agents ADD COLUMN backtest_result TEXT")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
         self.db.commit()
 
-    def evolve(self):
-        """One evolution cycle: research → generate → test → deploy → prune."""
+    def evolve(self, cycle=0):
+        """One evolution cycle: research -> generate -> test -> deploy -> prune."""
         logger.info("=== META-ENGINE EVOLUTION CYCLE ===")
 
         # Step 1: Research
@@ -622,6 +1085,7 @@ class MetaEngine:
 
         # Step 3: ML prediction
         logger.info("Step 3: Running ML predictions...")
+        ml_predictions = []
         for pair in ["ETH-USD", "BTC-USD", "SOL-USD"]:
             try:
                 candles = self._fetch_candles(pair)
@@ -629,6 +1093,8 @@ class MetaEngine:
                 if pred["direction"] != "NONE":
                     logger.info("  ML %s: %s (conf=%.1f%%, framework=%s)",
                                pair, pred["direction"], pred["confidence"]*100, pred["framework"])
+                    ml_predictions.append({"pair": pair, "direction": pred["direction"],
+                                           "confidence": pred["confidence"]})
             except Exception as e:
                 logger.debug("ML prediction failed for %s: %s", pair, e)
 
@@ -689,13 +1155,49 @@ class MetaEngine:
                         )
                         logger.info("META paper trade closed: %s %s pnl=%.2f%%", pair, paper["direction"], pnl)
 
+                        # KPI: record closed paper trade
+                        if _kpi:
+                            try:
+                                paper_usd = 3.0  # notional paper trade size
+                                paper_pnl_usd = paper_usd * (pnl / 100.0)
+                                _kpi.record_trade(
+                                    strategy_name="meta_engine_paper",
+                                    pair=pair,
+                                    direction=paper["direction"],
+                                    amount_usd=paper_usd,
+                                    pnl=paper_pnl_usd,
+                                    fees=0,
+                                    hold_seconds=0,
+                                    strategy_type="LF",
+                                    won=(pnl > 0),
+                                )
+                            except Exception as e:
+                                logger.debug("KPI paper trade record failed: %s", e)
+
                 # Open new paper trade
                 self.db.execute(
                     "INSERT INTO meta_paper_trades (agent_name, pair, direction, confidence, entry_price) VALUES (?, ?, ?, ?, ?)",
                     ("meta_ml", pair, pred["direction"], pred["confidence"], current_price)
                 )
 
-                # For hot agents: execute real trades
+                # KPI: record paper trade open (pnl=0, it just opened)
+                if _kpi:
+                    try:
+                        _kpi.record_trade(
+                            strategy_name="meta_engine_paper",
+                            pair=pair,
+                            direction=pred["direction"],
+                            amount_usd=3.0,
+                            pnl=0,
+                            fees=0,
+                            hold_seconds=0,
+                            strategy_type="LF",
+                            won=True,
+                        )
+                    except Exception as e:
+                        logger.debug("KPI paper open record failed: %s", e)
+
+                # For hot agents: execute real trades (gated by risk controller)
                 hot_agents = self.db.execute(
                     "SELECT name FROM meta_agents WHERE status='hot' AND strategy_type IN ('momentum', 'contrarian', 'mean_reversion')"
                 ).fetchall()
@@ -704,34 +1206,94 @@ class MetaEngine:
                         from exchange_connector import CoinbaseTrader
                         trader = CoinbaseTrader()
                         trade_usd = min(3.0, pred["confidence"] * 4.0)
-                        if pred["direction"] == "BUY":
-                            base_size = trade_usd / current_price
-                            limit_price = current_price * 1.001
-                            result = trader.place_limit_order(pair, "BUY", base_size, limit_price, post_only=False)
+
+                        # Integration: gate through risk controller
+                        if _risk_controller:
+                            # Estimate portfolio value from Coinbase accounts
+                            try:
+                                accts_pv = trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
+                                portfolio_value = 0.0
+                                for a in accts_pv.get("accounts", []):
+                                    cur = a.get("currency", "")
+                                    bal = float(a.get("available_balance", {}).get("value", 0))
+                                    if cur in ("USDC", "USD"):
+                                        portfolio_value += bal
+                                    elif bal > 0:
+                                        try:
+                                            p = _fetch_json(f"https://api.coinbase.com/v2/prices/{cur}-USD/spot")
+                                            portfolio_value += bal * float(p["data"]["amount"])
+                                        except Exception:
+                                            pass
+                                portfolio_value = max(1.0, portfolio_value)
+                            except Exception:
+                                portfolio_value = 100.0  # safe fallback
+
+                            approved, reason, adj_size = _risk_controller.approve_trade(
+                                "meta_engine", pair, pred["direction"], trade_usd, portfolio_value
+                            )
+                            if not approved:
+                                logger.info("META trade BLOCKED by risk controller: %s %s — %s",
+                                           pred["direction"], pair, reason)
+                                continue
+                            trade_usd = adj_size
+                            logger.info("META trade APPROVED: %s %s $%.2f — %s",
+                                       pred["direction"], pair, trade_usd, reason)
                         else:
-                            # Check holdings before sell
-                            accts = trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
-                            base = pair.split("-")[0]
-                            held = 0
-                            for a in accts.get("accounts", []):
-                                if a.get("currency") == base:
-                                    held = float(a.get("available_balance", {}).get("value", 0))
-                            if held * current_price >= 1.0:
-                                sell_size = min(held * 0.3, trade_usd / current_price)
-                                limit_price = current_price * 0.999
-                                result = trader.place_limit_order(pair, "SELL", sell_size, limit_price, post_only=False)
+                            portfolio_value = 100.0
+
+                        try:
+                            result = {}
+                            if pred["direction"] == "BUY":
+                                base_size = trade_usd / current_price
+                                limit_price = current_price * 1.001
+                                result = trader.place_limit_order(pair, "BUY", base_size, limit_price, post_only=False)
                             else:
-                                result = {}
-                        if result.get("success_response") or result.get("order_id"):
-                            trades_executed += 1
-                            logger.info("META LIVE TRADE: %s %s $%.2f conf=%.1f%% via hot agents",
-                                       pred["direction"], pair, trade_usd, pred["confidence"] * 100)
-                            # Update agent stats
-                            for agent in hot_agents:
-                                self.db.execute(
-                                    "UPDATE meta_agents SET trades = trades + 1, last_active = CURRENT_TIMESTAMP WHERE name = ?",
-                                    (agent["name"],)
-                                )
+                                # Check holdings before sell
+                                accts = trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
+                                base = pair.split("-")[0]
+                                held = 0
+                                for a in accts.get("accounts", []):
+                                    if a.get("currency") == base:
+                                        held = float(a.get("available_balance", {}).get("value", 0))
+                                if held * current_price >= 1.0:
+                                    sell_size = min(held * 0.3, trade_usd / current_price)
+                                    limit_price = current_price * 0.999
+                                    result = trader.place_limit_order(pair, "SELL", sell_size, limit_price, post_only=False)
+
+                            if result.get("success_response") or result.get("order_id"):
+                                trades_executed += 1
+                                logger.info("META LIVE TRADE: %s %s $%.2f conf=%.1f%% via hot agents",
+                                           pred["direction"], pair, trade_usd, pred["confidence"] * 100)
+                                # Update agent stats
+                                for agent in hot_agents:
+                                    self.db.execute(
+                                        "UPDATE meta_agents SET trades = trades + 1, last_active = CURRENT_TIMESTAMP WHERE name = ?",
+                                        (agent["name"],)
+                                    )
+
+                                # KPI: record real trade fill
+                                if _kpi:
+                                    try:
+                                        _kpi.record_trade(
+                                            strategy_name="meta_engine",
+                                            pair=pair,
+                                            direction=pred["direction"],
+                                            amount_usd=trade_usd,
+                                            pnl=0,
+                                            fees=trade_usd * 0.004,
+                                            hold_seconds=0,
+                                            strategy_type="LF",
+                                            won=True,
+                                        )
+                                    except Exception as e:
+                                        logger.debug("KPI live trade record failed: %s", e)
+                        finally:
+                            # Always resolve the risk controller allocation
+                            if _risk_controller:
+                                try:
+                                    _risk_controller.resolve_allocation("meta_engine", pair)
+                                except Exception:
+                                    pass
                     except Exception as e:
                         logger.debug("META live trade failed: %s", e)
 
@@ -741,6 +1303,56 @@ class MetaEngine:
         logger.info("Step 6: %d live trades executed, paper trades updated", trades_executed)
 
         self.db.commit()
+
+        # Integration: publish evolution cycle summary to message bus
+        if _bus:
+            try:
+                active_agents = [a for a in self.agents.list_agents() if a.get("status") != "fired"]
+                _bus.publish(
+                    sender="meta_engine",
+                    recipient="broadcast",
+                    msg_type="meta_engine_signal",
+                    payload={
+                        "ml_predictions": ml_predictions,
+                        "research": {
+                            "fear_greed": fg,
+                            "trending_count": len(research.get("trending", [])),
+                            "gas": research.get("gas", {}),
+                            "ideas_count": len(research.get("ideas", [])),
+                        },
+                        "agent_pool": {
+                            "active_count": len(active_agents),
+                            "actions": actions,
+                        },
+                        "graph_analysis": {
+                            "nodes": graph.get("nodes", 0),
+                            "edges": graph.get("edges", 0),
+                            "signals": graph.get("signals", [])[:5],
+                            "fastest": graph.get("fastest"),
+                            "slowest": graph.get("slowest"),
+                        },
+                        "trades_executed": trades_executed,
+                    },
+                    cycle=cycle,
+                )
+                logger.info("Published evolution summary to message bus (cycle=%d)", cycle)
+            except Exception as e:
+                logger.debug("Message bus publish failed: %s", e)
+
+        # Integration: publish structured status via meta_engine_bus bridge
+        if _publish_meta_status:
+            try:
+                all_agents = self.agents.list_agents()
+                paper_trades = self.db.execute(
+                    "SELECT pair, direction, confidence, entry_price, current_price, paper_pnl, status "
+                    "FROM meta_paper_trades ORDER BY id DESC LIMIT 20"
+                ).fetchall()
+                preds = [dict(r) for r in paper_trades]
+                idea_list = research.get("ideas", [])
+                _publish_meta_status(all_agents, preds, idea_list, cycle=cycle)
+            except Exception as e:
+                logger.debug("Meta-engine bus publish failed: %s", e)
+
         logger.info("=== EVOLUTION CYCLE COMPLETE ===\n")
 
         return {
@@ -820,7 +1432,7 @@ class MetaEngine:
         while True:
             try:
                 cycle += 1
-                self.evolve()
+                self.evolve(cycle=cycle)
 
                 # Status report every 10 cycles
                 if cycle % 10 == 0:

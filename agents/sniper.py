@@ -2,13 +2,17 @@
 """High-Confidence Sniper — stacked signal aggregator.
 
 Only trades when composite confidence >= 90% with 3+ confirming signals.
-Stacks 5 independent signal sources for maximum conviction:
+Stacks 9 independent signal sources for maximum conviction:
 
   1. NetTrace latency signals (exchange infrastructure changes)
   2. Fast Engine regime detection (SMA/RSI/BB/VWAP/ATR)
   3. Fast Engine arb check (Coinbase vs 5 exchange median)
   4. Orderbook imbalance (bid/ask depth ratio)
   5. RSI extreme detection (oversold < 25 / overbought > 75)
+  6. Fear & Greed Index (contrarian)
+  7. Price momentum (4h trend)
+  8. Uptick timing (buy-low-sell-high inflection)
+  9. Meta-Engine ML predictions (RSI+momentum+SMA ensemble from meta_engine.db)
 
 Game Theory:
   - Only enters when the market is in a non-equilibrium state
@@ -114,6 +118,7 @@ CONFIG = {
         "fear_greed": 0.10,
         "momentum": 0.08,
         "uptick": 0.22,
+        "meta_engine": 0.15,
     },
 }
 
@@ -461,6 +466,80 @@ class PriceMomentumSource(SignalSource):
             return {"direction": "NONE", "confidence": 0, "reason": str(e)}
 
 
+class MetaEngineSignalSource(SignalSource):
+    """Signal: Meta-Engine ML predictions (RSI+momentum+SMA ensemble).
+
+    Reads the latest prediction from meta_engine.db (meta_paper_trades table).
+    Only fires if the prediction is < 5 minutes old (fresh).
+    Lightweight: single SQLite read, no HTTP calls.
+    """
+
+    META_DB = str(Path(__file__).parent / "meta_engine.db")
+    MAX_AGE_SECONDS = 300  # 5 minutes
+
+    def scan(self, pair):
+        try:
+            if not Path(self.META_DB).exists():
+                return {"direction": "NONE", "confidence": 0, "reason": "meta_engine.db not found"}
+
+            # Convert trading pair to meta_engine format (BTC-USDC -> BTC-USD, BTC-USD stays)
+            meta_pair = pair.replace("-USDC", "-USD")
+            # meta_engine also stores as -USDC in paper trades; check both
+            pair_variants = [meta_pair, pair]
+
+            conn = sqlite3.connect(self.META_DB, timeout=3)
+            conn.row_factory = sqlite3.Row
+            try:
+                # Get the latest open paper trade for this pair from meta_ml agent
+                row = None
+                for p in pair_variants:
+                    row = conn.execute(
+                        "SELECT direction, confidence, entry_price, created_at "
+                        "FROM meta_paper_trades "
+                        "WHERE pair = ? AND agent_name = 'meta_ml' AND status = 'open' "
+                        "ORDER BY id DESC LIMIT 1",
+                        (p,)
+                    ).fetchone()
+                    if row:
+                        break
+
+                if not row:
+                    return {"direction": "NONE", "confidence": 0, "reason": "No meta_engine prediction"}
+
+                # Check freshness — only use predictions < 5 minutes old
+                created_at = row["created_at"]
+                if created_at:
+                    try:
+                        pred_time = datetime.fromisoformat(created_at).replace(tzinfo=timezone.utc)
+                    except ValueError:
+                        # Handle SQLite CURRENT_TIMESTAMP format (no T separator)
+                        pred_time = datetime.strptime(created_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+                    age = (datetime.now(timezone.utc) - pred_time).total_seconds()
+                    if age > self.MAX_AGE_SECONDS:
+                        return {"direction": "NONE", "confidence": 0,
+                                "reason": f"Meta prediction stale ({int(age)}s old, max {self.MAX_AGE_SECONDS}s)"}
+                else:
+                    return {"direction": "NONE", "confidence": 0, "reason": "No timestamp on prediction"}
+
+                direction = row["direction"]
+                confidence = row["confidence"] or 0
+
+                if direction not in ("BUY", "SELL") or confidence <= 0:
+                    return {"direction": "NONE", "confidence": 0, "reason": "Invalid meta prediction"}
+
+                return {
+                    "direction": direction,
+                    "confidence": min(confidence, 0.95),
+                    "reason": f"Meta ML ensemble: {direction} conf={confidence:.1%} (age={int(age)}s)"
+                }
+            finally:
+                conn.close()
+
+        except Exception as e:
+            logger.debug("Meta-engine signal error: %s", e)
+            return {"direction": "NONE", "confidence": 0, "reason": str(e)}
+
+
 class UptickTimingSource(SignalSource):
     """Signal #8: Buy-low-sell-high uptick timing.
 
@@ -541,6 +620,7 @@ class Sniper:
             "fear_greed": FearGreedSource(),
             "momentum": PriceMomentumSource(),
             "uptick": UptickTimingSource(),
+            "meta_engine": MetaEngineSignalSource(),
         }
 
     def _init_db(self):
