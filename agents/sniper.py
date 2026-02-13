@@ -816,7 +816,12 @@ class Sniper:
             try:
                 from exchange_connector import CoinbaseTrader
                 trader = CoinbaseTrader()
-                result = trader.place_limit_order(pair, "BUY", base_size, limit_price, post_only=False)
+                result = trader.place_limit_order(
+                    pair, "BUY", base_size, limit_price, post_only=False,
+                    expected_edge_pct=signal["composite_confidence"] * 100,
+                    signal_confidence=signal["composite_confidence"],
+                    market_regime=signal.get("regime", "neutral"),
+                )
                 return self._process_order_result(result, pair, "BUY", trade_size, price, signal)
             except Exception as e:
                 logger.error("BUY execution error: %s", e, exc_info=True)

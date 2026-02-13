@@ -671,6 +671,7 @@ class CoinbaseTrader:
         expected_edge_pct=None,
         signal_confidence=None,
         market_regime=None,
+        bypass_profit_guard=False,
     ):
         """Place a market order with automatic precision handling.
 
@@ -729,8 +730,8 @@ class CoinbaseTrader:
                 )
                 return {"error_response": {"error": "NO_LOSS_POLICY_BLOCKED", "message": msg, "policy": no_loss}}
 
-        # Profit-only SELL guard.
-        if side_u == "SELL" and STRICT_PROFIT_ONLY:
+        # Profit-only SELL guard (bypassed for strategic exits like exit_manager).
+        if side_u == "SELL" and STRICT_PROFIT_ONLY and not bypass_profit_guard:
             entry = _last_buy_price(product_id)
             if entry is None:
                 msg = f"SELL blocked for {product_id}: missing cost basis in trader.db"
@@ -840,6 +841,7 @@ class CoinbaseTrader:
         expected_edge_pct=None,
         signal_confidence=None,
         market_regime=None,
+        bypass_profit_guard=False,
     ):
         """Place a limit order (MAKER — 0.4% fee instead of 0.6%).
 
@@ -912,8 +914,8 @@ class CoinbaseTrader:
                 )
                 return {"error_response": {"error": "NO_LOSS_POLICY_BLOCKED", "message": msg, "policy": no_loss}}
 
-        # Profit-only SELL guard.
-        if side_u == "SELL" and STRICT_PROFIT_ONLY:
+        # Profit-only SELL guard (bypassed for strategic exits).
+        if side_u == "SELL" and STRICT_PROFIT_ONLY and not bypass_profit_guard:
             entry = _last_buy_price(product_id)
             if entry is None:
                 msg = f"LIMIT SELL blocked for {product_id}: missing cost basis in trader.db"

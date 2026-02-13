@@ -632,7 +632,8 @@ class ExitManager:
 
         try:
             # Use market order for exits (speed > cost)
-            result = trader.place_order(pair, "SELL", amount)
+            # bypass_profit_guard=True: exit_manager already made the strategic exit decision
+            result = trader.place_order(pair, "SELL", amount, bypass_profit_guard=True)
 
             success = False
             order_id = None
