@@ -37,6 +37,41 @@ FLY_URL = "https://nettrace-dashboard.fly.dev"
 STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("0", "false", "no")
 
 try:
+    from no_loss_policy import (
+        evaluate_trade as _evaluate_no_loss_trade,
+        log_decision as _log_no_loss_decision,
+        record_root_cause as _record_no_loss_root_cause,
+    )
+except Exception:
+    try:
+        from agents.no_loss_policy import (  # type: ignore
+            evaluate_trade as _evaluate_no_loss_trade,
+            log_decision as _log_no_loss_decision,
+            record_root_cause as _record_no_loss_root_cause,
+        )
+    except Exception:
+        def _evaluate_no_loss_trade(**kwargs):
+            payload = dict(kwargs)
+            payload["approved"] = True
+            payload["reason"] = "policy_module_unavailable"
+            return payload
+
+        def _log_no_loss_decision(*_args, **_kwargs):
+            return None
+
+        def _record_no_loss_root_cause(*_args, **_kwargs):
+            return None
+
+try:
+    from execution_telemetry import venue_health_snapshot as _venue_health_snapshot
+except Exception:
+    try:
+        from agents.execution_telemetry import venue_health_snapshot as _venue_health_snapshot  # type: ignore
+    except Exception:
+        def _venue_health_snapshot(*_args, **_kwargs):
+            return {}
+
+try:
     from trading_guard import is_trading_locked, set_trading_lock, clear_trading_lock
 except Exception:
     # Fallback so tools remain usable even if trading_guard import fails.
@@ -296,7 +331,69 @@ class AgentTools:
         except Exception:
             pass
 
-    def place_limit_buy(self, pair, price, base_size, agent_name="unknown"):
+    def _estimate_expected_edge_pct(self, pair):
+        """Estimate short-horizon edge from microstructure + momentum."""
+        try:
+            spread = self.get_spread(pair)
+            spread_pct = (spread * 100.0) if spread is not None else 0.0
+            candles = self.get_candles(pair, granularity=60, hours=1)
+            closes = [float(c["close"]) for c in candles[-20:]] if candles else []
+            momentum_pct = 0.0
+            if len(closes) >= 8:
+                fast = sum(closes[-3:]) / 3.0
+                slow = sum(closes[-8:]) / 8.0
+                if slow > 0:
+                    momentum_pct = ((fast - slow) / slow) * 100.0
+            # Favor positive momentum and tight spreads.
+            edge = max(0.0, momentum_pct * 0.65) - max(0.0, spread_pct * 0.35)
+            return round(max(0.0, edge), 6), round(max(0.0, spread_pct), 6)
+        except Exception:
+            return 0.0, 0.0
+
+    def _no_loss_pretrade_check(
+        self,
+        pair,
+        side,
+        expected_edge_pct=None,
+        signal_confidence=0.75,
+        market_regime="UNKNOWN",
+        total_cost_pct=0.9,
+    ):
+        edge, spread_pct = self._estimate_expected_edge_pct(pair)
+        if expected_edge_pct is not None:
+            edge = float(expected_edge_pct)
+        health = _venue_health_snapshot("coinbase", window_minutes=30) or {}
+        decision = _evaluate_no_loss_trade(
+            pair=pair,
+            side=side,
+            expected_edge_pct=edge,
+            total_cost_pct=float(total_cost_pct),
+            spread_pct=spread_pct,
+            venue_latency_ms=float(health.get("p90_latency_ms", 0.0) or 0.0),
+            venue_failure_rate=float(health.get("failure_rate", 0.0) or 0.0),
+            signal_confidence=float(signal_confidence or 0.0),
+            market_regime=market_regime,
+        )
+        _log_no_loss_decision(
+            decision,
+            details={
+                "source": "agent_tools",
+                "inferred_edge_used": expected_edge_pct is None,
+                "venue_health": health,
+            },
+        )
+        return decision
+
+    def place_limit_buy(
+        self,
+        pair,
+        price,
+        base_size,
+        agent_name="unknown",
+        expected_edge_pct=None,
+        signal_confidence=0.75,
+        market_regime="UNKNOWN",
+    ):
         """Place a limit BUY order (maker, 0.4% fee). Returns order_id or None."""
         if not self.can_trade():
             locked, reason, source = is_trading_locked()
@@ -306,6 +403,26 @@ class AgentTools:
                 logger.warning("[%s] Trading blocked — daily loss limit hit", agent_name)
             return None
 
+        if STRICT_PROFIT_ONLY:
+            decision = self._no_loss_pretrade_check(
+                pair=pair,
+                side="BUY",
+                expected_edge_pct=expected_edge_pct,
+                signal_confidence=signal_confidence,
+                market_regime=market_regime,
+                total_cost_pct=1.0,
+            )
+            if not decision.get("approved", False):
+                _record_no_loss_root_cause(
+                    pair,
+                    "BUY",
+                    "pre_trade_policy_block",
+                    decision.get("reason", "blocked"),
+                    details=decision,
+                )
+                logger.warning("[%s] BUY blocked by no-loss policy: %s", agent_name, decision.get("reason"))
+                return None
+
         usd_cost = base_size * price
         max_trade = self.risk.max_trade_usd
         if usd_cost > max_trade:
@@ -313,14 +430,32 @@ class AgentTools:
                           agent_name, usd_cost, max_trade, self.risk.portfolio_value)
             return None
 
-        result = self.exchange.place_limit_order(pair, "BUY", base_size, price, post_only=True)
+        result = self.exchange.place_limit_order(
+            pair,
+            "BUY",
+            base_size,
+            price,
+            post_only=True,
+            expected_edge_pct=expected_edge_pct,
+            signal_confidence=signal_confidence,
+            market_regime=market_regime,
+        )
         order_id = self._extract_order_id(result)
 
         self.log_trade(agent_name, pair, "BUY", price, base_size, usd_cost, "limit", order_id,
                        "placed" if order_id else "failed")
         return order_id
 
-    def place_limit_sell(self, pair, price, base_size, agent_name="unknown"):
+    def place_limit_sell(
+        self,
+        pair,
+        price,
+        base_size,
+        agent_name="unknown",
+        expected_edge_pct=2.0,
+        signal_confidence=0.80,
+        market_regime="UNKNOWN",
+    ):
         """Place a limit SELL order (maker, 0.4% fee). Returns order_id or None."""
         if not self.can_trade():
             locked, reason, source = is_trading_locked()
@@ -328,7 +463,16 @@ class AgentTools:
                 logger.warning("[%s] SELL blocked by global lock (%s): %s", agent_name, source, reason)
             return None
 
-        result = self.exchange.place_limit_order(pair, "SELL", base_size, price, post_only=True)
+        result = self.exchange.place_limit_order(
+            pair,
+            "SELL",
+            base_size,
+            price,
+            post_only=True,
+            expected_edge_pct=expected_edge_pct,
+            signal_confidence=signal_confidence,
+            market_regime=market_regime,
+        )
         order_id = self._extract_order_id(result)
 
         usd_value = base_size * price

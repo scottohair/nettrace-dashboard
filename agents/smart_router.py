@@ -26,6 +26,15 @@ from pathlib import Path
 
 logger = logging.getLogger("smart_router")
 
+try:
+    from execution_telemetry import venue_health_snapshot as _venue_health_snapshot
+except Exception:
+    try:
+        from agents.execution_telemetry import venue_health_snapshot as _venue_health_snapshot  # type: ignore
+    except Exception:
+        def _venue_health_snapshot(*_args, **_kwargs):
+            return {}
+
 # Gas price estimates (in USD) per chain — updated periodically
 DEFAULT_GAS_COSTS_USD = {
     "ethereum": 5.00,   # ~$5 for a swap on mainnet
@@ -56,6 +65,22 @@ class SmartRouter:
         self._dex = dex_connector
         self._price_cache = {}
         self._cache_time = 0
+
+    @staticmethod
+    def _latency_penalty_pct(venue_key, amount_usd):
+        """Translate observed p90 latency into cost penalty (%)."""
+        venue = "coinbase" if venue_key.startswith("coinbase") else venue_key
+        health = _venue_health_snapshot(venue, window_minutes=30) if venue else {}
+        p90_ms = float(health.get("p90_latency_ms", 0.0) or 0.0)
+        failure_rate = float(health.get("failure_rate", 0.0) or 0.0)
+        if p90_ms <= 0 and failure_rate <= 0:
+            return 0.0, p90_ms, failure_rate
+        # Convert execution delay + failure risk into bps-style penalty.
+        latency_component = min(0.20, max(0.0, p90_ms / 10000.0))  # 1000ms -> 0.10%
+        reliability_component = min(0.30, max(0.0, failure_rate * 0.50))  # 20% fail -> 0.10%
+        size_component = min(0.20, max(0.0, float(amount_usd or 0.0) / 10000.0))
+        penalty = latency_component + reliability_component + size_component
+        return round(penalty, 4), round(p90_ms, 3), round(failure_rate, 4)
 
     @property
     def coinbase(self):
@@ -121,6 +146,17 @@ class SmartRouter:
             return {"error": "No venues available", "pair": pair}
 
         # Sort by total_cost_pct (lowest cost wins)
+        for v in venues:
+            venue_key = str(v.get("venue", ""))
+            penalty, p90_ms, fail_rate = self._latency_penalty_pct(venue_key, amount_usd)
+            if penalty > 0:
+                v["latency_penalty_pct"] = penalty
+                v["observed_p90_latency_ms"] = p90_ms
+                v["observed_failure_rate"] = fail_rate
+                v["total_cost_pct"] = round(float(v.get("total_cost_pct", 0.0) or 0.0) + penalty, 4)
+                v["total_cost_usd"] = round(amount_usd * v["total_cost_pct"] / 100.0, 4)
+
+        # Sort by total_cost_pct (lowest cost wins)
         venues.sort(key=lambda v: v.get("total_cost_pct", 999))
         best = venues[0]
 
@@ -160,6 +196,7 @@ class SmartRouter:
                 "fee_pct": fee_pct,
                 "gas_usd": 0,
                 "slippage_pct": 0,  # limit orders = no slippage
+                "latency_penalty_pct": 0.0,
                 "total_cost_pct": round(fee_pct, 4),
                 "total_cost_usd": round(fee_usd, 4),
             }

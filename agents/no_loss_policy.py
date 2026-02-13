@@ -15,6 +15,31 @@ MAX_LATENCY_MS = float(os.environ.get("NO_LOSS_MAX_LATENCY_MS", "450"))
 MAX_FAILURE_RATE = float(os.environ.get("NO_LOSS_MAX_FAILURE_RATE", "0.20"))
 CONFIDENCE_FLOOR = float(os.environ.get("NO_LOSS_MIN_CONFIDENCE", "0.70"))
 
+try:
+    from fast_exec_bridge import FastExec
+except Exception:
+    try:
+        from agents.fast_exec_bridge import FastExec
+    except Exception:
+        FastExec = None
+
+_FAST_EXEC = None
+
+
+def _fast_exec():
+    global _FAST_EXEC
+    if _FAST_EXEC is not None:
+        return _FAST_EXEC
+    if FastExec is None:
+        _FAST_EXEC = False
+        return None
+    try:
+        _FAST_EXEC = FastExec()
+        return _FAST_EXEC
+    except Exception:
+        _FAST_EXEC = False
+        return None
+
 
 def _connect():
     db = sqlite3.connect(str(DB_PATH))
@@ -75,6 +100,24 @@ def evaluate_trade(
 
     reasons = []
     min_required_edge = max(MIN_EXPECTED_EDGE_PCT, costs)
+    fast = _fast_exec()
+    fast_eval = None
+    if fast:
+        fast_eval = fast.no_loss_gate(
+            expected_edge_pct=expected,
+            total_cost_pct=costs,
+            spread_pct=spread,
+            latency_ms=latency,
+            failure_rate=failure,
+            signal_confidence=confidence,
+            min_expected_edge_pct=MIN_EXPECTED_EDGE_PCT,
+            max_spread_pct=MAX_SPREAD_PCT,
+            max_latency_ms=MAX_LATENCY_MS,
+            max_failure_rate=MAX_FAILURE_RATE,
+            confidence_floor=CONFIDENCE_FLOOR,
+            buy_blocked_regime=(side_u == "BUY" and regime in {"DOWNTREND", "BEARISH"}),
+        )
+        min_required_edge = max(min_required_edge, float(fast_eval.get("required_edge_pct", min_required_edge) or min_required_edge))
     if expected < min_required_edge:
         reasons.append(f"expected_edge {expected:.3f}% < required {min_required_edge:.3f}%")
     if spread > MAX_SPREAD_PCT:
@@ -89,6 +132,8 @@ def evaluate_trade(
         reasons.append(f"regime {regime} blocks BUY under no-loss policy")
 
     approved = len(reasons) == 0
+    if fast_eval is not None and not bool(fast_eval.get("approved", True)):
+        approved = False
     decision = {
         "pair": str(pair),
         "side": side_u,
@@ -102,7 +147,12 @@ def evaluate_trade(
         "signal_confidence": round(confidence, 6),
         "market_regime": regime,
         "min_required_edge_pct": round(min_required_edge, 6),
+        "native_fast_path": bool(fast_eval is not None),
+        "native_penalty_pct": round(float(fast_eval.get("penalty_pct", 0.0) or 0.0), 6) if fast_eval else 0.0,
+        "native_score": round(float(fast_eval.get("score", 0.0) or 0.0), 6) if fast_eval else 0.0,
     }
+    if not approved and fast_eval is not None and not reasons:
+        decision["reason"] = "blocked_by_native_no_loss_gate"
     return decision
 
 

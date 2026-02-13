@@ -401,6 +401,10 @@ class RiskController:
                 adjusted = size_usd  # sells aren't limited by same rules
 
             # 5. Check total pending allocations across ALL agents (cross-process safe)
+            # Clean up stale pending allocations older than 6 hours (orders that were never resolved)
+            cur.execute(
+                "UPDATE pending_allocations SET status='expired', resolved_at=CURRENT_TIMESTAMP "
+                "WHERE status='pending' AND created_at < datetime('now', '-6 hours')")
             row = cur.execute(
                 "SELECT COALESCE(SUM(size_usd), 0) FROM pending_allocations WHERE status='pending'"
             ).fetchone()
@@ -410,8 +414,9 @@ class RiskController:
                 return False, f"Total pending ${total_pending + adjusted:.2f} exceeds 80% of portfolio ${portfolio_value:.2f}", 0
 
             # 6. Rate limiting: max trades per day scales with portfolio
-            max_trades = max(10, int(math.log10(max(1, portfolio_value)) * 20))
-            if self._trade_count_today >= max_trades:
+            # SELL/exit orders are EXEMPT — you must ALWAYS be able to exit a position
+            max_trades = max(50, int(math.log10(max(1, portfolio_value)) * 40))
+            if direction == "BUY" and self._trade_count_today >= max_trades:
                 self._db.rollback()
                 return False, f"Trade limit reached ({self._trade_count_today}/{max_trades})", 0
 

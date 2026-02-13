@@ -44,6 +44,41 @@ logging.basicConfig(
 )
 logger = logging.getLogger("live_trader")
 
+try:
+    from no_loss_policy import (
+        evaluate_trade as _evaluate_no_loss_trade,
+        log_decision as _log_no_loss_decision,
+        record_root_cause as _record_no_loss_root_cause,
+    )
+except Exception:
+    try:
+        from agents.no_loss_policy import (  # type: ignore
+            evaluate_trade as _evaluate_no_loss_trade,
+            log_decision as _log_no_loss_decision,
+            record_root_cause as _record_no_loss_root_cause,
+        )
+    except Exception:
+        def _evaluate_no_loss_trade(**kwargs):
+            payload = dict(kwargs)
+            payload["approved"] = True
+            payload["reason"] = "policy_module_unavailable"
+            return payload
+
+        def _log_no_loss_decision(*_args, **_kwargs):
+            return None
+
+        def _record_no_loss_root_cause(*_args, **_kwargs):
+            return None
+
+try:
+    from execution_telemetry import venue_health_snapshot as _venue_health_snapshot
+except Exception:
+    try:
+        from agents.execution_telemetry import venue_health_snapshot as _venue_health_snapshot  # type: ignore
+    except Exception:
+        def _venue_health_snapshot(*_args, **_kwargs):
+            return {}
+
 TRADER_DB = str(Path(__file__).parent / "trader.db")
 SIGNAL_API = "https://nettrace-dashboard.fly.dev/api/v1/signals"
 NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
@@ -66,8 +101,10 @@ except Exception:
 class LiveTrader:
     def __init__(self):
         from exchange_connector import CoinbaseTrader, PriceFeed
+        from smart_router import SmartRouter
         self.exchange = CoinbaseTrader()
         self.pricefeed = PriceFeed
+        self.router = SmartRouter()
         self.db = sqlite3.connect(TRADER_DB)
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA journal_mode=WAL")
@@ -191,6 +228,42 @@ class LiveTrader:
             logger.debug("Regime detection: %s", e)
             return {"regime": "UNKNOWN", "recommendation": "TRADE"}
 
+    def _get_route_quote(self, pair, side, amount_usd):
+        pair_usd = pair.replace("-USDC", "-USD")
+        try:
+            route = self.router.find_best_execution(pair_usd, side, amount_usd)
+            if isinstance(route, dict) and "error" not in route:
+                return route
+        except Exception as e:
+            logger.debug("Route quote failed for %s: %s", pair, e)
+        return {}
+
+    def _evaluate_no_loss_gate(self, pair, side, amount_usd, expected_edge_pct, confidence, regime):
+        route = self._get_route_quote(pair, side, amount_usd)
+        total_cost_pct = float(route.get("total_cost_pct", 1.0) or 1.0)
+        spread_pct = float(route.get("slippage_pct", 0.0) or 0.0)
+        health = _venue_health_snapshot("coinbase", window_minutes=30) or {}
+        decision = _evaluate_no_loss_trade(
+            pair=pair,
+            side=side,
+            expected_edge_pct=float(expected_edge_pct or 0.0),
+            total_cost_pct=total_cost_pct,
+            spread_pct=spread_pct,
+            venue_latency_ms=float(health.get("p90_latency_ms", 0.0) or 0.0),
+            venue_failure_rate=float(health.get("failure_rate", 0.0) or 0.0),
+            signal_confidence=float(confidence or 0.0),
+            market_regime=str(regime or "UNKNOWN"),
+        )
+        _log_no_loss_decision(
+            decision,
+            details={
+                "source": "live_trader",
+                "route": route,
+                "venue_health": health,
+            },
+        )
+        return decision, route
+
     def evaluate_and_trade(self, signals):
         """Evaluate signals and execute trades.
 
@@ -297,13 +370,33 @@ class LiveTrader:
             avg_conf = sum(float(s.get("confidence", 0)) for s in sigs) / len(sigs)
             trade_usd = min(max_trade_usd, max(MIN_TRADE_USD, avg_conf * max_trade_usd * 1.2))
             trade_usd = min(trade_usd, available_cash)
+            regime = self._get_regime(pair)
+            regime_name = str(regime.get("regime", "UNKNOWN"))
+            expected_edge_pct = max(0.0, (avg_conf - 0.50) * 10.0)  # 80% conf -> ~3% edge
 
             logger.info("BUY SIGNAL: %s | %d confirming signals | avg_conf=%.2f | $%.2f",
                         pair, len(sigs), avg_conf, trade_usd)
-            self._execute_trade(pair, "BUY", trade_usd, sigs[0])
+            self._execute_trade(
+                pair,
+                "BUY",
+                trade_usd,
+                sigs[0],
+                expected_edge_pct=expected_edge_pct,
+                signal_confidence=avg_conf,
+                market_regime=regime_name,
+            )
             break  # One trade per cycle
 
-    def _execute_trade(self, pair, side, usd_amount, signal):
+    def _execute_trade(
+        self,
+        pair,
+        side,
+        usd_amount,
+        signal,
+        expected_edge_pct=0.0,
+        signal_confidence=0.75,
+        market_regime="UNKNOWN",
+    ):
         """Execute a real BUY trade on Coinbase. SELL is disabled (accumulation mode)."""
         if side.upper() != "BUY":
             logger.warning("BLOCKED SELL on %s — accumulation mode, BUY only until portfolio > $100", pair)
@@ -314,11 +407,55 @@ class LiveTrader:
             logger.warning("No price for %s", pair)
             return
 
+        decision, route = self._evaluate_no_loss_gate(
+            pair=pair,
+            side=side,
+            amount_usd=usd_amount,
+            expected_edge_pct=expected_edge_pct,
+            confidence=signal_confidence,
+            regime=market_regime,
+        )
+        if not decision.get("approved", False):
+            reason = decision.get("reason", "blocked")
+            logger.warning("NO-LOSS BLOCK: %s %s $%.2f | %s", side, pair, usd_amount, reason)
+            _record_no_loss_root_cause(
+                pair,
+                side,
+                "pre_trade_policy_block",
+                reason,
+                details={"decision": decision, "route": route, "signal": signal},
+            )
+            return
+
         logger.info("EXECUTING: BUY %s | $%.2f @ $%.2f | signal=%s conf=%.2f",
                      pair, usd_amount, price,
                      signal.get("signal_type"), float(signal.get("confidence", 0)))
-
-        result = self.exchange.place_order(pair, "BUY", round(usd_amount, 2))
+        # HFT-style maker entry: post-only limit near best bid to reduce fee/slippage.
+        book = self.exchange.get_order_book(pair, level=1)
+        pb = book.get("pricebook", {}) if isinstance(book, dict) else {}
+        bids = pb.get("bids", []) if isinstance(pb, dict) else []
+        asks = pb.get("asks", []) if isinstance(pb, dict) else []
+        best_bid = float(bids[0].get("price", 0.0) or 0.0) if bids else 0.0
+        best_ask = float(asks[0].get("price", 0.0) or 0.0) if asks else 0.0
+        if best_bid > 0 and best_ask > 0:
+            limit_price = min(best_ask * 0.9999, best_bid * 1.0002)
+        elif best_bid > 0:
+            limit_price = best_bid
+        else:
+            limit_price = price
+        if limit_price <= 0:
+            limit_price = price
+        base_size = max(0.0, float(usd_amount) / float(limit_price))
+        result = self.exchange.place_limit_order(
+            pair,
+            "BUY",
+            base_size,
+            limit_price,
+            post_only=True,
+            expected_edge_pct=expected_edge_pct,
+            signal_confidence=signal_confidence,
+            market_regime=market_regime,
+        )
 
         order_id = None
         status = "failed"
@@ -329,6 +466,13 @@ class LiveTrader:
         elif "error_response" in result:
             err = result["error_response"]
             logger.warning("ORDER FAILED: %s | %s", pair, err.get("message", err))
+            _record_no_loss_root_cause(
+                pair,
+                side,
+                "order_rejected",
+                str(err.get("message", err)),
+                details={"response": result, "signal": signal},
+            )
             status = "failed"
         elif "order_id" in result:
             order_id = result["order_id"]

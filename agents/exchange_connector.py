@@ -29,14 +29,21 @@ try:
         venue_health_snapshot as _venue_health_snapshot,
     )
 except Exception:
-    def _record_api_call(*_args, **_kwargs):
-        return None
+    try:
+        from agents.execution_telemetry import (  # type: ignore
+            record_api_call as _record_api_call,
+            record_order_lifecycle as _record_order_lifecycle,
+            venue_health_snapshot as _venue_health_snapshot,
+        )
+    except Exception:
+        def _record_api_call(*_args, **_kwargs):
+            return None
 
-    def _record_order_lifecycle(*_args, **_kwargs):
-        return None
+        def _record_order_lifecycle(*_args, **_kwargs):
+            return None
 
-    def _venue_health_snapshot(*_args, **_kwargs):
-        return {}
+        def _venue_health_snapshot(*_args, **_kwargs):
+            return {}
 
 try:
     from no_loss_policy import (
@@ -45,17 +52,24 @@ try:
         record_root_cause as _record_no_loss_root_cause,
     )
 except Exception:
-    def _evaluate_no_loss_trade(**kwargs):
-        payload = dict(kwargs)
-        payload["approved"] = True
-        payload["reason"] = "policy_module_unavailable"
-        return payload
+    try:
+        from agents.no_loss_policy import (  # type: ignore
+            evaluate_trade as _evaluate_no_loss_trade,
+            log_decision as _log_no_loss_decision,
+            record_root_cause as _record_no_loss_root_cause,
+        )
+    except Exception:
+        def _evaluate_no_loss_trade(**kwargs):
+            payload = dict(kwargs)
+            payload["approved"] = True
+            payload["reason"] = "policy_module_unavailable"
+            return payload
 
-    def _log_no_loss_decision(*_args, **_kwargs):
-        return None
+        def _log_no_loss_decision(*_args, **_kwargs):
+            return None
 
-    def _record_no_loss_root_cause(*_args, **_kwargs):
-        return None
+        def _record_no_loss_root_cause(*_args, **_kwargs):
+            return None
 
 # Load from env — CDP (Coinbase Developer Platform) JWT auth
 COINBASE_API_KEY_ID = os.environ.get("COINBASE_API_KEY_ID", "")
