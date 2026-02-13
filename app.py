@@ -3026,7 +3026,7 @@ def agent_control_portfolio():
     try:
         from exchange_connector import CoinbaseTrader
         trader = CoinbaseTrader()
-        accts = trader.client.get_accounts()
+        accts = trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
         holdings = []
         total_usd = 0.0
         for a in accts.get("accounts", []):
