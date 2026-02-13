@@ -346,14 +346,41 @@ VALID_SIGNAL_TYPES = {
 }
 VALID_DIRECTIONS = {"BUY", "SELL", "CAUTION", "INFO"}
 
+# Internal auth for cross-region signal push (scouts -> primary)
+_INTERNAL_SECRET = os.environ.get("SECRET_KEY", "")
+
+
+def _verify_internal_or_api_key(f):
+    """Allow either API key auth OR internal secret auth for signal push.
+
+    Scout regions authenticate with X-Internal-Secret header (shared SECRET_KEY).
+    External clients use the normal API key auth.
+    """
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        internal_secret = request.headers.get("X-Internal-Secret", "")
+        if internal_secret and _INTERNAL_SECRET and internal_secret == _INTERNAL_SECRET:
+            # Internal auth — set minimal g attributes for compatibility
+            g.api_tier = "internal"
+            g.api_usage_today = 0
+            g.api_rate_limit = 999999
+            return f(*args, **kwargs)
+        # Fall back to normal API key auth
+        return verify_api_key(f)(*args, **kwargs)
+    return decorated
+
 
 @signals_api.route("/signals/push", methods=["POST"])
-@verify_api_key
+@_verify_internal_or_api_key
 def push_signal():
     """Accept signals from regional scout agents.
 
     Scout regions (lhr, nrt, sin, etc.) push anomaly signals here.
     The primary region (ewr) collects them for cross-region divergence analysis.
+
+    Auth: Either API key (Authorization: Bearer ...) or internal secret
+    (X-Internal-Secret header matching SECRET_KEY env var).
 
     Body (JSON):
         signal_type: str (required)

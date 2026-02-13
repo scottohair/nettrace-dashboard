@@ -37,6 +37,8 @@ _AGENTS_DIR = str(Path(__file__).resolve().parent)
 if _AGENTS_DIR not in sys.path:
     sys.path.insert(0, _AGENTS_DIR)
 
+import sqlite3
+
 from fly_deployer import (
     get_region,
     get_agents_for_region,
@@ -49,7 +51,9 @@ logger = logging.getLogger("fly_agent_runner")
 
 # Signal push config
 NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
+INTERNAL_SECRET = os.environ.get("SECRET_KEY", "")  # shared secret for internal auth
 FLY_URL = os.environ.get("APP_URL", "https://nettrace-dashboard.fly.dev")
+DB_PATH = os.environ.get("DB_PATH", str(Path(__file__).resolve().parent.parent / "traceroute.db"))
 PRIMARY_REGION = os.environ.get("PRIMARY_REGION", "ewr")
 SCOUT_INTERVAL = int(os.environ.get("CRYPTO_SCAN_INTERVAL", "120"))
 
@@ -266,23 +270,67 @@ class FlyAgentRunner:
                 self._interruptible_sleep(30)
 
     def _fetch_local_signals(self):
-        """Fetch crypto latency data from the local Fly app (same container)."""
+        """Read crypto exchange latency data directly from the local SQLite DB.
+
+        Bypasses the Flask API (no auth needed) since we're in the same container.
+        Computes anomaly detection (>20% RTT deviation) the same way the API does.
+        """
         try:
-            # Use internal URL (localhost) since we're in the same container
-            url = f"http://localhost:{os.environ.get('PORT', '8080')}/api/v1/signals/crypto-latency?hours=1"
-            headers = {"Authorization": f"Bearer {NETTRACE_API_KEY}"}
-            req = urllib.request.Request(url, headers=headers)
-            resp = urllib.request.urlopen(req, timeout=10)
-            data = json.loads(resp.read())
-            return data.get("exchanges", [])
+            db = sqlite3.connect(DB_PATH)
+            db.row_factory = sqlite3.Row
+            rows = db.execute("""
+                SELECT target_host, target_name, total_rtt, created_at
+                FROM scan_metrics
+                WHERE category = 'Crypto Exchanges'
+                  AND created_at >= datetime('now', '-1 hours')
+                ORDER BY created_at DESC
+            """).fetchall()
+            db.close()
+
+            # Aggregate per host: latest RTT + average + anomaly detection
+            host_data = {}
+            for row in rows:
+                host = row["target_host"]
+                rtt = row["total_rtt"]
+                if rtt is None:
+                    continue
+                if host not in host_data:
+                    host_data[host] = {
+                        "host": host, "name": row["target_name"],
+                        "latest_rtt": rtt, "rtts": [],
+                    }
+                host_data[host]["rtts"].append(rtt)
+
+            results = []
+            for host, data in host_data.items():
+                rtts = data["rtts"]
+                if len(rtts) < 2:
+                    continue
+                avg_rtt = sum(rtts) / len(rtts)
+                deviation = (data["latest_rtt"] - avg_rtt) / avg_rtt if avg_rtt > 0 else 0
+                results.append({
+                    "host": host,
+                    "name": data["name"],
+                    "latest_rtt": data["latest_rtt"],
+                    "avg_rtt": round(avg_rtt, 2),
+                    "deviation_pct": round(deviation * 100, 2),
+                    "is_anomaly": abs(deviation) > 0.20,
+                    "samples": len(rtts),
+                })
+            return results
+
         except Exception as e:
-            logger.debug("Could not fetch local signals: %s", e)
+            logger.debug("Could not read local scan_metrics: %s", e)
             return []
 
     def _push_signal(self, anomaly):
-        """Push an anomaly signal to the central API for cross-region analysis."""
-        if not NETTRACE_API_KEY:
-            logger.debug("No API key, skipping signal push")
+        """Push an anomaly signal to the central API for cross-region analysis.
+
+        Uses internal secret auth (X-Internal-Secret header) which all Fly machines
+        share via the SECRET_KEY env var. This bypasses API key auth.
+        """
+        if not INTERNAL_SECRET and not NETTRACE_API_KEY:
+            logger.debug("No auth credentials, skipping signal push")
             return
 
         payload = {
@@ -299,28 +347,14 @@ class FlyAgentRunner:
             },
         }
 
-        try:
-            url = f"{FLY_URL}/api/v1/signals/push"
-            data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(
-                url, data=data,
-                headers={
-                    "Authorization": f"Bearer {NETTRACE_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                method="POST",
-            )
-            resp = urllib.request.urlopen(req, timeout=10)
-            if resp.status == 200:
-                logger.debug("Pushed signal: %s %s (%.1f%% deviation)",
-                             anomaly.get("host"), self.region,
-                             anomaly.get("deviation_pct", 0))
-        except Exception as e:
-            logger.debug("Signal push failed: %s", e)
+        self._post_signal(payload)
+        logger.debug("Pushed signal: %s %s (%.1f%% deviation)",
+                     anomaly.get("host"), self.region,
+                     anomaly.get("deviation_pct", 0))
 
     def _push_heartbeat(self):
         """Push a heartbeat so the primary region knows this scout is alive."""
-        if not NETTRACE_API_KEY:
+        if not INTERNAL_SECRET and not NETTRACE_API_KEY:
             return
 
         payload = {
@@ -335,20 +369,25 @@ class FlyAgentRunner:
             },
         }
 
+        self._post_signal(payload)
+
+    def _post_signal(self, payload):
+        """POST a signal to the central API with internal or API key auth."""
         try:
             url = f"{FLY_URL}/api/v1/signals/push"
             data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(
-                url, data=data,
-                headers={
-                    "Authorization": f"Bearer {NETTRACE_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                method="POST",
-            )
+            headers = {"Content-Type": "application/json"}
+
+            # Prefer internal secret auth (works across all Fly machines)
+            if INTERNAL_SECRET:
+                headers["X-Internal-Secret"] = INTERNAL_SECRET
+            elif NETTRACE_API_KEY:
+                headers["Authorization"] = f"Bearer {NETTRACE_API_KEY}"
+
+            req = urllib.request.Request(url, data=data, headers=headers, method="POST")
             urllib.request.urlopen(req, timeout=10)
-        except Exception:
-            pass  # heartbeat failures are non-critical
+        except Exception as e:
+            logger.debug("Signal push failed: %s", e)
 
     def _interruptible_sleep(self, seconds):
         """Sleep in small increments so we can stop quickly."""
