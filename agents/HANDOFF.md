@@ -36,4 +36,12 @@ Both agents: READ this before starting work. WRITE here before ending work.
 - Stuck ETH (0.032609 ETH at wrong portal) — unrecoverable, tracked in asset_pool
 
 ### Deploy Status
-- **Deploying now** — will update with version number after flyctl deploy completes
+- **v39 LIVE** across all 7 regions (ewr, lhr, nrt, sin, ord, fra, bom)
+- ewr: Full trading stack running (sniper scanning 7 pairs, advanced_team DFA cycling, exit_manager active, risk_controller enforcing limits)
+- lhr: Signal scout detected 2 anomalies, pushing signals to ewr (200 OK)
+- nrt: Signal scout detected 8 anomalies, pushing signals to ewr (200 OK)
+- sin/ord/fra/bom: Signal scouts active
+- Scout auth fixed: direct SQLite reads + X-Internal-Secret header for cross-region push
+- PyJWT added to requirements.txt for Coinbase CDP auth in Docker
+- route_changes column fix (detected_at, not created_at)
+- Commits: 276ce6a (main deploy), aeef58f (hotfix), edd8118 (scout auth fix)
