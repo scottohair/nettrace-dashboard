@@ -43,13 +43,14 @@ logging.basicConfig(
 logger = logging.getLogger("strategy_pipeline")
 
 PIPELINE_DB = str(Path(__file__).parent / "pipeline.db")
+TRADER_DB = str(Path(__file__).parent / "trader.db")
 
 # Promotion thresholds — CONSERVATIVE
 COLD_TO_WARM = {
-    "min_trades": 20,
-    "min_win_rate": 0.60,      # 60% win rate in backtest
-    "min_return_pct": 0.5,     # Must be profitable
-    "max_drawdown_pct": 5.0,   # Max 5% drawdown
+    "min_trades": 12,          # Was 20 — faster promotion for growth phase
+    "min_win_rate": 0.58,      # Was 60% — slightly relaxed for more flow
+    "min_return_pct": 0.3,     # Was 0.5% — lower bar but still profitable
+    "max_drawdown_pct": 5.0,   # Max 5% drawdown (unchanged — protect capital)
 }
 
 WARM_TO_HOT = {
@@ -63,13 +64,16 @@ WARM_TO_HOT = {
 
 # Adaptive HOT gating for sparse but multi-window evidence.
 WARM_ADAPTIVE_GATING = os.environ.get("WARM_ADAPTIVE_GATING", "1").lower() not in ("0", "false", "no")
-WARM_SPARSE_MIN_TRADES = int(os.environ.get("WARM_SPARSE_MIN_TRADES", "4"))
+WARM_SPARSE_MIN_TRADES = int(os.environ.get("WARM_SPARSE_MIN_TRADES", "2"))
 WARM_SPARSE_MIN_WIN_RATE = float(os.environ.get("WARM_SPARSE_MIN_WIN_RATE", "0.58"))
-WARM_SPARSE_MIN_RETURN_PCT = float(os.environ.get("WARM_SPARSE_MIN_RETURN_PCT", "0.08"))
+WARM_SPARSE_MIN_RETURN_PCT = float(os.environ.get("WARM_SPARSE_MIN_RETURN_PCT", "0.03"))
 WARM_SPARSE_MAX_DRAWDOWN_PCT = float(os.environ.get("WARM_SPARSE_MAX_DRAWDOWN_PCT", "2.50"))
 WARM_SPARSE_MIN_RUNTIME_SECONDS = int(os.environ.get("WARM_SPARSE_MIN_RUNTIME_SECONDS", "900"))
-WARM_SPARSE_MIN_SHARPE = float(os.environ.get("WARM_SPARSE_MIN_SHARPE", "0.20"))
+WARM_SPARSE_MIN_SHARPE = float(os.environ.get("WARM_SPARSE_MIN_SHARPE", "0.00"))
 WARM_MIN_EVIDENCE_WINDOWS = int(os.environ.get("WARM_MIN_EVIDENCE_WINDOWS", "2"))
+WARM_SPARSE_MAX_WINDOW_CANDLES = int(os.environ.get("WARM_SPARSE_MAX_WINDOW_CANDLES", "168"))
+WARM_MATURE_EVIDENCE_WINDOWS = int(os.environ.get("WARM_MATURE_EVIDENCE_WINDOWS", "4"))
+WARM_MATURE_EVIDENCE_MIN_CANDLES = int(os.environ.get("WARM_MATURE_EVIDENCE_MIN_CANDLES", "72"))
 
 # Fee assumptions
 COINBASE_FEE = 0.006  # 0.6% taker fee
@@ -98,19 +102,60 @@ MONTE_CARLO_MAX_P95_DRAWDOWN_PCT = float(os.environ.get("MONTE_CARLO_MAX_P95_DRA
 GROWTH_START_BUDGET_PCT = float(os.environ.get("GROWTH_START_BUDGET_PCT", "0.012"))
 GROWTH_START_BUDGET_MIN_USD = float(os.environ.get("GROWTH_START_BUDGET_MIN_USD", "1.00"))
 GROWTH_START_BUDGET_MAX_USD = float(os.environ.get("GROWTH_START_BUDGET_MAX_USD", "8.00"))
-GROWTH_BUDGET_ESCALATE_FACTOR = float(os.environ.get("GROWTH_BUDGET_ESCALATE_FACTOR", "1.22"))
+GROWTH_BUDGET_ESCALATE_FACTOR = float(os.environ.get("GROWTH_BUDGET_ESCALATE_FACTOR", "1.35"))
 GROWTH_BUDGET_DECAY_FACTOR = float(os.environ.get("GROWTH_BUDGET_DECAY_FACTOR", "0.60"))
-GROWTH_BUDGET_MAX_USD = float(os.environ.get("GROWTH_BUDGET_MAX_USD", "50.00"))
+GROWTH_BUDGET_MAX_USD = float(os.environ.get("GROWTH_BUDGET_MAX_USD", "75.00"))
 GROWTH_ESCALATE_MIN_RUNTIME_SECONDS = int(os.environ.get("GROWTH_ESCALATE_MIN_RUNTIME_SECONDS", "900"))
 PIPELINE_PORTFOLIO_USD = float(os.environ.get("PIPELINE_PORTFOLIO_USD", "262.55"))
-WARM_MAX_FUNDED_PER_PAIR = int(os.environ.get("WARM_MAX_FUNDED_PER_PAIR", "2"))
-WARM_MAX_TOTAL_FUNDED_BUDGET_PCT = float(os.environ.get("WARM_MAX_TOTAL_FUNDED_BUDGET_PCT", "0.35"))
-WARM_MAX_PAIR_BUDGET_SHARE = float(os.environ.get("WARM_MAX_PAIR_BUDGET_SHARE", "0.70"))
-SPARSE_OOS_FUNDING_MULT = float(os.environ.get("SPARSE_OOS_FUNDING_MULT", "0.25"))
+WARM_MAX_FUNDED_PER_PAIR = int(os.environ.get("WARM_MAX_FUNDED_PER_PAIR", "4"))
+WARM_MAX_TOTAL_FUNDED_BUDGET_PCT = float(os.environ.get("WARM_MAX_TOTAL_FUNDED_BUDGET_PCT", "0.60"))
+WARM_MAX_PAIR_BUDGET_SHARE = float(os.environ.get("WARM_MAX_PAIR_BUDGET_SHARE", "0.82"))
+SPARSE_OOS_FUNDING_MULT = float(os.environ.get("SPARSE_OOS_FUNDING_MULT", "0.40"))
 GROWTH_MAX_VAR95_LOSS_PCT = float(os.environ.get("GROWTH_MAX_VAR95_LOSS_PCT", "1.20"))
 GROWTH_MAX_ES97_5_LOSS_PCT = float(os.environ.get("GROWTH_MAX_ES97_5_LOSS_PCT", "2.20"))
 GROWTH_DRIFT_ALERT_THRESHOLD = float(os.environ.get("GROWTH_DRIFT_ALERT_THRESHOLD", "1.50"))
 GROWTH_CONFORMAL_MAX_ERROR = float(os.environ.get("GROWTH_CONFORMAL_MAX_ERROR", "0.70"))
+PROBABILISTIC_MIN_TRADES_FOR_CONFORMAL = int(
+    os.environ.get("PROBABILISTIC_MIN_TRADES_FOR_CONFORMAL", "6")
+)
+PROBABILISTIC_MIN_OOS_TRADES_FOR_CONFORMAL = int(
+    os.environ.get("PROBABILISTIC_MIN_OOS_TRADES_FOR_CONFORMAL", "2")
+)
+PROBABILISTIC_CONFORMAL_BAND_FLOOR_PCT = float(
+    os.environ.get("PROBABILISTIC_CONFORMAL_BAND_FLOOR_PCT", "0.25")
+)
+PROBABILISTIC_CONFORMAL_PENALTY_SCALE = float(
+    os.environ.get("PROBABILISTIC_CONFORMAL_PENALTY_SCALE", "0.15")
+)
+REALIZED_ESCALATION_GATE_ENABLED = os.environ.get(
+    "REALIZED_ESCALATION_GATE_ENABLED", "1"
+).lower() not in ("0", "false", "no")
+REALIZED_ESCALATION_MIN_CLOSES = int(os.environ.get("REALIZED_ESCALATION_MIN_CLOSES", "2"))
+REALIZED_ESCALATION_MIN_NET_PNL_USD = float(os.environ.get("REALIZED_ESCALATION_MIN_NET_PNL_USD", "0.01"))
+REALIZED_ESCALATION_LOOKBACK_HOURS = int(os.environ.get("REALIZED_ESCALATION_LOOKBACK_HOURS", "72"))
+REALIZED_ESCALATION_MIN_WIN_RATE = float(os.environ.get("REALIZED_ESCALATION_MIN_WIN_RATE", "0.55"))
+REALIZED_ESCALATION_REQUIRE_WINNING_MAJORITY = os.environ.get(
+    "REALIZED_ESCALATION_REQUIRE_WINNING_MAJORITY", "1"
+).lower() not in ("0", "false", "no")
+REALIZED_ESCALATION_MIN_AVG_PNL_PER_CLOSE_USD = float(
+    os.environ.get("REALIZED_ESCALATION_MIN_AVG_PNL_PER_CLOSE_USD", "0.0001")
+)
+HOT_ESCALATION_BOOST_FACTOR = float(os.environ.get("HOT_ESCALATION_BOOST_FACTOR", "1.50"))
+HOT_ESCALATION_MIN_BUDGET_USD = float(os.environ.get("HOT_ESCALATION_MIN_BUDGET_USD", "1.25"))
+EXECUTION_HEALTH_ESCALATION_GATE = os.environ.get(
+    "EXECUTION_HEALTH_ESCALATION_GATE", "1"
+).lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_GATE_CACHE_SECONDS = int(
+    os.environ.get("EXECUTION_HEALTH_GATE_CACHE_SECONDS", "90")
+)
+
+try:
+    from execution_health import evaluate_execution_health
+except Exception:
+    try:
+        from agents.execution_health import evaluate_execution_health  # type: ignore
+    except Exception:
+        evaluate_execution_health = None  # type: ignore
 
 
 def _clamp(value, lo, hi):
@@ -1343,6 +1388,7 @@ class GrowthModeController:
 
     def _probabilistic_assessment(self, results, base_returns, p05_mc, p50_mc, p95_dd):
         returns_pct = sorted([float(r) * 100.0 for r in base_returns])
+        base_trade_count = len(returns_pct)
         p05_hist = self._percentile(returns_pct, 5)
         p025_hist = self._percentile(returns_pct, 2.5)
         var95_loss = max(0.0, -p05_hist)
@@ -1366,6 +1412,7 @@ class GrowthModeController:
         oos = walkforward.get("out_of_sample") if isinstance(walkforward.get("out_of_sample"), dict) else {}
         ins = walkforward.get("in_sample") if isinstance(walkforward.get("in_sample"), dict) else {}
         oos_ret = float(oos.get("total_return_pct", 0.0) or 0.0)
+        oos_trades = int(oos.get("total_trades", 0) or 0)
         ins_ret = float(ins.get("total_return_pct", results.get("total_return_pct", 0.0)) or 0.0)
 
         drift_score = 0.25
@@ -1373,20 +1420,35 @@ class GrowthModeController:
             drift_score = abs(oos_ret - ins_ret) / max(0.05, abs(ins_ret))
         drift_score = float(_clamp(drift_score, 0.0, 3.0))
 
-        conformal_error = 0.20
+        conformal_error = 0.0
+        sample_sufficient_for_conformal = (
+            base_trade_count >= PROBABILISTIC_MIN_TRADES_FOR_CONFORMAL
+            and oos_trades >= PROBABILISTIC_MIN_OOS_TRADES_FOR_CONFORMAL
+        )
+        conformal_skipped_low_sample = False
         if walkforward.get("available"):
-            low = self._percentile(returns_pct, 10)
-            high = self._percentile(returns_pct, 90)
-            band = max(0.10, high - low)
-            if oos_ret < low:
-                conformal_error = min(1.0, abs(low - oos_ret) / band)
-            elif oos_ret > high:
-                conformal_error = min(1.0, abs(oos_ret - high) / band)
+            if sample_sufficient_for_conformal:
+                low = self._percentile(returns_pct, 10)
+                high = self._percentile(returns_pct, 90)
+                band = max(
+                    PROBABILISTIC_CONFORMAL_BAND_FLOOR_PCT,
+                    high - low,
+                    abs(ins_ret - oos_ret) * 0.60,
+                )
+                if oos_ret < low:
+                    conformal_error = min(1.0, abs(low - oos_ret) / band)
+                elif oos_ret > high:
+                    conformal_error = min(1.0, abs(oos_ret - high) / band)
+                else:
+                    conformal_error = 0.0
             else:
-                conformal_error = 0.0
+                conformal_skipped_low_sample = True
         conformal_error = float(_clamp(conformal_error, 0.0, 1.0))
 
-        calibrated_p05 = min(p05_mc, p05_hist - conformal_error * 0.25)
+        calibrated_p05 = min(
+            p05_mc,
+            p05_hist - conformal_error * PROBABILISTIC_CONFORMAL_PENALTY_SCALE,
+        )
         reasons = []
         if var95_loss > GROWTH_MAX_VAR95_LOSS_PCT:
             reasons.append(
@@ -1396,12 +1458,16 @@ class GrowthModeController:
             reasons.append(
                 f"probabilistic es97_5_loss {es97_5_loss:.2f}% > {GROWTH_MAX_ES97_5_LOSS_PCT:.2f}%"
             )
-        if conformal_error > GROWTH_CONFORMAL_MAX_ERROR:
+        if sample_sufficient_for_conformal and conformal_error > GROWTH_CONFORMAL_MAX_ERROR:
             reasons.append(
                 f"probabilistic conformal_error {conformal_error:.2f} > {GROWTH_CONFORMAL_MAX_ERROR:.2f}"
             )
 
         return {
+            "base_trade_count": int(base_trade_count),
+            "oos_trade_count": int(oos_trades),
+            "sample_sufficient_for_conformal": bool(sample_sufficient_for_conformal),
+            "conformal_skipped_low_sample": bool(conformal_skipped_low_sample),
             "regime": regime,
             "volatility_pct": round(vol, 4),
             "var95_loss_pct": round(var95_loss, 4),
@@ -1663,6 +1729,55 @@ class StrategyValidator:
         self.db.row_factory = sqlite3.Row
         self._init_db()
         self.growth = GrowthModeController()
+        self._execution_health_cache = {"ts": 0.0, "payload": {}}
+
+    def _execution_health_gate_status(self, refresh=False):
+        summary = {
+            "enabled": bool(EXECUTION_HEALTH_ESCALATION_GATE),
+            "green": True,
+            "reason": "gate_disabled",
+            "updated_at": "",
+        }
+        if not EXECUTION_HEALTH_ESCALATION_GATE:
+            return summary
+        if evaluate_execution_health is None:
+            summary["green"] = False
+            summary["reason"] = "execution_health_module_unavailable"
+            return summary
+
+        now = time.time()
+        cache_age = now - float(self._execution_health_cache.get("ts", 0.0) or 0.0)
+        cached = self._execution_health_cache.get("payload", {})
+        if (
+            not refresh
+            and isinstance(cached, dict)
+            and cached
+            and cache_age <= max(10, int(EXECUTION_HEALTH_GATE_CACHE_SECONDS))
+        ):
+            return {
+                "enabled": bool(EXECUTION_HEALTH_ESCALATION_GATE),
+                "green": bool(cached.get("green", False)),
+                "reason": str(cached.get("reason", "unknown")),
+                "updated_at": str(cached.get("updated_at", "")),
+            }
+
+        try:
+            payload = evaluate_execution_health(refresh=False, probe_http=False, write_status=True)
+        except Exception as e:
+            summary["green"] = False
+            summary["reason"] = f"execution_health_check_failed:{e}"
+            return summary
+        if not isinstance(payload, dict):
+            summary["green"] = False
+            summary["reason"] = "execution_health_invalid_payload"
+            return summary
+        self._execution_health_cache = {"ts": now, "payload": payload}
+        return {
+            "enabled": bool(EXECUTION_HEALTH_ESCALATION_GATE),
+            "green": bool(payload.get("green", False)),
+            "reason": str(payload.get("reason", "unknown")),
+            "updated_at": str(payload.get("updated_at", "")),
+        }
 
     def _init_db(self):
         self.db.executescript("""
@@ -1809,6 +1924,144 @@ class StrategyValidator:
             "total_funded_strategies": total_count,
         }
 
+    @staticmethod
+    def _table_exists(conn, table_name):
+        row = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (table_name,),
+        ).fetchone()
+        return bool(row)
+
+    def _pair_realized_close_evidence(self, pair):
+        """Collect pair-level realized close evidence from trader.db for budget escalation gates."""
+        evidence = {
+            "enabled": REALIZED_ESCALATION_GATE_ENABLED,
+            "pair": str(pair),
+            "lookback_hours": int(REALIZED_ESCALATION_LOOKBACK_HOURS),
+            "closed_trades": 0,
+            "winning_closes": 0,
+            "losing_closes": 0,
+            "net_pnl_usd": 0.0,
+            "win_rate": 0.0,
+            "avg_pnl_per_close_usd": 0.0,
+            "min_win_rate": float(REALIZED_ESCALATION_MIN_WIN_RATE),
+            "sources": [],
+            "passed": False,
+            "reason": "gate_disabled",
+        }
+        if not REALIZED_ESCALATION_GATE_ENABLED:
+            evidence["passed"] = True
+            return evidence
+        if not Path(TRADER_DB).exists():
+            evidence["reason"] = "trader_db_missing"
+            return evidence
+
+        lookback_expr = f"-{max(1, int(REALIZED_ESCALATION_LOOKBACK_HOURS))} hours"
+        tables = ("live_trades", "agent_trades")
+
+        try:
+            conn = sqlite3.connect(TRADER_DB)
+            conn.row_factory = sqlite3.Row
+            total_closed = 0
+            total_wins = 0
+            total_pnl = 0.0
+            for table in tables:
+                if not self._table_exists(conn, table):
+                    continue
+                row = conn.execute(
+                    f"""
+                    SELECT
+                        COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
+                        COALESCE(SUM(CASE WHEN pnl IS NOT NULL AND COALESCE(pnl, 0) > 0 THEN 1 ELSE 0 END), 0) AS wins,
+                        COALESCE(SUM(COALESCE(pnl, 0)), 0) AS net_pnl
+                    FROM {table}
+                    WHERE pair=?
+                      AND UPPER(COALESCE(side, ''))='SELL'
+                      AND created_at >= datetime('now', ?)
+                      AND (
+                        status IS NULL
+                        OR LOWER(COALESCE(status, '')) NOT IN (
+                            'pending',
+                            'placed',
+                            'open',
+                            'accepted',
+                            'ack_ok',
+                            'failed',
+                            'blocked',
+                            'canceled',
+                            'cancelled',
+                            'expired'
+                        )
+                      )
+                    """,
+                    (str(pair), lookback_expr),
+                ).fetchone()
+                closes = int(row["closes"] or 0) if row else 0
+                wins = int(row["wins"] or 0) if row else 0
+                pnl = float(row["net_pnl"] or 0.0) if row else 0.0
+                if closes > 0:
+                    evidence["sources"].append(
+                        {
+                            "table": table,
+                            "closed_trades": closes,
+                            "winning_closes": wins,
+                            "net_pnl_usd": round(pnl, 6),
+                        }
+                    )
+                total_closed += closes
+                total_wins += wins
+                total_pnl += pnl
+            conn.close()
+        except Exception as e:
+            evidence["reason"] = f"query_failed:{e}"
+            return evidence
+
+        evidence["closed_trades"] = int(total_closed)
+        evidence["winning_closes"] = int(total_wins)
+        evidence["losing_closes"] = max(0, int(total_closed - total_wins))
+        evidence["net_pnl_usd"] = round(float(total_pnl), 6)
+        evidence["win_rate"] = round(
+            float(total_wins / total_closed) if total_closed > 0 else 0.0, 6
+        )
+        evidence["avg_pnl_per_close_usd"] = round(
+            float(total_pnl / total_closed) if total_closed > 0 else 0.0,
+            8,
+        )
+
+        if total_closed < int(REALIZED_ESCALATION_MIN_CLOSES):
+            evidence["reason"] = (
+                f"closed_trades {total_closed} < {REALIZED_ESCALATION_MIN_CLOSES}"
+            )
+            return evidence
+        if float(total_pnl) <= float(REALIZED_ESCALATION_MIN_NET_PNL_USD):
+            evidence["reason"] = (
+                f"net_pnl_usd {float(total_pnl):.6f} <= {REALIZED_ESCALATION_MIN_NET_PNL_USD:.6f}"
+            )
+            return evidence
+        if float(evidence["win_rate"]) < float(REALIZED_ESCALATION_MIN_WIN_RATE):
+            evidence["reason"] = (
+                f"win_rate {float(evidence['win_rate']):.4f} < {float(REALIZED_ESCALATION_MIN_WIN_RATE):.4f}"
+            )
+            return evidence
+        if (
+            REALIZED_ESCALATION_REQUIRE_WINNING_MAJORITY
+            and int(evidence["winning_closes"]) <= int(evidence["losing_closes"])
+        ):
+            evidence["reason"] = (
+                f"winning_closes {int(evidence['winning_closes'])} <= losing_closes {int(evidence['losing_closes'])}"
+            )
+            return evidence
+        if float(evidence["avg_pnl_per_close_usd"]) <= float(REALIZED_ESCALATION_MIN_AVG_PNL_PER_CLOSE_USD):
+            evidence["reason"] = (
+                f"avg_pnl_per_close_usd {float(evidence['avg_pnl_per_close_usd']):.8f} <= "
+                f"{float(REALIZED_ESCALATION_MIN_AVG_PNL_PER_CLOSE_USD):.8f}"
+            )
+            return evidence
+
+        evidence["passed"] = True
+        evidence["reason"] = "passed"
+        return evidence
+
     def _cold_criteria(self, results):
         """Adaptive COLD gating for shorter lookback windows."""
         criteria = dict(COLD_TO_WARM)
@@ -1823,7 +2076,7 @@ class StrategyValidator:
         if candle_count < 96:
             criteria["min_trades"] = 2
             criteria["min_win_rate"] = 0.55
-            criteria["min_return_pct"] = 0.10
+            criteria["min_return_pct"] = 0.05
         elif candle_count < 192:
             criteria["min_trades"] = 6
             criteria["min_win_rate"] = 0.58
@@ -2126,32 +2379,93 @@ class StrategyValidator:
             logger.warning("REJECTED %s/%s from WARM: %s", strategy_name, pair, ", ".join(reasons))
             return False, f"Failed: {', '.join(reasons)}"
 
-    def _warm_criteria(self, paper_metrics):
-        """Adaptive HOT criteria for sparse but diverse runtime evidence."""
-        criteria = dict(WARM_TO_HOT)
-        if not WARM_ADAPTIVE_GATING:
-            return criteria
-
+    @staticmethod
+    def _warm_evidence_windows(paper_metrics):
         evidence = paper_metrics.get("evidence", {}) if isinstance(paper_metrics.get("evidence"), dict) else {}
-        window_count = int(evidence.get("window_count", 0) or 0)
+        raw_windows = evidence.get("windows", [])
+        windows = []
+        if isinstance(raw_windows, (list, tuple)):
+            for value in raw_windows:
+                try:
+                    item = int(value)
+                except Exception:
+                    continue
+                if item > 0:
+                    windows.append(item)
+        windows = sorted(set(windows))
+        window_count = int(evidence.get("window_count", len(windows)) or len(windows))
+        if window_count <= 0 and windows:
+            window_count = len(windows)
+        return evidence, windows, max(0, window_count)
+
+    def _warm_gate_context(self, paper_metrics):
+        """Build adaptive criteria and evidence context used by HOT promotion gating."""
+        criteria = dict(WARM_TO_HOT)
+        evidence, windows, window_count = self._warm_evidence_windows(paper_metrics)
+        max_window = int(max(windows) if windows else 0)
+        min_window = int(min(windows) if windows else 0)
         trades = int(paper_metrics.get("total_trades", 0) or 0)
         runtime = int(paper_metrics.get("runtime_seconds", 0) or 0)
 
-        sparse_evidence = window_count >= WARM_MIN_EVIDENCE_WINDOWS
-        if sparse_evidence and (trades < criteria["min_trades"] or runtime < criteria["min_runtime_seconds"]):
+        sparse_windows_ready = window_count >= max(1, int(WARM_MIN_EVIDENCE_WINDOWS))
+        sparse_window_history = max_window > 0 and max_window <= max(24, int(WARM_SPARSE_MAX_WINDOW_CANDLES))
+        bootstrap_shortfall = trades < int(criteria["min_trades"]) or runtime < int(criteria["min_runtime_seconds"])
+        relax_sparse = bool(WARM_ADAPTIVE_GATING) and sparse_windows_ready and (sparse_window_history or bootstrap_shortfall)
+
+        criteria_adjustments = []
+        if relax_sparse:
+            before = dict(criteria)
             criteria["min_trades"] = max(2, WARM_SPARSE_MIN_TRADES)
             criteria["min_win_rate"] = max(criteria["min_win_rate"], WARM_SPARSE_MIN_WIN_RATE)
             criteria["min_return_pct"] = max(0.0, min(criteria["min_return_pct"], WARM_SPARSE_MIN_RETURN_PCT))
             criteria["max_drawdown_pct"] = min(criteria["max_drawdown_pct"], WARM_SPARSE_MAX_DRAWDOWN_PCT)
             criteria["min_runtime_seconds"] = min(criteria["min_runtime_seconds"], WARM_SPARSE_MIN_RUNTIME_SECONDS)
             criteria["min_sharpe"] = min(criteria["min_sharpe"], WARM_SPARSE_MIN_SHARPE)
+            for key in (
+                "min_trades",
+                "min_win_rate",
+                "min_return_pct",
+                "max_drawdown_pct",
+                "min_runtime_seconds",
+                "min_sharpe",
+            ):
+                if float(criteria[key]) != float(before[key]):
+                    criteria_adjustments.append(
+                        f"{key}:{before[key]}->{criteria[key]}"
+                    )
+
+        mature_sparse_evidence = (
+            sparse_windows_ready
+            and window_count >= max(int(WARM_MATURE_EVIDENCE_WINDOWS), max(1, int(WARM_MIN_EVIDENCE_WINDOWS)))
+            and max_window >= max(24, int(WARM_MATURE_EVIDENCE_MIN_CANDLES))
+        )
+        context = {
+            "criteria_mode": (
+                "adaptive_sparse"
+                if relax_sparse
+                else ("adaptive_disabled" if not WARM_ADAPTIVE_GATING else "baseline")
+            ),
+            "criteria_adjustments": criteria_adjustments,
+            "sparse_windows_ready": bool(sparse_windows_ready),
+            "sparse_window_history": bool(sparse_window_history),
+            "mature_sparse_evidence": bool(mature_sparse_evidence),
+            "window_count": int(window_count),
+            "windows": windows,
+            "max_window_candles": int(max_window),
+            "min_window_candles": int(min_window),
+            "evidence_source": str(evidence.get("source", "")),
+        }
+        return criteria, context
+
+    def _warm_criteria(self, paper_metrics):
+        """Adaptive HOT criteria for sparse but diverse runtime evidence."""
+        criteria, _ = self._warm_gate_context(paper_metrics)
         return criteria
 
-    def evaluate_warm_metrics(self, paper_metrics):
-        """Evaluate WARM paper metrics against adaptive HOT criteria without side effects."""
-        criteria = self._warm_criteria(paper_metrics)
-        passed = True
-        reasons = []
+    def evaluate_warm_metrics_detail(self, paper_metrics):
+        """Evaluate WARM metrics and return detailed gate assessment."""
+        criteria, context = self._warm_gate_context(paper_metrics)
+        failures = []
 
         trades = int(paper_metrics.get("total_trades", 0) or 0)
         win_rate = float(paper_metrics.get("win_rate", 0.0) or 0.0)
@@ -2163,39 +2477,119 @@ class StrategyValidator:
         es97_5 = float(paper_metrics.get("es97_5_loss_pct", 0.0) or 0.0)
 
         if trades < int(criteria["min_trades"]):
-            passed = False
-            reasons.append(f"trades {trades} < {criteria['min_trades']}")
+            failures.append(
+                {
+                    "code": "trades_below_min",
+                    "reason": f"trades {trades} < {criteria['min_trades']}",
+                }
+            )
         if win_rate < float(criteria["min_win_rate"]):
-            passed = False
-            reasons.append(f"win_rate {win_rate:.2%} < {criteria['min_win_rate']:.2%}")
+            failures.append(
+                {
+                    "code": "win_rate_below_min",
+                    "reason": f"win_rate {win_rate:.2%} < {criteria['min_win_rate']:.2%}",
+                }
+            )
         if total_return_pct < float(criteria["min_return_pct"]):
-            passed = False
-            reasons.append(f"return {total_return_pct:.2f}% < {criteria['min_return_pct']}%")
+            failures.append(
+                {
+                    "code": "return_below_min",
+                    "reason": f"return {total_return_pct:.2f}% < {criteria['min_return_pct']}%",
+                }
+            )
         if drawdown_pct > float(criteria["max_drawdown_pct"]):
-            passed = False
-            reasons.append(f"drawdown {drawdown_pct:.2f}% > {criteria['max_drawdown_pct']}%")
+            failures.append(
+                {
+                    "code": "drawdown_above_max",
+                    "reason": f"drawdown {drawdown_pct:.2f}% > {criteria['max_drawdown_pct']}%",
+                }
+            )
         if runtime_seconds < int(criteria["min_runtime_seconds"]):
-            passed = False
-            reasons.append(f"runtime {runtime_seconds}s < {criteria['min_runtime_seconds']}s")
+            failures.append(
+                {
+                    "code": "runtime_below_min",
+                    "reason": f"runtime {runtime_seconds}s < {criteria['min_runtime_seconds']}s",
+                }
+            )
         if sharpe_ratio < float(criteria["min_sharpe"]):
-            passed = False
-            reasons.append(f"sharpe {sharpe_ratio:.2f} < {criteria['min_sharpe']}")
+            failures.append(
+                {
+                    "code": "sharpe_below_min",
+                    "reason": f"sharpe {sharpe_ratio:.2f} < {criteria['min_sharpe']}",
+                }
+            )
         if losses > 0:
-            passed = False
-            reasons.append(f"losses {losses} > 0")
+            failures.append(
+                {
+                    "code": "realized_losses_present",
+                    "reason": f"losses {losses} > 0",
+                }
+            )
         if es97_5 > 0 and es97_5 > GROWTH_MAX_ES97_5_LOSS_PCT:
-            passed = False
-            reasons.append(
-                f"es97_5_loss {es97_5:.2f}% > {GROWTH_MAX_ES97_5_LOSS_PCT:.2f}%"
+            failures.append(
+                {
+                    "code": "tail_risk_above_max",
+                    "reason": f"es97_5_loss {es97_5:.2f}% > {GROWTH_MAX_ES97_5_LOSS_PCT:.2f}%",
+                }
             )
 
-        return passed, reasons, criteria
+        passed = len(failures) == 0
+        reason_codes = [item["code"] for item in failures]
+        reasons = [item["reason"] for item in failures]
+
+        decision = "eligible_hot"
+        decision_reason = "passed"
+        if not passed:
+            collecting_codes = {"trades_below_min", "runtime_below_min"}
+            only_collecting_failures = all(code in collecting_codes for code in reason_codes)
+            min_windows = max(1, int(WARM_MIN_EVIDENCE_WINDOWS))
+            if int(context.get("window_count", 0) or 0) < min_windows:
+                decision = "collecting"
+                decision_reason = (
+                    f"evidence_windows {int(context.get('window_count', 0) or 0)} < {min_windows}"
+                )
+            elif only_collecting_failures:
+                decision = "collecting"
+                decision_reason = "collecting_runtime_or_trade_evidence"
+            elif bool(context.get("sparse_window_history")) and not bool(context.get("mature_sparse_evidence")):
+                decision = "collecting"
+                decision_reason = (
+                    f"sparse_evidence_maturing:max_window_candles={int(context.get('max_window_candles', 0) or 0)}"
+                )
+            else:
+                decision = "rejected"
+                decision_reason = "performance_or_risk_gate_failed"
+
+        return {
+            "passed": bool(passed),
+            "criteria": criteria,
+            "reasons": reasons,
+            "reason_codes": reason_codes,
+            "decision": decision,
+            "decision_reason": decision_reason,
+            "criteria_mode": str(context.get("criteria_mode", "baseline")),
+            "criteria_adjustments": list(context.get("criteria_adjustments", [])),
+            "evidence": context,
+        }
+
+    def evaluate_warm_metrics(self, paper_metrics):
+        """Evaluate WARM paper metrics against adaptive HOT criteria without side effects."""
+        assessment = self.evaluate_warm_metrics_detail(paper_metrics)
+        return (
+            bool(assessment.get("passed", False)),
+            list(assessment.get("reasons", [])),
+            dict(assessment.get("criteria", {})),
+        )
 
     def check_warm_promotion(self, strategy_name, pair, paper_metrics):
         """Check if a WARM strategy should be promoted to HOT."""
-        passed, reasons, criteria = self.evaluate_warm_metrics(paper_metrics)
+        assessment = self.evaluate_warm_metrics_detail(paper_metrics)
+        passed = bool(assessment.get("passed", False))
+        reasons = list(assessment.get("reasons", []))
+        criteria = dict(assessment.get("criteria", {}))
 
         budget_profile = self.get_budget_profile(strategy_name, pair)
+        realized_evidence = self._pair_realized_close_evidence(pair)
         budget_update = {
             "action": "hold",
             "reason": "growth_mode_disabled",
@@ -2210,6 +2604,57 @@ class StrategyValidator:
                 paper_metrics=paper_metrics,
                 promote_hot=passed,
             )
+            if (
+                REALIZED_ESCALATION_GATE_ENABLED
+                and budget_update.get("action") == "increase"
+                and not realized_evidence.get("passed", False)
+            ):
+                budget_update["action"] = "hold"
+                budget_update["reason"] = (
+                    f"realized_close_gate_failed:{realized_evidence.get('reason', 'unknown')}"
+                )
+                budget_update["to_budget_usd"] = budget_update.get("from_budget_usd", 0.0)
+
+            execution_health = self._execution_health_gate_status()
+            if (
+                EXECUTION_HEALTH_ESCALATION_GATE
+                and budget_update.get("action") == "increase"
+                and not bool(execution_health.get("green", False))
+            ):
+                budget_update["action"] = "hold"
+                budget_update["reason"] = (
+                    f"execution_health_gate_failed:{execution_health.get('reason', 'unknown')}"
+                )
+                budget_update["to_budget_usd"] = budget_update.get("from_budget_usd", 0.0)
+
+            # Top HOT deployment boost (only after real close-profit evidence is present).
+            hot_quality = (
+                passed
+                and float(paper_metrics.get("total_return_pct", 0.0) or 0.0)
+                >= max(float(criteria.get("min_return_pct", 0.0) or 0.0) * 1.5, 0.10)
+                and float(paper_metrics.get("sharpe_ratio", 0.0) or 0.0)
+                >= max(float(criteria.get("min_sharpe", 0.0) or 0.0), 0.20)
+            )
+            if (
+                budget_update.get("action") == "increase"
+                and hot_quality
+                and realized_evidence.get("passed", False)
+            ):
+                cur_to = float(budget_update.get("to_budget_usd", 0.0) or 0.0)
+                from_budget = float(budget_update.get("from_budget_usd", 0.0) or 0.0)
+                max_budget = float(budget_update.get("max_budget_usd", 0.0) or 0.0)
+                boosted = max(
+                    cur_to,
+                    from_budget * max(1.0, HOT_ESCALATION_BOOST_FACTOR),
+                    HOT_ESCALATION_MIN_BUDGET_USD,
+                )
+                boosted = min(max_budget if max_budget > 0 else boosted, GROWTH_BUDGET_MAX_USD, boosted)
+                if boosted > cur_to:
+                    budget_update["to_budget_usd"] = round(boosted, 2)
+                    budget_update["reason"] = f"{budget_update.get('reason', 'increase')}_hot_boost"
+
+            budget_update["realized_close_evidence"] = realized_evidence
+            budget_update["execution_health"] = execution_health
             self._set_budget_profile(
                 strategy_name,
                 pair,
@@ -2233,7 +2678,13 @@ class StrategyValidator:
                 strategy_name,
                 pair,
                 "promoted_to_HOT",
-                {"paper_metrics": paper_metrics, "budget_update": budget_update, "criteria": criteria},
+                {
+                    "paper_metrics": paper_metrics,
+                    "budget_update": budget_update,
+                    "criteria": criteria,
+                    "warm_gate_assessment": assessment,
+                    "realized_close_evidence": realized_evidence,
+                },
             )
             logger.info("PROMOTED %s/%s to HOT (paper trading passed)", strategy_name, pair)
             return True, f"Promoted to HOT (budget ${budget_update['to_budget_usd']:.2f})"
@@ -2242,9 +2693,20 @@ class StrategyValidator:
                 strategy_name,
                 pair,
                 "warm_budget_adjustment",
-                {"paper_metrics": paper_metrics, "budget_update": budget_update, "criteria": criteria, "reasons": reasons},
+                {
+                    "paper_metrics": paper_metrics,
+                    "budget_update": budget_update,
+                    "criteria": criteria,
+                    "reasons": reasons,
+                    "warm_gate_assessment": assessment,
+                    "realized_close_evidence": realized_evidence,
+                },
             )
-            return False, f"Not ready: {', '.join(reasons)}"
+            decision = str(assessment.get("decision", "rejected"))
+            decision_reason = str(assessment.get("decision_reason", "unknown"))
+            if reasons:
+                return False, f"Not ready ({decision}): {decision_reason}; {', '.join(reasons)}"
+            return False, f"Not ready ({decision}): {decision_reason}"
 
     def demote_strategy(self, strategy_name, pair, reason="loss"):
         """Demote a strategy back to COLD (losing money)."""

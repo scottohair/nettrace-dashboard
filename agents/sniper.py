@@ -103,6 +103,13 @@ try:
 except Exception:
     _exit_mgr = None
 
+# Growth engine — algebraic signal fusion + optimal trade selection
+try:
+    from growth_engine import get_growth_engine
+    _growth = get_growth_engine()
+except Exception:
+    _growth = None
+
 # Sniper configuration — static signal settings only
 # Trade sizes, reserves, position limits come from risk_controller dynamically
 CONFIG = {
@@ -741,6 +748,38 @@ class Sniper:
         )
         self.db.commit()
 
+        # Growth engine algebraic enhancement
+        growth_boost = {}
+        if _growth:
+            try:
+                raw_signals = {}
+                for name, r in results.items():
+                    raw_signals[name] = (r.get("direction", "NONE"), r.get("confidence", 0))
+                # Fetch recent prices for regime detection
+                prices = self._get_recent_prices(pair, 30)
+                _, cash = self._get_holdings()
+                growth_boost = _growth.analyze_signals(pair, raw_signals, prices, cash)
+                # Use growth engine quality score to boost/dampen confidence
+                gf_quality = growth_boost.get("quality_score", 0)
+                lattice_passes = growth_boost.get("lattice_passes", False)
+                if lattice_passes and gf_quality > composite:
+                    # Growth engine found stronger signal pattern — boost confidence
+                    old_composite = composite
+                    composite = composite * 0.7 + gf_quality * 0.3  # 30% weight to GF score
+                    logger.info("  [growth_engine] %s | GF quality=%.1f%% lattice=PASS regime=%s | "
+                               "conf %.1f%%->%.1f%%",
+                               pair, gf_quality * 100, growth_boost.get("regime", "?"),
+                               old_composite * 100, composite * 100)
+                elif not lattice_passes and gf_quality < 0.4:
+                    # Growth engine says weak setup — dampen confidence
+                    old_composite = composite
+                    composite = composite * 0.85  # 15% reduction
+                    logger.info("  [growth_engine] %s | GF quality=%.1f%% lattice=FAIL | "
+                               "conf %.1f%%->%.1f%% (dampened)",
+                               pair, gf_quality * 100, old_composite * 100, composite * 100)
+            except Exception as e:
+                logger.debug("Growth engine analysis failed for %s: %s", pair, e)
+
         return {
             "pair": pair,
             "direction": direction,
@@ -751,6 +790,7 @@ class Sniper:
             "expected_value": round(expected_value, 6),
             "ev_positive": ev_positive,
             "details": results,
+            "growth_engine": growth_boost,
         }
 
     def scan_all(self):
@@ -1241,6 +1281,26 @@ class Sniper:
             return float(data["data"]["amount"])
         except Exception:
             return None
+
+    def _get_recent_prices(self, pair, count=30):
+        """Fetch recent close prices for regime detection (newest last).
+
+        Uses Coinbase candles API — 5-minute granularity for regime analysis.
+        """
+        try:
+            dp = _data_pair(pair)
+            base, quote = dp.split("-")
+            url = (f"https://api.exchange.coinbase.com/products/{base}-{quote}"
+                   f"/candles?granularity=300&limit={count}")
+            candles = _fetch_json(url)
+            if not candles:
+                return []
+            # Coinbase candles: [timestamp, low, high, open, close, volume]
+            # Returned newest first — reverse for oldest-first
+            prices = [float(c[4]) for c in reversed(candles) if len(c) >= 5]
+            return prices
+        except Exception:
+            return []
 
     def print_report(self):
         """Print scan results report."""

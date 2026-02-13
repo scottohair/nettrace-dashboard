@@ -6,6 +6,7 @@ single bundle that Claude-oriented agents can ingest each cycle.
 """
 
 import json
+import hashlib
 import os
 import sqlite3
 from collections import deque
@@ -20,6 +21,7 @@ STRATEGY_STAGE_FILE = STAGING_DIR / "strategy_stage.json"
 FRAMEWORK_STAGE_FILE = STAGING_DIR / "framework_stage.json"
 MESSAGE_STAGE_FILE = STAGING_DIR / "message_stage.json"
 BUNDLE_FILE = STAGING_DIR / "claude_ingest_bundle.json"
+BUNDLE_SEQ_FILE = STAGING_DIR / ".bundle_sequence"
 OPERATOR_MESSAGES_FILE = STAGING_DIR / "operator_messages.jsonl"
 PRIORITY_CONFIG_FILE = STAGING_DIR / "priority_config.json"
 MCP_CURRICULUM_FILE = STAGING_DIR / "mcp_curriculum.json"
@@ -46,6 +48,18 @@ def _read_json(path: Path, default):
 
 def _write_json(path: Path, payload):
     path.write_text(json.dumps(payload, indent=2))
+
+
+def _next_bundle_sequence():
+    seq = 0
+    try:
+        if BUNDLE_SEQ_FILE.exists():
+            seq = int((BUNDLE_SEQ_FILE.read_text() or "0").strip() or "0")
+    except Exception:
+        seq = 0
+    seq += 1
+    BUNDLE_SEQ_FILE.write_text(str(seq))
+    return seq
 
 
 def get_priority_config():
@@ -320,6 +334,8 @@ def _snapshot_message_stage():
 def build_ingest_bundle(reason="scheduled"):
     priority_cfg = get_priority_config()
     mcp_curriculum = get_mcp_curriculum()
+    generated_at = _utc_now()
+    bundle_sequence = _next_bundle_sequence()
 
     strategy_stage = _snapshot_strategy_stage(priority_cfg=priority_cfg)
     framework_stage = _snapshot_framework_stage()
@@ -335,7 +351,7 @@ def build_ingest_bundle(reason="scheduled"):
     ]
 
     bundle = {
-        "updated_at": _utc_now(),
+        "updated_at": generated_at,
         "reason": reason,
         "priority_config": priority_cfg,
         "mcp_curriculum": mcp_curriculum,
@@ -353,6 +369,21 @@ def build_ingest_bundle(reason="scheduled"):
             "duplex_to": message_stage.get("duplex_to_count", 0),
             "duplex_from": message_stage.get("duplex_from_count", 0),
         },
+    }
+    bundle_hash = hashlib.sha256(
+        json.dumps(bundle, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    bundle_id = f"bundle-{bundle_sequence}-{bundle_hash[:12]}"
+    bundle["bundle_id"] = bundle_id
+    bundle["bundle_hash"] = bundle_hash
+    bundle["bundle_sequence"] = bundle_sequence
+    bundle["schema_version"] = 1
+    bundle["metadata"] = {
+        "bundle_id": bundle_id,
+        "bundle_hash": bundle_hash,
+        "bundle_sequence": bundle_sequence,
+        "generated_at": generated_at,
+        "schema_version": 1,
     }
     _write_json(BUNDLE_FILE, bundle)
     return bundle

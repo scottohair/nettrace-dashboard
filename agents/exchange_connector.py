@@ -13,7 +13,9 @@ import json
 import logging
 import os
 import secrets
+import socket
 import sqlite3
+import threading
 import time
 import urllib.request
 import urllib.parse
@@ -81,6 +83,106 @@ STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("
 # Require enough upside to cover fees/slippage and still be net positive.
 ROUND_TRIP_COST_PCT = float(os.environ.get("ROUND_TRIP_COST_PCT", "0.013"))  # ~1.3%
 MIN_NET_PROFIT_PCT = float(os.environ.get("MIN_NET_PROFIT_PCT", "0.002"))    # +0.2%
+
+
+def _env_flag(name, default="0"):
+    return str(os.environ.get(name, default)).strip().lower() not in ("0", "false", "no", "")
+
+
+def _env_int(name, default):
+    try:
+        return int(os.environ.get(name, str(default)))
+    except Exception:
+        return int(default)
+
+
+def _env_json_dict(name):
+    raw = str(os.environ.get(name, "")).strip()
+    if not raw:
+        return {}
+    try:
+        data = json.loads(raw)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        logger.warning("Invalid %s JSON config; ignoring.", name)
+        return {}
+
+
+def _parse_ip_list(value):
+    if isinstance(value, str):
+        items = value.split(",")
+    elif isinstance(value, (list, tuple)):
+        items = value
+    else:
+        items = []
+    ordered = []
+    seen = set()
+    for item in items:
+        ip = str(item or "").strip()
+        if not ip or ip in seen:
+            continue
+        seen.add(ip)
+        ordered.append(ip)
+    return tuple(ordered)
+
+
+def _parse_failover_host_map(raw):
+    if not isinstance(raw, dict):
+        return {}
+    out = {}
+    for host, ips in raw.items():
+        host_s = str(host or "").strip().lower()
+        if not host_s:
+            continue
+        parsed = _parse_ip_list(ips)
+        if parsed:
+            out[host_s] = parsed
+    return out
+
+
+def _iso_age_seconds(ts_text):
+    text = str(ts_text or "").strip()
+    if not text:
+        return None
+    try:
+        dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return max(0.0, (datetime.now(timezone.utc) - dt).total_seconds())
+    except Exception:
+        return None
+
+
+COINBASE_DNS_FAILOVER_ENABLED = _env_flag("COINBASE_DNS_FAILOVER_ENABLED", "1")
+COINBASE_DNS_FAILOVER_PROFILE = str(
+    os.environ.get("COINBASE_DNS_FAILOVER_PROFILE", "system_then_fallback")
+).strip().lower()
+COINBASE_DNS_FAILOVER_HOST_MAP = _parse_failover_host_map(
+    _env_json_dict("COINBASE_DNS_FAILOVER_HOST_MAP_JSON")
+)
+COINBASE_DNS_FALLBACK_IPS = _parse_ip_list(os.environ.get("COINBASE_DNS_FALLBACK_IPS", ""))
+COINBASE_DNS_CACHE_TTL_SECONDS = _env_int("COINBASE_DNS_CACHE_TTL_SECONDS", 900)
+COINBASE_DNS_FAILOVER_MAX_CANDIDATES = _env_int("COINBASE_DNS_FAILOVER_MAX_CANDIDATES", 8)
+COINBASE_DNS_DEGRADED_TTL_SECONDS = _env_int("COINBASE_DNS_DEGRADED_TTL_SECONDS", 180)
+
+COINBASE_CIRCUIT_FAIL_THRESHOLD = _env_int("COINBASE_CIRCUIT_FAIL_THRESHOLD", 3)
+COINBASE_CIRCUIT_OPEN_SECONDS = _env_int("COINBASE_CIRCUIT_OPEN_SECONDS", 30)
+COINBASE_CIRCUIT_REOPEN_HEALTH_SCOPE = str(
+    os.environ.get("COINBASE_CIRCUIT_REOPEN_HEALTH_SCOPE", "dns")
+).strip().lower()
+COINBASE_CIRCUIT_REOPEN_HEALTH_PATH = str(
+    os.environ.get(
+        "COINBASE_CIRCUIT_REOPEN_HEALTH_PATH",
+        str(Path(__file__).parent / "execution_health_status.json"),
+    )
+).strip()
+COINBASE_CIRCUIT_REOPEN_HEALTH_MAX_AGE_SECONDS = _env_int(
+    "COINBASE_CIRCUIT_REOPEN_HEALTH_MAX_AGE_SECONDS", 180
+)
+COINBASE_CIRCUIT_REOPEN_BACKOFF_SECONDS = _env_int("COINBASE_CIRCUIT_REOPEN_BACKOFF_SECONDS", 10)
+COINBASE_CIRCUIT_REOPEN_HEALTH_CACHE_SECONDS = _env_int(
+    "COINBASE_CIRCUIT_REOPEN_HEALTH_CACHE_SECONDS", 15
+)
 
 
 def _load_trading_lock():
@@ -428,9 +530,284 @@ class CoinbaseTrader:
         token = jwt.encode(payload, self.key_secret, algorithm="ES256", headers=headers)
         return token
 
-    # Circuit breaker state
+    # Circuit breaker + DNS failover runtime state
     _consecutive_failures = 0
     _circuit_open_until = 0  # timestamp when circuit should try half-open
+    _circuit_open_reason = ""
+    _circuit_opened_at = 0.0
+    _dns_cache = {}
+    _dns_degraded_until = 0.0
+    _dns_degraded_reason = ""
+    _execution_health_cache = {"ts": 0.0, "payload": {}}
+    _dns_override_lock = threading.Lock()
+
+    @staticmethod
+    def _is_dns_failure(exc):
+        if isinstance(exc, socket.gaierror):
+            return True
+        reason = getattr(exc, "reason", None)
+        if isinstance(reason, socket.gaierror):
+            return True
+        text = str(exc).lower()
+        dns_needles = (
+            "nodename nor servname provided",
+            "name or service not known",
+            "temporary failure in name resolution",
+            "getaddrinfo failed",
+            "dns",
+        )
+        return any(n in text for n in dns_needles)
+
+    @classmethod
+    def _dns_failover_mode(cls):
+        mode = str(COINBASE_DNS_FAILOVER_PROFILE or "system_then_fallback").strip().lower()
+        if mode not in (
+            "disabled",
+            "system_only",
+            "system_then_fallback",
+            "fallback_then_system",
+            "fallback_only",
+        ):
+            return "system_then_fallback"
+        return mode
+
+    @staticmethod
+    def _stable_system_ips(ips):
+        def _sort_key(ip):
+            text = str(ip or "").strip()
+            is_ipv6 = ":" in text
+            return (1 if is_ipv6 else 0, text)
+        return [ip for ip in sorted((str(i or "").strip() for i in ips), key=_sort_key) if ip]
+
+    @classmethod
+    def _profile_ips_for_host(cls, host):
+        host_s = str(host or "").strip().lower()
+        if not host_s:
+            return []
+        picked = []
+        if host_s in COINBASE_DNS_FAILOVER_HOST_MAP:
+            picked.extend(COINBASE_DNS_FAILOVER_HOST_MAP.get(host_s, ()))
+        if "*" in COINBASE_DNS_FAILOVER_HOST_MAP:
+            picked.extend(COINBASE_DNS_FAILOVER_HOST_MAP.get("*", ()))
+        return [str(ip).strip() for ip in picked if str(ip or "").strip()]
+
+    @classmethod
+    def _mark_dns_degraded(cls, reason):
+        now = time.time()
+        ttl = max(30, int(COINBASE_DNS_DEGRADED_TTL_SECONDS))
+        cls._dns_degraded_until = now + ttl
+        cls._dns_degraded_reason = str(reason or "")[:300]
+
+    @classmethod
+    def _clear_dns_degraded(cls):
+        cls._dns_degraded_until = 0.0
+        cls._dns_degraded_reason = ""
+
+    @classmethod
+    def _dns_degraded_active(cls):
+        return cls._dns_degraded_until > time.time()
+
+    @classmethod
+    def _load_execution_health_status(cls):
+        now = time.time()
+        cache_age = now - float(cls._execution_health_cache.get("ts", 0.0) or 0.0)
+        if cache_age <= max(3, int(COINBASE_CIRCUIT_REOPEN_HEALTH_CACHE_SECONDS)):
+            payload = cls._execution_health_cache.get("payload", {})
+            return payload if isinstance(payload, dict) else {}
+
+        payload = {}
+        path = Path(COINBASE_CIRCUIT_REOPEN_HEALTH_PATH)
+        try:
+            data = json.loads(path.read_text())
+            if isinstance(data, dict):
+                payload = data
+        except Exception:
+            payload = {}
+        cls._execution_health_cache = {"ts": now, "payload": payload}
+        return payload
+
+    @classmethod
+    def _health_allows_circuit_reopen(cls):
+        scope = str(COINBASE_CIRCUIT_REOPEN_HEALTH_SCOPE or "dns").strip().lower()
+        if scope in ("off", "none", "disabled"):
+            return True, "health_gate_disabled"
+        if scope == "dns" and "dns" not in str(cls._circuit_open_reason or "").lower():
+            return True, "health_gate_not_required"
+
+        status = cls._load_execution_health_status()
+        if not status:
+            return False, "execution_health_missing"
+        age = _iso_age_seconds(status.get("updated_at"))
+        max_age = max(30, int(COINBASE_CIRCUIT_REOPEN_HEALTH_MAX_AGE_SECONDS))
+        if age is None or age > max_age:
+            return False, "execution_health_stale"
+        if bool(status.get("green", False)):
+            return True, "execution_health_green"
+        if scope == "dns":
+            components = status.get("components", {}) if isinstance(status.get("components"), dict) else {}
+            dns_payload = components.get("dns", {}) if isinstance(components.get("dns"), dict) else {}
+            if bool(dns_payload.get("green", False)):
+                return True, "execution_health_dns_green"
+        return False, str(status.get("reason", "execution_health_unhealthy")) or "execution_health_unhealthy"
+
+    @classmethod
+    def _open_circuit(cls, reason):
+        open_seconds = max(5, int(COINBASE_CIRCUIT_OPEN_SECONDS))
+        cls._circuit_open_until = time.time() + open_seconds
+        cls._circuit_opened_at = time.time()
+        cls._circuit_open_reason = str(reason or "request_failures")
+
+    @classmethod
+    def _close_circuit(cls, reason="api_recovered"):
+        if cls._circuit_open_until > 0:
+            logger.info("Circuit breaker CLOSED — %s", reason)
+        cls._circuit_open_until = 0
+        cls._circuit_opened_at = 0.0
+        cls._circuit_open_reason = ""
+
+    @classmethod
+    def _attempt_dns_failover(cls, req, host, method, sign_path, attempt, trigger):
+        host_s = str(host or "").strip().lower()
+        candidates = cls._resolve_dns_candidates(host_s)
+        if not candidates:
+            return None, "", 0
+
+        logger.warning(
+            "Coinbase DNS failover engaged: host=%s mode=%s trigger=%s candidates=%d",
+            host_s,
+            cls._dns_failover_mode(),
+            trigger,
+            len(candidates),
+        )
+        last_error = ""
+        for ip in candidates:
+            try:
+                t_dns = time.perf_counter()
+                with cls._urlopen_with_host_override(req, host=host_s, ip=ip, timeout=10) as resp:
+                    dt_ms = (time.perf_counter() - t_dns) * 1000.0
+                    result = json.loads(resp.read().decode())
+                    cls._consecutive_failures = 0
+                    cls._mark_dns_degraded(f"{trigger}:{host_s}")
+                    cls._close_circuit(reason="api_recovered_via_dns_failover")
+                    _record_api_call(
+                        "coinbase",
+                        method,
+                        sign_path,
+                        dt_ms,
+                        ok=True,
+                        status_code=getattr(resp, "status", 200),
+                        context={
+                            "attempt": int(attempt) + 1,
+                            "dns_fallback": True,
+                            "dns_host": host_s,
+                            "dns_ip": ip,
+                            "dns_trigger": trigger,
+                            "dns_profile": cls._dns_failover_mode(),
+                        },
+                    )
+                    logger.info(
+                        "Coinbase DNS failover succeeded: host=%s ip=%s trigger=%s",
+                        host_s,
+                        ip,
+                        trigger,
+                    )
+                    return result, "", len(candidates)
+            except Exception as dns_e:
+                last_error = str(dns_e)
+                logger.warning(
+                    "Coinbase DNS failover candidate failed: host=%s ip=%s trigger=%s err=%s",
+                    host_s,
+                    ip,
+                    trigger,
+                    last_error,
+                )
+        return None, last_error, len(candidates)
+
+    @classmethod
+    def _resolve_dns_candidates(cls, host):
+        host_s = str(host or "").strip().lower()
+        if not host_s:
+            return []
+        now = time.time()
+        mode = cls._dns_failover_mode()
+        if not COINBASE_DNS_FAILOVER_ENABLED or mode == "disabled":
+            return []
+
+        system_candidates = []
+        try:
+            infos = socket.getaddrinfo(host_s, 443, type=socket.SOCK_STREAM)
+            for info in infos:
+                addr = info[4][0] if info and len(info) >= 5 and info[4] else ""
+                if addr:
+                    system_candidates.append(str(addr))
+        except Exception:
+            system_candidates = []
+        system_candidates = cls._stable_system_ips(system_candidates)
+
+        profile_candidates = cls._profile_ips_for_host(host_s)
+        fallback_candidates = list(COINBASE_DNS_FALLBACK_IPS)
+
+        with cls._dns_override_lock:
+            cached = cls._dns_cache.get(host_s, {})
+            ts = float(cached.get("ts", 0.0) or 0.0)
+            cached_candidates = []
+            if ts > 0 and (now - ts) <= max(30, int(COINBASE_DNS_CACHE_TTL_SECONDS)):
+                cached_candidates.extend(cached.get("ips", []) or [])
+
+            candidates = []
+            if mode == "system_only":
+                candidates.extend(system_candidates)
+                candidates.extend(cached_candidates)
+            elif mode == "fallback_only":
+                candidates.extend(profile_candidates)
+                candidates.extend(fallback_candidates)
+                candidates.extend(cached_candidates)
+            elif mode == "fallback_then_system":
+                candidates.extend(profile_candidates)
+                candidates.extend(fallback_candidates)
+                candidates.extend(cached_candidates)
+                candidates.extend(system_candidates)
+            else:
+                # Default: system DNS first, deterministic fallback second.
+                candidates.extend(system_candidates)
+                candidates.extend(cached_candidates)
+                candidates.extend(profile_candidates)
+                candidates.extend(fallback_candidates)
+
+            deduped = []
+            seen = set()
+            for ip in candidates:
+                ip_s = str(ip).strip()
+                if not ip_s or ip_s in seen:
+                    continue
+                seen.add(ip_s)
+                deduped.append(ip_s)
+                if len(deduped) >= max(1, int(COINBASE_DNS_FAILOVER_MAX_CANDIDATES)):
+                    break
+            if deduped:
+                cls._dns_cache[host_s] = {"ips": deduped, "ts": now}
+            return deduped
+
+    @classmethod
+    def _urlopen_with_host_override(cls, req, host, ip, timeout=10):
+        host_s = str(host or "").strip().lower()
+        ip_s = str(ip or "").strip()
+        if not host_s or not ip_s:
+            raise RuntimeError("invalid_dns_override")
+
+        original_getaddrinfo = socket.getaddrinfo
+
+        def _patched_getaddrinfo(name, *args, **kwargs):
+            if str(name or "").strip().lower() == host_s:
+                return original_getaddrinfo(ip_s, *args, **kwargs)
+            return original_getaddrinfo(name, *args, **kwargs)
+
+        with cls._dns_override_lock:
+            socket.getaddrinfo = _patched_getaddrinfo
+            try:
+                return urllib.request.urlopen(req, timeout=timeout)
+            finally:
+                socket.getaddrinfo = original_getaddrinfo
 
     def _request(self, method, path, body=None):
         """Make API request with retry logic and circuit breaker."""
@@ -446,11 +823,38 @@ class CoinbaseTrader:
         now = time.time()
         if self._circuit_open_until > now:
             remaining = int(self._circuit_open_until - now)
-            logger.warning("Circuit breaker OPEN — skipping API call (retry in %ds)", remaining)
-            return {"error": "Circuit breaker open", "status": 503}
+            logger.warning(
+                "Circuit breaker OPEN — skipping API call (retry in %ds, reason=%s)",
+                remaining,
+                self._circuit_open_reason or "unknown",
+            )
+            return {
+                "error": "Circuit breaker open",
+                "status": 503,
+                "reason": f"cooldown:{self._circuit_open_reason or 'unknown'}",
+            }
+
+        if self._circuit_open_until > 0:
+            reopen_ok, reopen_reason = CoinbaseTrader._health_allows_circuit_reopen()
+            if not reopen_ok:
+                reopen_backoff = max(5, int(COINBASE_CIRCUIT_REOPEN_BACKOFF_SECONDS))
+                CoinbaseTrader._circuit_open_until = now + reopen_backoff
+                logger.warning(
+                    "Circuit reopen blocked by health gate (%s); extending cooldown by %ds",
+                    reopen_reason,
+                    reopen_backoff,
+                )
+                return {
+                    "error": "Circuit breaker open",
+                    "status": 503,
+                    "reason": f"reopen_blocked:{reopen_reason}",
+                }
+            logger.info("Circuit breaker HALF-OPEN — health gate passed (%s)", reopen_reason)
 
         last_error = None
-        for attempt in range(max_retries):
+        saw_dns_issue = False
+        retries = max(1, int(max_retries))
+        for attempt in range(retries):
             # Rebuild JWT for each attempt (they have short expiry)
             sign_path = path.split("?")[0]
             token = self._build_jwt(method, sign_path)
@@ -464,17 +868,50 @@ class CoinbaseTrader:
             url = self.BASE_URL + path
             body_data = json.dumps(body).encode() if body else None
             req = urllib.request.Request(url, data=body_data, headers=headers, method=method)
+            host = str(urllib.parse.urlparse(url).hostname or "api.coinbase.com")
+            mode = CoinbaseTrader._dns_failover_mode()
 
             try:
                 t0 = time.perf_counter()
+                if (
+                    COINBASE_DNS_FAILOVER_ENABLED
+                    and mode in ("fallback_only", "fallback_then_system")
+                ) or (
+                    COINBASE_DNS_FAILOVER_ENABLED
+                    and mode == "system_then_fallback"
+                    and CoinbaseTrader._dns_degraded_active()
+                ):
+                    trigger = "dns_degraded" if CoinbaseTrader._dns_degraded_active() else "profile_preferred"
+                    result, dns_preflight_error, candidate_count = CoinbaseTrader._attempt_dns_failover(
+                        req=req,
+                        host=host,
+                        method=method,
+                        sign_path=sign_path,
+                        attempt=attempt,
+                        trigger=trigger,
+                    )
+                    if result is not None:
+                        return result
+                    if mode == "fallback_only":
+                        saw_dns_issue = True
+                        raise RuntimeError(
+                            f"dns_failover_profile_exhausted:{dns_preflight_error or 'no_candidates'}"
+                        )
+                    if candidate_count > 0:
+                        logger.warning(
+                            "Coinbase DNS preflight failed for %s (%d candidates): %s",
+                            host,
+                            candidate_count,
+                            dns_preflight_error or "unknown_error",
+                        )
+
                 with urllib.request.urlopen(req, timeout=10) as resp:
                     dt_ms = (time.perf_counter() - t0) * 1000.0
                     result = json.loads(resp.read().decode())
                     # Success — reset circuit breaker
                     CoinbaseTrader._consecutive_failures = 0
-                    if CoinbaseTrader._circuit_open_until > 0:
-                        logger.info("Circuit breaker CLOSED — API recovered")
-                        CoinbaseTrader._circuit_open_until = 0
+                    CoinbaseTrader._clear_dns_degraded()
+                    CoinbaseTrader._close_circuit(reason="api_recovered")
                     _record_api_call(
                         "coinbase",
                         method,
@@ -512,7 +949,7 @@ class CoinbaseTrader:
                 if e.code in (429, 500, 502, 503):
                     backoff = 0.5 * (2 ** attempt)  # 0.5s, 1s, 2s
                     logger.warning("Coinbase API %d (attempt %d/%d) — retrying in %.1fs: %s",
-                                   e.code, attempt + 1, max_retries, backoff, error_body[:200])
+                                   e.code, attempt + 1, retries, backoff, error_body[:200])
                     time.sleep(backoff)
                     continue
                 else:
@@ -521,8 +958,25 @@ class CoinbaseTrader:
                     return last_error
 
             except Exception as e:
+                dns_fallback_error = ""
+                if self._is_dns_failure(e):
+                    saw_dns_issue = True
+                    CoinbaseTrader._mark_dns_degraded(e)
+                    result, dns_fallback_error, _candidate_count = CoinbaseTrader._attempt_dns_failover(
+                        req=req,
+                        host=host,
+                        method=method,
+                        sign_path=sign_path,
+                        attempt=attempt,
+                        trigger="dns_exception",
+                    )
+                    if result is not None:
+                        return result
+
                 dt_ms = (time.perf_counter() - t0) * 1000.0
                 last_error = {"error": str(e)}
+                if dns_fallback_error:
+                    last_error["dns_fallback_error"] = dns_fallback_error
                 _record_api_call(
                     "coinbase",
                     method,
@@ -531,21 +985,31 @@ class CoinbaseTrader:
                     ok=False,
                     status_code=0,
                     error_text=str(e)[:300],
-                    context={"attempt": attempt + 1},
+                    context={
+                        "attempt": attempt + 1,
+                        "dns_failure": bool(self._is_dns_failure(e)),
+                        "dns_fallback_attempted": bool(dns_fallback_error),
+                        "dns_degraded_active": bool(CoinbaseTrader._dns_degraded_active()),
+                    },
                 )
                 backoff = 0.5 * (2 ** attempt)
                 logger.warning("Coinbase request failed (attempt %d/%d) — retrying in %.1fs: %s",
-                               attempt + 1, max_retries, backoff, e)
+                               attempt + 1, retries, backoff, e)
                 time.sleep(backoff)
 
         # All retries exhausted — update circuit breaker
         CoinbaseTrader._consecutive_failures += 1
-        if CoinbaseTrader._consecutive_failures >= 3:
-            CoinbaseTrader._circuit_open_until = time.time() + 30  # OPEN for 30s
-            logger.error("Circuit breaker OPEN — %d consecutive failures, pausing for 30s",
-                         CoinbaseTrader._consecutive_failures)
+        if CoinbaseTrader._consecutive_failures >= max(1, int(COINBASE_CIRCUIT_FAIL_THRESHOLD)):
+            open_reason = "dns_unhealthy" if saw_dns_issue else "request_failures"
+            CoinbaseTrader._open_circuit(reason=open_reason)
+            logger.error(
+                "Circuit breaker OPEN — %d consecutive failures, pausing for %ds (reason=%s)",
+                CoinbaseTrader._consecutive_failures,
+                max(5, int(COINBASE_CIRCUIT_OPEN_SECONDS)),
+                open_reason,
+            )
 
-        logger.error("Coinbase request failed after %d attempts: %s", max_retries, last_error)
+        logger.error("Coinbase request failed after %d attempts: %s", retries, last_error)
         return last_error or {"error": "All retries exhausted"}
 
     def get_accounts(self):

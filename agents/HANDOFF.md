@@ -5,6 +5,103 @@ Both agents: READ this before starting work. WRITE here before ending work.
 
 ---
 
+## 2026-02-13 Claude Code Handoff (v62) — Growth Engine + Performance Tuning
+
+### What I Did (this session)
+
+**v60: Exit Manager Persistence + Quantitative Signal Gates**
+- Fixed exit_manager DB persistence (moved to /data/ persistent volume)
+- Added auto-discovery from Coinbase holdings when sniper.db is empty
+- Restructured signal weights: quantitative signals DRIVE (93%), qualitative SUPPLEMENTS (7%)
+- Added Expected Value (EV) gate: every BUY must have positive EV after 0.9% round-trip costs
+- Added early cash check: skip BUY cycles when cash < $2 (still process SELLs)
+
+**v61: API Scope + Agent Control + IBKR + OpenClaw**
+- Built read-only API scope (api_auth.py): `read_only` column blocks POST/PUT/DELETE
+- Added 5 agent-control endpoints: status, pause, resume, portfolio, force-scan
+- Upgraded ibkr_connector.py: ib_insync -> ib_async, auto-reconnect, paper mode
+- Added IBKR as venue in path_router.py (stocks, options, futures, forex, bonds)
+- Built OpenClaw quant-alerts skill (Discord/Telegram alerts)
+- Built OpenClaw agent-control skill (chat-based agent management)
+- Bumped all Fly VMs from 256MB -> 512MB (ewr was memory-starved)
+
+**v62: Growth Engine + Performance Tuning (CURRENT)**
+- **NEW: `agents/growth_engine.py`** — Algebraic signal fusion engine:
+  - Galois Field signal encoding (GF(2^9)) for error-corrected signal combination
+  - Lattice-based decision trees (5-dimensional dominance, K=3 threshold)
+  - Markov chain Wyckoff regime detector (4 states: accumulation/markup/distribution/markdown)
+  - Knapsack optimizer for portfolio-level position sizing (half-Kelly)
+- **Wired into sniper.py**: Growth engine boosts/dampens confidence based on algebraic quality
+- **Exit manager tuned for growth**:
+  - NEW TP0 micro take-profit at 0.8% — frees 20% of position fast for compounding
+  - TP1 and TP2 sell fractions reduced (30%->25% each) to accommodate TP0
+  - Dead money threshold reduced 4h->3h for faster capital recycling
+- **Strategy pipeline tuned**:
+  - COLD_TO_WARM: min_trades 20->12, min_win_rate 60%->58%, min_return 0.5%->0.3%
+  - Growth escalation factor: 1.22->1.35 (35% budget increase per winning cycle)
+  - HOT escalation boost: 1.35->1.50 (50% boost when promoting WARM->HOT)
+  - Max growth budget: $50->$75
+
+### Current Portfolio State (v62)
+- **Total: ~$203** (all invested, ~$0 cash)
+- **Positions**: AVAX (~$29), DOGE (~$38), FET (~$16), plus small BTC, ETH, SOL, LINK, AMP, AUCTION
+- **Market**: Fear & Greed = 9 (Extreme Fear) — contrarian bullish
+- **Memory**: All VMs bumped to 512MB (was 256MB)
+
+### Deploy Status
+- **v62** deploying now across all 7 regions
+- Growth engine active as sniper signal enhancer
+- Exit manager TP0 will start freeing capital on 0.8%+ gains
+- Agent-control endpoints now accessible (512MB fixed memory starvation)
+
+### CRITICAL: What Codex Should Work On
+
+1. **ML Signal Models** (HIGHEST PRIORITY — feeds growth engine)
+   - Growth engine's `meta_engine` signal has reliability 0.72 — lowest of quantitative signals
+   - Train MLX-native price prediction models on M1 Max (192.168.1.110)
+   - Target: push meta_engine confidence accuracy to 0.85+
+   - Feed predictions to growth engine via meta_engine.db
+   - Models: TimesFM, PatchTST, or custom LSTM on 5-min candles
+
+2. **Regime Detection Enhancement** (feeds Markov chain)
+   - Current regime detector uses simple price statistics
+   - Add volume profile analysis (OBV, VWAP deviation)
+   - Add order flow imbalance (from orderbook snapshots)
+   - Wire improved regime into growth_engine.MarkovRegimeDetector
+
+3. **Strategy Pipeline Strategies** (more strategies = more pipeline flow)
+   - Create 3-5 new COLD stage strategies for strategy_pipeline
+   - Focus on: mean-reversion (RSI bounce), momentum breakout, volatility squeeze
+   - Each strategy must define entry, exit, and risk parameters
+   - Growth mode will auto-promote winners to WARM/HOT
+
+4. **Compute Pool ML Inference** (parallel compute)
+   - Wire compute_pool.py to dispatch inference jobs to local machines
+   - M1 Max: 32-core GPU, MLX-native (fastest for small models)
+   - M2 Ultra: 76-core GPU, PyTorch (best for large models)
+   - Sniper should be able to call `compute_pool.infer(model, data)` for real-time predictions
+
+### Fly Migration Plan (IN PROGRESS)
+- Goal: ALL agents run on Fly, NOT local machines
+- Phase 1: Python tools (growth_engine, strategy_pipeline) → already on Fly via Dockerfile
+- Phase 2: OpenClaw/clawdbot → deploy as separate Fly app (Node.js)
+- Phase 3: Each region runs region-specific agents (scouts + local strategies)
+- Coordinate: Both agents should add Fly deployment manifests for new services
+
+### Blockers
+- IBKR account: submitted 2026-02-12, check ohariscott@gmail.com for approval
+- Capital: ~$203 limits trade size; growth engine + TP0 should help compound faster
+- ML models: need training data pipeline + model deployment to Fly
+
+### For Scott
+- **IBKR**: Check email for account approval (1-3 business days from 2/12)
+- **SYEP**: Bridge SYEP income → bank → IBKR deposit → agents compound
+- **Current growth math**: $203 portfolio, 0.8% TP0 = $1.62 freed per position hit
+  - With 5 positions hitting TP0/day = ~$8/day freed for re-investment
+  - Compounding at 4%/day from $200 → $1K in ~40 days (if consistent)
+
+---
+
 ## 2026-02-13 Claude Code Handoff (v58) — Recovery Session
 
 ### What I Did (this session)
@@ -62,109 +159,20 @@ Both agents: READ this before starting work. WRITE here before ending work.
 
 ### What I Did (this session)
 - **Fixed 9 cascading trading blockers** preventing actual trades on Fly (v41-v52)
-  - DOGE over-concentration (31% → 18% target, rebalance sold ~292 DOGE)
-  - Scout signals routing to wrong region (fly-replay header fix)
-  - $0 portfolio snapshots poisoning dashboard (rejection guard)
-  - Flywheel lock deploying from git (added to .dockerignore)
-  - Venue failure rate: insufficient balance counted as failure (fixed to ok=True)
-  - Default failure rate 100% on fresh DB (fixed to 0%)
-  - Recursive .db exclusion in .dockerignore
-  - Exit manager import hang on Fly (added auto-rebalance to sniper.py)
-  - Cash in USD not USDC (switched ALL agents to -USD pairs)
-
 - **Built KPI Tracker** (`agents/kpi_tracker.py`)
-  - Daily/weekly/monthly P&L vs escalating targets ($1/day → $10K/day)
-  - Strategy scorecards: per-agent trades, win rate, Sharpe, net PnL
-  - Evolutionary decisions via GoalValidator (fire/promote/clone)
-  - Integrated into sniper.py and grid_trader.py
-
 - **Created 5 Financial Strike Teams** (`agents/strike_teams.py`)
-  - MomentumStrike (HF): price velocity + volume spike detection
-  - ArbitrageStrike (HF): cross-venue price gaps (Coinbase vs CoinGecko)
-  - MeanReversionStrike (LF): z-score > 2 deviation plays
-  - BreakoutStrike (LF): support/resistance breaks + volume confirmation
-  - CorrelationStrike (LF): inter-asset correlation breakdown trades
-  - All gated through GoalValidator + RiskController, record to KPI tracker
-  - Running as daemon threads on ewr via fly_agent_runner
-
 - **Enhanced C fast engine** (`agents/fast_engine.c`)
-  - Added `score_tick_momentum()`: sub-microsecond tick-level momentum detection
-  - Added `multi_strategy_scan()`: scores 4 strategies in single O(n) pass
-  - Compiled to fast_engine.so with -O3 -mcpu=apple-m1
-
 - **USD pair migration** (ALL agents)
-  - sniper.py, grid_trader.py, dca_bot.py, live_trader.py, momentum_scalper.py, hf_execution_agent.py
-  - All trading now uses -USD pairs to match $130 USD cash from DOGE rebalance
-
-### Current Portfolio State
-- **$130.62 USD** available for trading
-- **$7.96 USDC** available
-- **401.3 DOGE** (~$37)
-- Small positions: AVAX, SOL, ETH, FET, LINK, AMP, AUCTION
-- Total: ~$290
-
-### Deploy Status
-- **v53** deploying now across all 7 regions
-- Agents on ewr: sniper, meta_engine, advanced_team, capital_allocator, strike_teams (5 sub-teams)
-- Scouts on lhr/nrt/sin/ord/fra/bom: signal_scout pushing anomalies to ewr
 
 ### What Codex Should Work On
-
 1. **ML Signal Models** (HIGH PRIORITY)
-   - Use compute_pool.py to dispatch inference to M1 Max (192.168.1.110) and M2 Ultra (192.168.1.106)
-   - MLX-native models for Apple Silicon: price prediction, regime classification, anomaly detection
-   - Consider HuggingFace time-series transformers (TimesFM, Chronos, PatchTST)
-   - Feed predictions to `kpi_tracker.record_trade()` for evolutionary scoring
-
 2. **Next-Gen AI Strategies** (MEDIUM PRIORITY)
-   - Sentiment analysis from news/social feeds → trading signals
-   - Reinforcement learning agent that learns from KPI scorecard data
-   - Transformer-based pattern recognition on tick data
-   - Use `fast_bridge.py` to call C engine indicators from Python
-
 3. **Compute Token Economics** (RESEARCH)
-   - Can we tokenize and trade our own compute capacity?
-   - M1 Max: 32-core GPU, M2 Ultra: 76-core GPU → inference-as-a-service
-   - Explore: Akash, Render, io.net compute marketplaces
-   - Start with paper simulation in strategy_pipeline COLD stage
-
 4. **Strategy Pipeline Improvements**
-   - Wire strike_teams into COLD→WARM→HOT promotion pipeline
-   - Each strike team starts in paper mode, promoted to live based on KPI
-   - Monte Carlo stress testing on all new strategies
-
 5. **IBKR Integration** (WHEN ACCOUNT APPROVED)
-   - Scott submitted 2026-02-12, check approval status
-   - Priority: stocks + options (SPY, QQQ options for hedging)
-   - Build out ibkr_connector.py with TWS API
-
-### Blockers
-- IBKR account pending (1-3 business days from 2026-02-12)
-- Capital limited to ~$290 (limits trade size, but system is designed to scale)
-- HuggingFace model downloads need disk space monitoring on local machines
-
-### For Scott
-- **IBKR**: Check email (ohariscott@gmail.com) for account approval
-- **Run rate**: At $290 portfolio, realistic daily target is $1-5/day
-  - To hit $1K/day: need ~$50K capital at 2% daily return
-  - To hit $1M/day: need ~$50M capital or extreme leverage (IBKR futures)
-  - System is built to scale — all parameters are dynamic via risk_controller
-- **Fun fact**: C engine processes signals at 80ns/iteration, arb checks at 13ns
 
 ---
 
 ## 2026-02-12 Claude Code Handoff
-
-### What I Did
-- **Phase 1-6**: Full autonomous agents on Fly.io implementation (see below)
+- **Phase 1-6**: Full autonomous agents on Fly.io implementation
 - Deployed as v39 across all 7 regions
-
-### What Codex Did (observed from untracked files)
-- Massive expansion of strategy_pipeline.py (+1445 lines)
-- Expanded quant_engine_v2.py (+883 lines)
-- Created growth mode files
-- Created quant_100 experiment framework
-- Created no_loss_policy.py, profit_safety_audit.py, trading_guard.py
-
-### Legacy Deploy Status
-- v39 was base, v41-v53 are bug fixes + feature additions in this session

@@ -1,0 +1,3 @@
+display_name: Codex Claude Quant Collab
+short_description: Deterministic Codex-Claude handoff protocol for quant improvement cycles.
+default_prompt: Coordinate Codex and Claude on quant strategy improvement, risk-gated validation, and staged promotion with deterministic acceptance criteria.

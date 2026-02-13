@@ -111,13 +111,21 @@ class TestExitDecisions(unittest.TestCase):
         if decision["action"] == "EXIT_FULL":
             self.assertEqual(decision["exit_type"], "trailing_stop")
 
-    def test_take_profit_tp1(self):
-        """Should take partial profit at TP1 level."""
+    def test_take_profit_tp0_then_tp1(self):
+        """Should take micro TP0 first, then TP1 on subsequent check."""
         entry_time = datetime.now(timezone.utc).isoformat()
-        # Price at ~3% profit (above tp1 threshold in normal vol)
+        # Price at ~3% profit — TP0 (0.8%) fires first
         decision = self.em.check_exit("BTC-USDC", 100000, entry_time, 103000, 0.001)
         if decision["action"] == "EXIT_PARTIAL":
-            self.assertIn("tp1", decision.get("exit_type", "") + decision.get("label", ""))
+            self.assertIn("tp0", decision.get("exit_type", "") + decision.get("label", ""))
+            # Record the partial exit so TP1 can fire next
+            pos = self.em._positions.get("BTC-USDC")
+            if pos:
+                pos.record_partial_exit("tp0", decision["amount"], 103000)
+            # Now check again — TP1 should fire
+            decision2 = self.em.check_exit("BTC-USDC", 100000, entry_time, 103000, pos.held_amount if pos else 0.001)
+            if decision2["action"] == "EXIT_PARTIAL":
+                self.assertIn("tp1", decision2.get("exit_type", "") + decision2.get("label", ""))
 
     def test_dead_money_exit(self):
         """Should exit flat positions after dead_money_hours."""

@@ -40,6 +40,13 @@ EXIT_BUFFER_RATE = float(os.environ.get("STRIKE_EXIT_BUFFER_RATE", "0.0025") or 
 MIN_SCAN_INTERVAL_SECONDS = int(os.environ.get("STRIKE_MIN_SCAN_INTERVAL_SECONDS", "90") or 90)
 DEFAULT_HF_INTERVAL_SECONDS = int(os.environ.get("STRIKE_DEFAULT_HF_INTERVAL_SECONDS", "120") or 120)
 DEFAULT_LF_INTERVAL_SECONDS = int(os.environ.get("STRIKE_DEFAULT_LF_INTERVAL_SECONDS", "240") or 240)
+SELL_CLOSE_TARGET_RATE = float(os.environ.get("STRIKE_SELL_CLOSE_TARGET_RATE", "0.70") or 0.70)
+SELL_CLOSE_MIN_OBS = int(os.environ.get("STRIKE_SELL_CLOSE_MIN_OBS", "4") or 4)
+SELL_CLOSE_WINDOW = int(os.environ.get("STRIKE_SELL_CLOSE_WINDOW", "24") or 24)
+BUY_THROTTLE_ON_SELL_GAP = os.environ.get("STRIKE_BUY_THROTTLE_ON_SELL_GAP", "1").lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_GATE = os.environ.get("STRIKE_EXECUTION_HEALTH_GATE", "1").lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_BUY_ONLY = os.environ.get("STRIKE_EXECUTION_HEALTH_BUY_ONLY", "1").lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_CACHE_SECONDS = int(os.environ.get("STRIKE_EXECUTION_HEALTH_CACHE_SECONDS", "45") or 45)
 
 # Core imports
 try:
@@ -59,6 +66,17 @@ try:
     _risk = get_controller()
 except Exception:
     _risk = None
+
+try:
+    from execution_health import evaluate_execution_health
+except Exception:
+    try:
+        from agents.execution_health import evaluate_execution_health  # type: ignore
+    except Exception:
+        evaluate_execution_health = None  # type: ignore
+
+
+_EXECUTION_HEALTH_CACHE = {"ts": 0.0, "payload": {"green": False, "reason": "uninitialized"}}
 
 
 def _fetch_price(pair):
@@ -86,6 +104,29 @@ def _fetch_candles(pair, granularity=60, limit=30):
         return []
 
 
+def _execution_health_status(force_refresh=False):
+    if not EXECUTION_HEALTH_GATE:
+        return {"green": True, "reason": "gate_disabled"}
+    fn = evaluate_execution_health
+    if fn is None:
+        return {"green": False, "reason": "execution_health_module_unavailable"}
+    now = time.time()
+    ttl = max(5, int(EXECUTION_HEALTH_CACHE_SECONDS))
+    if not force_refresh and (now - float(_EXECUTION_HEALTH_CACHE.get("ts", 0.0) or 0.0)) <= ttl:
+        cached = _EXECUTION_HEALTH_CACHE.get("payload", {})
+        if isinstance(cached, dict) and cached:
+            return cached
+    try:
+        payload = fn(refresh=True, probe_http=False, write_status=True)
+    except Exception as e:
+        payload = {"green": False, "reason": f"execution_health_exception:{e}"}
+    if not isinstance(payload, dict):
+        payload = {"green": False, "reason": "execution_health_invalid_payload"}
+    _EXECUTION_HEALTH_CACHE["ts"] = now
+    _EXECUTION_HEALTH_CACHE["payload"] = payload
+    return payload
+
+
 class StrikeTeam:
     """Base class for all strike teams."""
 
@@ -100,6 +141,38 @@ class StrikeTeam:
         self.signals_generated = 0
         self.trades_executed = 0
         self.total_pnl = 0.0
+        self.buy_throttled = 0
+        self.exec_health_blocked = 0
+        self.sell_attempted = 0
+        self.sell_completed = 0
+        self.sell_failed = 0
+        self._sell_close_recent = []
+
+    def _sell_completion_rate(self):
+        if not self._sell_close_recent:
+            return 1.0
+        wins = sum(1 for x in self._sell_close_recent if bool(x))
+        return float(wins) / float(len(self._sell_close_recent))
+
+    def _record_sell_completion(self, completed):
+        ok = bool(completed)
+        self.sell_attempted += 1
+        if ok:
+            self.sell_completed += 1
+        else:
+            self.sell_failed += 1
+        self._sell_close_recent.append(ok)
+        max_window = max(1, int(SELL_CLOSE_WINDOW))
+        if len(self._sell_close_recent) > max_window:
+            self._sell_close_recent = self._sell_close_recent[-max_window:]
+
+    def _buy_throttle_active(self):
+        if not BUY_THROTTLE_ON_SELL_GAP:
+            return False
+        obs = len(self._sell_close_recent)
+        if obs < max(1, int(SELL_CLOSE_MIN_OBS)):
+            return False
+        return self._sell_completion_rate() < float(SELL_CLOSE_TARGET_RATE)
 
     def scout(self, pair):
         """Find opportunities. Override in subclass.
@@ -125,6 +198,33 @@ class StrikeTeam:
         price = analysis.get("entry_price", 0)
 
         if size_usd < 1.0 or price <= 0:
+            return None
+        if EXECUTION_HEALTH_GATE:
+            require_gate = True
+            if EXECUTION_HEALTH_BUY_ONLY and str(direction).upper() != "BUY":
+                require_gate = False
+            if require_gate:
+                exec_health = _execution_health_status()
+                if not bool(exec_health.get("green", False)):
+                    self.exec_health_blocked += 1
+                    logger.info(
+                        "STRIKE %s: blocked %s %s due to execution health gate (%s)",
+                        self.name,
+                        direction,
+                        pair,
+                        str(exec_health.get("reason", "unknown")),
+                    )
+                    return None
+        if str(direction).upper() == "BUY" and self._buy_throttle_active():
+            self.buy_throttled += 1
+            logger.info(
+                "STRIKE %s: BUY throttled on %s (sell_close_rate=%.2f%% target=%.2f%% obs=%d)",
+                self.name,
+                pair,
+                self._sell_completion_rate() * 100.0,
+                float(SELL_CLOSE_TARGET_RATE) * 100.0,
+                len(self._sell_close_recent),
+            )
             return None
 
         exit_ok, exit_reason = self.validate_profitable_exit(
@@ -193,6 +293,24 @@ class StrikeTeam:
             trader = CoinbaseTrader()
             amount = size_usd / price
             result = trader.place_order(pair, direction, amount)
+            order_id = None
+            if isinstance(result, dict):
+                if isinstance(result.get("success_response"), dict):
+                    order_id = result["success_response"].get("order_id")
+                elif result.get("order_id"):
+                    order_id = result.get("order_id")
+
+            if str(direction).upper() == "SELL":
+                filled = False
+                if order_id:
+                    try:
+                        fill = trader.get_order_fill(order_id, max_wait=2, poll_interval=0.4)
+                    except Exception:
+                        fill = None
+                    status_u = str((fill or {}).get("status", "")).upper()
+                    filled_sz = float((fill or {}).get("filled_size", 0.0) or 0.0)
+                    filled = status_u == "FILLED" or filled_sz > 0.0
+                self._record_sell_completion(filled)
 
             if result and "success_response" in result:
                 self.trades_executed += 1
@@ -341,6 +459,12 @@ class StrikeTeam:
             "signals": self.signals_generated,
             "trades": self.trades_executed,
             "pnl": round(self.total_pnl, 4),
+            "buy_throttled": int(self.buy_throttled),
+            "exec_health_blocked": int(self.exec_health_blocked),
+            "sell_attempted": int(self.sell_attempted),
+            "sell_completed": int(self.sell_completed),
+            "sell_failed": int(self.sell_failed),
+            "sell_close_completion_rate": round(self._sell_completion_rate(), 4),
         }
 
 

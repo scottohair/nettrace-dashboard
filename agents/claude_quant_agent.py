@@ -44,6 +44,15 @@ logger = logging.getLogger("claude_quant_agent")
 INTERVAL_SECONDS = int(os.environ.get("QUANT100_INTERVAL_SECONDS", "14400"))  # 4h
 BACKTEST_HOURS = int(os.environ.get("QUANT100_BACKTEST_HOURS", "72"))
 GRANULARITY = os.environ.get("QUANT100_GRANULARITY", "5min")
+CLAUDE_TEAM_COLLAB_ENABLED = os.environ.get("CLAUDE_TEAM_COLLAB_ENABLED", "1").lower() not in ("0", "false", "no")
+CLAUDE_TEAM_STATE_FILE = BASE_DIR / "claude_team_state.json"
+CLAUDE_TEAM_TOPICS = {
+    "realized_pnl": ("realized", "close", "pnl", "profit"),
+    "budget": ("budget", "escalat", "de_escalat", "allocation"),
+    "risk": ("risk", "drawdown", "loss", "hardstop", "no-go"),
+    "execution": ("latency", "dns", "fill", "exit", "execution"),
+    "quant": ("quant", "strategy", "pipeline", "warm", "hot"),
+}
 
 
 class ClaudeQuantAgent:
@@ -61,7 +70,7 @@ class ClaudeQuantAgent:
         except Exception:
             self.last_to_claude_id = 0
 
-    def _write_status(self, state, summary=None, ingest=None, consumed=None, error=None):
+    def _write_status(self, state, summary=None, ingest=None, consumed=None, decision_trace=None, error=None):
         payload = {
             "state": state,
             "updated_at": datetime.now(timezone.utc).isoformat(),
@@ -72,6 +81,7 @@ class ClaudeQuantAgent:
             "summary": summary or {},
             "ingest": ingest or {},
             "consumed_directives": consumed or {},
+            "decision_trace": decision_trace or {},
             "last_to_claude_id": self.last_to_claude_id,
             "error": str(error) if error else "",
         }
@@ -100,17 +110,125 @@ class ClaudeQuantAgent:
                     return ordered
         return ordered[:limit]
 
+    @staticmethod
+    def _directive_digest(msgs):
+        digest = {
+            "total": len(msgs),
+            "from_codex": 0,
+            "high_priority": 0,
+            "target_role_counts": {"opus": 0, "sonnet": 0},
+            "topic_hits": {k: 0 for k in CLAUDE_TEAM_TOPICS.keys()},
+        }
+        for m in msgs:
+            source = str(m.get("source", "")).lower()
+            if source == "codex":
+                digest["from_codex"] += 1
+            if str(m.get("priority", "")).lower() == "high":
+                digest["high_priority"] += 1
+            meta = m.get("meta", {}) if isinstance(m.get("meta"), dict) else {}
+            role = str(meta.get("target_role", "")).lower().strip()
+            if role in digest["target_role_counts"]:
+                digest["target_role_counts"][role] += 1
+            text = str(m.get("message", "")).lower()
+            for topic, needles in CLAUDE_TEAM_TOPICS.items():
+                if any(n in text for n in needles):
+                    digest["topic_hits"][topic] += 1
+        return digest
+
+    def _write_team_state(self, summary, priority_pairs, digest):
+        payload = {
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "cycle": self.cycles,
+            "priority_pairs": priority_pairs,
+            "summary": {
+                "total": int(summary.get("total", 0) or 0),
+                "promoted": int(summary.get("promoted_warm", 0) or 0),
+                "rejected": int(summary.get("rejected_cold", 0) or 0),
+                "no_data": int(summary.get("no_data", 0) or 0),
+            },
+            "directive_digest": digest,
+            "roles": {
+                "opus": {
+                    "focus": "research_hypotheses_and_risk_architecture",
+                    "target": "maximize robust realized close-profit evidence",
+                },
+                "sonnet": {
+                    "focus": "execution_and_pipeline_implementation",
+                    "target": "ship deterministic exit and fill-quality improvements fast",
+                },
+            },
+        }
+        try:
+            CLAUDE_TEAM_STATE_FILE.write_text(json.dumps(payload, indent=2))
+        except Exception as e:
+            logger.warning("Could not write claude team state: %s", e)
+
+    def _emit_role_collaboration(self, summary, priority_pairs, digest):
+        if claude_duplex is None or not CLAUDE_TEAM_COLLAB_ENABLED:
+            return
+        promoted = int(summary.get("promoted_warm", 0) or 0)
+        rejected = int(summary.get("rejected_cold", 0) or 0)
+        no_data = int(summary.get("no_data", 0) or 0)
+
+        opus_message = (
+            "Opus role update: refine strategy hypotheses toward realized-close-positive outcomes, "
+            "tighten risk gates, and prefer high-confidence deterministic exits."
+        )
+        sonnet_message = (
+            "Sonnet role update: implement execution fixes that increase filled SELL closes, "
+            "improve fill quality, and reduce pending/open order drift."
+        )
+        consensus_message = (
+            f"Opus+Sonnet consensus: cycle={self.cycles} promoted={promoted} rejected={rejected} no_data={no_data}. "
+            "Joint plan: prioritize realized close-profit evidence before any budget escalation."
+        )
+        meta_common = {
+            "cycle": self.cycles,
+            "priority_pairs": priority_pairs,
+            "directive_digest": digest,
+            "summary": {
+                "promoted": promoted,
+                "rejected": rejected,
+                "no_data": no_data,
+            },
+        }
+        claude_duplex.send_from_claude(
+            opus_message,
+            msg_type="role_update",
+            priority="high" if digest.get("high_priority", 0) > 0 else "normal",
+            source="claude_opus",
+            meta={**meta_common, "role": "opus"},
+        )
+        claude_duplex.send_from_claude(
+            sonnet_message,
+            msg_type="role_update",
+            priority="high" if digest.get("high_priority", 0) > 0 else "normal",
+            source="claude_sonnet",
+            meta={**meta_common, "role": "sonnet"},
+        )
+        claude_duplex.send_from_claude(
+            consensus_message,
+            msg_type="team_consensus",
+            priority="high" if promoted <= 0 else "normal",
+            source="claude_team",
+            meta={**meta_common, "roles": ["opus", "sonnet"]},
+        )
+
     def _consume_duplex_directives(self):
         if claude_duplex is None:
-            return [], []
+            return [], [], []
         msgs = claude_duplex.read_to_claude(since_id=self.last_to_claude_id, limit=200)
         if not msgs:
-            return [], []
+            return [], [], []
 
         self.last_to_claude_id = max(int(m.get("id", 0)) for m in msgs)
         pairs = []
+        trace_ids = []
         for m in msgs:
             meta = m.get("meta", {}) if isinstance(m.get("meta"), dict) else {}
+            trace_id = str(m.get("trace_id") or meta.get("trace_id") or "").strip()
+            if trace_id and trace_id not in trace_ids:
+                trace_ids.append(trace_id)
             for p in meta.get("priority_pairs", []) or []:
                 p = str(p).upper().strip()
                 if p and p not in pairs:
@@ -118,7 +236,7 @@ class ClaudeQuantAgent:
             for p in self._extract_pairs(m.get("message", "")):
                 if p not in pairs:
                     pairs.append(p)
-        return msgs, pairs
+        return msgs, pairs, trace_ids
 
     def run_once(self):
         self.cycles += 1
@@ -128,11 +246,18 @@ class ClaudeQuantAgent:
         ingest = {}
         priority_pairs = []
         consumed_msgs = []
+        directive_trace_ids = []
         mcp_lesson = {}
+        bundle_id = ""
+        bundle_hash = ""
+        bundle_sequence = 0
         if claude_staging is not None:
             try:
                 bundle = claude_staging.get_latest_bundle()
                 ingest = bundle.get("summary", {}) if isinstance(bundle, dict) else {}
+                bundle_id = str(bundle.get("bundle_id", "") or bundle.get("metadata", {}).get("bundle_id", ""))
+                bundle_hash = str(bundle.get("bundle_hash", "") or bundle.get("metadata", {}).get("bundle_hash", ""))
+                bundle_sequence = int(bundle.get("bundle_sequence", 0) or bundle.get("metadata", {}).get("bundle_sequence", 0) or 0)
                 priority_pairs = self._normalize_priority_pairs(
                     (ingest.get("hard_priority_pairs") or [])[:10],
                     (ingest.get("focus_pairs") or [])[:10],
@@ -141,8 +266,9 @@ class ClaudeQuantAgent:
                 mcp_lesson = bundle.get("mcp_curriculum", {}) if isinstance(bundle, dict) else {}
             except Exception:
                 pass
-        consumed_msgs, duplex_pairs = self._consume_duplex_directives()
+        consumed_msgs, duplex_pairs, directive_trace_ids = self._consume_duplex_directives()
         priority_pairs = self._normalize_priority_pairs(priority_pairs, duplex_pairs, limit=10)
+        directive_digest = self._directive_digest(consumed_msgs)
 
         experiments = q100.build_100_experiments(priority_pairs=priority_pairs)
         q100.save_json(q100.PLAN_FILE, {
@@ -168,8 +294,21 @@ class ClaudeQuantAgent:
             "message_count": len(consumed_msgs),
             "priority_pairs": priority_pairs,
             "mcp_lesson_title": mcp_lesson.get("title", ""),
+            "directive_digest": directive_digest,
+            "directive_trace_ids": directive_trace_ids,
+            "bundle_id": bundle_id,
+            "bundle_hash": bundle_hash,
+            "bundle_sequence": bundle_sequence,
         }
-        self._write_status("idle", summary=summary, ingest=ingest, consumed=consumed)
+        decision_trace = {
+            "bundle_id": bundle_id,
+            "bundle_hash": bundle_hash,
+            "bundle_sequence": bundle_sequence,
+            "directive_trace_ids": directive_trace_ids,
+            "consumed_message_ids": [int(m.get("id", 0)) for m in consumed_msgs],
+        }
+        self._write_status("idle", summary=summary, ingest=ingest, consumed=consumed, decision_trace=decision_trace)
+        self._write_team_state(summary, priority_pairs, directive_digest)
 
         if claude_duplex is not None:
             if consumed_msgs:
@@ -178,7 +317,13 @@ class ClaudeQuantAgent:
                     msg_type="ack",
                     priority="high",
                     source="claude_quant",
-                    meta={"reply_to_id": self.last_to_claude_id, "priority_pairs": priority_pairs},
+                    meta={
+                        "reply_to_id": self.last_to_claude_id,
+                        "priority_pairs": priority_pairs,
+                        "directive_trace_ids": directive_trace_ids,
+                        "ingest_bundle_id": bundle_id,
+                        "ingest_bundle_sequence": bundle_sequence,
+                    },
                 )
             claude_duplex.send_from_claude(
                 f"Quant cycle {self.cycles} complete: promoted={summary.get('promoted_warm', 0)} no_data={summary.get('no_data', 0)}",
@@ -192,6 +337,8 @@ class ClaudeQuantAgent:
                     "promoted": summary.get("promoted_warm", 0),
                     "rejected": summary.get("rejected_cold", 0),
                     "no_data": summary.get("no_data", 0),
+                    "ingest_bundle_id": bundle_id,
+                    "ingest_bundle_sequence": bundle_sequence,
                 },
             )
             if mcp_lesson:
@@ -203,8 +350,10 @@ class ClaudeQuantAgent:
                     meta={
                         "lesson_title": mcp_lesson.get("title", ""),
                         "protocol_flow": mcp_lesson.get("protocol_flow", [])[:4],
+                        "ingest_bundle_id": bundle_id,
                     },
                 )
+            self._emit_role_collaboration(summary, priority_pairs, directive_digest)
 
         logger.info(
             "Cycle %d complete: total=%d promoted=%d rejected=%d no_data=%d priority_pairs=%s directives=%d",

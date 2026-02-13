@@ -68,7 +68,20 @@ def _base_name(name):
 
 
 def _evaluate_warm_gate(validator, paper_metrics):
-    return validator.evaluate_warm_metrics(paper_metrics)
+    if hasattr(validator, "evaluate_warm_metrics_detail"):
+        return validator.evaluate_warm_metrics_detail(paper_metrics)
+    passed, reasons, criteria = validator.evaluate_warm_metrics(paper_metrics)
+    return {
+        "passed": bool(passed),
+        "reasons": list(reasons),
+        "reason_codes": [],
+        "criteria": dict(criteria),
+        "decision": "eligible_hot" if passed else "collecting",
+        "decision_reason": "legacy_evaluator",
+        "criteria_mode": "legacy",
+        "criteria_adjustments": [],
+        "evidence": {},
+    }
 
 
 def _ensure_state_schema(conn):
@@ -401,12 +414,20 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
             },
         }
 
-        eligible, reasons, criteria = _evaluate_warm_gate(validator, paper_metrics)
+        assessment = _evaluate_warm_gate(validator, paper_metrics)
+        eligible = bool(assessment.get("passed", False))
+        reasons = list(assessment.get("reasons", []))
+        criteria = dict(assessment.get("criteria", {}))
+        reason_codes = list(assessment.get("reason_codes", []))
+        gate_decision = str(assessment.get("decision", "collecting"))
+        gate_decision_reason = str(assessment.get("decision_reason", "state_updated"))
+        criteria_mode = str(assessment.get("criteria_mode", "baseline"))
+        criteria_adjustments = list(assessment.get("criteria_adjustments", []))
         if eligible:
             eligible_hot += 1
 
-        status = "collecting"
-        message = "state_updated"
+        status = "eligible_hot" if eligible else gate_decision
+        message = gate_decision_reason
         if promote and eligible:
             promoted, msg = validator.check_warm_promotion(strategy_name, pair, paper_metrics)
             if promoted:
@@ -417,6 +438,8 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
                 if not reasons:
                     reasons = [msg]
             message = msg
+        elif status not in {"collecting", "rejected", "eligible_hot"}:
+            status = "collecting"
 
         state = {
             "strategy_name": strategy_name,
@@ -446,7 +469,12 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
                 "message": message,
                 "eligible_hot": eligible,
                 "reasons": reasons,
+                "reason_codes": reason_codes,
+                "gate_decision": gate_decision,
+                "gate_decision_reason": gate_decision_reason,
                 "criteria": criteria,
+                "criteria_mode": criteria_mode,
+                "criteria_adjustments": criteria_adjustments,
                 "new_sell_trades": int(new_sells),
                 "data_source": source_meta,
                 "paper_metrics": paper_metrics,
@@ -469,6 +497,8 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
             "eligible_hot": int(eligible_hot),
             "promoted_hot": int(promoted_hot),
             "collecting": len([r for r in results if r.get("status") == "collecting"]),
+            "rejected": len([r for r in results if r.get("status") == "rejected"]),
+            "not_ready": len([r for r in results if r.get("status") in {"collecting", "rejected", "not_ready"}]),
             "skipped": len([r for r in results if r.get("status") == "skipped"]),
         },
         "results": results,

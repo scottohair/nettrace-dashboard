@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -17,6 +18,29 @@ WARM_COLLECTOR_PATH = BASE / "warm_runtime_collector_report.json"
 WARM_PROMOTION_PATH = BASE / "warm_promotion_report.json"
 REPORT_PATH = BASE / "growth_go_no_go_report.json"
 QUANT_RESULTS_PATH = BASE / "quant_100_results.json"
+QUANT_COMPANY_STATUS_PATH = BASE / "quant_company_status.json"
+EXECUTION_HEALTH_STATUS_PATH = BASE / "execution_health_status.json"
+GROWTH_MAX_PAIR_SHARE_CAP = float(os.environ.get("GROWTH_MAX_PAIR_SHARE_CAP", "0.70"))
+STRICT_REALIZED_GO_LIVE_REQUIRED = os.environ.get(
+    "STRICT_REALIZED_GO_LIVE_REQUIRED", "1"
+).lower() not in ("0", "false", "no")
+STRICT_REALIZED_BOOTSTRAP_ALLOW = os.environ.get(
+    "STRICT_REALIZED_BOOTSTRAP_ALLOW", "1"
+).lower() not in ("0", "false", "no")
+STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET = float(
+    os.environ.get("STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET", "2.0")
+)
+STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_STRATEGIES = int(
+    os.environ.get("STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_STRATEGIES", "4")
+)
+
+try:
+    from execution_health import evaluate_execution_health
+except Exception:
+    try:
+        from agents.execution_health import evaluate_execution_health  # type: ignore
+    except Exception:
+        evaluate_execution_health = None  # type: ignore
 
 
 def _now_iso():
@@ -92,28 +116,77 @@ def _activate_creative_batch(batch_id, owner="codex"):
     return {"batch_id": batch_id, "activated_ids": touched, "size": len(touched)}
 
 
-def _build_decision(audit, warm_collector, warm_promotion):
+def _build_decision(
+    audit,
+    warm_collector,
+    warm_promotion,
+    quant_company_status=None,
+    execution_health=None,
+):
     checks = audit.get("checks", []) if isinstance(audit, dict) else []
     check_map = {str(c.get("name", "")): c for c in checks}
     summary = audit.get("summary", {}) if isinstance(audit, dict) else {}
     pipe = audit.get("metrics", {}).get("pipeline", {}) if isinstance(audit, dict) else {}
 
     reasons = []
+    warnings = []
+    q_status = quant_company_status if isinstance(quant_company_status, dict) else {}
+    realized_gate_passed = bool(q_status.get("realized_gate_passed", False))
+    realized_gate_reason = str(q_status.get("realized_gate_reason", "unknown"))
+    total_funded_budget = float(pipe.get("total_funded_budget", 0.0) or 0.0)
+    funded_strategy_count = int(pipe.get("funded_strategy_count", 0) or 0)
+    realized_bootstrap_override = False
+    realized_bootstrap_reason = ""
+    if STRICT_REALIZED_GO_LIVE_REQUIRED:
+        if not q_status:
+            reasons.append("strict_realized_gate_status_missing")
+        elif not realized_gate_passed:
+            can_bootstrap = (
+                STRICT_REALIZED_BOOTSTRAP_ALLOW
+                and realized_gate_reason == "insufficient_realized_closes"
+                and total_funded_budget <= float(STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET)
+                and funded_strategy_count <= int(STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_STRATEGIES)
+            )
+            if can_bootstrap:
+                realized_bootstrap_override = True
+                realized_bootstrap_reason = (
+                    f"bootstrap_realized_override:budget={total_funded_budget:.4f}"
+                    f"_strategies={funded_strategy_count}"
+                )
+                warnings.append(realized_bootstrap_reason)
+            else:
+                reasons.append(f"strict_realized_gate_failed:{realized_gate_reason}")
+    exec_health = execution_health if isinstance(execution_health, dict) else {}
+    exec_green = bool(exec_health.get("green", False))
+    exec_reason = str(exec_health.get("reason", "missing"))
+    if exec_health and not exec_green:
+        warnings.append(f"execution_health_not_green:{exec_reason}")
+
     if int(summary.get("critical_failures", 0) or 0) > 0:
         reasons.append("critical_audit_failures_present")
     if int(pipe.get("promoted_hot_events", 0) or 0) <= 0:
         reasons.append("no_hot_promotions")
     if int(pipe.get("killed_events", 0) or 0) > 0:
         reasons.append("killed_events_detected")
-    total_funded_budget = float(pipe.get("total_funded_budget", 0.0) or 0.0)
-    funded_strategy_count = int(pipe.get("funded_strategy_count", 0) or 0)
     enforce_concentration_cap = total_funded_budget >= 5.0 and funded_strategy_count >= 3
-    if enforce_concentration_cap and float(pipe.get("max_pair_share", 0.0) or 0.0) > 0.70:
+    cap = max(0.05, min(0.95, float(GROWTH_MAX_PAIR_SHARE_CAP)))
+    if enforce_concentration_cap and float(pipe.get("max_pair_share", 0.0) or 0.0) > cap:
         reasons.append("funding_concentration_above_cap")
 
     oos_check = check_map.get("Funded OOS Trade Evidence", {})
-    if not bool(oos_check.get("passed", False)):
-        reasons.append("insufficient_funded_oos_evidence")
+    oos_check_passed = bool(oos_check.get("passed", False))
+    if not oos_check_passed:
+        oos_check_severity = str(oos_check.get("severity", "medium")).lower()
+        # Bootstrap phase: treat medium OOS evidence gaps as warnings while funded
+        # capital is still small. Escalate to hard block once deployment scales up.
+        strict_oos_block = (
+            oos_check_severity in {"high", "critical"}
+            or (total_funded_budget >= 20.0 and funded_strategy_count >= 8)
+        )
+        if strict_oos_block:
+            reasons.append("insufficient_funded_oos_evidence")
+        else:
+            warnings.append("insufficient_funded_oos_evidence_bootstrap")
 
     collector_summary = warm_collector.get("summary", {}) if isinstance(warm_collector, dict) else {}
     if int(collector_summary.get("promoted_hot", 0) or 0) <= 0 and int(pipe.get("promoted_hot_events", 0) or 0) <= 0:
@@ -129,6 +202,30 @@ def _build_decision(audit, warm_collector, warm_promotion):
         "decision": decision,
         "go_live": go_live,
         "reasons": sorted(set(reasons)),
+        "warnings": sorted(set(warnings)),
+        "limits": {
+            "max_pair_share_cap": round(cap, 4),
+            "concentration_cap_enforced": bool(enforce_concentration_cap),
+        },
+        "strict_realized_gate": {
+            "enabled": bool(STRICT_REALIZED_GO_LIVE_REQUIRED),
+            "status_available": bool(q_status),
+            "passed": bool(realized_gate_passed),
+            "reason": realized_gate_reason,
+            "bootstrap_override": bool(realized_bootstrap_override),
+            "bootstrap_reason": realized_bootstrap_reason,
+            "bootstrap_limits": {
+                "enabled": bool(STRICT_REALIZED_BOOTSTRAP_ALLOW),
+                "max_funded_budget": float(STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET),
+                "max_funded_strategies": int(STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_STRATEGIES),
+            },
+        },
+        "execution_health_gate": {
+            "status_available": bool(exec_health),
+            "green": bool(exec_green),
+            "reason": exec_reason,
+            "updated_at": str(exec_health.get("updated_at", "")),
+        },
         "audit_summary": summary,
         "pipeline_metrics": pipe,
         "warm_collector_summary": collector_summary,
@@ -186,13 +283,39 @@ def run_cycle(
     warm_collector = _load_json(WARM_COLLECTOR_PATH, {})
     warm_promotion = _load_json(WARM_PROMOTION_PATH, {})
     quant = _load_json(QUANT_RESULTS_PATH, {})
+    quant_company_status = _load_json(QUANT_COMPANY_STATUS_PATH, {})
+    execution_health = {}
+    if evaluate_execution_health is not None:
+        try:
+            execution_health = evaluate_execution_health(refresh=True, probe_http=None, write_status=True)
+        except Exception:
+            execution_health = {}
+    if not isinstance(execution_health, dict) or not execution_health:
+        execution_health = _load_json(EXECUTION_HEALTH_STATUS_PATH, {})
     cycle["artifacts"] = {
         "audit": audit.get("summary", {}),
         "warm_collector": warm_collector.get("summary", {}),
         "warm_promotion": warm_promotion.get("summary", {}),
         "quant": (quant.get("summary", {}) if isinstance(quant, dict) else {}),
+        "quant_company_status": {
+            "go_live": bool((quant_company_status or {}).get("go_live", False)),
+            "realized_gate_passed": bool((quant_company_status or {}).get("realized_gate_passed", False)),
+            "realized_gate_reason": str((quant_company_status or {}).get("realized_gate_reason", "")),
+            "updated_at": str((quant_company_status or {}).get("updated_at", "")),
+        },
+        "execution_health": {
+            "green": bool((execution_health or {}).get("green", False)),
+            "reason": str((execution_health or {}).get("reason", "")),
+            "updated_at": str((execution_health or {}).get("updated_at", "")),
+        },
     }
-    cycle["decision"] = _build_decision(audit, warm_collector, warm_promotion)
+    cycle["decision"] = _build_decision(
+        audit,
+        warm_collector,
+        warm_promotion,
+        quant_company_status=quant_company_status,
+        execution_health=execution_health,
+    )
     _save_json(REPORT_PATH, cycle)
     print(str(REPORT_PATH))
     print(json.dumps(cycle["decision"], indent=2))

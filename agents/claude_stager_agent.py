@@ -43,6 +43,7 @@ class ClaudeStagerAgent:
 
     def _write_status(self, state, bundle=None, error=None):
         summary = (bundle or {}).get("summary", {}) if bundle else {}
+        metadata = (bundle or {}).get("metadata", {}) if bundle else {}
         payload = {
             "agent": "claude_stager",
             "state": state,
@@ -50,6 +51,9 @@ class ClaudeStagerAgent:
             "interval_seconds": INTERVAL_SECONDS,
             "cycle_count": self.cycles,
             "summary": summary,
+            "bundle_id": metadata.get("bundle_id", ""),
+            "bundle_hash": metadata.get("bundle_hash", ""),
+            "bundle_sequence": metadata.get("bundle_sequence", 0),
             "bundle_path": str(staging.BUNDLE_FILE),
             "error": str(error) if error else "",
         }
@@ -59,6 +63,21 @@ class ClaudeStagerAgent:
         self.cycles += 1
         self._write_status("running")
         bundle = staging.build_ingest_bundle(reason=reason)
+        metadata = bundle.get("metadata", {}) if isinstance(bundle, dict) else {}
+        if duplex is not None:
+            duplex.send_to_claude(
+                "Claude ingest bundle refreshed",
+                msg_type="bundle_update",
+                priority="normal",
+                source="claude_stager",
+                meta={
+                    "bundle_id": metadata.get("bundle_id", ""),
+                    "bundle_hash": metadata.get("bundle_hash", ""),
+                    "bundle_sequence": metadata.get("bundle_sequence", 0),
+                    "reason": reason,
+                    "focus_pairs": (bundle.get("summary", {}) if isinstance(bundle, dict) else {}).get("focus_pairs", []),
+                },
+            )
         self._write_status("idle", bundle=bundle)
         s = bundle.get("summary", {})
         logger.info(
@@ -134,15 +153,21 @@ def main():
         cfg["priority_pairs"] = pairs
         cfg["updated_at"] = _utc_now()
         staging.PRIORITY_CONFIG_FILE.write_text(json.dumps(cfg, indent=2))
+        bundle = staging.build_ingest_bundle(reason="priority_pairs_update")
+        metadata = bundle.get("metadata", {}) if isinstance(bundle, dict) else {}
         if duplex is not None:
             duplex.send_to_claude(
                 "Priority pairs updated",
                 msg_type="priority_update",
                 priority="high",
                 source=args.sender,
-                meta={"priority_pairs": pairs},
+                meta={
+                    "priority_pairs": pairs,
+                    "bundle_id": metadata.get("bundle_id", ""),
+                    "bundle_hash": metadata.get("bundle_hash", ""),
+                    "bundle_sequence": metadata.get("bundle_sequence", 0),
+                },
             )
-        bundle = staging.build_ingest_bundle(reason="priority_pairs_update")
         print(json.dumps({"updated_priority_pairs": pairs, "summary": bundle.get("summary", {})}, indent=2))
         return
 
@@ -153,15 +178,22 @@ def main():
             priority=args.priority,
             sender=args.sender,
         )
+        bundle = staging.build_ingest_bundle(reason="operator_message")
+        metadata = bundle.get("metadata", {}) if isinstance(bundle, dict) else {}
         if duplex is not None:
             duplex.send_to_claude(
                 args.message,
                 msg_type="directive",
                 priority=args.priority,
                 source=args.sender,
+                meta={
+                    "bundle_id": metadata.get("bundle_id", ""),
+                    "bundle_hash": metadata.get("bundle_hash", ""),
+                    "bundle_sequence": metadata.get("bundle_sequence", 0),
+                    "category": args.category,
+                },
             )
         print(json.dumps(item, indent=2))
-        bundle = staging.build_ingest_bundle(reason="operator_message")
         print(json.dumps(bundle.get("summary", {}), indent=2))
         return
 

@@ -55,6 +55,7 @@ logger = logging.getLogger("exit_manager")
 # Use persistent volume on Fly (/data/), local agents/ dir otherwise
 _persistent_dir = Path("/data") if Path("/data").is_dir() else Path(__file__).parent
 EXIT_DB = str(_persistent_dir / "exit_manager.db")
+TRADER_DB = str(Path(__file__).parent / "trader.db")
 EXIT_STATUS_FILE = Path(__file__).parent / "exit_manager_status.json"
 EXIT_IMPROVEMENTS_FILE = Path(__file__).parent / "exit_manager_improvements_registry.json"
 MCP_HINTS_FILE = Path(__file__).parent / "mcp_exit_hints.json"
@@ -421,6 +422,34 @@ class ExitManager:
         )
         self._db.commit()
 
+    def _record_realized_sell_trade(self, pair, order_type, order_id, price, amount, pnl_usd):
+        """Mirror successful SELL fills into trader.db for realized-PnL gating."""
+        try:
+            tdb = sqlite3.connect(TRADER_DB)
+            tdb.execute(
+                """
+                INSERT INTO agent_trades
+                    (agent, pair, side, price, quantity, total_usd, order_type, order_id, status, pnl)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    "exit_manager",
+                    str(pair),
+                    "SELL",
+                    float(price),
+                    float(amount),
+                    float(amount) * float(price),
+                    str(order_type or "market"),
+                    str(order_id or ""),
+                    "filled",
+                    float(pnl_usd),
+                ),
+            )
+            tdb.commit()
+            tdb.close()
+        except Exception as e:
+            logger.warning("EXIT_MGR: Could not mirror realized sell to trader.db: %s", e)
+
     def _adaptive_interval_seconds(self):
         active = len(self._positions)
         if active <= 0:
@@ -521,8 +550,8 @@ class ExitManager:
             regime_time_mult = 1.5  # give more time in uptrends
 
         # Dead money threshold: hours before we consider a position stale
-        # Base: 4 hours, adjusted by regime
-        dead_money_hours = 4.0 * regime_time_mult
+        # Base: 3 hours (was 4h — faster capital recycling at small portfolio)
+        dead_money_hours = 3.0 * regime_time_mult
         # Minimum gain to avoid being considered dead money
         # Scales with volatility -- in high vol, 0.5% is nothing
         dead_money_min_gain = 0.005 * vol_multiplier
@@ -533,14 +562,19 @@ class ExitManager:
 
         # === TAKE-PROFIT TARGETS ===
         # Scale targets with volatility -- higher vol = larger targets
+        # TP0: Micro take-profit — free capital quickly for compounding
+        # At ~$200 portfolio, freeing $5-10 fast matters more than riding for 5%
+        tp0_pct = 0.008 * vol_multiplier   # ~0.8% in normal vol (covers fees + small profit)
+        tp0_sell_frac = 0.20               # sell 20% at TP0 — free cash for next trade
+
         tp1_pct = 0.02 * vol_multiplier    # ~2% in normal vol
-        tp1_sell_frac = 0.30                # sell 30% at TP1
+        tp1_sell_frac = 0.25               # sell 25% at TP1 (was 30%, reduced for TP0)
 
         tp2_pct = 0.05 * vol_multiplier    # ~5% in normal vol
-        tp2_sell_frac = 0.30                # sell 30% at TP2
+        tp2_sell_frac = 0.25               # sell 25% at TP2 (was 30%, reduced for TP0)
 
-        # Remaining 40% rides with trailing stop
-        rider_frac = 1.0 - tp1_sell_frac - tp2_sell_frac
+        # Remaining 30% rides with trailing stop
+        rider_frac = 1.0 - tp0_sell_frac - tp1_sell_frac - tp2_sell_frac
 
         # === SCALE-OUT AT TIME THRESHOLD ===
         # Sell 50% of position at 2% profit if held > scale_out_hours
@@ -570,7 +604,9 @@ class ExitManager:
             "dead_money_hours": round(dead_money_hours, 2),
             "dead_money_min_gain": round(dead_money_min_gain, 4),
             "force_eval_hours": round(force_eval_hours, 2),
-            # Take-profit
+            # Take-profit (TP0 = micro, TP1 = standard, TP2 = extended)
+            "tp0_pct": round(tp0_pct, 4),
+            "tp0_sell_frac": tp0_sell_frac,
             "tp1_pct": round(tp1_pct, 4),
             "tp1_sell_frac": tp1_sell_frac,
             "tp2_pct": round(tp2_pct, 4),
@@ -725,6 +761,22 @@ class ExitManager:
             }
 
         # === CHECK 3: Take-profit targets (partial exits) ===
+        # TP0: Micro take-profit — free cash quickly for compounding
+        # At small portfolios, freeing $5-10 fast is critical for growth
+        if profit_pct >= params["tp0_pct"] and "tp0" not in pos.partial_exits_done:
+            sell_amount = pos.original_amount * params["tp0_sell_frac"]
+            sell_amount = min(sell_amount, held_amount)
+            if sell_amount > 0 and sell_amount * current_price >= 0.50:
+                return {
+                    "action": "EXIT_PARTIAL",
+                    "reason": (f"Micro TP0: {profit_pct:.2%} >= {params['tp0_pct']:.2%} target, "
+                               f"selling {params['tp0_sell_frac']:.0%} to free capital for compounding"),
+                    "exit_type": "take_profit_tp0",
+                    "amount": sell_amount,
+                    "fraction": params["tp0_sell_frac"],
+                    "label": "tp0",
+                }
+
         # TP1: First milestone
         if profit_pct >= params["tp1_pct"] and "tp1" not in pos.partial_exits_done:
             sell_amount = pos.original_amount * params["tp1_sell_frac"]
@@ -904,6 +956,7 @@ class ExitManager:
         order_id = None
         last_error = ""
         attempt = 0
+        filled_order_type = "market"
         for order_type, cfg in plan:
             attempt += 1
             try:
@@ -937,6 +990,10 @@ class ExitManager:
                 safe_result = json.loads(json.dumps(result, default=str))
             except Exception:
                 safe_result = str(result)[:500]
+            try:
+                safe_route_hint = json.loads(json.dumps(route_hint, default=str))
+            except Exception:
+                safe_route_hint = str(route_hint)[:500]
             self._record_execution_attempt(
                 pair=pair,
                 exit_type=exit_type,
@@ -946,9 +1003,10 @@ class ExitManager:
                 price=(cfg.get("price", current_price) if isinstance(cfg, dict) else current_price),
                 success=success,
                 order_id=order_id,
-                details={"result": safe_result, "reason": reason, "route_hint": route_hint},
+                details={"result": safe_result, "reason": reason, "route_hint": safe_route_hint},
             )
             if success:
+                filled_order_type = str(order_type or "market")
                 break
 
         if not success:
@@ -976,6 +1034,14 @@ class ExitManager:
              peak_price, round(vol, 6))
         )
         self._db.commit()
+        self._record_realized_sell_trade(
+            pair=pair,
+            order_type=filled_order_type,
+            order_id=order_id,
+            price=current_price,
+            amount=amount,
+            pnl_usd=pnl_usd,
+        )
 
         if _risk_ctrl:
             _risk_ctrl.record_trade_result("exit_manager", pnl_usd)
@@ -1262,7 +1328,8 @@ class ExitManager:
                             "time_exit_dead_money": 75,
                             "take_profit_tp2": 65,
                             "take_profit_tp1": 60,
-                            "scale_out": 55,
+                            "take_profit_tp0": 55,
+                            "scale_out": 50,
                         }.get(str(decision.get("exit_type", "none")), 10)
                         decision["cycle_index"] = self._cycle_index
                         decision_latency_ms = (time.perf_counter() - pair_started) * 1000.0

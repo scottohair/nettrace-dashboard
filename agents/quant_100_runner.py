@@ -62,6 +62,14 @@ BACKTEST_GRANULARITY = os.environ.get("QUANT100_GRANULARITY", "5min").lower()
 MARKET_PREFILTER_MIN_CANDLES = int(
     os.environ.get("QUANT100_MARKET_PREFILTER_MIN_CANDLES", str(MIN_CANDLES_REQUIRED))
 )
+UNIQUE_STRATEGY_NAMES = os.environ.get("QUANT100_UNIQUE_NAMES", "0").lower() not in (
+    "0", "false", "no"
+)
+RUN_TAG_ENV = os.environ.get("QUANT100_RUN_TAG", "").strip()
+ADAPTIVE_STRATEGY_SPLIT = os.environ.get("QUANT100_ADAPTIVE_STRATEGY_SPLIT", "1").lower() not in (
+    "0", "false", "no"
+)
+ADAPTIVE_MIN_PER_STRATEGY = int(os.environ.get("QUANT100_ADAPTIVE_MIN_PER_STRATEGY", "8"))
 RETUNE_LOW_ACTIVITY = os.environ.get("QUANT100_RETUNE_LOW_ACTIVITY", "1").lower() not in (
     "0", "false", "no"
 )
@@ -272,6 +280,95 @@ def _strategy_specs(count_overrides=None):
     return specs
 
 
+def _derive_adaptive_strategy_overrides():
+    if not ADAPTIVE_STRATEGY_SPLIT or not RESULTS_FILE.exists():
+        return {}
+
+    try:
+        payload = json.loads(RESULTS_FILE.read_text())
+    except Exception:
+        return {}
+
+    rows = payload.get("results", [])
+    if not isinstance(rows, list) or not rows:
+        return {}
+
+    bases = [spec["base_name"] for spec in _strategy_specs()]
+    stats = {
+        base: {"total": 0, "promoted": 0, "positive": 0, "strict_positive": 0}
+        for base in bases
+    }
+
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        base = str(row.get("strategy_base", ""))
+        if base not in stats:
+            continue
+        stats[base]["total"] += 1
+        status = str(row.get("status", ""))
+        if status in {
+            "promoted_warm",
+            "retained_warm",
+            "retained_hot",
+            "retained_warm_passed",
+            "retained_hot_passed",
+            "passed_warm",
+            "passed_hot",
+        }:
+            stats[base]["promoted"] += 1
+        metrics = row.get("metrics", {}) if isinstance(row.get("metrics"), dict) else {}
+        ret = float(metrics.get("return_pct", 0.0) or 0.0)
+        losses = int(metrics.get("losses", 0) or 0)
+        trades = int(metrics.get("trades", 0) or 0)
+        if ret > 0:
+            stats[base]["positive"] += 1
+        if ret > 0 and losses <= 0 and trades >= max(1, RETUNE_MIN_TRADES):
+            stats[base]["strict_positive"] += 1
+
+    if not any(v["total"] > 0 for v in stats.values()):
+        return {}
+
+    min_per = max(1, int(ADAPTIVE_MIN_PER_STRATEGY))
+    if min_per * len(bases) > 100:
+        min_per = max(1, 100 // max(1, len(bases)))
+
+    weights = {}
+    for base in bases:
+        total = max(1, int(stats[base]["total"] or 0))
+        promoted_rate = float(stats[base]["promoted"]) / total
+        positive_rate = float(stats[base]["positive"]) / total
+        strict_positive_rate = float(stats[base]["strict_positive"]) / total
+        weights[base] = (
+            0.12
+            + promoted_rate * 0.60
+            + strict_positive_rate * 0.20
+            + positive_rate * 0.08
+        )
+
+    counts = {base: min_per for base in bases}
+    remaining = max(0, 100 - sum(counts.values()))
+    total_weight = sum(max(1e-6, weights[base]) for base in bases)
+    for base in bases:
+        share = (max(1e-6, weights[base]) / total_weight) * remaining
+        counts[base] += int(share)
+
+    while sum(counts.values()) < 100:
+        base = max(bases, key=lambda b: (weights[b], -counts[b]))
+        counts[base] += 1
+    while sum(counts.values()) > 100:
+        base = min(
+            (b for b in bases if counts[b] > min_per),
+            key=lambda b: (weights[b], counts[b]),
+            default=None,
+        )
+        if base is None:
+            break
+        counts[base] -= 1
+
+    return counts
+
+
 def _grid_combinations(grid):
     keys = list(grid.keys())
     value_lists = [grid[k] for k in keys]
@@ -279,7 +376,24 @@ def _grid_combinations(grid):
         yield {k: v for k, v in zip(keys, values)}
 
 
-def build_100_experiments(priority_pairs=None, market_universe=None, strategy_count_overrides=None):
+def _normalize_tag(value):
+    raw = str(value or "").strip().lower()
+    if not raw:
+        return ""
+    cleaned = "".join(ch if ch.isalnum() else "_" for ch in raw)
+    return cleaned.strip("_")
+
+
+def _resolve_run_tag(batch_config):
+    configured = _normalize_tag(RUN_TAG_ENV or batch_config.get("run_tag"))
+    if configured:
+        return configured
+    if UNIQUE_STRATEGY_NAMES:
+        return datetime.now(timezone.utc).strftime("r%Y%m%d%H%M%S")
+    return _normalize_tag(batch_config.get("active_batch_id"))
+
+
+def build_100_experiments(priority_pairs=None, market_universe=None, strategy_count_overrides=None, run_tag=""):
     """Build exactly 100 experiments with region + market assignments."""
     priority_pairs = [str(p).upper() for p in (priority_pairs or []) if p]
     market_base = market_universe or MARKET_UNIVERSE
@@ -309,17 +423,22 @@ def build_100_experiments(priority_pairs=None, market_universe=None, strategy_co
             params = combos[i % len(combos)]
             market = market_universe[market_idx % len(market_universe)]
             region = SERVER_REGIONS[region_idx % len(SERVER_REGIONS)]
+            strategy_name_core = f"{spec['base_name']}_q100_{idx:03d}"
+            strategy_name = strategy_name_core if not run_tag else f"{strategy_name_core}_{run_tag}"
+            exp_id = f"Q100-{idx:03d}" if not run_tag else f"Q100-{run_tag}-{idx:03d}"
 
             exp = {
-                "id": f"Q100-{idx:03d}",
+                "id": exp_id,
                 "strategy_base": spec["base_name"],
-                "strategy_name": f"{spec['base_name']}_q100_{idx:03d}",
+                "strategy_name_core": strategy_name_core,
+                "strategy_name": strategy_name,
                 "params": params,
                 "pair": market["pair"],
                 "market": market["market"],
                 "vol_bucket": market["vol_bucket"],
                 "target_region": region[0],
                 "region_rationale": region[1],
+                "run_tag": run_tag,
                 "status": "planned",
             }
             experiments.append(exp)
@@ -497,6 +616,12 @@ def run_experiments(experiments, hours=BACKTEST_HOURS, granularity=BACKTEST_GRAN
 
     for exp in experiments:
         pair = exp["pair"]
+        prior_stage_row = validator.db.execute(
+            "SELECT stage FROM strategy_registry WHERE name=? AND pair=?",
+            (exp["strategy_name"], pair),
+        ).fetchone()
+        prior_stage = str(prior_stage_row["stage"] if prior_stage_row and prior_stage_row["stage"] else "COLD").upper()
+
         candles = pair_cache.get(pair)
         if candles is None:
             candles, _ = _fetch_candles(prices, pair, hours=hours, granularity=granularity)
@@ -603,6 +728,11 @@ def run_experiments(experiments, hours=BACKTEST_HOURS, granularity=BACKTEST_GRAN
         bt_for_gate["walkforward"] = walkforward
         passed, gate_msg = validator.submit_backtest(strategy.name, pair, bt_for_gate)
         budget_profile = validator.get_budget_profile(strategy.name, pair)
+        post_stage_row = validator.db.execute(
+            "SELECT stage FROM strategy_registry WHERE name=? AND pair=?",
+            (exp["strategy_name"], pair),
+        ).fetchone()
+        post_stage = str(post_stage_row["stage"] if post_stage_row and post_stage_row["stage"] else prior_stage).upper()
 
         if passed:
             budget = {
@@ -612,7 +742,18 @@ def run_experiments(experiments, hours=BACKTEST_HOURS, granularity=BACKTEST_GRAN
             }
         else:
             budget = {"starter_budget_usd": 0.0, "tier": "none", "max_budget_usd": 0.0}
-        status = "promoted_warm" if passed else "rejected_cold"
+        if prior_stage in {"WARM", "HOT"} and post_stage == prior_stage:
+            status = (
+                f"retained_{prior_stage.lower()}_passed"
+                if passed
+                else f"retained_{prior_stage.lower()}_failed"
+            )
+        elif passed and post_stage == "WARM":
+            status = "promoted_warm"
+        elif passed:
+            status = f"passed_{post_stage.lower()}"
+        else:
+            status = "rejected_cold"
 
         rec = dict(exp)
         rec.update({
@@ -635,6 +776,8 @@ def run_experiments(experiments, hours=BACKTEST_HOURS, granularity=BACKTEST_GRAN
             "walkforward": walkforward,
             "budget": budget,
             "risk_profile": budget_profile,
+            "prior_stage": prior_stage,
+            "post_stage": post_stage,
         })
         results.append(rec)
 
@@ -658,6 +801,12 @@ def summarize(results):
     promoted = [r for r in results if r.get("status") == "promoted_warm"]
     rejected = [r for r in results if r.get("status") == "rejected_cold"]
     no_data = [r for r in results if r.get("status") == "no_data"]
+    retained_warm = [r for r in results if str(r.get("status", "")).startswith("retained_warm")]
+    retained_hot = [r for r in results if str(r.get("status", "")).startswith("retained_hot")]
+    retained_warm_passed = [r for r in results if r.get("status") == "retained_warm_passed"]
+    retained_warm_failed = [r for r in results if r.get("status") == "retained_warm_failed"]
+    retained_hot_passed = [r for r in results if r.get("status") == "retained_hot_passed"]
+    retained_hot_failed = [r for r in results if r.get("status") == "retained_hot_failed"]
     wf_available = [r for r in results if isinstance(r.get("walkforward"), dict) and r["walkforward"].get("available")]
     wf_positive_oos = [
         r for r in wf_available
@@ -690,6 +839,12 @@ def summarize(results):
         "promoted_warm": len(promoted),
         "rejected_cold": len(rejected),
         "no_data": len(no_data),
+        "retained_warm": len(retained_warm),
+        "retained_hot": len(retained_hot),
+        "retained_warm_passed": len(retained_warm_passed),
+        "retained_warm_failed": len(retained_warm_failed),
+        "retained_hot_passed": len(retained_hot_passed),
+        "retained_hot_failed": len(retained_hot_failed),
         "avg_starter_budget_usd": avg_budget,
         "total_starter_budget_usd": total_budget,
         "retuned_low_activity": retuned,
@@ -721,6 +876,8 @@ def main():
         print(f"Promoted WARM: {summary.get('promoted_warm', 0)}")
         print(f"Rejected COLD: {summary.get('rejected_cold', 0)}")
         print(f"No data: {summary.get('no_data', 0)}")
+        print(f"Retained WARM: {summary.get('retained_warm', 0)}")
+        print(f"Retained HOT: {summary.get('retained_hot', 0)}")
         print(f"Avg budget: ${summary.get('avg_starter_budget_usd', 0):.2f}")
         print(f"Total starter budget: ${summary.get('total_starter_budget_usd', 0):.2f}")
         print(f"Retuned low activity: {summary.get('retuned_low_activity', 0)}")
@@ -731,6 +888,7 @@ def main():
         prices, hours=BACKTEST_HOURS, granularity=BACKTEST_GRANULARITY
     )
     batch_config = _load_batch_config()
+    run_tag = _resolve_run_tag(batch_config)
     discovered_priority_pairs = [m["pair"] for m in market_discovery.get("selected", [])]
     config_priority_pairs = [str(p).upper() for p in batch_config.get("priority_pairs", []) if p]
     merged_priority_pairs = []
@@ -739,17 +897,22 @@ def main():
             merged_priority_pairs.append(pair)
 
     strategy_count_overrides = {}
+    adaptive_strategy_overrides = {}
     if bool(batch_config.get("active")) and isinstance(batch_config.get("strategy_count_overrides"), dict):
         strategy_count_overrides = {
             str(k): int(v)
             for k, v in batch_config.get("strategy_count_overrides", {}).items()
             if isinstance(v, (int, float))
         }
+    if not strategy_count_overrides:
+        adaptive_strategy_overrides = _derive_adaptive_strategy_overrides()
+        strategy_count_overrides = dict(adaptive_strategy_overrides)
 
     experiments = build_100_experiments(
         priority_pairs=merged_priority_pairs,
         market_universe=market_universe,
         strategy_count_overrides=strategy_count_overrides,
+        run_tag=run_tag,
     )
     save_json(PLAN_FILE, {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -762,6 +925,10 @@ def main():
             "retune_min_trades": RETUNE_MIN_TRADES,
             "batch_config_active": bool(batch_config.get("active")),
             "batch_config_id": batch_config.get("active_batch_id"),
+            "run_tag": run_tag,
+            "unique_strategy_names": UNIQUE_STRATEGY_NAMES,
+            "adaptive_strategy_split": ADAPTIVE_STRATEGY_SPLIT,
+            "adaptive_strategy_overrides": adaptive_strategy_overrides,
             "strategy_count_overrides": strategy_count_overrides,
             "priority_pairs": merged_priority_pairs,
         },
@@ -796,6 +963,10 @@ def main():
             "retune_min_trades": RETUNE_MIN_TRADES,
             "batch_config_active": bool(batch_config.get("active")),
             "batch_config_id": batch_config.get("active_batch_id"),
+            "run_tag": run_tag,
+            "unique_strategy_names": UNIQUE_STRATEGY_NAMES,
+            "adaptive_strategy_split": ADAPTIVE_STRATEGY_SPLIT,
+            "adaptive_strategy_overrides": adaptive_strategy_overrides,
             "strategy_count_overrides": strategy_count_overrides,
             "priority_pairs": merged_priority_pairs,
         },
@@ -812,6 +983,8 @@ def main():
     print(f"Promoted to WARM: {summary['promoted_warm']}")
     print(f"Rejected in COLD: {summary['rejected_cold']}")
     print(f"No data: {summary['no_data']}")
+    print(f"Retained WARM: {summary.get('retained_warm', 0)}")
+    print(f"Retained HOT: {summary.get('retained_hot', 0)}")
     print(f"Avg starter budget: ${summary['avg_starter_budget_usd']:.2f}")
     print(f"Total starter budget: ${summary['total_starter_budget_usd']:.2f}")
     print(f"Retuned low activity: {summary['retuned_low_activity']}")

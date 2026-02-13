@@ -1,0 +1,6 @@
+https://github.com/openclaw/openclaw
+
+INSTALL AND RUN THIS TO BE USED AS A TOOL. PLACE IT IN A VM
+
+Local safe integration checks:
+python3.11 tools/safe_integration/integration_guard.py

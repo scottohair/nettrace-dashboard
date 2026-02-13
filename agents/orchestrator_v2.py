@@ -31,13 +31,17 @@ import sqlite3
 import subprocess
 import sys
 import time
+import uuid
+import fcntl
+import importlib.util
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+BASE_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(BASE_DIR))
 
 # Load .env
-_env_path = Path(__file__).parent / ".env"
+_env_path = BASE_DIR / ".env"
 if _env_path.exists():
     for line in _env_path.read_text().splitlines():
         line = line.strip()
@@ -50,14 +54,36 @@ logging.basicConfig(
     format="%(asctime)s [ORCH] %(levelname)s %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(str(Path(__file__).parent / "orchestrator.log")),
+        logging.FileHandler(str(BASE_DIR / "orchestrator.log")),
     ]
 )
 logger = logging.getLogger("orchestrator_v2")
 
-AGENTS_DIR = str(Path(__file__).parent)
-PID_FILE = str(Path(__file__).parent / "orchestrator.pid")
-ORCH_DB = str(Path(__file__).parent / "orchestrator.db")
+AGENTS_DIR = str(BASE_DIR)
+PID_FILE = str(BASE_DIR / "orchestrator.pid")
+ORCH_DB = str(BASE_DIR / "orchestrator.db")
+LOCK_FILE = str(BASE_DIR / "orchestrator.lock")
+ORCH_OWNER_ENV = "ORCHESTRATOR_OWNER_ID"
+ORCH_SINGLE_ROOT_ENFORCE = os.environ.get("ORCH_SINGLE_ROOT_ENFORCE", "1").lower() not in ("0", "false", "no")
+ORCH_RECLAIM_STRAYS = os.environ.get("ORCH_RECLAIM_STRAYS", "1").lower() not in ("0", "false", "no")
+ORCH_RECONCILE_INTERVAL_SECONDS = int(os.environ.get("ORCH_RECONCILE_INTERVAL_SECONDS", "180"))
+ORCH_INTEGRATION_GUARD_ENABLED = os.environ.get("ORCH_INTEGRATION_GUARD_ENABLED", "1").lower() not in ("0", "false", "no")
+ORCH_INTEGRATION_GUARD_INTERVAL_SECONDS = int(os.environ.get("ORCH_INTEGRATION_GUARD_INTERVAL_SECONDS", "300"))
+ORCH_INTEGRATION_GUARD_FAIL_OPEN = os.environ.get("ORCH_INTEGRATION_GUARD_FAIL_OPEN", "0").lower() in ("1", "true", "yes")
+ORCH_GUARDED_GROWTH_AGENTS = os.environ.get("ORCH_GUARDED_GROWTH_AGENTS", "flywheel_controller")
+DNS_FAILOVER_RUNTIME_DEFAULTS = {
+    "COINBASE_DNS_FAILOVER_ENABLED": "1",
+    "COINBASE_DNS_FAILOVER_PROFILE": "system_then_fallback",
+    "COINBASE_DNS_FAILOVER_MAX_CANDIDATES": "8",
+    "COINBASE_DNS_DEGRADED_TTL_SECONDS": "180",
+    "COINBASE_CIRCUIT_FAIL_THRESHOLD": "3",
+    "COINBASE_CIRCUIT_OPEN_SECONDS": "30",
+    "COINBASE_CIRCUIT_REOPEN_HEALTH_SCOPE": "dns",
+    "COINBASE_CIRCUIT_REOPEN_HEALTH_PATH": str(BASE_DIR / "execution_health_status.json"),
+    "COINBASE_CIRCUIT_REOPEN_HEALTH_MAX_AGE_SECONDS": "180",
+    "COINBASE_CIRCUIT_REOPEN_BACKOFF_SECONDS": "10",
+    "COINBASE_CIRCUIT_REOPEN_HEALTH_CACHE_SECONDS": "15",
+}
 
 # Risk limits — NEVER violate
 HARDSTOP_FLOOR_USD = 500.00   # ABSOLUTE FLOOR — kill everything if portfolio drops below this
@@ -70,10 +96,13 @@ WALLET_CHAINS = ["ethereum", "base", "arbitrum", "polygon"]
 
 # Bridge-in-transit tracking — prevents false HARDSTOP during L1→L2 bridges
 # Each entry: {"chain": "base", "amount_usd": 62.58, "amount_eth": 0.0326, "timestamp": unix, "tx_hash": "0x..."}
-PENDING_BRIDGES_FILE = str(Path(__file__).parent / "pending_bridges.json")
+PENDING_BRIDGES_FILE = str(BASE_DIR / "pending_bridges.json")
+INTEGRATION_GUARD_SCRIPT = BASE_DIR.parent / "tools" / "safe_integration" / "integration_guard.py"
+INTEGRATION_GUARD_STATUS_FILE = BASE_DIR / "integration_guard_status.json"
 
 # Drawdown sanity check — if portfolio drops more than this in one check, verify before HARDSTOP
 MAX_SANE_SINGLE_DROP_PCT = 0.40  # 40% drop in 5 minutes is suspicious, verify first
+MAX_ZERO_SNAPSHOT_GRACE_CYCLES = int(os.environ.get("ORCH_ZERO_SNAPSHOT_GRACE_CYCLES", "3") or 3)
 
 # Timing
 HEALTH_CHECK_INTERVAL = 30    # seconds
@@ -123,12 +152,28 @@ AGENT_CONFIGS = [
         "description": "High-confidence stacked-signal sniper (90%+ conf)",
     },
     {
+        "name": "exit_manager",
+        "script": "exit_manager.py",
+        "args": ["monitor"],
+        "enabled": True,
+        "critical": False,
+        "description": "Centralized exit manager to drive SELL-close completion and realized PnL evidence.",
+    },
+    {
         "name": "meta_engine",
         "script": "meta_engine.py",
         "args": [],
         "enabled": True,
         "critical": False,
         "description": "Autonomous strategy evolution engine",
+    },
+    {
+        "name": "flywheel_controller",
+        "script": "flywheel_controller.py",
+        "args": [],
+        "enabled": True,
+        "critical": True,
+        "description": "Always-on growth flywheel: quant cycles, audit gating, reserve targets, and Claude updates",
     },
     {
         "name": "capital_allocator",
@@ -238,6 +283,70 @@ AGENT_CONFIGS = [
         "description": "Cross-exchange price arb (5 exchanges). DETERMINISTIC: "
                        "spread > fees = trade. No confidence gate.",
     },
+    {
+        "name": "oil_market",
+        "script": "oil_market_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Oil regime proxy + spread signal agent (paper-first, IBKR live optional).",
+    },
+    {
+        "name": "multi_hop_arb",
+        "script": "multi_hop_arb_engine.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Advanced deterministic multi-hop arbitrage route engine with no-loss gating.",
+    },
+    {
+        "name": "mcp_opportunity",
+        "script": "mcp_opportunity_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "MCP/web opportunity scanner and ranking engine; publishes exit hints + Claude digests.",
+    },
+    {
+        "name": "treasury_registry",
+        "script": "treasury_registry_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Treasury wallet/connector retrievability registry and reserve state snapshots.",
+    },
+    {
+        "name": "deployment_optimizer",
+        "script": "deployment_optimizer_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Latency + credential + DNS aware region deployment optimizer and migration planner.",
+    },
+    {
+        "name": "fly_migration",
+        "script": "fly_migration_controller.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Fly migration control plane for quant agents + clawdbot instances across regions.",
+    },
+    {
+        "name": "quant_company",
+        "script": "quant_company_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Company control plane: migration strategy, market strategy, GTM readiness, and target tracking.",
+    },
+    {
+        "name": "hf_execution",
+        "script": "hf_execution_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "High-frequency execution lane (sub-second scanner + native fast-path scoring).",
+    },
 ]
 
 
@@ -251,11 +360,33 @@ class OrchestratorV2:
         self.db.row_factory = sqlite3.Row
         self._init_db()
         self.running = True
+        self.owner_id = f"{os.getpid()}-{uuid.uuid4().hex[:10]}"
+        self._lock_fh = None
+        self._last_reconcile = 0.0
         # Auto-detect starting capital from DB or live portfolio
         start = self._get_starting_capital()
         self.peak_portfolio = start
         self.daily_pnl_start = None
         self._last_portfolio_total = start  # sanity check baseline
+        self._zero_snapshot_streak = 0
+        self.guard_enabled = bool(ORCH_INTEGRATION_GUARD_ENABLED)
+        self.guard_fail_open = bool(ORCH_INTEGRATION_GUARD_FAIL_OPEN)
+        self.guard_interval_seconds = max(30, int(ORCH_INTEGRATION_GUARD_INTERVAL_SECONDS))
+        self.guarded_growth_agents = {
+            token.strip()
+            for token in str(ORCH_GUARDED_GROWTH_AGENTS).split(",")
+            if token.strip()
+        }
+        self._guard_runner = None
+        self._last_guard_check = 0.0
+        self.guard_status = {
+            "ready_for_staged_rollout": not self.guard_enabled,
+            "required_failures": [],
+            "checks": [],
+            "checked_at": "",
+            "guard_enabled": self.guard_enabled,
+            "guarded_agents": sorted(self.guarded_growth_agents),
+        }
 
     def _get_starting_capital(self):
         """Get starting capital from DB history (no more hardcoding)."""
@@ -301,6 +432,113 @@ class OrchestratorV2:
             pass
         logger.warning("Could not auto-detect starting capital, using $30")
         return 30.0
+
+    def _load_guard_runner(self):
+        if self._guard_runner is not None:
+            return self._guard_runner
+        if not INTEGRATION_GUARD_SCRIPT.exists():
+            logger.error("Integration guard script missing: %s", INTEGRATION_GUARD_SCRIPT)
+            return None
+        try:
+            spec = importlib.util.spec_from_file_location("safe_integration_guard", str(INTEGRATION_GUARD_SCRIPT))
+            if spec is None or spec.loader is None:
+                raise RuntimeError("spec_not_loadable")
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[spec.name] = module
+            spec.loader.exec_module(module)
+            runner = getattr(module, "run_guard", None)
+            if not callable(runner):
+                raise RuntimeError("run_guard_not_callable")
+            self._guard_runner = runner
+            return runner
+        except Exception as e:
+            logger.error("Failed loading integration guard: %s", e)
+            return None
+
+    def _persist_guard_status(self, report):
+        try:
+            INTEGRATION_GUARD_STATUS_FILE.write_text(json.dumps(report, indent=2))
+        except Exception as e:
+            logger.debug("Failed writing integration guard status: %s", e)
+
+    def run_integration_guard(self, force=False):
+        if not self.guard_enabled:
+            return self.guard_status
+        now = time.time()
+        if (not force) and (now - self._last_guard_check < self.guard_interval_seconds):
+            return self.guard_status
+        self._last_guard_check = now
+
+        runner = self._load_guard_runner()
+        if runner is None:
+            report = {
+                "repo_root": str(BASE_DIR.parent),
+                "ready_for_staged_rollout": bool(self.guard_fail_open),
+                "required_failures": [] if self.guard_fail_open else ["integration_guard_unavailable"],
+                "checks": [],
+                "next_steps": [],
+            }
+        else:
+            try:
+                report = runner(BASE_DIR.parent)
+                if not isinstance(report, dict):
+                    raise RuntimeError("guard_runner_returned_non_dict")
+            except Exception as e:
+                report = {
+                    "repo_root": str(BASE_DIR.parent),
+                    "ready_for_staged_rollout": bool(self.guard_fail_open),
+                    "required_failures": [] if self.guard_fail_open else ["integration_guard_runtime_error"],
+                    "checks": [],
+                    "next_steps": [f"integration_guard_error={e}"],
+                }
+
+        report["checked_at"] = datetime.now(timezone.utc).isoformat()
+        report["guard_enabled"] = True
+        report["guard_fail_open"] = self.guard_fail_open
+        report["guarded_agents"] = sorted(self.guarded_growth_agents)
+        self.guard_status = report
+        self._persist_guard_status(report)
+
+        blockers = report.get("required_failures", [])
+        if report.get("ready_for_staged_rollout", False):
+            logger.info("Integration guard READY (guarded_agents=%s)", sorted(self.guarded_growth_agents))
+        else:
+            logger.warning("Integration guard BLOCKED: %s", blockers)
+        return report
+
+    def _guard_block_reason(self, name):
+        if not self.guard_enabled:
+            return ""
+        if name not in self.guarded_growth_agents:
+            return ""
+        ready = bool(self.guard_status.get("ready_for_staged_rollout", False))
+        if ready:
+            return ""
+        blockers = self.guard_status.get("required_failures", [])
+        if isinstance(blockers, list) and blockers:
+            return f"integration_guard_blocked:{','.join(str(b) for b in blockers[:4])}"
+        return "integration_guard_blocked"
+
+    def _start_deferred_guarded_agents(self):
+        if not self.guard_enabled:
+            return 0
+        if not bool(self.guard_status.get("ready_for_staged_rollout", False)):
+            return 0
+        started = 0
+        for config in AGENT_CONFIGS:
+            name = config["name"]
+            if not config.get("enabled", False):
+                continue
+            if name not in self.guarded_growth_agents:
+                continue
+            current = self.agents.get(name)
+            if current and current.get("process") and current["process"].poll() is None:
+                continue
+            logger.info("Integration guard now READY; starting deferred guarded agent '%s'", name)
+            if self.start_agent(config):
+                started += 1
+                time.sleep(0.5)
+        return started
 
     def record_capital_event(self, event_type, amount_usd, tx_hash=None, note=None):
         """Record a deposit, withdrawal, or adjustment to capital tracking."""
@@ -409,20 +647,163 @@ class OrchestratorV2:
         except FileNotFoundError:
             pass
 
+    def _acquire_lock(self):
+        """Acquire singleton lock so only one orchestrator instance can run."""
+        if not ORCH_SINGLE_ROOT_ENFORCE:
+            return True
+        Path(LOCK_FILE).parent.mkdir(parents=True, exist_ok=True)
+        fh = open(LOCK_FILE, "a+")
+        try:
+            fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            fh.seek(0)
+            holder = fh.read().strip()
+            logger.error("Another orchestrator appears active (lock holder: %s)", holder or "unknown")
+            fh.close()
+            return False
+
+        fh.seek(0)
+        fh.truncate()
+        fh.write(
+            json.dumps(
+                {
+                    "pid": os.getpid(),
+                    "owner_id": self.owner_id,
+                    "started_at": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+        )
+        fh.flush()
+        self._lock_fh = fh
+        return True
+
+    def _release_lock(self):
+        if self._lock_fh is None:
+            return
+        try:
+            fcntl.flock(self._lock_fh.fileno(), fcntl.LOCK_UN)
+        except Exception:
+            pass
+        try:
+            self._lock_fh.close()
+        except Exception:
+            pass
+        self._lock_fh = None
+
+    def _known_agent_pids(self):
+        pids = set()
+        for agent in self.agents.values():
+            proc = agent.get("process")
+            if not proc:
+                continue
+            if proc.poll() is None and proc.pid:
+                pids.add(int(proc.pid))
+        return pids
+
+    def _discover_script_pids(self, script_relpath):
+        """Return all PIDs currently running the given agent script path."""
+        script_abs = str((BASE_DIR / script_relpath).resolve())
+        try:
+            res = subprocess.run(
+                ["ps", "-ax", "-o", "pid=,command="],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except Exception:
+            return []
+        pids = []
+        for line in (res.stdout or "").splitlines():
+            line = line.strip()
+            if not line or script_abs not in line:
+                continue
+            parts = line.split(None, 1)
+            if not parts:
+                continue
+            try:
+                pid = int(parts[0])
+            except Exception:
+                continue
+            if pid == os.getpid():
+                continue
+            pids.append(pid)
+        return sorted(set(pids))
+
+    @staticmethod
+    def _terminate_pid(pid, reason="reconcile"):
+        try:
+            os.kill(int(pid), signal.SIGTERM)
+            logger.warning("Terminated stray PID %s (%s)", pid, reason)
+            return True
+        except Exception:
+            return False
+
+    def _reconcile_stray_processes(self):
+        """Enforce one process per agent script to prevent duplicate traders."""
+        if not ORCH_SINGLE_ROOT_ENFORCE:
+            return
+        now = time.time()
+        if now - self._last_reconcile < max(30, ORCH_RECONCILE_INTERVAL_SECONDS):
+            return
+        self._last_reconcile = now
+
+        known = self._known_agent_pids()
+        for cfg in AGENT_CONFIGS:
+            if not cfg.get("enabled", False):
+                continue
+            pids = self._discover_script_pids(cfg["script"])
+            external = [pid for pid in pids if pid not in known]
+            if not external:
+                continue
+            if ORCH_RECLAIM_STRAYS:
+                for pid in external:
+                    self._terminate_pid(pid, reason=f"single_root:{cfg['name']}")
+            else:
+                logger.warning(
+                    "Detected external process(es) for %s not owned by orchestrator: %s",
+                    cfg["name"],
+                    external,
+                )
+
     def start_agent(self, config):
         """Start a single agent as a subprocess."""
         name = config["name"]
         script = os.path.join(AGENTS_DIR, config["script"])
+        guard_block_reason = self._guard_block_reason(name)
+        if guard_block_reason:
+            logger.warning("Blocking guarded agent '%s': %s", name, guard_block_reason)
+            self._record_agent_status(name, "guard_blocked", error=guard_block_reason)
+            return False
 
         if not os.path.exists(script):
             logger.error("Agent script not found: %s", script)
             return False
 
         cmd = [sys.executable, script] + config.get("args", [])
+        known = self._known_agent_pids()
+        discovered = self._discover_script_pids(config["script"])
+        external = [pid for pid in discovered if pid not in known]
+        if external:
+            if ORCH_RECLAIM_STRAYS:
+                for pid in external:
+                    self._terminate_pid(pid, reason=f"reclaim_before_start:{name}")
+                time.sleep(0.2)
+            else:
+                logger.warning(
+                    "Skipping start for %s due to external process conflict: %s",
+                    name,
+                    external,
+                )
+                self._record_agent_status(name, "external_conflict", error=f"pids={external}")
+                return False
 
         try:
             log_path = os.path.join(AGENTS_DIR, f"{name}_stdout.log")
             log_file = open(log_path, "a")
+            child_env = os.environ.copy()
+            for env_key, env_val in DNS_FAILOVER_RUNTIME_DEFAULTS.items():
+                child_env.setdefault(env_key, str(env_val))
+            child_env[ORCH_OWNER_ENV] = self.owner_id
 
             proc = subprocess.Popen(
                 cmd,
@@ -430,6 +811,7 @@ class OrchestratorV2:
                 stderr=subprocess.STDOUT,
                 cwd=AGENTS_DIR,
                 start_new_session=True,
+                env=child_env,
             )
 
             self.agents[name] = {
@@ -452,6 +834,8 @@ class OrchestratorV2:
     def start_all(self):
         """Start all enabled agents."""
         logger.info("Starting all agents...")
+        self.run_integration_guard(force=True)
+        self._reconcile_stray_processes()
         started = 0
         for config in AGENT_CONFIGS:
             if config["enabled"]:
@@ -491,6 +875,7 @@ class OrchestratorV2:
 
     def health_check(self):
         """Check all agents are alive. Restart crashed ones."""
+        self._reconcile_stray_processes()
         for name, agent in list(self.agents.items()):
             proc = agent["process"]
             if proc.poll() is not None:
@@ -554,27 +939,90 @@ class OrchestratorV2:
         except Exception:
             pass
 
+    def _portfolio_snapshot_fallback(self):
+        """Get latest non-zero portfolio snapshot from DB as API fallback."""
+        try:
+            row = self.db.execute(
+                """
+                SELECT total_value_usd, available_cash, held_in_orders, holdings_json
+                FROM portfolio_history
+                WHERE total_value_usd > 0
+                ORDER BY id DESC
+                LIMIT 1
+                """
+            ).fetchone()
+            if not row:
+                return None
+            holdings = {}
+            try:
+                holdings = json.loads(row["holdings_json"] or "{}")
+                if not isinstance(holdings, dict):
+                    holdings = {}
+            except Exception:
+                holdings = {}
+            return {
+                "total_usd": float(row["total_value_usd"] or 0.0),
+                "available_cash": float(row["available_cash"] or 0.0),
+                "held_in_orders": float(row["held_in_orders"] or 0.0),
+                "holdings": holdings,
+                "source": "portfolio_history_fallback",
+            }
+        except Exception:
+            return None
+
+    def _last_nonzero_total_usd(self):
+        """Return last recorded non-zero portfolio total from history."""
+        try:
+            row = self.db.execute(
+                """
+                SELECT total_value_usd
+                FROM portfolio_history
+                WHERE total_value_usd > 0
+                ORDER BY id DESC
+                LIMIT 1
+                """
+            ).fetchone()
+            if not row:
+                return 0.0
+            return float(row["total_value_usd"] or 0.0)
+        except Exception:
+            return 0.0
+
     def check_portfolio(self):
         """Monitor combined portfolio value (Coinbase + wallet) and enforce risk limits.
 
         Bridge-aware: includes pending bridge deposits in total to prevent false HARDSTOP.
         Sanity-check: verifies sudden large drops before triggering HARDSTOP.
         """
+        tools = None
         try:
             from agent_tools import AgentTools
             tools = AgentTools()
             portfolio = tools.get_portfolio()
         except Exception as e:
             logger.error("Portfolio check failed: %s", e)
-            return
+            portfolio = self._portfolio_snapshot_fallback()
+            if not portfolio:
+                return
+            logger.warning("Using portfolio fallback snapshot: $%.2f", portfolio["total_usd"])
 
-        total = portfolio["total_usd"]
-        available = portfolio["available_cash"]
-        held = portfolio["held_in_orders"]
+        total = float(portfolio.get("total_usd", 0.0) or 0.0)
+        available = float(portfolio.get("available_cash", 0.0) or 0.0)
+        held = float(portfolio.get("held_in_orders", 0.0) or 0.0)
+        holdings = portfolio.get("holdings", {}) if isinstance(portfolio.get("holdings"), dict) else {}
+        if total <= 0 and not holdings:
+            fallback = self._portfolio_snapshot_fallback()
+            if fallback:
+                total = float(fallback["total_usd"])
+                available = float(fallback["available_cash"])
+                held = float(fallback["held_in_orders"])
+                holdings = fallback["holdings"]
+                portfolio["holdings"] = holdings
+                logger.warning("Live balances unavailable; using fallback portfolio snapshot $%.2f", total)
 
         # Include wallet balances if configured
         wallet_total = 0
-        if WALLET_ADDRESS:
+        if WALLET_ADDRESS and tools is not None:
             try:
                 wallet_data = tools.get_multi_chain_balances(WALLET_ADDRESS, WALLET_CHAINS)
                 wallet_total = wallet_data.get("total_usd", 0)
@@ -593,23 +1041,47 @@ class OrchestratorV2:
             logger.info("Bridge in-transit: $%.2f (%d pending)", bridge_total, len(pending_bridges))
 
         # ── SANITY CHECK: detect suspicious drops before updating peak ──
-        # If portfolio drops >40% in one check cycle, it's likely a data issue
-        # (bridge not yet credited, RPC failure returning 0, etc.)
-        if hasattr(self, '_last_portfolio_total') and self._last_portfolio_total > 0:
-            drop_pct = (self._last_portfolio_total - total) / self._last_portfolio_total
+        # Use persisted fallback baseline too, so restart + transient API zeros don't hardstop.
+        prev_total = float(getattr(self, "_last_portfolio_total", 0.0) or 0.0)
+        if prev_total <= 0.0:
+            prev_total = self._last_nonzero_total_usd()
+
+        if total <= 0.0 and prev_total > 0.0:
+            self._zero_snapshot_streak = int(getattr(self, "_zero_snapshot_streak", 0)) + 1
+            if self._zero_snapshot_streak <= max(1, int(MAX_ZERO_SNAPSHOT_GRACE_CYCLES)):
+                logger.warning(
+                    "SANITY CHECK: zero portfolio snapshot while baseline is $%.2f "
+                    "(grace %d/%d). Skipping risk check.",
+                    prev_total,
+                    self._zero_snapshot_streak,
+                    max(1, int(MAX_ZERO_SNAPSHOT_GRACE_CYCLES)),
+                )
+                self._log_risk_event(
+                    "sanity_check_skip",
+                    f"Zero snapshot guarded by grace window: baseline ${prev_total:.2f}, streak {self._zero_snapshot_streak}",
+                    "risk_check_skipped",
+                )
+                self._last_portfolio_total = prev_total
+                return
+        else:
+            self._zero_snapshot_streak = 0
+
+        if prev_total > 0.0:
+            drop_pct = (prev_total - total) / prev_total
             if drop_pct > MAX_SANE_SINGLE_DROP_PCT:
                 logger.warning(
                     "SANITY CHECK: Portfolio dropped %.1f%% in one cycle ($%.2f → $%.2f). "
                     "Likely data issue (bridge transit, RPC failure). Skipping risk check.",
-                    drop_pct * 100, self._last_portfolio_total, total
+                    drop_pct * 100,
+                    prev_total,
+                    total,
                 )
                 self._log_risk_event(
                     "sanity_check_skip",
-                    f"Suspicious {drop_pct*100:.0f}% drop: ${self._last_portfolio_total:.2f} → ${total:.2f}",
-                    "risk_check_skipped"
+                    f"Suspicious {drop_pct*100:.0f}% drop: ${prev_total:.2f} → ${total:.2f}",
+                    "risk_check_skipped",
                 )
-                # Still record the snapshot for debugging, but DON'T trigger HARDSTOP
-                self._last_portfolio_total = total
+                self._last_portfolio_total = prev_total
                 return
 
         self._last_portfolio_total = total
@@ -658,7 +1130,8 @@ class OrchestratorV2:
                 snapshot["wallet_total_usd"] = round(wallet_total, 2)
             if bridge_total > 0:
                 snapshot["bridge_in_transit_usd"] = round(bridge_total, 2)
-            tools.push_to_dashboard(snapshot)
+            if tools is not None:
+                tools.push_to_dashboard(snapshot)
         except Exception:
             pass
 
@@ -756,6 +1229,17 @@ class OrchestratorV2:
                   f"DD: {recent['drawdown_pct']:.1f}% | "
                   f"Peak: ${recent['peak_value']:.2f}")
 
+        if self.guard_enabled:
+            guard_ready = bool(self.guard_status.get("ready_for_staged_rollout", False))
+            guard_checked = self.guard_status.get("checked_at", "")
+            failures = self.guard_status.get("required_failures", [])
+            print(
+                f"\n  Integration guard: {'READY' if guard_ready else 'BLOCKED'} "
+                f"(checked: {guard_checked or 'n/a'})"
+            )
+            if isinstance(failures, list) and failures:
+                print(f"  Guard blockers: {', '.join(str(x) for x in failures[:6])}")
+
         # Recent risk events
         events = self.db.execute(
             "SELECT * FROM risk_events ORDER BY id DESC LIMIT 5"
@@ -770,6 +1254,9 @@ class OrchestratorV2:
     def run(self):
         """Main orchestrator loop."""
         logger.info("Orchestrator V2 starting (PID %d)", os.getpid())
+        if not self._acquire_lock():
+            logger.error("Singleton lock acquisition failed; exiting")
+            return
         self.write_pid()
 
         # Handle signals
@@ -779,53 +1266,57 @@ class OrchestratorV2:
         signal.signal(signal.SIGTERM, handle_shutdown)
         signal.signal(signal.SIGINT, handle_shutdown)
 
-        # Start all agents
-        self.start_all()
+        try:
+            # Start all agents
+            self.start_all()
 
-        # Initial portfolio check
-        self.check_portfolio()
+            # Initial portfolio check
+            self.check_portfolio()
 
-        last_portfolio_check = time.time()
-        cycle = 0
+            last_portfolio_check = time.time()
+            cycle = 0
 
-        while self.running:
-            try:
-                cycle += 1
+            while self.running:
+                try:
+                    cycle += 1
+                    self.run_integration_guard(force=False)
+                    self._start_deferred_guarded_agents()
 
-                # Health check every 30s
-                self.health_check()
+                    # Health check every 30s
+                    self.health_check()
 
-                # Portfolio check every 5 min
-                if time.time() - last_portfolio_check >= PORTFOLIO_CHECK_INTERVAL:
-                    self.check_portfolio()
-                    last_portfolio_check = time.time()
+                    # Portfolio check every 5 min
+                    if time.time() - last_portfolio_check >= PORTFOLIO_CHECK_INTERVAL:
+                        self.check_portfolio()
+                        last_portfolio_check = time.time()
 
-                # Status print every 30 min (60 cycles * 30s)
-                if cycle % 60 == 0:
-                    self.print_status()
+                    # Status print every 30 min (60 cycles * 30s)
+                    if cycle % 60 == 0:
+                        self.print_status()
 
-                # Reset daily P&L at midnight UTC
-                now_utc = datetime.now(timezone.utc)
-                if now_utc.hour == 0 and now_utc.minute < 1:
-                    try:
-                        from agent_tools import AgentTools
-                        portfolio = AgentTools().get_portfolio()
-                        self.daily_pnl_start = portfolio["total_usd"]
-                        logger.info("Daily P&L reset at midnight UTC. Starting value: $%.2f",
-                                    self.daily_pnl_start)
-                    except Exception:
-                        pass
+                    # Reset daily P&L at midnight UTC
+                    now_utc = datetime.now(timezone.utc)
+                    if now_utc.hour == 0 and now_utc.minute < 1:
+                        try:
+                            from agent_tools import AgentTools
+                            portfolio = AgentTools().get_portfolio()
+                            self.daily_pnl_start = portfolio["total_usd"]
+                            logger.info("Daily P&L reset at midnight UTC. Starting value: $%.2f",
+                                        self.daily_pnl_start)
+                        except Exception:
+                            pass
 
-                time.sleep(HEALTH_CHECK_INTERVAL)
+                    time.sleep(HEALTH_CHECK_INTERVAL)
 
-            except Exception as e:
-                logger.error("Orchestrator error: %s", e, exc_info=True)
-                time.sleep(30)
-
-        # Shutdown
-        self.stop_all("orchestrator_exit")
-        self.remove_pid()
-        logger.info("Orchestrator V2 shutdown complete")
+                except Exception as e:
+                    logger.error("Orchestrator error: %s", e, exc_info=True)
+                    time.sleep(30)
+        finally:
+            # Shutdown
+            self.stop_all("orchestrator_exit")
+            self.remove_pid()
+            self._release_lock()
+            logger.info("Orchestrator V2 shutdown complete")
 
 
 def read_status():
@@ -880,6 +1371,22 @@ def read_status():
         for e in events:
             print(f"    [{e['recorded_at']}] {e['event_type']}: {e['details']}")
 
+    if INTEGRATION_GUARD_STATUS_FILE.exists():
+        try:
+            guard = json.loads(INTEGRATION_GUARD_STATUS_FILE.read_text())
+            if isinstance(guard, dict):
+                ready = bool(guard.get("ready_for_staged_rollout", False))
+                checked = str(guard.get("checked_at", "") or "n/a")
+                failures = guard.get("required_failures", [])
+                print(
+                    f"\n  Integration guard: {'READY' if ready else 'BLOCKED'} "
+                    f"(checked: {checked})"
+                )
+                if isinstance(failures, list) and failures:
+                    print(f"  Guard blockers: {', '.join(str(x) for x in failures[:6])}")
+        except Exception:
+            pass
+
     # Check if PID file exists and process is running
     if os.path.exists(PID_FILE):
         with open(PID_FILE) as f:
@@ -887,10 +1394,22 @@ def read_status():
         try:
             os.kill(pid, 0)
             print(f"\n  Orchestrator PID {pid} is RUNNING")
+        except PermissionError:
+            print(f"\n  Orchestrator PID {pid} appears RUNNING (permission-limited check)")
         except ProcessLookupError:
             print(f"\n  Orchestrator PID {pid} is DEAD (stale PID file)")
+            _cleanup_stale_lock_file(expected_pid=pid)
     else:
         print(f"\n  No PID file — orchestrator not running")
+        _cleanup_stale_lock_file(expected_pid=None)
+
+    if os.path.exists(LOCK_FILE):
+        try:
+            lock_meta = json.loads(Path(LOCK_FILE).read_text() or "{}")
+            if isinstance(lock_meta, dict) and lock_meta:
+                print(f"  Lock owner: pid={lock_meta.get('pid')} owner_id={lock_meta.get('owner_id')}")
+        except Exception:
+            pass
 
     print(f"{'='*70}\n")
     db.close()
@@ -900,6 +1419,7 @@ def stop_orchestrator():
     """Send SIGTERM to running orchestrator."""
     if not os.path.exists(PID_FILE):
         print("No PID file found. Orchestrator may not be running.")
+        _cleanup_stale_lock_file(expected_pid=None)
         return
 
     with open(PID_FILE) as f:
@@ -908,9 +1428,50 @@ def stop_orchestrator():
     try:
         os.kill(pid, signal.SIGTERM)
         print(f"Sent SIGTERM to orchestrator PID {pid}")
+    except PermissionError:
+        print(f"Permission denied signaling PID {pid}; leaving PID/lock files unchanged.")
     except ProcessLookupError:
         print(f"PID {pid} not found. Removing stale PID file.")
         os.remove(PID_FILE)
+        _cleanup_stale_lock_file(expected_pid=pid)
+
+
+def _pid_is_alive(pid):
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except Exception:
+        return False
+
+
+def _cleanup_stale_lock_file(expected_pid=None):
+    """Remove stale lock metadata if no live process owns it."""
+    if not os.path.exists(LOCK_FILE):
+        return False
+    try:
+        meta = json.loads(Path(LOCK_FILE).read_text() or "{}")
+    except Exception:
+        meta = {}
+    lock_pid = None
+    if isinstance(meta, dict):
+        try:
+            lock_pid = int(meta.get("pid"))
+        except Exception:
+            lock_pid = None
+    if lock_pid is not None and expected_pid is not None and int(lock_pid) != int(expected_pid):
+        return False
+    if lock_pid is not None and _pid_is_alive(lock_pid):
+        return False
+    try:
+        os.remove(LOCK_FILE)
+        print("Removed stale orchestrator lock file.")
+        return True
+    except Exception:
+        return False
 
 
 if __name__ == "__main__":

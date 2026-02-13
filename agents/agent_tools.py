@@ -35,6 +35,9 @@ TRADER_DB = str(Path(__file__).parent / "trader.db")
 NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 FLY_URL = "https://nettrace-dashboard.fly.dev"
 STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("0", "false", "no")
+ORDER_FILL_SYNC_ENABLED = os.environ.get("AGENT_ORDER_FILL_SYNC_ENABLED", "1").lower() not in ("0", "false", "no")
+ORDER_FILL_WAIT_SEC = float(os.environ.get("AGENT_ORDER_FILL_WAIT_SEC", "2.0") or 2.0)
+ORDER_FILL_POLL_SEC = float(os.environ.get("AGENT_ORDER_FILL_POLL_SEC", "0.4") or 0.4)
 
 try:
     from no_loss_policy import (
@@ -441,9 +444,30 @@ class AgentTools:
             market_regime=market_regime,
         )
         order_id = self._extract_order_id(result)
-
-        self.log_trade(agent_name, pair, "BUY", price, base_size, usd_cost, "limit", order_id,
-                       "placed" if order_id else "failed")
+        trade = {
+            "status": "failed",
+            "price": float(price),
+            "quantity": float(base_size),
+            "total_usd": float(usd_cost),
+        }
+        if order_id:
+            trade = self._resolve_order_fill(
+                order_id,
+                fallback_price=price,
+                fallback_quantity=base_size,
+                fallback_total_usd=usd_cost,
+            )
+        self.log_trade(
+            agent_name,
+            pair,
+            "BUY",
+            trade["price"],
+            trade["quantity"],
+            trade["total_usd"],
+            "limit",
+            order_id,
+            trade["status"],
+        )
         return order_id
 
     def place_limit_sell(
@@ -476,8 +500,30 @@ class AgentTools:
         order_id = self._extract_order_id(result)
 
         usd_value = base_size * price
-        self.log_trade(agent_name, pair, "SELL", price, base_size, usd_value, "limit", order_id,
-                       "placed" if order_id else "failed")
+        trade = {
+            "status": "failed",
+            "price": float(price),
+            "quantity": float(base_size),
+            "total_usd": float(usd_value),
+        }
+        if order_id:
+            trade = self._resolve_order_fill(
+                order_id,
+                fallback_price=price,
+                fallback_quantity=base_size,
+                fallback_total_usd=usd_value,
+            )
+        self.log_trade(
+            agent_name,
+            pair,
+            "SELL",
+            trade["price"],
+            trade["quantity"],
+            trade["total_usd"],
+            "limit",
+            order_id,
+            trade["status"],
+        )
         return order_id
 
     def cancel_order(self, order_id):
@@ -510,6 +556,139 @@ class AgentTools:
         if "order_id" in result:
             return result["order_id"]
         return None
+
+    @staticmethod
+    def _safe_float(value, default=0.0):
+        try:
+            return float(value)
+        except Exception:
+            return float(default)
+
+    @staticmethod
+    def _terminal_exchange_status(status):
+        return str(status or "").upper() in {"FILLED", "CANCELLED", "CANCELED", "EXPIRED", "FAILED", "REJECTED"}
+
+    @staticmethod
+    def _normalize_trade_status(status, filled_size=0.0):
+        raw = str(status or "").upper()
+        filled = float(filled_size or 0.0)
+        if raw == "FILLED":
+            return "filled"
+        if raw in {"CANCELLED", "CANCELED"}:
+            return "partially_filled" if filled > 0.0 else "cancelled"
+        if raw == "EXPIRED":
+            return "partially_filled" if filled > 0.0 else "expired"
+        if raw in {"FAILED", "REJECTED"}:
+            return "partially_filled" if filled > 0.0 else "failed"
+        if raw in {"OPEN", "PENDING", "NEW", "ACTIVE"}:
+            return "pending"
+        if filled > 0.0:
+            return "partially_filled"
+        return "pending"
+
+    def _fetch_order_fill_snapshot(self, order_id):
+        """Fetch a single order snapshot and parse fill data."""
+        if not order_id:
+            return None
+        try:
+            result = self.exchange._request("GET", f"/api/v3/brokerage/orders/historical/{order_id}")
+        except Exception:
+            return None
+        if not isinstance(result, dict):
+            return None
+        if "error" in result and "order" not in result:
+            return None
+        order = result.get("order", result)
+        if not isinstance(order, dict):
+            return None
+        filled_size = self._safe_float(order.get("filled_size", 0.0), 0.0)
+        filled_value = self._safe_float(order.get("filled_value", 0.0), 0.0)
+        avg_price = filled_value / filled_size if filled_size > 0.0 else 0.0
+        return {
+            "status": str(order.get("status", "UNKNOWN") or "UNKNOWN"),
+            "filled_size": filled_size,
+            "filled_value": filled_value,
+            "avg_price": avg_price,
+        }
+
+    def _fill_to_trade_values(
+        self,
+        fill_data,
+        fallback_price,
+        fallback_quantity,
+        fallback_total_usd,
+        default_status="pending",
+    ):
+        price = self._safe_float(fallback_price, 0.0)
+        quantity = self._safe_float(fallback_quantity, 0.0)
+        total_usd = self._safe_float(fallback_total_usd, 0.0)
+        status = str(default_status or "pending")
+
+        if fill_data:
+            filled_size = self._safe_float(fill_data.get("filled_size", 0.0), 0.0)
+            filled_value = self._safe_float(fill_data.get("filled_value", 0.0), 0.0)
+            avg_price = self._safe_float(fill_data.get("avg_price", 0.0), 0.0)
+            status = self._normalize_trade_status(fill_data.get("status"), filled_size)
+            if filled_size > 0.0:
+                quantity = filled_size
+            if filled_value > 0.0:
+                total_usd = filled_value
+            if avg_price > 0.0:
+                price = avg_price
+
+        if price <= 0.0 and quantity > 0.0 and total_usd > 0.0:
+            price = total_usd / quantity
+        if total_usd <= 0.0 and quantity > 0.0 and price > 0.0:
+            total_usd = quantity * price
+
+        return {
+            "status": status,
+            "price": float(price),
+            "quantity": float(quantity),
+            "total_usd": float(total_usd),
+        }
+
+    def _resolve_order_fill(
+        self,
+        order_id,
+        fallback_price,
+        fallback_quantity,
+        fallback_total_usd,
+    ):
+        """Resolve immediate post-order fill state for accurate trade logging."""
+        if not order_id or not ORDER_FILL_SYNC_ENABLED:
+            return self._fill_to_trade_values(
+                None,
+                fallback_price=fallback_price,
+                fallback_quantity=fallback_quantity,
+                fallback_total_usd=fallback_total_usd,
+                default_status="pending",
+            )
+
+        fill_data = self._fetch_order_fill_snapshot(order_id)
+        if (
+            fill_data
+            and not self._terminal_exchange_status(fill_data.get("status"))
+            and float(ORDER_FILL_WAIT_SEC) > 0.0
+        ):
+            try:
+                polled = self.exchange.get_order_fill(
+                    order_id,
+                    max_wait=max(0.2, float(ORDER_FILL_WAIT_SEC)),
+                    poll_interval=max(0.1, float(ORDER_FILL_POLL_SEC)),
+                )
+                if polled:
+                    fill_data = polled
+            except Exception:
+                pass
+
+        return self._fill_to_trade_values(
+            fill_data,
+            fallback_price=fallback_price,
+            fallback_quantity=fallback_quantity,
+            fallback_total_usd=fallback_total_usd,
+            default_status="pending",
+        )
 
     # ── Portfolio ─────────────────────────────────────────────────
 
@@ -667,18 +846,182 @@ class AgentTools:
             logger.debug("Dashboard push failed: %s", e)
             return None
 
+    def _estimate_realized_pnl(self, agent, pair, side, price, quantity, total_usd, status):
+        """Estimate realized PnL for executed SELLs using average filled buy cost."""
+        exec_statuses = {"filled", "closed", "executed", "partial_filled", "partially_filled", "settled"}
+        side_norm = str(side or "").upper()
+        status_norm = str(status or "").lower()
+        if side_norm != "SELL" or status_norm not in exec_statuses:
+            return 0.0 if side_norm == "BUY" else None
+
+        qty = float(quantity or 0.0)
+        px = float(price or 0.0)
+        gross = float(total_usd or 0.0)
+        if qty <= 0.0 and px > 0.0 and gross > 0.0:
+            qty = gross / px
+        if qty <= 0.0:
+            return None
+        if gross <= 0.0 and px > 0.0:
+            gross = qty * px
+
+        row = self.db.execute(
+            """
+            SELECT
+                COALESCE(SUM(quantity), 0) AS buy_qty,
+                COALESCE(SUM(total_usd), 0) AS buy_usd
+            FROM agent_trades
+            WHERE agent=?
+              AND pair=?
+              AND side='BUY'
+              AND LOWER(COALESCE(status, '')) IN ('filled', 'closed', 'executed')
+            """,
+            (agent, pair),
+        ).fetchone()
+        buy_qty = float((row["buy_qty"] if row else 0.0) or 0.0)
+        buy_usd = float((row["buy_usd"] if row else 0.0) or 0.0)
+        if buy_qty <= 0.0:
+            return None
+
+        avg_buy = buy_usd / buy_qty
+        fee_rate = float(os.environ.get("AGENT_SELL_FEE_RATE", os.environ.get("COINBASE_MAKER_FEE", "0.006")) or 0.006)
+        fee_usd = gross * max(0.0, fee_rate)
+        pnl = gross - (qty * avg_buy) - fee_usd
+        return round(float(pnl), 8)
+
     def log_trade(self, agent, pair, side, price, quantity, total_usd,
                   order_type="limit", order_id=None, status="pending"):
         """Record a trade in the shared database."""
+        pnl = self._estimate_realized_pnl(agent, pair, side, price, quantity, total_usd, status)
         self.db.execute(
             """INSERT INTO agent_trades
-               (agent, pair, side, price, quantity, total_usd, order_type, order_id, status)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (agent, pair, side, price, quantity, total_usd, order_type, order_id, status)
+               (agent, pair, side, price, quantity, total_usd, order_type, order_id, status, pnl)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (agent, pair, side, price, quantity, total_usd, order_type, order_id, status, pnl)
         )
         self.db.commit()
+        if pnl is not None and float(pnl) != 0.0:
+            self.record_pnl(float(pnl))
         logger.info("[%s] %s %s %.8f @ $%.2f ($%.2f) [%s] %s",
                      agent, side, pair, quantity, price, total_usd, order_type, status)
+
+    def reconcile_agent_trades(
+        self,
+        max_orders=80,
+        lookback_hours=72,
+        reconcile_statuses=None,
+    ):
+        """Refresh pending/placed rows using current order fill snapshots."""
+        statuses = reconcile_statuses or ("pending", "placed", "open", "accepted", "ack_ok")
+        status_norm = tuple(sorted({str(s or "").lower() for s in statuses if str(s or "").strip()}))
+        if not status_norm:
+            return {"checked": 0, "updated": 0, "filled": 0, "partial": 0, "cancelled": 0, "failed": 0, "expired": 0}
+
+        lookback = max(1, int(lookback_hours))
+        limit = max(1, int(max_orders))
+        marks = ",".join(["?"] * len(status_norm))
+        query = f"""
+            SELECT id, agent, pair, side, price, quantity, total_usd, order_id, status, pnl
+            FROM agent_trades
+            WHERE order_id IS NOT NULL
+              AND LOWER(COALESCE(status, '')) IN ({marks})
+              AND created_at >= datetime('now', ?)
+            ORDER BY id DESC
+            LIMIT ?
+        """
+        params = [*status_norm, f"-{lookback} hours", limit]
+        rows = self.db.execute(query, params).fetchall()
+
+        summary = {
+            "checked": 0,
+            "updated": 0,
+            "filled": 0,
+            "partial": 0,
+            "cancelled": 0,
+            "failed": 0,
+            "expired": 0,
+            "early_exit_reason": "",
+        }
+        for row in rows:
+            circuit_open_until = self._safe_float(getattr(self.exchange, "_circuit_open_until", 0.0), 0.0)
+            if circuit_open_until > time.time():
+                summary["early_exit_reason"] = "exchange_circuit_open"
+                break
+            summary["checked"] += 1
+            order_id = row["order_id"]
+            fill_data = self._fetch_order_fill_snapshot(order_id)
+            if not fill_data:
+                continue
+
+            trade = self._fill_to_trade_values(
+                fill_data,
+                fallback_price=row["price"],
+                fallback_quantity=row["quantity"],
+                fallback_total_usd=row["total_usd"],
+                default_status=row["status"] or "pending",
+            )
+            old_status = str(row["status"] or "").lower()
+            new_status = str(trade["status"] or "").lower()
+
+            if (
+                new_status == old_status
+                and abs(float(trade["quantity"]) - self._safe_float(row["quantity"], 0.0)) < 1e-12
+                and abs(float(trade["total_usd"]) - self._safe_float(row["total_usd"], 0.0)) < 1e-8
+            ):
+                continue
+
+            pnl = self._estimate_realized_pnl(
+                row["agent"],
+                row["pair"],
+                row["side"],
+                trade["price"],
+                trade["quantity"],
+                trade["total_usd"],
+                new_status,
+            )
+            old_pnl = row["pnl"]
+            self.db.execute(
+                """
+                UPDATE agent_trades
+                   SET price=?,
+                       quantity=?,
+                       total_usd=?,
+                       status=?,
+                       pnl=?
+                 WHERE id=?
+                """,
+                (
+                    float(trade["price"]),
+                    float(trade["quantity"]),
+                    float(trade["total_usd"]),
+                    new_status,
+                    pnl,
+                    int(row["id"]),
+                ),
+            )
+            self.db.commit()
+            summary["updated"] += 1
+
+            if pnl is not None:
+                old_val = None if old_pnl is None else float(old_pnl)
+                if old_val is None:
+                    self.record_pnl(float(pnl))
+                else:
+                    delta = float(pnl) - old_val
+                    if abs(delta) > 1e-12:
+                        self.record_pnl(delta)
+
+            if new_status == "filled":
+                summary["filled"] += 1
+            elif new_status in {"partial_filled", "partially_filled"}:
+                summary["partial"] += 1
+            elif new_status == "cancelled":
+                summary["cancelled"] += 1
+            elif new_status == "expired":
+                summary["expired"] += 1
+            elif new_status == "failed":
+                summary["failed"] += 1
+
+        return summary
 
     def record_snapshot(self, agent="system"):
         """Record a portfolio snapshot."""

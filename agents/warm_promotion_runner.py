@@ -123,7 +123,19 @@ def _merge_paper_metrics(base_metrics, runtime_state):
 
 
 def _evaluate_warm_gate(validator, paper_metrics):
-    return validator.evaluate_warm_metrics(paper_metrics)
+    if hasattr(validator, "evaluate_warm_metrics_detail"):
+        return validator.evaluate_warm_metrics_detail(paper_metrics)
+    passed, reasons, criteria = validator.evaluate_warm_metrics(paper_metrics)
+    return {
+        "passed": bool(passed),
+        "reasons": list(reasons),
+        "reason_codes": [],
+        "criteria": dict(criteria),
+        "decision": "eligible_hot" if passed else "collecting",
+        "decision_reason": "legacy_evaluator",
+        "criteria_mode": "legacy",
+        "criteria_adjustments": [],
+    }
 
 
 def run(hours=168, granularity="5min", promote=False):
@@ -206,9 +218,17 @@ def run(hours=168, granularity="5min", promote=False):
         }
         runtime_state = _load_runtime_state(conn, name, pair) if runtime_state_exists else {}
         paper_metrics = _merge_paper_metrics(paper_metrics, runtime_state)
-        eligible, reasons, criteria = _evaluate_warm_gate(validator, paper_metrics)
-        status = "eligible_hot" if eligible else "not_ready"
-        message = "eligible (dry run)" if eligible else "not_ready"
+        assessment = _evaluate_warm_gate(validator, paper_metrics)
+        eligible = bool(assessment.get("passed", False))
+        reasons = list(assessment.get("reasons", []))
+        criteria = dict(assessment.get("criteria", {}))
+        reason_codes = list(assessment.get("reason_codes", []))
+        gate_decision = str(assessment.get("decision", "collecting"))
+        gate_decision_reason = str(assessment.get("decision_reason", "not_ready"))
+        criteria_mode = str(assessment.get("criteria_mode", "baseline"))
+        criteria_adjustments = list(assessment.get("criteria_adjustments", []))
+        status = "eligible_hot" if eligible else gate_decision
+        message = "eligible (dry run)" if eligible else gate_decision_reason
 
         if promote and eligible:
             promoted, msg = validator.check_warm_promotion(name, pair, paper_metrics)
@@ -216,6 +236,8 @@ def run(hours=168, granularity="5min", promote=False):
             message = msg
             if not promoted and not reasons:
                 reasons = [msg]
+        elif status not in {"collecting", "rejected", "eligible_hot"}:
+            status = "collecting"
 
         report_rows.append(
             {
@@ -226,7 +248,12 @@ def run(hours=168, granularity="5min", promote=False):
                 "status": status,
                 "message": message,
                 "reasons": reasons,
+                "reason_codes": reason_codes,
+                "gate_decision": gate_decision,
+                "gate_decision_reason": gate_decision_reason,
                 "criteria": criteria,
+                "criteria_mode": criteria_mode,
+                "criteria_adjustments": criteria_adjustments,
                 "paper_metrics": paper_metrics,
                 "data_source": source_meta,
             }
@@ -234,7 +261,9 @@ def run(hours=168, granularity="5min", promote=False):
 
     promoted = [r for r in report_rows if r.get("status") == "promoted_hot"]
     eligible = [r for r in report_rows if r.get("status") == "eligible_hot"]
-    blocked = [r for r in report_rows if r.get("status") == "not_ready"]
+    collecting = [r for r in report_rows if r.get("status") == "collecting"]
+    rejected = [r for r in report_rows if r.get("status") == "rejected"]
+    blocked = [r for r in report_rows if r.get("status") in {"not_ready", "collecting", "rejected"}]
     skipped = [r for r in report_rows if r.get("status") == "skipped"]
 
     payload = {
@@ -249,6 +278,8 @@ def run(hours=168, granularity="5min", promote=False):
             "warm_checked": len(report_rows),
             "promoted_hot": len(promoted),
             "eligible_hot": len(eligible),
+            "collecting": len(collecting),
+            "rejected": len(rejected),
             "not_ready": len(blocked),
             "skipped": len(skipped),
         },
