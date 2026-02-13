@@ -49,6 +49,13 @@ try:
 except Exception:
     _risk_ctrl = None
 
+# Strategic planner (3D Go game theory)
+try:
+    from strategic_planner import get_strategic_planner
+    _planner = get_strategic_planner()
+except Exception:
+    _planner = None
+
 
 # ============================================================
 # 1. GALOIS FIELD SIGNAL ENCODING
@@ -734,6 +741,32 @@ class GrowthEngine:
 
         # Sort by allocated amount (highest first)
         result.sort(key=lambda x: (-x.get("allocated_usd", 0), -x.get("lattice_score", 0)))
+
+        # Strategic planner overlay (3D Go long-chain analysis)
+        strategic_plan = None
+        if _planner:
+            try:
+                # Build market_signals format for planner
+                planner_signals = {}
+                for a in analyses:
+                    planner_signals[a["pair"]] = {
+                        "direction": a["direction"],
+                        "confidence": a["quality_score"],
+                        "momentum": a.get("momentum_alignment", 0),
+                        "regime": a.get("regime", "accumulation"),
+                    }
+                    # Feed influence map with signals
+                    base = a["pair"].split("-")[0]
+                    if a["direction"] != "NONE":
+                        _planner.influence.place_stone(base, a["direction"], a["quality_score"])
+
+                strategic_plan = _planner.analyze({}, planner_signals, available_capital)
+                # Attach plan to first result for sniper to read
+                if result:
+                    result[0]["strategic_plan"] = strategic_plan
+            except Exception as e:
+                logger.debug("Strategic planner failed: %s", e)
+
         return result
 
 

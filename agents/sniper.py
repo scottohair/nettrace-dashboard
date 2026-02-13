@@ -110,15 +110,23 @@ try:
 except Exception:
     _growth = None
 
+# Strategic planner — 3D Go game theory (long chain moves, influence, ko detection)
+try:
+    from strategic_planner import get_strategic_planner
+    _planner = get_strategic_planner()
+except Exception:
+    _planner = None
+
 # Sniper configuration — static signal settings only
 # Trade sizes, reserves, position limits come from risk_controller dynamically
 CONFIG = {
     "min_composite_confidence": 0.70,    # 70% minimum — quality over quantity
     "min_confirming_signals": 2,         # 2+ must agree
     "min_quant_signals": 1,              # at least 1 quantitative signal required
-    "scan_interval": 30,                  # Scan every 30s
+    "scan_interval": int(os.environ.get("SNIPER_SCAN_INTERVAL_SECONDS", "30")),  # Scan cadence (can be tightened)
     "min_hold_seconds": 60,               # 60s minimum hold
-    "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "DOGE-USD", "LINK-USD", "FET-USD"],
+    # Trade in quote currencies we actually hold (USDC-first). Data fetches still use -USD.
+    "pairs": ["BTC-USDC", "ETH-USDC", "SOL-USDC", "AVAX-USDC", "DOGE-USDC", "LINK-USDC", "FET-USDC"],
     # Signal weights: quantitative signals DRIVE decisions, qualitative SUPPLEMENTS
     # Quantitative: regime, arb, orderbook, rsi_extreme, momentum, latency
     # Computational edge: latency (our private NetTrace data), meta_engine (ML ensemble)
@@ -671,6 +679,16 @@ class Sniper:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
+        # Backward-compatible migration for full trade lifecycle traceability.
+        for ddl in (
+            "ALTER TABLE sniper_trades ADD COLUMN order_id TEXT",
+            "ALTER TABLE sniper_trades ADD COLUMN trade_uuid TEXT",
+            "ALTER TABLE sniper_trades ADD COLUMN lifecycle_status TEXT",
+        ):
+            try:
+                self.db.execute(ddl)
+            except sqlite3.OperationalError:
+                pass
         self.db.commit()
 
     def scan_pair(self, pair):
@@ -856,6 +874,40 @@ class Sniper:
                 else:
                     logger.info("  %s: %s conf=%.1f%% (%d signals, %dQ) — below threshold",
                                pair, result["direction"], conf*100, n_signals, n_quant)
+
+        # Strategic planner: feed influence map + check Ko bans
+        if _planner:
+            try:
+                for result in actionable:
+                    pair = result["pair"]
+                    base = pair.split("-")[0]
+                    direction = result["direction"]
+                    conf = result["composite_confidence"]
+
+                    # Feed influence map — strong signals radiate to correlated assets
+                    if direction != "NONE" and conf > 0.5:
+                        _planner.influence.place_stone(base, direction, conf)
+
+                    # Ko ban check — block re-entry after losing exit
+                    if direction == "BUY":
+                        banned, ban_reason, _ = _planner.ko.is_banned(pair)
+                        if banned:
+                            logger.info("  %s: BLOCKED by Ko ban — %s", pair, ban_reason)
+                            actionable = [a for a in actionable if a["pair"] != pair]
+                            continue
+                        if _planner.ko.detect_cycle(pair):
+                            logger.info("  %s: BLOCKED by Ko cycle detection", pair)
+                            actionable = [a for a in actionable if a["pair"] != pair]
+                            continue
+
+                    # Check influence — boost confidence if correlated assets agree
+                    inf_dir, inf_str, _ = _planner.influence.get_influence(base)
+                    if inf_dir == direction and inf_str > 0.2:
+                        result["composite_confidence"] = min(0.99, conf + inf_str * 0.05)
+                        logger.info("  [influence] %s %s | +%.1f%% from correlated assets",
+                                   pair, direction, inf_str * 5)
+            except Exception as e:
+                logger.debug("Strategic planner scan failed: %s", e)
 
         # Store actionable signals for opportunity-cost selling
         self._pending_buys = [s for s in actionable if s["direction"] == "BUY"]
@@ -1203,10 +1255,42 @@ class Sniper:
                 logger.info("SNIPER P&L: %s SELL pnl=$%.4f (entry=$%.2f exit=$%.2f fees=$%.4f)",
                            pair, pnl, last_buy[0], price, fees)
 
-        self.db.execute(
-            "INSERT INTO sniper_trades (pair, direction, composite_confidence, amount_usd, venue, entry_price, pnl, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (pair, signal["direction"], signal["composite_confidence"], trade_size, "coinbase", price, pnl, status)
+        trade_uuid = f"{pair}:{side}:{int(time.time() * 1000)}:{(order_id or 'none')[:12]}"
+        lifecycle_status = (
+            "entry_filled" if side == "BUY" and status == "filled"
+            else "entry_pending" if side == "BUY" and status == "pending"
+            else "exit_filled" if side == "SELL" and status == "filled"
+            else "exit_pending" if side == "SELL" and status == "pending"
+            else "failed"
         )
+
+        try:
+            self.db.execute(
+                """
+                INSERT INTO sniper_trades
+                    (pair, direction, composite_confidence, amount_usd, venue, entry_price, pnl, status, order_id, trade_uuid, lifecycle_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    pair,
+                    signal["direction"],
+                    signal["composite_confidence"],
+                    trade_size,
+                    "coinbase",
+                    price,
+                    pnl,
+                    status,
+                    order_id,
+                    trade_uuid,
+                    lifecycle_status,
+                ),
+            )
+        except sqlite3.OperationalError:
+            # Fallback for older schema snapshots.
+            self.db.execute(
+                "INSERT INTO sniper_trades (pair, direction, composite_confidence, amount_usd, venue, entry_price, pnl, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (pair, signal["direction"], signal["composite_confidence"], trade_size, "coinbase", price, pnl, status)
+            )
         self.db.commit()
         self.trades_today += 1
 
