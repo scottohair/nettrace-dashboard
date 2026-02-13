@@ -777,9 +777,42 @@ class Sniper:
             held_usd = held_amount * price if price else 0
             max_position = total_portfolio * max_pos_pct
             if held_usd >= max_position:
+                concentration_pct = held_usd / total_portfolio * 100 if total_portfolio else 0
                 logger.info("SNIPER: %s position $%.2f >= dynamic max $%.2f (%.0f%%) — DIVERSIFY",
-                           base_currency, held_usd, max_position,
-                           held_usd / total_portfolio * 100 if total_portfolio else 0)
+                           base_currency, held_usd, max_position, concentration_pct)
+
+                # === AUTO-REBALANCE: sell excess to free cash for other trades ===
+                target_pct = 0.18  # bring down to 18% of portfolio
+                target_value = total_portfolio * target_pct
+                sell_value = held_usd - target_value
+                if sell_value >= 1.0 and price > 0:
+                    sell_amount = sell_value / price
+                    try:
+                        from exchange_connector import CoinbaseTrader
+                        trader = CoinbaseTrader()
+                        logger.info("SNIPER: AUTO-REBALANCE SELL %s | $%.2f excess (%.0f%% -> %.0f%%)",
+                                   pair, sell_value, concentration_pct, target_pct * 100)
+                        if _risk_ctrl:
+                            approved, reason, _ = _risk_ctrl.approve_trade(
+                                "sniper", pair, "SELL", sell_value, total_portfolio)
+                            if not approved:
+                                logger.warning("SNIPER: Rebalance SELL blocked: %s", reason)
+                            else:
+                                result = trader.place_order(pair, "SELL", sell_amount, bypass_profit_guard=True)
+                                if result and "success_response" in result:
+                                    logger.info("SNIPER: REBALANCE SELL FILLED %s | $%.2f freed for trading", pair, sell_value)
+                                else:
+                                    err = result.get("error_response", {}) if isinstance(result, dict) else {}
+                                    logger.warning("SNIPER: Rebalance SELL failed: %s", err.get("message", str(result)[:200]))
+                                if _risk_ctrl:
+                                    _risk_ctrl.resolve_allocation("sniper", pair)
+                        else:
+                            result = trader.place_order(pair, "SELL", sell_amount, bypass_profit_guard=True)
+                            if result and "success_response" in result:
+                                logger.info("SNIPER: REBALANCE SELL FILLED %s | $%.2f freed", pair, sell_value)
+                    except Exception as e:
+                        logger.error("SNIPER: Rebalance SELL error: %s", e)
+
                 return False
 
             # Size with DYNAMIC limits — scale with confidence
