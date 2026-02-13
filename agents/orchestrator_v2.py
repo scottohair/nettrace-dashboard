@@ -195,6 +195,14 @@ AGENT_CONFIGS = [
         "description": "Claude Quant 100 validator + pipeline promotion + budgeting",
     },
     {
+        "name": "claude_stager",
+        "script": "claude_stager_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Stages strategy/framework/message context for Claude ingestion",
+    },
+    {
         "name": "amicoin",
         "script": "amicoin_agent.py",
         "args": [],

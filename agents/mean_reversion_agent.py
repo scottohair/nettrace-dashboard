@@ -58,7 +58,7 @@ PAIR_SETS = [
 
 LOOKBACK = 100               # Rolling window for mean/std
 Z_ENTRY_THRESHOLD = 2.0      # Enter when z-score exceeds this
-Z_EXIT_THRESHOLD = 0.5       # Exit when z-score reverts to this
+Z_EXIT_THRESHOLD = 0.2       # Exit when z-score reverts to this (tighter = more reversion profit)
 Z_STOP_LOSS = 4.0            # Stop-loss at extreme deviation
 CYCLE_SECONDS = 60           # Check every 60s
 MAX_POSITION_PCT = 0.03      # 3% of portfolio per pair set
@@ -251,12 +251,23 @@ class MeanReversionAgent:
             should_exit = False
             reason = ""
 
-            if abs(z) <= Z_EXIT_THRESHOLD:
-                should_exit = True
-                reason = f"z reverted to {z:.2f}"
-            elif abs(z) >= Z_STOP_LOSS:
+            # Estimate current P&L before deciding to exit
+            entry_ratio = pos["entry_price_a"] / pos["entry_price_b"] if pos["entry_price_b"] else 1
+            exit_ratio = price_a / price_b if price_b else 1
+            ratio_change = (exit_ratio - entry_ratio) / entry_ratio
+            est_pnl = (-ratio_change if pos["side_a"] == "SELL" else ratio_change) * pos["trade_usd"]
+            est_pnl -= pos["trade_usd"] * MAKER_FEE * 2  # fees
+
+            if abs(z) >= Z_STOP_LOSS:
                 should_exit = True
                 reason = f"stop-loss z={z:.2f}"
+            elif abs(z) <= Z_EXIT_THRESHOLD:
+                # Only exit on reversion if we're at least breakeven
+                if est_pnl >= 0:
+                    should_exit = True
+                    reason = f"z reverted to {z:.2f} (pnl=${est_pnl:.4f})"
+                else:
+                    logger.info("MR %s: z=%.2f reverted but pnl=$%.4f < $0 — waiting for breakeven", name, z, est_pnl)
             elif (entry_z > 0 and z < -Z_EXIT_THRESHOLD) or (entry_z < 0 and z > Z_EXIT_THRESHOLD):
                 should_exit = True
                 reason = f"z crossed zero to {z:.2f}"
@@ -278,7 +289,7 @@ class MeanReversionAgent:
 
         # Get portfolio for sizing
         portfolio = self._get_portfolio_value()
-        trade_usd = min(portfolio * MAX_POSITION_PCT, 5.0)  # Cap at $5 for safety
+        trade_usd = min(portfolio * MAX_POSITION_PCT, 10.0)  # Cap at $10 (amortize fees over larger base)
         if trade_usd < MIN_TRADE_USD:
             logger.debug("Trade too small for %s: $%.2f", name, trade_usd)
             return

@@ -36,6 +36,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+# Agent goals — single source of truth for all decision-making
+try:
+    from agent_goals import GoalValidator
+    _goals = GoalValidator()
+except ImportError:
+    _goals = None
+
 # Asset state tracking for learning
 try:
     from asset_tracker import get_tracker
@@ -648,6 +655,17 @@ class Sniper:
 
                 if (result["composite_confidence"] >= CONFIG["min_composite_confidence"]
                         and result["confirming_signals"] >= CONFIG["min_confirming_signals"]):
+                    # GoalValidator gate — encoded rules check
+                    if _goals and not _goals.should_trade(
+                        result["composite_confidence"],
+                        result["confirming_signals"],
+                        result["direction"],
+                        result.get("regime", "neutral"),
+                    ):
+                        logger.info("  %s: BLOCKED by GoalValidator (conf=%.1f%%, %d signals, %s)",
+                                   pair, result["composite_confidence"]*100,
+                                   result["confirming_signals"], result["direction"])
+                        continue
                     actionable.append(result)
                     logger.info(">>> ACTIONABLE: %s %s | conf=%.1f%% | %d signals",
                                result["direction"], pair,

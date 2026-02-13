@@ -63,7 +63,7 @@ CONFIG = {
     "scan_interval": 60,                          # seconds between scans
     "pairs": ["EURC-USDC", "DAI-USDC"],           # stablecoin arb pairs
     "correlation_pairs": ["BTC-USDC", "ETH-USDC"],  # forex-correlation trades
-    "min_spread_pct": 0.003,                       # 0.3% minimum spread to trade
+    "min_spread_pct": 0.0015,                      # 0.15% minimum spread (matches stablecoin reality)
     "max_trade_usd": 5.00,                         # Rule: max $5 per trade
     "max_daily_loss_usd": 2.00,                    # Rule: $2 daily loss limit
     "forex_api_url": "https://open.er-api.com/v6/latest/USD",
@@ -76,7 +76,7 @@ CONFIG = {
     },
     "correlation_lag_window": 120,  # seconds — how long European exchanges lag after forex move
     "min_confirming_signals": 2,    # need 2+ signals to trade
-    "min_confidence": 0.70,         # 70% minimum confidence
+    "min_confidence": 0.55,         # 55% minimum confidence (stablecoin spreads are small but reliable)
 }
 
 
@@ -558,11 +558,14 @@ class ForexAgent:
         base_currency = pair.split("-")[0]  # e.g., "EURC" from "EURC-USDC"
 
         if direction == "BUY":
-            # Size: scale with confidence, min $1, max $5
-            trade_size = min(
-                CONFIG["max_trade_usd"],
-                max(1.00, confidence * 6.0)
-            )
+            # Size: scale with confidence — low conf = smaller trade
+            if confidence >= 0.75:
+                base_size = CONFIG["max_trade_usd"]
+            elif confidence >= 0.65:
+                base_size = CONFIG["max_trade_usd"] * 0.6
+            else:
+                base_size = max(1.00, CONFIG["max_trade_usd"] * 0.3)  # small size for low confidence
+            trade_size = min(base_size, max(1.00, confidence * 6.0))
             trade_size = min(trade_size, usdc_cash - 10.00)  # keep $10 reserve — prevent cash burnout
             if trade_size < 1.00:
                 logger.info("Insufficient USDC ($%.2f) for BUY", usdc_cash)

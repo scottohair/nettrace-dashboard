@@ -12,6 +12,8 @@ primary_region = "ewr"
   SCAN_STAGGER = "5"
   # Priority scanning: crypto exchanges scanned 3x faster than other targets
   CRYPTO_SCAN_INTERVAL = "120"
+  # Autonomous agent runner: starts trading agents on every Fly machine
+  ENABLE_AGENTS = "1"
 
 [http_service]
   internal_port = 8080

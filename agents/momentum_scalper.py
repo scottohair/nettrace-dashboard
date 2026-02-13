@@ -75,7 +75,7 @@ CONFIG = {
     "ema_fast_period": 3,
     "ema_slow_period": 8,
     # Volume spike threshold
-    "volume_spike_multiplier": 2.0,
+    "volume_spike_multiplier": 1.5,
     # Minimum candles needed
     "min_candles": 10,
 }
@@ -314,16 +314,25 @@ class MomentumScalper:
             "reason": "",
         }
 
-        # BUY: bullish cross (or continuing above) AND volume spike AND price accelerating
-        if (ema_cross in ("BULLISH", "ABOVE")) and volume_spike and price_accel:
-            # Fresh crossover is stronger than continuing above
-            base_conf = 0.80 if ema_cross == "BULLISH" else 0.65
-            conf = base_conf + (volume_ratio - 2.0) * 0.03 + accel_pct * 50
+        # BUY: 2-of-3 voting (EMA cross, volume spike, price acceleration)
+        buy_votes = 0
+        if ema_cross in ("BULLISH", "ABOVE"):
+            buy_votes += 1
+        if volume_spike:
+            buy_votes += 1
+        if price_accel:
+            buy_votes += 1
+
+        if buy_votes >= 2 and ema_cross in ("BULLISH", "ABOVE", "NONE"):
+            # Need at least 2 of 3 confirmations, and EMA not bearish
+            base_conf = 0.80 if ema_cross == "BULLISH" else (0.65 if ema_cross == "ABOVE" else 0.55)
+            conf = base_conf + (volume_ratio - 1.5) * 0.03 + accel_pct * 50
             conf = min(max(conf, 0.50), 0.95)
 
             result["signal"] = "BUY"
             result["confidence"] = conf
-            result["reason"] = (f"EMA cross={ema_cross} | vol spike {volume_ratio:.1f}x | "
+            result["reason"] = (f"2-of-3 vote ({buy_votes}/3): EMA={ema_cross} | "
+                                f"vol={volume_ratio:.1f}x spike={volume_spike} | "
                                 f"accel={accel_pct:.4%} | fast={ema_fast[-1]:.2f} slow={ema_slow[-1]:.2f}")
 
         # SELL signal: bearish cross (used for exit, not fresh entry)
@@ -358,6 +367,23 @@ class MomentumScalper:
 
         for pair, pos in list(self._positions.items()):
             hold_time = now - pos["entry_time"]
+            current_price = self._get_price(pair)
+
+            # Profit/loss based exits (check before time-based)
+            if current_price and pos["entry_price"] > 0:
+                pnl_pct = (current_price - pos["entry_price"]) / pos["entry_price"]
+
+                # Profit target: exit immediately if >= 0.5% gain
+                if pnl_pct >= 0.005:
+                    to_exit.append((pair, pos, "profit_target",
+                                    f"Profit target hit: {pnl_pct:.2%} after {hold_time:.0f}s"))
+                    continue
+
+                # Stop-loss: exit if <= -1.0% loss
+                if pnl_pct <= -0.01:
+                    to_exit.append((pair, pos, "stop_loss",
+                                    f"Stop-loss hit: {pnl_pct:.2%} after {hold_time:.0f}s"))
+                    continue
 
             # Time-based exit: max hold exceeded
             if hold_time >= CONFIG["max_hold_seconds"]:

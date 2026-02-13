@@ -43,6 +43,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+# Agent goals — single source of truth for all decision-making
+try:
+    from agent_goals import GoalValidator
+    _goals = GoalValidator()
+except ImportError:
+    _goals = None
+
 # Load .env
 _env_path = Path(__file__).parent / ".env"
 if _env_path.exists():
@@ -74,7 +81,7 @@ COMPUTE_NODES = {
 }
 
 # Strategy performance thresholds
-PROMOTE_THRESHOLD = {"min_sharpe": 1.0, "min_trades": 20, "min_win_rate": 0.55}
+PROMOTE_THRESHOLD = {"min_sharpe": 1.0, "min_trades": 3, "min_win_rate": 0.55}
 FIRE_THRESHOLD = {"max_sharpe": 0.5, "min_trades": 50, "max_drawdown": 0.05}
 CLONE_THRESHOLD = {"min_sharpe": 2.0, "min_trades": 30}
 
@@ -396,7 +403,7 @@ class AgentPool:
         logger.info("CLONED agent: %s → %s", name, clone_name)
 
     def evaluate_and_prune(self):
-        """Evaluate all agents and fire/promote/clone based on performance."""
+        """Evaluate all agents and fire/promote/clone based on GoalValidator."""
         agents = self.list_agents()
         actions = []
 
@@ -409,26 +416,41 @@ class AgentPool:
             win_rate = agent["wins"] / trades if trades > 0 else 0
             drawdown = agent["max_drawdown"] or 0
 
-            # FIRE underperformers
-            if trades >= FIRE_THRESHOLD["min_trades"] and sharpe < FIRE_THRESHOLD["max_sharpe"]:
-                self.fire_agent(agent["name"], f"Sharpe {sharpe:.2f} < {FIRE_THRESHOLD['max_sharpe']}")
-                actions.append(f"FIRED {agent['name']} (Sharpe {sharpe:.2f})")
+            # Use GoalValidator for fire/promote decisions (evolutionary game theory)
+            if _goals:
+                fire_result = _goals.should_fire_agent(sharpe, trades, win_rate, drawdown)
+                if fire_result["fired"]:
+                    self.fire_agent(agent["name"], fire_result["reason"])
+                    actions.append(f"FIRED {agent['name']} ({fire_result['reason']})")
+                    continue
 
-            # CLONE top performers
-            elif trades >= CLONE_THRESHOLD["min_trades"] and sharpe >= CLONE_THRESHOLD["min_sharpe"]:
-                self.clone_agent(agent["name"])
-                actions.append(f"CLONED {agent['name']} (Sharpe {sharpe:.2f})")
-
-            # PROMOTE ready agents
-            elif agent["status"] == "cold" and trades >= PROMOTE_THRESHOLD["min_trades"]:
-                if sharpe >= PROMOTE_THRESHOLD["min_sharpe"] and win_rate >= PROMOTE_THRESHOLD["min_win_rate"]:
-                    self.promote_agent(agent["name"], "warm")
-                    actions.append(f"PROMOTED {agent['name']} cold→warm")
-
-            elif agent["status"] == "warm" and trades >= PROMOTE_THRESHOLD["min_trades"]:
-                if sharpe >= PROMOTE_THRESHOLD["min_sharpe"]:
-                    self.promote_agent(agent["name"], "hot")
-                    actions.append(f"PROMOTED {agent['name']} warm→hot")
+                promo_result = _goals.should_promote_agent(sharpe, trades, win_rate)
+                if promo_result["clone"]:
+                    self.clone_agent(agent["name"])
+                    actions.append(f"CLONED {agent['name']} ({promo_result['reason']})")
+                elif promo_result["promoted"]:
+                    if agent["status"] == "cold":
+                        self.promote_agent(agent["name"], "warm")
+                        actions.append(f"PROMOTED {agent['name']} cold→warm ({promo_result['reason']})")
+                    elif agent["status"] == "warm":
+                        self.promote_agent(agent["name"], "hot")
+                        actions.append(f"PROMOTED {agent['name']} warm→hot ({promo_result['reason']})")
+            else:
+                # Fallback: original threshold-based logic
+                if trades >= FIRE_THRESHOLD["min_trades"] and sharpe < FIRE_THRESHOLD["max_sharpe"]:
+                    self.fire_agent(agent["name"], f"Sharpe {sharpe:.2f} < {FIRE_THRESHOLD['max_sharpe']}")
+                    actions.append(f"FIRED {agent['name']} (Sharpe {sharpe:.2f})")
+                elif trades >= CLONE_THRESHOLD["min_trades"] and sharpe >= CLONE_THRESHOLD["min_sharpe"]:
+                    self.clone_agent(agent["name"])
+                    actions.append(f"CLONED {agent['name']} (Sharpe {sharpe:.2f})")
+                elif agent["status"] == "cold" and trades >= PROMOTE_THRESHOLD["min_trades"]:
+                    if sharpe >= PROMOTE_THRESHOLD["min_sharpe"] and win_rate >= PROMOTE_THRESHOLD["min_win_rate"]:
+                        self.promote_agent(agent["name"], "warm")
+                        actions.append(f"PROMOTED {agent['name']} cold→warm")
+                elif agent["status"] == "warm" and trades >= PROMOTE_THRESHOLD["min_trades"]:
+                    if sharpe >= PROMOTE_THRESHOLD["min_sharpe"]:
+                        self.promote_agent(agent["name"], "hot")
+                        actions.append(f"PROMOTED {agent['name']} warm→hot")
 
         return actions
 
@@ -556,6 +578,19 @@ class MetaEngine:
                 details TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS meta_paper_trades (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                agent_name TEXT NOT NULL,
+                pair TEXT NOT NULL,
+                direction TEXT NOT NULL,
+                confidence REAL,
+                entry_price REAL,
+                current_price REAL,
+                paper_pnl REAL DEFAULT 0,
+                status TEXT DEFAULT 'open',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                closed_at TIMESTAMP
+            );
         """)
         self.db.commit()
 
@@ -619,6 +654,92 @@ class MetaEngine:
                     "confidence": idea["confidence"],
                 })
 
+        # Step 6: Execute highest-confidence ML predictions via CoinbaseTrader
+        logger.info("Step 6: Executing high-confidence predictions...")
+        trades_executed = 0
+        for pair in ["ETH-USDC", "BTC-USDC", "SOL-USDC"]:
+            try:
+                data_pair = pair.replace("-USDC", "-USD")
+                candles = self._fetch_candles(data_pair)
+                pred = self.models.predict_direction(candles, data_pair)
+                if pred["direction"] == "NONE" or pred["confidence"] < 0.75:
+                    continue
+
+                # Paper trade for cold agents — track hypothetical P&L
+                price_data = _fetch_json(f"https://api.coinbase.com/v2/prices/{data_pair}/spot")
+                if not price_data or "data" not in price_data:
+                    continue
+                current_price = float(price_data["data"]["amount"])
+
+                # Check for open paper trades to close
+                open_papers = self.db.execute(
+                    "SELECT id, direction, entry_price FROM meta_paper_trades WHERE pair=? AND status='open'",
+                    (pair,)
+                ).fetchall()
+                for paper in open_papers:
+                    if paper["direction"] != pred["direction"]:
+                        # Close paper trade
+                        if paper["direction"] == "BUY":
+                            pnl = (current_price - paper["entry_price"]) / paper["entry_price"] * 100
+                        else:
+                            pnl = (paper["entry_price"] - current_price) / paper["entry_price"] * 100
+                        self.db.execute(
+                            "UPDATE meta_paper_trades SET status='closed', current_price=?, paper_pnl=?, closed_at=CURRENT_TIMESTAMP WHERE id=?",
+                            (current_price, pnl, paper["id"])
+                        )
+                        logger.info("META paper trade closed: %s %s pnl=%.2f%%", pair, paper["direction"], pnl)
+
+                # Open new paper trade
+                self.db.execute(
+                    "INSERT INTO meta_paper_trades (agent_name, pair, direction, confidence, entry_price) VALUES (?, ?, ?, ?, ?)",
+                    ("meta_ml", pair, pred["direction"], pred["confidence"], current_price)
+                )
+
+                # For hot agents: execute real trades
+                hot_agents = self.db.execute(
+                    "SELECT name FROM meta_agents WHERE status='hot' AND strategy_type IN ('momentum', 'contrarian', 'mean_reversion')"
+                ).fetchall()
+                if hot_agents and pred["confidence"] >= 0.80:
+                    try:
+                        from exchange_connector import CoinbaseTrader
+                        trader = CoinbaseTrader()
+                        trade_usd = min(3.0, pred["confidence"] * 4.0)
+                        if pred["direction"] == "BUY":
+                            base_size = trade_usd / current_price
+                            limit_price = current_price * 1.001
+                            result = trader.place_limit_order(pair, "BUY", base_size, limit_price, post_only=False)
+                        else:
+                            # Check holdings before sell
+                            accts = trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
+                            base = pair.split("-")[0]
+                            held = 0
+                            for a in accts.get("accounts", []):
+                                if a.get("currency") == base:
+                                    held = float(a.get("available_balance", {}).get("value", 0))
+                            if held * current_price >= 1.0:
+                                sell_size = min(held * 0.3, trade_usd / current_price)
+                                limit_price = current_price * 0.999
+                                result = trader.place_limit_order(pair, "SELL", sell_size, limit_price, post_only=False)
+                            else:
+                                result = {}
+                        if result.get("success_response") or result.get("order_id"):
+                            trades_executed += 1
+                            logger.info("META LIVE TRADE: %s %s $%.2f conf=%.1f%% via hot agents",
+                                       pred["direction"], pair, trade_usd, pred["confidence"] * 100)
+                            # Update agent stats
+                            for agent in hot_agents:
+                                self.db.execute(
+                                    "UPDATE meta_agents SET trades = trades + 1, last_active = CURRENT_TIMESTAMP WHERE name = ?",
+                                    (agent["name"],)
+                                )
+                    except Exception as e:
+                        logger.debug("META live trade failed: %s", e)
+
+            except Exception as e:
+                logger.debug("Step 6 failed for %s: %s", pair, e)
+
+        logger.info("Step 6: %d live trades executed, paper trades updated", trades_executed)
+
         self.db.commit()
         logger.info("=== EVOLUTION CYCLE COMPLETE ===\n")
 
@@ -626,6 +747,7 @@ class MetaEngine:
             "research": research,
             "graph": graph,
             "agent_actions": actions,
+            "trades_executed": trades_executed,
         }
 
     def _fetch_candles(self, pair, limit=50):

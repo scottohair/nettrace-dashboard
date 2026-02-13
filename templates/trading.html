@@ -278,8 +278,8 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     </div>
     <div class="card">
       <h3>Active Agents</h3>
-      <div class="big gold" id="agentCount">11</div>
-      <div class="sub">trading + optimization + claude quant + AmiCoin simulation</div>
+      <div class="big gold" id="agentCount">12</div>
+      <div class="sub">trading + optimization + Claude staging + quant + AmiCoin simulation</div>
     </div>
   </div>
 
@@ -476,6 +476,11 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
           <div class="agent-avatar" style="background:#14b8a633">CQ</div>
           <div class="agent-info"><div class="name">Claude Quant Agent</div><div class="role">Runs Quant 100 validation, promotion, and budgets</div></div>
           <div class="agent-pnl" style="color:#14b8a6" id="quant100AgentState">booting</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#38bdf833">CS</div>
+          <div class="agent-info"><div class="name">Claude Stager</div><div class="role">Stages strategy + framework + message context for Claude ingest</div></div>
+          <div class="agent-pnl" style="color:#38bdf8" id="claudeStagerState">booting</div>
         </div>
         <div class="agent-card" style="margin-bottom:6px">
           <div class="agent-avatar" style="background:#22d3ee33">AMI</div>
@@ -755,6 +760,20 @@ function renderQuant100Status(summary, agent){
   }
 }
 
+function renderClaudeIngest(ingest, stager, duplex){
+  const el=document.getElementById("claudeStagerState");
+  if(!el) return;
+  const summary=(ingest&&ingest.summary)?ingest.summary:{};
+  const state=(stager&&stager.state)?stager.state:"idle";
+  const pairs=Array.isArray(summary.focus_pairs)?summary.focus_pairs.length:0;
+  const adv=Number(summary.advanced_msgs||0);
+  const op=Number(summary.operator_msgs||0);
+  const totalMsgs=adv+op;
+  const toCount=Number((duplex&&duplex.to_count)||summary.duplex_to||0);
+  const fromCount=Number((duplex&&duplex.from_count)||summary.duplex_from||0);
+  el.textContent=`${state} | ${pairs} pairs | ${totalMsgs} msgs | duplex ${toCount}/${fromCount}`;
+}
+
 function renderAmiCoin(amicoin, agent){
   const summary=(amicoin&&amicoin.summary)?amicoin.summary:{};
   const pool=(amicoin&&amicoin.pool)?amicoin.pool:[];
@@ -883,6 +902,7 @@ async function refreshData(){
     }
     renderClaudeInsights(data.claude_insights||{});
     renderQuant100Status(data.quant100_summary||{}, data.quant100_agent||{});
+    renderClaudeIngest(data.claude_ingest||{}, data.claude_stager||{}, data.claude_duplex||{});
     renderAmiCoin(data.amicoin||{}, data.amicoin_agent||{});
     // Chart
     const snapshots=data.snapshots||[];

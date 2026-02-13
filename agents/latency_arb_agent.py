@@ -521,9 +521,9 @@ class LatencyArbAgent:
             order_id = result["success_response"].get("order_id", "?")
             logger.info("LATENCY_ARB ORDER FILLED: %s %s $%.2f @ $%.2f | order=%s",
                         pair, side, trade_size, limit_price, order_id)
-        elif "order_id" in result:
-            status = "filled"
-            logger.info("LATENCY_ARB ORDER FILLED: %s %s $%.2f @ $%.2f | order=%s",
+        elif "order_id" in result and "error" not in str(result.get("error_response", "")):
+            status = "pending"
+            logger.info("LATENCY_ARB ORDER PENDING: %s %s $%.2f @ $%.2f | order=%s",
                         pair, side, trade_size, limit_price, result["order_id"])
         elif "error_response" in result:
             err = result["error_response"]

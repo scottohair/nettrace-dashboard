@@ -407,7 +407,14 @@ class CapitalAllocator:
 
     def push_to_dashboard(self):
         """Push treasury status to Fly dashboard."""
+        if self.get_tradeable_capital() <= 0:
+            logger.debug("Skipping push — $0 tradeable capital (API timeout?)")
+            return None
+
         current = self.get_accounts()
+        if current["total_usd"] <= 0:
+            logger.debug("Skipping push — $0 total (API timeout?)")
+            return None
 
         payload = {
             "treasury": current,

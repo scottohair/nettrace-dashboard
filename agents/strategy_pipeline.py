@@ -20,10 +20,12 @@ Any strategy that loses money in HOT gets KILLED immediately.
 import json
 import logging
 import os
+import random
 import sqlite3
 import sys
 import time
 import math
+import statistics
 import urllib.request
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -59,12 +61,60 @@ WARM_TO_HOT = {
     "min_sharpe": 0.5,
 }
 
+# Adaptive HOT gating for sparse but multi-window evidence.
+WARM_ADAPTIVE_GATING = os.environ.get("WARM_ADAPTIVE_GATING", "1").lower() not in ("0", "false", "no")
+WARM_SPARSE_MIN_TRADES = int(os.environ.get("WARM_SPARSE_MIN_TRADES", "4"))
+WARM_SPARSE_MIN_WIN_RATE = float(os.environ.get("WARM_SPARSE_MIN_WIN_RATE", "0.58"))
+WARM_SPARSE_MIN_RETURN_PCT = float(os.environ.get("WARM_SPARSE_MIN_RETURN_PCT", "0.08"))
+WARM_SPARSE_MAX_DRAWDOWN_PCT = float(os.environ.get("WARM_SPARSE_MAX_DRAWDOWN_PCT", "2.50"))
+WARM_SPARSE_MIN_RUNTIME_SECONDS = int(os.environ.get("WARM_SPARSE_MIN_RUNTIME_SECONDS", "900"))
+WARM_SPARSE_MIN_SHARPE = float(os.environ.get("WARM_SPARSE_MIN_SHARPE", "0.20"))
+WARM_MIN_EVIDENCE_WINDOWS = int(os.environ.get("WARM_MIN_EVIDENCE_WINDOWS", "2"))
+
 # Fee assumptions
 COINBASE_FEE = 0.006  # 0.6% taker fee
 SLIPPAGE = 0.001      # 0.1% slippage assumption
 
 # Strict capital protection: no realized-loss trades are allowed to pass COLD.
 STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("0", "false", "no")
+ADAPTIVE_COLD_GATING = os.environ.get("ADAPTIVE_COLD_GATING", "1").lower() not in ("0", "false", "no")
+WALKFORWARD_REQUIRED = os.environ.get("WALKFORWARD_REQUIRED", "1").lower() not in ("0", "false", "no")
+WALKFORWARD_MIN_TOTAL_CANDLES = int(os.environ.get("WALKFORWARD_MIN_TOTAL_CANDLES", "60"))
+WALKFORWARD_MIN_OOS_TRADES = int(os.environ.get("WALKFORWARD_MIN_OOS_TRADES", "1"))
+WALKFORWARD_MIN_OOS_RETURN_PCT = float(os.environ.get("WALKFORWARD_MIN_OOS_RETURN_PCT", "0.05"))
+WALKFORWARD_RET_FRACTION = float(os.environ.get("WALKFORWARD_RET_FRACTION", "0.40"))
+WALKFORWARD_DD_MULT = float(os.environ.get("WALKFORWARD_DD_MULT", "1.5"))
+WALKFORWARD_RETENTION_RATIO = float(os.environ.get("WALKFORWARD_RETENTION_RATIO", "0.30"))
+
+# Strict growth mode: probabilistic robustness + risk budget governance.
+GROWTH_MODE_ENABLED = os.environ.get("GROWTH_MODE_ENABLED", "1").lower() not in ("0", "false", "no")
+MONTE_CARLO_GATE_ENABLED = os.environ.get("MONTE_CARLO_GATE_ENABLED", "1").lower() not in ("0", "false", "no")
+MONTE_CARLO_PATHS = int(os.environ.get("MONTE_CARLO_PATHS", "300"))
+MONTE_CARLO_MIN_TRADES = int(os.environ.get("MONTE_CARLO_MIN_TRADES", "2"))
+MONTE_CARLO_MIN_PATH_TRADES = int(os.environ.get("MONTE_CARLO_MIN_PATH_TRADES", "8"))
+MONTE_CARLO_MIN_P50_RETURN_PCT = float(os.environ.get("MONTE_CARLO_MIN_P50_RETURN_PCT", "0.03"))
+MONTE_CARLO_MIN_P05_RETURN_PCT = float(os.environ.get("MONTE_CARLO_MIN_P05_RETURN_PCT", "-0.10"))
+MONTE_CARLO_MAX_P95_DRAWDOWN_PCT = float(os.environ.get("MONTE_CARLO_MAX_P95_DRAWDOWN_PCT", "3.50"))
+GROWTH_START_BUDGET_PCT = float(os.environ.get("GROWTH_START_BUDGET_PCT", "0.012"))
+GROWTH_START_BUDGET_MIN_USD = float(os.environ.get("GROWTH_START_BUDGET_MIN_USD", "1.00"))
+GROWTH_START_BUDGET_MAX_USD = float(os.environ.get("GROWTH_START_BUDGET_MAX_USD", "8.00"))
+GROWTH_BUDGET_ESCALATE_FACTOR = float(os.environ.get("GROWTH_BUDGET_ESCALATE_FACTOR", "1.22"))
+GROWTH_BUDGET_DECAY_FACTOR = float(os.environ.get("GROWTH_BUDGET_DECAY_FACTOR", "0.60"))
+GROWTH_BUDGET_MAX_USD = float(os.environ.get("GROWTH_BUDGET_MAX_USD", "50.00"))
+GROWTH_ESCALATE_MIN_RUNTIME_SECONDS = int(os.environ.get("GROWTH_ESCALATE_MIN_RUNTIME_SECONDS", "900"))
+PIPELINE_PORTFOLIO_USD = float(os.environ.get("PIPELINE_PORTFOLIO_USD", "262.55"))
+WARM_MAX_FUNDED_PER_PAIR = int(os.environ.get("WARM_MAX_FUNDED_PER_PAIR", "2"))
+WARM_MAX_TOTAL_FUNDED_BUDGET_PCT = float(os.environ.get("WARM_MAX_TOTAL_FUNDED_BUDGET_PCT", "0.35"))
+WARM_MAX_PAIR_BUDGET_SHARE = float(os.environ.get("WARM_MAX_PAIR_BUDGET_SHARE", "0.70"))
+SPARSE_OOS_FUNDING_MULT = float(os.environ.get("SPARSE_OOS_FUNDING_MULT", "0.25"))
+GROWTH_MAX_VAR95_LOSS_PCT = float(os.environ.get("GROWTH_MAX_VAR95_LOSS_PCT", "1.20"))
+GROWTH_MAX_ES97_5_LOSS_PCT = float(os.environ.get("GROWTH_MAX_ES97_5_LOSS_PCT", "2.20"))
+GROWTH_DRIFT_ALERT_THRESHOLD = float(os.environ.get("GROWTH_DRIFT_ALERT_THRESHOLD", "1.50"))
+GROWTH_CONFORMAL_MAX_ERROR = float(os.environ.get("GROWTH_CONFORMAL_MAX_ERROR", "0.70"))
+
+
+def _clamp(value, lo, hi):
+    return max(lo, min(hi, value))
 
 
 class HistoricalPrices:
@@ -72,20 +122,53 @@ class HistoricalPrices:
 
     def __init__(self):
         self.cache = {}
+        self.cache_meta = {}
+        self.base_dir = Path(__file__).parent
 
     def get_candles(self, pair, hours=168):
         """Get hourly candles from Coinbase PUBLIC API (no auth needed)."""
-        cache_key = f"{pair}_{hours}"
-        if cache_key in self.cache:
-            return self.cache[cache_key]
-
-        candles = self._fetch_public_candles(pair, "3600", hours)
-        self.cache[cache_key] = candles
-        return candles
+        return self._get_candles(pair, "3600", hours)
 
     def get_5min_candles(self, pair, hours=24):
         """Get 5-minute candles for more granular backtesting."""
-        return self._fetch_public_candles(pair, "300", hours)
+        return self._get_candles(pair, "300", hours)
+
+    def get_cache_meta(self, pair, granularity_seconds, hours):
+        cache_key = f"{pair}_{granularity_seconds}_{hours}"
+        return dict(self.cache_meta.get(cache_key, {}))
+
+    def _get_candles(self, pair, granularity_seconds, hours):
+        cache_key = f"{pair}_{granularity_seconds}_{hours}"
+        if cache_key in self.cache:
+            return self.cache[cache_key]
+
+        public = self._fetch_public_candles(pair, granularity_seconds, hours)
+        candles = public
+        source = "coinbase_public"
+        notes = []
+
+        if len(public) < 30:
+            local = self._fetch_local_candles(pair, granularity_seconds, hours)
+            if len(local) > len(public):
+                candles = local
+                source = "local_fallback"
+                notes.append(f"public={len(public)} local={len(local)}")
+
+        self.cache[cache_key] = candles
+        self.cache_meta[cache_key] = {
+            "pair": pair,
+            "granularity_seconds": int(granularity_seconds),
+            "hours": int(hours),
+            "source": source,
+            "candles": len(candles),
+            "notes": notes,
+        }
+        if source == "local_fallback":
+            logger.info(
+                "Using local candle fallback for %s (%ss, %sh): %d candles",
+                pair, granularity_seconds, hours, len(candles)
+            )
+        return candles
 
     def _fetch_public_candles(self, pair, granularity_seconds, hours):
         """Fetch candles from Coinbase Exchange public API (no auth needed)."""
@@ -135,6 +218,202 @@ class HistoricalPrices:
                 seen.add(c["time"])
                 unique.append(c)
         return unique
+
+    def _fetch_local_candles(self, pair, granularity_seconds, hours):
+        """Build candles from local agent databases when public API is unavailable."""
+        points = []
+        points.extend(self._load_exchange_points(pair, hours))
+        points.extend(self._load_sniper_points(pair, hours))
+        points.extend(self._load_latency_arb_points(pair, hours))
+
+        if not points:
+            return []
+        return self._points_to_candles(points, int(granularity_seconds))
+
+    def _load_exchange_points(self, pair, hours):
+        db_path = self.base_dir / "exchange_scanner.db"
+        if not db_path.exists():
+            return []
+
+        asset = pair.split("-", 1)[0].lower()
+        lookback = f"-{max(1, int(hours))} hours"
+        rows = []
+        try:
+            conn = sqlite3.connect(str(db_path))
+            rows = conn.execute(
+                """SELECT fetched_at, price_usd
+                   FROM price_feeds
+                   WHERE lower(asset)=?
+                     AND fetched_at >= datetime('now', ?)
+                   ORDER BY fetched_at ASC""",
+                (asset, lookback),
+            ).fetchall()
+            conn.close()
+        except Exception as e:
+            logger.debug("Local exchange feed load failed for %s: %s", pair, e)
+            return []
+
+        points = []
+        for ts, price in rows:
+            epoch = self._to_epoch(ts)
+            if epoch is None:
+                continue
+            try:
+                px = float(price)
+            except Exception:
+                continue
+            if px <= 0:
+                continue
+            points.append((epoch, px, 1.0))
+        return points
+
+    def _load_sniper_points(self, pair, hours):
+        db_path = self.base_dir / "sniper.db"
+        if not db_path.exists():
+            return []
+
+        variants = self._pair_variants(pair)
+        placeholders = ",".join("?" for _ in variants)
+        lookback = f"-{max(1, int(hours))} hours"
+        sql = f"""
+            SELECT created_at, entry_price, COALESCE(amount_usd, 1.0)
+            FROM sniper_trades
+            WHERE status='filled'
+              AND pair IN ({placeholders})
+              AND created_at >= datetime('now', ?)
+            ORDER BY created_at ASC
+        """
+        rows = []
+        try:
+            conn = sqlite3.connect(str(db_path))
+            rows = conn.execute(sql, tuple(variants) + (lookback,)).fetchall()
+            conn.close()
+        except Exception as e:
+            logger.debug("Local sniper feed load failed for %s: %s", pair, e)
+            return []
+
+        points = []
+        for ts, price, vol in rows:
+            epoch = self._to_epoch(ts)
+            if epoch is None:
+                continue
+            try:
+                px = float(price)
+                volume = max(0.0, float(vol or 0.0))
+            except Exception:
+                continue
+            if px <= 0:
+                continue
+            points.append((epoch, px, volume))
+        return points
+
+    def _load_latency_arb_points(self, pair, hours):
+        db_path = self.base_dir / "latency_arb.db"
+        if not db_path.exists():
+            return []
+
+        variants = self._pair_variants(pair)
+        placeholders = ",".join("?" for _ in variants)
+        lookback = f"-{max(1, int(hours))} hours"
+        sql = f"""
+            SELECT created_at, entry_price, COALESCE(amount_usd, 1.0)
+            FROM trades
+            WHERE status='filled'
+              AND pair IN ({placeholders})
+              AND created_at >= datetime('now', ?)
+            ORDER BY created_at ASC
+        """
+        rows = []
+        try:
+            conn = sqlite3.connect(str(db_path))
+            rows = conn.execute(sql, tuple(variants) + (lookback,)).fetchall()
+            conn.close()
+        except Exception as e:
+            logger.debug("Local latency arb feed load failed for %s: %s", pair, e)
+            return []
+
+        points = []
+        for ts, price, vol in rows:
+            epoch = self._to_epoch(ts)
+            if epoch is None:
+                continue
+            try:
+                px = float(price)
+                volume = max(0.0, float(vol or 0.0))
+            except Exception:
+                continue
+            if px <= 0:
+                continue
+            points.append((epoch, px, volume))
+        return points
+
+    @staticmethod
+    def _pair_variants(pair):
+        p = str(pair).upper().strip()
+        variants = {p}
+        if p.endswith("-USD"):
+            variants.add(p.replace("-USD", "-USDC"))
+        if p.endswith("-USDC"):
+            variants.add(p.replace("-USDC", "-USD"))
+        return sorted(variants)
+
+    @staticmethod
+    def _to_epoch(ts_value):
+        if ts_value is None:
+            return None
+        s = str(ts_value).strip()
+        if not s:
+            return None
+        try:
+            dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return int(dt.timestamp())
+        except Exception:
+            pass
+        for fmt in ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"):
+            try:
+                dt = datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+                return int(dt.timestamp())
+            except Exception:
+                continue
+        return None
+
+    @staticmethod
+    def _points_to_candles(points, granularity_seconds):
+        ordered = sorted(points, key=lambda x: x[0])
+        buckets = {}
+
+        for ts, price, vol in ordered:
+            if ts is None:
+                continue
+            try:
+                px = float(price)
+                v = max(0.0, float(vol or 0.0))
+            except Exception:
+                continue
+            if px <= 0:
+                continue
+
+            bucket_time = (int(ts) // granularity_seconds) * granularity_seconds
+            c = buckets.get(bucket_time)
+            if c is None:
+                buckets[bucket_time] = {
+                    "time": bucket_time,
+                    "open": px,
+                    "high": px,
+                    "low": px,
+                    "close": px,
+                    "volume": v,
+                }
+                continue
+
+            c["high"] = max(c["high"], px)
+            c["low"] = min(c["low"], px)
+            c["close"] = px
+            c["volume"] += v
+
+        return [buckets[t] for t in sorted(buckets.keys())]
 
 
 # ============================================================
@@ -547,6 +826,116 @@ class AccumulateAndHoldStrategy:
 
 
 # ============================================================
+# EXECUTION INTELLIGENCE — Queue position + toxicity aware routing
+# ============================================================
+
+class ExecutionIntelligence:
+    """Microstructure-aware execution policy used by backtests/paper replays.
+
+    IMPR-103: queue-position aware child-order scheduling.
+    IMPR-104: toxicity-aware dark/displayed route mix.
+    """
+
+    def __init__(self, base_slippage=SLIPPAGE, base_fee=COINBASE_FEE):
+        self.base_slippage = float(base_slippage or SLIPPAGE)
+        self.base_fee = float(base_fee or COINBASE_FEE)
+
+    @staticmethod
+    def _window(candles, idx, size=24):
+        if not candles:
+            return []
+        idx = int(_clamp(idx if idx is not None else len(candles) - 1, 0, len(candles) - 1))
+        start = max(0, idx - max(2, int(size)) + 1)
+        return candles[start:idx + 1]
+
+    @staticmethod
+    def _safe_std(values):
+        if not values or len(values) <= 1:
+            return 0.0
+        try:
+            return float(statistics.pstdev(values))
+        except Exception:
+            return 0.0
+
+    def plan(self, candles, idx, side="BUY", confidence=0.5):
+        window = self._window(candles, idx, size=24)
+        if len(window) < 3:
+            return {
+                "mode": "hybrid",
+                "queue_score": 0.5,
+                "toxicity_score": 0.3,
+                "dark_ratio": 0.25,
+                "slippage_mult": 1.0,
+                "fee_mult": 1.0,
+                "child_order_count": 2,
+            }
+
+        closes = [float(c.get("close", 0.0) or 0.0) for c in window if float(c.get("close", 0.0) or 0.0) > 0]
+        volumes = [max(0.0, float(c.get("volume", 0.0) or 0.0)) for c in window]
+        if not closes:
+            closes = [1.0]
+
+        rets = []
+        for i in range(1, len(closes)):
+            prev = closes[i - 1]
+            if prev > 0:
+                rets.append((closes[i] - prev) / prev)
+        ret_vol = self._safe_std(rets)
+        avg_vol = (sum(volumes[:-1]) / max(1, len(volumes) - 1)) if len(volumes) > 1 else (volumes[-1] if volumes else 1.0)
+        curr_vol = volumes[-1] if volumes else avg_vol
+        vol_ratio = curr_vol / max(1e-9, avg_vol)
+
+        high_low_ranges = []
+        for c in window:
+            close = float(c.get("close", 0.0) or 0.0)
+            if close <= 0:
+                continue
+            high = float(c.get("high", close) or close)
+            low = float(c.get("low", close) or close)
+            high_low_ranges.append((high - low) / close)
+        range_ratio = (sum(high_low_ranges) / len(high_low_ranges)) if high_low_ranges else 0.0
+
+        toxicity = 0.0
+        toxicity += _clamp(ret_vol * 30.0, 0.0, 0.60)
+        toxicity += _clamp((range_ratio - 0.0025) * 45.0, 0.0, 0.30)
+        toxicity += _clamp((vol_ratio - 1.4) * 0.20, 0.0, 0.20)
+        toxicity = _clamp(toxicity, 0.02, 0.95)
+
+        queue_score = 0.55
+        queue_score += _clamp((vol_ratio - 1.0) * 0.18, -0.20, 0.25)
+        queue_score += _clamp((float(confidence or 0.5) - 0.5) * 0.25, -0.10, 0.12)
+        queue_score -= _clamp(toxicity * 0.45, 0.0, 0.35)
+        queue_score = _clamp(queue_score, 0.02, 0.98)
+
+        dark_ratio = _clamp(0.10 + toxicity * 0.60, 0.08, 0.75)
+        maker_preference = _clamp(queue_score - toxicity * 0.45, 0.0, 1.0)
+
+        if maker_preference >= 0.58:
+            mode = "maker"
+            slippage_mult = _clamp(0.55 + toxicity * 0.25, 0.45, 0.90)
+            fee_mult = 0.82
+        elif maker_preference >= 0.34:
+            mode = "hybrid"
+            slippage_mult = _clamp(0.82 + toxicity * 0.30, 0.70, 1.10)
+            fee_mult = 0.94
+        else:
+            mode = "taker"
+            slippage_mult = _clamp(1.10 + toxicity * 0.45, 1.00, 1.85)
+            fee_mult = 1.05
+
+        child_count = int(_clamp(round(2 + toxicity * 5), 2, 7))
+        return {
+            "mode": mode,
+            "queue_score": round(queue_score, 4),
+            "toxicity_score": round(toxicity, 4),
+            "dark_ratio": round(dark_ratio, 4),
+            "slippage_mult": round(slippage_mult, 4),
+            "fee_mult": round(fee_mult, 4),
+            "child_order_count": child_count,
+        }
+
+
+# ============================================================
 # BACKTESTER — Simulates trades against historical data
 # ============================================================
 
@@ -557,10 +946,16 @@ class Backtester:
         self.initial_capital = initial_capital
         self.fee_rate = fee_rate
         self.slippage = slippage
+        self.execution = ExecutionIntelligence(base_slippage=slippage, base_fee=fee_rate)
 
     def run(self, strategy, candles, pair="BTC-USD"):
         """Run backtest. Returns performance metrics."""
         signals = strategy.generate_signals(candles)
+        time_to_index = {
+            int(c.get("time", 0) or 0): idx
+            for idx, c in enumerate(candles)
+            if int(c.get("time", 0) or 0) > 0
+        }
 
         capital = self.initial_capital
         position = 0.0  # amount of base asset held
@@ -570,19 +965,33 @@ class Backtester:
         peak_equity = capital
         final_open_position_blocked = False
         final_unrealized_pnl = 0.0
+        execution_stats = {
+            "total_notional_usd": 0.0,
+            "shortfall_bps_x_notional": 0.0,
+            "toxicity_sum": 0.0,
+            "queue_sum": 0.0,
+            "dark_ratio_sum": 0.0,
+            "order_count": 0,
+            "mode_counts": {"maker": 0, "hybrid": 0, "taker": 0},
+        }
 
         for sig in signals:
             price = sig["price"]
             side = sig["side"]
             confidence = sig["confidence"]
+            sig_time = int(sig.get("time", 0) or 0)
+            idx = time_to_index.get(sig_time, len(candles) - 1 if candles else 0)
+            exec_plan = self.execution.plan(candles, idx, side=side, confidence=confidence)
+            slip_mult = float(exec_plan.get("slippage_mult", 1.0) or 1.0)
+            fee_mult = float(exec_plan.get("fee_mult", 1.0) or 1.0)
+            mode = str(exec_plan.get("mode", "hybrid"))
 
-            # Apply slippage
+            # Queue/toxicity-aware execution adjustments.
             if side == "BUY":
-                exec_price = price * (1 + self.slippage)
+                exec_price = price * (1 + self.slippage * slip_mult)
             else:
-                exec_price = price * (1 - self.slippage)
-
-            fee = self.fee_rate
+                exec_price = price * (1 - self.slippage * slip_mult)
+            fee = self.fee_rate * fee_mult
 
             if side == "BUY" and position == 0 and capital > 1.0:
                 # Size based on confidence
@@ -591,6 +1000,14 @@ class Backtester:
                 position = trade_usd / exec_price * (1 - fee)
                 entry_price = exec_price
                 capital -= trade_usd
+                shortfall_bps = (abs(exec_price - price) / max(1e-9, price)) * 10000.0
+                execution_stats["total_notional_usd"] += trade_usd
+                execution_stats["shortfall_bps_x_notional"] += shortfall_bps * trade_usd
+                execution_stats["toxicity_sum"] += float(exec_plan.get("toxicity_score", 0.0) or 0.0)
+                execution_stats["queue_sum"] += float(exec_plan.get("queue_score", 0.0) or 0.0)
+                execution_stats["dark_ratio_sum"] += float(exec_plan.get("dark_ratio", 0.0) or 0.0)
+                execution_stats["order_count"] += 1
+                execution_stats["mode_counts"][mode] = execution_stats["mode_counts"].get(mode, 0) + 1
                 trades.append({
                     "time": sig["time"],
                     "side": "BUY",
@@ -599,6 +1016,10 @@ class Backtester:
                     "usd": trade_usd,
                     "reason": sig["reason"],
                     "confidence": confidence,
+                    "execution_mode": mode,
+                    "execution_toxicity": round(float(exec_plan.get("toxicity_score", 0.0) or 0.0), 4),
+                    "execution_queue_score": round(float(exec_plan.get("queue_score", 0.0) or 0.0), 4),
+                    "execution_dark_ratio": round(float(exec_plan.get("dark_ratio", 0.0) or 0.0), 4),
                 })
 
             elif side == "SELL" and position > 0:
@@ -610,6 +1031,14 @@ class Backtester:
                 if net_value > cost_basis:  # Profitable trade
                     pnl = net_value - cost_basis
                     capital += net_value
+                    shortfall_bps = (abs(exec_price - price) / max(1e-9, price)) * 10000.0
+                    execution_stats["total_notional_usd"] += net_value
+                    execution_stats["shortfall_bps_x_notional"] += shortfall_bps * net_value
+                    execution_stats["toxicity_sum"] += float(exec_plan.get("toxicity_score", 0.0) or 0.0)
+                    execution_stats["queue_sum"] += float(exec_plan.get("queue_score", 0.0) or 0.0)
+                    execution_stats["dark_ratio_sum"] += float(exec_plan.get("dark_ratio", 0.0) or 0.0)
+                    execution_stats["order_count"] += 1
+                    execution_stats["mode_counts"][mode] = execution_stats["mode_counts"].get(mode, 0) + 1
                     trades.append({
                         "time": sig["time"],
                         "side": "SELL",
@@ -619,6 +1048,10 @@ class Backtester:
                         "pnl": round(pnl, 4),
                         "reason": sig["reason"],
                         "confidence": confidence,
+                        "execution_mode": mode,
+                        "execution_toxicity": round(float(exec_plan.get("toxicity_score", 0.0) or 0.0), 4),
+                        "execution_queue_score": round(float(exec_plan.get("queue_score", 0.0) or 0.0), 4),
+                        "execution_dark_ratio": round(float(exec_plan.get("dark_ratio", 0.0) or 0.0), 4),
                     })
                     position = 0
                     entry_price = 0
@@ -634,7 +1067,10 @@ class Backtester:
         # Close any remaining position at last price
         if position > 0 and len(candles) > 0:
             final_price = candles[-1]["close"]
-            final_value = position * final_price * (1 - self.fee_rate)
+            final_plan = self.execution.plan(candles, len(candles) - 1, side="SELL", confidence=0.5)
+            final_exec_price = final_price * (1 - self.slippage * float(final_plan.get("slippage_mult", 1.0) or 1.0))
+            final_fee = self.fee_rate * float(final_plan.get("fee_mult", 1.0) or 1.0)
+            final_value = position * final_exec_price * (1 - final_fee)
             cost_basis = position * entry_price
             final_unrealized_pnl = final_value - cost_basis
 
@@ -642,15 +1078,28 @@ class Backtester:
             if final_value > cost_basis:
                 pnl = final_value - cost_basis
                 capital += final_value
+                shortfall_bps = (abs(final_exec_price - final_price) / max(1e-9, final_price)) * 10000.0
+                execution_stats["total_notional_usd"] += final_value
+                execution_stats["shortfall_bps_x_notional"] += shortfall_bps * final_value
+                execution_stats["toxicity_sum"] += float(final_plan.get("toxicity_score", 0.0) or 0.0)
+                execution_stats["queue_sum"] += float(final_plan.get("queue_score", 0.0) or 0.0)
+                execution_stats["dark_ratio_sum"] += float(final_plan.get("dark_ratio", 0.0) or 0.0)
+                execution_stats["order_count"] += 1
+                mode = str(final_plan.get("mode", "hybrid"))
+                execution_stats["mode_counts"][mode] = execution_stats["mode_counts"].get(mode, 0) + 1
                 trades.append({
                     "time": candles[-1]["time"],
                     "side": "SELL",
-                    "price": final_price,
+                    "price": final_exec_price,
                     "amount": position,
                     "usd": final_value,
                     "pnl": round(pnl, 4),
                     "reason": "finalize_profitable_position",
                     "confidence": 0.5,
+                    "execution_mode": mode,
+                    "execution_toxicity": round(float(final_plan.get("toxicity_score", 0.0) or 0.0), 4),
+                    "execution_queue_score": round(float(final_plan.get("queue_score", 0.0) or 0.0), 4),
+                    "execution_dark_ratio": round(float(final_plan.get("dark_ratio", 0.0) or 0.0), 4),
                 })
                 position = 0
             else:
@@ -686,9 +1135,42 @@ class Backtester:
         else:
             sharpe = 0
 
+        notional = float(execution_stats.get("total_notional_usd", 0.0) or 0.0)
+        order_count = int(execution_stats.get("order_count", 0) or 0)
+        shortfall_bps = (
+            execution_stats["shortfall_bps_x_notional"] / notional
+            if notional > 0
+            else 0.0
+        )
+        toxicity_avg = (
+            execution_stats["toxicity_sum"] / order_count
+            if order_count > 0
+            else 0.0
+        )
+        queue_avg = (
+            execution_stats["queue_sum"] / order_count
+            if order_count > 0
+            else 0.0
+        )
+        dark_ratio_avg = (
+            execution_stats["dark_ratio_sum"] / order_count
+            if order_count > 0
+            else 0.0
+        )
+        execution_summary = {
+            "order_count": order_count,
+            "notional_usd": round(notional, 4),
+            "shortfall_bps": round(shortfall_bps, 4),
+            "toxicity_avg": round(toxicity_avg, 4),
+            "queue_score_avg": round(queue_avg, 4),
+            "dark_ratio_avg": round(dark_ratio_avg, 4),
+            "mode_counts": execution_stats["mode_counts"],
+        }
+
         return {
             "strategy": strategy.name,
             "pair": pair,
+            "candle_count": len(candles),
             "initial_capital": self.initial_capital,
             "final_capital": round(capital, 4),
             "total_return_pct": round(total_return * 100, 4),
@@ -706,6 +1188,7 @@ class Backtester:
             "equity_curve_end": equity_curve[-1] if equity_curve else 0,
             "final_open_position_blocked": final_open_position_blocked,
             "final_unrealized_pnl": round(final_unrealized_pnl, 4),
+            "execution_intelligence": execution_summary,
         }
 
 
@@ -767,6 +1250,23 @@ class PaperTrader:
             dd = (peak - entry["equity"]) / peak if peak > 0 else 0
             max_drawdown = max(max_drawdown, dd)
 
+        returns = []
+        for i in range(1, len(self.equity_history)):
+            prev_eq = self.equity_history[i - 1]["equity"]
+            curr_eq = self.equity_history[i]["equity"]
+            if prev_eq > 0:
+                returns.append((curr_eq - prev_eq) / prev_eq)
+        if returns:
+            avg_return = sum(returns) / len(returns)
+            if len(returns) > 1:
+                variance = sum((r - avg_return) ** 2 for r in returns) / len(returns)
+                std_return = math.sqrt(max(0.0, variance))
+            else:
+                std_return = 0.001
+            sharpe = (avg_return / std_return) * math.sqrt(len(returns)) if std_return > 0 else 0.0
+        else:
+            sharpe = 0.0
+
         return {
             "strategy": self.strategy.name,
             "pair": self.pair,
@@ -776,6 +1276,378 @@ class PaperTrader:
             "total_trades": len(self.trades),
             "win_rate": round(win_rate, 4),
             "max_drawdown_pct": round(max_drawdown * 100, 4),
+            "sharpe_ratio": round(sharpe, 4),
+        }
+
+
+# ============================================================
+# GROWTH MODE — Monte Carlo robustness + risk governor + budget escalator
+# ============================================================
+
+class GrowthModeController:
+    """Deterministic risk governance for strict growth mode."""
+
+    def __init__(self):
+        self.enabled = GROWTH_MODE_ENABLED
+
+    @staticmethod
+    def _percentile(values, pct):
+        if not values:
+            return 0.0
+        if len(values) == 1:
+            return float(values[0])
+        pct = max(0.0, min(100.0, float(pct)))
+        rank = (pct / 100.0) * (len(values) - 1)
+        lo = int(math.floor(rank))
+        hi = int(math.ceil(rank))
+        if lo == hi:
+            return float(values[lo])
+        weight = rank - lo
+        return float(values[lo] * (1 - weight) + values[hi] * weight)
+
+    @staticmethod
+    def _trade_returns(results):
+        initial_capital = float(results.get("initial_capital", 100.0) or 100.0)
+        trades = results.get("trades", []) if isinstance(results.get("trades"), list) else []
+        returns = []
+        for t in trades:
+            if str(t.get("side", "")).upper() != "SELL":
+                continue
+            pnl = float(t.get("pnl", 0.0) or 0.0)
+            if initial_capital > 0:
+                returns.append(pnl / initial_capital)
+
+        # Fallback for sparse trade logs: derive pseudo-returns from aggregate return.
+        if not returns:
+            total_ret = float(results.get("total_return_pct", 0.0) or 0.0) / 100.0
+            inferred_n = int(results.get("sell_trades", 0) or 0)
+            inferred_n = max(1, inferred_n)
+            chunk = total_ret / inferred_n
+            returns = [chunk] * inferred_n
+        return returns
+
+    @staticmethod
+    def _mean(values):
+        if not values:
+            return 0.0
+        return float(sum(values) / len(values))
+
+    @staticmethod
+    def _std(values):
+        if not values or len(values) <= 1:
+            return 0.0
+        try:
+            return float(statistics.pstdev(values))
+        except Exception:
+            return 0.0
+
+    def _probabilistic_assessment(self, results, base_returns, p05_mc, p50_mc, p95_dd):
+        returns_pct = sorted([float(r) * 100.0 for r in base_returns])
+        p05_hist = self._percentile(returns_pct, 5)
+        p025_hist = self._percentile(returns_pct, 2.5)
+        var95_loss = max(0.0, -p05_hist)
+        tail_losses = [-r for r in returns_pct if r <= p025_hist]
+        if not tail_losses:
+            tail_losses = [max(0.0, -p025_hist)]
+        es97_5_loss = self._mean(tail_losses)
+
+        sharpe = float(results.get("sharpe_ratio", 0.0) or 0.0)
+        dd = float(results.get("max_drawdown_pct", 0.0) or 0.0)
+        vol = self._std(base_returns) * 100.0
+        regime = "calm"
+        if dd > 2.5 or vol > 0.40:
+            regime = "stressed"
+        elif sharpe > 0.5 and vol < 0.25:
+            regime = "trend"
+        elif sharpe < 0:
+            regime = "fragile"
+
+        walkforward = results.get("walkforward") if isinstance(results.get("walkforward"), dict) else {}
+        oos = walkforward.get("out_of_sample") if isinstance(walkforward.get("out_of_sample"), dict) else {}
+        ins = walkforward.get("in_sample") if isinstance(walkforward.get("in_sample"), dict) else {}
+        oos_ret = float(oos.get("total_return_pct", 0.0) or 0.0)
+        ins_ret = float(ins.get("total_return_pct", results.get("total_return_pct", 0.0)) or 0.0)
+
+        drift_score = 0.25
+        if walkforward.get("available"):
+            drift_score = abs(oos_ret - ins_ret) / max(0.05, abs(ins_ret))
+        drift_score = float(_clamp(drift_score, 0.0, 3.0))
+
+        conformal_error = 0.20
+        if walkforward.get("available"):
+            low = self._percentile(returns_pct, 10)
+            high = self._percentile(returns_pct, 90)
+            band = max(0.10, high - low)
+            if oos_ret < low:
+                conformal_error = min(1.0, abs(low - oos_ret) / band)
+            elif oos_ret > high:
+                conformal_error = min(1.0, abs(oos_ret - high) / band)
+            else:
+                conformal_error = 0.0
+        conformal_error = float(_clamp(conformal_error, 0.0, 1.0))
+
+        calibrated_p05 = min(p05_mc, p05_hist - conformal_error * 0.25)
+        reasons = []
+        if var95_loss > GROWTH_MAX_VAR95_LOSS_PCT:
+            reasons.append(
+                f"probabilistic var95_loss {var95_loss:.2f}% > {GROWTH_MAX_VAR95_LOSS_PCT:.2f}%"
+            )
+        if es97_5_loss > GROWTH_MAX_ES97_5_LOSS_PCT:
+            reasons.append(
+                f"probabilistic es97_5_loss {es97_5_loss:.2f}% > {GROWTH_MAX_ES97_5_LOSS_PCT:.2f}%"
+            )
+        if conformal_error > GROWTH_CONFORMAL_MAX_ERROR:
+            reasons.append(
+                f"probabilistic conformal_error {conformal_error:.2f} > {GROWTH_CONFORMAL_MAX_ERROR:.2f}"
+            )
+
+        return {
+            "regime": regime,
+            "volatility_pct": round(vol, 4),
+            "var95_loss_pct": round(var95_loss, 4),
+            "es97_5_loss_pct": round(es97_5_loss, 4),
+            "drift_score": round(drift_score, 4),
+            "conformal_error": round(conformal_error, 4),
+            "calibrated_p05_return_pct": round(calibrated_p05, 4),
+            "passed": len(reasons) == 0,
+            "reasons": reasons,
+        }
+
+    def evaluate_monte_carlo(self, strategy_name, pair, results, criteria):
+        report = {
+            "enabled": MONTE_CARLO_GATE_ENABLED,
+            "available": False,
+            "passed": False,
+            "paths": MONTE_CARLO_PATHS,
+            "path_trades": 0,
+            "required_min_trades": MONTE_CARLO_MIN_TRADES,
+            "p05_return_pct": 0.0,
+            "p50_return_pct": 0.0,
+            "p95_drawdown_pct": 0.0,
+            "probabilistic": {},
+            "reasons": [],
+        }
+        if not MONTE_CARLO_GATE_ENABLED:
+            report["passed"] = True
+            report["reasons"] = ["monte_carlo_gate_disabled"]
+            return report
+
+        base_returns = self._trade_returns(results)
+        observed_trades = len(base_returns)
+        candle_count = int(results.get("candle_count", 0) or 0)
+        min_trades_required = MONTE_CARLO_MIN_TRADES
+        if candle_count < 96:
+            min_trades_required = max(1, MONTE_CARLO_MIN_TRADES - 1)
+        report["required_min_trades"] = min_trades_required
+        if observed_trades < min_trades_required:
+            report["reasons"].append(
+                f"monte_carlo trades {observed_trades} < {min_trades_required}"
+            )
+            return report
+
+        path_trades = max(MONTE_CARLO_MIN_PATH_TRADES, observed_trades)
+        report["path_trades"] = path_trades
+        seed_material = (
+            f"{strategy_name}|{pair}|{results.get('candle_count', 0)}|"
+            f"{results.get('total_return_pct', 0.0)}|{results.get('win_rate', 0.0)}"
+        )
+        seed = sum((i + 1) * ord(ch) for i, ch in enumerate(seed_material)) % (2 ** 32)
+        rng = random.Random(seed)
+
+        final_returns = []
+        max_drawdowns = []
+        for _ in range(max(10, MONTE_CARLO_PATHS)):
+            equity = 1.0
+            peak = 1.0
+            max_dd = 0.0
+            for _ in range(path_trades):
+                r = rng.choice(base_returns)
+                equity *= max(0.0, 1.0 + r)
+                peak = max(peak, equity)
+                dd = (peak - equity) / peak if peak > 0 else 1.0
+                max_dd = max(max_dd, dd)
+            final_returns.append((equity - 1.0) * 100.0)
+            max_drawdowns.append(max_dd * 100.0)
+
+        final_returns.sort()
+        max_drawdowns.sort()
+        p05_ret = self._percentile(final_returns, 5)
+        p50_ret = self._percentile(final_returns, 50)
+        p95_dd = self._percentile(max_drawdowns, 95)
+
+        report.update(
+            {
+                "available": True,
+                "p05_return_pct": round(p05_ret, 4),
+                "p50_return_pct": round(p50_ret, 4),
+                "p95_drawdown_pct": round(p95_dd, 4),
+            }
+        )
+        probabilistic = self._probabilistic_assessment(results, base_returns, p05_ret, p50_ret, p95_dd)
+        report["probabilistic"] = probabilistic
+
+        min_p50 = max(MONTE_CARLO_MIN_P50_RETURN_PCT, criteria["min_return_pct"] * 0.25)
+        max_p95_dd = min(MONTE_CARLO_MAX_P95_DRAWDOWN_PCT, criteria["max_drawdown_pct"] * 1.10)
+        if p50_ret < min_p50:
+            report["reasons"].append(f"monte_carlo p50 {p50_ret:.2f}% < {min_p50:.2f}%")
+        if p05_ret < MONTE_CARLO_MIN_P05_RETURN_PCT:
+            report["reasons"].append(
+                f"monte_carlo p05 {p05_ret:.2f}% < {MONTE_CARLO_MIN_P05_RETURN_PCT:.2f}%"
+            )
+        if p95_dd > max_p95_dd:
+            report["reasons"].append(f"monte_carlo p95_dd {p95_dd:.2f}% > {max_p95_dd:.2f}%")
+        calibrated_p05 = float(probabilistic.get("calibrated_p05_return_pct", p05_ret) or p05_ret)
+        if calibrated_p05 < MONTE_CARLO_MIN_P05_RETURN_PCT:
+            report["reasons"].append(
+                f"probabilistic calibrated_p05 {calibrated_p05:.2f}% < {MONTE_CARLO_MIN_P05_RETURN_PCT:.2f}%"
+            )
+        if not probabilistic.get("passed", True):
+            report["reasons"].extend(probabilistic.get("reasons", []))
+
+        report["passed"] = not report["reasons"]
+        return report
+
+    def build_risk_profile(self, results, criteria, monte_carlo):
+        ret = float(results.get("total_return_pct", 0.0) or 0.0)
+        win = float(results.get("win_rate", 0.0) or 0.0)
+        dd = float(results.get("max_drawdown_pct", 0.0) or 0.0)
+        sharpe = float(results.get("sharpe_ratio", 0.0) or 0.0)
+        p50 = float(monte_carlo.get("p50_return_pct", 0.0) or 0.0)
+        p05 = float(monte_carlo.get("p05_return_pct", 0.0) or 0.0)
+        probabilistic = (
+            monte_carlo.get("probabilistic", {})
+            if isinstance(monte_carlo.get("probabilistic"), dict)
+            else {}
+        )
+        var95_loss = float(probabilistic.get("var95_loss_pct", 0.0) or 0.0)
+        es97_5_loss = float(probabilistic.get("es97_5_loss_pct", 0.0) or 0.0)
+        drift_score = float(probabilistic.get("drift_score", 0.0) or 0.0)
+        conformal_error = float(probabilistic.get("conformal_error", 0.0) or 0.0)
+        calibrated_p05 = float(probabilistic.get("calibrated_p05_return_pct", p05) or p05)
+        pair = str(results.get("pair", "")).upper()
+
+        score = 0.0
+        score += min(1.4, max(0.0, ret) / max(0.01, criteria["min_return_pct"])) * 0.30
+        score += min(1.2, max(0.0, sharpe + 0.5)) * 0.20
+        score += min(1.2, max(0.0, (win - 0.50) * 5.0)) * 0.20
+        score += min(1.2, max(0.0, p50 / max(0.01, criteria["min_return_pct"]))) * 0.20
+        score += min(1.0, max(0.0, calibrated_p05 + 0.50)) * 0.10
+        score -= min(1.0, dd / max(0.01, criteria["max_drawdown_pct"])) * 0.30
+        score -= min(0.6, var95_loss / max(0.10, GROWTH_MAX_VAR95_LOSS_PCT)) * 0.20
+        score -= min(0.6, es97_5_loss / max(0.10, GROWTH_MAX_ES97_5_LOSS_PCT)) * 0.20
+        score -= min(0.4, drift_score / max(0.10, GROWTH_DRIFT_ALERT_THRESHOLD)) * 0.10
+        score = max(0.0, min(1.5, score))
+
+        tier = "tiny"
+        if score >= 1.15:
+            tier = "elite"
+        elif score >= 0.95:
+            tier = "high"
+        elif score >= 0.75:
+            tier = "standard"
+
+        reasons = []
+        approved = True
+        if ret <= 0:
+            approved = False
+            reasons.append("risk_governor: non-positive return")
+        if dd > criteria["max_drawdown_pct"]:
+            approved = False
+            reasons.append("risk_governor: drawdown above limit")
+        if MONTE_CARLO_GATE_ENABLED and not monte_carlo.get("passed", False):
+            approved = False
+            reasons.append("risk_governor: monte_carlo gate failed")
+        if es97_5_loss > GROWTH_MAX_ES97_5_LOSS_PCT:
+            approved = False
+            reasons.append("risk_governor: expected shortfall above limit")
+        if var95_loss > GROWTH_MAX_VAR95_LOSS_PCT:
+            approved = False
+            reasons.append("risk_governor: VaR above limit")
+
+        base = max(GROWTH_START_BUDGET_MIN_USD, PIPELINE_PORTFOLIO_USD * GROWTH_START_BUDGET_PCT)
+        tier_mult = {"tiny": 0.75, "standard": 1.00, "high": 1.20, "elite": 1.40}.get(tier, 0.75)
+        starter_budget = base * tier_mult
+        starter_budget = min(GROWTH_START_BUDGET_MAX_USD, max(GROWTH_START_BUDGET_MIN_USD, starter_budget))
+        max_budget = min(GROWTH_BUDGET_MAX_USD, max(starter_budget * 2.0, starter_budget + 1.0))
+
+        sleeve = "satellite"
+        if pair.startswith("BTC") or pair.startswith("ETH"):
+            sleeve = "core"
+        elif pair.startswith("SOL") or pair.startswith("AVAX") or pair.startswith("LINK"):
+            sleeve = "growth"
+        sleeve_cap_pct = {"core": 0.22, "growth": 0.14, "satellite": 0.10}.get(sleeve, 0.10)
+
+        auto_deleverage_factor = 1.0
+        if es97_5_loss > GROWTH_MAX_ES97_5_LOSS_PCT * 0.80:
+            auto_deleverage_factor *= 0.75
+        if drift_score > GROWTH_DRIFT_ALERT_THRESHOLD * 0.80:
+            auto_deleverage_factor *= 0.82
+        if conformal_error > GROWTH_CONFORMAL_MAX_ERROR * 0.80:
+            auto_deleverage_factor *= 0.85
+        starter_budget *= auto_deleverage_factor
+        max_budget *= auto_deleverage_factor
+
+        sleeve_cap_usd = PIPELINE_PORTFOLIO_USD * sleeve_cap_pct
+        starter_budget = min(starter_budget, sleeve_cap_usd)
+        max_budget = min(max_budget, sleeve_cap_usd)
+        max_position_pct = min(0.20, max(0.03, 0.06 + (score * 0.04)))
+        max_daily_loss_pct = max(0.50, 2.50 - score)
+        kill_switch = (
+            f"kill_if_drawdown_gt_{criteria['max_drawdown_pct']:.2f}pct_or_daily_loss_gt_"
+            f"{max_daily_loss_pct:.2f}pct_or_return_non_positive"
+        )
+
+        return {
+            "approved": approved,
+            "reasons": reasons,
+            "tier": tier,
+            "score": round(score, 4),
+            "starter_budget_usd": round(starter_budget, 2),
+            "max_budget_usd": round(max_budget, 2),
+            "max_position_pct": round(max_position_pct, 4),
+            "max_daily_loss_pct": round(max_daily_loss_pct, 4),
+            "var95_loss_pct": round(var95_loss, 4),
+            "es97_5_loss_pct": round(es97_5_loss, 4),
+            "drift_score": round(drift_score, 4),
+            "conformal_error": round(conformal_error, 4),
+            "calibrated_p05_return_pct": round(calibrated_p05, 4),
+            "sleeve": sleeve,
+            "sleeve_cap_usd": round(sleeve_cap_usd, 2),
+            "auto_deleverage_factor": round(auto_deleverage_factor, 4),
+            "kill_switch": kill_switch,
+        }
+
+    def escalate_budget(self, current_budget, max_budget, paper_metrics, promote_hot=False):
+        runtime = int(paper_metrics.get("runtime_seconds", 0) or 0)
+        ret = float(paper_metrics.get("total_return_pct", 0.0) or 0.0)
+        win = float(paper_metrics.get("win_rate", 0.0) or 0.0)
+        dd = float(paper_metrics.get("max_drawdown_pct", 0.0) or 0.0)
+
+        current = max(GROWTH_START_BUDGET_MIN_USD, float(current_budget or 0.0))
+        ceiling = max(current, float(max_budget or current))
+        action = "hold"
+        reason = "no_change"
+        next_budget = current
+
+        if runtime < GROWTH_ESCALATE_MIN_RUNTIME_SECONDS:
+            reason = f"runtime {runtime}s < {GROWTH_ESCALATE_MIN_RUNTIME_SECONDS}s"
+        elif ret <= 0 or dd > WARM_TO_HOT["max_drawdown_pct"] * 1.1:
+            action = "decrease"
+            next_budget = max(GROWTH_START_BUDGET_MIN_USD, current * GROWTH_BUDGET_DECAY_FACTOR)
+            reason = "negative_return_or_high_drawdown"
+        elif win >= WARM_TO_HOT["min_win_rate"] and ret >= WARM_TO_HOT["min_return_pct"]:
+            action = "increase"
+            growth = GROWTH_BUDGET_ESCALATE_FACTOR * (1.08 if promote_hot else 1.0)
+            next_budget = min(ceiling, current * growth)
+            reason = "strong_positive_paper_metrics"
+
+        next_budget = min(GROWTH_BUDGET_MAX_USD, max(GROWTH_START_BUDGET_MIN_USD, next_budget))
+        return {
+            "action": action,
+            "reason": reason,
+            "from_budget_usd": round(current, 2),
+            "to_budget_usd": round(next_budget, 2),
+            "max_budget_usd": round(ceiling, 2),
         }
 
 
@@ -790,6 +1662,7 @@ class StrategyValidator:
         self.db = sqlite3.connect(PIPELINE_DB)
         self.db.row_factory = sqlite3.Row
         self._init_db()
+        self.growth = GrowthModeController()
 
     def _init_db(self):
         self.db.executescript("""
@@ -816,6 +1689,17 @@ class StrategyValidator:
                 details_json TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS strategy_budgets (
+                strategy_name TEXT NOT NULL,
+                pair TEXT NOT NULL,
+                current_budget_usd REAL DEFAULT 0,
+                starter_budget_usd REAL DEFAULT 0,
+                max_budget_usd REAL DEFAULT 0,
+                risk_tier TEXT DEFAULT 'blocked',
+                governor_json TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (strategy_name, pair)
+            );
         """)
         self.db.commit()
 
@@ -829,8 +1713,131 @@ class StrategyValidator:
         self.db.commit()
         self._log_event(strategy.name, pair, "registered", {})
 
+    def update_strategy_params(self, strategy_name, pair, params=None):
+        """Update stored parameters for an existing strategy registration."""
+        self.db.execute(
+            """UPDATE strategy_registry
+               SET params_json=?, updated_at=CURRENT_TIMESTAMP
+               WHERE name=? AND pair=?""",
+            (json.dumps(params or {}), strategy_name, pair),
+        )
+        self.db.commit()
+
+    def _set_budget_profile(self, strategy_name, pair, profile):
+        profile = profile or {}
+        current_budget = float(profile.get("current_budget_usd", profile.get("starter_budget_usd", 0.0)) or 0.0)
+        starter_budget = float(profile.get("starter_budget_usd", current_budget) or 0.0)
+        max_budget = float(profile.get("max_budget_usd", max(current_budget, starter_budget)) or 0.0)
+        risk_tier = str(profile.get("tier", profile.get("risk_tier", "blocked")))
+        self.db.execute(
+            """INSERT INTO strategy_budgets
+               (strategy_name, pair, current_budget_usd, starter_budget_usd, max_budget_usd, risk_tier, governor_json, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+               ON CONFLICT(strategy_name, pair) DO UPDATE SET
+                 current_budget_usd=excluded.current_budget_usd,
+                 starter_budget_usd=excluded.starter_budget_usd,
+                 max_budget_usd=excluded.max_budget_usd,
+                 risk_tier=excluded.risk_tier,
+                 governor_json=excluded.governor_json,
+                 updated_at=CURRENT_TIMESTAMP
+            """,
+            (
+                strategy_name,
+                pair,
+                current_budget,
+                starter_budget,
+                max_budget,
+                risk_tier,
+                json.dumps(profile),
+            ),
+        )
+        self.db.commit()
+
+    def get_budget_profile(self, strategy_name, pair):
+        row = self.db.execute(
+            """SELECT current_budget_usd, starter_budget_usd, max_budget_usd, risk_tier, governor_json
+               FROM strategy_budgets WHERE strategy_name=? AND pair=?""",
+            (strategy_name, pair),
+        ).fetchone()
+        if not row:
+            return {
+                "current_budget_usd": 0.0,
+                "starter_budget_usd": 0.0,
+                "max_budget_usd": 0.0,
+                "risk_tier": "blocked",
+                "governor": {},
+            }
+        governor = {}
+        try:
+            governor = json.loads(row["governor_json"] or "{}")
+        except Exception:
+            governor = {}
+        return {
+            "current_budget_usd": float(row["current_budget_usd"] or 0.0),
+            "starter_budget_usd": float(row["starter_budget_usd"] or 0.0),
+            "max_budget_usd": float(row["max_budget_usd"] or 0.0),
+            "risk_tier": str(row["risk_tier"] or "blocked"),
+            "governor": governor,
+        }
+
+    def funded_budget_snapshot(self):
+        """Return aggregate funded budget exposure across WARM/HOT strategies."""
+        rows = self.db.execute(
+            """
+            SELECT r.pair, COUNT(*) AS n, COALESCE(SUM(b.current_budget_usd), 0) AS budget
+            FROM strategy_budgets b
+            JOIN strategy_registry r
+              ON r.name = b.strategy_name AND r.pair = b.pair
+            WHERE r.stage IN ('WARM', 'HOT')
+              AND COALESCE(b.current_budget_usd, 0) > 0
+            GROUP BY r.pair
+            """
+        ).fetchall()
+        per_pair = {}
+        total_budget = 0.0
+        total_count = 0
+        for row in rows:
+            pair = str(row["pair"])
+            n = int(row["n"] or 0)
+            budget = float(row["budget"] or 0.0)
+            per_pair[pair] = {"count": n, "budget_usd": round(budget, 2)}
+            total_budget += budget
+            total_count += n
+        return {
+            "per_pair": per_pair,
+            "total_budget_usd": round(total_budget, 2),
+            "total_funded_strategies": total_count,
+        }
+
+    def _cold_criteria(self, results):
+        """Adaptive COLD gating for shorter lookback windows."""
+        criteria = dict(COLD_TO_WARM)
+        if not ADAPTIVE_COLD_GATING:
+            return criteria
+
+        candle_count = int(results.get("candle_count", 0) or 0)
+        if candle_count <= 0:
+            return criteria
+
+        # Local fallback windows can be short; relax trade-count/return gates proportionally.
+        if candle_count < 96:
+            criteria["min_trades"] = 2
+            criteria["min_win_rate"] = 0.55
+            criteria["min_return_pct"] = 0.10
+        elif candle_count < 192:
+            criteria["min_trades"] = 6
+            criteria["min_win_rate"] = 0.58
+            criteria["min_return_pct"] = 0.25
+        return criteria
+
     def submit_backtest(self, strategy_name, pair, results):
         """Submit backtest results and check for COLD → WARM promotion."""
+        stage_row = self.db.execute(
+            "SELECT stage FROM strategy_registry WHERE name=? AND pair=?",
+            (strategy_name, pair),
+        ).fetchone()
+        current_stage = str(stage_row["stage"] if stage_row and stage_row["stage"] else "COLD").upper()
+
         self.db.execute(
             """UPDATE strategy_registry SET backtest_results_json=?, updated_at=CURRENT_TIMESTAMP
                WHERE name=? AND pair=?""",
@@ -839,24 +1846,25 @@ class StrategyValidator:
         self.db.commit()
 
         # Check promotion criteria
+        criteria = self._cold_criteria(results)
         passed = True
         reasons = []
 
-        if results["total_trades"] < COLD_TO_WARM["min_trades"]:
+        if results["total_trades"] < criteria["min_trades"]:
             passed = False
-            reasons.append(f"trades {results['total_trades']} < {COLD_TO_WARM['min_trades']}")
+            reasons.append(f"trades {results['total_trades']} < {criteria['min_trades']}")
 
-        if results["win_rate"] < COLD_TO_WARM["min_win_rate"]:
+        if results["win_rate"] < criteria["min_win_rate"]:
             passed = False
-            reasons.append(f"win_rate {results['win_rate']:.2%} < {COLD_TO_WARM['min_win_rate']:.2%}")
+            reasons.append(f"win_rate {results['win_rate']:.2%} < {criteria['min_win_rate']:.2%}")
 
-        if results["total_return_pct"] < COLD_TO_WARM["min_return_pct"]:
+        if results["total_return_pct"] < criteria["min_return_pct"]:
             passed = False
-            reasons.append(f"return {results['total_return_pct']:.2f}% < {COLD_TO_WARM['min_return_pct']}%")
+            reasons.append(f"return {results['total_return_pct']:.2f}% < {criteria['min_return_pct']}%")
 
-        if results["max_drawdown_pct"] > COLD_TO_WARM["max_drawdown_pct"]:
+        if results["max_drawdown_pct"] > criteria["max_drawdown_pct"]:
             passed = False
-            reasons.append(f"drawdown {results['max_drawdown_pct']:.2f}% > {COLD_TO_WARM['max_drawdown_pct']}%")
+            reasons.append(f"drawdown {results['max_drawdown_pct']:.2f}% > {criteria['max_drawdown_pct']}%")
 
         if STRICT_PROFIT_ONLY:
             if results.get("losses", 0) > 0:
@@ -868,47 +1876,351 @@ class StrategyValidator:
                     "strict mode: backtest ended with underwater open position (loss close blocked)"
                 )
 
+        # Walk-forward out-of-sample gate: require real performance beyond training slice.
+        candle_count = int(results.get("candle_count", 0) or 0)
+        require_walkforward = WALKFORWARD_REQUIRED and candle_count >= WALKFORWARD_MIN_TOTAL_CANDLES
+        walkforward = results.get("walkforward") if isinstance(results.get("walkforward"), dict) else None
+        walkforward_sparse_evidence = False
+        walkforward_oos_trades = 0
+        walkforward_oos_candles = 0
+        if require_walkforward:
+            if not walkforward:
+                passed = False
+                reasons.append("walkforward missing for eligible sample")
+            else:
+                oos = walkforward.get("out_of_sample", {}) if isinstance(walkforward.get("out_of_sample"), dict) else {}
+                ins = walkforward.get("in_sample", {}) if isinstance(walkforward.get("in_sample"), dict) else {}
+
+                oos_trades = int(oos.get("total_trades", 0) or 0)
+                oos_win = float(oos.get("win_rate", 0.0) or 0.0)
+                oos_ret = float(oos.get("total_return_pct", 0.0) or 0.0)
+                oos_dd = float(oos.get("max_drawdown_pct", 0.0) or 0.0)
+                oos_losses = int(oos.get("losses", 0) or 0)
+                oos_candles = int(oos.get("candle_count", 0) or walkforward.get("out_of_sample_candles", 0) or 0)
+                walkforward_oos_trades = oos_trades
+                walkforward_oos_candles = oos_candles
+                ins_ret = float(ins.get("total_return_pct", 0.0) or 0.0)
+
+                min_oos_return = max(
+                    WALKFORWARD_MIN_OOS_RETURN_PCT,
+                    criteria["min_return_pct"] * WALKFORWARD_RET_FRACTION,
+                )
+
+                sparse_oos_window = oos_trades == 0 and oos_candles < 48
+                walkforward_sparse_evidence = sparse_oos_window
+                if not sparse_oos_window and oos_trades < WALKFORWARD_MIN_OOS_TRADES:
+                    passed = False
+                    reasons.append(f"walkforward oos trades {oos_trades} < {WALKFORWARD_MIN_OOS_TRADES}")
+                if sparse_oos_window:
+                    if oos_ret < 0:
+                        passed = False
+                        reasons.append(
+                            f"walkforward sparse_oos return {oos_ret:.2f}% < 0.00% (candles={oos_candles})"
+                        )
+                elif oos_ret < min_oos_return:
+                    passed = False
+                    reasons.append(f"walkforward oos return {oos_ret:.2f}% < {min_oos_return:.2f}%")
+                if oos_dd > criteria["max_drawdown_pct"] * WALKFORWARD_DD_MULT:
+                    passed = False
+                    reasons.append(
+                        f"walkforward oos drawdown {oos_dd:.2f}% > "
+                        f"{criteria['max_drawdown_pct'] * WALKFORWARD_DD_MULT:.2f}%"
+                    )
+                if not sparse_oos_window and oos_trades >= 2 and oos_win < 0.50:
+                    passed = False
+                    reasons.append(f"walkforward oos win_rate {oos_win:.2%} < 50.00%")
+                if STRICT_PROFIT_ONLY and oos_losses > 0:
+                    passed = False
+                    reasons.append(f"walkforward strict mode: {oos_losses} oos losing trades")
+                if ins_ret >= 0.30 and oos_ret < ins_ret * WALKFORWARD_RETENTION_RATIO:
+                    passed = False
+                    reasons.append(
+                        f"walkforward retention {oos_ret:.2f}% < "
+                        f"{ins_ret * WALKFORWARD_RETENTION_RATIO:.2f}% ({WALKFORWARD_RETENTION_RATIO:.0%} of IS)"
+                    )
+
+        growth_details = {
+            "enabled": GROWTH_MODE_ENABLED,
+            "monte_carlo": {},
+            "risk_governor": {},
+        }
+        if GROWTH_MODE_ENABLED:
+            monte_carlo = self.growth.evaluate_monte_carlo(strategy_name, pair, results, criteria)
+            growth_details["monte_carlo"] = monte_carlo
+            if not monte_carlo.get("passed", False):
+                passed = False
+                reasons.extend(monte_carlo.get("reasons", []))
+
+            risk_governor = self.growth.build_risk_profile(results, criteria, monte_carlo)
+            growth_details["risk_governor"] = risk_governor
+            if not risk_governor.get("approved", False):
+                passed = False
+                reasons.extend(risk_governor.get("reasons", []))
+
+        if current_stage in {"WARM", "HOT"}:
+            refresh_event = "backtest_refresh_passed" if passed else "backtest_refresh_failed_stage_retained"
+            self._log_event(
+                strategy_name,
+                pair,
+                refresh_event,
+                {
+                    "stage": current_stage,
+                    "passed_cold_gate": bool(passed),
+                    "reasons": reasons,
+                    "criteria": criteria,
+                    "adaptive_cold_gating": ADAPTIVE_COLD_GATING,
+                    "walkforward_required": require_walkforward,
+                    "walkforward_present": bool(walkforward),
+                    "growth_mode": growth_details,
+                },
+            )
+            if passed:
+                return True, f"Retained {current_stage} (refresh passed)"
+            return False, f"Retained {current_stage}: {', '.join(reasons)}"
+
         if passed:
+            risk_profile = growth_details.get("risk_governor", {})
+            if not risk_profile:
+                risk_profile = {
+                    "tier": "standard",
+                    "starter_budget_usd": 1.0,
+                    "max_budget_usd": 2.0,
+                    "current_budget_usd": 1.0,
+                }
+            funding_notes = []
+            if GROWTH_MODE_ENABLED and risk_profile.get("starter_budget_usd", 0) > 0:
+                if walkforward_sparse_evidence:
+                    orig_starter = float(risk_profile.get("starter_budget_usd", 0.0) or 0.0)
+                    orig_max = float(risk_profile.get("max_budget_usd", 0.0) or 0.0)
+                    scaled_starter = round(max(0.0, orig_starter * SPARSE_OOS_FUNDING_MULT), 2)
+                    scaled_max = round(max(scaled_starter, orig_max * SPARSE_OOS_FUNDING_MULT), 2)
+                    risk_profile["starter_budget_usd"] = scaled_starter
+                    risk_profile["max_budget_usd"] = scaled_max
+                    risk_profile["tier"] = "shadow"
+                    funding_notes.append(
+                        f"sparse_oos_funding_scaled_{orig_starter:.2f}_to_{scaled_starter:.2f}"
+                    )
+
+                funded = self.funded_budget_snapshot()
+                pair_funded = funded.get("per_pair", {}).get(pair, {})
+                pair_count = int(pair_funded.get("count", 0) or 0)
+                pair_budget = float(pair_funded.get("budget_usd", 0.0) or 0.0)
+                total_funded_budget = float(funded.get("total_budget_usd", 0.0) or 0.0)
+                starter_budget = float(risk_profile.get("starter_budget_usd", 0.0) or 0.0)
+                max_total_budget = max(
+                    GROWTH_START_BUDGET_MIN_USD,
+                    PIPELINE_PORTFOLIO_USD * max(0.0, WARM_MAX_TOTAL_FUNDED_BUDGET_PCT),
+                )
+                if pair_count >= WARM_MAX_FUNDED_PER_PAIR:
+                    risk_profile["starter_budget_usd"] = 0.0
+                    risk_profile["max_budget_usd"] = 0.0
+                    risk_profile["tier"] = "shadow"
+                    funding_notes.append(
+                        f"pair_funding_cap_reached_{pair_count}_gte_{WARM_MAX_FUNDED_PER_PAIR}"
+                    )
+                else:
+                    room = round(max(0.0, max_total_budget - total_funded_budget), 2)
+                    if starter_budget > room:
+                        if room <= 0:
+                            risk_profile["starter_budget_usd"] = 0.0
+                            risk_profile["max_budget_usd"] = 0.0
+                            risk_profile["tier"] = "shadow"
+                            funding_notes.append(
+                                f"total_funding_cap_exhausted_{total_funded_budget:.2f}_of_{max_total_budget:.2f}"
+                            )
+                        else:
+                            risk_profile["starter_budget_usd"] = room
+                            risk_profile["max_budget_usd"] = max(room, min(float(risk_profile.get("max_budget_usd", room) or room), room * 2))
+                            risk_profile["tier"] = "shadow"
+                            funding_notes.append(
+                                f"total_funding_cap_trimmed_to_{room:.2f}"
+                            )
+
+                starter_budget = float(risk_profile.get("starter_budget_usd", 0.0) or 0.0)
+                pair_share_cap = max(0.0, min(0.99, float(WARM_MAX_PAIR_BUDGET_SHARE)))
+                if starter_budget > 0 and total_funded_budget > 0 and pair_share_cap < 0.99:
+                    # Keep any single pair from dominating funded capital.
+                    numer = (pair_share_cap * total_funded_budget) - pair_budget
+                    denom = max(1e-9, 1.0 - pair_share_cap)
+                    allowed_increment = round(max(0.0, numer / denom), 2)
+                    if starter_budget > allowed_increment:
+                        if allowed_increment <= 0:
+                            risk_profile["starter_budget_usd"] = 0.0
+                            risk_profile["max_budget_usd"] = 0.0
+                            risk_profile["tier"] = "shadow"
+                            funding_notes.append(
+                                f"pair_share_cap_blocked_{pair}:{pair_budget:.2f}/{max(total_funded_budget, 0.01):.2f}>={pair_share_cap:.0%}"
+                            )
+                        else:
+                            risk_profile["starter_budget_usd"] = allowed_increment
+                            risk_profile["max_budget_usd"] = max(
+                                allowed_increment,
+                                min(
+                                    float(risk_profile.get("max_budget_usd", allowed_increment) or allowed_increment),
+                                    allowed_increment * 2,
+                                ),
+                            )
+                            risk_profile["tier"] = "shadow"
+                            funding_notes.append(
+                                f"pair_share_cap_trimmed_to_{allowed_increment:.2f}"
+                            )
+
+            risk_profile["current_budget_usd"] = risk_profile.get(
+                "current_budget_usd", risk_profile.get("starter_budget_usd", 0.0)
+            )
+            risk_profile["current_budget_usd"] = risk_profile.get("starter_budget_usd", 0.0)
+            if funding_notes:
+                risk_profile["funding_notes"] = funding_notes
+            self._set_budget_profile(strategy_name, pair, risk_profile)
+
             self.db.execute(
                 """UPDATE strategy_registry SET stage='WARM', promoted_at=CURRENT_TIMESTAMP
                    WHERE name=? AND pair=?""",
                 (strategy_name, pair)
             )
             self.db.commit()
-            self._log_event(strategy_name, pair, "promoted_to_WARM", results)
+            self._log_event(
+                strategy_name,
+                pair,
+                "promoted_to_WARM",
+                {
+                    "results": results,
+                    "criteria": criteria,
+                    "adaptive_cold_gating": ADAPTIVE_COLD_GATING,
+                    "walkforward_required": require_walkforward,
+                    "walkforward_oos_trades": walkforward_oos_trades,
+                    "walkforward_oos_candles": walkforward_oos_candles,
+                    "growth_mode": growth_details,
+                },
+            )
             logger.info("PROMOTED %s/%s to WARM (backtest passed)", strategy_name, pair)
-            return True, "Promoted to WARM"
+            budget_usd = float(risk_profile.get("starter_budget_usd", 0.0) or 0.0)
+            if budget_usd <= 0:
+                return True, "Promoted to WARM (shadow funding: $0.00)"
+            return True, f"Promoted to WARM (budget ${budget_usd:.2f})"
         else:
-            self._log_event(strategy_name, pair, "failed_COLD", {"reasons": reasons})
+            self._set_budget_profile(
+                strategy_name,
+                pair,
+                {
+                    "tier": "blocked",
+                    "current_budget_usd": 0.0,
+                    "starter_budget_usd": 0.0,
+                    "max_budget_usd": 0.0,
+                    "reasons": reasons,
+                },
+            )
+            self._log_event(
+                strategy_name,
+                pair,
+                "failed_COLD",
+                {
+                    "reasons": reasons,
+                    "criteria": criteria,
+                    "adaptive_cold_gating": ADAPTIVE_COLD_GATING,
+                    "walkforward_required": require_walkforward,
+                    "walkforward_present": bool(walkforward),
+                    "growth_mode": growth_details,
+                },
+            )
             logger.warning("REJECTED %s/%s from WARM: %s", strategy_name, pair, ", ".join(reasons))
             return False, f"Failed: {', '.join(reasons)}"
 
-    def check_warm_promotion(self, strategy_name, pair, paper_metrics):
-        """Check if a WARM strategy should be promoted to HOT."""
-        criteria = WARM_TO_HOT
+    def _warm_criteria(self, paper_metrics):
+        """Adaptive HOT criteria for sparse but diverse runtime evidence."""
+        criteria = dict(WARM_TO_HOT)
+        if not WARM_ADAPTIVE_GATING:
+            return criteria
 
+        evidence = paper_metrics.get("evidence", {}) if isinstance(paper_metrics.get("evidence"), dict) else {}
+        window_count = int(evidence.get("window_count", 0) or 0)
+        trades = int(paper_metrics.get("total_trades", 0) or 0)
+        runtime = int(paper_metrics.get("runtime_seconds", 0) or 0)
+
+        sparse_evidence = window_count >= WARM_MIN_EVIDENCE_WINDOWS
+        if sparse_evidence and (trades < criteria["min_trades"] or runtime < criteria["min_runtime_seconds"]):
+            criteria["min_trades"] = max(2, WARM_SPARSE_MIN_TRADES)
+            criteria["min_win_rate"] = max(criteria["min_win_rate"], WARM_SPARSE_MIN_WIN_RATE)
+            criteria["min_return_pct"] = max(0.0, min(criteria["min_return_pct"], WARM_SPARSE_MIN_RETURN_PCT))
+            criteria["max_drawdown_pct"] = min(criteria["max_drawdown_pct"], WARM_SPARSE_MAX_DRAWDOWN_PCT)
+            criteria["min_runtime_seconds"] = min(criteria["min_runtime_seconds"], WARM_SPARSE_MIN_RUNTIME_SECONDS)
+            criteria["min_sharpe"] = min(criteria["min_sharpe"], WARM_SPARSE_MIN_SHARPE)
+        return criteria
+
+    def evaluate_warm_metrics(self, paper_metrics):
+        """Evaluate WARM paper metrics against adaptive HOT criteria without side effects."""
+        criteria = self._warm_criteria(paper_metrics)
         passed = True
         reasons = []
 
-        if paper_metrics.get("total_trades", 0) < criteria["min_trades"]:
-            passed = False
-            reasons.append(f"trades {paper_metrics['total_trades']} < {criteria['min_trades']}")
+        trades = int(paper_metrics.get("total_trades", 0) or 0)
+        win_rate = float(paper_metrics.get("win_rate", 0.0) or 0.0)
+        total_return_pct = float(paper_metrics.get("total_return_pct", 0.0) or 0.0)
+        drawdown_pct = float(paper_metrics.get("max_drawdown_pct", 0.0) or 0.0)
+        runtime_seconds = int(paper_metrics.get("runtime_seconds", 0) or 0)
+        sharpe_ratio = float(paper_metrics.get("sharpe_ratio", 0.0) or 0.0)
+        losses = int(paper_metrics.get("losses", 0) or 0)
+        es97_5 = float(paper_metrics.get("es97_5_loss_pct", 0.0) or 0.0)
 
-        if paper_metrics.get("win_rate", 0) < criteria["min_win_rate"]:
+        if trades < int(criteria["min_trades"]):
             passed = False
-            reasons.append(f"win_rate {paper_metrics['win_rate']:.2%} < {criteria['min_win_rate']:.2%}")
+            reasons.append(f"trades {trades} < {criteria['min_trades']}")
+        if win_rate < float(criteria["min_win_rate"]):
+            passed = False
+            reasons.append(f"win_rate {win_rate:.2%} < {criteria['min_win_rate']:.2%}")
+        if total_return_pct < float(criteria["min_return_pct"]):
+            passed = False
+            reasons.append(f"return {total_return_pct:.2f}% < {criteria['min_return_pct']}%")
+        if drawdown_pct > float(criteria["max_drawdown_pct"]):
+            passed = False
+            reasons.append(f"drawdown {drawdown_pct:.2f}% > {criteria['max_drawdown_pct']}%")
+        if runtime_seconds < int(criteria["min_runtime_seconds"]):
+            passed = False
+            reasons.append(f"runtime {runtime_seconds}s < {criteria['min_runtime_seconds']}s")
+        if sharpe_ratio < float(criteria["min_sharpe"]):
+            passed = False
+            reasons.append(f"sharpe {sharpe_ratio:.2f} < {criteria['min_sharpe']}")
+        if losses > 0:
+            passed = False
+            reasons.append(f"losses {losses} > 0")
+        if es97_5 > 0 and es97_5 > GROWTH_MAX_ES97_5_LOSS_PCT:
+            passed = False
+            reasons.append(
+                f"es97_5_loss {es97_5:.2f}% > {GROWTH_MAX_ES97_5_LOSS_PCT:.2f}%"
+            )
 
-        if paper_metrics.get("total_return_pct", 0) < criteria["min_return_pct"]:
-            passed = False
-            reasons.append(f"return {paper_metrics['total_return_pct']:.2f}% < {criteria['min_return_pct']}%")
+        return passed, reasons, criteria
 
-        if paper_metrics.get("max_drawdown_pct", 0) > criteria["max_drawdown_pct"]:
-            passed = False
-            reasons.append(f"drawdown {paper_metrics['max_drawdown_pct']:.2f}% > {criteria['max_drawdown_pct']}%")
+    def check_warm_promotion(self, strategy_name, pair, paper_metrics):
+        """Check if a WARM strategy should be promoted to HOT."""
+        passed, reasons, criteria = self.evaluate_warm_metrics(paper_metrics)
 
-        if paper_metrics.get("runtime_seconds", 0) < criteria["min_runtime_seconds"]:
-            passed = False
-            reasons.append(f"runtime {paper_metrics['runtime_seconds']}s < {criteria['min_runtime_seconds']}s")
+        budget_profile = self.get_budget_profile(strategy_name, pair)
+        budget_update = {
+            "action": "hold",
+            "reason": "growth_mode_disabled",
+            "from_budget_usd": budget_profile.get("current_budget_usd", 0.0),
+            "to_budget_usd": budget_profile.get("current_budget_usd", 0.0),
+            "max_budget_usd": budget_profile.get("max_budget_usd", 0.0),
+        }
+        if GROWTH_MODE_ENABLED:
+            budget_update = self.growth.escalate_budget(
+                current_budget=budget_profile.get("current_budget_usd", 0.0),
+                max_budget=budget_profile.get("max_budget_usd", 0.0),
+                paper_metrics=paper_metrics,
+                promote_hot=passed,
+            )
+            self._set_budget_profile(
+                strategy_name,
+                pair,
+                {
+                    "tier": budget_profile.get("risk_tier", "standard"),
+                    "current_budget_usd": budget_update["to_budget_usd"],
+                    "starter_budget_usd": budget_profile.get("starter_budget_usd", 0.0),
+                    "max_budget_usd": budget_profile.get("max_budget_usd", budget_update["max_budget_usd"]),
+                    "budget_update": budget_update,
+                },
+            )
 
         if passed:
             self.db.execute(
@@ -917,10 +2229,21 @@ class StrategyValidator:
                 (json.dumps(paper_metrics), strategy_name, pair)
             )
             self.db.commit()
-            self._log_event(strategy_name, pair, "promoted_to_HOT", paper_metrics)
+            self._log_event(
+                strategy_name,
+                pair,
+                "promoted_to_HOT",
+                {"paper_metrics": paper_metrics, "budget_update": budget_update, "criteria": criteria},
+            )
             logger.info("PROMOTED %s/%s to HOT (paper trading passed)", strategy_name, pair)
-            return True, "Promoted to HOT"
+            return True, f"Promoted to HOT (budget ${budget_update['to_budget_usd']:.2f})"
         else:
+            self._log_event(
+                strategy_name,
+                pair,
+                "warm_budget_adjustment",
+                {"paper_metrics": paper_metrics, "budget_update": budget_update, "criteria": criteria, "reasons": reasons},
+            )
             return False, f"Not ready: {', '.join(reasons)}"
 
     def demote_strategy(self, strategy_name, pair, reason="loss"):
@@ -931,6 +2254,17 @@ class StrategyValidator:
             (strategy_name, pair)
         )
         self.db.commit()
+        self._set_budget_profile(
+            strategy_name,
+            pair,
+            {
+                "tier": "blocked",
+                "current_budget_usd": 0.0,
+                "starter_budget_usd": 0.0,
+                "max_budget_usd": 0.0,
+                "reason": reason,
+            },
+        )
         self._log_event(strategy_name, pair, "demoted_to_COLD", {"reason": reason})
         logger.warning("DEMOTED %s/%s to COLD: %s", strategy_name, pair, reason)
 
@@ -942,6 +2276,17 @@ class StrategyValidator:
             (strategy_name, pair)
         )
         self.db.commit()
+        self._set_budget_profile(
+            strategy_name,
+            pair,
+            {
+                "tier": "blocked",
+                "current_budget_usd": 0.0,
+                "starter_budget_usd": 0.0,
+                "max_budget_usd": 0.0,
+                "reason": reason,
+            },
+        )
         self._log_event(strategy_name, pair, "KILLED", {"reason": reason})
         logger.error("KILLED %s/%s: %s", strategy_name, pair, reason)
 
@@ -956,6 +2301,16 @@ class StrategyValidator:
         """Get all registered strategies."""
         rows = self.db.execute(
             "SELECT name, pair, stage, promoted_at, demoted_at, killed_at, created_at FROM strategy_registry ORDER BY stage, name"
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_all_budgets(self):
+        """Get current risk-governed budgets for all strategies."""
+        rows = self.db.execute(
+            """SELECT strategy_name, pair, current_budget_usd, starter_budget_usd,
+                      max_budget_usd, risk_tier, updated_at
+               FROM strategy_budgets
+               ORDER BY current_budget_usd DESC, strategy_name ASC"""
         ).fetchall()
         return [dict(r) for r in rows]
 

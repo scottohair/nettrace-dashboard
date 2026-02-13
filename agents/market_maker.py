@@ -57,7 +57,7 @@ PAIRS = ["BTC-USDC", "ETH-USDC", "SOL-USDC", "AVAX-USDC", "LINK-USDC"]
 BUY_LEVELS = [-0.010, -0.015, -0.020, -0.030]   # -1.0%, -1.5%, -2.0%, -3.0%
 SELL_LEVELS = [+0.010, +0.015, +0.020, +0.030]   # +1.0%, +1.5%, +2.0%, +3.0%
 
-ORDER_SIZE_USD = 2.50           # $ per grid order
+ORDER_SIZE_USD = 1.50           # $ per grid order (lowered for small account)
 MIN_ORDER_USD = 1.00            # Coinbase minimum
 MAKER_FEE_PCT = 0.004           # 0.40%
 CYCLE_SECONDS = 60              # Refresh grid every 60s
@@ -295,8 +295,8 @@ class GridHarvester:
                 buy_price = mid * (1 + level)
                 size = ORDER_SIZE_USD / buy_price
 
-                if ORDER_SIZE_USD > cash * 0.5:
-                    continue  # Don't use more than 50% of remaining cash
+                if ORDER_SIZE_USD > cash * 0.8:
+                    continue  # Don't use more than 80% of remaining cash
 
                 result = trader.place_limit_order(pair, "BUY", size, buy_price, post_only=True)
                 if not result.get("error_response"):

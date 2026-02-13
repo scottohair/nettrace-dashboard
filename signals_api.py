@@ -32,12 +32,19 @@ def ensure_quant_signals_table(db):
           direction TEXT,
           confidence REAL,
           details_json TEXT,
+          source_region TEXT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         CREATE INDEX IF NOT EXISTS idx_quant_signals_created ON quant_signals(created_at);
         CREATE INDEX IF NOT EXISTS idx_quant_signals_type_time ON quant_signals(signal_type, created_at);
         CREATE INDEX IF NOT EXISTS idx_quant_signals_host_time ON quant_signals(target_host, created_at);
     """)
+    # Migration: add source_region to existing tables that lack it
+    try:
+        db.execute("ALTER TABLE quant_signals ADD COLUMN source_region TEXT")
+        db.commit()
+    except sqlite3.OperationalError:
+        pass  # column already exists
 
 
 def parse_int_param(value, default, minimum=None, maximum=None):
@@ -57,7 +64,7 @@ def parse_int_param(value, default, minimum=None, maximum=None):
 def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
-    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
 
@@ -326,4 +333,201 @@ def crypto_latency():
         ],
         "total_exchanges": len(host_data),
         "total_anomalies": sum(1 for h in host_data.values() if h.get("is_anomaly")),
+    })
+
+
+# ---------------------------------------------------------------------------
+# Cross-Region Signal Endpoints (scout regions push signals to primary)
+# ---------------------------------------------------------------------------
+
+VALID_SIGNAL_TYPES = {
+    "latency_anomaly", "latency_spike", "route_change", "exchange_down",
+    "price_divergence", "volume_spike", "scout_heartbeat",
+}
+VALID_DIRECTIONS = {"BUY", "SELL", "CAUTION", "INFO"}
+
+
+@signals_api.route("/signals/push", methods=["POST"])
+@verify_api_key
+def push_signal():
+    """Accept signals from regional scout agents.
+
+    Scout regions (lhr, nrt, sin, etc.) push anomaly signals here.
+    The primary region (ewr) collects them for cross-region divergence analysis.
+
+    Body (JSON):
+        signal_type: str (required)
+        target_host: str (required)
+        direction: str (required, one of BUY/SELL/CAUTION/INFO)
+        confidence: float (required, 0-1)
+        source_region: str (optional, auto-detected from FLY_REGION header)
+        details: dict (optional, extra metadata)
+    """
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "JSON body required"}), 400
+
+    signal_type = (data.get("signal_type") or "").strip()
+    target_host = (data.get("target_host") or "").strip()
+    direction = (data.get("direction") or "").strip().upper()
+    confidence = data.get("confidence")
+    source_region = (data.get("source_region")
+                     or request.headers.get("X-Fly-Region")
+                     or os.environ.get("FLY_REGION", "unknown"))
+    details = data.get("details", {})
+
+    # Validate required fields
+    if not signal_type:
+        return jsonify({"error": "signal_type required"}), 400
+    if not target_host:
+        return jsonify({"error": "target_host required"}), 400
+    if direction not in VALID_DIRECTIONS:
+        return jsonify({"error": f"direction must be one of {VALID_DIRECTIONS}"}), 400
+    if confidence is None or not (0 <= float(confidence) <= 1):
+        return jsonify({"error": "confidence must be 0-1"}), 400
+
+    confidence = float(confidence)
+
+    # Include source_region in details for backward compatibility
+    if isinstance(details, dict):
+        details["source_region"] = source_region
+    details_json = json.dumps(details) if details else None
+
+    db = get_db()
+    ensure_quant_signals_table(db)
+
+    db.execute(
+        """INSERT INTO quant_signals
+           (signal_type, target_host, target_name, direction, confidence, details_json, source_region)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        (signal_type, target_host, target_host, direction, confidence,
+         details_json, source_region),
+    )
+    db.commit()
+
+    return jsonify({
+        "status": "ok",
+        "signal_type": signal_type,
+        "target_host": target_host,
+        "source_region": source_region,
+    })
+
+
+@signals_api.route("/signals/cross-region")
+@verify_api_key
+@require_tier(*PRO_PLUS_TIERS)
+def cross_region_signals():
+    """Return signals where multiple regions report on the same target.
+
+    This is the alpha: cross-region latency divergence reveals infrastructure
+    events invisible to single-region observers.
+
+    If lhr sees a spike but ewr doesn't -> US-side routing normal, EU problem.
+    If ALL regions see a spike -> exchange infrastructure issue -> strong signal.
+
+    Query params:
+        hours: lookback window (default 1, max 24)
+        min_confidence: minimum signal confidence (default 0.5)
+    """
+    hours = parse_int_param(request.args.get("hours", "1"), 1, minimum=1, maximum=24)
+    min_confidence = float(request.args.get("min_confidence", "0.5"))
+    window_expr = f"-{hours} hours"
+
+    db = get_db()
+    ensure_quant_signals_table(db)
+
+    # Find targets with signals from multiple regions in the time window
+    multi_region = db.execute("""
+        SELECT target_host,
+               COUNT(DISTINCT source_region) AS region_count,
+               GROUP_CONCAT(DISTINCT source_region) AS regions,
+               AVG(confidence) AS avg_confidence,
+               COUNT(*) AS signal_count
+        FROM quant_signals
+        WHERE created_at >= datetime('now', ?)
+          AND confidence >= ?
+          AND source_region IS NOT NULL
+          AND signal_type != 'scout_heartbeat'
+        GROUP BY target_host
+        HAVING COUNT(DISTINCT source_region) >= 1
+        ORDER BY region_count DESC, avg_confidence DESC
+    """, (window_expr, min_confidence)).fetchall()
+
+    # For each multi-region target, get the individual signals
+    results = []
+    for row in multi_region:
+        host = row["target_host"]
+        signals = db.execute("""
+            SELECT signal_type, target_host, direction, confidence,
+                   source_region, details_json, created_at
+            FROM quant_signals
+            WHERE target_host = ?
+              AND created_at >= datetime('now', ?)
+              AND confidence >= ?
+              AND source_region IS NOT NULL
+            ORDER BY created_at DESC
+            LIMIT 20
+        """, (host, window_expr, min_confidence)).fetchall()
+
+        signal_list = []
+        for s in signals:
+            try:
+                det = json.loads(s["details_json"]) if s["details_json"] else {}
+            except (TypeError, json.JSONDecodeError):
+                det = {}
+            signal_list.append({
+                "signal_type": s["signal_type"],
+                "direction": s["direction"],
+                "confidence": s["confidence"],
+                "source_region": s["source_region"],
+                "details": det,
+                "created_at": s["created_at"],
+            })
+
+        # Determine if this is a divergence (regions disagree) or consensus (all agree)
+        directions = set(s["direction"] for s in signal_list if s["direction"] != "INFO")
+        is_divergence = len(directions) > 1
+
+        results.append({
+            "target_host": host,
+            "region_count": row["region_count"],
+            "regions": row["regions"].split(",") if row["regions"] else [],
+            "avg_confidence": round(float(row["avg_confidence"]), 4) if row["avg_confidence"] else 0,
+            "signal_count": row["signal_count"],
+            "is_divergence": is_divergence,
+            "signals": signal_list,
+        })
+
+    # Scout heartbeats (separate — for monitoring which scouts are alive)
+    heartbeats = db.execute("""
+        SELECT target_host, source_region, confidence, details_json, created_at
+        FROM quant_signals
+        WHERE signal_type = 'scout_heartbeat'
+          AND created_at >= datetime('now', '-10 minutes')
+        ORDER BY created_at DESC
+    """).fetchall()
+
+    active_scouts = {}
+    for hb in heartbeats:
+        region = hb["source_region"]
+        if region not in active_scouts:
+            try:
+                det = json.loads(hb["details_json"]) if hb["details_json"] else {}
+            except (TypeError, json.JSONDecodeError):
+                det = {}
+            active_scouts[region] = {
+                "region": region,
+                "last_seen": hb["created_at"],
+                "uptime_seconds": det.get("uptime_seconds", 0),
+                "agents": det.get("agents_running", []),
+            }
+
+    return jsonify({
+        "window_hours": hours,
+        "min_confidence": min_confidence,
+        "cross_region_signals": results,
+        "total_targets": len(results),
+        "divergences": sum(1 for r in results if r["is_divergence"]),
+        "active_scouts": active_scouts,
+        "tier": g.api_tier,
     })

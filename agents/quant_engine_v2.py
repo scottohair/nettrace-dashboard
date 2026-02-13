@@ -169,6 +169,30 @@ class Fill:
     asset_class: AssetClass
 
 
+@dataclass
+class ExecutionReport:
+    """Detailed order lifecycle report for execution observability."""
+    report_id: str
+    signal_id: str
+    strategy: str
+    symbol: str
+    side: Side
+    mode: str
+    venue: str
+    status: str              # filled | rejected | error
+    requested_price: float
+    executed_price: float
+    requested_qty: float
+    filled_qty: float
+    requested_usd: float
+    filled_usd: float
+    slippage_bps: float
+    latency_ms: float
+    error: str = ""
+    meta: Dict[str, Any] = field(default_factory=dict)
+    timestamp: float = field(default_factory=time.time)
+
+
 # ============================================================================
 # MARKET DATA FEEDS  (all free, no auth)
 # ============================================================================
@@ -177,6 +201,7 @@ class MarketData:
     """Unified market data feed. Coinbase candles + Yahoo Finance + caching."""
 
     _cache: Dict[str, Any] = {}
+    _candle_meta: Dict[str, Dict[str, Any]] = {}
     _cache_ttl = 8  # seconds
     _user_agent = "QuantEngine/2.0"
 
@@ -217,14 +242,105 @@ class MarketData:
             return cls._cache[key]["v"]
 
         candles = []
+        source = "none"
         if cls._is_crypto(symbol):
             candles = cls._coinbase_candles(symbol, granularity_seconds, limit)
+            if candles:
+                source = "coinbase"
         if not candles:
             candles = cls._yahoo_candles(symbol, granularity_seconds, limit)
+            if candles:
+                source = "yahoo"
 
-        if candles:
-            cls._cache[key] = {"v": candles, "t": now}
-        return candles
+        cleaned, quality = cls._sanitize_candles(candles, granularity_seconds)
+        quality.update({
+            "symbol": symbol,
+            "granularity_seconds": granularity_seconds,
+            "limit": limit,
+            "source": source,
+        })
+        cls._candle_meta[key] = quality
+
+        if cleaned:
+            cls._cache[key] = {"v": cleaned, "t": now}
+        return cleaned
+
+    @classmethod
+    def get_candle_meta(cls, symbol: str, granularity_seconds: int = 300,
+                        limit: int = 100) -> Dict[str, Any]:
+        """Return quality metadata for the most recent candle fetch."""
+        key = f"candles:{symbol}:{granularity_seconds}:{limit}"
+        if key not in cls._candle_meta:
+            cls.get_candles(symbol, granularity_seconds, limit)
+        return dict(cls._candle_meta.get(key, {}))
+
+    @staticmethod
+    def _sanitize_candles(candles: List[dict],
+                          expected_step_sec: int) -> Tuple[List[dict], Dict[str, Any]]:
+        """Normalize candle rows and collect quality diagnostics."""
+        meta = {
+            "raw_count": len(candles),
+            "clean_count": 0,
+            "invalid_rows": 0,
+            "duplicates_removed": 0,
+            "had_out_of_order": False,
+            "gap_count": 0,
+            "max_gap_seconds": 0,
+            "coverage_ratio": 0.0,
+        }
+        if not candles:
+            return [], meta
+
+        normalized = []
+        for c in candles:
+            try:
+                normalized.append({
+                    "start": int(c["start"]),
+                    "open": float(c["open"]),
+                    "high": float(c["high"]),
+                    "low": float(c["low"]),
+                    "close": float(c["close"]),
+                    "volume": max(0.0, float(c.get("volume", 0.0))),
+                })
+            except (KeyError, TypeError, ValueError):
+                meta["invalid_rows"] += 1
+
+        if not normalized:
+            return [], meta
+
+        starts_before = [c["start"] for c in normalized]
+        normalized.sort(key=lambda x: x["start"])
+        starts_after = [c["start"] for c in normalized]
+        meta["had_out_of_order"] = starts_before != starts_after
+
+        deduped: List[dict] = []
+        for row in normalized:
+            if deduped and deduped[-1]["start"] == row["start"]:
+                # Merge duplicates deterministically.
+                prev = deduped[-1]
+                prev["high"] = max(prev["high"], row["high"])
+                prev["low"] = min(prev["low"], row["low"])
+                prev["close"] = row["close"]
+                prev["volume"] += row["volume"]
+                meta["duplicates_removed"] += 1
+            else:
+                deduped.append(dict(row))
+
+        gaps = []
+        for i in range(1, len(deduped)):
+            delta = deduped[i]["start"] - deduped[i - 1]["start"]
+            if delta > int(expected_step_sec * 1.5):
+                gaps.append(delta)
+
+        span = deduped[-1]["start"] - deduped[0]["start"] if len(deduped) > 1 else 0
+        expected_points = int(span / expected_step_sec) + 1 if span > 0 else len(deduped)
+        coverage = (len(deduped) / expected_points) if expected_points > 0 else 1.0
+
+        meta["clean_count"] = len(deduped)
+        meta["gap_count"] = len(gaps)
+        meta["max_gap_seconds"] = max(gaps) if gaps else 0
+        meta["coverage_ratio"] = round(coverage, 4)
+        return deduped, meta
 
     # ----- internal helpers -----
 
@@ -487,6 +603,30 @@ class BaseStrategy(ABC):
     def has_position(self, symbol: str) -> bool:
         return symbol in self._positions
 
+    @staticmethod
+    def _snapshot_key(symbol: str, granularity: int, limit: int) -> str:
+        return f"{symbol}:{granularity}:{limit}"
+
+    def _get_candles(self, market_data: Dict[str, Any], symbol: str,
+                     granularity: int, limit: int) -> List[dict]:
+        if isinstance(market_data, dict):
+            candle_map = market_data.get("candles", {})
+            key = self._snapshot_key(symbol, granularity, limit)
+            if key in candle_map:
+                return candle_map[key]
+            prefix = f"{symbol}:{granularity}:"
+            for k, rows in candle_map.items():
+                if k.startswith(prefix) and isinstance(rows, list) and len(rows) >= limit:
+                    return rows[-limit:]
+        return MarketData.get_candles(symbol, granularity, limit)
+
+    def _get_price(self, market_data: Dict[str, Any], symbol: str) -> Optional[float]:
+        if isinstance(market_data, dict):
+            price_map = market_data.get("prices", {})
+            if symbol in price_map:
+                return price_map[symbol]
+        return MarketData.get_price(symbol)
+
     def record_fill(self, fill: Fill, signal: Signal) -> Optional[Position]:
         """Record an executed fill, opening or closing a position."""
         symbol = fill.symbol
@@ -658,8 +798,8 @@ class MeanReversionStrategy(BaseStrategy):
 
         for symbol in self.symbols:
             try:
-                candles = MarketData.get_candles(
-                    symbol, self.CANDLE_GRANULARITY, self.CANDLE_LIMIT
+                candles = self._get_candles(
+                    market_data, symbol, self.CANDLE_GRANULARITY, self.CANDLE_LIMIT
                 )
                 if len(candles) < 20:
                     continue
@@ -773,8 +913,8 @@ class MomentumStrategy(BaseStrategy):
 
         for symbol in self.symbols:
             try:
-                candles = MarketData.get_candles(
-                    symbol, self.CANDLE_GRANULARITY, self.CANDLE_LIMIT
+                candles = self._get_candles(
+                    market_data, symbol, self.CANDLE_GRANULARITY, self.CANDLE_LIMIT
                 )
                 if len(candles) < self.SLOW_PERIOD + 5:
                     continue
@@ -1003,7 +1143,7 @@ class LatencyArbStrategy(BaseStrategy):
                         if self.has_position(symbol):
                             continue
 
-                        price = MarketData.get_price(symbol)
+                        price = self._get_price(market_data, symbol)
                         if not price:
                             continue
 
@@ -1041,7 +1181,7 @@ class LatencyArbStrategy(BaseStrategy):
                 if self.has_position(symbol):
                     continue
 
-                price = MarketData.get_price(symbol)
+                price = self._get_price(market_data, symbol)
                 if not price:
                     continue
 
@@ -1118,8 +1258,8 @@ class StatArbStrategy(BaseStrategy):
         # Fetch candles for all symbols
         candle_data: Dict[str, List[dict]] = {}
         for symbol in self.symbols:
-            candles = MarketData.get_candles(
-                symbol, self.CANDLE_GRANULARITY, self.CANDLE_LIMIT
+            candles = self._get_candles(
+                market_data, symbol, self.CANDLE_GRANULARITY, self.CANDLE_LIMIT
             )
             if candles:
                 candle_data[symbol] = candles
@@ -1155,8 +1295,8 @@ class StatArbStrategy(BaseStrategy):
 
                 z = z_score(current_ratio, mean_ratio, sigma)
 
-                price_a = MarketData.get_price(sym_a)
-                price_b = MarketData.get_price(sym_b)
+                price_a = self._get_price(market_data, sym_a)
+                price_b = self._get_price(market_data, sym_b)
                 if not price_a or not price_b:
                     continue
 
@@ -1410,7 +1550,7 @@ class SentimentAlphaStrategy(BaseStrategy):
                 self._sentiment_history[symbol] = self._sentiment_history[symbol][-100:]
 
                 # Get price action
-                candles = MarketData.get_candles(symbol, 3600, 24)
+                candles = self._get_candles(market_data, symbol, 3600, 24)
                 if len(candles) < 6:
                     continue
 
@@ -1611,15 +1751,18 @@ class SignalAggregator:
 
     Requirements:
       - 2+ strategies must agree on direction for a symbol.
-      - Weighted by strategy Sharpe ratio (better strategies get more weight).
+      - Weighted by strategy quality + regime alignment + data quality.
       - Exit signals from any strategy are passed through immediately.
     """
 
     MIN_AGREEING_STRATEGIES = 2
     MIN_AGGREGATE_CONFIDENCE = 0.5
+    CORRELATION_CAP = 0.80
+    MIN_POST_CORR_SIZE_USD = 20.0
 
     def aggregate(self, signals: List[Signal],
-                  strategy_performance: Dict[str, dict]) -> List[Signal]:
+                  strategy_performance: Dict[str, dict],
+                  market_snapshot: Optional[Dict[str, Any]] = None) -> List[Signal]:
         """Aggregate signals from all strategies.
 
         Exit signals pass through directly.
@@ -1646,30 +1789,37 @@ class SignalAggregator:
 
             # Check buy consensus
             if len(buy_signals) >= self.MIN_AGREEING_STRATEGIES:
-                merged = self._merge_signals(buy_signals, strategy_performance)
+                merged = self._merge_signals(
+                    buy_signals, strategy_performance, market_snapshot
+                )
                 if merged and merged.confidence >= self.MIN_AGGREGATE_CONFIDENCE:
                     approved.append(merged)
 
             # Check sell consensus
             if len(sell_signals) >= self.MIN_AGREEING_STRATEGIES:
-                merged = self._merge_signals(sell_signals, strategy_performance)
+                merged = self._merge_signals(
+                    sell_signals, strategy_performance, market_snapshot
+                )
                 if merged and merged.confidence >= self.MIN_AGGREGATE_CONFIDENCE:
                     approved.append(merged)
 
-        return approved
+        return self._apply_cross_symbol_correlation_caps(approved, market_snapshot)
 
     def _merge_signals(self, signals: List[Signal],
-                       perf: Dict[str, dict]) -> Optional[Signal]:
-        """Merge agreeing signals into one, weighted by Sharpe ratio."""
+                       perf: Dict[str, dict],
+                       market_snapshot: Optional[Dict[str, Any]] = None) -> Optional[Signal]:
+        """Merge agreeing signals into one, weighted by quality and regime."""
         if not signals:
             return None
 
-        # Compute weights from Sharpe ratios
+        symbol = signals[0].symbol
+        regime = self._infer_regime(symbol, market_snapshot)
+        quality = self._symbol_quality(symbol, market_snapshot)
+
+        # Compute weights from strategy quality + regime fit.
         weights = []
         for sig in signals:
-            strat_perf = perf.get(sig.strategy, {})
-            sr = max(0.1, strat_perf.get("sharpe", 0.1))
-            weights.append(sr)
+            weights.append(self._signal_weight(sig, perf, regime, quality))
 
         total_weight = sum(weights)
         if total_weight <= 0:
@@ -1681,9 +1831,14 @@ class SignalAggregator:
         w_stop = sum(s.stop_price * w for s, w in zip(signals, weights)) / total_weight
         w_target = sum(s.target_price * w for s, w in zip(signals, weights)) / total_weight
         w_size = sum(s.size_usd * w for s, w in zip(signals, weights)) / total_weight
+        w_size = max(10.0, w_size)
 
         strategies = [s.strategy for s in signals]
         reasons = [s.reason for s in signals]
+        regime_tag = (
+            f"trend={regime['trend_score']:+.4f},vol={regime['volatility']:.4f},"
+            f"ranging={1 if regime['is_ranging'] else 0},cov={quality['coverage_ratio']:.2f}"
+        )
 
         return Signal(
             strategy=f"CONSENSUS({','.join(strategies)})",
@@ -1695,9 +1850,381 @@ class SignalAggregator:
             target_price=w_target,
             size_usd=w_size,
             reason=f"AGGREGATED from {len(signals)} strategies: " +
-                   " | ".join(reasons),
+                   " | ".join(reasons) + f" | regime[{regime_tag}]",
             asset_class=signals[0].asset_class,
         )
+
+    @staticmethod
+    def _strategy_style(strategy_name: str) -> str:
+        s = (strategy_name or "").lower()
+        if "mean_reversion" in s or "stat_arb" in s or "vwap" in s or "rsi" in s:
+            return "reversion"
+        if "momentum" in s:
+            return "momentum"
+        if "latency_arb" in s:
+            return "latency"
+        if "sentiment" in s:
+            return "sentiment"
+        return "hybrid"
+
+    def _signal_weight(self, signal: Signal, perf: Dict[str, dict],
+                       regime: Dict[str, Any], quality: Dict[str, Any]) -> float:
+        strat_perf = perf.get(signal.strategy, {})
+        sharpe = float(strat_perf.get("sharpe", 0.0) or 0.0)
+        win_rate = float(strat_perf.get("win_rate", 0.5) or 0.5)
+
+        weight = 1.0
+        weight *= max(0.35, min(1.8, 0.9 + sharpe * 0.2))
+        weight *= max(0.60, min(1.35, 0.8 + (win_rate - 0.5) * 0.8))
+
+        style = self._strategy_style(signal.strategy)
+        trend = float(regime.get("trend_score", 0.0) or 0.0)
+        is_ranging = bool(regime.get("is_ranging"))
+        high_vol = bool(regime.get("high_volatility"))
+
+        if style == "momentum":
+            if abs(trend) > 0.0015:
+                weight *= 1.20
+            else:
+                weight *= 0.85
+            if (signal.side == Side.BUY and trend > 0) or (signal.side == Side.SELL and trend < 0):
+                weight *= 1.10
+            else:
+                weight *= 0.85
+        elif style == "reversion":
+            weight *= 1.20 if is_ranging else 0.78
+        elif style == "latency":
+            weight *= 1.15 if high_vol else 0.95
+        elif style == "sentiment":
+            weight *= 1.08 if high_vol or abs(trend) > 0.001 else 0.95
+        else:
+            weight *= 1.0
+
+        coverage = float(quality.get("coverage_ratio", 1.0) or 1.0)
+        gap_count = int(quality.get("gap_count", 0) or 0)
+        weight *= max(0.45, min(1.2, 0.45 + coverage * 0.75))
+        if gap_count >= 5:
+            weight *= 0.85
+
+        return max(0.05, min(3.0, weight))
+
+    @staticmethod
+    def _candles_from_snapshot(symbol: str, market_snapshot: Optional[Dict[str, Any]],
+                               granularity: int, min_count: int = 40) -> List[dict]:
+        if not isinstance(market_snapshot, dict):
+            return []
+        candle_map = market_snapshot.get("candles", {})
+        key = f"{symbol}:{granularity}:120"
+        rows = candle_map.get(key, [])
+        if len(rows) >= min_count:
+            return rows
+        for k, v in candle_map.items():
+            if k.startswith(f"{symbol}:{granularity}:") and isinstance(v, list) and len(v) >= min_count:
+                return v
+        return []
+
+    def _symbol_quality(self, symbol: str,
+                        market_snapshot: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        if not isinstance(market_snapshot, dict):
+            return {"coverage_ratio": 1.0, "gap_count": 0}
+        meta_map = market_snapshot.get("candle_meta", {})
+        key = f"{symbol}:300:120"
+        meta = meta_map.get(key) or {}
+        return {
+            "coverage_ratio": float(meta.get("coverage_ratio", 1.0) or 1.0),
+            "gap_count": int(meta.get("gap_count", 0) or 0),
+        }
+
+    def _infer_regime(self, symbol: str,
+                      market_snapshot: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        candles = self._candles_from_snapshot(symbol, market_snapshot, 300, min_count=40)
+        if len(candles) < 40:
+            return {
+                "trend_score": 0.0,
+                "volatility": 0.0,
+                "is_ranging": True,
+                "high_volatility": False,
+            }
+
+        closes = [float(c["close"]) for c in candles[-80:]]
+        fast = ema(closes, 12)
+        slow = ema(closes, 36)
+        trend_score = ((fast[-1] - slow[-1]) / slow[-1]) if slow and slow[-1] else 0.0
+
+        returns = []
+        for i in range(1, len(closes)):
+            prev = closes[i - 1]
+            if prev > 0:
+                returns.append((closes[i] - prev) / prev)
+        vol = std_dev(returns) if returns else 0.0
+        high_vol = vol > 0.0045
+        is_ranging = abs(trend_score) < 0.0015 and not high_vol
+
+        return {
+            "trend_score": trend_score,
+            "volatility": vol,
+            "is_ranging": is_ranging,
+            "high_volatility": high_vol,
+        }
+
+    @staticmethod
+    def _compute_symbol_correlation(a: str, b: str,
+                                    market_snapshot: Optional[Dict[str, Any]]) -> float:
+        if not isinstance(market_snapshot, dict):
+            return 0.0
+        candle_map = market_snapshot.get("candles", {})
+        a_rows = candle_map.get(f"{a}:3600:120", [])
+        b_rows = candle_map.get(f"{b}:3600:120", [])
+        if not a_rows or not b_rows:
+            return 0.0
+
+        a_by_ts = {int(c["start"]): float(c["close"]) for c in a_rows}
+        b_by_ts = {int(c["start"]): float(c["close"]) for c in b_rows}
+        ts = sorted(set(a_by_ts.keys()) & set(b_by_ts.keys()))
+        if len(ts) < 20:
+            return 0.0
+
+        a_ret = []
+        b_ret = []
+        for i in range(1, len(ts)):
+            pa0, pa1 = a_by_ts[ts[i - 1]], a_by_ts[ts[i]]
+            pb0, pb1 = b_by_ts[ts[i - 1]], b_by_ts[ts[i]]
+            if pa0 <= 0 or pb0 <= 0:
+                continue
+            a_ret.append((pa1 - pa0) / pa0)
+            b_ret.append((pb1 - pb0) / pb0)
+        if len(a_ret) < 15:
+            return 0.0
+        return pearson_correlation(a_ret, b_ret)
+
+    def _apply_cross_symbol_correlation_caps(
+        self, signals: List[Signal], market_snapshot: Optional[Dict[str, Any]]
+    ) -> List[Signal]:
+        entries = [s for s in signals if "EXIT" not in s.reason]
+        exits = [s for s in signals if "EXIT" in s.reason]
+        if len(entries) < 2:
+            return signals
+
+        for i in range(len(entries)):
+            for j in range(i + 1, len(entries)):
+                a = entries[i]
+                b = entries[j]
+                if a.side != b.side:
+                    continue
+                corr = self._compute_symbol_correlation(a.symbol, b.symbol, market_snapshot)
+                if abs(corr) < self.CORRELATION_CAP:
+                    continue
+
+                loser = a if a.confidence <= b.confidence else b
+                old_size = loser.size_usd
+                loser.size_usd = max(self.MIN_POST_CORR_SIZE_USD, loser.size_usd * 0.65)
+                loser.reason += (
+                    f" | corr_cap({a.symbol},{b.symbol})={corr:.2f} "
+                    f"size {old_size:.2f}->{loser.size_usd:.2f}"
+                )
+
+        filtered = [s for s in entries if s.size_usd >= self.MIN_POST_CORR_SIZE_USD]
+        return exits + filtered
+
+
+class PortfolioOptimizer:
+    """Portfolio-level sizing optimizer for cross-strategy signal allocation."""
+
+    MAX_NEW_EXPOSURE_PCT = 0.25
+    MAX_SYMBOL_EXPOSURE_PCT = 0.18
+    MAX_STRATEGY_EXPOSURE_PCT = 0.30
+    MIN_TRADE_USD = 25.0
+    TARGET_BAR_VOL = 0.004
+
+    @staticmethod
+    def _strategy_components(strategy_label: str) -> List[str]:
+        s = str(strategy_label or "")
+        if s.startswith("CONSENSUS(") and s.endswith(")"):
+            inner = s[len("CONSENSUS("):-1]
+            return [x.strip() for x in inner.split(",") if x.strip()]
+        return [s]
+
+    def _performance_scale(self, signal: Signal,
+                           strategy_performance: Dict[str, dict]) -> float:
+        comps = self._strategy_components(signal.strategy)
+        if not comps:
+            return 1.0
+        sharpes = []
+        win_rates = []
+        for c in comps:
+            p = strategy_performance.get(c, {})
+            sharpes.append(float(p.get("sharpe", 0.0) or 0.0))
+            win_rates.append(float(p.get("win_rate", 0.5) or 0.5))
+        avg_sharpe = sum(sharpes) / len(sharpes)
+        avg_win = sum(win_rates) / len(win_rates)
+        scale = 0.9 + avg_sharpe * 0.15 + (avg_win - 0.5) * 0.6
+        return max(0.60, min(1.50, scale))
+
+    @staticmethod
+    def _candles(snapshot: Optional[Dict[str, Any]], symbol: str,
+                 granularity: int, min_count: int = 30) -> List[dict]:
+        if not isinstance(snapshot, dict):
+            return []
+        candle_map = snapshot.get("candles", {})
+        key = f"{symbol}:{granularity}:120"
+        rows = candle_map.get(key, [])
+        if len(rows) >= min_count:
+            return rows
+        for k, v in candle_map.items():
+            if k.startswith(f"{symbol}:{granularity}:") and isinstance(v, list) and len(v) >= min_count:
+                return v
+        return []
+
+    def _estimate_volatility(self, symbol: str,
+                             snapshot: Optional[Dict[str, Any]]) -> float:
+        candles = self._candles(snapshot, symbol, 300, min_count=30)
+        if len(candles) < 30:
+            return 0.0
+        closes = [float(c["close"]) for c in candles[-60:]]
+        rets = []
+        for i in range(1, len(closes)):
+            prev = closes[i - 1]
+            if prev > 0:
+                rets.append((closes[i] - prev) / prev)
+        return std_dev(rets) if rets else 0.0
+
+    def _pair_correlation(self, a: str, b: str,
+                          snapshot: Optional[Dict[str, Any]]) -> float:
+        a_rows = self._candles(snapshot, a, 3600, min_count=25)
+        b_rows = self._candles(snapshot, b, 3600, min_count=25)
+        if not a_rows or not b_rows:
+            return 0.0
+        a_by_ts = {int(c["start"]): float(c["close"]) for c in a_rows}
+        b_by_ts = {int(c["start"]): float(c["close"]) for c in b_rows}
+        ts = sorted(set(a_by_ts.keys()) & set(b_by_ts.keys()))
+        if len(ts) < 20:
+            return 0.0
+        ar = []
+        br = []
+        for i in range(1, len(ts)):
+            pa0, pa1 = a_by_ts[ts[i - 1]], a_by_ts[ts[i]]
+            pb0, pb1 = b_by_ts[ts[i - 1]], b_by_ts[ts[i]]
+            if pa0 <= 0 or pb0 <= 0:
+                continue
+            ar.append((pa1 - pa0) / pa0)
+            br.append((pb1 - pb0) / pb0)
+        if len(ar) < 15:
+            return 0.0
+        return pearson_correlation(ar, br)
+
+    def _correlation_penalty(self, signal: Signal, positions: List[Position],
+                             snapshot: Optional[Dict[str, Any]]) -> float:
+        penalty = 1.0
+        for pos in positions:
+            corr = abs(self._pair_correlation(signal.symbol, pos.symbol, snapshot))
+            if corr < 0.80:
+                continue
+            same_direction = (
+                (signal.side == Side.BUY and pos.side == Side.BUY) or
+                (signal.side == Side.SELL and pos.side == Side.SELL)
+            )
+            if same_direction:
+                penalty *= 0.75
+        return max(0.40, min(1.0, penalty))
+
+    def _regime_scale(self, signal: Signal, snapshot: Optional[Dict[str, Any]]) -> float:
+        candles = self._candles(snapshot, signal.symbol, 300, min_count=40)
+        if len(candles) < 40:
+            return 1.0
+        closes = [float(c["close"]) for c in candles[-80:]]
+        fast = ema(closes, 12)
+        slow = ema(closes, 36)
+        trend = ((fast[-1] - slow[-1]) / slow[-1]) if slow and slow[-1] else 0.0
+        s = signal.strategy.lower()
+        if "momentum" in s or "latency_arb" in s:
+            aligned = (signal.side == Side.BUY and trend > 0) or (signal.side == Side.SELL and trend < 0)
+            return 1.12 if aligned else 0.85
+        if "mean_reversion" in s or "stat_arb" in s or "vwap" in s or "rsi" in s:
+            return 1.15 if abs(trend) < 0.0015 else 0.82
+        return 1.0
+
+    def optimize(self, signals: List[Signal], all_positions: List[Position],
+                 strategy_performance: Dict[str, dict], risk_manager: RiskManager,
+                 market_snapshot: Optional[Dict[str, Any]] = None) -> List[Signal]:
+        if not signals:
+            return []
+
+        exits = [s for s in signals if "EXIT" in s.reason]
+        entries = [s for s in signals if "EXIT" not in s.reason]
+        if not entries:
+            return exits
+
+        current_exposure = sum(float(p.size_usd) for p in all_positions)
+        max_exposure = risk_manager.current_capital * risk_manager.MAX_EXPOSURE_PCT
+        remaining_exposure = max(0.0, max_exposure - current_exposure)
+        cycle_budget = min(
+            remaining_exposure,
+            risk_manager.current_capital * self.MAX_NEW_EXPOSURE_PCT,
+        )
+        if cycle_budget <= self.MIN_TRADE_USD:
+            return exits
+
+        symbol_exposure: Dict[str, float] = {}
+        strategy_exposure: Dict[str, float] = {}
+        for p in all_positions:
+            symbol_exposure[p.symbol] = symbol_exposure.get(p.symbol, 0.0) + float(p.size_usd)
+            strategy_exposure[p.strategy] = strategy_exposure.get(p.strategy, 0.0) + float(p.size_usd)
+
+        ranked = sorted(
+            entries,
+            key=lambda s: s.confidence * max(1.0, s.risk_reward),
+            reverse=True,
+        )
+
+        accepted = []
+        for sig in ranked:
+            if cycle_budget <= self.MIN_TRADE_USD:
+                break
+
+            base = max(0.0, float(sig.size_usd))
+            if base <= 0:
+                continue
+
+            vol = self._estimate_volatility(sig.symbol, market_snapshot)
+            vol_scale = 1.0
+            if vol > 0:
+                vol_scale = max(0.55, min(1.45, self.TARGET_BAR_VOL / vol))
+
+            corr_scale = self._correlation_penalty(sig, all_positions, market_snapshot)
+            perf_scale = self._performance_scale(sig, strategy_performance)
+            regime_scale = self._regime_scale(sig, market_snapshot)
+            proposed = base * vol_scale * corr_scale * perf_scale * regime_scale
+
+            symbol_cap = max(
+                0.0,
+                risk_manager.current_capital * self.MAX_SYMBOL_EXPOSURE_PCT
+                - symbol_exposure.get(sig.symbol, 0.0),
+            )
+            bucket = self._strategy_components(sig.strategy)[0]
+            strategy_cap = max(
+                0.0,
+                risk_manager.current_capital * self.MAX_STRATEGY_EXPOSURE_PCT
+                - strategy_exposure.get(bucket, 0.0),
+            )
+
+            final_size = min(proposed, cycle_budget, symbol_cap, strategy_cap)
+            if final_size < self.MIN_TRADE_USD:
+                continue
+
+            old = sig.size_usd
+            sig.size_usd = round(final_size, 2)
+            sig.reason += (
+                f" | portfolio_opt(size {old:.2f}->{sig.size_usd:.2f},"
+                f" vol={vol_scale:.2f},corr={corr_scale:.2f},"
+                f" perf={perf_scale:.2f},reg={regime_scale:.2f})"
+            )
+            accepted.append(sig)
+
+            cycle_budget -= final_size
+            symbol_exposure[sig.symbol] = symbol_exposure.get(sig.symbol, 0.0) + final_size
+            strategy_exposure[bucket] = strategy_exposure.get(bucket, 0.0) + final_size
+
+        return exits + accepted
 
 
 # ============================================================================
@@ -1714,8 +2241,19 @@ class TradeExecutor:
     def __init__(self, mode: str = "paper"):
         self.mode = mode  # "paper" or "live"
         self.fills: List[Fill] = []
+        self.execution_reports: List[ExecutionReport] = []
+        self._last_execution_report: Optional[ExecutionReport] = None
         self._coinbase_trader = None
         self._etrade_trader = None
+
+    def _record_report(self, report: ExecutionReport):
+        self._last_execution_report = report
+        self.execution_reports.append(report)
+        if len(self.execution_reports) > 2000:
+            self.execution_reports = self.execution_reports[-2000:]
+
+    def get_last_execution_report(self) -> Optional[ExecutionReport]:
+        return self._last_execution_report
 
     def _get_coinbase_trader(self):
         if self._coinbase_trader is None:
@@ -1739,6 +2277,7 @@ class TradeExecutor:
 
     def execute(self, signal: Signal) -> Optional[Fill]:
         """Execute a signal. Returns Fill on success, None on failure."""
+        self._last_execution_report = None
         if self.mode == "paper":
             return self._paper_fill(signal)
         elif self.mode == "live":
@@ -1746,10 +2285,30 @@ class TradeExecutor:
                 return self._coinbase_fill(signal)
             else:
                 return self._etrade_fill(signal)
+        self._record_report(ExecutionReport(
+            report_id=uuid.uuid4().hex[:12],
+            signal_id=signal.signal_id,
+            strategy=signal.strategy,
+            symbol=signal.symbol,
+            side=signal.side,
+            mode=self.mode,
+            venue="unknown",
+            status="error",
+            requested_price=signal.entry_price,
+            executed_price=0.0,
+            requested_qty=(signal.size_usd / signal.entry_price) if signal.entry_price else 0.0,
+            filled_qty=0.0,
+            requested_usd=signal.size_usd,
+            filled_usd=0.0,
+            slippage_bps=0.0,
+            latency_ms=0.0,
+            error=f"Unsupported execution mode: {self.mode}",
+        ))
         return None
 
     def _paper_fill(self, signal: Signal) -> Fill:
         """Simulate a fill at market price with realistic slippage."""
+        t0 = time.time()
         price = signal.entry_price
         # Simulate 1-5 bps slippage
         slippage_bps = 1.0 + (hash(signal.signal_id) % 5)
@@ -1775,6 +2334,25 @@ class TradeExecutor:
             asset_class=signal.asset_class,
         )
         self.fills.append(fill)
+        self._record_report(ExecutionReport(
+            report_id=uuid.uuid4().hex[:12],
+            signal_id=signal.signal_id,
+            strategy=signal.strategy,
+            symbol=signal.symbol,
+            side=signal.side,
+            mode=self.mode,
+            venue="paper_sim",
+            status="filled",
+            requested_price=signal.entry_price,
+            executed_price=fill.price,
+            requested_qty=(signal.size_usd / signal.entry_price) if signal.entry_price else 0.0,
+            filled_qty=fill.quantity,
+            requested_usd=signal.size_usd,
+            filled_usd=fill.total_usd,
+            slippage_bps=slippage_bps,
+            latency_ms=(time.time() - t0) * 1000.0,
+            meta={"simulated": True},
+        ))
         logger.info("[PAPER] FILL %s %s %.6f %s @ $%.2f ($%.2f) slip=%.1fbps",
                     signal.side.value, signal.symbol, quantity,
                     signal.strategy, fill_price, total, slippage_bps)
@@ -1782,6 +2360,7 @@ class TradeExecutor:
 
     def _coinbase_fill(self, signal: Signal) -> Optional[Fill]:
         """Execute on Coinbase via exchange_connector."""
+        t0 = time.time()
         trader = self._get_coinbase_trader()
         if not trader:
             logger.error("Coinbase trader not available, falling back to paper")
@@ -1794,6 +2373,26 @@ class TradeExecutor:
             )
             if "error" in result:
                 logger.error("Coinbase order failed: %s", result.get("error"))
+                self._record_report(ExecutionReport(
+                    report_id=uuid.uuid4().hex[:12],
+                    signal_id=signal.signal_id,
+                    strategy=signal.strategy,
+                    symbol=signal.symbol,
+                    side=signal.side,
+                    mode=self.mode,
+                    venue="coinbase",
+                    status="rejected",
+                    requested_price=signal.entry_price,
+                    executed_price=0.0,
+                    requested_qty=(signal.size_usd / signal.entry_price) if signal.entry_price else 0.0,
+                    filled_qty=0.0,
+                    requested_usd=signal.size_usd,
+                    filled_usd=0.0,
+                    slippage_bps=0.0,
+                    latency_ms=(time.time() - t0) * 1000.0,
+                    error=str(result.get("error", "unknown")),
+                    meta={"raw_result": result},
+                ))
                 return None
 
             order_id = result.get("success_response", result).get("order_id", "")
@@ -1811,15 +2410,54 @@ class TradeExecutor:
                 asset_class=AssetClass.CRYPTO,
             )
             self.fills.append(fill)
+            self._record_report(ExecutionReport(
+                report_id=uuid.uuid4().hex[:12],
+                signal_id=signal.signal_id,
+                strategy=signal.strategy,
+                symbol=signal.symbol,
+                side=signal.side,
+                mode=self.mode,
+                venue="coinbase",
+                status="filled",
+                requested_price=signal.entry_price,
+                executed_price=fill.price,
+                requested_qty=(signal.size_usd / signal.entry_price) if signal.entry_price else 0.0,
+                filled_qty=fill.quantity,
+                requested_usd=signal.size_usd,
+                filled_usd=fill.total_usd,
+                slippage_bps=fill.slippage_bps,
+                latency_ms=(time.time() - t0) * 1000.0,
+                meta={"order_id": order_id},
+            ))
             logger.info("[LIVE] Coinbase FILL %s %s $%.2f order=%s",
                         signal.side.value, signal.symbol, signal.size_usd, order_id)
             return fill
         except Exception as e:
             logger.error("Coinbase execution error: %s", e)
+            self._record_report(ExecutionReport(
+                report_id=uuid.uuid4().hex[:12],
+                signal_id=signal.signal_id,
+                strategy=signal.strategy,
+                symbol=signal.symbol,
+                side=signal.side,
+                mode=self.mode,
+                venue="coinbase",
+                status="error",
+                requested_price=signal.entry_price,
+                executed_price=0.0,
+                requested_qty=(signal.size_usd / signal.entry_price) if signal.entry_price else 0.0,
+                filled_qty=0.0,
+                requested_usd=signal.size_usd,
+                filled_usd=0.0,
+                slippage_bps=0.0,
+                latency_ms=(time.time() - t0) * 1000.0,
+                error=str(e),
+            ))
             return None
 
     def _etrade_fill(self, signal: Signal) -> Optional[Fill]:
         """Execute equity order on E*Trade."""
+        t0 = time.time()
         trader = self._get_etrade_trader()
         if not trader:
             logger.error("E*Trade trader not available, falling back to paper")
@@ -1830,6 +2468,25 @@ class TradeExecutor:
             accounts = trader.get_accounts()
             if not accounts:
                 logger.error("No E*Trade accounts available")
+                self._record_report(ExecutionReport(
+                    report_id=uuid.uuid4().hex[:12],
+                    signal_id=signal.signal_id,
+                    strategy=signal.strategy,
+                    symbol=signal.symbol,
+                    side=signal.side,
+                    mode=self.mode,
+                    venue="etrade",
+                    status="rejected",
+                    requested_price=signal.entry_price,
+                    executed_price=0.0,
+                    requested_qty=(signal.size_usd / signal.entry_price) if signal.entry_price else 0.0,
+                    filled_qty=0.0,
+                    requested_usd=signal.size_usd,
+                    filled_usd=0.0,
+                    slippage_bps=0.0,
+                    latency_ms=(time.time() - t0) * 1000.0,
+                    error="No E*Trade accounts available",
+                ))
                 return self._paper_fill(signal)
 
             account_id = accounts[0].get("accountIdKey", "")
@@ -1856,15 +2513,73 @@ class TradeExecutor:
                     asset_class=AssetClass.EQUITY,
                 )
                 self.fills.append(fill)
+                self._record_report(ExecutionReport(
+                    report_id=uuid.uuid4().hex[:12],
+                    signal_id=signal.signal_id,
+                    strategy=signal.strategy,
+                    symbol=signal.symbol,
+                    side=signal.side,
+                    mode=self.mode,
+                    venue="etrade",
+                    status="filled",
+                    requested_price=signal.entry_price,
+                    executed_price=fill.price,
+                    requested_qty=(signal.size_usd / signal.entry_price) if signal.entry_price else 0.0,
+                    filled_qty=fill.quantity,
+                    requested_usd=signal.size_usd,
+                    filled_usd=fill.total_usd,
+                    slippage_bps=fill.slippage_bps,
+                    latency_ms=(time.time() - t0) * 1000.0,
+                    meta={"order_id": result.get("order_id")},
+                ))
                 logger.info("[LIVE] E*Trade FILL %s %s x%d order=%s",
                             signal.side.value, signal.symbol, quantity,
                             result.get("order_id"))
                 return fill
             else:
                 logger.error("E*Trade order failed: %s", result)
+                self._record_report(ExecutionReport(
+                    report_id=uuid.uuid4().hex[:12],
+                    signal_id=signal.signal_id,
+                    strategy=signal.strategy,
+                    symbol=signal.symbol,
+                    side=signal.side,
+                    mode=self.mode,
+                    venue="etrade",
+                    status="rejected",
+                    requested_price=signal.entry_price,
+                    executed_price=0.0,
+                    requested_qty=(signal.size_usd / signal.entry_price) if signal.entry_price else 0.0,
+                    filled_qty=0.0,
+                    requested_usd=signal.size_usd,
+                    filled_usd=0.0,
+                    slippage_bps=0.0,
+                    latency_ms=(time.time() - t0) * 1000.0,
+                    error=str(result),
+                    meta={"raw_result": result},
+                ))
                 return None
         except Exception as e:
             logger.error("E*Trade execution error: %s", e)
+            self._record_report(ExecutionReport(
+                report_id=uuid.uuid4().hex[:12],
+                signal_id=signal.signal_id,
+                strategy=signal.strategy,
+                symbol=signal.symbol,
+                side=signal.side,
+                mode=self.mode,
+                venue="etrade",
+                status="error",
+                requested_price=signal.entry_price,
+                executed_price=0.0,
+                requested_qty=(signal.size_usd / signal.entry_price) if signal.entry_price else 0.0,
+                filled_qty=0.0,
+                requested_usd=signal.size_usd,
+                filled_usd=0.0,
+                slippage_bps=0.0,
+                latency_ms=(time.time() - t0) * 1000.0,
+                error=str(e),
+            ))
             return None
 
 
@@ -1920,6 +2635,29 @@ class StateDB:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
+            CREATE TABLE IF NOT EXISTS execution_reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                report_id TEXT UNIQUE,
+                signal_id TEXT,
+                strategy TEXT NOT NULL,
+                symbol TEXT NOT NULL,
+                side TEXT NOT NULL,
+                mode TEXT,
+                venue TEXT,
+                status TEXT,
+                requested_price REAL,
+                executed_price REAL,
+                requested_qty REAL,
+                filled_qty REAL,
+                requested_usd REAL,
+                filled_usd REAL,
+                slippage_bps REAL,
+                latency_ms REAL,
+                error TEXT,
+                meta_json TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
             CREATE TABLE IF NOT EXISTS positions_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 position_id TEXT,
@@ -1953,6 +2691,8 @@ class StateDB:
                 ON signals_log(strategy, created_at);
             CREATE INDEX IF NOT EXISTS idx_fills_created
                 ON fills_log(created_at);
+            CREATE INDEX IF NOT EXISTS idx_exec_reports_created
+                ON execution_reports(created_at);
             CREATE INDEX IF NOT EXISTS idx_positions_strategy
                 ON positions_log(strategy, closed_at);
         """)
@@ -1988,6 +2728,38 @@ class StateDB:
             self.db.commit()
         except Exception as e:
             logger.debug("Fill log error: %s", e)
+
+    def log_execution_report(self, report: ExecutionReport):
+        try:
+            self.db.execute("""
+                INSERT OR IGNORE INTO execution_reports
+                (report_id, signal_id, strategy, symbol, side, mode, venue, status,
+                 requested_price, executed_price, requested_qty, filled_qty,
+                 requested_usd, filled_usd, slippage_bps, latency_ms, error, meta_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                report.report_id,
+                report.signal_id,
+                report.strategy,
+                report.symbol,
+                report.side.value,
+                report.mode,
+                report.venue,
+                report.status,
+                report.requested_price,
+                report.executed_price,
+                report.requested_qty,
+                report.filled_qty,
+                report.requested_usd,
+                report.filled_usd,
+                report.slippage_bps,
+                report.latency_ms,
+                report.error,
+                json.dumps(report.meta),
+            ))
+            self.db.commit()
+        except Exception as e:
+            logger.debug("Execution report log error: %s", e)
 
     def log_position_close(self, pos: Position, exit_price: float, pnl: float):
         try:
@@ -2048,6 +2820,13 @@ class StateDB:
         """, (limit,)).fetchall()
         return [dict(r) for r in rows]
 
+    def get_recent_execution_reports(self, limit: int = 50) -> List[dict]:
+        rows = self.db.execute("""
+            SELECT * FROM execution_reports
+            ORDER BY created_at DESC LIMIT ?
+        """, (limit,)).fetchall()
+        return [dict(r) for r in rows]
+
     def get_closed_positions(self, limit: int = 100) -> List[dict]:
         rows = self.db.execute("""
             SELECT * FROM positions_log
@@ -2093,6 +2872,7 @@ class StrategyEngine:
         ]
         self.risk_manager = RiskManager(initial_capital=capital)
         self.signal_aggregator = SignalAggregator()
+        self.portfolio_optimizer = PortfolioOptimizer()
         self.executor = TradeExecutor(mode=mode)
         self.state_db = StateDB()
 
@@ -2141,6 +2921,32 @@ class StrategyEngine:
         for strat in self.strategies:
             strat.update_position_prices(prices)
 
+    def _build_market_snapshot(self) -> Dict[str, Any]:
+        """Pre-fetch shared market data once per cycle for all strategies."""
+        symbols = set()
+        for strat in self.strategies:
+            symbols.update(strat.symbols)
+            for pos in strat.get_positions():
+                symbols.add(pos.symbol)
+
+        prices = MarketData.get_prices(sorted(symbols))
+        candles: Dict[str, List[dict]] = {}
+        candle_meta: Dict[str, Dict[str, Any]] = {}
+        for symbol in symbols:
+            for granularity, limit in ((300, 120), (3600, 120)):
+                key = f"{symbol}:{granularity}:{limit}"
+                rows = MarketData.get_candles(symbol, granularity, limit)
+                if rows:
+                    candles[key] = rows
+                candle_meta[key] = MarketData.get_candle_meta(symbol, granularity, limit)
+
+        return {
+            "built_at": time.time(),
+            "prices": prices,
+            "candles": candles,
+            "candle_meta": candle_meta,
+        }
+
     def run_cycle(self) -> List[Signal]:
         """Run one complete engine cycle. Returns executed signals."""
         self._cycle += 1
@@ -2165,6 +2971,9 @@ class StrategyEngine:
                 self.state_db.log_signal(signal, approved, reason)
                 if approved:
                     fill = self.executor.execute(signal)
+                    exec_report = self.executor.get_last_execution_report()
+                    if exec_report:
+                        self.state_db.log_execution_report(exec_report)
                     if fill:
                         self.state_db.log_fill(fill)
                         # Find the strategy that owns this position
@@ -2182,8 +2991,8 @@ class StrategyEngine:
                                 break
                         executed.append(signal)
 
-            # 4. Run all strategies to generate new entry signals
-            market_data = {}  # Strategies fetch their own data internally
+            # 4. Build shared snapshot and run all strategies for entry signals
+            market_data = self._build_market_snapshot()
             all_entry_signals = []
             for strat in self.strategies:
                 if not strat._enabled:
@@ -2197,10 +3006,19 @@ class StrategyEngine:
 
             # 5. Aggregate entry signals (require consensus)
             perf = self._get_strategy_performance()
-            aggregated = self.signal_aggregator.aggregate(all_entry_signals, perf)
+            aggregated = self.signal_aggregator.aggregate(
+                all_entry_signals, perf, market_snapshot=market_data
+            )
+            optimized = self.portfolio_optimizer.optimize(
+                aggregated,
+                self._get_all_positions(),
+                perf,
+                self.risk_manager,
+                market_snapshot=market_data,
+            )
 
-            # 6. Risk check and execute aggregated signals
-            for signal in aggregated:
+            # 6. Risk check and execute optimized signals
+            for signal in optimized:
                 if "EXIT" in signal.reason:
                     continue  # Already handled above
 
@@ -2216,6 +3034,9 @@ class StrategyEngine:
                     continue
 
                 fill = self.executor.execute(signal)
+                exec_report = self.executor.get_last_execution_report()
+                if exec_report:
+                    self.state_db.log_execution_report(exec_report)
                 if fill:
                     self.state_db.log_fill(fill)
                     # Record fill on the originating strategy (or first one)

@@ -27,6 +27,20 @@ SNAPSHOT_EVERY = 4  # store full snapshot every N scans per target
 # Priority categories — these generate the trading edge
 PRIORITY_CATEGORIES = {"Crypto Exchanges", "Forex & Brokers"}
 
+# Region-aware exchange priorities: boost scan frequency for nearby exchanges
+# Each region scans ALL targets but runs nearby exchanges MORE OFTEN
+REGION_PRIORITY_EXCHANGES = {
+    "ewr": {"coinbase.com", "gemini.com", "kraken.com", "api.exchange.coinbase.com"},
+    "lhr": {"bitstamp.net", "api.kraken.com"},  # EU exchanges
+    "nrt": {"bitflyer.com", "api.liquid.com"},   # Japanese exchanges
+    "sin": {"api.binance.com", "api.bybit.com", "www.okx.com"},  # SE Asian exchanges
+    "ord": {"cme.com"},
+    "fra": {"eurex.com"},
+    "bom": {"dgcx.ae"},
+}
+
+FLY_REGION = os.environ.get("FLY_REGION", "local")
+
 # Geo cache shared with app.py (loaded from DB on startup)
 GEO_CACHE = {}
 GEO_LOCK = threading.Lock()
@@ -366,8 +380,19 @@ class ContinuousScanner:
                     time.sleep(60)
                     continue
 
+                # Region-aware: sort nearby exchanges first for lower latency scans
+                region_hosts = REGION_PRIORITY_EXCHANGES.get(FLY_REGION, set())
+                if region_hosts:
+                    nearby = [t for t in priority_targets if t["host"] in region_hosts]
+                    other = [t for t in priority_targets if t["host"] not in region_hosts]
+                    priority_targets = nearby + other
+                    if nearby:
+                        logger.info("Region %s: %d nearby exchanges prioritized",
+                                    FLY_REGION, len(nearby))
+
                 cycle_start = time.time()
-                logger.info("Crypto priority scan: %d targets", len(priority_targets))
+                logger.info("Crypto priority scan: %d targets (region=%s)",
+                            len(priority_targets), FLY_REGION)
 
                 for target in priority_targets:
                     if not self.running:

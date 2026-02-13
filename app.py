@@ -211,6 +211,7 @@ def init_db():
             direction TEXT,
             confidence REAL,
             details_json TEXT,
+            source_region TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         CREATE INDEX IF NOT EXISTS idx_quant_signals_created ON quant_signals(created_at);
@@ -2958,12 +2959,34 @@ def fc_accounts():
 
 init_db()
 
+# Migrate: add source_region column to existing quant_signals tables
+try:
+    _mig_db = sqlite3.connect(DB_PATH)
+    _mig_db.execute("ALTER TABLE quant_signals ADD COLUMN source_region TEXT")
+    _mig_db.commit()
+    _mig_db.close()
+except sqlite3.OperationalError:
+    pass  # column already exists or table doesn't exist yet
+
 # Start continuous scanner
 import logging
 logging.basicConfig(level=logging.INFO)
 from scheduler import ContinuousScanner
 scanner = ContinuousScanner(socketio=socketio)
 scanner.start()
+
+# Start autonomous agent runner (Fly.io multi-region trading network)
+if os.environ.get("ENABLE_AGENTS", "0") == "1":
+    try:
+        from agents.fly_agent_runner import FlyAgentRunner
+        agent_runner = FlyAgentRunner()
+        agent_runner.start()
+        logging.getLogger("app").info(
+            "Agent runner started: region=%s, agents=%s",
+            agent_runner.region, list(agent_runner.agents.keys())
+        )
+    except Exception as _agent_err:
+        logging.getLogger("app").error("Failed to start agent runner: %s", _agent_err)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 12034))

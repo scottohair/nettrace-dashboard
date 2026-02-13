@@ -22,6 +22,41 @@ from pathlib import Path
 
 logger = logging.getLogger("exchange")
 
+try:
+    from execution_telemetry import (
+        record_api_call as _record_api_call,
+        record_order_lifecycle as _record_order_lifecycle,
+        venue_health_snapshot as _venue_health_snapshot,
+    )
+except Exception:
+    def _record_api_call(*_args, **_kwargs):
+        return None
+
+    def _record_order_lifecycle(*_args, **_kwargs):
+        return None
+
+    def _venue_health_snapshot(*_args, **_kwargs):
+        return {}
+
+try:
+    from no_loss_policy import (
+        evaluate_trade as _evaluate_no_loss_trade,
+        log_decision as _log_no_loss_decision,
+        record_root_cause as _record_no_loss_root_cause,
+    )
+except Exception:
+    def _evaluate_no_loss_trade(**kwargs):
+        payload = dict(kwargs)
+        payload["approved"] = True
+        payload["reason"] = "policy_module_unavailable"
+        return payload
+
+    def _log_no_loss_decision(*_args, **_kwargs):
+        return None
+
+    def _record_no_loss_root_cause(*_args, **_kwargs):
+        return None
+
 # Load from env — CDP (Coinbase Developer Platform) JWT auth
 COINBASE_API_KEY_ID = os.environ.get("COINBASE_API_KEY_ID", "")
 COINBASE_API_KEY_SECRET = os.environ.get("COINBASE_API_KEY_SECRET", "")
@@ -414,18 +449,40 @@ class CoinbaseTrader:
             req = urllib.request.Request(url, data=body_data, headers=headers, method=method)
 
             try:
+                t0 = time.perf_counter()
                 with urllib.request.urlopen(req, timeout=10) as resp:
+                    dt_ms = (time.perf_counter() - t0) * 1000.0
                     result = json.loads(resp.read().decode())
                     # Success — reset circuit breaker
                     CoinbaseTrader._consecutive_failures = 0
                     if CoinbaseTrader._circuit_open_until > 0:
                         logger.info("Circuit breaker CLOSED — API recovered")
                         CoinbaseTrader._circuit_open_until = 0
+                    _record_api_call(
+                        "coinbase",
+                        method,
+                        sign_path,
+                        dt_ms,
+                        ok=True,
+                        status_code=getattr(resp, "status", 200),
+                        context={"attempt": attempt + 1},
+                    )
                     return result
 
             except urllib.error.HTTPError as e:
+                dt_ms = (time.perf_counter() - t0) * 1000.0
                 error_body = e.read().decode()
                 last_error = {"error": error_body, "status": e.code}
+                _record_api_call(
+                    "coinbase",
+                    method,
+                    sign_path,
+                    dt_ms,
+                    ok=False,
+                    status_code=e.code,
+                    error_text=error_body[:300],
+                    context={"attempt": attempt + 1},
+                )
 
                 # Only retry on transient server errors
                 if e.code in (429, 500, 502, 503):
@@ -440,7 +497,18 @@ class CoinbaseTrader:
                     return last_error
 
             except Exception as e:
+                dt_ms = (time.perf_counter() - t0) * 1000.0
                 last_error = {"error": str(e)}
+                _record_api_call(
+                    "coinbase",
+                    method,
+                    sign_path,
+                    dt_ms,
+                    ok=False,
+                    status_code=0,
+                    error_text=str(e)[:300],
+                    context={"attempt": attempt + 1},
+                )
                 backoff = 0.5 * (2 ** attempt)
                 logger.warning("Coinbase request failed (attempt %d/%d) — retrying in %.1fs: %s",
                                attempt + 1, max_retries, backoff, e)
@@ -498,7 +566,98 @@ class CoinbaseTrader:
         factor = 10 ** decimals
         return math.floor(float(value) * factor) / factor
 
-    def place_order(self, product_id, side, size, order_type="market"):
+    def _estimate_spread_pct(self, product_id):
+        """Estimate current bid-ask spread percentage from product book."""
+        try:
+            book = self.get_order_book(product_id, level=1)
+            pb = book.get("pricebook", {}) if isinstance(book, dict) else {}
+            bids = pb.get("bids", []) if isinstance(pb, dict) else []
+            asks = pb.get("asks", []) if isinstance(pb, dict) else []
+            if not bids or not asks:
+                return 0.0
+            bid = float(bids[0].get("price", 0.0) or 0.0)
+            ask = float(asks[0].get("price", 0.0) or 0.0)
+            if bid <= 0 or ask <= 0:
+                return 0.0
+            mid = (bid + ask) / 2.0
+            if mid <= 0:
+                return 0.0
+            return max(0.0, ((ask - bid) / mid) * 100.0)
+        except Exception:
+            return 0.0
+
+    def _infer_expected_edge_pct(self, product_id):
+        """Infer short-horizon expected edge from 1m momentum slope."""
+        try:
+            data_pair = product_id.replace("-USDC", "-USD")
+            url = f"https://api.exchange.coinbase.com/products/{data_pair}/candles?granularity=60"
+            req = urllib.request.Request(url, headers={"User-Agent": "NetTrace/1.0"})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                rows = json.loads(resp.read().decode())
+            closes = [float(r[4]) for r in rows[:18] if len(r) >= 5]
+            if len(closes) < 8:
+                return 0.0
+            closes = list(reversed(closes))  # oldest -> newest
+            fast = sum(closes[-3:]) / 3.0
+            slow = sum(closes[-12:]) / 12.0
+            if slow <= 0:
+                return 0.0
+            momentum_pct = ((fast - slow) / slow) * 100.0
+            # Conservative conversion from short momentum to tradable edge.
+            return max(0.0, momentum_pct * 0.55)
+        except Exception:
+            return 0.0
+
+    def _no_loss_gate(
+        self,
+        product_id,
+        side,
+        expected_edge_pct=None,
+        signal_confidence=None,
+        market_regime=None,
+        total_cost_pct=None,
+    ):
+        side_u = str(side).upper()
+        regime = str(market_regime or "UNKNOWN")
+        confidence = float(signal_confidence or 0.0)
+        inferred_edge = float(expected_edge_pct) if expected_edge_pct is not None else self._infer_expected_edge_pct(product_id)
+        spread_pct = self._estimate_spread_pct(product_id)
+        health = _venue_health_snapshot("coinbase", window_minutes=30) or {}
+        latency_ms = float(health.get("p90_latency_ms", 0.0) or 0.0)
+        failure_rate = float(health.get("failure_rate", 0.0) or 0.0)
+        costs = float(total_cost_pct if total_cost_pct is not None else ((ROUND_TRIP_COST_PCT + MIN_NET_PROFIT_PCT) * 100.0))
+
+        decision = _evaluate_no_loss_trade(
+            pair=product_id,
+            side=side_u,
+            expected_edge_pct=inferred_edge,
+            total_cost_pct=costs,
+            spread_pct=spread_pct,
+            venue_latency_ms=latency_ms,
+            venue_failure_rate=failure_rate,
+            signal_confidence=confidence,
+            market_regime=regime,
+        )
+        _log_no_loss_decision(
+            decision,
+            details={
+                "source": "exchange_connector",
+                "inferred_edge_used": expected_edge_pct is None,
+                "venue_health": health,
+            },
+        )
+        return decision
+
+    def place_order(
+        self,
+        product_id,
+        side,
+        size,
+        order_type="market",
+        expected_edge_pct=None,
+        signal_confidence=None,
+        market_regime=None,
+    ):
         """Place a market order with automatic precision handling.
 
         Args:
@@ -506,6 +665,9 @@ class CoinbaseTrader:
             side: "BUY" or "SELL"
             size: amount in quote currency for BUY, base currency for SELL
             order_type: "market" only for now
+            expected_edge_pct: expected positive edge in percent (for no-loss BUY gate)
+            signal_confidence: signal confidence in [0,1]
+            market_regime: optional regime label
         """
         import uuid
         side_u = side.upper()
@@ -515,7 +677,43 @@ class CoinbaseTrader:
         if locked:
             msg = f"Trading locked by {lock_source}: {lock_reason}"
             logger.error("Order blocked: %s", msg)
+            _record_order_lifecycle(
+                "coinbase",
+                pair=product_id,
+                side=side_u,
+                status="blocked_lock",
+                requested_usd=float(size or 0.0) if side_u == "BUY" else None,
+                details={"reason": msg},
+            )
             return {"error_response": {"error": "TRADING_LOCKED", "message": msg}}
+
+        if side_u == "BUY" and STRICT_PROFIT_ONLY:
+            no_loss = self._no_loss_gate(
+                product_id=product_id,
+                side=side_u,
+                expected_edge_pct=expected_edge_pct,
+                signal_confidence=signal_confidence,
+                market_regime=market_regime,
+                total_cost_pct=(ROUND_TRIP_COST_PCT + MIN_NET_PROFIT_PCT) * 100.0,
+            )
+            if not no_loss.get("approved", False):
+                msg = f"BUY blocked by no-loss policy: {no_loss.get('reason', 'unknown')}"
+                _record_no_loss_root_cause(
+                    product_id,
+                    side_u,
+                    "pre_trade_policy_block",
+                    msg,
+                    details=no_loss,
+                )
+                _record_order_lifecycle(
+                    "coinbase",
+                    pair=product_id,
+                    side=side_u,
+                    status="blocked_no_loss",
+                    requested_usd=float(size or 0.0),
+                    details=no_loss,
+                )
+                return {"error_response": {"error": "NO_LOSS_POLICY_BLOCKED", "message": msg, "policy": no_loss}}
 
         # Profit-only SELL guard.
         if side_u == "SELL" and STRICT_PROFIT_ONLY:
@@ -523,6 +721,13 @@ class CoinbaseTrader:
             if entry is None:
                 msg = f"SELL blocked for {product_id}: missing cost basis in trader.db"
                 logger.warning(msg)
+                _record_no_loss_root_cause(
+                    product_id,
+                    side_u,
+                    "missing_cost_basis",
+                    msg,
+                    details={"product_id": product_id},
+                )
                 return {"error_response": {"error": "NO_COST_BASIS", "message": msg}}
 
             # Market sell uses reference spot for safety check.
@@ -530,6 +735,13 @@ class CoinbaseTrader:
             if market_price is None:
                 msg = f"SELL blocked for {product_id}: no reference market price"
                 logger.warning(msg)
+                _record_no_loss_root_cause(
+                    product_id,
+                    side_u,
+                    "missing_market_price",
+                    msg,
+                    details={"product_id": product_id},
+                )
                 return {"error_response": {"error": "NO_MARKET_PRICE", "message": msg}}
 
             min_ok = _sell_break_even_min(entry)
@@ -537,6 +749,13 @@ class CoinbaseTrader:
                 msg = (f"SELL blocked for {product_id}: ${market_price:.4f} < "
                        f"required ${min_ok:.4f} (entry ${entry:.4f})")
                 logger.warning(msg)
+                _record_no_loss_root_cause(
+                    product_id,
+                    side_u,
+                    "sell_at_loss_blocked",
+                    msg,
+                    details={"entry_price": entry, "market_price": market_price, "required_price": min_ok},
+                )
                 return {"error_response": {"error": "SELL_AT_LOSS_BLOCKED", "message": msg}}
 
         # For SELL orders, truncate base_size to product's precision
@@ -562,9 +781,52 @@ class CoinbaseTrader:
         order["order_configuration"]["market_market_ioc"] = {k: v for k, v in ioc.items() if v is not None}
 
         logger.info("Placing %s order: %s %s @ market", side, product_id, size)
-        return self._request("POST", "/api/v3/brokerage/orders", order)
+        request_t0 = time.perf_counter()
+        result = self._request("POST", "/api/v3/brokerage/orders", order)
+        ack_latency_ms = (time.perf_counter() - request_t0) * 1000.0
+        order_id = None
+        if isinstance(result, dict):
+            if "success_response" in result and isinstance(result["success_response"], dict):
+                order_id = result["success_response"].get("order_id")
+            elif "order_id" in result:
+                order_id = result.get("order_id")
+        requested_usd = float(size or 0.0) if side_u == "BUY" else None
+        if side_u == "SELL" and requested_usd is None:
+            px = PriceFeed.get_price(product_id.replace("-USDC", "-USD")) or PriceFeed.get_price(product_id) or 0.0
+            requested_usd = float(size or 0.0) * float(px or 0.0)
+        status = "ack_ok" if order_id else "ack_failed"
+        details = {"response": result if isinstance(result, dict) else {"raw": str(result)}}
+        _record_order_lifecycle(
+            "coinbase",
+            pair=product_id,
+            side=side_u,
+            status=status,
+            order_id=order_id,
+            requested_usd=requested_usd,
+            ack_latency_ms=ack_latency_ms,
+            details=details,
+        )
+        if not order_id:
+            _record_no_loss_root_cause(
+                product_id,
+                side_u,
+                "order_ack_failed",
+                "Coinbase order request did not return order_id",
+                details={"response": result, "ack_latency_ms": ack_latency_ms},
+            )
+        return result
 
-    def place_limit_order(self, product_id, side, base_size, limit_price, post_only=True):
+    def place_limit_order(
+        self,
+        product_id,
+        side,
+        base_size,
+        limit_price,
+        post_only=True,
+        expected_edge_pct=None,
+        signal_confidence=None,
+        market_regime=None,
+    ):
         """Place a limit order (MAKER — 0.4% fee instead of 0.6%).
 
         Game theory: Be the house, not the player.
@@ -586,6 +848,13 @@ class CoinbaseTrader:
         if locked:
             msg = f"Trading locked by {lock_source}: {lock_reason}"
             logger.error("Limit order blocked: %s", msg)
+            _record_order_lifecycle(
+                "coinbase",
+                pair=product_id,
+                side=side_u,
+                status="blocked_lock",
+                details={"reason": msg},
+            )
             return {"error_response": {"error": "TRADING_LOCKED", "message": msg}}
 
         # Truncate to product precision
@@ -599,12 +868,49 @@ class CoinbaseTrader:
         quote_incr = info.get("quote_increment", "0.01")
         limit_price = self._truncate_to_increment(limit_price, quote_incr)
 
+        if side_u == "BUY" and STRICT_PROFIT_ONLY:
+            # Use maker round-trip cost estimate for strict buy gating.
+            maker_roundtrip_pct = (0.004 + 0.004 + MIN_NET_PROFIT_PCT) * 100.0
+            no_loss = self._no_loss_gate(
+                product_id=product_id,
+                side=side_u,
+                expected_edge_pct=expected_edge_pct,
+                signal_confidence=signal_confidence,
+                market_regime=market_regime,
+                total_cost_pct=maker_roundtrip_pct,
+            )
+            if not no_loss.get("approved", False):
+                msg = f"LIMIT BUY blocked by no-loss policy: {no_loss.get('reason', 'unknown')}"
+                _record_no_loss_root_cause(
+                    product_id,
+                    side_u,
+                    "pre_trade_policy_block",
+                    msg,
+                    details=no_loss,
+                )
+                _record_order_lifecycle(
+                    "coinbase",
+                    pair=product_id,
+                    side=side_u,
+                    status="blocked_no_loss",
+                    requested_usd=float(base_size or 0.0) * float(limit_price or 0.0),
+                    details=no_loss,
+                )
+                return {"error_response": {"error": "NO_LOSS_POLICY_BLOCKED", "message": msg, "policy": no_loss}}
+
         # Profit-only SELL guard.
         if side_u == "SELL" and STRICT_PROFIT_ONLY:
             entry = _last_buy_price(product_id)
             if entry is None:
                 msg = f"LIMIT SELL blocked for {product_id}: missing cost basis in trader.db"
                 logger.warning(msg)
+                _record_no_loss_root_cause(
+                    product_id,
+                    side_u,
+                    "missing_cost_basis",
+                    msg,
+                    details={"product_id": product_id},
+                )
                 return {"error_response": {"error": "NO_COST_BASIS", "message": msg}}
 
             min_ok = _sell_break_even_min(entry)
@@ -612,6 +918,13 @@ class CoinbaseTrader:
                 msg = (f"LIMIT SELL blocked for {product_id}: ${float(limit_price):.4f} < "
                        f"required ${min_ok:.4f} (entry ${entry:.4f})")
                 logger.warning(msg)
+                _record_no_loss_root_cause(
+                    product_id,
+                    side_u,
+                    "sell_at_loss_blocked",
+                    msg,
+                    details={"entry_price": entry, "limit_price": float(limit_price), "required_price": min_ok},
+                )
                 return {"error_response": {"error": "SELL_AT_LOSS_BLOCKED", "message": msg}}
 
         order = {
@@ -629,7 +942,37 @@ class CoinbaseTrader:
 
         logger.info("Placing LIMIT %s: %s %s @ $%s (post_only=%s)",
                      side, product_id, base_size, limit_price, post_only)
-        return self._request("POST", "/api/v3/brokerage/orders", order)
+        request_t0 = time.perf_counter()
+        result = self._request("POST", "/api/v3/brokerage/orders", order)
+        ack_latency_ms = (time.perf_counter() - request_t0) * 1000.0
+        order_id = None
+        if isinstance(result, dict):
+            if "success_response" in result and isinstance(result["success_response"], dict):
+                order_id = result["success_response"].get("order_id")
+            elif "order_id" in result:
+                order_id = result.get("order_id")
+        requested_usd = float(base_size or 0.0) * float(limit_price or 0.0)
+        status = "ack_ok" if order_id else "ack_failed"
+        details = {"response": result if isinstance(result, dict) else {"raw": str(result)}}
+        _record_order_lifecycle(
+            "coinbase",
+            pair=product_id,
+            side=side_u,
+            status=status,
+            order_id=order_id,
+            requested_usd=requested_usd,
+            ack_latency_ms=ack_latency_ms,
+            details=details,
+        )
+        if not order_id:
+            _record_no_loss_root_cause(
+                product_id,
+                side_u,
+                "order_ack_failed",
+                "Coinbase limit order request did not return order_id",
+                details={"response": result, "ack_latency_ms": ack_latency_ms},
+            )
+        return result
 
     def cancel_order(self, order_id):
         """Cancel an open order."""
@@ -667,6 +1010,25 @@ class CoinbaseTrader:
                 avg_price = filled_value / filled_size if filled_size > 0 else 0
 
                 if status in ("FILLED", "CANCELLED", "EXPIRED", "FAILED"):
+                    fill_latency_ms = (time.time() - start) * 1000.0
+                    _record_order_lifecycle(
+                        "coinbase",
+                        pair=str(order.get("product_id", "")),
+                        side=str(order.get("side", "")),
+                        status=str(status).lower(),
+                        order_id=order_id,
+                        requested_usd=None,
+                        fill_latency_ms=fill_latency_ms,
+                        details={"filled_size": filled_size, "filled_value": filled_value, "avg_price": avg_price},
+                    )
+                    if status in ("CANCELLED", "EXPIRED", "FAILED"):
+                        _record_no_loss_root_cause(
+                            str(order.get("product_id", "")),
+                            str(order.get("side", "")),
+                            "order_not_filled",
+                            f"order {order_id} finished as {status}",
+                            details={"filled_size": filled_size, "filled_value": filled_value},
+                        )
                     return {
                         "filled_size": filled_size,
                         "filled_value": filled_value,
