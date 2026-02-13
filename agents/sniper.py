@@ -97,7 +97,7 @@ CONFIG = {
     "min_confirming_signals": 2,         # 2+ must agree
     "scan_interval": 30,                  # Scan every 30s
     "min_hold_seconds": 60,               # 60s minimum hold
-    "pairs": ["BTC-USDC", "ETH-USDC", "SOL-USDC", "AVAX-USDC", "LINK-USDC", "DOGE-USDC", "FET-USDC"],
+    "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "DOGE-USD", "LINK-USD", "FET-USD"],
     "signal_weights": {
         "latency": 0.12,
         "regime": 0.14,
