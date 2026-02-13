@@ -264,6 +264,122 @@ class LiveTrader:
         )
         return decision, route
 
+    @staticmethod
+    def _order_success(result):
+        if not isinstance(result, dict):
+            return False, None
+        if "success_response" in result and isinstance(result["success_response"], dict):
+            oid = result["success_response"].get("order_id")
+            return bool(oid), oid
+        if result.get("order_id"):
+            return True, result.get("order_id")
+        return False, None
+
+    @staticmethod
+    def _fallback_pairs(pair):
+        pair = str(pair).upper()
+        out = [pair]
+        if pair.endswith("-USDC"):
+            out.append(pair.replace("-USDC", "-USD"))
+        elif pair.endswith("-USD"):
+            out.append(pair.replace("-USD", "-USDC"))
+        # preserve order and uniqueness
+        uniq = []
+        for p in out:
+            if p not in uniq:
+                uniq.append(p)
+        return uniq
+
+    def _place_buy_with_fallback(
+        self,
+        pair,
+        usd_amount,
+        limit_price,
+        expected_edge_pct,
+        signal_confidence,
+        market_regime,
+    ):
+        attempts = []
+        for pair_candidate in self._fallback_pairs(pair):
+            if limit_price <= 0:
+                base_size = 0.0
+            else:
+                base_size = max(0.0, float(usd_amount) / float(limit_price))
+
+            order_attempts = [
+                {
+                    "route": "limit_post_only",
+                    "fn": lambda p=pair_candidate, sz=base_size, px=limit_price: self.exchange.place_limit_order(
+                        p,
+                        "BUY",
+                        sz,
+                        px,
+                        post_only=True,
+                        expected_edge_pct=expected_edge_pct,
+                        signal_confidence=signal_confidence,
+                        market_regime=market_regime,
+                    ),
+                },
+                {
+                    "route": "limit_taker_fallback",
+                    "fn": lambda p=pair_candidate, sz=base_size, px=limit_price: self.exchange.place_limit_order(
+                        p,
+                        "BUY",
+                        sz,
+                        px,
+                        post_only=False,
+                        expected_edge_pct=expected_edge_pct,
+                        signal_confidence=signal_confidence,
+                        market_regime=market_regime,
+                    ),
+                },
+                {
+                    "route": "market_ioc_fallback",
+                    "fn": lambda p=pair_candidate, amt=usd_amount: self.exchange.place_order(
+                        p,
+                        "BUY",
+                        amt,
+                        order_type="market",
+                        expected_edge_pct=expected_edge_pct,
+                        signal_confidence=signal_confidence,
+                        market_regime=market_regime,
+                    ),
+                },
+            ]
+
+            for attempt in order_attempts:
+                route_name = str(attempt["route"])
+                try:
+                    result = attempt["fn"]()
+                except Exception as e:
+                    result = {"error_response": {"error": "route_exception", "message": str(e)}}
+                ok, order_id = self._order_success(result)
+                attempts.append(
+                    {
+                        "pair": pair_candidate,
+                        "route": route_name,
+                        "success": bool(ok),
+                        "order_id": order_id,
+                        "result": result if isinstance(result, dict) else {"raw": str(result)},
+                    }
+                )
+                if ok:
+                    return {
+                        "ok": True,
+                        "pair": pair_candidate,
+                        "route": route_name,
+                        "order_id": order_id,
+                        "result": result,
+                        "attempts": attempts,
+                    }
+                logger.warning(
+                    "Order route failed: pair=%s route=%s response=%s",
+                    pair_candidate,
+                    route_name,
+                    json.dumps(result)[:280] if isinstance(result, dict) else str(result),
+                )
+        return {"ok": False, "pair": pair, "route": "all_failed", "result": {}, "attempts": attempts}
+
     def evaluate_and_trade(self, signals):
         """Evaluate signals and execute trades.
 
@@ -311,11 +427,11 @@ class LiveTrader:
             # Map host to pair
             pair = None
             if "coinbase" in host or "binance" in host or "kraken" in host:
-                pair = "BTC-USDC"
+                pair = "BTC-USD"
             elif "bybit" in host or "okx" in host:
-                pair = "BTC-USDC"
+                pair = "BTC-USD"
             elif "gemini" in host:
-                pair = "ETH-USDC"
+                pair = "ETH-USD"
 
             if not pair:
                 continue
@@ -333,7 +449,7 @@ class LiveTrader:
                 buy_signals.setdefault(pair, []).append(signal)
 
         # Also check C engine signals — expanded to high-volatility pairs
-        for pair in ["BTC-USDC", "ETH-USDC", "SOL-USDC", "DOGE-USDC", "AVAX-USDC", "LINK-USDC", "XRP-USDC"]:
+        for pair in ["BTC-USD", "ETH-USD", "SOL-USD", "DOGE-USD", "AVAX-USD", "LINK-USD", "XRP-USD"]:
             regime = self._get_regime(pair)
 
             # Skip downtrend pairs — Rule #1
@@ -445,47 +561,57 @@ class LiveTrader:
             limit_price = price
         if limit_price <= 0:
             limit_price = price
-        base_size = max(0.0, float(usd_amount) / float(limit_price))
-        result = self.exchange.place_limit_order(
-            pair,
-            "BUY",
-            base_size,
-            limit_price,
-            post_only=True,
+        fallback = self._place_buy_with_fallback(
+            pair=pair,
+            usd_amount=usd_amount,
+            limit_price=limit_price,
             expected_edge_pct=expected_edge_pct,
             signal_confidence=signal_confidence,
             market_regime=market_regime,
         )
+        result = fallback.get("result", {}) if isinstance(fallback, dict) else {}
+        executed_pair = str(fallback.get("pair", pair) if isinstance(fallback, dict) else pair)
 
         order_id = None
         status = "failed"
-        if "success_response" in result:
-            order_id = result["success_response"].get("order_id")
+        ok, oid = self._order_success(result)
+        if ok:
+            order_id = oid
             status = "filled"
-            logger.info("ORDER FILLED: %s | order_id=%s", pair, order_id)
+            logger.info(
+                "ORDER FILLED: %s | order_id=%s | route=%s",
+                executed_pair,
+                order_id,
+                fallback.get("route", "direct"),
+            )
         elif "error_response" in result:
             err = result["error_response"]
-            logger.warning("ORDER FAILED: %s | %s", pair, err.get("message", err))
+            logger.warning("ORDER FAILED: %s | %s", executed_pair, err.get("message", err))
             _record_no_loss_root_cause(
-                pair,
+                executed_pair,
                 side,
                 "order_rejected",
                 str(err.get("message", err)),
-                details={"response": result, "signal": signal},
+                details={"response": result, "signal": signal, "attempts": fallback.get("attempts", [])},
             )
             status = "failed"
-        elif "order_id" in result:
-            order_id = result["order_id"]
-            status = "filled"
         else:
             logger.warning("ORDER RESPONSE: %s", json.dumps(result)[:300])
+            _record_no_loss_root_cause(
+                executed_pair,
+                side,
+                "order_all_routes_failed",
+                "all execution routes failed",
+                details={"attempts": fallback.get("attempts", []), "signal": signal},
+            )
 
         # Record trade
+        exec_price = self.pricefeed.get_price(executed_pair) or price
         self.db.execute(
             """INSERT INTO live_trades (pair, side, price, quantity, total_usd,
                signal_type, signal_confidence, signal_host, coinbase_order_id, status)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (pair, side, price, usd_amount / price if price else 0, usd_amount,
+            (executed_pair, side, exec_price, usd_amount / exec_price if exec_price else 0, usd_amount,
              signal.get("signal_type"), signal.get("confidence"),
              signal.get("target_host"), order_id, status)
         )
@@ -602,13 +728,13 @@ if __name__ == "__main__":
         trader = LiveTrader()
         trader.print_status()
     elif len(sys.argv) > 1 and sys.argv[1] == "consolidate":
-        # Sell all alts to USDC for cleaner trading
+        # Sell all alts to USD for cleaner trading
         trader = LiveTrader()
         total, holdings = trader.get_portfolio_value()
         print(f"Portfolio: ${total:.2f}")
         for currency, data in holdings.items():
             if currency not in ("USD", "USDC", "BTC", "ETH") and data["usd_value"] > 1.0:
-                pair = f"{currency}-USDC"
+                pair = f"{currency}-USD"
                 print(f"Selling {data['amount']} {currency} (~${data['usd_value']:.2f})...")
                 result = trader.exchange.place_order(pair, "SELL", data["amount"])
                 print(f"  Result: {json.dumps(result)[:200]}")

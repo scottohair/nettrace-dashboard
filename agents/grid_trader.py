@@ -36,6 +36,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+# KPI tracking
+try:
+    from kpi_tracker import get_kpi_tracker
+    _kpi = get_kpi_tracker()
+except Exception:
+    _kpi = None
+
 # Load .env
 _env_path = Path(__file__).parent / ".env"
 if _env_path.exists():
@@ -59,7 +66,7 @@ GRID_DB = str(Path(__file__).parent / "grid_trader.db")
 
 # Grid configuration
 DEFAULT_CONFIG = {
-    "pair": "BTC-USDC",
+    "pair": "BTC-USD",
     "grid_spacing_pct": 0.01,    # 1.0% between grid levels
     "levels_above": 2,           # sell levels above current price
     "levels_below": 2,           # buy levels below current price
@@ -358,6 +365,18 @@ class GridTrader:
 
             logger.info("GRID PROFIT: round-trip #%d | $%.6f net (total: $%.6f)",
                         self.total_round_trips, net_pnl, self.total_profit)
+
+            # Record to KPI tracker
+            if _kpi:
+                try:
+                    _kpi.record_trade(
+                        strategy_name="grid_trader", pair=filled_order.get("pair", "BTC-USD"),
+                        direction="SELL", amount_usd=filled_order["base_size"] * fill_price,
+                        pnl=net_pnl, fees=fees, strategy_type="HF",
+                        won=(net_pnl >= 0),
+                    )
+                except Exception:
+                    pass
 
             # Replace with a new buy
             level = {"side": "BUY", "level": filled_order["grid_level"] - 1, "price": buy_price}

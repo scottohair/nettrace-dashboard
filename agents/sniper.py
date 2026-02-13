@@ -50,6 +50,13 @@ try:
 except Exception:
     _tracker = None
 
+# KPI tracking — record every trade for scorecard
+try:
+    from kpi_tracker import get_kpi_tracker
+    _kpi = get_kpi_tracker()
+except Exception:
+    _kpi = None
+
 # Load .env
 _env_path = Path(__file__).parent / ".env"
 if _env_path.exists():
@@ -972,6 +979,19 @@ class Sniper:
         )
         self.db.commit()
         self.trades_today += 1
+
+        # Record to KPI tracker for scorecard
+        if _kpi and status in ("filled", "pending"):
+            try:
+                fees = trade_size * 0.004  # maker fee
+                _kpi.record_trade(
+                    strategy_name="sniper", pair=pair, direction=side,
+                    amount_usd=trade_size, pnl=pnl or 0, fees=fees,
+                    hold_seconds=0, strategy_type="LF",
+                    won=(pnl is None or pnl >= 0),
+                )
+            except Exception as kpi_err:
+                logger.debug("KPI record error: %s", kpi_err)
 
         # Log state transition for learning
         if _tracker and status == "filled":

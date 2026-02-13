@@ -172,6 +172,15 @@ class FlyAgentRunner:
                 instance = CapitalAllocator()
                 return instance.run_loop
 
+            elif name == "strike_teams":
+                from strike_teams import StrikeTeamManager
+                mgr = StrikeTeamManager()
+                return mgr.deploy_all
+
+            elif name == "hf_execution":
+                from hf_execution_agent import main as hf_main
+                return lambda: hf_main(["--live"])
+
             elif name in ("exchange_scanner", "latency_arb",
                           "momentum_scalper", "forex_arb"):
                 # Scout-type agents — run signal_scout for non-primary regions

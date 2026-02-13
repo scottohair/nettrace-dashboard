@@ -70,7 +70,7 @@ CONFIG = {
     "max_hold_seconds": 300,            # 5 minute max hold
     "reserve_cash_usd": 10.00,         # Keep $10 reserve — prevent cash burnout
     "max_position_pct": 0.15,          # Max 15% per asset
-    "pairs": ["BTC-USDC", "ETH-USDC", "SOL-USDC", "DOGE-USDC", "FET-USDC", "LINK-USDC"],
+    "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "DOGE-USD", "FET-USD", "LINK-USD"],
     # EMA parameters
     "ema_fast_period": 3,
     "ema_slow_period": 8,

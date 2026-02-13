@@ -579,6 +579,215 @@ void benchmark(void) {
            iterations * 10, elapsed * 1000, elapsed * 1e9 / (iterations * 10));
 }
 
+/* ============================================================
+ * HF Tick Scorer — sub-microsecond momentum detection
+ *
+ * Processes raw tick stream to detect momentum bursts,
+ * spread changes, and volume acceleration in real-time.
+ * ============================================================ */
+
+#define MAX_TICK_WINDOW 256
+
+typedef struct {
+    double prices[MAX_TICK_WINDOW];
+    double volumes[MAX_TICK_WINDOW];
+    long   timestamps[MAX_TICK_WINDOW];
+    int    count;
+    int    head;  /* circular buffer head */
+} TickWindow;
+
+typedef struct {
+    int    signal;          /* 0=none, 1=buy, 2=sell */
+    double confidence;
+    double momentum;        /* price velocity per second */
+    double vol_acceleration; /* volume rate of change */
+    double spread_score;    /* bid-ask tightening indicator */
+    double composite;       /* weighted composite score */
+    char   reason[64];
+} TickSignal;
+
+TickSignal score_tick_momentum(
+    const double *recent_prices,   /* last N prices (newest first) */
+    const double *recent_volumes,  /* last N volumes */
+    int n_ticks,
+    double current_bid,
+    double current_ask,
+    double avg_spread
+) {
+    TickSignal sig = {0};
+    if (n_ticks < 10) return sig;
+
+    /* Price velocity: weighted linear regression slope */
+    double sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0;
+    int window = (n_ticks < 20) ? n_ticks : 20;
+    for (int i = 0; i < window; i++) {
+        double x = (double)i;
+        double y = recent_prices[i];
+        sum_x += x;
+        sum_y += y;
+        sum_xy += x * y;
+        sum_x2 += x * x;
+    }
+    double slope = (window * sum_xy - sum_x * sum_y) / (window * sum_x2 - sum_x * sum_x);
+    double price_mean = sum_y / window;
+    sig.momentum = (price_mean > 0) ? -slope / price_mean : 0;  /* negative slope = price going up (newest first) */
+
+    /* Volume acceleration: compare recent 5 vs previous 10 */
+    double recent_vol = 0, baseline_vol = 0;
+    int rv_n = (window < 5) ? window : 5;
+    int bv_n = (window < 15) ? window - rv_n : 10;
+    for (int i = 0; i < rv_n; i++) recent_vol += recent_volumes[i];
+    for (int i = rv_n; i < rv_n + bv_n; i++) baseline_vol += recent_volumes[i];
+    recent_vol /= rv_n;
+    baseline_vol = (bv_n > 0) ? baseline_vol / bv_n : recent_vol;
+    sig.vol_acceleration = (baseline_vol > 0) ? recent_vol / baseline_vol : 1.0;
+
+    /* Spread analysis */
+    double current_spread = (current_ask > 0 && current_bid > 0) ?
+        (current_ask - current_bid) / current_bid : 0;
+    sig.spread_score = (avg_spread > 0) ? 1.0 - (current_spread / avg_spread) : 0;
+    if (sig.spread_score < -1.0) sig.spread_score = -1.0;
+    if (sig.spread_score > 1.0) sig.spread_score = 1.0;
+
+    /* Composite score: momentum + volume + spread tightening */
+    sig.composite = sig.momentum * 0.50
+                  + (sig.vol_acceleration - 1.0) * 0.10 * 0.30
+                  + sig.spread_score * 0.20;
+
+    /* Generate signal if strong enough */
+    double abs_composite = fabs(sig.composite);
+    if (abs_composite > 0.001 && sig.vol_acceleration > 1.2) {
+        sig.signal = (sig.composite > 0) ? 1 : 2;  /* positive = BUY */
+        sig.confidence = fmin(0.95, 0.60 + abs_composite * 50.0);
+        snprintf(sig.reason, sizeof(sig.reason),
+                 "tick_mom=%.4f vol=%.1fx spr=%.2f",
+                 sig.momentum, sig.vol_acceleration, sig.spread_score);
+    }
+
+    return sig;
+}
+
+/* ============================================================
+ * Multi-Strategy Fast Scanner — score all strategies in one pass
+ *
+ * Returns a bitmap of which strategies triggered + best signal.
+ * Used by strike teams for rapid opportunity detection.
+ * ============================================================ */
+
+typedef struct {
+    int    strategies_triggered;  /* bitmap: bit0=momentum, bit1=mean_rev, bit2=breakout, bit3=arb */
+    Signal best_signal;
+    double momentum_score;
+    double mean_rev_zscore;
+    double breakout_score;
+    double arb_spread;
+    int    confirming_count;      /* how many strategies agree */
+} MultiStrategyResult;
+
+MultiStrategyResult multi_strategy_scan(
+    const Candle *candles, int n_candles,
+    double coinbase_price,
+    double *other_prices, int n_others
+) {
+    MultiStrategyResult res = {0};
+    if (n_candles < 20) return res;
+
+    double closes[MAX_CANDLES];
+    int n = (n_candles < MAX_CANDLES) ? n_candles : MAX_CANDLES;
+    for (int i = 0; i < n; i++) closes[i] = candles[i].close;
+
+    double price = closes[n-1];
+    int direction = 0;  /* 0=none, 1=buy, 2=sell */
+
+    /* Strategy 1: Momentum (EMA3 vs EMA8 crossover) */
+    {
+        double ema3 = closes[n-1], ema8 = closes[n-1];
+        double m3 = 2.0 / 4.0, m8 = 2.0 / 9.0;
+        for (int i = n-2; i >= 0 && i >= n-20; i--) {
+            ema3 = closes[i] * m3 + ema3 * (1-m3);
+            ema8 = closes[i] * m8 + ema8 * (1-m8);
+        }
+        res.momentum_score = (ema3 - ema8) / ema8;
+        if (fabs(res.momentum_score) > 0.002) {
+            res.strategies_triggered |= 1;
+            direction = (res.momentum_score > 0) ? 1 : 2;
+            res.confirming_count++;
+        }
+    }
+
+    /* Strategy 2: Mean Reversion (z-score) */
+    {
+        double mean = 0, sq = 0;
+        for (int i = 0; i < n; i++) { mean += closes[i]; sq += closes[i]*closes[i]; }
+        mean /= n;
+        double var = sq/n - mean*mean;
+        double std = sqrt(fmax(0, var));
+        res.mean_rev_zscore = (std > 0) ? (price - mean) / std : 0;
+
+        if (fabs(res.mean_rev_zscore) > 2.0) {
+            res.strategies_triggered |= 2;
+            int mr_dir = (res.mean_rev_zscore < -2) ? 1 : 2;
+            if (direction == 0) direction = mr_dir;
+            if (mr_dir == direction) res.confirming_count++;
+        }
+    }
+
+    /* Strategy 3: Breakout (new high/low with volume) */
+    {
+        double max_h = candles[1].high, min_l = candles[1].low;
+        double avg_vol = 0;
+        for (int i = 1; i < n && i < 20; i++) {
+            if (candles[i].high > max_h) max_h = candles[i].high;
+            if (candles[i].low < min_l) min_l = candles[i].low;
+            avg_vol += candles[i].volume;
+        }
+        avg_vol /= (n < 20 ? n-1 : 19);
+
+        if (price > max_h && candles[0].volume > avg_vol * 1.5) {
+            res.breakout_score = (price - max_h) / max_h;
+            res.strategies_triggered |= 4;
+            if (direction == 0) direction = 1;
+            if (direction == 1) res.confirming_count++;
+        } else if (price < min_l && candles[0].volume > avg_vol * 1.5) {
+            res.breakout_score = (min_l - price) / min_l;
+            res.strategies_triggered |= 4;
+            if (direction == 0) direction = 2;
+            if (direction == 2) res.confirming_count++;
+        }
+    }
+
+    /* Strategy 4: Arbitrage */
+    if (n_others >= 2 && coinbase_price > 0) {
+        ArbResult arb = check_arbitrage(coinbase_price, other_prices, n_others);
+        res.arb_spread = arb.spread_pct;
+        if (arb.has_opportunity) {
+            res.strategies_triggered |= 8;
+            int arb_dir = arb.side;
+            if (direction == 0) direction = arb_dir;
+            if (arb_dir == direction) res.confirming_count++;
+        }
+    }
+
+    /* Build best signal from composite */
+    if (res.confirming_count >= 2) {
+        res.best_signal.signal_type = direction;
+        res.best_signal.confidence = fmin(0.95,
+            0.55 + res.confirming_count * 0.12
+            + fabs(res.momentum_score) * 5.0
+            + fabs(res.mean_rev_zscore > 2 ? res.mean_rev_zscore - 2 : 0) * 0.05
+        );
+        res.best_signal.target_price = price;
+        res.best_signal.stop_price = (direction == 1) ? price * 0.98 : price * 1.02;
+        res.best_signal.strategy_id = 99; /* multi-strat composite */
+        snprintf(res.best_signal.reason, sizeof(res.best_signal.reason),
+                 "multi_%d_confirm(mom=%.3f,z=%.1f,brk=%.3f)",
+                 res.confirming_count, res.momentum_score,
+                 res.mean_rev_zscore, res.breakout_score);
+    }
+
+    return res;
+}
+
 /* Entry point for testing */
 int main(void) {
     srand(time(NULL));
