@@ -34,6 +34,13 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 logger = logging.getLogger("strike_teams")
 
+MAKER_FEE_RATE = float(os.environ.get("STRIKE_MAKER_FEE_RATE", "0.004") or 0.004)
+TAKER_FEE_RATE = float(os.environ.get("STRIKE_TAKER_FEE_RATE", "0.006") or 0.006)
+EXIT_BUFFER_RATE = float(os.environ.get("STRIKE_EXIT_BUFFER_RATE", "0.0025") or 0.0025)
+MIN_SCAN_INTERVAL_SECONDS = int(os.environ.get("STRIKE_MIN_SCAN_INTERVAL_SECONDS", "90") or 90)
+DEFAULT_HF_INTERVAL_SECONDS = int(os.environ.get("STRIKE_DEFAULT_HF_INTERVAL_SECONDS", "120") or 120)
+DEFAULT_LF_INTERVAL_SECONDS = int(os.environ.get("STRIKE_DEFAULT_LF_INTERVAL_SECONDS", "240") or 240)
+
 # Core imports
 try:
     from agent_goals import GoalValidator
@@ -120,6 +127,22 @@ class StrikeTeam:
         if size_usd < 1.0 or price <= 0:
             return None
 
+        exit_ok, exit_reason = self.validate_profitable_exit(
+            pair,
+            entry_price=price,
+            direction=direction,
+            analysis=analysis,
+        )
+        if not exit_ok:
+            logger.info(
+                "STRIKE %s: blocked %s %s before execution (exit validation: %s)",
+                self.name,
+                direction,
+                pair,
+                exit_reason,
+            )
+            return None
+
         # Gate through GoalValidator
         confidence = analysis.get("confidence", 0)
         confirming = analysis.get("confirming_signals", 1)
@@ -132,18 +155,29 @@ class StrikeTeam:
 
         # Gate through risk controller
         if _risk:
-            # Get portfolio value for risk sizing
+            # Get FULL portfolio value (cash + positions) for proper risk sizing
             try:
+                import urllib.request as _ur
                 from exchange_connector import CoinbaseTrader
                 _t = CoinbaseTrader()
                 accts = _t._request("GET", "/api/v3/brokerage/accounts?limit=250")
-                portfolio = sum(
-                    float(a.get("available_balance", {}).get("value", 0))
-                    for a in accts.get("accounts", [])
-                    if a.get("currency") in ("USD", "USDC")
-                )
+                portfolio = 0
+                for a in accts.get("accounts", []):
+                    cur = a.get("currency", "")
+                    bal = float(a.get("available_balance", {}).get("value", 0))
+                    if cur in ("USD", "USDC"):
+                        portfolio += bal
+                    elif bal > 0:
+                        try:
+                            _url = f"https://api.coinbase.com/v2/prices/{cur}-USD/spot"
+                            _req = _ur.Request(_url, headers={"User-Agent": "Strike/1.0"})
+                            _resp = _ur.urlopen(_req, timeout=3)
+                            _price = float(json.loads(_resp.read())["data"]["amount"])
+                            portfolio += bal * _price
+                        except Exception:
+                            pass
             except Exception:
-                portfolio = 200.0  # fallback estimate
+                portfolio = 250.0  # conservative fallback
 
             approved, reason, adj_size = _risk.approve_trade(
                 self.name, pair, direction, size_usd, portfolio
@@ -189,11 +223,67 @@ class StrikeTeam:
                 _risk.resolve_allocation(self.name, pair)
             return None
 
-    def run(self, interval=30):
-        """Main loop: scout → analyze → execute."""
+    def _required_exit_price(self, entry_price):
+        """Return minimum profitable exit price including fees and safety buffer."""
+        gross_cost = (2.0 * TAKER_FEE_RATE) + EXIT_BUFFER_RATE
+        return float(entry_price) * (1.0 + gross_cost)
+
+    def validate_profitable_exit(self, pair, entry_price, direction, analysis=None):
+        """Hard gate for BUY orders: exit must clear costs with margin."""
+        side = str(direction or "").upper()
+        if side != "BUY":
+            return True, "sell_or_non_buy_direction"
+        if not entry_price or float(entry_price) <= 0:
+            return False, "invalid_entry_price"
+
+        payload = analysis if isinstance(analysis, dict) else {}
+        required_exit = self._required_exit_price(float(entry_price))
+        explicit_target = 0.0
+        for key in ("take_profit", "target_exit_price", "expected_exit_price"):
+            val = payload.get(key)
+            try:
+                explicit_target = max(explicit_target, float(val or 0.0))
+            except Exception:
+                continue
+        if explicit_target > 0.0:
+            if explicit_target > required_exit:
+                return True, f"explicit_target_ok:{explicit_target:.8f}>{required_exit:.8f}"
+            return False, f"explicit_target_below_required:{explicit_target:.8f}<={required_exit:.8f}"
+
+        # No explicit target: infer from microstructure + support/momentum.
+        candles = _fetch_candles(pair, granularity=300, limit=30)
+        if len(candles) < 12:
+            return False, "insufficient_candles_for_exit_validation"
+
+        highs = [float(c[2]) for c in candles[1:16]]
+        lows = [float(c[1]) for c in candles[1:16]]
+        closes = [float(c[4]) for c in candles[:8]]
+        support = min(lows) if lows else 0.0
+        inferred_exit = max(highs) if highs else 0.0
+        current = float(entry_price)
+
+        near_support = support > 0.0 and ((current - support) / support) <= 0.015
+        momentum_up = len(closes) >= 4 and closes[0] > closes[1] > closes[2]
+        if inferred_exit <= required_exit:
+            return False, f"inferred_exit_below_required:{inferred_exit:.8f}<={required_exit:.8f}"
+        if not (near_support or momentum_up):
+            return False, "no_support_or_momentum_confirmation"
+        return True, f"inferred_exit_ok:{inferred_exit:.8f}>{required_exit:.8f}"
+
+    def has_exit_path(self, pair, entry_price, direction, analysis=None):
+        """Backward-compatible bool wrapper around strict exit validation."""
+        ok, _reason = self.validate_profitable_exit(pair, entry_price, direction, analysis=analysis)
+        return bool(ok)
+
+    def run(self, interval=60):
+        """Main loop: scout → analyze → exit-validate → execute.
+
+        Interval floor prevents over-trading and cash drain.
+        """
         self.running = True
-        logger.info("Strike team '%s' starting (type=%s, pairs=%s)",
-                     self.name, self.team_type, self.pairs)
+        interval = max(int(MIN_SCAN_INTERVAL_SECONDS), int(interval))
+        logger.info("Strike team '%s' starting (type=%s, pairs=%s, interval=%ds)",
+                     self.name, self.team_type, self.pairs, interval)
 
         while self.running and not self._stop.is_set():
             for pair in self.pairs:
@@ -213,6 +303,22 @@ class StrikeTeam:
                     # Analyze
                     analysis = self.analyze(pair, scout_result)
                     if not analysis.get("approved"):
+                        continue
+
+                    # Exit path validation: ONLY buy if profitable exit exists
+                    direction = analysis.get("direction", "BUY")
+                    entry_price = analysis.get("entry_price", 0)
+                    exit_ok, exit_reason = self.validate_profitable_exit(
+                        pair, entry_price, direction, analysis=analysis
+                    )
+                    if not exit_ok:
+                        logger.info(
+                            "STRIKE %s: no profitable exit path for %s %s — SKIP (%s)",
+                            self.name,
+                            direction,
+                            pair,
+                            exit_reason,
+                        )
                         continue
 
                     # Execute
@@ -586,10 +692,16 @@ class StrikeTeamManager:
         for team_cls in ALL_TEAMS:
             team = team_cls()
             self.teams[team.name] = team
-            t = Thread(target=team.run, args=(30,), daemon=True, name=f"strike-{team.name}")
+            base_interval = (
+                int(DEFAULT_HF_INTERVAL_SECONDS)
+                if str(team.team_type).upper() == "HF"
+                else int(DEFAULT_LF_INTERVAL_SECONDS)
+            )
+            team_interval = max(int(MIN_SCAN_INTERVAL_SECONDS), int(base_interval))
+            t = Thread(target=team.run, args=(team_interval,), daemon=True, name=f"strike-{team.name}")
             t.start()
             self.threads[team.name] = t
-            logger.info("Deployed strike team: %s (type=%s)", team.name, team.team_type)
+            logger.info("Deployed strike team: %s (type=%s, interval=%ds)", team.name, team.team_type, team_interval)
 
         logger.info("All %d strike teams deployed", len(self.teams))
 

@@ -226,6 +226,24 @@ class RiskController:
         self._db.execute("PRAGMA journal_mode=WAL")
         self._db.execute("PRAGMA busy_timeout=5000")
         self._db.commit()
+        # Flush ALL stale pending allocations on startup (leftover from previous process/OOM)
+        self._flush_stale_allocations()
+
+    def _flush_stale_allocations(self):
+        """Expire all pending allocations on startup — previous process may have died mid-trade."""
+        try:
+            n = self._db.execute(
+                "SELECT COUNT(*) FROM pending_allocations WHERE status='pending'"
+            ).fetchone()[0]
+            if n > 0:
+                self._db.execute(
+                    "UPDATE pending_allocations SET status='expired', resolved_at=CURRENT_TIMESTAMP "
+                    "WHERE status='pending'")
+                self._db.commit()
+                logger.info("STARTUP: Flushed %d stale pending allocations", n)
+                self._log_event("startup_flush", details=f"Expired {n} stale pending allocations")
+        except Exception as e:
+            logger.warning("flush_stale_allocations error: %s", e)
 
     def _check_daily_reset(self):
         """Reset daily counters at midnight UTC."""
@@ -401,10 +419,10 @@ class RiskController:
                 adjusted = size_usd  # sells aren't limited by same rules
 
             # 5. Check total pending allocations across ALL agents (cross-process safe)
-            # Clean up stale pending allocations older than 5 minutes (orders that fail fast)
+            # Clean up stale pending allocations older than 2 minutes (prevents bloat from agent storms)
             cur.execute(
                 "UPDATE pending_allocations SET status='expired', resolved_at=CURRENT_TIMESTAMP "
-                "WHERE status='pending' AND created_at < datetime('now', '-5 minutes')")
+                "WHERE status='pending' AND created_at < datetime('now', '-2 minutes')")
             row = cur.execute(
                 "SELECT COALESCE(SUM(size_usd), 0) FROM pending_allocations WHERE status='pending'"
             ).fetchone()

@@ -75,7 +75,9 @@ DEPLOYMENT_MANIFEST = {
             {"name": "advanced_team",      "priority": 1, "reason": "5-agent research/strategy team, primary brain"},
             {"name": "sniper",             "priority": 1, "reason": "High-confidence execution near Coinbase API"},
             {"name": "meta_engine",        "priority": 1, "reason": "Strategy evolution, needs full market view"},
-            {"name": "strike_teams",      "priority": 1, "reason": "5 strike teams: momentum, arb, mean-rev, breakout, corr"},
+            # strike_teams DISABLED on Fly — causes OOM in 256MB container (5 threads + HTTP requests)
+            # Re-enable when machine is scaled to 512MB+ or moved to dedicated process
+            # {"name": "strike_teams",      "priority": 1, "reason": "5 strike teams: momentum, arb, mean-rev, breakout, corr"},
         ],
         "exchanges": ["coinbase", "gemini", "kraken_us"],
         "notes": "Primary region. Coordinator lives here. All capital allocation decisions originate from ewr.",
