@@ -708,6 +708,35 @@ class Sniper:
                 return True
         return False
 
+    def _cancel_stale_orders(self):
+        """Cancel all open orders on Coinbase from previous process.
+
+        When the container OOM-kills or restarts, open limit orders remain on the exchange
+        holding cash. This frees that cash for new trades.
+        """
+        try:
+            from exchange_connector import CoinbaseTrader
+            trader = CoinbaseTrader()
+            resp = trader.get_orders(status="OPEN")
+            orders = resp.get("orders", [])
+            if not orders:
+                logger.info("SNIPER STARTUP: No stale open orders found")
+                return
+            cancelled = 0
+            for o in orders:
+                oid = o.get("order_id", "")
+                pair = o.get("product_id", "?")
+                side = o.get("side", "?")
+                try:
+                    trader.cancel_order(oid)
+                    cancelled += 1
+                    logger.info("SNIPER STARTUP: Cancelled stale %s %s (id=%s)", side, pair, oid[:12])
+                except Exception as ce:
+                    logger.warning("SNIPER STARTUP: Failed to cancel %s: %s", oid[:12], ce)
+            logger.info("SNIPER STARTUP: Cancelled %d/%d stale orders — cash freed", cancelled, len(orders))
+        except Exception as e:
+            logger.warning("SNIPER STARTUP: Stale order cleanup error: %s", e)
+
     def _get_holdings(self):
         """Get current Coinbase holdings. Returns (holdings_dict, usdc_cash, usd_cash)."""
         try:
@@ -1095,6 +1124,10 @@ class Sniper:
                     len(CONFIG["pairs"]), CONFIG["scan_interval"])
         logger.info("Thresholds: conf >= %.0f%%, signals >= %d",
                     CONFIG["min_composite_confidence"]*100, CONFIG["min_confirming_signals"])
+
+        # Cancel stale open orders from previous process (OOM, restart, etc.)
+        # These hold cash on Coinbase causing "Insufficient balance" errors
+        self._cancel_stale_orders()
 
         # Start ExitManager background monitor for exit strategy enforcement
         if _exit_mgr:
