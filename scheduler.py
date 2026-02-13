@@ -21,7 +21,11 @@ DB_PATH = os.environ.get("DB_PATH", str(Path(__file__).parent / "traceroute.db")
 TARGETS_PATH = Path(__file__).parent / "targets.json"
 SCAN_INTERVAL = int(os.environ.get("SCAN_INTERVAL", "900"))  # 15 minutes default
 SCAN_STAGGER = int(os.environ.get("SCAN_STAGGER", "10"))  # seconds between scans
+CRYPTO_SCAN_INTERVAL = int(os.environ.get("CRYPTO_SCAN_INTERVAL", "120"))  # 2 min for crypto exchanges
 SNAPSHOT_EVERY = 4  # store full snapshot every N scans per target
+
+# Priority categories — these generate the trading edge
+PRIORITY_CATEGORIES = {"Crypto Exchanges", "Forex & Brokers"}
 
 # Geo cache shared with app.py (loaded from DB on startup)
 GEO_CACHE = {}
@@ -45,7 +49,11 @@ class ContinuousScanner:
         self.running = True
         self.thread = threading.Thread(target=self._loop, daemon=True, name="scanner")
         self.thread.start()
-        logger.info("ContinuousScanner started (interval=%ds, stagger=%ds)", SCAN_INTERVAL, SCAN_STAGGER)
+        # Start priority crypto scanner — 3x faster for trading-critical targets
+        self._crypto_thread = threading.Thread(target=self._crypto_loop, daemon=True, name="crypto_scanner")
+        self._crypto_thread.start()
+        logger.info("ContinuousScanner started (full=%ds, crypto=%ds, stagger=%ds)",
+                     SCAN_INTERVAL, CRYPTO_SCAN_INTERVAL, SCAN_STAGGER)
 
     def stop(self):
         self.running = False
@@ -334,6 +342,58 @@ class ContinuousScanner:
 
             except Exception as e:
                 logger.error("Scanner loop error: %s", e)
+                time.sleep(30)
+
+    def _crypto_loop(self):
+        """Fast-path scanner for trading-critical targets (crypto exchanges, forex brokers).
+
+        Runs every CRYPTO_SCAN_INTERVAL (2 min default) — separate from the full
+        15-minute scan cycle. This is the core trading edge: higher-frequency latency
+        data from 7 global regions = faster anomaly detection = more money.
+
+        Each scan from a different Fly region sees different network paths.
+        Cross-region latency divergence is the private signal competitors don't have.
+        """
+        logger.info("Crypto priority scanner starting (interval=%ds)", CRYPTO_SCAN_INTERVAL)
+        time.sleep(15)  # stagger startup from main loop
+
+        while self.running:
+            try:
+                targets = self._load_targets()
+                priority_targets = [t for t in targets if t.get("category") in PRIORITY_CATEGORIES]
+
+                if not priority_targets:
+                    time.sleep(60)
+                    continue
+
+                cycle_start = time.time()
+                logger.info("Crypto priority scan: %d targets", len(priority_targets))
+
+                for target in priority_targets:
+                    if not self.running:
+                        break
+                    try:
+                        self._scan_target(target)
+                    except Exception as e:
+                        logger.error("Crypto scan error %s: %s", target["host"], e)
+                    time.sleep(max(2, SCAN_STAGGER // 2))  # tighter stagger for priority
+
+                cycle_duration = time.time() - cycle_start
+                logger.info("Crypto priority scan complete in %.0fs (%d targets)",
+                             cycle_duration, len(priority_targets))
+
+                # Generate signals immediately after crypto scan — don't wait for full cycle
+                self._run_quant_engine()
+
+                # Sleep until next crypto cycle
+                remaining = max(0, CRYPTO_SCAN_INTERVAL - cycle_duration)
+                if remaining > 0 and self.running:
+                    end_time = time.time() + remaining
+                    while self.running and time.time() < end_time:
+                        time.sleep(min(5, end_time - time.time()))
+
+            except Exception as e:
+                logger.error("Crypto scanner error: %s", e)
                 time.sleep(30)
 
     def _run_quant_engine(self):

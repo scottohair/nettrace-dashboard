@@ -6,10 +6,12 @@ primary_region = "ewr"
 [env]
   PORT = "8080"
   DB_PATH = "/data/traceroute.db"
-  MAX_SCANS_PER_HOUR = "10"
+  MAX_SCANS_PER_HOUR = "30"
   MAX_CONCURRENT_SCANS = "3"
-  SCAN_INTERVAL = "900"
-  SCAN_STAGGER = "10"
+  SCAN_INTERVAL = "600"
+  SCAN_STAGGER = "5"
+  # Priority scanning: crypto exchanges scanned 3x faster than other targets
+  CRYPTO_SCAN_INTERVAL = "120"
 
 [http_service]
   internal_port = 8080

@@ -132,31 +132,61 @@ class SignalSource:
 
 
 class LatencySignalSource(SignalSource):
-    """Signal #1: NetTrace latency signals from Fly.io."""
+    """Signal #1: NetTrace latency signals from 7 global Fly.io regions.
+
+    Uses two data sources:
+    1. /api/v1/signals — pre-computed quant signals (anomalies, trends, route changes)
+    2. /api/v1/signals/crypto-latency — raw exchange latency with anomaly detection
+    """
 
     def scan(self, pair):
         try:
-            # Latency signals are exchange-level, pair-agnostic
-            url = f"{FLY_URL}/api/v1/signals?hours=1&min_confidence=0.6"
-            data = _fetch_json(url, headers={"Authorization": f"Bearer {NETTRACE_API_KEY}"})
-            signals = data.get("signals", [])
+            headers = {"Authorization": f"Bearer {NETTRACE_API_KEY}"}
 
-            # Find high-confidence signals related to crypto exchanges
+            # Source 1: Pre-computed signals
+            url = f"{FLY_URL}/api/v1/signals?hours=1&min_confidence=0.6"
+            data = _fetch_json(url, headers=headers)
+            signals = data.get("signals", [])
             relevant = [s for s in signals if s.get("confidence", 0) >= 0.7]
-            if not relevant:
+
+            # Source 2: Real-time crypto exchange latency anomalies
+            anomaly_count = 0
+            improving_count = 0
+            try:
+                crypto_url = f"{FLY_URL}/api/v1/signals/crypto-latency?hours=1&min_confidence=0.6"
+                crypto_data = _fetch_json(crypto_url, headers=headers)
+                anomalies = crypto_data.get("anomalies", [])
+                anomaly_count = len(anomalies)
+                # Count direction: negative deviation = faster = improving infrastructure
+                for a in anomalies:
+                    if a.get("deviation_pct", 0) < -10:
+                        improving_count += 1
+                # Route changes are strong signals
+                route_changes = crypto_data.get("route_changes", [])
+                if route_changes:
+                    relevant.extend([{"direction": "latency_change", "confidence": 0.75}
+                                     for _ in route_changes[:3]])
+            except Exception:
+                pass  # crypto-latency endpoint may not be deployed yet
+
+            if not relevant and anomaly_count == 0:
                 return {"direction": "NONE", "confidence": 0, "reason": "No latency signals"}
 
-            # Aggregate: if multiple exchanges show latency_down → bullish (infrastructure improving)
-            up_count = sum(1 for s in relevant if s.get("direction") == "latency_down")
+            # Aggregate: improving latency → bullish (infrastructure investment)
+            up_count = sum(1 for s in relevant if s.get("direction") in ("latency_down", "latency_change"))
+            up_count += improving_count
             down_count = sum(1 for s in relevant if s.get("direction") == "latency_up")
-            avg_conf = sum(s.get("confidence", 0) for s in relevant) / len(relevant)
+            down_count += (anomaly_count - improving_count)
+
+            total_signals = max(1, len(relevant) + anomaly_count)
+            avg_conf = sum(s.get("confidence", 0) for s in relevant) / max(1, len(relevant))
 
             if up_count > down_count:
                 return {"direction": "BUY", "confidence": min(avg_conf, 0.95),
-                        "reason": f"{up_count} exchanges improving latency"}
+                        "reason": f"{up_count} exchanges improving latency ({anomaly_count} anomalies from 7 regions)"}
             elif down_count > up_count:
                 return {"direction": "SELL", "confidence": min(avg_conf, 0.95),
-                        "reason": f"{down_count} exchanges degrading"}
+                        "reason": f"{down_count} exchanges degrading ({anomaly_count} anomalies)"}
             return {"direction": "NONE", "confidence": 0, "reason": "Mixed latency signals"}
         except Exception as e:
             logger.debug("Latency signal error: %s", e)

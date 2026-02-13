@@ -202,3 +202,128 @@ def signals_summary():
         "tier": g.api_tier,
         "usage": {"used": g.api_usage_today, "limit": g.api_rate_limit},
     })
+
+
+@signals_api.route("/signals/crypto-latency")
+@verify_api_key
+@require_tier(*PRO_PLUS_TIERS)
+def crypto_latency():
+    """Real-time crypto exchange latency data for trading signal generation.
+
+    Returns the latest RTT measurements for all crypto exchange targets,
+    including anomaly detection. This is the core trading edge:
+    latency changes reveal infrastructure events before price moves.
+
+    Query params:
+        hours: lookback window (default 1, max 24)
+        min_confidence: filter signals by confidence (default 0.5)
+    """
+    hours = parse_int_param(request.args.get("hours", "1"), 1, minimum=1, maximum=24)
+    min_confidence = float(request.args.get("min_confidence", "0.5"))
+    window_expr = f"-{hours} hours"
+
+    db = get_db()
+
+    # Get latest RTT for each crypto exchange
+    crypto_hosts = db.execute("""
+        SELECT target_host, target_name,
+               total_rtt, first_hop_rtt, last_hop_rtt, hop_count,
+               route_hash, scan_source, created_at
+        FROM scan_metrics
+        WHERE category = 'Crypto Exchanges'
+          AND created_at >= datetime('now', ?)
+        ORDER BY created_at DESC
+    """, (window_expr,)).fetchall()
+
+    # Aggregate: latest + stats per host
+    host_data = {}
+    for row in crypto_hosts:
+        host = row["target_host"]
+        if host not in host_data:
+            host_data[host] = {
+                "name": row["target_name"],
+                "host": host,
+                "latest_rtt": row["total_rtt"],
+                "latest_at": row["created_at"],
+                "measurements": [],
+                "route_hash": row["route_hash"],
+            }
+        if len(host_data[host]["measurements"]) < 30:
+            host_data[host]["measurements"].append({
+                "rtt": row["total_rtt"],
+                "hops": row["hop_count"],
+                "at": row["created_at"],
+            })
+
+    # Compute stats and detect anomalies for each host
+    for host, data in host_data.items():
+        rtts = [m["rtt"] for m in data["measurements"] if m["rtt"] is not None]
+        if rtts:
+            data["avg_rtt"] = round(sum(rtts) / len(rtts), 2)
+            data["min_rtt"] = round(min(rtts), 2)
+            data["max_rtt"] = round(max(rtts), 2)
+            data["samples"] = len(rtts)
+            if data["latest_rtt"] and data["avg_rtt"] > 0:
+                deviation = (data["latest_rtt"] - data["avg_rtt"]) / data["avg_rtt"]
+                data["deviation_pct"] = round(deviation * 100, 2)
+                data["is_anomaly"] = abs(deviation) > 0.20  # >20% deviation
+            else:
+                data["deviation_pct"] = 0
+                data["is_anomaly"] = False
+        del data["measurements"]  # don't send raw measurements
+
+    # Get recent crypto signals
+    ensure_quant_signals_table(db)
+    recent_signals = db.execute("""
+        SELECT signal_type, target_host, target_name, direction, confidence,
+               details_json, created_at
+        FROM quant_signals
+        WHERE created_at >= datetime('now', ?)
+          AND confidence >= ?
+          AND target_host IN (
+              SELECT DISTINCT target_host FROM scan_metrics WHERE category = 'Crypto Exchanges'
+          )
+        ORDER BY created_at DESC
+        LIMIT 50
+    """, (window_expr, min_confidence)).fetchall()
+
+    signals = []
+    for row in recent_signals:
+        try:
+            details = json.loads(row["details_json"]) if row["details_json"] else {}
+        except Exception:
+            details = {}
+        signals.append({
+            "signal_type": row["signal_type"],
+            "target_host": row["target_host"],
+            "direction": row["direction"],
+            "confidence": row["confidence"],
+            "details": details,
+            "created_at": row["created_at"],
+        })
+
+    # Route changes = infrastructure events
+    route_changes = db.execute("""
+        SELECT target_host, target_name, rtt_delta, created_at
+        FROM route_changes
+        WHERE created_at >= datetime('now', ?)
+          AND target_host IN (
+              SELECT DISTINCT target_host FROM scan_metrics WHERE category = 'Crypto Exchanges'
+          )
+        ORDER BY created_at DESC
+        LIMIT 20
+    """, (window_expr,)).fetchall()
+
+    return jsonify({
+        "window_hours": hours,
+        "exchanges": sorted(host_data.values(), key=lambda x: x.get("latest_rtt") or 999),
+        "anomalies": [h for h in host_data.values() if h.get("is_anomaly")],
+        "signals": signals,
+        "route_changes": [
+            {"host": r["target_host"], "name": r["target_name"],
+             "rtt_delta": r["rtt_delta"], "at": r["created_at"]}
+            for r in route_changes
+        ],
+        "total_exchanges": len(host_data),
+        "total_anomalies": sum(1 for h in host_data.values() if h.get("is_anomaly")),
+    })
