@@ -1,6 +1,6 @@
 # Quant Company Roadmap
 
-Updated: 2026-02-14T21:21:45.634249+00:00
+Updated: 2026-02-14T22:33:30.752365+00:00
 
 ## WIN Objective
 - WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.
@@ -9,16 +9,16 @@ Updated: 2026-02-14T21:21:45.634249+00:00
 ## Scores
 - Alpha score: 0.45
 - Migration score: 0.75
-- GTM score: 0.75
+- GTM score: 0.50
 - Deployment score: 0.52
-- GO live: True
+- GO live: False
 - HF live ready: True
 
 ## Profit Targets
-- Daily PnL: $-2.21
+- Daily PnL: $-2.26
 - Next target: $1,000.00
-- Target progress: -0.22%
-- Required run-rate: $379.98/hour
+- Target progress: -0.23%
+- Required run-rate: $695.21/hour
 - Budget escalator: de_escalate x0.80
 - Realized close gate: passed=True reason=passed
 
@@ -39,12 +39,15 @@ Updated: 2026-02-14T21:21:45.634249+00:00
 
 ## GTM Stages
 - private_alpha: in_progress (risk-capped automated strategy basket)
-- partner_beta: planned (dashboard + execution transparency + reserve reporting)
+- partner_beta: blocked (dashboard + execution transparency + reserve reporting)
 - public_launch: planned (multi-market quant platform + treasury custody controls)
+
+## Blockers
+- execution_health_not_green:candle_feed_stale:4052.4s>360.0s
 
 ## Profit Task Queue
 - Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.
-- Current run-rate gap: need $379.98/hour to hit next daily target $1,000.00.
+- Current run-rate gap: need $695.21/hour to hit next daily target $1,000.00.
 - Deploy primary execution to region order: ewr -> nrt -> sin.
 - Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.
 - Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.

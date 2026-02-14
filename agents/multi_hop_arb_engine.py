@@ -50,6 +50,14 @@ except Exception:
     except Exception:
         claude_duplex = None  # type: ignore
 
+# v77: Import signal bridge for orchestrator integration
+try:
+    from creative_agent_bridge import submit_signal
+    BRIDGE_AVAILABLE = True
+except ImportError:
+    BRIDGE_AVAILABLE = False
+    logger.warning('creative_agent_bridge not available')
+
 BASE = Path(__file__).parent
 DB_PATH = BASE / "multi_hop_arb.db"
 STATUS_PATH = BASE / "multi_hop_arb_status.json"
@@ -431,6 +439,27 @@ class MultiHopArbEngine:
                 )
             except Exception:
                 pass
+
+            # v77: Submit arbitrage opportunity to orchestrator
+            if BRIDGE_AVAILABLE and float(best.get("net_edge_pct", 0.0) or 0.0) > 0.20:
+                try:
+                    confidence = float(best.get("confidence", 0.0) or 0.0)
+                    edge_pct = float(best.get("net_edge_pct", 0.0) or 0.0)
+                    route = '->'.join(best.get('route', ['?']))
+
+                    submit_signal(
+                        agent_name='multi_hop_arb',
+                        pair='USDC-ARBITRAGE',  # Special pair for arb opportunities
+                        direction='BUY',  # Arb is always profitable (deterministic)
+                        confidence=min(confidence, 0.95),  # Bound confidence
+                        urgency='critical',  # Arb window is short (<100ms)
+                        reasoning=f'Cross-exchange arb: {route} edge={edge_pct:.3f}%',
+                        region_hint='ewr',  # Primary trading region
+                        expected_hold_ms=int(best.get('expected_duration_ms', 60000))
+                    )
+                    logger.info(f'Submitted arb signal: {route} edge={edge_pct:.3f}% confidence={confidence:.2f}')
+                except Exception as e:
+                    logger.warning(f'Failed to submit arb signal: {e}')
 
         logger.info(
             "cycle=%d assets=%d approved_candidates=%d best_edge=%s",

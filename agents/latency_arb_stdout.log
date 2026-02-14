@@ -9820,3 +9820,14 @@
 2026-02-14 16:25:16,477 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
 2026-02-14 16:25:46,734 [latency_arb] INFO === LATENCY ARB SCAN ===
 2026-02-14 16:25:50,380 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 17:32:51,998 [latency_arb] INFO Latency Arb Agent starting — scanning every 30s
+2026-02-14 17:32:51,999 [latency_arb] INFO Pairs: BTC-USDC, ETH-USDC, SOL-USDC, AVAX-USDC
+2026-02-14 17:32:51,999 [latency_arb] INFO Thresholds: confidence >= 70%, z-score >= 3.0
+2026-02-14 17:32:51,999 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 17:32:52,057 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 17:33:22,079 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 17:33:22,123 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 17:33:52,143 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 17:33:52,200 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 17:34:22,217 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 17:34:22,269 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)

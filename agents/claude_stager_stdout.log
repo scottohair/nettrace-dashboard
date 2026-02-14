@@ -539,3 +539,5 @@
 2026-02-14 16:17:40,378 [claude_stager] INFO cycle=34 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/141
 2026-02-14 16:20:42,125 [claude_stager] INFO cycle=35 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/141
 2026-02-14 16:23:46,438 [claude_stager] INFO cycle=36 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/141
+2026-02-14 17:33:06,212 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-14 17:33:06,279 [claude_stager] INFO cycle=1 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/141

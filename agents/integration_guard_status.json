@@ -5,15 +5,15 @@
   "checks": [
     {
       "name": "execution_health_green",
-      "passed": true,
+      "passed": false,
       "required": false,
-      "details": "green=True reason=passed"
+      "details": "green=False reason=candle_feed_stale:4026.8s>360.0s"
     },
     {
       "name": "trading_lock_allows_rollout",
       "passed": true,
       "required": true,
-      "details": "locked=False reason=growth decision GO"
+      "details": "locked=False reason=recovered_stale_dead_owner_lock:Startup preflight blocked: execution_health_not_green:candle_feed_stale:4019.4s>360.0s"
     },
     {
       "name": "quant_validation_has_signal",
@@ -45,7 +45,7 @@
     "Require realized close PnL evidence before any HOT budget increase.",
     "Promote only strategies with trace-linked Claude directive lineage."
   ],
-  "checked_at": "2026-02-14T21:23:52.588351+00:00",
+  "checked_at": "2026-02-14T22:32:39.069354+00:00",
   "guard_enabled": true,
   "guard_fail_open": false,
   "guarded_agents": [

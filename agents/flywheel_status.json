@@ -1,13 +1,16 @@
 {
-  "updated_at": "2026-02-14T21:22:23.324668+00:00",
-  "cycle": 74,
+  "updated_at": "2026-02-14T22:33:08.976029+00:00",
+  "cycle": 75,
   "quant_run": false,
   "bench_run": false,
-  "cycle_elapsed_seconds": 103.958,
+  "cycle_elapsed_seconds": 23.099,
   "growth_decision": {
-    "decision": "GO",
-    "go_live": true,
-    "reasons": [],
+    "decision": "NO_GO",
+    "go_live": false,
+    "reasons": [
+      "execution_health_not_green:candle_feed_stale:4052.4s>360.0s",
+      "exit_manager_gate_failed:exit_manager_status_stale:4002s>300s"
+    ],
     "warnings": [
       "warm_runtime_rejections_top=return_below_min:19,drawdown_above_max:19,sharpe_below_min:19"
     ],
@@ -16,7 +19,9 @@
       "active": false,
       "warm_max_funded_budget": 2.0,
       "warm_max_funded_strategies": 2,
-      "blocked_reasons": [],
+      "blocked_reasons": [
+        "autonomy_warm_budget_limit_exceeded"
+      ],
       "details": []
     },
     "limits": {
@@ -49,15 +54,17 @@
     "execution_health_gate": {
       "enabled": true,
       "status_available": true,
-      "green": true,
-      "reason": "passed",
-      "reasons": [],
+      "green": false,
+      "reason": "candle_feed_stale:4052.4s>360.0s",
+      "reasons": [
+        "candle_feed_stale:4052.4s>360.0s"
+      ],
       "bootstrap_enabled": true,
       "bootstrap_active": false,
       "bootstrap_reason": "",
       "bootstrap_max_budget_usd": 2.0,
       "bootstrap_max_strategies": 2,
-      "updated_at": "2026-02-14T21:21:43.674258+00:00"
+      "updated_at": "2026-02-14T22:33:04.609111+00:00"
     },
     "close_flow_gate": {
       "enabled": true,
@@ -65,15 +72,15 @@
       "reason": "balanced_close_flow",
       "lookback_hours": 6,
       "buy_fills": 0,
-      "sell_fills": 28,
-      "sell_close_events": 0,
-      "effective_sell_completions": 28,
+      "sell_fills": 30,
+      "sell_close_events": 1,
+      "effective_sell_completions": 30,
       "buy_sell_ratio": 0.0,
       "max_buy_sell_ratio": 2.5,
       "min_sell_completions": 1,
-      "sell_close_attempts": 205,
-      "sell_close_completions": 183,
-      "sell_close_completion_rate": 0.892683,
+      "sell_close_attempts": 207,
+      "sell_close_completions": 185,
+      "sell_close_completion_rate": 0.89372,
       "min_close_attempts": 2,
       "min_close_completion_rate": 0.4,
       "reconcile_gate_passed": true,
@@ -151,23 +158,23 @@
     "status_available": true,
     "passed": true,
     "reason": "sell_close_completion_observed",
-    "attempts": 205,
-    "completions": 183,
+    "attempts": 207,
+    "completions": 185,
     "failures": 22,
     "failure_reasons": {
       "terminal_cancelled": 13,
       "terminal_failed": 9
     },
-    "updated_at": "2026-02-14T21:20:39.901114+00:00"
+    "updated_at": "2026-02-14T22:32:45.922930+00:00"
   },
   "exit_manager_gate": {
     "enabled": true,
     "status_available": true,
-    "passed": true,
-    "reason": "exit_manager_healthy",
+    "passed": false,
+    "reason": "exit_manager_status_stale:4002s>300s",
     "running": true,
-    "updated_at": "2026-02-14T21:20:25.330825+00:00",
-    "age_seconds": 14.643,
+    "updated_at": "2026-02-14T21:26:03.135133+00:00",
+    "age_seconds": 4002.795,
     "max_stale_seconds": 300,
     "require_running": true,
     "idle_stale_grace_seconds": 1800,
@@ -177,81 +184,230 @@
     "consecutive_api_failures": 0
   },
   "trading_lock": {
-    "locked": false,
-    "reason": "growth decision GO",
+    "locked": true,
+    "reason": "NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s",
     "source": "flywheel_controller",
-    "set_at": "2026-02-14T21:22:22.212247+00:00",
+    "set_at": "2026-02-14T22:33:08.344122+00:00",
     "metadata": {
-      "cleared": true
+      "decision": {
+        "decision": "NO_GO",
+        "go_live": false,
+        "reasons": [
+          "execution_health_not_green:candle_feed_stale:4052.4s>360.0s",
+          "exit_manager_gate_failed:exit_manager_status_stale:4002s>300s"
+        ],
+        "warnings": [
+          "warm_runtime_rejections_top=return_below_min:19,drawdown_above_max:19,sharpe_below_min:19"
+        ],
+        "autonomy": {
+          "enabled": true,
+          "active": false,
+          "warm_max_funded_budget": 2.0,
+          "warm_max_funded_strategies": 2,
+          "blocked_reasons": [
+            "autonomy_warm_budget_limit_exceeded"
+          ],
+          "details": []
+        },
+        "limits": {
+          "max_pair_share_cap": 0.7,
+          "concentration_cap_enforced": true
+        },
+        "strict_realized_gate": {
+          "enabled": true,
+          "status_available": true,
+          "passed": true,
+          "reason": "passed",
+          "bootstrap_override": false,
+          "bootstrap_reason": "",
+          "bootstrap_limits": {
+            "enabled": true,
+            "max_funded_budget": 2.0,
+            "max_funded_strategies": 8
+          }
+        },
+        "hot_evidence_bootstrap": {
+          "strict_required": false,
+          "enabled": true,
+          "active": false,
+          "warning": "",
+          "limits": {
+            "max_funded_budget": 2.0,
+            "max_funded_strategies": 2
+          }
+        },
+        "execution_health_gate": {
+          "enabled": true,
+          "status_available": true,
+          "green": false,
+          "reason": "candle_feed_stale:4052.4s>360.0s",
+          "reasons": [
+            "candle_feed_stale:4052.4s>360.0s"
+          ],
+          "bootstrap_enabled": true,
+          "bootstrap_active": false,
+          "bootstrap_reason": "",
+          "bootstrap_max_budget_usd": 2.0,
+          "bootstrap_max_strategies": 2,
+          "updated_at": "2026-02-14T22:33:04.609111+00:00"
+        },
+        "close_flow_gate": {
+          "enabled": true,
+          "passed": true,
+          "reason": "balanced_close_flow",
+          "lookback_hours": 6,
+          "buy_fills": 0,
+          "sell_fills": 30,
+          "sell_close_events": 1,
+          "effective_sell_completions": 30,
+          "buy_sell_ratio": 0.0,
+          "max_buy_sell_ratio": 2.5,
+          "min_sell_completions": 1,
+          "sell_close_attempts": 207,
+          "sell_close_completions": 185,
+          "sell_close_completion_rate": 0.89372,
+          "min_close_attempts": 2,
+          "min_close_completion_rate": 0.4,
+          "reconcile_gate_passed": true,
+          "reconcile_gate_reason": "sell_close_completion_observed"
+        },
+        "audit_summary": {
+          "total_checks": 7,
+          "failed_checks": 0,
+          "critical_failures": 0,
+          "high_failures": 0
+        },
+        "pipeline_metrics": {
+          "stage_counts": {
+            "COLD": 8456,
+            "HOT": 3150,
+            "WARM": 19
+          },
+          "promoted_hot_events": 3794,
+          "promoted_hot_events_recent_24h": 3715,
+          "killed_events": 0,
+          "max_pair_share": 0.3894,
+          "total_funded_budget": 14.74,
+          "funded_strategy_count": 13,
+          "funded_hot_strategy_count": 13,
+          "funded_warm_strategy_count": 0,
+          "hot_stage_count": 3150,
+          "warm_stage_count": 19,
+          "funded_with_oos_trades": 13
+        },
+        "warm_collector_summary": {
+          "warm_checked": 19,
+          "eligible_hot": 0,
+          "promoted_hot": 0,
+          "collecting": 0,
+          "rejected": 19,
+          "not_ready": 19,
+          "skipped": 0
+        },
+        "warm_promotion_summary": {
+          "warm_checked": 19,
+          "promoted_hot": 0,
+          "eligible_hot": 0,
+          "collecting": 0,
+          "rejected": 19,
+          "not_ready": 19,
+          "skipped": 0
+        },
+        "promotion_feed": {
+          "has_active_hot_evidence": true,
+          "pipeline_hot_stage_count": 3150,
+          "pipeline_warm_stage_count": 19,
+          "pipeline_promoted_hot_events": 3794,
+          "pipeline_funded_hot_strategy_count": 13,
+          "quant_retained_hot_passed": 0,
+          "quant_retained_warm_passed": 0,
+          "quant_implementable_count": 0,
+          "collector_reason_codes_top": [
+            [
+              "return_below_min",
+              19
+            ],
+            [
+              "drawdown_above_max",
+              19
+            ],
+            [
+              "sharpe_below_min",
+              19
+            ]
+          ]
+        }
+      },
+      "set_at": "2026-02-14T22:33:08.344111+00:00"
     },
-    "epoch": 1771104142.2123368,
-    "pid": 31621
+    "epoch": 1771108388.3441238,
+    "pid": 7317
   },
   "portfolio": {
-    "total_usd": 233.85,
-    "available_cash": 214.3,
-    "held_in_orders": 5.88,
+    "total_usd": 233.67,
+    "available_cash": 220.57,
+    "held_in_orders": 6.1,
     "source": "agent_tools"
   },
   "reserve_targets": {
-    "updated_at": "2026-02-14T21:22:23.208093+00:00",
-    "portfolio_total_usd": 233.85,
+    "updated_at": "2026-02-14T22:33:08.956260+00:00",
+    "portfolio_total_usd": 233.67,
     "targets": [
       {
         "asset": "USDC",
         "target_pct": 35.0,
-        "target_usd": 81.85,
-        "actual_usd": 135.67,
-        "gap_usd": -53.82
+        "target_usd": 81.78,
+        "actual_usd": 148.05,
+        "gap_usd": -66.27
       },
       {
         "asset": "BTC",
         "target_pct": 20.0,
-        "target_usd": 46.77,
+        "target_usd": 46.73,
         "actual_usd": 0.0,
-        "gap_usd": 46.77
-      },
-      {
-        "asset": "USD",
-        "target_pct": 25.0,
-        "target_usd": 58.46,
-        "actual_usd": 78.63,
-        "gap_usd": -20.17
+        "gap_usd": 46.73
       },
       {
         "asset": "ETH",
         "target_pct": 12.0,
-        "target_usd": 28.06,
-        "actual_usd": 17.82,
-        "gap_usd": 10.24
+        "target_usd": 28.04,
+        "actual_usd": 0.0,
+        "gap_usd": 28.04
+      },
+      {
+        "asset": "USD",
+        "target_pct": 25.0,
+        "target_usd": 58.42,
+        "actual_usd": 72.52,
+        "gap_usd": -14.1
       },
       {
         "asset": "MKD",
         "target_pct": 2.0,
-        "target_usd": 4.68,
+        "target_usd": 4.67,
         "actual_usd": 0.0,
-        "gap_usd": 4.68
+        "gap_usd": 4.67
       },
       {
         "asset": "KRW",
         "target_pct": 2.0,
-        "target_usd": 4.68,
+        "target_usd": 4.67,
         "actual_usd": 0.0,
-        "gap_usd": 4.68
+        "gap_usd": 4.67
       },
       {
         "asset": "EUR",
         "target_pct": 2.0,
-        "target_usd": 4.68,
+        "target_usd": 4.67,
         "actual_usd": 0.0,
-        "gap_usd": 4.68
+        "gap_usd": 4.67
       },
       {
         "asset": "GBP",
         "target_pct": 2.0,
-        "target_usd": 4.68,
+        "target_usd": 4.67,
         "actual_usd": 0.0,
-        "gap_usd": 4.68
+        "gap_usd": 4.67
       }
     ]
   },
@@ -262,24 +418,24 @@
       "realized_usd_today": 47.936435,
       "progress_pct": 4.7936,
       "remaining_usd": 952.06,
-      "required_hourly_run_rate_usd": 362.42,
-      "day_elapsed_pct_utc": 0.8905
+      "required_hourly_run_rate_usd": 657.6,
+      "day_elapsed_pct_utc": 0.9397
     },
     {
       "target_usd_per_day": 1000000,
       "realized_usd_today": 47.936435,
       "progress_pct": 0.0048,
       "remaining_usd": 999952.06,
-      "required_hourly_run_rate_usd": 380652.15,
-      "day_elapsed_pct_utc": 0.8905
+      "required_hourly_run_rate_usd": 690680.63,
+      "day_elapsed_pct_utc": 0.9397
     },
     {
       "target_usd_per_day": 9999999,
       "realized_usd_today": 47.936435,
       "progress_pct": 0.0005,
       "remaining_usd": 9999951.06,
-      "required_hourly_run_rate_usd": 3806685.4,
-      "day_elapsed_pct_utc": 0.8905
+      "required_hourly_run_rate_usd": 6907103.57,
+      "day_elapsed_pct_utc": 0.9397
     }
   ],
   "win_objective": {
@@ -323,28 +479,15 @@
   ],
   "cog_control": {
     "tier": 1,
-    "go_streak": 1,
-    "failure_streak": 0,
-    "commands_run_total": 12,
-    "active_transitions": [
-      {
-        "at": 1771098904.411,
-        "action": "tier_up",
-        "reason": "streak=2",
-        "cycle": 66
-      },
-      {
-        "at": 1771102366.663,
-        "action": "tier_up",
-        "reason": "streak=2",
-        "cycle": 72
-      }
-    ],
+    "go_streak": 0,
+    "failure_streak": 2,
+    "commands_run_total": 2,
+    "active_transitions": [],
     "cog_last_run_at": {
-      "claude_stager_agent.py::--once": 1771104142.208097,
-      "autonomous_work_manager.py::--once": 1771104142.208149,
-      "quant_company_agent.py::--once": 1771104142.2081542,
-      "mcp_opportunity_agent.py::--once": 1771104142.208158
+      "claude_stager_agent.py::--once": 1771108388.3438048,
+      "autonomous_work_manager.py::--once": 1771108388.3438132,
+      "quant_company_agent.py::--once": 1771108388.343816,
+      "mcp_opportunity_agent.py::--once": 1771108388.343818
     },
     "cog_failures": {
       "claude_stager_agent.py::--once": 0,
@@ -365,8 +508,8 @@
         "96"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.603,
-      "stdout_tail": "{\"updated_at\": \"2026-02-14T21:20:39.901114+00:00\", \"max_orders\": 120, \"lookback_hours\": 96, \"reconcile_statuses\": [\"accepted\", \"ack_ok\", \"open\", \"pending\", \"placed\"], \"summary\": {\"checked\": 0, \"updated\": 0, \"filled\": 0, \"partial\": 0, \"cancelled\": 0, \"failed\": 0, \"expired\": 0, \"early_exit_reason\": \"\", \"close_attempts\": 205, \"close_completions\": 183, \"close_failures\": 22, \"close_failure_reasons\": {\"terminal_cancelled\": 13, \"terminal_failed\": 9}, \"close_gate_passed\": true, \"close_gate_reason\": \"sell_close_completion_observed\"}, \"close_reconciliation\": {\"attempts\": 205, \"completions\": 183, \"failures\": 22, \"completion_rate\": 0.892683, \"failure_reasons\": {\"terminal_cancelled\": 13, \"terminal_failed\": 9}, \"gate_passed\": true, \"gate_reason\": \"sell_close_completion_observed\"}}",
+      "elapsed_seconds": 0.053,
+      "stdout_tail": "{\"updated_at\": \"2026-02-14T22:32:45.922930+00:00\", \"max_orders\": 120, \"lookback_hours\": 96, \"reconcile_statuses\": [\"accepted\", \"ack_ok\", \"open\", \"pending\", \"placed\"], \"summary\": {\"checked\": 0, \"updated\": 0, \"filled\": 0, \"partial\": 0, \"cancelled\": 0, \"failed\": 0, \"expired\": 0, \"early_exit_reason\": \"\", \"close_attempts\": 207, \"close_completions\": 185, \"close_failures\": 22, \"close_failure_reasons\": {\"terminal_cancelled\": 13, \"terminal_failed\": 9}, \"close_gate_passed\": true, \"close_gate_reason\": \"sell_close_completion_observed\"}, \"close_reconciliation\": {\"attempts\": 207, \"completions\": 185, \"failures\": 22, \"completion_rate\": 0.89372, \"failure_reasons\": {\"terminal_cancelled\": 13, \"terminal_failed\": 9}, \"gate_passed\": true, \"gate_reason\": \"sell_close_completion_observed\"}}",
       "stderr_tail": "",
       "env_overrides": {}
     },
@@ -378,7 +521,7 @@
         "300"
       ],
       "returncode": 0,
-      "elapsed_seconds": 63.839,
+      "elapsed_seconds": 18.691,
       "stdout_tail": "  \"promotion_feed\": {\n    \"has_active_hot_evidence\": true,\n    \"pipeline_hot_stage_count\": 3150,\n    \"pipeline_warm_stage_count\": 19,\n    \"pipeline_promoted_hot_events\": 3794,\n    \"pipeline_funded_hot_strategy_count\": 13,\n    \"quant_retained_hot_passed\": 0,\n    \"quant_retained_warm_passed\": 0,\n    \"quant_implementable_count\": 0,\n    \"collector_reason_codes_top\": [\n      [\n        \"return_below_min\",\n        19\n      ],\n      [\n        \"drawdown_above_max\",\n        19\n      ],\n      [\n        \"sharpe_below_min\",\n        19\n      ]\n    ]\n  }\n}",
       "stderr_tail": "",
       "env_overrides": {}
@@ -390,9 +533,9 @@
         "--once"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.711,
-      "stdout_tail": "    ],\n    \"online_nodes\": 1,\n    \"frameworks\": {\n      \"numpy\": 3,\n      \"mlx\": 2,\n      \"pytorch\": 2,\n      \"mps\": 2\n    },\n    \"advanced_msgs\": 120,\n    \"operator_msgs\": 141,\n    \"duplex_to\": 120,\n    \"duplex_from\": 120\n  },\n  \"bundle_id\": \"bundle-318-e72f6cca4119\",\n  \"bundle_hash\": \"e72f6cca4119233be1af9a20ec72047b2a8c883eebc0ed4cf0979a846136371b\",\n  \"bundle_sequence\": 318,\n  \"schema_version\": 1,\n  \"metadata\": {\n    \"bundle_id\": \"bundle-318-e72f6cca4119\",\n    \"bundle_hash\": \"e72f6cca4119233be1af9a20ec72047b2a8c883eebc0ed4cf0979a846136371b\",\n    \"bundle_sequence\": 318,\n    \"generated_at\": \"2026-02-14T21:21:44.033723+00:00\",\n    \"schema_version\": 1\n  }\n}",
-      "stderr_tail": "2026-02-14 16:21:44,465 [claude_stager] INFO cycle=1 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/141",
+      "elapsed_seconds": 0.106,
+      "stdout_tail": "    ],\n    \"online_nodes\": 1,\n    \"frameworks\": {\n      \"numpy\": 3,\n      \"mlx\": 2,\n      \"pytorch\": 2,\n      \"mps\": 2\n    },\n    \"advanced_msgs\": 120,\n    \"operator_msgs\": 141,\n    \"duplex_to\": 120,\n    \"duplex_from\": 120\n  },\n  \"bundle_id\": \"bundle-320-f9e9b6ce7c6c\",\n  \"bundle_hash\": \"f9e9b6ce7c6ccd9250ac1b7117e3ad99eea450d373be45cce33b2abd124a6cfc\",\n  \"bundle_sequence\": 320,\n  \"schema_version\": 1,\n  \"metadata\": {\n    \"bundle_id\": \"bundle-320-f9e9b6ce7c6c\",\n    \"bundle_hash\": \"f9e9b6ce7c6ccd9250ac1b7117e3ad99eea450d373be45cce33b2abd124a6cfc\",\n    \"bundle_sequence\": 320,\n    \"generated_at\": \"2026-02-14T22:33:04.652846+00:00\",\n    \"schema_version\": 1\n  }\n}",
+      "stderr_tail": "2026-02-14 17:33:04,720 [claude_stager] INFO cycle=1 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/141",
       "env_overrides": {},
       "is_flywheel_cog": true,
       "cog_script": "claude_stager_agent.py",
@@ -408,9 +551,9 @@
         "--once"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.608,
+      "elapsed_seconds": 0.1,
       "stdout_tail": "      \"priority_score\": 100.0,\n      \"dispatch_count\": 0,\n      \"trace_id\": \"\",\n      \"verification_reason\": \"not_checked\"\n    }\n  ],\n  \"win_1000_snapshot\": {\n    \"updated_at\": \"2026-02-14T21:16:31.875995+00:00\",\n    \"tasks_total\": 1000,\n    \"worked_through_count\": 1000,\n    \"status_counts\": {\n      \"completed\": 520,\n      \"in_progress\": 480,\n      \"pending\": 0,\n      \"blocked\": 0\n    },\n    \"priority_counts\": {\n      \"P0\": 660,\n      \"P1\": 144,\n      \"P2\": 140,\n      \"P3\": 56,\n      \"P4\": 0\n    }\n  }\n}",
-      "stderr_tail": "2026-02-14 16:21:45,097 [autonomous_work] INFO queue=80 dispatched=0 acked=0 completed=0 stale=0",
+      "stderr_tail": "2026-02-14 17:33:04,823 [autonomous_work] INFO queue=80 dispatched=2 acked=0 completed=0 stale=2",
       "env_overrides": {},
       "is_flywheel_cog": true,
       "cog_script": "autonomous_work_manager.py",
@@ -426,9 +569,9 @@
         "--once"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.588,
-      "stdout_tail": "  \"close_balance_reason\": \"balanced_close_flow\",\n  \"buy_fills_lookback\": 0,\n  \"sell_fills_lookback\": 28,\n  \"sell_close_events_lookback\": 0,\n  \"sell_close_attempts_lookback\": 205,\n  \"sell_close_completions_lookback\": 183,\n  \"sell_close_completion_rate_lookback\": 0.892683,\n  \"blockers\": [],\n  \"profit_task_queue\": [\n    \"Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.\",\n    \"Current run-rate gap: need $379.98/hour to hit next daily target $1,000.00.\",\n    \"Deploy primary execution to region order: ewr -> nrt -> sin.\",\n    \"Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.\",\n    \"Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.\",\n    \"Continuously harvest realized gains into treasury assets: USD and USDC.\",\n    \"Prefer strategies with fast, repeatable close cycles that improve realized USD/USDC run-rate.\",\n    \"Send Claude a high-priority directive each cycle with blockers, required run-rate, and top migration actions.\",\n    \"Promote only strategies with positive realized PnL evidence; de-escalate automatically on drawdown or failed close windows.\"\n  ],\n  \"files\": {\n    \"master_plan\": \"/Users/scott/src/quant/agents/quant_company_master_plan.json\",\n    \"status\": \"/Users/scott/src/quant/agents/quant_company_status.json\",\n    \"roadmap\": \"/Users/scott/src/quant/agents/quant_company_roadmap.md\"\n  }\n}",
-      "stderr_tail": "2026-02-14 16:21:45,638 [quant_company] INFO cycle=1 alpha=0.45 migration=0.75 gtm=0.75 deploy=0.52 hf_live=True daily_pnl=$-2.21 next_target=$1000.00 budget=de_escalate",
+      "elapsed_seconds": 0.1,
+      "stdout_tail": "  \"sell_close_events_lookback\": 1,\n  \"sell_close_attempts_lookback\": 207,\n  \"sell_close_completions_lookback\": 185,\n  \"sell_close_completion_rate_lookback\": 0.89372,\n  \"blockers\": [\n    \"execution_health_not_green:candle_feed_stale:4052.4s>360.0s\"\n  ],\n  \"profit_task_queue\": [\n    \"Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.\",\n    \"Execution-health gate failed (candle_feed_stale:4052.8s>360.0s); block budget escalations until DNS/API/reconcile checks are green.\",\n    \"Current run-rate gap: need $691.74/hour to hit next daily target $1,000.00.\",\n    \"Deploy primary execution to region order: ewr -> nrt -> sin.\",\n    \"Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.\",\n    \"Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.\",\n    \"Continuously harvest realized gains into treasury assets: USD and USDC.\",\n    \"Prefer strategies with fast, repeatable close cycles that improve realized USD/USDC run-rate.\",\n    \"Send Claude a high-priority directive each cycle with blockers, required run-rate, and top migration actions.\",\n    \"Promote only strategies with positive realized PnL evidence; de-escalate automatically on drawdown or failed close windows.\"\n  ],\n  \"files\": {\n    \"master_plan\": \"/Users/scott/src/quant/agents/quant_company_master_plan.json\",\n    \"status\": \"/Users/scott/src/quant/agents/quant_company_status.json\",\n    \"roadmap\": \"/Users/scott/src/quant/agents/quant_company_roadmap.md\"\n  }\n}",
+      "stderr_tail": "2026-02-14 17:33:04,919 [quant_company] INFO cycle=1 alpha=0.45 migration=0.75 gtm=0.50 deploy=0.52 hf_live=True daily_pnl=$-2.26 next_target=$1000.00 budget=de_escalate",
       "env_overrides": {},
       "is_flywheel_cog": true,
       "cog_script": "quant_company_agent.py",
@@ -444,9 +587,9 @@
         "--once"
       ],
       "returncode": 0,
-      "elapsed_seconds": 36.481,
-      "stdout_tail": "{\n  \"updated_at\": \"2026-02-14T21:22:22.121550+00:00\",\n  \"running\": true,\n  \"cycle\": 1,\n  \"interval_seconds\": 150,\n  \"go_live\": true,\n  \"opportunity_count\": 0,\n  \"top_sources\": [],\n  \"files\": {\n    \"opportunities\": \"/Users/scott/src/quant/agents/mcp_opportunities.json\",\n    \"exit_hints\": \"/Users/scott/src/quant/agents/mcp_exit_hints.json\",\n    \"outbox\": \"/Users/scott/src/quant/agents/mcp_opportunity_outbox.json\"\n  }\n}",
-      "stderr_tail": "2026-02-14 16:21:46,092 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed \u2014 run: pip install ib_async\n2026-02-14 16:22:18,774 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed \u2014 run: pip install ib_async\n2026-02-14 16:22:22,122 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=0 top=n/a",
+      "elapsed_seconds": 3.415,
+      "stdout_tail": "{\n  \"updated_at\": \"2026-02-14T22:33:08.323602+00:00\",\n  \"running\": true,\n  \"cycle\": 1,\n  \"interval_seconds\": 150,\n  \"go_live\": false,\n  \"opportunity_count\": 0,\n  \"top_sources\": [],\n  \"files\": {\n    \"opportunities\": \"/Users/scott/src/quant/agents/mcp_opportunities.json\",\n    \"exit_hints\": \"/Users/scott/src/quant/agents/mcp_exit_hints.json\",\n    \"outbox\": \"/Users/scott/src/quant/agents/mcp_opportunity_outbox.json\"\n  }\n}",
+      "stderr_tail": "2026-02-14 17:33:04,986 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed \u2014 run: pip install ib_async\n2026-02-14 17:33:05,380 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed \u2014 run: pip install ib_async\n2026-02-14 17:33:08,323 [mcp_opportunity] INFO cycle=1 go_live=False opportunities=0 top=n/a",
       "env_overrides": {},
       "is_flywheel_cog": true,
       "cog_script": "mcp_opportunity_agent.py",
@@ -514,11 +657,11 @@
       "completion_waiting_verification": 0,
       "last_from_claude_id": 1418
     },
-    "updated_at": "2026-02-14T21:21:45.095601+00:00"
+    "updated_at": "2026-02-14T22:33:08.344623+00:00"
   },
   "claude_update": {
-    "id": 1589,
-    "timestamp": "2026-02-14T21:22:23.333594+00:00"
+    "id": 1601,
+    "timestamp": "2026-02-14T22:33:08.976403+00:00"
   },
   "claude_collaboration": {
     "enabled": true,
@@ -527,11 +670,11 @@
     "sent": {
       "sent_count": 3,
       "sent_ids": [
-        1590,
-        1591,
-        1592
+        1602,
+        1603,
+        1604
       ],
-      "priority": "normal"
+      "priority": "high"
     },
     "received": {
       "received_count_total": 0,

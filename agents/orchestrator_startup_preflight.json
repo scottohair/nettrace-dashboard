@@ -1,19 +1,16 @@
 {
-  "enabled": true,
-  "fail_open": true,
+  "enabled": false,
+  "fail_open": false,
   "require_green": true,
   "max_age_seconds": 240,
-  "checked_at": "2026-02-14T19:33:36.303819+00:00",
-  "status_available": true,
+  "checked_at": "2026-02-14T22:32:38.746253+00:00",
+  "status_available": false,
   "green": false,
   "passed": true,
-  "reason": "startup_preflight_fail_open",
-  "updated_at": "2026-02-14T19:33:36.543048+00:00",
-  "age_seconds": 0.001,
+  "reason": "startup_preflight_disabled",
+  "updated_at": "",
+  "age_seconds": null,
   "egress_blocked": false,
-  "payload_reason": "candle_feed_stale:2942.5s>360.0s",
-  "payload_reasons": [
-    "candle_feed_stale:2942.5s>360.0s"
-  ],
-  "pass_override_reason": "execution_health_not_green:candle_feed_stale:2942.5s>360.0s"
+  "payload_reason": "",
+  "payload_reasons": []
 }

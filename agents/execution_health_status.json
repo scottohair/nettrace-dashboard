@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T22:11:13.259895+00:00",
+  "updated_at": "2026-02-14T22:34:15.390934+00:00",
   "green": true,
   "reason": "passed",
   "reasons": [],
@@ -38,38 +38,51 @@
           "host": "api.coinbase.com",
           "ok": true,
           "ips": [
-            "172.64.152.241",
-            "104.18.35.15"
+            "104.18.35.15",
+            "172.64.152.241"
           ],
           "error": "",
           "resolver_source": "system",
-          "latency_ms": 1.505
+          "latency_ms": 1.277
         },
         {
           "host": "api.exchange.coinbase.com",
           "ok": true,
           "ips": [
-            "104.18.36.178",
-            "172.64.151.78"
+            "172.64.151.78",
+            "104.18.36.178"
           ],
           "error": "",
           "resolver_source": "system",
-          "latency_ms": 1.439
+          "latency_ms": 1.191
         }
       ]
     },
     "api_probe": {
-      "enabled": false,
+      "enabled": true,
       "green": true,
       "transport_blackout": false,
-      "rows": []
+      "rows": [
+        {
+          "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+          "ok": true,
+          "status": 200,
+          "error": "",
+          "latency_ms": 63.253
+        },
+        {
+          "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+          "ok": true,
+          "status": 200,
+          "error": "",
+          "latency_ms": 83.97
+        }
+      ]
     },
     "telemetry": {
       "green": true,
-      "degraded": true,
-      "degraded_reasons": [
-        "telemetry_samples_low:0<3"
-      ],
+      "degraded": false,
+      "degraded_reasons": [],
       "bypass_enabled": false,
       "bypass_used": false,
       "dns_failures_excluded": 0,
@@ -87,12 +100,12 @@
       "snapshot": {
         "venue": "coinbase",
         "window_minutes": 30,
-        "samples": 0,
-        "success_rate": 0.0,
+        "samples": 27,
+        "success_rate": 1.0,
         "failure_rate": 0.0,
-        "p50_latency_ms": 0.0,
-        "p90_latency_ms": 0.0,
-        "p99_latency_ms": 0.0,
+        "p50_latency_ms": 112.011,
+        "p90_latency_ms": 170.143,
+        "p99_latency_ms": 216.787,
         "dns_failures_excluded": 0
       },
       "recovery_override": false,
@@ -100,17 +113,7 @@
       "recovery_min_samples": 2,
       "recovery_min_success_rate": 0.6,
       "recovery_max_failure_rate": 0.4,
-      "recovery_snapshot": {
-        "venue": "coinbase",
-        "window_minutes": 3,
-        "samples": 0,
-        "success_rate": 0.0,
-        "failure_rate": 0.0,
-        "p50_latency_ms": 0.0,
-        "p90_latency_ms": 0.0,
-        "p99_latency_ms": 0.0,
-        "dns_failures_excluded": 0
-      }
+      "recovery_snapshot": {}
     },
     "reconcile": {
       "green": true,
@@ -119,7 +122,7 @@
       "stale_no_pending_grace_seconds": 3600,
       "stale_no_activity_grace_seconds": 7200,
       "stale_grace_applied": true,
-      "age_seconds": 2800.394,
+      "age_seconds": 89.465,
       "summary": {
         "checked": 0,
         "updated": 0,
@@ -129,8 +132,8 @@
         "failed": 0,
         "expired": 0,
         "early_exit_reason": "",
-        "close_attempts": 205,
-        "close_completions": 183,
+        "close_attempts": 207,
+        "close_completions": 185,
         "close_failures": 22,
         "close_failure_reasons": {
           "terminal_cancelled": 13,
@@ -141,24 +144,140 @@
       }
     },
     "candle_feed": {
-      "enabled": false,
+      "enabled": true,
       "green": true,
-      "reason": "gate_disabled",
-      "path": "/Users/scott/src/quant/tests/../agents/candle_feed_latest.json",
-      "aggregator_status_path": "/Users/scott/src/quant/tests/../agents/candle_aggregator_status.json",
-      "feed_exists": false,
-      "aggregator_status_exists": false,
-      "age_seconds": null,
-      "generated_at": "",
-      "latest_at": "",
-      "latest_ts": null,
-      "total_points": 0,
-      "target_points": 0,
-      "target_achieved": false,
-      "pair_count": 0,
-      "timeframe_count": 0,
-      "filters": {},
-      "aggregator_status": {},
+      "reason": "candle_feed_healthy",
+      "path": "/Users/scott/src/quant/agents/candle_feed_latest.json",
+      "aggregator_status_path": "/Users/scott/src/quant/agents/candle_aggregator_status.json",
+      "feed_exists": true,
+      "aggregator_status_exists": true,
+      "age_seconds": 11.223,
+      "generated_at": "2026-02-14T22:34:04.167348+00:00",
+      "latest_at": "2026-02-14T22:33:00+00:00",
+      "latest_ts": 1771108380,
+      "total_points": 22216,
+      "target_points": 1000,
+      "target_achieved": true,
+      "pair_count": 48,
+      "timeframe_count": 4,
+      "filters": {
+        "limit": 1000,
+        "pairs": [
+          "BTC-USD",
+          "ETH-USD",
+          "SOL-USD",
+          "XRP-USD",
+          "ADA-USD",
+          "DOGE-USD",
+          "LTC-USD",
+          "BCH-USD",
+          "LINK-USD",
+          "AVAX-USD",
+          "MATIC-USD",
+          "DOT-USD",
+          "ATOM-USD",
+          "UNI-USD",
+          "AAVE-USD",
+          "FIL-USD",
+          "ARB-USD",
+          "OP-USD",
+          "INJ-USD",
+          "NEAR-USD",
+          "SUI-USD",
+          "APT-USD",
+          "HBAR-USD",
+          "ALGO-USD",
+          "XLM-USD",
+          "ETC-USD",
+          "TRX-USD",
+          "PEPE-USD",
+          "SHIB-USD",
+          "BONK-USD",
+          "RNDR-USD",
+          "FET-USD",
+          "TIA-USD",
+          "SEI-USD",
+          "JUP-USD",
+          "RUNE-USD",
+          "ICP-USD",
+          "GRT-USD",
+          "EOS-USD",
+          "CRV-USD",
+          "COMP-USD",
+          "MKR-USD",
+          "SUSHI-USD",
+          "SNX-USD",
+          "YFI-USD",
+          "ZEC-USD",
+          "KSM-USD",
+          "1INCH-USD",
+          "BTC-USDC",
+          "FET-USDC",
+          "SOL-USDC",
+          "LINK-USDC",
+          "ETH-USDC",
+          "DOGE-USDC",
+          "AVAX-USDC"
+        ],
+        "timeframes": [
+          "1m",
+          "5m",
+          "15m",
+          "1h"
+        ],
+        "since_hours": 48,
+        "min_volume": 0.0
+      },
+      "aggregator_status": {
+        "updated_at": "2026-02-14T22:34:04.186096+00:00",
+        "ok": true,
+        "error": "",
+        "runtime_ms": 21516.919,
+        "target_points": 1000,
+        "since_hours": 48,
+        "interval_seconds": 20,
+        "summary": {
+          "target_points": 1000,
+          "total_points": 22216,
+          "target_achieved": true,
+          "pair_count": 48,
+          "timeframe_count": 4,
+          "latest_ts": 1771108380,
+          "latest_at": "2026-02-14T22:33:00+00:00",
+          "freshness_seconds": 64,
+          "source_breakdown": [
+            {
+              "source": "coinbase_adv_public",
+              "count": 20204
+            },
+            {
+              "source": "local:exchange_scanner",
+              "count": 1561
+            },
+            {
+              "source": "local:trader",
+              "count": 432
+            },
+            {
+              "source": "local:sniper",
+              "count": 15
+            },
+            {
+              "source": "local:latency_arb",
+              "count": 4
+            }
+          ],
+          "requested_since_hours": 48,
+          "effective_since_hours": 48,
+          "requested_pairs": 55,
+          "requested_timeframes": 4,
+          "inserted_points": 5887,
+          "source_counts": {
+            "coinbase_adv_public": 5886,
+            "local_fallback": 1
+          }
+        }
+      },
       "requirements": {
         "min_points": 1000,
         "min_pair_count": 6,

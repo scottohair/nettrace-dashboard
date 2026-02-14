@@ -8134,3 +8134,23 @@
 2026-02-14 16:25:05,408 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
 2026-02-14 16:25:05,703 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
 2026-02-14 16:25:06,492 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.115%; signal_confidence 0.00% < min 70.00%
+2026-02-14 17:32:49,946 [forex_agent] INFO Forex Agent starting — scanning every 60s
+2026-02-14 17:32:49,946 [forex_agent] INFO Pairs: ['EURC-USDC', 'DAI-USDC'] | Correlation: ['BTC-USDC', 'ETH-USDC']
+2026-02-14 17:32:49,946 [forex_agent] INFO Min spread: 0.1% | Max trade: $5.00 | Min confidence: 55%
+2026-02-14 17:32:49,946 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:32:50,022 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:32:50,023 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:32:50,096 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:32:50,159 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:32:50,159 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:32:50,332 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 17:32:50,864 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.185%; signal_confidence 0.00% < min 70.00%
+2026-02-14 17:33:50,866 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:33:50,910 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:33:50,911 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:33:51,003 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:33:51,052 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:33:51,052 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:33:51,205 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 17:33:51,205 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:51,206 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s

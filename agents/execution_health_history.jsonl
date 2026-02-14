@@ -1201,3 +1201,14 @@
 {"updated_at": "2026-02-14T22:11:11.408675+00:00", "green": true, "reason": "passed", "dns_degraded": false}
 {"updated_at": "2026-02-14T22:11:11.531951+00:00", "green": true, "reason": "passed", "dns_degraded": false}
 {"updated_at": "2026-02-14T22:11:13.259895+00:00", "green": true, "reason": "passed", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:32:31.559111+00:00", "green": false, "reason": "candle_feed_stale:4019.4s>360.0s", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:32:38.924860+00:00", "green": false, "reason": "candle_feed_stale:4026.7s>360.0s", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:32:39.030104+00:00", "green": false, "reason": "candle_feed_stale:4026.8s>360.0s", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:33:04.609111+00:00", "green": false, "reason": "candle_feed_stale:4052.4s>360.0s", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:33:04.917883+00:00", "green": false, "reason": "candle_feed_stale:4052.8s>360.0s", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:33:30.750472+00:00", "green": true, "reason": "passed", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:33:45.272975+00:00", "green": true, "reason": "passed", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:34:10.281772+00:00", "green": true, "reason": "passed", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:34:10.377877+00:00", "green": true, "reason": "passed", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:34:11.792665+00:00", "green": true, "reason": "passed", "dns_degraded": false}
+{"updated_at": "2026-02-14T22:34:15.390934+00:00", "green": true, "reason": "passed", "dns_degraded": false}

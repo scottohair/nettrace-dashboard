@@ -180,3 +180,5 @@
 2026-02-14 16:13:28,894 [deployment_optimizer] INFO cycle=20 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin
 2026-02-14 16:18:30,067 [deployment_optimizer] INFO cycle=21 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin
 2026-02-14 16:23:32,039 [deployment_optimizer] INFO cycle=22 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin
+2026-02-14 17:33:26,609 [deployment_optimizer] INFO starting deployment_optimizer loop interval=300s
+2026-02-14 17:33:26,693 [deployment_optimizer] INFO cycle=1 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin

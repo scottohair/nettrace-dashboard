@@ -1,32 +1,32 @@
 {
-  "cycle": 45,
-  "timestamp": "2026-02-14T21:24:53.275138+00:00",
+  "cycle": 1,
+  "timestamp": "2026-02-14T22:33:18.276997+00:00",
   "pair_alpha": {
-    "BTC-USD": 0.003,
-    "BTC-USDC": 0.003,
-    "ETH-USD": 0.0018,
-    "ETH-USDC": 0.0018,
-    "SOL-USD": 0.0008,
-    "SOL-USDC": 0.0008
+    "BTC-USD": 0.012,
+    "BTC-USDC": 0.012,
+    "ETH-USD": 0.0142,
+    "ETH-USDC": 0.0142,
+    "SOL-USD": 0.0307,
+    "SOL-USDC": 0.0307
   },
   "ranking": [
     {
-      "pair": "BTC-USD",
-      "alpha": 0.003,
-      "change_24h_pct": 0.4,
-      "range_pct": 0.59
+      "pair": "SOL-USD",
+      "alpha": 0.0307,
+      "change_24h_pct": 4.09,
+      "range_pct": 0.71
     },
     {
       "pair": "ETH-USD",
-      "alpha": 0.0018,
-      "change_24h_pct": 0.24,
-      "range_pct": 0.59
+      "alpha": 0.0142,
+      "change_24h_pct": 1.9,
+      "range_pct": 0.58
     },
     {
-      "pair": "SOL-USD",
-      "alpha": 0.0008,
-      "change_24h_pct": 0.11,
-      "range_pct": 0.73
+      "pair": "BTC-USD",
+      "alpha": 0.012,
+      "change_24h_pct": 1.6,
+      "range_pct": 0.56
     }
   ],
   "risk_overrides": {
@@ -41,7 +41,7 @@
   },
   "size_multiplier": 0.75,
   "recommendations": [
-    "Top alpha: BTC-USD (+0.003) 24h=+0.4%",
+    "Top alpha: SOL-USD (+0.031) 24h=+4.1%",
     "Posture=DEFENSIVE min_conf=0.71 max_trade=$3.50"
   ],
   "source": "quant_optimizer"

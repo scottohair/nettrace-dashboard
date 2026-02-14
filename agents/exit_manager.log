@@ -2465,3 +2465,52 @@ when serializing dict item 'route_hint'
 2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: Unregistered position SOL-USDC
 2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: AVAX-USDC value $0.00 below dust threshold $0.75, untracking
 2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: Unregistered position AVAX-USDC
+2026-02-14 17:32:41,784 [exit_manager] INFO EXIT_MGR: Position monitor started (base interval=30s)
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position SOL-USD: entry=$77.84, amount=0.00000001
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position ETH-USD: entry=$1910.15, amount=0.00142547
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position AVAX-USD: entry=$8.69, amount=0.00000001
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position FET-USD: entry=$0.16, amount=1.13296301
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position BTC-USD: entry=$65379.99, amount=0.00000001
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position FET-USDC: entry=$0.16, amount=1.13296301
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position BTC-USDC: entry=$65875.27, amount=0.00000001
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position ETH-USDC: entry=$1930.55, amount=0.00142547
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position DOGE-USDC: entry=$0.09, amount=1.80000000
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position SOL-USDC: entry=$77.73, amount=0.00000001
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Registered new position AVAX-USDC: entry=$8.74, amount=0.00000001
+2026-02-14 17:32:41,915 [exit_manager] INFO EXIT_MGR: Loaded 11 positions from sniper_trades
+2026-02-14 17:32:42,727 [exit_manager] INFO EXIT_MGR: SOL-USD value $0.00 below dust threshold $0.75, untracking
+2026-02-14 17:32:42,727 [exit_manager] INFO EXIT_MGR: Unregistered position SOL-USD
+2026-02-14 17:32:43,038 [exit_manager] INFO EXIT_MGR: EXTREME FEAR (F&G=9) — stops at 30%
+2026-02-14 17:32:43,040 [exit_manager] INFO EXIT_MGR: EXIT_PARTIAL triggered for ETH-USD -- Micro TP0: 9.30% >= 0.40% target, selling 20% to free capital for compounding
+2026-02-14 17:32:43,191 [exit_manager] INFO EXIT: ETH-USD partial $0.60 below min $1.00, escalating to full close $2.98
+2026-02-14 17:32:43,193 [risk_controller] INFO TRADE 5ea9d083-dad: APPROVED exit_manager SELL ETH-USD $2.98 (vol=0.002)
+2026-02-14 17:32:44,666 [exit_manager] INFO EXIT EXECUTING: TAKE_PROFIT_TP0 ETH-USD | amount=0.00142547 | value=$2.98 | reason=Micro TP0: 9.30% >= 0.40% target, selling 20% to free capital for compounding | route=uniswap_base
+2026-02-14 17:32:44,880 [exchange] INFO Placing LIMIT SELL: ETH-USD 0.00142547 @ $2088.76 (post_only=True)
+2026-02-14 17:32:45,109 [exit_manager] INFO EXIT FILLED: ETH-USD | order=6e36d6d4-a4e0-4df7-b29f-415f6f5d75a8 | PnL=$0.2531 (9.30%) | held 52.1h
+2026-02-14 17:32:45,113 [exit_manager] INFO EXIT COMPLETE: ETH-USD position fully closed
+2026-02-14 17:32:45,178 [exit_manager] INFO EXIT_MGR: AVAX-USD value $0.00 below dust threshold $0.75, untracking
+2026-02-14 17:32:45,178 [exit_manager] INFO EXIT_MGR: Unregistered position AVAX-USD
+2026-02-14 17:32:45,242 [exit_manager] INFO EXIT_MGR: FET-USD value $0.21 below dust threshold $0.75, untracking
+2026-02-14 17:32:45,243 [exit_manager] INFO EXIT_MGR: Unregistered position FET-USD
+2026-02-14 17:32:45,294 [exit_manager] INFO EXIT_MGR: BTC-USD value $0.00 below dust threshold $0.75, untracking
+2026-02-14 17:32:45,294 [exit_manager] INFO EXIT_MGR: Unregistered position BTC-USD
+2026-02-14 17:32:45,294 [exit_manager] INFO EXIT_MGR: FET-USDC value $0.21 below dust threshold $0.75, untracking
+2026-02-14 17:32:45,294 [exit_manager] INFO EXIT_MGR: Unregistered position FET-USDC
+2026-02-14 17:32:45,295 [exit_manager] INFO EXIT_MGR: BTC-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 17:32:45,295 [exit_manager] INFO EXIT_MGR: Unregistered position BTC-USDC
+2026-02-14 17:32:45,403 [exit_manager] INFO EXIT_MGR: EXIT_PARTIAL triggered for ETH-USDC -- Micro TP0: 8.14% >= 0.40% target, selling 20% to free capital for compounding
+2026-02-14 17:32:45,584 [exit_manager] INFO EXIT: ETH-USDC partial $0.60 below min $1.00, escalating to full close $2.98
+2026-02-14 17:32:45,585 [risk_controller] INFO TRADE 2d324c8a-06a: APPROVED exit_manager SELL ETH-USDC $2.98 (vol=0.002)
+2026-02-14 17:32:47,130 [exit_manager] INFO EXIT EXECUTING: TAKE_PROFIT_TP0 ETH-USDC | amount=0.00142547 | value=$2.98 | reason=Micro TP0: 8.14% >= 0.40% target, selling 20% to free capital for compounding | route=uniswap_base
+2026-02-14 17:32:47,358 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00142547 @ $2089.17 (post_only=True)
+2026-02-14 17:32:47,542 [exchange] INFO Placing SELL order: ETH-USDC 0.00142547 @ market
+2026-02-14 17:32:47,748 [exit_manager] ERROR EXIT ORDER FAILED: ETH-USDC | Insufficient balance in source account
+2026-02-14 17:32:47,748 [exit_manager] WARNING EXIT_MGR: execution failed for ETH-USDC [hash=04a564b2034fa7587b74]
+2026-02-14 17:32:47,749 [exit_manager] INFO EXIT_MGR: DOGE-USDC value $0.20 below dust threshold $0.75, untracking
+2026-02-14 17:32:47,749 [exit_manager] INFO EXIT_MGR: Unregistered position DOGE-USDC
+2026-02-14 17:32:47,749 [exit_manager] INFO EXIT_MGR: SOL-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 17:32:47,749 [exit_manager] INFO EXIT_MGR: Unregistered position SOL-USDC
+2026-02-14 17:32:47,749 [exit_manager] INFO EXIT_MGR: AVAX-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 17:32:47,749 [exit_manager] INFO EXIT_MGR: Unregistered position AVAX-USDC
+2026-02-14 17:33:20,581 [exit_manager] INFO EXIT_MGR: ETH-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 17:33:20,581 [exit_manager] INFO EXIT_MGR: Unregistered position ETH-USDC

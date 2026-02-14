@@ -3579,3 +3579,13 @@ sqlite3.OperationalError: disk I/O error
 2026-02-14 16:24:13,855 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
 2026-02-14 16:24:14,298 [exchange_scanner] INFO Crypto: BTC=$70,030.23 ETH=$2,086.91 SOL=$87.88
 2026-02-14 16:24:14,302 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 532ms
+2026-02-14 17:32:58,120 [exchange_scanner] INFO ExchangeScanner initialized | DB=/Users/scott/src/quant/agents/exchange_scanner.db
+2026-02-14 17:32:58,120 [exchange_scanner] INFO ======================================================================
+2026-02-14 17:32:58,120 [exchange_scanner] INFO Exchange Scanner starting — continuous mode
+2026-02-14 17:32:58,120 [exchange_scanner] INFO Scan interval: 120s | Crypto pairs: ['BTC-USDC', 'ETH-USDC', 'SOL-USDC']
+2026-02-14 17:32:58,120 [exchange_scanner] INFO Exchanges configured: 10
+2026-02-14 17:32:58,120 [exchange_scanner] INFO ======================================================================
+2026-02-14 17:32:58,120 [exchange_scanner] INFO --- Scan cycle 1 ---
+2026-02-14 17:32:58,163 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 17:32:58,456 [exchange_scanner] INFO Crypto: BTC=$69,940.20 ETH=$2,088.13 SOL=$88.14
+2026-02-14 17:32:58,461 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 341ms

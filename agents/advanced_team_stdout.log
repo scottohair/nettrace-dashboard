@@ -33001,3 +33001,44 @@
 2026-02-14 16:24:55,396 [coordinator] INFO   [dashboard_optimizer] 0.1s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
 2026-02-14 16:24:57,404 [coordinator] INFO CYCLE 45 COMPLETE in 28.1s
 2026-02-14 16:24:57,409 [coordinator] INFO Next cycle in 120s...
+2026-02-14 17:33:02,170 [coordinator] INFO AdvancedTeam Coordinator starting (PID 7411)
+2026-02-14 17:33:02,171 [coordinator] INFO DFA order: research -> strategy -> risk -> execution -> learning -> algorithm_optimizer -> quant_optimizer -> dashboard_optimizer
+2026-02-14 17:33:02,171 [coordinator] INFO Cycle interval: 120s | Agent delay: 2s
+2026-02-14 17:33:02,171 [coordinator] INFO ============================================================
+2026-02-14 17:33:02,171 [coordinator] INFO CYCLE 1 STARTING at 2026-02-14 22:33:02 UTC
+2026-02-14 17:33:02,171 [coordinator] INFO ============================================================
+2026-02-14 17:33:02,171 [research_agent] INFO ResearchAgent cycle 1 starting
+2026-02-14 17:33:05,419 [research_agent] INFO ResearchAgent published memo (msg_id=6752) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 17:33:05,419 [coordinator] INFO   [research] 3.2s — 6 price pairs gathered
+2026-02-14 17:33:07,424 [strategy_agent] INFO StrategyAgent cycle 1 starting
+2026-02-14 17:33:07,442 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 17:33:07,442 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 17:33:07,442 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 17:33:07,442 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 17:33:07,442 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 17:33:07,442 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 17:33:07,454 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 17:33:07,454 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 17:33:09,459 [risk_agent] INFO RiskAgent cycle 1 starting
+2026-02-14 17:33:09,477 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 17:33:10,043 [risk_agent] INFO Portfolio: $161.16 | Cash: $148.05 | Exposure: 8%
+2026-02-14 17:33:10,045 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6754)
+2026-02-14 17:33:10,045 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 17:33:10,045 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 17:33:12,046 [execution_agent] INFO ExecutionAgent cycle 1 starting (mode=queue)
+2026-02-14 17:33:12,053 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 17:33:14,058 [learning_agent] INFO LearningAgent cycle 1 starting
+2026-02-14 17:33:14,213 [learning_agent] INFO LearningAgent: portfolio=$161.16 | Sharpe=-2.62 | DD=43.6% | trades=0 | recommendations=1 (msg_id=6756)
+2026-02-14 17:33:14,213 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 17:33:14,213 [coordinator] INFO   [learning] 0.2s — portfolio=$161.16 Sharpe=-2.62
+2026-02-14 17:33:16,218 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 1 starting
+2026-02-14 17:33:16,253 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6757): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 17:33:16,253 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 17:33:18,256 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 1 starting
+2026-02-14 17:33:18,277 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6758,6759): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 17:33:18,277 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 17:33:20,282 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 1 starting
+2026-02-14 17:33:20,300 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6760): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 17:33:20,300 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 17:33:22,305 [coordinator] INFO CYCLE 1 COMPLETE in 20.1s
+2026-02-14 17:33:22,305 [coordinator] INFO Next cycle in 120s...

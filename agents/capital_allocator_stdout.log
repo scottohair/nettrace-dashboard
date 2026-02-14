@@ -3743,3 +3743,10 @@
 2026-02-14 16:21:00,460 [ALLOC] INFO Coinbase total: $233.86
 2026-02-14 16:21:00,468 [ALLOC] INFO Absorbed $0.07 loss from checking/growth
 2026-02-14 16:21:00,468 [ALLOC] INFO Treasury synced: was $235.33, now $235.26 (delta $-0.07)
+2026-02-14 17:32:47,918 [ALLOC] INFO Capital Allocator starting (interval=300s)
+2026-02-14 17:32:50,108 [ALLOC] INFO Wallet total: $1.40 across 4 chains
+2026-02-14 17:32:50,730 [ALLOC] INFO Coinbase total: $233.69
+2026-02-14 17:32:50,731 [ALLOC] INFO Absorbed $0.17 loss from checking/growth
+2026-02-14 17:32:50,731 [ALLOC] INFO Treasury synced: was $235.26, now $235.09 (delta $-0.17)
+2026-02-14 17:32:50,731 [ALLOC] CRITICAL PRINCIPLE LOCK: Gains ($171.47) exceeded 100% of principle ($119.41). Locking principle in savings!
+2026-02-14 17:32:50,731 [ALLOC] INFO Locked $0.00 principle in savings. Now playing with house money.

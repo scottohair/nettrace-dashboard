@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T21:23:36.957887+00:00",
+  "updated_at": "2026-02-14T22:33:08.342789+00:00",
   "last_from_claude_id": 1418,
   "tasks": {
     "AF-019": {
@@ -1417,10 +1417,10 @@
       "priority_score": 100.0,
       "priority": "high",
       "status": "dispatched",
-      "dispatch_count": 2,
-      "trace_id": "18efb889a8d5cc102f8c8ac1",
-      "outbound_msg_id": 1524,
-      "last_dispatched_at": "2026-02-14T20:37:20.152870+00:00",
+      "dispatch_count": 3,
+      "trace_id": "5211a51d6dbf74aa42bc2c72",
+      "outbound_msg_id": 1597,
+      "last_dispatched_at": "2026-02-14T22:33:04.820888+00:00",
       "last_ack_at": "",
       "last_ack_msg_id": 0,
       "last_ack_source": "",
@@ -1436,7 +1436,7 @@
       },
       "notes": [],
       "created_at": "2026-02-14T18:36:03.935831+00:00",
-      "updated_at": "2026-02-14T20:37:20.153003+00:00"
+      "updated_at": "2026-02-14T22:33:04.820969+00:00"
     },
     "WIN-0795": {
       "task_id": "WIN-0795",
@@ -1448,10 +1448,10 @@
       "priority_score": 100.0,
       "priority": "high",
       "status": "dispatched",
-      "dispatch_count": 2,
-      "trace_id": "88a6f818918ab226888ab562",
-      "outbound_msg_id": 1525,
-      "last_dispatched_at": "2026-02-14T20:37:20.153120+00:00",
+      "dispatch_count": 3,
+      "trace_id": "6a88ba2d620b1955ee92cb8a",
+      "outbound_msg_id": 1598,
+      "last_dispatched_at": "2026-02-14T22:33:04.821042+00:00",
       "last_ack_at": "",
       "last_ack_msg_id": 0,
       "last_ack_source": "",
@@ -1467,7 +1467,7 @@
       },
       "notes": [],
       "created_at": "2026-02-14T18:36:03.935833+00:00",
-      "updated_at": "2026-02-14T20:37:20.153198+00:00"
+      "updated_at": "2026-02-14T22:33:04.821094+00:00"
     },
     "WIN-0794": {
       "task_id": "WIN-0794",

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-12T21:47:08.328292+00:00",
-  "updated_at": "2026-02-14T21:23:42.533096+00:00",
+  "updated_at": "2026-02-14T22:33:10.480978+00:00",
   "network": {
     "name": "AmiCoin Network",
     "mode": "simulation_only",
@@ -61,14 +61,10 @@
       "peg_factor": 0.00042,
       "drift": 0.0006,
       "vol": 0.012,
-      "price_usd": 0.86347,
-      "prev_price_usd": 0.86087,
+      "price_usd": 0.855574,
+      "prev_price_usd": 0.86347,
       "day_start_price_usd": 1.05,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 1.071133
-        },
         {
           "t": 1770964571,
           "p": 1.054437
@@ -1664,6 +1660,10 @@
         {
           "t": 1771104222,
           "p": 0.86347
+        },
+        {
+          "t": 1771108390,
+          "p": 0.855574
         }
       ],
       "circulating_supply": 1000000,
@@ -1673,7 +1673,7 @@
         "breakout"
       ],
       "open_positions": 3,
-      "unrealized_pnl_usd": -42.157469,
+      "unrealized_pnl_usd": -43.376551,
       "realized_pnl_usd": 38.169758,
       "trades": 41
     },
@@ -1684,14 +1684,10 @@
       "peg_factor": 0.00051,
       "drift": 0.0007,
       "vol": 0.014,
-      "price_usd": 1.112112,
-      "prev_price_usd": 1.102293,
+      "price_usd": 1.115518,
+      "prev_price_usd": 1.112112,
       "day_start_price_usd": 1.275,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 1.349482
-        },
         {
           "t": 1770964571,
           "p": 1.328016
@@ -3287,6 +3283,10 @@
         {
           "t": 1771104222,
           "p": 1.112112
+        },
+        {
+          "t": 1771108390,
+          "p": 1.115518
         }
       ],
       "circulating_supply": 1000000,
@@ -3296,7 +3296,7 @@
         "breakout"
       ],
       "open_positions": 3,
-      "unrealized_pnl_usd": -33.540781,
+      "unrealized_pnl_usd": -33.09672,
       "realized_pnl_usd": 38.052506,
       "trades": 40
     },
@@ -3307,14 +3307,10 @@
       "peg_factor": 0.00063,
       "drift": 0.0008,
       "vol": 0.016,
-      "price_usd": 1.328917,
-      "prev_price_usd": 1.334194,
+      "price_usd": 1.316565,
+      "prev_price_usd": 1.328917,
       "day_start_price_usd": 1.575,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 1.623496
-        },
         {
           "t": 1770964571,
           "p": 1.594499
@@ -4910,6 +4906,10 @@
         {
           "t": 1771104222,
           "p": 1.328917
+        },
+        {
+          "t": 1771108390,
+          "p": 1.316565
         }
       ],
       "circulating_supply": 1000000,
@@ -4919,7 +4919,7 @@
         "breakout"
       ],
       "open_positions": 3,
-      "unrealized_pnl_usd": -37.341748,
+      "unrealized_pnl_usd": -38.630544,
       "realized_pnl_usd": 59.750634,
       "trades": 55
     },
@@ -4930,14 +4930,10 @@
       "peg_factor": 0.00076,
       "drift": 0.0009,
       "vol": 0.018,
-      "price_usd": 1.580755,
-      "prev_price_usd": 1.603779,
+      "price_usd": 1.602534,
+      "prev_price_usd": 1.580755,
       "day_start_price_usd": 1.9,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 1.932384
-        },
         {
           "t": 1770964571,
           "p": 1.944685
@@ -6533,6 +6529,10 @@
         {
           "t": 1771104222,
           "p": 1.580755
+        },
+        {
+          "t": 1771108390,
+          "p": 1.602534
         }
       ],
       "circulating_supply": 1000000,
@@ -6542,7 +6542,7 @@
         "breakout"
       ],
       "open_positions": 3,
-      "unrealized_pnl_usd": -36.581541,
+      "unrealized_pnl_usd": -34.673587,
       "realized_pnl_usd": 49.754121,
       "trades": 52
     },
@@ -6553,14 +6553,10 @@
       "peg_factor": 0.021,
       "drift": 0.001,
       "vol": 0.019,
-      "price_usd": 1.87641,
-      "prev_price_usd": 1.942301,
+      "price_usd": 1.873679,
+      "prev_price_usd": 1.87641,
       "day_start_price_usd": 2.1,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 2.144061
-        },
         {
           "t": 1770964571,
           "p": 2.165569
@@ -8156,6 +8152,10 @@
         {
           "t": 1771104222,
           "p": 1.87641
+        },
+        {
+          "t": 1771108390,
+          "p": 1.873679
         }
       ],
       "circulating_supply": 1000000,
@@ -8165,7 +8165,7 @@
         "breakout"
       ],
       "open_positions": 3,
-      "unrealized_pnl_usd": -32.221614,
+      "unrealized_pnl_usd": -32.433124,
       "realized_pnl_usd": 43.657334,
       "trades": 39
     },
@@ -8176,14 +8176,10 @@
       "peg_factor": 0.027,
       "drift": 0.0011,
       "vol": 0.021,
-      "price_usd": 2.255944,
-      "prev_price_usd": 2.250252,
+      "price_usd": 2.326415,
+      "prev_price_usd": 2.255944,
       "day_start_price_usd": 2.7,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 2.558957
-        },
         {
           "t": 1770964571,
           "p": 2.631166
@@ -9779,6 +9775,10 @@
         {
           "t": 1771104222,
           "p": 2.255944
+        },
+        {
+          "t": 1771108390,
+          "p": 2.326415
         }
       ],
       "circulating_supply": 1000000,
@@ -9788,7 +9788,7 @@
         "breakout"
       ],
       "open_positions": 3,
-      "unrealized_pnl_usd": -32.80676,
+      "unrealized_pnl_usd": -28.359014,
       "realized_pnl_usd": 70.580499,
       "trades": 62
     },
@@ -9799,14 +9799,10 @@
       "peg_factor": 0.034,
       "drift": 0.0012,
       "vol": 0.023,
-      "price_usd": 3.079338,
-      "prev_price_usd": 3.219487,
+      "price_usd": 3.059951,
+      "prev_price_usd": 3.079338,
       "day_start_price_usd": 3.4,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 3.405549
-        },
         {
           "t": 1770964571,
           "p": 3.305661
@@ -11402,6 +11398,10 @@
         {
           "t": 1771104222,
           "p": 3.079338
+        },
+        {
+          "t": 1771108390,
+          "p": 3.059951
         }
       ],
       "circulating_supply": 1000000,
@@ -11411,7 +11411,7 @@
         "breakout"
       ],
       "open_positions": 3,
-      "unrealized_pnl_usd": -33.951716,
+      "unrealized_pnl_usd": -34.854526,
       "realized_pnl_usd": 61.20828,
       "trades": 54
     },
@@ -11422,14 +11422,10 @@
       "peg_factor": 2.2e-05,
       "drift": 0.0005,
       "vol": 0.01,
-      "price_usd": 1.569756,
-      "prev_price_usd": 1.56476,
+      "price_usd": 1.529541,
+      "prev_price_usd": 1.569756,
       "day_start_price_usd": 1.1,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 1.088639
-        },
         {
           "t": 1770964571,
           "p": 1.112149
@@ -13025,6 +13021,10 @@
         {
           "t": 1771104222,
           "p": 1.569756
+        },
+        {
+          "t": 1771108390,
+          "p": 1.529541
         }
       ],
       "circulating_supply": 1000000,
@@ -13034,7 +13034,7 @@
         "breakout"
       ],
       "open_positions": 2,
-      "unrealized_pnl_usd": -1.956999,
+      "unrealized_pnl_usd": -4.914218,
       "realized_pnl_usd": 18.125573,
       "trades": 23
     },
@@ -13045,14 +13045,10 @@
       "peg_factor": 2.8e-05,
       "drift": 0.0006,
       "vol": 0.011,
-      "price_usd": 1.961743,
-      "prev_price_usd": 1.993287,
+      "price_usd": 1.955045,
+      "prev_price_usd": 1.961743,
       "day_start_price_usd": 1.4,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 1.488464
-        },
         {
           "t": 1770964571,
           "p": 1.478441
@@ -14648,6 +14644,10 @@
         {
           "t": 1771104222,
           "p": 1.961743
+        },
+        {
+          "t": 1771108390,
+          "p": 1.955045
         }
       ],
       "circulating_supply": 1000000,
@@ -14657,7 +14657,7 @@
         "breakout"
       ],
       "open_positions": 3,
-      "unrealized_pnl_usd": -6.714018,
+      "unrealized_pnl_usd": -7.296923,
       "realized_pnl_usd": 22.137452,
       "trades": 27
     },
@@ -14668,14 +14668,10 @@
       "peg_factor": 3.4e-05,
       "drift": 0.0007,
       "vol": 0.013,
-      "price_usd": 2.348152,
-      "prev_price_usd": 2.360374,
+      "price_usd": 2.368251,
+      "prev_price_usd": 2.348152,
       "day_start_price_usd": 1.7,
       "history": [
-        {
-          "t": 1770964390,
-          "p": 1.709286
-        },
         {
           "t": 1770964571,
           "p": 1.698372
@@ -16271,6 +16267,10 @@
         {
           "t": 1771104222,
           "p": 2.348152
+        },
+        {
+          "t": 1771108390,
+          "p": 2.368251
         }
       ],
       "circulating_supply": 1000000,
@@ -16280,7 +16280,7 @@
         "breakout"
       ],
       "open_positions": 3,
-      "unrealized_pnl_usd": -13.598455,
+      "unrealized_pnl_usd": -12.196489,
       "realized_pnl_usd": 20.754559,
       "trades": 23
     }
@@ -16636,10 +16636,10 @@
     }
   ],
   "stats": {
-    "cycles": 481,
+    "cycles": 482,
     "closed_trades": 387,
     "wins": 387,
-    "blocked_losses": 12459,
+    "blocked_losses": 12488,
     "budget_rejections": 0
   },
   "strategy_budgets": {
@@ -16648,7 +16648,7 @@
     "breakout": 0.33
   },
   "summary": {
-    "updated_at": "2026-02-14T21:23:42.532707+00:00",
+    "updated_at": "2026-02-14T22:33:10.480965+00:00",
     "network_name": "AmiCoin Network",
     "network_mode": "simulation_only",
     "excluded_from_real_holdings": true,
@@ -16671,15 +16671,15 @@
     "reserve_equity_usd": 10422.1907,
     "realized_pnl_usd": 422.1907,
     "coin_realized_pnl_usd": 422.1907,
-    "unrealized_pnl_usd": -270.8711,
+    "unrealized_pnl_usd": -269.8317,
     "open_positions": 29,
     "coins_total": 10,
     "risk_lock": false,
     "lock_reason": "",
     "max_drawdown_pct": 0.0,
-    "cycles": 481,
+    "cycles": 482,
     "closed_trades": 387,
     "wins": 387,
-    "blocked_losses": 12459
+    "blocked_losses": 12488
   }
 }

@@ -8603,3 +8603,30 @@
 2026-02-14 16:24:13,262 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070451 @ $2129.12 (post_only=True)
 2026-02-14 16:24:13,725 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069767 @ $2149.99 (post_only=True)
 2026-02-14 16:24:13,937 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2087.38 (inventory=6.0%)
+2026-02-14 17:33:12,348 [grid_harvester] INFO Grid Harvester starting | Pairs: ['BTC-USDC', 'ETH-USDC', 'SOL-USDC', 'AVAX-USDC', 'LINK-USDC'] | Order size: $1.50 | Cycle: 60s
+2026-02-14 17:33:12,348 [grid_harvester] INFO Buy levels: ['-1.0%', '-1.5%', '-2.0%', '-3.0%'] | Sell levels: ['+1.0%', '+1.5%', '+2.0%', '+3.0%']
+2026-02-14 17:33:12,599 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:12,601 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:12,602 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:12,603 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:14,724 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:14,726 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:14,728 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:14,730 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:16,832 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:16,833 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:16,833 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:16,834 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:17,055 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01684892 @ $89.02 (post_only=True)
+2026-02-14 17:33:17,358 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01676592 @ $89.46 (post_only=True)
+2026-02-14 17:33:17,625 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01668373 @ $89.9 (post_only=True)
+2026-02-14 17:33:17,866 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01652176 @ $90.78 (post_only=True)
+2026-02-14 17:33:18,001 [grid_harvester] INFO GRID SOL-USDC: 2 orders placed around $88.15 (inventory=3.0%)
+2026-02-14 17:33:20,105 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:20,109 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:20,110 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:20,111 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:22,225 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:22,225 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:22,226 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:33:22,226 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s

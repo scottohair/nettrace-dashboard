@@ -13683,3 +13683,4 @@
 2026-02-14 16:09:52,261 [mean_reversion] INFO ETH/SOL: z=1.08 ratio=23.7370 mean=23.7089 obs=80 
 2026-02-14 16:09:52,261 [mean_reversion] INFO BTC/SOL: z=0.72 ratio=794.8559 mean=793.8892 obs=80 
 2026-02-14 16:09:52,261 [mean_reversion] INFO LINK/AVAX: z=0.18 ratio=0.9540 mean=0.9536 obs=80 
+2026-02-14 17:33:14,405 [mean_reversion] INFO Mean Reversion Agent starting | Pairs: ['BTC/ETH', 'ETH/SOL', 'BTC/SOL', 'LINK/AVAX'] | Z-entry: 2.0 | Z-exit: 0.2

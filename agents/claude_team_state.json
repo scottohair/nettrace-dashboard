@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T19:34:45.116742+00:00",
+  "updated_at": "2026-02-14T22:33:47.945894+00:00",
   "cycle": 1,
   "priority_pairs": [
     "BTC-USD",
@@ -9,9 +9,9 @@
     "LINK-USD",
     "DOGE-USD",
     "XRP-USD",
-    "ARB-USD",
-    "MATIC-USD",
-    "UNI-USD"
+    "BCH-USD",
+    "LTC-USD",
+    "DOT-USD"
   ],
   "summary": {
     "total": 100,
@@ -20,19 +20,19 @@
     "no_data": 0
   },
   "directive_digest": {
-    "total": 17,
+    "total": 181,
     "from_codex": 0,
-    "high_priority": 10,
+    "high_priority": 51,
     "target_role_counts": {
-      "opus": 0,
-      "sonnet": 0
+      "opus": 11,
+      "sonnet": 11
     },
     "topic_hits": {
-      "realized_pnl": 6,
-      "budget": 2,
-      "risk": 0,
-      "execution": 2,
-      "quant": 4
+      "realized_pnl": 58,
+      "budget": 44,
+      "risk": 11,
+      "execution": 11,
+      "quant": 61
     }
   },
   "roles": {

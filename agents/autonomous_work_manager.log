@@ -14935,3 +14935,6 @@
 2026-02-14 16:20:34,558 [autonomous_work] INFO queue=80 dispatched=0 acked=0 completed=0 stale=0
 2026-02-14 16:21:45,097 [autonomous_work] INFO queue=80 dispatched=0 acked=0 completed=0 stale=0
 2026-02-14 16:23:36,968 [autonomous_work] INFO queue=80 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 17:33:04,823 [autonomous_work] INFO queue=80 dispatched=2 acked=0 completed=0 stale=2
+2026-02-14 17:33:08,279 [autonomous_work] INFO autonomous work manager started interval=180s target=80 outstanding=12
+2026-02-14 17:33:08,344 [autonomous_work] INFO queue=80 dispatched=0 acked=0 completed=0 stale=0

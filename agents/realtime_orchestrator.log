@@ -7,3 +7,15 @@
 2026-02-14 17:08:53,184 [ORCH] INFO test_agent_1 → BTC-USD BUY (confidence=0.85, urgency=high)
 2026-02-14 17:08:53,184 [ORCH] INFO test_agent_2 → ETH-USD SELL (confidence=0.75, urgency=medium)
 2026-02-14 17:08:53,184 [ORCH] INFO Starting RealtimeOrchestrator (mock_mode=True, target_cycle=100.0ms)
+2026-02-14 17:33:34,744 [ORCH] INFO Fast C engine loaded (80ns/signal)
+2026-02-14 17:33:34,744 [ORCH] INFO Starting RealtimeOrchestrator (mock_mode=False, target_cycle=100.0ms)
+2026-02-14 17:33:34,796 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot
+2026-02-14 17:33:34,849 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot
+2026-02-14 17:33:34,901 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot
+2026-02-14 17:33:34,954 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot
+2026-02-14 17:33:35,007 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot
+2026-02-14 17:33:35,059 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot
+2026-02-14 17:33:35,112 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot
+2026-02-14 17:33:35,164 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot
+2026-02-14 17:33:35,216 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot
+2026-02-14 17:33:35,269 [ORCH] WARNING Could not fetch portfolio value: no such table: portfolio_snapshot

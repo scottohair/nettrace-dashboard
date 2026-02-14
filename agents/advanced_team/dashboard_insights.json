@@ -1,11 +1,11 @@
 {
-  "cycle": 45,
-  "updated_at": "2026-02-14T21:24:55.392427+00:00",
+  "cycle": 1,
+  "updated_at": "2026-02-14T22:33:20.299784+00:00",
   "risk_posture": "DEFENSIVE",
   "focus_pairs": [
-    "BTC-USD",
+    "SOL-USD",
     "ETH-USD",
-    "SOL-USD"
+    "BTC-USD"
   ],
   "agent_status": [
     {
@@ -24,7 +24,7 @@
       "agent": "dashboard_optimizer",
       "label": "Dashboard Optimizer",
       "state": "active",
-      "detail": "focus=BTC-USD, ETH-USD, SOL-USD"
+      "detail": "focus=SOL-USD, ETH-USD, BTC-USD"
     }
   ],
   "algorithm_recommendations": [
@@ -32,7 +32,7 @@
     "Global size multiplier -> 0.68x"
   ],
   "quant_recommendations": [
-    "Top alpha: BTC-USD (+0.003) 24h=+0.4%",
+    "Top alpha: SOL-USD (+0.031) 24h=+4.1%",
     "Posture=DEFENSIVE min_conf=0.71 max_trade=$3.50"
   ],
   "dashboard_recommendations": [
@@ -43,7 +43,7 @@
   "next_actions": [
     "Global min confidence -> 0.64",
     "Global size multiplier -> 0.68x",
-    "Top alpha: BTC-USD (+0.003) 24h=+0.4%",
+    "Top alpha: SOL-USD (+0.031) 24h=+4.1%",
     "Posture=DEFENSIVE min_conf=0.71 max_trade=$3.50"
   ],
   "learning_snapshot": {

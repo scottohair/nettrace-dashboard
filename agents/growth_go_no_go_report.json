@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-14T21:20:40.462060+00:00",
+  "generated_at": "2026-02-14T22:32:45.976582+00:00",
   "activation": null,
   "commands": [
     {
@@ -41,7 +41,7 @@
         "--commit"
       ],
       "returncode": 0,
-      "stdout_tail": "{\n  \"updated\": 12,\n  \"final_total_funded_budget\": 14.74,\n  \"max_total_budget\": 157.53,\n  \"pair_counts\": {\n    \"ETH-USD\": 4,\n    \"SOL-USD\": 4,\n    \"BTC-USD\": 4,\n    \"LINK-USD\": 1\n  },\n  \"execution_health\": {\n    \"enabled\": true,\n    \"green\": true,\n    \"reason\": \"passed\",\n    \"updated_at\": \"2026-02-14T21:21:29.716853+00:00\"\n  }\n}",
+      "stdout_tail": "{\n  \"updated\": 12,\n  \"final_total_funded_budget\": 14.74,\n  \"max_total_budget\": 157.53,\n  \"pair_counts\": {\n    \"ETH-USD\": 4,\n    \"SOL-USD\": 4,\n    \"BTC-USD\": 4,\n    \"LINK-USD\": 1\n  },\n  \"execution_health\": {\n    \"enabled\": true,\n    \"green\": false,\n    \"reason\": \"candle_feed_stale:4026.8s>360.0s\",\n    \"updated_at\": \"2026-02-14T22:32:39.030104+00:00\"\n  }\n}",
       "stderr_tail": ""
     },
     {
@@ -93,7 +93,7 @@
       "requested_granularity": "5min",
       "applied_hours": 168,
       "applied_granularity": "5min",
-      "previous_decision_age_seconds": 1728.682925,
+      "previous_decision_age_seconds": 4325.515319,
       "previous_reasons": [],
       "adaptation_reason": ""
     },
@@ -3917,31 +3917,33 @@
       "go_live": true,
       "realized_gate_passed": true,
       "realized_gate_reason": "passed",
-      "updated_at": "2026-02-14T21:20:36.647388+00:00"
+      "updated_at": "2026-02-14T21:21:45.636076+00:00"
     },
     "execution_health": {
-      "green": true,
-      "reason": "passed",
-      "updated_at": "2026-02-14T21:21:43.674258+00:00"
+      "green": false,
+      "reason": "candle_feed_stale:4052.4s>360.0s",
+      "updated_at": "2026-02-14T22:33:04.609111+00:00"
     },
     "trade_flow": {
       "lookback_hours": 6,
       "buy_fills": 0,
-      "sell_fills": 28,
-      "sell_close_events": 0,
-      "sell_close_attempts": 205,
-      "sell_close_completions": 183,
-      "sell_close_completion_rate": 0.892683,
+      "sell_fills": 30,
+      "sell_close_events": 1,
+      "sell_close_attempts": 207,
+      "sell_close_completions": 185,
+      "sell_close_completion_rate": 0.89372,
       "reconcile_gate_passed": true,
       "reconcile_gate_reason": "sell_close_completion_observed",
-      "effective_sell_completions": 28,
+      "effective_sell_completions": 30,
       "buy_sell_ratio": 0.0
     }
   },
   "decision": {
-    "decision": "GO",
-    "go_live": true,
-    "reasons": [],
+    "decision": "NO_GO",
+    "go_live": false,
+    "reasons": [
+      "execution_health_not_green:candle_feed_stale:4052.4s>360.0s"
+    ],
     "warnings": [
       "warm_runtime_rejections_top=return_below_min:19,drawdown_above_max:19,sharpe_below_min:19"
     ],
@@ -3950,7 +3952,9 @@
       "active": false,
       "warm_max_funded_budget": 2.0,
       "warm_max_funded_strategies": 2,
-      "blocked_reasons": [],
+      "blocked_reasons": [
+        "autonomy_warm_budget_limit_exceeded"
+      ],
       "details": []
     },
     "limits": {
@@ -3983,15 +3987,17 @@
     "execution_health_gate": {
       "enabled": true,
       "status_available": true,
-      "green": true,
-      "reason": "passed",
-      "reasons": [],
+      "green": false,
+      "reason": "candle_feed_stale:4052.4s>360.0s",
+      "reasons": [
+        "candle_feed_stale:4052.4s>360.0s"
+      ],
       "bootstrap_enabled": true,
       "bootstrap_active": false,
       "bootstrap_reason": "",
       "bootstrap_max_budget_usd": 2.0,
       "bootstrap_max_strategies": 2,
-      "updated_at": "2026-02-14T21:21:43.674258+00:00"
+      "updated_at": "2026-02-14T22:33:04.609111+00:00"
     },
     "close_flow_gate": {
       "enabled": true,
@@ -3999,15 +4005,15 @@
       "reason": "balanced_close_flow",
       "lookback_hours": 6,
       "buy_fills": 0,
-      "sell_fills": 28,
-      "sell_close_events": 0,
-      "effective_sell_completions": 28,
+      "sell_fills": 30,
+      "sell_close_events": 1,
+      "effective_sell_completions": 30,
       "buy_sell_ratio": 0.0,
       "max_buy_sell_ratio": 2.5,
       "min_sell_completions": 1,
-      "sell_close_attempts": 205,
-      "sell_close_completions": 183,
-      "sell_close_completion_rate": 0.892683,
+      "sell_close_attempts": 207,
+      "sell_close_completions": 185,
+      "sell_close_completion_rate": 0.89372,
       "min_close_attempts": 2,
       "min_close_completion_rate": 0.4,
       "reconcile_gate_passed": true,

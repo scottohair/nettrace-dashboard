@@ -302,3 +302,5 @@ sqlite3.OperationalError: disk I/O error
 2026-02-14 16:17:26,071 [oil_market] INFO cycle=34 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
 2026-02-14 16:20:26,946 [oil_market] INFO cycle=35 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
 2026-02-14 16:23:28,868 [oil_market] INFO cycle=36 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 17:33:18,506 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-14 17:33:19,053 [oil_market] INFO cycle=1 side=HOLD edge=0.115% conf=0.43 policy=False exec=none

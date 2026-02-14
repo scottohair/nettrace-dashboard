@@ -1,9 +1,9 @@
 {
   "agent": "amicoin_agent",
   "state": "sleeping",
-  "updated_at": "2026-02-14T21:23:42.595845+00:00",
+  "updated_at": "2026-02-14T22:33:10.483115+00:00",
   "interval_seconds": 180,
-  "cycle_count": 36,
+  "cycle_count": 1,
   "simulation_only": true,
   "excluded_from_real_holdings": true,
   "counts_toward_portfolio": false,

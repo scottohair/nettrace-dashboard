@@ -27,6 +27,13 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+# v77: Import signal bridge for orchestrator integration
+try:
+    from creative_agent_bridge import submit_signal
+    BRIDGE_AVAILABLE = True
+except ImportError:
+    BRIDGE_AVAILABLE = False
+
 # ---------------------------------------------------------------------------
 # Framework detection — MLX > PyTorch > NumPy
 # ---------------------------------------------------------------------------
@@ -766,6 +773,26 @@ class MLSignalAgent:
                 logger.info("Signal: %s on %s dir=%s conf=%.2f strength=%.2f",
                             sig["signal_type"], sig["host"], sig["direction"],
                             sig["confidence"], sig.get("strength", 0))
+
+                # v77: Submit to orchestrator bridge if high confidence
+                if BRIDGE_AVAILABLE and sig["confidence"] >= 0.70:
+                    try:
+                        direction = sig.get("direction", "HOLD").upper()
+                        confidence = min(float(sig.get("confidence", 0.5)), 1.0)
+                        urgency = "high" if confidence >= 0.80 else "medium"
+
+                        submit_signal(
+                            agent_name='ml_signal',
+                            pair='BTC-USD',  # Primary trading pair
+                            direction=direction,
+                            confidence=confidence,
+                            urgency=urgency,
+                            reasoning=f'ML: {sig.get("signal_type", "unknown")} on {host}',
+                            expected_hold_ms=int(sig.get('expected_duration_ms', 3600000))
+                        )
+                        logger.debug(f'Submitted ML signal: {direction} BTC-USD conf={confidence:.2f}')
+                    except Exception as e:
+                        logger.warning(f'Failed to submit ML signal: {e}')
 
         return stored
 

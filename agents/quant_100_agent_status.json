@@ -1,6 +1,6 @@
 {
   "state": "sleeping",
-  "updated_at": "2026-02-14T19:34:45.119199+00:00",
+  "updated_at": "2026-02-14T22:33:47.947886+00:00",
   "cycle_count": 1,
   "interval_seconds": 14400,
   "backtest_hours": 72,
@@ -9,6 +9,6 @@
   "ingest": {},
   "consumed_directives": {},
   "decision_trace": {},
-  "last_to_claude_id": 1407,
+  "last_to_claude_id": 1595,
   "error": ""
 }

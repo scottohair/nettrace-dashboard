@@ -30,6 +30,14 @@ import re
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('research_agent')
 
+# Import signal bridge for v77 orchestrator integration
+try:
+    from creative_agent_bridge import submit_signal
+    BRIDGE_AVAILABLE = True
+except ImportError:
+    BRIDGE_AVAILABLE = False
+    logger.warning('creative_agent_bridge not available - signal submission disabled')
+
 # Optional imports
 try:
     import anthropic
@@ -333,6 +341,32 @@ Respond in JSON format with fields: name, description, implementation
 
         conn.commit()
         conn.close()
+
+        # v77: Submit strategy as signal to orchestrator bridge
+        if BRIDGE_AVAILABLE:
+            try:
+                # Parse strategy to suggest BUY/SELL/HOLD
+                description = strategy.get('description', '').lower()
+                if 'buy' in description or 'long' in description or 'uptrend' in description:
+                    direction = 'BUY'
+                elif 'sell' in description or 'short' in description or 'downtrend' in description:
+                    direction = 'SELL'
+                else:
+                    direction = 'HOLD'
+
+                # Submit signal with medium urgency (research-based, not HFT)
+                submit_signal(
+                    agent_name='autonomous_research',
+                    pair='BTC-USD',  # Primary pair for research
+                    direction=direction,
+                    confidence=0.72,  # Research strategies: moderate confidence
+                    urgency='medium',
+                    reasoning=f'Research strategy: {strategy["name"]}',
+                    expected_hold_ms=3600000  # 1 hour hold for research strategies
+                )
+                logger.info(f'Submitted signal: {direction} BTC-USD (confidence=0.72, urgency=medium)')
+            except Exception as e:
+                logger.warning(f'Failed to submit research signal: {e}')
 
     async def research_cycle(self):
         """

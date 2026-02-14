@@ -88999,3 +88999,213 @@
 2026-02-14 16:25:49,469 [quant_100] INFO Q1000-batch_20260213_033001-0548 LTC-USD rejected_cold ret=-0.79% wr=100.0% dd=3.02% sharpe=-0.14 budget=$0.00 tier=none
 2026-02-14 16:26:00,085 [strategy_pipeline] WARNING REJECTED rsi_q1000_0549_batch_20260213_033001/BCH-USD from WARM: trades 11 < 12, return -1.35% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.91% < 0.12%, risk_governor: non-positive return
 2026-02-14 16:26:00,086 [quant_100] INFO Q1000-batch_20260213_033001-0549 BCH-USD rejected_cold ret=-1.35% wr=100.0% dd=2.21% sharpe=-0.43 budget=$0.00 tier=none
+2026-02-14 17:32:43,847 [risk_controller] INFO STARTUP: Flushed 1 stale pending allocations
+2026-02-14 17:32:43,847 [meta_engine] INFO Meta-Engine starting — autonomous strategy evolution
+2026-02-14 17:32:43,848 [meta_engine] INFO ML Framework: numpy
+2026-02-14 17:32:43,848 [meta_engine] INFO Compute nodes: ['local', 'm1max', 'm2ultra']
+2026-02-14 17:32:43,849 [meta_engine] INFO === META-ENGINE EVOLUTION CYCLE ===
+2026-02-14 17:32:43,849 [meta_engine] ERROR fire_losing_strategies error: no such column: strategy_name
+2026-02-14 17:32:43,849 [meta_engine] INFO Step 1: Researching alpha ideas...
+2026-02-14 17:32:44,197 [meta_engine] INFO   Fear & Greed: 9 (Extreme Fear)
+2026-02-14 17:32:44,197 [meta_engine] INFO   Trending: 10 coins
+2026-02-14 17:32:44,198 [meta_engine] INFO   Gas: {'ethereum': 0.04, 'base': 0.0, 'arbitrum': 0.02}
+2026-02-14 17:32:44,198 [meta_engine] INFO   Ideas: 4
+2026-02-14 17:32:44,200 [meta_engine] INFO Step 2: Analyzing exchange network graph...
+2026-02-14 17:32:44,246 [meta_engine] INFO   Graph: 0 nodes, 0 edges
+2026-02-14 17:32:44,246 [meta_engine] INFO Step 3: Running ML predictions...
+2026-02-14 17:32:44,303 [meta_engine] INFO   ML ETH-USD: BUY (conf=60.0%, framework=numpy)
+2026-02-14 17:32:44,424 [meta_engine] INFO   ML SOL-USD: SELL (conf=65.9%, framework=numpy)
+2026-02-14 17:32:44,424 [meta_engine] INFO Step 4: Evaluating agent pool...
+2026-02-14 17:32:44,425 [meta_engine] INFO Step 5: Generating strategy candidates...
+2026-02-14 17:32:44,426 [meta_engine] INFO HIRED agent: contrarian_8364 (strategy: contrarian)
+2026-02-14 17:32:44,426 [meta_engine] INFO Step 6: Executing high-confidence predictions...
+2026-02-14 17:32:44,574 [meta_engine] INFO Step 6: 0 live trades executed, paper trades updated
+2026-02-14 17:32:44,575 [meta_engine] INFO Published evolution summary to message bus (cycle=1)
+2026-02-14 17:32:44,576 [meta_engine_bus] INFO Published meta_engine_evolution to bus (msg_id=6751, cycle=1)
+2026-02-14 17:32:44,577 [meta_engine] INFO === EVOLUTION CYCLE COMPLETE ===
+
+2026-02-14 17:33:04,214 [claude_quant_agent] INFO Claude Quant Agent started (interval=14400s, hours=72, granularity=5min)
+2026-02-14 17:33:04,215 [claude_quant_agent] INFO Starting quant cycle 1
+2026-02-14 17:33:05,933 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_001/BTC-USD from WARM: trades 7 < 12, return -1.49% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.98% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:05,933 [quant_100] INFO Q100-001 BTC-USD rejected_cold ret=-1.49% wr=100.0% dd=1.50% sharpe=-0.88 budget=$0.00 tier=none
+2026-02-14 17:33:07,551 [quant_100] INFO Q100-002 ETH-USD retained_hot_failed ret=-1.38% wr=100.0% dd=1.66% sharpe=-0.69 budget=$0.00 tier=none
+2026-02-14 17:33:09,098 [quant_100] INFO Q100-003 SOL-USD retained_hot_failed ret=-1.68% wr=100.0% dd=2.23% sharpe=-0.83 budget=$0.00 tier=none
+2026-02-14 17:33:10,626 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_004/AVAX-USD from WARM: return -1.46% < 0.3%, walkforward oos return -0.79% < 0.12%, probabilistic calibrated_p05 -0.13% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:10,626 [quant_100] INFO Q100-004 AVAX-USD rejected_cold ret=-1.46% wr=100.0% dd=1.66% sharpe=-0.95 budget=$0.00 tier=none
+2026-02-14 17:33:12,210 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_005/LINK-USD from WARM: trades 10 < 12, return -1.24% < 0.3%, walkforward oos return -0.49% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:12,210 [quant_100] INFO Q100-005 LINK-USD rejected_cold ret=-1.24% wr=100.0% dd=1.95% sharpe=-0.79 budget=$0.00 tier=none
+2026-02-14 17:33:13,647 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_006/DOGE-USD from WARM: trades 8 < 12, return -0.93% < 0.3%, walkforward oos return -0.27% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:13,647 [quant_100] INFO Q100-006 DOGE-USD rejected_cold ret=-0.93% wr=100.0% dd=1.40% sharpe=-0.69 budget=$0.00 tier=none
+2026-02-14 17:33:15,368 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_007/XRP-USD from WARM: trades 10 < 12, return -0.95% < 0.3%, walkforward oos return -0.39% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:15,368 [quant_100] INFO Q100-007 XRP-USD rejected_cold ret=-0.95% wr=100.0% dd=1.46% sharpe=-0.59 budget=$0.00 tier=none
+2026-02-14 17:33:16,891 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_008/BCH-USD from WARM: trades 7 < 12, return -1.14% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.91% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:16,892 [quant_100] INFO Q100-008 BCH-USD rejected_cold ret=-1.14% wr=100.0% dd=1.42% sharpe=-0.64 budget=$0.00 tier=none
+2026-02-14 17:33:18,343 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_009/LTC-USD from WARM: trades 8 < 12, return -0.86% < 0.3%, walkforward oos return -0.58% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:18,343 [quant_100] INFO Q100-009 LTC-USD rejected_cold ret=-0.86% wr=100.0% dd=1.26% sharpe=-0.70 budget=$0.00 tier=none
+2026-02-14 17:33:19,907 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_010/ADA-USD from WARM: return -1.81% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.40% < 0.12%, probabilistic calibrated_p05 -0.15% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:19,908 [quant_100] INFO Q100-010 ADA-USD rejected_cold ret=-1.81% wr=100.0% dd=1.65% sharpe=-0.93 budget=$0.00 tier=none
+2026-02-14 17:33:20,199 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_011/BTC-USD from WARM: trades 7 < 12, return -1.11% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.68% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:20,200 [quant_100] INFO Q100-011 BTC-USD rejected_cold ret=-1.11% wr=100.0% dd=1.43% sharpe=-0.69 budget=$0.00 tier=none
+2026-02-14 17:33:20,454 [quant_100] INFO Q100-012 ETH-USD retained_hot_failed ret=-1.01% wr=100.0% dd=1.62% sharpe=-0.73 budget=$0.00 tier=none
+2026-02-14 17:33:20,721 [quant_100] INFO Q100-013 SOL-USD retained_hot_failed ret=-1.75% wr=100.0% dd=2.12% sharpe=-0.91 budget=$0.00 tier=none
+2026-02-14 17:33:20,895 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_014/AVAX-USD from WARM: trades 8 < 12, return -0.89% < 0.3%, walkforward oos return -0.24% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:20,895 [quant_100] INFO Q100-014 AVAX-USD rejected_cold ret=-0.89% wr=100.0% dd=1.27% sharpe=-0.74 budget=$0.00 tier=none
+2026-02-14 17:33:21,059 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_015/LINK-USD from WARM: trades 10 < 12, return -1.23% < 0.3%, walkforward oos return -0.55% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:21,059 [quant_100] INFO Q100-015 LINK-USD rejected_cold ret=-1.23% wr=100.0% dd=1.58% sharpe=-1.00 budget=$0.00 tier=none
+2026-02-14 17:33:21,350 [strategy_pipeline] WARNING REJECTED momentum_q100_016/DOGE-USD from WARM: return -1.78% < 0.3%, walkforward oos return -0.89% < 0.12%, probabilistic calibrated_p05 -0.11% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:21,350 [quant_100] INFO Q100-016 DOGE-USD rejected_cold ret=-1.78% wr=100.0% dd=1.91% sharpe=-1.02 budget=$0.00 tier=none
+2026-02-14 17:33:21,675 [strategy_pipeline] WARNING REJECTED momentum_q100_017/XRP-USD from WARM: trades 11 < 12, return -1.97% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.57% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:21,675 [quant_100] INFO Q100-017 XRP-USD rejected_cold ret=-1.97% wr=100.0% dd=1.71% sharpe=-0.98 budget=$0.00 tier=none
+2026-02-14 17:33:21,970 [strategy_pipeline] WARNING REJECTED momentum_q100_018/BCH-USD from WARM: trades 9 < 12, return -1.58% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.19% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:21,971 [quant_100] INFO Q100-018 BCH-USD rejected_cold ret=-1.58% wr=100.0% dd=1.61% sharpe=-0.85 budget=$0.00 tier=none
+2026-02-14 17:33:22,285 [strategy_pipeline] WARNING REJECTED momentum_q100_019/LTC-USD from WARM: trades 9 < 12, return -1.45% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.96% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:22,286 [quant_100] INFO Q100-019 LTC-USD rejected_cold ret=-1.45% wr=100.0% dd=1.49% sharpe=-0.77 budget=$0.00 tier=none
+2026-02-14 17:33:22,499 [strategy_pipeline] WARNING REJECTED momentum_q100_020/ADA-USD from WARM: return -1.13% < 0.3%, walkforward oos return -0.53% < 0.12%, probabilistic calibrated_p05 -0.10% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:22,499 [quant_100] INFO Q100-020 ADA-USD rejected_cold ret=-1.13% wr=100.0% dd=1.58% sharpe=-0.73 budget=$0.00 tier=none
+2026-02-14 17:33:23,406 [quant_100] INFO Q100-021 BTC-USD retained_hot_failed ret=-1.82% wr=100.0% dd=1.56% sharpe=-0.97 budget=$0.00 tier=none
+2026-02-14 17:33:23,727 [quant_100] INFO Q100-022 ETH-USD retained_warm_failed ret=-1.58% wr=100.0% dd=2.04% sharpe=-0.81 budget=$0.00 tier=none
+2026-02-14 17:33:24,050 [quant_100] INFO Q100-023 SOL-USD retained_hot_failed ret=-1.52% wr=100.0% dd=2.38% sharpe=-0.70 budget=$0.00 tier=none
+2026-02-14 17:33:24,290 [strategy_pipeline] WARNING REJECTED momentum_q100_024/AVAX-USD from WARM: trades 9 < 12, return -1.61% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.11% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:24,290 [quant_100] INFO Q100-024 AVAX-USD rejected_cold ret=-1.61% wr=100.0% dd=1.51% sharpe=-0.78 budget=$0.00 tier=none
+2026-02-14 17:33:24,587 [strategy_pipeline] WARNING REJECTED momentum_q100_025/LINK-USD from WARM: trades 11 < 12, return -1.72% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.01% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:24,587 [quant_100] INFO Q100-025 LINK-USD rejected_cold ret=-1.72% wr=100.0% dd=1.89% sharpe=-0.92 budget=$0.00 tier=none
+2026-02-14 17:33:24,824 [strategy_pipeline] WARNING REJECTED momentum_q100_026/DOGE-USD from WARM: trades 8 < 12, return -0.94% < 0.3%, walkforward oos return -0.49% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:24,824 [quant_100] INFO Q100-026 DOGE-USD rejected_cold ret=-0.94% wr=100.0% dd=1.35% sharpe=-0.61 budget=$0.00 tier=none
+2026-02-14 17:33:25,111 [strategy_pipeline] WARNING REJECTED momentum_q100_027/XRP-USD from WARM: trades 11 < 12, return -1.67% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.16% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:25,111 [quant_100] INFO Q100-027 XRP-USD rejected_cold ret=-1.67% wr=100.0% dd=1.72% sharpe=-0.76 budget=$0.00 tier=none
+2026-02-14 17:33:25,457 [strategy_pipeline] WARNING REJECTED momentum_q100_028/BCH-USD from WARM: trades 11 < 12, return -1.49% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.94% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:25,457 [quant_100] INFO Q100-028 BCH-USD rejected_cold ret=-1.49% wr=100.0% dd=1.52% sharpe=-0.85 budget=$0.00 tier=none
+2026-02-14 17:33:25,796 [strategy_pipeline] WARNING REJECTED momentum_q100_029/LTC-USD from WARM: trades 9 < 12, return -1.51% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.09% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:25,796 [quant_100] INFO Q100-029 LTC-USD rejected_cold ret=-1.51% wr=100.0% dd=1.41% sharpe=-0.84 budget=$0.00 tier=none
+2026-02-14 17:33:26,062 [strategy_pipeline] WARNING REJECTED momentum_q100_030/ADA-USD from WARM: return -1.24% < 0.3%, walkforward oos return -0.75% < 0.12%, probabilistic calibrated_p05 -0.11% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:26,062 [quant_100] INFO Q100-030 ADA-USD rejected_cold ret=-1.24% wr=100.0% dd=1.53% sharpe=-0.73 budget=$0.00 tier=none
+2026-02-14 17:33:26,386 [quant_100] INFO Q100-031 BTC-USD retained_hot_failed ret=-1.19% wr=100.0% dd=1.77% sharpe=-0.65 budget=$0.00 tier=none
+2026-02-14 17:33:26,662 [quant_100] INFO Q100-032 ETH-USD retained_warm_failed ret=-1.39% wr=100.0% dd=1.81% sharpe=-0.71 budget=$0.00 tier=none
+2026-02-14 17:33:26,898 [quant_100] INFO Q100-033 SOL-USD retained_hot_failed ret=-1.58% wr=100.0% dd=2.26% sharpe=-0.72 budget=$0.00 tier=none
+2026-02-14 17:33:27,135 [strategy_pipeline] WARNING REJECTED momentum_q100_034/AVAX-USD from WARM: trades 11 < 12, return -1.69% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.06% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:27,135 [quant_100] INFO Q100-034 AVAX-USD rejected_cold ret=-1.69% wr=100.0% dd=1.68% sharpe=-0.85 budget=$0.00 tier=none
+2026-02-14 17:33:27,429 [strategy_pipeline] WARNING REJECTED momentum_q100_035/LINK-USD from WARM: trades 11 < 12, return -1.63% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.02% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:27,429 [quant_100] INFO Q100-035 LINK-USD rejected_cold ret=-1.63% wr=100.0% dd=1.90% sharpe=-0.78 budget=$0.00 tier=none
+2026-02-14 17:33:27,750 [strategy_pipeline] WARNING REJECTED rsi_q100_036/DOGE-USD from WARM: return -1.85% < 0.3%, walkforward oos return -0.87% < 0.12%, probabilistic calibrated_p05 -0.15% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:27,750 [quant_100] INFO Q100-036 DOGE-USD rejected_cold ret=-1.85% wr=100.0% dd=2.06% sharpe=-1.19 budget=$0.00 tier=none
+2026-02-14 17:33:28,063 [strategy_pipeline] WARNING REJECTED rsi_q100_037/XRP-USD from WARM: return -1.44% < 0.3%, walkforward oos return -0.66% < 0.12%, probabilistic calibrated_p05 -0.14% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:28,063 [quant_100] INFO Q100-037 XRP-USD rejected_cold ret=-1.44% wr=100.0% dd=1.70% sharpe=-0.89 budget=$0.00 tier=none
+2026-02-14 17:33:28,393 [strategy_pipeline] WARNING REJECTED rsi_q100_038/BCH-USD from WARM: trades 11 < 12, return -1.17% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.81% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:28,394 [quant_100] INFO Q100-038 BCH-USD rejected_cold ret=-1.17% wr=100.0% dd=1.59% sharpe=-0.61 budget=$0.00 tier=none
+2026-02-14 17:33:28,747 [strategy_pipeline] WARNING REJECTED rsi_q100_039/LTC-USD from WARM: return -2.18% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.49% < 0.12%, probabilistic calibrated_p05 -0.14% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:28,747 [quant_100] INFO Q100-039 LTC-USD rejected_cold ret=-2.18% wr=100.0% dd=1.97% sharpe=-1.21 budget=$0.00 tier=none
+2026-02-14 17:33:29,022 [strategy_pipeline] WARNING REJECTED rsi_q100_040/ADA-USD from WARM: return -2.43% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.64% < 0.12%, probabilistic calibrated_p05 -0.14% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:29,022 [quant_100] INFO Q100-040 ADA-USD rejected_cold ret=-2.43% wr=100.0% dd=2.20% sharpe=-1.20 budget=$0.00 tier=none
+2026-02-14 17:33:29,370 [strategy_pipeline] WARNING REJECTED rsi_q100_041/BTC-USD from WARM: trades 9 < 12, return -1.35% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.97% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:29,370 [quant_100] INFO Q100-041 BTC-USD rejected_cold ret=-1.35% wr=100.0% dd=1.41% sharpe=-0.83 budget=$0.00 tier=none
+2026-02-14 17:33:29,767 [quant_100] INFO Q100-042 ETH-USD retained_warm_failed ret=-1.60% wr=100.0% dd=1.96% sharpe=-0.82 budget=$0.00 tier=none
+2026-02-14 17:33:30,082 [quant_100] INFO Q100-043 SOL-USD retained_hot_failed ret=-1.93% wr=100.0% dd=2.23% sharpe=-0.92 budget=$0.00 tier=none
+2026-02-14 17:33:30,370 [strategy_pipeline] WARNING REJECTED rsi_q100_044/AVAX-USD from WARM: return -2.09% < 0.3%, walkforward oos return -1.00% < 0.12%, probabilistic calibrated_p05 -0.14% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:30,370 [quant_100] INFO Q100-044 AVAX-USD rejected_cold ret=-2.09% wr=100.0% dd=2.20% sharpe=-1.24 budget=$0.00 tier=none
+2026-02-14 17:33:30,570 [strategy_pipeline] WARNING REJECTED rsi_q100_045/LINK-USD from WARM: return -1.69% < 0.3%, walkforward oos return -0.80% < 0.12%, probabilistic calibrated_p05 -0.13% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:30,570 [quant_100] INFO Q100-045 LINK-USD rejected_cold ret=-1.69% wr=100.0% dd=1.77% sharpe=-1.33 budget=$0.00 tier=none
+2026-02-14 17:33:30,791 [strategy_pipeline] WARNING REJECTED rsi_q100_046/DOGE-USD from WARM: trades 8 < 12, return -0.94% < 0.3%, walkforward oos return -0.55% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:30,791 [quant_100] INFO Q100-046 DOGE-USD rejected_cold ret=-0.94% wr=100.0% dd=1.25% sharpe=-0.73 budget=$0.00 tier=none
+2026-02-14 17:33:30,969 [strategy_pipeline] WARNING REJECTED rsi_q100_047/XRP-USD from WARM: trades 6 < 12, return -0.58% < 0.3%, walkforward oos return -0.33% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:30,969 [quant_100] INFO Q100-047 XRP-USD rejected_cold ret=-0.58% wr=100.0% dd=0.78% sharpe=-0.55 budget=$0.00 tier=none
+2026-02-14 17:33:31,268 [strategy_pipeline] WARNING REJECTED rsi_q100_048/BCH-USD from WARM: trades 9 < 12, return -0.82% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.57% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:31,269 [quant_100] INFO Q100-048 BCH-USD rejected_cold ret=-0.82% wr=100.0% dd=1.27% sharpe=-0.37 budget=$0.00 tier=none
+2026-02-14 17:33:31,546 [strategy_pipeline] WARNING REJECTED rsi_q100_049/LTC-USD from WARM: trades 10 < 12, return -1.06% < 0.3%, walkforward oos return -0.87% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:31,546 [quant_100] INFO Q100-049 LTC-USD rejected_cold ret=-1.06% wr=100.0% dd=1.14% sharpe=-0.80 budget=$0.00 tier=none
+2026-02-14 17:33:31,778 [strategy_pipeline] WARNING REJECTED rsi_q100_050/ADA-USD from WARM: return -1.25% < 0.3%, walkforward oos return -0.68% < 0.12%, probabilistic calibrated_p05 -0.12% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:31,779 [quant_100] INFO Q100-050 ADA-USD rejected_cold ret=-1.25% wr=100.0% dd=1.46% sharpe=-0.87 budget=$0.00 tier=none
+2026-02-14 17:33:31,982 [strategy_pipeline] WARNING REJECTED vwap_q100_051/BTC-USD from WARM: trades 6 < 12, return -0.64% < 0.3%, walkforward oos trades 0 < 1, walkforward oos return 0.00% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:31,982 [quant_100] INFO Q100-051 BTC-USD rejected_cold ret=-0.64% wr=100.0% dd=1.49% sharpe=-0.62 budget=$0.00 tier=none
+2026-02-14 17:33:32,336 [strategy_pipeline] WARNING REJECTED vwap_q100_052/ETH-USD from WARM: trades 8 < 12, return -0.90% < 0.3%, walkforward oos return -0.13% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:32,336 [quant_100] INFO Q100-052 ETH-USD rejected_cold ret=-0.90% wr=100.0% dd=1.76% sharpe=-0.83 budget=$0.00 tier=none
+2026-02-14 17:33:32,653 [strategy_pipeline] WARNING REJECTED vwap_q100_053/SOL-USD from WARM: trades 6 < 12, return -0.70% < 0.3%, walkforward oos return -0.24% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:32,654 [quant_100] INFO Q100-053 SOL-USD rejected_cold ret=-0.70% wr=100.0% dd=1.81% sharpe=-0.57 budget=$0.00 tier=none
+2026-02-14 17:33:32,703 [strategy_pipeline] WARNING REJECTED vwap_q100_054/AVAX-USD from WARM: trades 6 < 12, return -0.79% < 0.3%, walkforward oos trades 0 < 1, walkforward oos return 0.00% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:32,703 [quant_100] INFO Q100-054 AVAX-USD rejected_cold ret=-0.79% wr=100.0% dd=0.85% sharpe=-0.81 budget=$0.00 tier=none
+2026-02-14 17:33:33,066 [strategy_pipeline] WARNING REJECTED vwap_q100_055/LINK-USD from WARM: trades 6 < 12, return -0.64% < 0.3%, walkforward oos return -0.14% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:33,066 [quant_100] INFO Q100-055 LINK-USD rejected_cold ret=-0.64% wr=100.0% dd=1.38% sharpe=-0.61 budget=$0.00 tier=none
+2026-02-14 17:33:33,249 [strategy_pipeline] WARNING REJECTED vwap_q100_056/DOGE-USD from WARM: trades 6 < 12, return -0.68% < 0.3%, walkforward oos return -0.26% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:33,249 [quant_100] INFO Q100-056 DOGE-USD rejected_cold ret=-0.68% wr=100.0% dd=0.91% sharpe=-0.73 budget=$0.00 tier=none
+2026-02-14 17:33:33,596 [strategy_pipeline] WARNING REJECTED vwap_q100_057/XRP-USD from WARM: trades 6 < 12, return -0.71% < 0.3%, walkforward oos return -0.22% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:33,596 [quant_100] INFO Q100-057 XRP-USD rejected_cold ret=-0.71% wr=100.0% dd=1.35% sharpe=-0.58 budget=$0.00 tier=none
+2026-02-14 17:33:34,021 [strategy_pipeline] WARNING REJECTED vwap_q100_058/BCH-USD from WARM: trades 2 < 12, return -0.13% < 0.3%, walkforward oos return -0.47% < 0.12%, monte_carlo trades 1 < 2, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:34,021 [quant_100] INFO Q100-058 BCH-USD rejected_cold ret=-0.13% wr=100.0% dd=1.19% sharpe=-0.13 budget=$0.00 tier=none
+2026-02-14 17:33:34,136 [strategy_pipeline] WARNING REJECTED vwap_q100_059/LTC-USD from WARM: trades 6 < 12, return -0.79% < 0.3%, walkforward oos return -0.21% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:34,136 [quant_100] INFO Q100-059 LTC-USD rejected_cold ret=-0.79% wr=100.0% dd=1.05% sharpe=-0.75 budget=$0.00 tier=none
+2026-02-14 17:33:34,236 [strategy_pipeline] WARNING REJECTED vwap_q100_060/ADA-USD from WARM: trades 8 < 12, return -1.03% < 0.3%, walkforward oos return -0.24% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:34,237 [quant_100] INFO Q100-060 ADA-USD rejected_cold ret=-1.03% wr=100.0% dd=1.30% sharpe=-0.97 budget=$0.00 tier=none
+2026-02-14 17:33:34,564 [quant_100] INFO Q100-061 BTC-USD retained_hot_failed ret=-1.28% wr=100.0% dd=1.92% sharpe=-0.93 budget=$0.00 tier=none
+2026-02-14 17:33:35,048 [quant_100] INFO Q100-062 ETH-USD retained_hot_failed ret=-1.61% wr=100.0% dd=1.79% sharpe=-0.83 budget=$0.00 tier=none
+2026-02-14 17:33:35,184 [quant_100] INFO Q100-063 SOL-USD retained_hot_failed ret=-1.16% wr=100.0% dd=2.04% sharpe=-0.71 budget=$0.00 tier=none
+2026-02-14 17:33:35,522 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_064/AVAX-USD from WARM: return -2.23% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.59% < 0.12%, probabilistic calibrated_p05 -0.12% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:35,522 [quant_100] INFO Q100-064 AVAX-USD rejected_cold ret=-2.23% wr=100.0% dd=2.01% sharpe=-1.12 budget=$0.00 tier=none
+2026-02-14 17:33:35,981 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_065/LINK-USD from WARM: return -1.87% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.19% < 0.12%, probabilistic calibrated_p05 -0.12% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:35,981 [quant_100] INFO Q100-065 LINK-USD rejected_cold ret=-1.87% wr=100.0% dd=1.77% sharpe=-0.96 budget=$0.00 tier=none
+2026-02-14 17:33:36,106 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_066/DOGE-USD from WARM: trades 8 < 12, return -0.82% < 0.3%, walkforward oos return -0.37% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:36,106 [quant_100] INFO Q100-066 DOGE-USD rejected_cold ret=-0.82% wr=100.0% dd=1.05% sharpe=-0.61 budget=$0.00 tier=none
+2026-02-14 17:33:36,562 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_067/XRP-USD from WARM: return -2.25% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.24% < 0.12%, probabilistic calibrated_p05 -0.12% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:36,562 [quant_100] INFO Q100-067 XRP-USD rejected_cold ret=-2.25% wr=100.0% dd=2.08% sharpe=-0.95 budget=$0.00 tier=none
+2026-02-14 17:33:37,013 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_068/BCH-USD from WARM: return -2.88% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -2.32% < 0.12%, probabilistic calibrated_p05 -0.14% < -0.08%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:37,013 [quant_100] INFO Q100-068 BCH-USD rejected_cold ret=-2.88% wr=100.0% dd=2.94% sharpe=-1.20 budget=$0.00 tier=none
+2026-02-14 17:33:37,079 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_069/LTC-USD from WARM: trades 7 < 12, return -1.10% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.70% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:37,079 [quant_100] INFO Q100-069 LTC-USD rejected_cold ret=-1.10% wr=100.0% dd=1.00% sharpe=-0.70 budget=$0.00 tier=none
+2026-02-14 17:33:37,447 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_070/ADA-USD from WARM: return -3.05% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -2.23% < 0.12%, probabilistic calibrated_p05 -0.12% < -0.08%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:37,447 [quant_100] INFO Q100-070 ADA-USD rejected_cold ret=-3.05% wr=100.0% dd=2.88% sharpe=-1.42 budget=$0.00 tier=none
+2026-02-14 17:33:37,824 [quant_100] INFO Q100-071 BTC-USD retained_hot_failed ret=-1.65% wr=100.0% dd=1.92% sharpe=-0.81 budget=$0.00 tier=none
+2026-02-14 17:33:38,273 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_072/ETH-USD from WARM: trades 11 < 12, return -1.61% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.01% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:38,273 [quant_100] INFO Q100-072 ETH-USD rejected_cold ret=-1.61% wr=100.0% dd=1.79% sharpe=-0.83 budget=$0.00 tier=none
+2026-02-14 17:33:38,679 [quant_100] INFO Q100-073 SOL-USD retained_hot_failed ret=-1.97% wr=100.0% dd=2.30% sharpe=-0.90 budget=$0.00 tier=none
+2026-02-14 17:33:38,993 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_074/AVAX-USD from WARM: return -2.23% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.57% < 0.12%, probabilistic calibrated_p05 -0.12% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:38,993 [quant_100] INFO Q100-074 AVAX-USD rejected_cold ret=-2.23% wr=100.0% dd=2.01% sharpe=-1.12 budget=$0.00 tier=none
+2026-02-14 17:33:39,437 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_075/LINK-USD from WARM: return -1.87% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.07% < 0.12%, probabilistic calibrated_p05 -0.12% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:39,437 [quant_100] INFO Q100-075 LINK-USD rejected_cold ret=-1.87% wr=100.0% dd=1.77% sharpe=-0.96 budget=$0.00 tier=none
+2026-02-14 17:33:39,615 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_076/DOGE-USD from WARM: return -1.56% < 0.3%, walkforward oos return -0.25% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:39,615 [quant_100] INFO Q100-076 DOGE-USD rejected_cold ret=-1.56% wr=100.0% dd=1.65% sharpe=-1.05 budget=$0.00 tier=none
+2026-02-14 17:33:39,830 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_077/XRP-USD from WARM: trades 6 < 12, return -0.81% < 0.3%, walkforward oos return -0.53% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:39,830 [quant_100] INFO Q100-077 XRP-USD rejected_cold ret=-0.81% wr=100.0% dd=1.11% sharpe=-0.52 budget=$0.00 tier=none
+2026-02-14 17:33:39,992 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_078/BCH-USD from WARM: trades 6 < 12, return -0.81% < 0.3%, walkforward oos trades 0 < 1, walkforward oos return 0.00% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:39,992 [quant_100] INFO Q100-078 BCH-USD rejected_cold ret=-0.81% wr=100.0% dd=1.39% sharpe=-0.63 budget=$0.00 tier=none
+2026-02-14 17:33:40,449 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_079/LTC-USD from WARM: return -2.07% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.26% < 0.12%, probabilistic calibrated_p05 -0.13% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:40,449 [quant_100] INFO Q100-079 LTC-USD rejected_cold ret=-2.07% wr=100.0% dd=1.95% sharpe=-0.93 budget=$0.00 tier=none
+2026-02-14 17:33:40,806 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_080/ADA-USD from WARM: trades 10 < 12, return -1.15% < 0.3%, walkforward oos return -0.59% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:40,806 [quant_100] INFO Q100-080 ADA-USD rejected_cold ret=-1.15% wr=100.0% dd=1.71% sharpe=-0.66 budget=$0.00 tier=none
+2026-02-14 17:33:41,298 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_081/BTC-USD from WARM: trades 7 < 12, return -1.40% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.86% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:41,298 [quant_100] INFO Q100-081 BTC-USD rejected_cold ret=-1.40% wr=100.0% dd=1.61% sharpe=-0.68 budget=$0.00 tier=none
+2026-02-14 17:33:41,778 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_082/ETH-USD from WARM: trades 8 < 12, return -0.77% < 0.3%, walkforward oos return -0.37% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:41,779 [quant_100] INFO Q100-082 ETH-USD rejected_cold ret=-0.77% wr=100.0% dd=1.79% sharpe=-0.52 budget=$0.00 tier=none
+2026-02-14 17:33:41,976 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_083/SOL-USD from WARM: trades 8 < 12, return -1.02% < 0.3%, walkforward oos return -0.47% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:41,976 [quant_100] INFO Q100-083 SOL-USD rejected_cold ret=-1.02% wr=100.0% dd=2.30% sharpe=-0.56 budget=$0.00 tier=none
+2026-02-14 17:33:42,074 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_084/AVAX-USD from WARM: trades 8 < 12, return -1.13% < 0.3%, walkforward oos return -0.29% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:42,075 [quant_100] INFO Q100-084 AVAX-USD rejected_cold ret=-1.13% wr=100.0% dd=1.23% sharpe=-0.93 budget=$0.00 tier=none
+2026-02-14 17:33:42,556 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_085/LINK-USD from WARM: return -2.18% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.37% < 0.12%, probabilistic calibrated_p05 -0.13% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:42,556 [quant_100] INFO Q100-085 LINK-USD rejected_cold ret=-2.18% wr=100.0% dd=1.99% sharpe=-1.03 budget=$0.00 tier=none
+2026-02-14 17:33:42,673 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_086/DOGE-USD from WARM: trades 6 < 12, return -0.82% < 0.3%, walkforward oos trades 0 < 1, walkforward oos return 0.00% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:42,673 [quant_100] INFO Q100-086 DOGE-USD rejected_cold ret=-0.82% wr=100.0% dd=1.09% sharpe=-0.69 budget=$0.00 tier=none
+2026-02-14 17:33:42,858 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_087/XRP-USD from WARM: trades 6 < 12, return -0.78% < 0.3%, walkforward oos return -0.50% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:42,858 [quant_100] INFO Q100-087 XRP-USD rejected_cold ret=-0.78% wr=100.0% dd=0.91% sharpe=-0.59 budget=$0.00 tier=none
+2026-02-14 17:33:43,120 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_088/BCH-USD from WARM: trades 7 < 12, return -1.06% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.88% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:43,121 [quant_100] INFO Q100-088 BCH-USD rejected_cold ret=-1.06% wr=100.0% dd=1.42% sharpe=-0.50 budget=$0.00 tier=none
+2026-02-14 17:33:43,319 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_089/LTC-USD from WARM: trades 6 < 12, return -0.61% < 0.3%, walkforward oos return -0.38% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:43,320 [quant_100] INFO Q100-089 LTC-USD rejected_cold ret=-0.61% wr=100.0% dd=1.19% sharpe=-0.46 budget=$0.00 tier=none
+2026-02-14 17:33:43,412 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_090/ADA-USD from WARM: trades 6 < 12, return -0.80% < 0.3%, walkforward oos trades 0 < 1, walkforward oos return 0.00% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:43,412 [quant_100] INFO Q100-090 ADA-USD rejected_cold ret=-0.80% wr=100.0% dd=1.18% sharpe=-0.73 budget=$0.00 tier=none
+2026-02-14 17:33:43,899 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_091/BTC-USD from WARM: trades 9 < 12, return -1.70% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.17% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:43,900 [quant_100] INFO Q100-091 BTC-USD rejected_cold ret=-1.70% wr=100.0% dd=1.65% sharpe=-1.07 budget=$0.00 tier=none
+2026-02-14 17:33:44,379 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_092/ETH-USD from WARM: trades 11 < 12, return -1.83% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.02% < 0.12%, risk_governor: non-positive return
+2026-02-14 17:33:44,380 [quant_100] INFO Q100-092 ETH-USD rejected_cold ret=-1.83% wr=100.0% dd=1.80% sharpe=-1.08 budget=$0.00 tier=none
+2026-02-14 17:33:44,822 [quant_100] INFO Q100-093 SOL-USD retained_hot_failed ret=-1.53% wr=100.0% dd=1.82% sharpe=-0.73 budget=$0.00 tier=none
+2026-02-14 17:33:45,243 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_094/AVAX-USD from WARM: return -2.38% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.54% < 0.12%, probabilistic calibrated_p05 -0.13% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:45,243 [quant_100] INFO Q100-094 AVAX-USD rejected_cold ret=-2.38% wr=100.0% dd=2.08% sharpe=-1.29 budget=$0.00 tier=none
+2026-02-14 17:33:45,746 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_095/LINK-USD from WARM: return -2.29% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.50% < 0.12%, probabilistic calibrated_p05 -0.15% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:45,746 [quant_100] INFO Q100-095 LINK-USD rejected_cold ret=-2.29% wr=100.0% dd=2.10% sharpe=-1.21 budget=$0.00 tier=none
+2026-02-14 17:33:46,141 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_096/DOGE-USD from WARM: return -2.55% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -2.15% < 0.12%, probabilistic calibrated_p05 -0.14% < -0.08%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:46,141 [quant_100] INFO Q100-096 DOGE-USD rejected_cold ret=-2.55% wr=100.0% dd=2.84% sharpe=-1.22 budget=$0.00 tier=none
+2026-02-14 17:33:46,577 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_097/XRP-USD from WARM: return -1.72% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.79% < 0.12%, probabilistic calibrated_p05 -0.14% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:46,577 [quant_100] INFO Q100-097 XRP-USD rejected_cold ret=-1.72% wr=100.0% dd=1.53% sharpe=-0.84 budget=$0.00 tier=none
+2026-02-14 17:33:47,074 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_098/BCH-USD from WARM: return -2.17% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.74% < 0.12%, probabilistic calibrated_p05 -0.14% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:47,074 [quant_100] INFO Q100-098 BCH-USD rejected_cold ret=-2.17% wr=100.0% dd=2.22% sharpe=-1.17 budget=$0.00 tier=none
+2026-02-14 17:33:47,496 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_099/LTC-USD from WARM: return -2.09% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.42% < 0.12%, probabilistic calibrated_p05 -0.15% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:47,496 [quant_100] INFO Q100-099 LTC-USD rejected_cold ret=-2.09% wr=100.0% dd=2.00% sharpe=-1.16 budget=$0.00 tier=none
+2026-02-14 17:33:47,941 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_100/ADA-USD from WARM: return -3.42% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -2.14% < 0.12%, probabilistic calibrated_p05 -0.15% < -0.08%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 17:33:47,941 [quant_100] INFO Q100-100 ADA-USD rejected_cold ret=-3.42% wr=100.0% dd=3.25% sharpe=-1.65 budget=$0.00 tier=none
+2026-02-14 17:33:47,947 [claude_quant_agent] INFO Cycle 1 complete: total=100 promoted=0 rejected=82 no_data=0 priority_pairs=BTC-USD,ETH-USD,SOL-USD,AVAX-USD,LINK-USD,DOGE-USD,XRP-USD,BCH-USD,LTC-USD,DOT-USD directives=181

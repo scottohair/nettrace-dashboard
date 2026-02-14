@@ -156,3 +156,5 @@
 2026-02-14 16:08:34,866 [quant_company] INFO cycle=16 alpha=0.45 migration=0.75 gtm=0.75 deploy=0.52 hf_live=True daily_pnl=$-2.13 next_target=$1000.00 budget=de_escalate
 2026-02-14 16:14:35,566 [quant_company] INFO cycle=17 alpha=0.45 migration=0.75 gtm=0.75 deploy=0.52 hf_live=True daily_pnl=$-2.12 next_target=$1000.00 budget=de_escalate
 2026-02-14 16:20:36,662 [quant_company] INFO cycle=18 alpha=0.45 migration=0.75 gtm=0.75 deploy=0.52 hf_live=True daily_pnl=$-2.21 next_target=$1000.00 budget=de_escalate
+2026-02-14 17:33:30,683 [quant_company] INFO starting quant_company_agent loop interval=360s
+2026-02-14 17:33:30,753 [quant_company] INFO cycle=1 alpha=0.45 migration=0.75 gtm=0.50 deploy=0.52 hf_live=True daily_pnl=$-2.26 next_target=$1000.00 budget=de_escalate

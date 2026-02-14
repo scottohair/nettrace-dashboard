@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-02-14T21:23:28.848411+00:00",
+  "updated_at": "2026-02-14T22:33:19.052275+00:00",
   "running": true,
-  "cycle": 36,
+  "cycle": 1,
   "interval_seconds": 180,
   "execute_live": false,
   "market_snapshot": {
-    "timestamp": "2026-02-14T21:23:28.838761+00:00",
+    "timestamp": "2026-02-14T22:33:19.048316+00:00",
     "prices": {
       "CL": 62.81,
       "BZ": 67.6,
@@ -24,7 +24,7 @@
     }
   },
   "last_signal": {
-    "timestamp": "2026-02-14T21:23:28.841775+00:00",
+    "timestamp": "2026-02-14T22:33:19.049082+00:00",
     "instrument": "USO",
     "proxy_assets": [
       "CL=F",
@@ -71,6 +71,16 @@
     "reason": "hold_signal"
   },
   "recent_signals": [
+    {
+      "side": "HOLD",
+      "confidence": 0.430573,
+      "expected_edge_pct": 0.115257,
+      "regime": "NEUTRAL",
+      "reason": "no_edge",
+      "policy_approved": 0,
+      "policy_reason": "expected_edge 0.115% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 43.06% < min 70.00%",
+      "created_at": "2026-02-14 22:33:19"
+    },
     {
       "side": "HOLD",
       "confidence": 0.430573,
@@ -260,16 +270,6 @@
       "policy_approved": 0,
       "policy_reason": "expected_edge 0.115% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 43.06% < min 70.00%",
       "created_at": "2026-02-14 20:25:18"
-    },
-    {
-      "side": "HOLD",
-      "confidence": 0.430573,
-      "expected_edge_pct": 0.115257,
-      "regime": "NEUTRAL",
-      "reason": "no_edge",
-      "policy_approved": 0,
-      "policy_reason": "expected_edge 0.115% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 43.06% < min 70.00%",
-      "created_at": "2026-02-14 20:22:18"
     }
   ]
 }

@@ -1,6 +1,6 @@
 # Deployment Optimizer Roadmap
 
-Updated: 2026-02-14T21:23:32.031985+00:00
+Updated: 2026-02-14T22:33:26.692917+00:00
 
 ## Summary
 - Runtime region: local
@@ -24,5 +24,5 @@ Updated: 2026-02-14T21:23:32.031985+00:00
 ## Priority Actions
 - Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.
 - Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.
-- Top recent Coinbase failures: 12x <urlopen error [Errno 1] Operation not permitted> | [Errno 1] Operation not permitted | errno 1 | 6x API down | 4x Server Error
+- Top recent Coinbase failures: 9x API down | 8x <urlopen error [Errno 1] Operation not permitted> | [Errno 1] Operation not permitted | errno 1 | 6x Server Error
 - Start continuous traceroute sampling to venue hosts for region-level routing evidence.

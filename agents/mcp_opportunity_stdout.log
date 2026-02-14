@@ -974,3 +974,7 @@
 2026-02-14 16:23:49,461 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
 2026-02-14 16:23:54,373 [mcp_opportunity] INFO cycle=43 go_live=True opportunities=0 top=n/a
 2026-02-14 16:25:52,085 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 17:33:22,562 [mcp_opportunity] INFO starting mcp_opportunity_agent loop interval=150s
+2026-02-14 17:33:22,563 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 17:33:22,985 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 17:33:25,931 [mcp_opportunity] INFO cycle=1 go_live=False opportunities=0 top=n/a

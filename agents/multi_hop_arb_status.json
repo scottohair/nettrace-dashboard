@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-02-14T21:24:18.162399+00:00",
+  "updated_at": "2026-02-14T22:33:23.370363+00:00",
   "running": true,
-  "cycle": 54,
+  "cycle": 1,
   "interval_seconds": 120,
   "execute_live": false,
   "quote_assets": [

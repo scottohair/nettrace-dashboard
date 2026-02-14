@@ -1,0 +1,16 @@
+INFO:multi_exchange:Multi-Exchange Orchestrator initialized: 3 exchanges
+INFO:arb_service:🚀 Multi-Exchange Arbitrage Service starting...
+INFO:arb_service:Starting scan #1...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #2...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'

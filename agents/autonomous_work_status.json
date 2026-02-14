@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T21:23:36.964928+00:00",
+  "updated_at": "2026-02-14T22:33:08.344623+00:00",
   "agent": "autonomous_work_manager",
   "duplex_available": true,
   "queue_size": 80,
@@ -176,8 +176,8 @@
       "title": "USD/USDC treasury capture optimization 136 for DOT-USD",
       "status": "dispatched",
       "priority_score": 100.0,
-      "dispatch_count": 2,
-      "trace_id": "18efb889a8d5cc102f8c8ac1",
+      "dispatch_count": 3,
+      "trace_id": "5211a51d6dbf74aa42bc2c72",
       "verification_reason": "not_checked"
     },
     {
@@ -185,8 +185,8 @@
       "title": "USD/USDC treasury capture optimization 135 for BCH-USD",
       "status": "dispatched",
       "priority_score": 100.0,
-      "dispatch_count": 2,
-      "trace_id": "88a6f818918ab226888ab562",
+      "dispatch_count": 3,
+      "trace_id": "6a88ba2d620b1955ee92cb8a",
       "verification_reason": "not_checked"
     },
     {
