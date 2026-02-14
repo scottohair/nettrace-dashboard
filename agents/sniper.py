@@ -1340,14 +1340,17 @@ class Sniper:
         buffer = max(0.0, float(CONFIG.get("quote_balance_buffer_usd", 0.02) or 0.0))
 
         current_capacity = max(0.0, float(balances.get(quote, 0.0) or 0.0) - buffer)
-        if current_capacity >= min_viable:
-            return pair, min(needed, current_capacity), "current_quote_capacity"
 
+        # Check alt quote first if current quote can't satisfy requested amount
         alt_quote = "USD" if quote == "USDC" else "USDC" if quote == "USD" else ""
-        if alt_quote:
+        if alt_quote and current_capacity < needed:
             alt_capacity = max(0.0, float(balances.get(alt_quote, 0.0) or 0.0) - buffer)
             if alt_capacity >= min_viable:
                 return f"{base}-{alt_quote}", min(needed, alt_capacity), "alt_quote_capacity"
+
+        # Fall back to current quote if viable
+        if current_capacity >= min_viable:
+            return pair, min(needed, current_capacity), "current_quote_capacity"
 
         reason = (
             f"quote_capacity_insufficient:{quote}={current_capacity:.2f}"
