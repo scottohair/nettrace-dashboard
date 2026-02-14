@@ -51,11 +51,16 @@ primary_region = "ewr"
   SNIPER_CLOSE_FLOW_MIN_ATTEMPTS = "2"
   SNIPER_CLOSE_FLOW_MIN_COMPLETION_RATE = "0.45"
   SNIPER_CLOSE_FLOW_MAX_TERMINAL_FAILURES = "2"
-  # WARM Microlane: allow $5 sentiment_leech trades to generate HOT promotion evidence
+  # WARM Microlane: enable sentiment_leech + liquidation_hunter for live evidence
   WARM_MICROLANE_ALLOW = "1"
-  WARM_MICROLANE_MAX_FUNDED_BUDGET = "5.0"
-  WARM_MICROLANE_MAX_FUNDED_STRATEGIES = "1"
+  WARM_MICROLANE_MAX_FUNDED_BUDGET = "7.0"
+  WARM_MICROLANE_MAX_FUNDED_STRATEGIES = "2"
   WARM_MICROLANE_REQUIRE_REALIZED_PROOF = "0"
+  # Agent-specific WARM allocations
+  SENTIMENT_LEECH_WARM_BUDGET = "5.0"
+  LIQUIDATION_HUNTER_WARM_BUDGET = "2.0"
+  NARRATIVE_TRACKER_ENABLED = "1"
+  FUTURES_MISPRICING_ENABLED = "0"
 
 [http_service]
   internal_port = 8080
