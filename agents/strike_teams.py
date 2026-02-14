@@ -115,6 +115,21 @@ STRIKE_CLOSE_EVIDENCE_LOOKBACK_HOURS = int(
 STRIKE_CLOSE_EVIDENCE_MIN_CLOSES = int(
     os.environ.get("STRIKE_CLOSE_EVIDENCE_MIN_CLOSES", "8") or 8
 )
+STRIKE_CLOSE_EVIDENCE_RECONCILE_PENDING = os.environ.get(
+    "STRIKE_CLOSE_EVIDENCE_RECONCILE_PENDING", "1"
+).lower() not in ("0", "false", "no")
+STRIKE_CLOSE_EVIDENCE_RECONCILE_LOOKBACK_HOURS = int(
+    os.environ.get("STRIKE_CLOSE_EVIDENCE_RECONCILE_LOOKBACK_HOURS", "96") or 96
+)
+STRIKE_CLOSE_EVIDENCE_RECONCILE_MAX_ROWS = int(
+    os.environ.get("STRIKE_CLOSE_EVIDENCE_RECONCILE_MAX_ROWS", "16") or 16
+)
+STRIKE_CLOSE_EVIDENCE_RECONCILE_POLL_SECONDS = float(
+    os.environ.get("STRIKE_CLOSE_EVIDENCE_RECONCILE_POLL_SECONDS", "2.5") or 2.5
+)
+STRIKE_CLOSE_EVIDENCE_SELL_FILL_WAIT_SECONDS = float(
+    os.environ.get("STRIKE_CLOSE_EVIDENCE_SELL_FILL_WAIT_SECONDS", "6.0") or 6.0
+)
 COMPLETED_TRADE_STATUSES = (
     "filled",
     "closed",
@@ -338,9 +353,223 @@ def _close_evidence_targets():
     return list(dict.fromkeys(out))
 
 
+def _completed_trade_status_marks():
+    return ",".join("?" for _ in COMPLETED_TRADE_STATUSES)
+
+
+def _normalize_trade_terminal_status(status, filled_size=0.0):
+    raw = str(status or "").strip().upper()
+    if raw in {"FILLED"}:
+        return "filled"
+    if raw in {"PARTIAL_FILLED", "PARTIALLY_FILLED"}:
+        return "partial_filled"
+    if raw in {"CANCELLED", "CANCELED"}:
+        return "cancelled"
+    if raw in {"FAILED", "REJECTED"}:
+        return "failed"
+    if raw == "EXPIRED":
+        return "expired"
+    if float(filled_size or 0.0) > 0.0:
+        return "filled"
+    return ""
+
+
+def _estimate_agent_sell_pnl(conn, agent, pair, qty, gross):
+    qty_f = float(qty or 0.0)
+    gross_f = float(gross or 0.0)
+    if qty_f <= 0.0 or gross_f <= 0.0:
+        return None
+    try:
+        row = conn.execute(
+            f"""
+            SELECT
+                COALESCE(SUM(quantity), 0) AS buy_qty,
+                COALESCE(SUM(total_usd), 0) AS buy_usd
+            FROM agent_trades
+            WHERE agent=?
+              AND pair=?
+              AND side='BUY'
+              AND LOWER(COALESCE(status, '')) IN ({_completed_trade_status_marks()})
+            """,
+            (str(agent), str(pair), *COMPLETED_TRADE_STATUSES),
+        ).fetchone()
+        buy_qty = float((row["buy_qty"] if row else 0.0) or 0.0)
+        buy_usd = float((row["buy_usd"] if row else 0.0) or 0.0)
+        if buy_qty <= 0.0:
+            return None
+        avg_buy = buy_usd / buy_qty
+        fee_usd = gross_f * max(0.0, float(TAKER_FEE_RATE))
+        return round(gross_f - (qty_f * avg_buy) - fee_usd, 8)
+    except Exception:
+        return None
+
+
+def _reconcile_pending_close_rows_for_pair(pair, lookback_hours=96, limit=16):
+    if not STRIKE_CLOSE_EVIDENCE_RECONCILE_PENDING:
+        return {"checked": 0, "updated": 0}
+    if not TRADER_DB_PATH.exists():
+        return {"checked": 0, "updated": 0}
+    aliases = _pair_variants(pair)
+    if not aliases:
+        return {"checked": 0, "updated": 0}
+    blocked_statuses = ("pending", "placed", "open", "accepted", "ack_ok")
+    status_marks = ",".join("?" for _ in blocked_statuses)
+    pair_marks = ",".join("?" for _ in aliases)
+    conn = None
+    checked = 0
+    updated = 0
+    rows = []
+    try:
+        conn = _open_trader_db()
+        if not _table_exists(conn, "agent_trades"):
+            try:
+                conn.close()
+            except Exception:
+                pass
+            return {"checked": 0, "updated": 0}
+        rows = conn.execute(
+            f"""
+            SELECT id, agent, pair, side, price, quantity, total_usd, order_id, status, pnl
+            FROM agent_trades
+            WHERE pair IN ({pair_marks})
+              AND UPPER(COALESCE(side, ''))='SELL'
+              AND order_id IS NOT NULL
+              AND TRIM(COALESCE(order_id, ''))!=''
+              AND LOWER(COALESCE(status, '')) IN ({status_marks})
+              AND created_at >= datetime('now', ?)
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (
+                *aliases,
+                *blocked_statuses,
+                f"-{int(max(1, int(lookback_hours)))} hours",
+                int(max(1, int(limit))),
+            ),
+        ).fetchall()
+        if not rows:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            return {"checked": 0, "updated": 0}
+    except Exception:
+        return {"checked": 0, "updated": 0}
+
+    try:
+        from exchange_connector import CoinbaseTrader
+
+        trader = CoinbaseTrader()
+    except Exception:
+        try:
+            if conn is not None:
+                conn.close()
+        except Exception:
+            pass
+        return {"checked": 0, "updated": 0}
+
+    target_set = set(_close_evidence_targets())
+    for row in rows:
+        checked += 1
+        order_id = str(row["order_id"] or "").strip()
+        if not order_id:
+            continue
+        try:
+            fill = trader.get_order_fill(
+                order_id,
+                max_wait=max(0.5, float(STRIKE_CLOSE_EVIDENCE_RECONCILE_POLL_SECONDS)),
+                poll_interval=0.4,
+            ) or {}
+        except Exception:
+            continue
+        if not fill:
+            continue
+
+        try:
+            filled_sz = float(fill.get("filled_size", 0.0) or 0.0)
+        except Exception:
+            filled_sz = 0.0
+        try:
+            avg_px = float(
+                fill.get("average_filled_price", fill.get("avg_price", 0.0)) or 0.0
+            )
+        except Exception:
+            avg_px = 0.0
+
+        new_status = _normalize_trade_terminal_status(fill.get("status"), filled_sz)
+        if not new_status:
+            continue
+        old_status = str(row["status"] or "").strip().lower()
+        if new_status == old_status:
+            continue
+
+        qty = filled_sz if filled_sz > 0.0 else float(row["quantity"] or 0.0)
+        px = avg_px if avg_px > 0.0 else float(row["price"] or 0.0)
+        usd = (qty * px) if qty > 0.0 and px > 0.0 else float(row["total_usd"] or 0.0)
+
+        pnl = row["pnl"]
+        if new_status in COMPLETED_TRADE_STATUSES:
+            pnl = _estimate_agent_sell_pnl(
+                conn,
+                agent=str(row["agent"] or ""),
+                pair=str(row["pair"] or ""),
+                qty=qty,
+                gross=usd,
+            )
+            if pnl is None and _canonical_dynamic_pair(row["pair"]) in target_set:
+                pnl = 0.0
+
+        try:
+            conn.execute(
+                """
+                UPDATE agent_trades
+                   SET price=?,
+                       quantity=?,
+                       total_usd=?,
+                       status=?,
+                       pnl=?
+                 WHERE id=?
+                """,
+                (
+                    float(px),
+                    float(qty),
+                    float(usd),
+                    str(new_status),
+                    None if pnl is None else float(pnl),
+                    int(row["id"]),
+                ),
+            )
+            updated += 1
+        except Exception:
+            continue
+
+    try:
+        if updated > 0:
+            conn.commit()
+    except Exception:
+        pass
+    finally:
+        try:
+            if conn is not None:
+                conn.close()
+        except Exception:
+            pass
+    return {"checked": int(checked), "updated": int(updated)}
+
+
 def _realized_close_count_for_pair(pair, lookback_hours=168):
     if not TRADER_DB_PATH.exists():
         return 0
+    canonical_pair = _canonical_dynamic_pair(pair)
+    if canonical_pair in set(_close_evidence_targets()):
+        _reconcile_pending_close_rows_for_pair(
+            canonical_pair,
+            lookback_hours=min(
+                int(max(1, int(lookback_hours))),
+                int(max(1, int(STRIKE_CLOSE_EVIDENCE_RECONCILE_LOOKBACK_HOURS))),
+            ),
+            limit=STRIKE_CLOSE_EVIDENCE_RECONCILE_MAX_ROWS,
+        )
     pair_aliases = _pair_variants(pair)
     if not pair_aliases:
         return 0
@@ -850,11 +1079,15 @@ class StrikeTeam:
             buy_qty = float((row["buy_qty"] if row else 0.0) or 0.0)
             buy_usd = float((row["buy_usd"] if row else 0.0) or 0.0)
             if buy_qty <= 0.0:
+                if _canonical_dynamic_pair(pair) in set(_close_evidence_targets()):
+                    return 0.0
                 return None
             avg_buy = buy_usd / buy_qty
             fee_usd = gross_f * max(0.0, float(TAKER_FEE_RATE))
             return round(gross_f - (qty_f * avg_buy) - fee_usd, 8)
         except Exception:
+            if _canonical_dynamic_pair(pair) in set(_close_evidence_targets()):
+                return 0.0
             return None
 
     def _record_trade_ledger(self, pair, side, price, quantity, total_usd, order_id=None, status="pending"):
@@ -1207,7 +1440,10 @@ class StrikeTeam:
             fill = None
             if order_id:
                 try:
-                    fill = trader.get_order_fill(order_id, max_wait=2, poll_interval=0.4)
+                    fill_wait = 2.0
+                    if direction == "SELL" and _canonical_dynamic_pair(pair) in set(_close_evidence_targets()):
+                        fill_wait = max(fill_wait, float(STRIKE_CLOSE_EVIDENCE_SELL_FILL_WAIT_SECONDS))
+                    fill = trader.get_order_fill(order_id, max_wait=fill_wait, poll_interval=0.4)
                 except Exception:
                     fill = None
 

@@ -1,42 +1,42 @@
 {
-  "updated_at": "2026-02-14T11:25:53.051700+00:00",
+  "updated_at": "2026-02-14T19:34:03.912248+00:00",
   "agent": "autonomous_work_manager",
   "duplex_available": true,
-  "queue_size": 85,
+  "queue_size": 80,
   "queue_target_size": 80,
   "max_outstanding": 12,
   "dispatch_per_cycle": 4,
-  "last_from_claude_id": 1315,
+  "last_from_claude_id": 1391,
   "counts": {
-    "queued": 71,
-    "dispatched": 0,
-    "acknowledged": 12,
+    "queued": 64,
+    "dispatched": 6,
+    "acknowledged": 6,
     "completion_claimed": 0,
     "completed": 0,
-    "stale": 2,
+    "stale": 4,
     "blocked": 0
   },
   "imported": {
     "hardware_added": 0,
     "advanced_fixes_added": 0,
     "win_tasks_added": 0,
-    "queue_size_before": 85,
+    "queue_size_before": 80,
     "stale_marked": 0,
     "blocked_marked": 0,
     "completion_verified": 0,
     "completion_waiting": 0,
     "auto_completed_from_source_truth": 0,
     "pruned_completed": 0,
-    "queue_size_after": 85
+    "queue_size_after": 80
   },
   "feedback": {
     "available": true,
-    "ingested": 6,
+    "ingested": 0,
     "acked": 0,
     "claimed": 0,
     "completed": 0,
     "completion_waiting_verification": 0,
-    "last_from_claude_id": 1315
+    "last_from_claude_id": 1391
   },
   "dispatch": {
     "available": true,
@@ -47,62 +47,63 @@
   "hardware_delegation": {
     "total": 9,
     "counts": {
-      "stale": 2,
-      "queued": 7
+      "dispatched": 2,
+      "stale": 4,
+      "queued": 3
     },
     "tasks": [
       {
         "task_id": "HWP-001",
         "title": "Unify DNS failover probing between execution health and connector",
-        "status": "stale",
-        "dispatch_count": 1,
-        "outbound_msg_id": 485,
-        "trace_id": "40ed41b75a7d8850da8ad090",
+        "status": "dispatched",
+        "dispatch_count": 3,
+        "outbound_msg_id": 1394,
+        "trace_id": "2643ba68a7d353a6d7f4234e",
         "verification_reason": "not_checked"
       },
       {
         "task_id": "HWP-002",
         "title": "Keep exit_manager alive through transient DNS/API failures",
-        "status": "stale",
-        "dispatch_count": 1,
-        "outbound_msg_id": 486,
-        "trace_id": "266d0283e693642056974efa",
+        "status": "dispatched",
+        "dispatch_count": 3,
+        "outbound_msg_id": 1395,
+        "trace_id": "bdead3bdfac1613be83e2c08",
         "verification_reason": "not_checked"
       },
       {
         "task_id": "HWP-003",
         "title": "Ensure SELL-close reconciliation observes real completion events",
-        "status": "queued",
-        "dispatch_count": 0,
-        "outbound_msg_id": 0,
-        "trace_id": "",
+        "status": "stale",
+        "dispatch_count": 1,
+        "outbound_msg_id": 1348,
+        "trace_id": "fa2db409ec491584c54ff01c",
         "verification_reason": "not_checked"
       },
       {
         "task_id": "HWP-401",
         "title": "Keep flywheel gate strict: no GO when exit manager heartbeat is stale/down",
-        "status": "queued",
-        "dispatch_count": 0,
-        "outbound_msg_id": 0,
-        "trace_id": "",
+        "status": "stale",
+        "dispatch_count": 1,
+        "outbound_msg_id": 1349,
+        "trace_id": "4d40af1b6a1bc11241535c57",
         "verification_reason": "not_checked"
       },
       {
         "task_id": "HWP-402",
         "title": "Dispatch lane directives continuously to Claude duplex/autonomous queue",
-        "status": "queued",
-        "dispatch_count": 0,
-        "outbound_msg_id": 0,
-        "trace_id": "",
+        "status": "stale",
+        "dispatch_count": 1,
+        "outbound_msg_id": 1363,
+        "trace_id": "e1ac93bcea176aa17fb1fa07",
         "verification_reason": "not_checked"
       },
       {
         "task_id": "HWP-301",
         "title": "Parallel market data fetch in turbo_sim before native decision path",
-        "status": "queued",
-        "dispatch_count": 0,
-        "outbound_msg_id": 0,
-        "trace_id": "",
+        "status": "stale",
+        "dispatch_count": 1,
+        "outbound_msg_id": 1364,
+        "trace_id": "4e41edbe31cda5199631d2a0",
         "verification_reason": "not_checked"
       },
       {
@@ -136,239 +137,239 @@
   },
   "top_queue": [
     {
-      "task_id": "WIN-0920",
-      "title": "Region routing benchmark 120: compare latency and fill quality in ams",
-      "status": "acknowledged",
+      "task_id": "WIN-0800",
+      "title": "USD/USDC treasury capture optimization 140 for ARB-USD",
+      "status": "dispatched",
       "priority_score": 100.0,
       "dispatch_count": 1,
-      "trace_id": "26c6bd746ab24ca18517beae",
-      "verification_reason": ""
+      "trace_id": "5029132e43938e3cb0e55cf3",
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0919",
-      "title": "Region routing benchmark 119: compare latency and fill quality in sjc",
-      "status": "acknowledged",
+      "task_id": "WIN-0799",
+      "title": "USD/USDC treasury capture optimization 139 for MATIC-USD",
+      "status": "dispatched",
       "priority_score": 100.0,
       "dispatch_count": 1,
-      "trace_id": "e179b4ca079fd00dda3d8d22",
-      "verification_reason": ""
+      "trace_id": "df7496d2e75c930785b483f4",
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0918",
-      "title": "Region routing benchmark 118: compare latency and fill quality in iad",
-      "status": "acknowledged",
+      "task_id": "WIN-0798",
+      "title": "USD/USDC treasury capture optimization 138 for UNI-USD",
+      "status": "dispatched",
       "priority_score": 100.0,
       "dispatch_count": 1,
-      "trace_id": "535463714e4220ccf96183f7",
-      "verification_reason": ""
+      "trace_id": "3dea8aed9d01bb47932d9c8b",
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0917",
-      "title": "Region routing benchmark 117: compare latency and fill quality in bom",
-      "status": "acknowledged",
-      "priority_score": 100.0,
-      "dispatch_count": 2,
-      "trace_id": "ccb63aafc92d1d98a26c371f",
-      "verification_reason": ""
-    },
-    {
-      "task_id": "WIN-0916",
-      "title": "Region routing benchmark 116: compare latency and fill quality in sin",
-      "status": "acknowledged",
-      "priority_score": 100.0,
-      "dispatch_count": 2,
-      "trace_id": "23aeff46f6d8a162f35414ab",
-      "verification_reason": ""
-    },
-    {
-      "task_id": "WIN-0915",
-      "title": "Region routing benchmark 115: compare latency and fill quality in nrt",
-      "status": "acknowledged",
-      "priority_score": 100.0,
-      "dispatch_count": 2,
-      "trace_id": "183426d0713411f1cf70a43c",
-      "verification_reason": ""
-    },
-    {
-      "task_id": "WIN-0914",
-      "title": "Region routing benchmark 114: compare latency and fill quality in fra",
-      "status": "acknowledged",
-      "priority_score": 100.0,
-      "dispatch_count": 2,
-      "trace_id": "fcdbdb79842697ea220bdfe4",
-      "verification_reason": ""
-    },
-    {
-      "task_id": "WIN-0913",
-      "title": "Region routing benchmark 113: compare latency and fill quality in lhr",
-      "status": "acknowledged",
+      "task_id": "WIN-0797",
+      "title": "USD/USDC treasury capture optimization 137 for ATOM-USD",
+      "status": "dispatched",
       "priority_score": 100.0,
       "dispatch_count": 1,
-      "trace_id": "3672ffa7cc7fbf6ed151f25f",
-      "verification_reason": ""
+      "trace_id": "fd99a4a9be403933334a7a01",
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0912",
-      "title": "Region routing benchmark 112: compare latency and fill quality in ord",
-      "status": "acknowledged",
-      "priority_score": 100.0,
-      "dispatch_count": 1,
-      "trace_id": "a14e997aca87f9e3e9af4b80",
-      "verification_reason": ""
-    },
-    {
-      "task_id": "WIN-0911",
-      "title": "Region routing benchmark 111: compare latency and fill quality in ewr",
-      "status": "acknowledged",
-      "priority_score": 100.0,
-      "dispatch_count": 1,
-      "trace_id": "a07de79acbfa2091dff4ae47",
-      "verification_reason": ""
-    },
-    {
-      "task_id": "WIN-0910",
-      "title": "Region routing benchmark 110: compare latency and fill quality in ams",
-      "status": "acknowledged",
-      "priority_score": 100.0,
-      "dispatch_count": 1,
-      "trace_id": "461be2f69d70e6866df696d6",
-      "verification_reason": ""
-    },
-    {
-      "task_id": "WIN-0909",
-      "title": "Region routing benchmark 109: compare latency and fill quality in sjc",
-      "status": "acknowledged",
-      "priority_score": 100.0,
-      "dispatch_count": 1,
-      "trace_id": "2003a0f5e530c17f214bab68",
-      "verification_reason": ""
-    },
-    {
-      "task_id": "WIN-0908",
-      "title": "Region routing benchmark 108: compare latency and fill quality in iad",
+      "task_id": "WIN-0796",
+      "title": "USD/USDC treasury capture optimization 136 for DOT-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0907",
-      "title": "Region routing benchmark 107: compare latency and fill quality in bom",
+      "task_id": "WIN-0795",
+      "title": "USD/USDC treasury capture optimization 135 for BCH-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0906",
-      "title": "Region routing benchmark 106: compare latency and fill quality in sin",
+      "task_id": "WIN-0794",
+      "title": "USD/USDC treasury capture optimization 134 for LTC-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0905",
-      "title": "Region routing benchmark 105: compare latency and fill quality in nrt",
+      "task_id": "WIN-0793",
+      "title": "USD/USDC treasury capture optimization 133 for ADA-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0904",
-      "title": "Region routing benchmark 104: compare latency and fill quality in fra",
+      "task_id": "WIN-0792",
+      "title": "USD/USDC treasury capture optimization 132 for XRP-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0903",
-      "title": "Region routing benchmark 103: compare latency and fill quality in lhr",
+      "task_id": "WIN-0791",
+      "title": "USD/USDC treasury capture optimization 131 for DOGE-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0902",
-      "title": "Region routing benchmark 102: compare latency and fill quality in ord",
+      "task_id": "WIN-0790",
+      "title": "USD/USDC treasury capture optimization 130 for LINK-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0901",
-      "title": "Region routing benchmark 101: compare latency and fill quality in ewr",
+      "task_id": "WIN-0789",
+      "title": "USD/USDC treasury capture optimization 129 for AVAX-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0900",
-      "title": "Region routing benchmark 100: compare latency and fill quality in ams",
+      "task_id": "WIN-0788",
+      "title": "USD/USDC treasury capture optimization 128 for SOL-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0899",
-      "title": "Region routing benchmark 99: compare latency and fill quality in sjc",
+      "task_id": "WIN-0787",
+      "title": "USD/USDC treasury capture optimization 127 for ETH-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0898",
-      "title": "Region routing benchmark 98: compare latency and fill quality in iad",
+      "task_id": "WIN-0786",
+      "title": "USD/USDC treasury capture optimization 126 for BTC-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0897",
-      "title": "Region routing benchmark 97: compare latency and fill quality in bom",
+      "task_id": "WIN-0785",
+      "title": "USD/USDC treasury capture optimization 125 for XLM-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
     },
     {
-      "task_id": "WIN-0896",
-      "title": "Region routing benchmark 96: compare latency and fill quality in sin",
+      "task_id": "WIN-0784",
+      "title": "USD/USDC treasury capture optimization 124 for ETC-USD",
       "status": "queued",
       "priority_score": 100.0,
       "dispatch_count": 0,
       "trace_id": "",
-      "verification_reason": ""
+      "verification_reason": "not_checked"
+    },
+    {
+      "task_id": "WIN-0783",
+      "title": "USD/USDC treasury capture optimization 123 for INJ-USD",
+      "status": "queued",
+      "priority_score": 100.0,
+      "dispatch_count": 0,
+      "trace_id": "",
+      "verification_reason": "not_checked"
+    },
+    {
+      "task_id": "WIN-0782",
+      "title": "USD/USDC treasury capture optimization 122 for FET-USD",
+      "status": "queued",
+      "priority_score": 100.0,
+      "dispatch_count": 0,
+      "trace_id": "",
+      "verification_reason": "not_checked"
+    },
+    {
+      "task_id": "WIN-0781",
+      "title": "USD/USDC treasury capture optimization 121 for PEPE-USD",
+      "status": "queued",
+      "priority_score": 100.0,
+      "dispatch_count": 0,
+      "trace_id": "",
+      "verification_reason": "not_checked"
+    },
+    {
+      "task_id": "WIN-0780",
+      "title": "USD/USDC treasury capture optimization 120 for SUI-USD",
+      "status": "queued",
+      "priority_score": 100.0,
+      "dispatch_count": 0,
+      "trace_id": "",
+      "verification_reason": "not_checked"
+    },
+    {
+      "task_id": "WIN-0779",
+      "title": "USD/USDC treasury capture optimization 119 for NEAR-USD",
+      "status": "queued",
+      "priority_score": 100.0,
+      "dispatch_count": 0,
+      "trace_id": "",
+      "verification_reason": "not_checked"
+    },
+    {
+      "task_id": "WIN-0778",
+      "title": "USD/USDC treasury capture optimization 118 for MKR-USD",
+      "status": "queued",
+      "priority_score": 100.0,
+      "dispatch_count": 0,
+      "trace_id": "",
+      "verification_reason": "not_checked"
+    },
+    {
+      "task_id": "WIN-0777",
+      "title": "USD/USDC treasury capture optimization 117 for AAVE-USD",
+      "status": "queued",
+      "priority_score": 100.0,
+      "dispatch_count": 0,
+      "trace_id": "",
+      "verification_reason": "not_checked"
+    },
+    {
+      "task_id": "WIN-0776",
+      "title": "USD/USDC treasury capture optimization 116 for OP-USD",
+      "status": "queued",
+      "priority_score": 100.0,
+      "dispatch_count": 0,
+      "trace_id": "",
+      "verification_reason": "not_checked"
     }
   ],
   "win_1000_snapshot": {
-    "updated_at": "2026-02-14T11:24:50.933718+00:00",
+    "updated_at": "2026-02-14T11:46:22.237102+00:00",
     "tasks_total": 1000,
     "worked_through_count": 1000,
     "status_counts": {
-      "completed": 220,
-      "in_progress": 780,
-      "pending": 0,
+      "completed": 520,
+      "in_progress": 220,
+      "pending": 260,
       "blocked": 0
     },
     "priority_counts": {

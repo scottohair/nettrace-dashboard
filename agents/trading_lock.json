@@ -1,18 +1,11 @@
 {
-  "locked": true,
-  "reason": "NO_GO: growth_supervisor_failed_rc_-9",
-  "source": "flywheel_controller",
-  "set_at": "2026-02-14T11:24:50.974926+00:00",
+  "locked": false,
+  "reason": "cleared_after_health_fix",
+  "source": "orchestrator_v2.execution_health_guard",
+  "set_at": "2026-02-14T19:33:06.218777+00:00",
   "metadata": {
-    "decision": {
-      "decision": "NO_GO",
-      "go_live": false,
-      "reasons": [
-        "growth_supervisor_failed_rc_-9"
-      ]
-    },
-    "set_at": "2026-02-14T11:24:50.974888+00:00"
+    "cleared": true
   },
-  "epoch": 1771068290.974931,
-  "pid": 80507
+  "epoch": 1771097586.218903,
+  "pid": 27672
 }

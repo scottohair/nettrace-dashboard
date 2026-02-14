@@ -7,25 +7,25 @@
       "name": "execution_health_green",
       "passed": false,
       "required": false,
-      "details": "green=False reason=candle_feed_stale:2046.3s>360.0s"
+      "details": "green=False reason=candle_feed_stale:2942.7s>360.0s"
     },
     {
       "name": "trading_lock_allows_rollout",
       "passed": true,
       "required": true,
-      "details": "locked=False reason=recovered_stale_dead_owner_lock:Startup preflight blocked: execution_health_not_green:egress_blocked"
+      "details": "locked=False reason=cleared_after_health_fix"
     },
     {
       "name": "quant_validation_has_signal",
       "passed": true,
       "required": true,
-      "details": "promoted=0 rejected=61 no_data=0"
+      "details": "promoted=43 rejected=861 no_data=0"
     },
     {
       "name": "claude_bundle_metadata_present",
       "passed": true,
       "required": true,
-      "details": "bundle_id=bundle-251-f8f8f2f73041 sequence=251"
+      "details": "bundle_id=bundle-269-b84adb3d83a0 sequence=269"
     },
     {
       "name": "claude_duplex_traceable",
@@ -45,7 +45,7 @@
     "Require realized close PnL evidence before any HOT budget increase.",
     "Promote only strategies with trace-linked Claude directive lineage."
   ],
-  "checked_at": "2026-02-14T11:22:23.859820+00:00",
+  "checked_at": "2026-02-14T19:33:36.824205+00:00",
   "guard_enabled": true,
   "guard_fail_open": false,
   "guarded_agents": [

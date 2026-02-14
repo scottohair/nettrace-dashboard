@@ -44,6 +44,7 @@ CYCLE_LOG = BASE / "flywheel_cycles.jsonl"
 REPORT_FILE = BASE / "growth_go_no_go_report.json"
 QUANT_RESULTS_FILE = BASE / "quant_100_results.json"
 RESERVE_STATUS_FILE = BASE / "reserve_targets_status.json"
+FLYWHEEL_COG_STATE_FILE = BASE / "flywheel_cog_state.json"
 TRADER_DB = BASE / "trader.db"
 RECONCILE_STATUS_FILE = BASE / "reconcile_agent_trades_status.json"
 AUTONOMOUS_WORK_STATUS_FILE = BASE / "autonomous_work_status.json"
@@ -60,6 +61,46 @@ FLYWHEEL_SUBPROCESS_TIMEOUT_SECONDS = max(
 )
 FLYWHEEL_SUPERVISOR_REPORT_MAX_AGE_SECONDS = max(
     60, int(os.environ.get("FLYWHEEL_SUPERVISOR_REPORT_MAX_AGE_SECONDS", "900"))
+)
+FLYWHEEL_COG_BASE_TIER = max(1, int(os.environ.get("FLYWHEEL_COG_BASE_TIER", "1")))
+FLYWHEEL_COG_MAX_TIER = max(FLYWHEEL_COG_BASE_TIER, int(os.environ.get("FLYWHEEL_COG_MAX_TIER", "4")))
+FLYWHEEL_COG_TIER_ADVANCE_STREAK = max(1, int(os.environ.get("FLYWHEEL_COG_TIER_ADVANCE_STREAK", "2")))
+FLYWHEEL_COG_TIER_DEESCALATE_COOLDOWN_SECONDS = max(
+    0, int(os.environ.get("FLYWHEEL_COG_TIER_DEESCALATE_COOLDOWN_SECONDS", "90"))
+)
+FLYWHEEL_COG_FAILURE_DEESCALATE_THRESHOLD = max(
+    1, int(os.environ.get("FLYWHEEL_COG_FAILURE_DEESCALATE_THRESHOLD", "2"))
+)
+FLYWHEEL_COG_MAX_ACTIVE_PER_CYCLE = max(
+    1, int(os.environ.get("FLYWHEEL_COG_MAX_ACTIVE_PER_CYCLE", "7"))
+)
+FLYWHEEL_COG_MIN_SECONDS_BETWEEN_RUNS = max(
+    30, int(os.environ.get("FLYWHEEL_COG_MIN_SECONDS_BETWEEN_RUNS", "90"))
+)
+FLYWHEEL_COG_FAILURE_COOLDOWN_BASE_SECONDS = max(
+    30, int(os.environ.get("FLYWHEEL_COG_FAILURE_COOLDOWN_BASE_SECONDS", "150"))
+)
+FLYWHEEL_COG_FAILURE_COOLDOWN_MAX_SECONDS = max(
+    60, int(os.environ.get("FLYWHEEL_COG_FAILURE_COOLDOWN_MAX_SECONDS", "2400"))
+)
+FLYWHEEL_COG_FAILURE_STREAK_FOR_EVIDENCE = max(
+    1, int(os.environ.get("FLYWHEEL_COG_FAILURE_STREAK_FOR_EVIDENCE", "3"))
+)
+FLYWHEEL_WARM_PILOT_ENABLED = (
+    os.environ.get("FLYWHEEL_WARM_PILOT_ENABLED", "0").lower() not in {"0", "false", "no"}
+)
+FLYWHEEL_WARM_PILOT_MAX_ACTIVE_PER_CYCLE = max(
+    1, int(os.environ.get("FLYWHEEL_WARM_PILOT_MAX_ACTIVE_PER_CYCLE", "4"))
+)
+FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_BYPASS = (
+    os.environ.get("FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_BYPASS", "0").lower()
+    not in {"0", "false", "no"}
+)
+FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_ATTEMPTS = int(
+    os.environ.get("FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_ATTEMPTS", "8")
+)
+FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_COMPLETIONS = int(
+    os.environ.get("FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_COMPLETIONS", "0")
 )
 WIN_TASKS_ENABLED = os.environ.get("FLYWHEEL_WIN_TASKS_ENABLED", "1").lower() not in {"0", "false", "no"}
 WIN_TASKS_EXECUTE_TOP = int(os.environ.get("FLYWHEEL_WIN_TASKS_EXECUTE_TOP", "0"))
@@ -96,6 +137,13 @@ EXIT_MANAGER_IDLE_MAX_CONSECUTIVE_API_FAILURES = int(
 )
 FLYWHEEL_SINGLETON_ENFORCE = (
     os.environ.get("FLYWHEEL_SINGLETON_ENFORCE", "1").lower() not in {"0", "false", "no"}
+)
+FLYWHEEL_EXIT_MANAGER_BYPASS_ON_TERMINAL_CANCELLED = (
+    os.environ.get("FLYWHEEL_EXIT_MANAGER_BYPASS_ON_TERMINAL_CANCELLED", "0").lower()
+    not in {"0", "false", "no"}
+)
+FLYWHEEL_EXIT_MANAGER_BYPASS_TERMINAL_CANCELLED_MAX_OPEN_POSITIONS = int(
+    os.environ.get("FLYWHEEL_EXIT_MANAGER_BYPASS_TERMINAL_CANCELLED_MAX_OPEN_POSITIONS", "0")
 )
 
 WIN_OBJECTIVE_TEXT = (
@@ -186,6 +234,65 @@ def _iso_age_seconds(ts_text):
         return None
 
 
+def _default_flywheel_cog_state():
+    now = time.time()
+    return {
+        "active_tier": FLYWHEEL_COG_BASE_TIER,
+        "go_streak": 0,
+        "failure_streak": 0,
+        "last_update_at": now,
+        "last_no_go_at": 0.0,
+        "last_success_at": 0.0,
+        "cog_last_run_at": {},
+        "cog_pause_until": {},
+        "cog_failures": {},
+        "cog_transitions": [],
+        "commands_run_total": 0,
+    }
+
+
+def _coerce_cog_state(raw):
+    if not isinstance(raw, dict):
+        return _default_flywheel_cog_state()
+    state = _default_flywheel_cog_state()
+    for key, val in raw.items():
+        if key in state and key != "cog_transitions" and isinstance(val, (str, int, float, bool)):
+            state[key] = val
+    for k in ("active_tier", "go_streak", "failure_streak", "commands_run_total"):
+        try:
+            state[k] = int(state.get(k, 0) or 0)
+        except Exception:
+            state[k] = _default_flywheel_cog_state()[k]
+    for k in ("last_update_at", "last_no_go_at", "last_success_at"):
+        try:
+            state[k] = float(state.get(k, 0.0) or 0.0)
+        except Exception:
+            state[k] = _default_flywheel_cog_state()[k]
+    transitions = raw.get("cog_transitions") if isinstance(raw, dict) else []
+    if not isinstance(transitions, list):
+        transitions = []
+    state["cog_transitions"] = transitions[-24:]
+    for key in ("cog_last_run_at", "cog_pause_until"):
+        val = raw.get(key) if isinstance(raw, dict) else None
+        state[key] = dict(val) if isinstance(val, dict) else {}
+        cleaned = {}
+        for k, v in state[key].items():
+            try:
+                cleaned[str(k)] = float(v)
+            except Exception:
+                continue
+        state[key] = cleaned
+    raw_failures = raw.get("cog_failures") if isinstance(raw, dict) else None
+    state["cog_failures"] = {}
+    if isinstance(raw_failures, dict):
+        for k, v in raw_failures.items():
+            try:
+                state["cog_failures"][str(k)] = int(v or 0)
+            except Exception:
+                continue
+    return state
+
+
 class FlywheelController:
     def __init__(
         self,
@@ -208,6 +315,7 @@ class FlywheelController:
         self.cycle = 0
         self.last_from_claude_id = 0
         self._lock_fh = None
+        self.cog_state = _default_flywheel_cog_state()
         self._load_runtime_state()
 
     def _load_runtime_state(self):
@@ -225,6 +333,15 @@ class FlywheelController:
             self.last_from_claude_id = max(0, int(collab.get("last_from_claude_id", 0) or 0))
         except Exception:
             self.last_from_claude_id = 0
+        cog_payload = _load_json(FLYWHEEL_COG_STATE_FILE, {})
+        self.cog_state = _coerce_cog_state(cog_payload)
+
+    def _record_cog_state(self):
+        self.cog_state["last_update_at"] = time.time()
+        try:
+            FLYWHEEL_COG_STATE_FILE.write_text(json.dumps(self.cog_state, indent=2))
+        except Exception:
+            pass
 
     def _run_py(self, script_name, *args, env_overrides=None):
         cmd = [self.python_bin, str(BASE / script_name), *list(args)]
@@ -262,6 +379,205 @@ class FlywheelController:
             "stderr_tail": _tail_lines(proc.stderr, max_lines=25),
             "env_overrides": dict(env_overrides or {}),
         }
+
+    def _cog_tier(self):
+        return int(self.cog_state.get("active_tier") or FLYWHEEL_COG_BASE_TIER)
+
+    def _cog_id(self, script_name, args):
+        normalized = tuple(str(a) for a in (args or ()))
+        if not normalized:
+            return f"{script_name}"
+        return f"{script_name}::{' '.join(normalized)}"
+
+    def _is_cog_paused(self, cog_id, now):
+        pause_until = float(self.cog_state.get("cog_pause_until", {}).get(cog_id, 0.0) or 0.0)
+        if now < pause_until:
+            return True
+        last_run = float(self.cog_state.get("cog_last_run_at", {}).get(cog_id, 0.0) or 0.0)
+        if now - last_run < FLYWHEEL_COG_MIN_SECONDS_BETWEEN_RUNS:
+            return True
+        return False
+
+    def _record_cog_transition(self, action, reason=None):
+        transitions = list(self.cog_state.get("cog_transitions") or [])
+        transitions.append(
+            {
+                "at": round(time.time(), 3),
+                "action": str(action),
+                "reason": "" if reason is None else str(reason),
+                "cycle": int(self.cycle),
+            }
+        )
+        self.cog_state["cog_transitions"] = transitions[-24:]
+
+    def _decision_supports_pilot(self, decision):
+        if not isinstance(decision, dict):
+            return False
+        if bool(decision.get("go_live", False)):
+            return False
+        reasons = decision.get("reasons", [])
+        if not isinstance(reasons, list):
+            return False
+        for reason in reasons:
+            reason_str = str(reason or "")
+            if "close_flow_gate_failed" in reason_str or "close_completion_rate_low" in reason_str:
+                return True
+        return False
+
+    def _compute_allow_escalation(self, decision):
+        if bool(decision.get("go_live", False)):
+            return True
+        if FLYWHEEL_WARM_PILOT_ENABLED and self._decision_supports_pilot(decision):
+            return True
+        return False
+
+    def _update_cog_state_from_cycle(self, decision, cycle_had_failures=False):
+        now = time.time()
+        go_live = bool(decision.get("go_live", False)) and str(decision.get("decision", "")).upper() == "GO"
+        active_tier = self._cog_tier()
+        go_streak = int(self.cog_state.get("go_streak", 0) or 0)
+        failure_streak = int(self.cog_state.get("failure_streak", 0) or 0)
+
+        if go_live and not cycle_had_failures:
+            go_streak += 1
+            failure_streak = 0
+            base_tier = FLYWHEEL_COG_BASE_TIER + int(go_streak / FLYWHEEL_COG_TIER_ADVANCE_STREAK)
+            target_tier = max(FLYWHEEL_COG_BASE_TIER, min(FLYWHEEL_COG_MAX_TIER, base_tier))
+            if target_tier > active_tier:
+                self._record_cog_transition(
+                    "tier_up",
+                    f"streak={go_streak}",
+                )
+            active_tier = min(FLYWHEEL_COG_MAX_TIER, target_tier)
+            self.cog_state["last_success_at"] = now
+        else:
+            go_streak = 0
+            failure_streak += 1
+            if cycle_had_failures:
+                failure_streak += 1
+            cooldown_passed = True
+            last_no_go = float(self.cog_state.get("last_no_go_at", 0.0) or 0.0)
+            if now - last_no_go < FLYWHEEL_COG_TIER_DEESCALATE_COOLDOWN_SECONDS:
+                cooldown_passed = False
+            if cooldown_passed:
+                active_tier = max(FLYWHEEL_COG_BASE_TIER, active_tier - 1)
+            if active_tier > FLYWHEEL_COG_BASE_TIER and failure_streak >= FLYWHEEL_COG_FAILURE_DEESCALATE_THRESHOLD:
+                if cooldown_passed:
+                    active_tier = max(FLYWHEEL_COG_BASE_TIER, active_tier - 1)
+            if failure_streak >= FLYWHEEL_COG_FAILURE_DEESCALATE_THRESHOLD and active_tier != FLYWHEEL_COG_BASE_TIER:
+                self._record_cog_transition(
+                    "deescalate_failure",
+                    f"failure_streak={failure_streak}",
+                )
+            self.cog_state["last_no_go_at"] = now
+
+        if cycle_had_failures and active_tier > FLYWHEEL_COG_BASE_TIER:
+            active_tier = max(FLYWHEEL_COG_BASE_TIER, active_tier - 1)
+            self._record_cog_transition("deescalate_cycle_failure")
+
+        self.cog_state["active_tier"] = int(max(FLYWHEEL_COG_BASE_TIER, min(FLYWHEEL_COG_MAX_TIER, active_tier)))
+        self.cog_state["go_streak"] = int(max(0, go_streak))
+        self.cog_state["failure_streak"] = int(max(0, failure_streak))
+        self.cog_state["commands_run_total"] = int(self.cog_state.get("commands_run_total", 0) or 0) + 1
+        self._record_cog_state()
+
+    def _record_cog_command_result(self, script_name, args, command):
+        now = time.time()
+        cog_id = self._cog_id(script_name, args)
+        last_runs = dict(self.cog_state.get("cog_last_run_at") or {})
+        fail_streaks = dict(self.cog_state.get("cog_failures") or {})
+        pause_untils = dict(self.cog_state.get("cog_pause_until") or {})
+        last_runs[cog_id] = now
+        failed = False
+        try:
+            returncode = int(command.get("returncode", 0) or 0)
+            if int(returncode) != 0:
+                failed = True
+        except Exception:
+            failed = True
+        if bool(command.get("timed_out")):
+            failed = True
+
+        if failed:
+            fail_streak = int(fail_streaks.get(cog_id, 0) or 0) + 1
+            fail_streaks[cog_id] = fail_streak
+            backoff = min(
+                FLYWHEEL_COG_FAILURE_COOLDOWN_MAX_SECONDS,
+                FLYWHEEL_COG_FAILURE_COOLDOWN_BASE_SECONDS * (2 ** max(0, fail_streak - 1)),
+            )
+            pause_untils[cog_id] = now + backoff
+            if fail_streak >= FLYWHEEL_COG_FAILURE_STREAK_FOR_EVIDENCE:
+                self._record_cog_transition(
+                    "cog_blackout",
+                    f"{cog_id} fail_streak={fail_streak} pause={int(backoff)}s",
+                )
+        else:
+            if int(fail_streaks.get(cog_id, 0) or 0) >= FLYWHEEL_COG_FAILURE_STREAK_FOR_EVIDENCE:
+                self._record_cog_transition("cog_recovered", cog_id)
+            fail_streaks[cog_id] = 0
+            pause_untils.pop(cog_id, None)
+
+        self.cog_state["cog_last_run_at"] = last_runs
+        self.cog_state["cog_failures"] = fail_streaks
+        self.cog_state["cog_pause_until"] = pause_untils
+
+    def _select_flywheel_cogs(self, quant_run, bench_run, allow_escalation, pilot_mode=False):
+        tier = self._cog_tier()
+        now = time.time()
+        cogs = []
+        effective_max = FLYWHEEL_COG_MAX_ACTIVE_PER_CYCLE
+        if pilot_mode and effective_max > FLYWHEEL_WARM_PILOT_MAX_ACTIVE_PER_CYCLE:
+            effective_max = FLYWHEEL_WARM_PILOT_MAX_ACTIVE_PER_CYCLE
+        def add_cog(script_name, args, condition=True):
+            if not condition:
+                return
+            script_path = BASE / script_name
+            if not script_path.exists():
+                return
+            cog_id = self._cog_id(script_name, args)
+            if self._is_cog_paused(cog_id, now):
+                return
+            cogs.append((script_name, tuple(args)))
+
+        # reconcile and growth are handled outside of this scheduler.
+
+        if tier >= 1:
+            add_cog("claude_stager_agent.py", ("--once",))
+            add_cog("autonomous_work_manager.py", ("--once",), AUTONOMOUS_WORK_ENABLED)
+            add_cog("quant_company_agent.py", ("--once",))
+            add_cog("mcp_opportunity_agent.py", ("--once",))
+
+        if tier >= 2 and allow_escalation:
+            add_cog("bench_fast_exec.py", ())
+            if bench_run:
+                add_cog("execution_health.py", ())
+            if quant_run:
+                win_exec_top = WIN_TASKS_EXECUTE_TOP if self.cycle % 3 == 1 else 0
+                args = ("--work-through-all",)
+                if win_exec_top:
+                    args += ("--execute-top", str(int(win_exec_top)))
+                add_cog(
+                    "win_1000_runner.py",
+                    args,
+                )
+            add_cog("capital_allocator.py", ("sync",))
+
+        if tier >= 3 and allow_escalation:
+            add_cog("execution_health_probe.py", ("--refresh",))
+            add_cog("execution_health_probe.py", ("--refresh", "--run-reconcile"))
+            add_cog("reconcile_agent_trades.py", ())
+
+        if tier >= 4 and allow_escalation:
+            add_cog("warm_runtime_collector.py", ("--promote",))
+            add_cog("warm_promotion_runner.py", ("--promote", "--hours", "6", "--granularity", "5min"))
+
+        if len(cogs) > effective_max:
+            # Stagger high-count stages across cycles so heavy cycles never burst.
+            start = self.cycle % max(1, len(cogs))
+            ordered = cogs[start:] + cogs[:start]
+            cogs = ordered[:effective_max]
+
+        return cogs[:]
 
     def _read_growth_decision(self):
         payload = _load_json(REPORT_FILE, {})
@@ -349,6 +665,22 @@ class FlywheelController:
             gate["reason"] = f"reconcile_command_failed_rc_{rc}"
         return gate
 
+    def _reconcile_gate_terminal_cancelled_bypass(self, reconcile_gate):
+        if not FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_BYPASS:
+            return False, "terminal_cancelled_bypass_disabled"
+        if not isinstance(reconcile_gate, dict):
+            return False, "reconcile_gate_missing"
+        reason = str(reconcile_gate.get("reason", "")).strip()
+        if "terminal_cancelled" not in reason:
+            return False, "reason_not_terminal_cancelled"
+        attempts = int(reconcile_gate.get("attempts", 0) or 0)
+        completions = int(reconcile_gate.get("completions", 0) or 0)
+        if completions > FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_COMPLETIONS:
+            return False, f"terminal_cancelled_completions_exceeds_limit:{completions}>{FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_COMPLETIONS}"
+        if attempts > FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_ATTEMPTS:
+            return False, f"terminal_cancelled_attempts_exceeds_limit:{attempts}>{FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_ATTEMPTS}"
+        return True, "terminal_cancelled_bypass"
+
     def _read_exit_manager_gate(self):
         gate = {
             "enabled": bool(EXIT_MANAGER_HEALTH_GATE_ENABLED),
@@ -423,6 +755,33 @@ class FlywheelController:
 
         gate["reason"] = "exit_manager_healthy"
         return gate
+
+    def _exit_manager_gate_terminal_cancelled_bypass(self, exit_manager_gate):
+        if not FLYWHEEL_EXIT_MANAGER_BYPASS_ON_TERMINAL_CANCELLED:
+            return False, "terminal_cancelled_exit_manager_bypass_disabled"
+        if not isinstance(exit_manager_gate, dict):
+            return False, "exit_manager_gate_missing"
+        if exit_manager_gate.get("passed", False):
+            return False, "exit_manager_gate_already_passed"
+
+        reason = str(exit_manager_gate.get("reason", "")).strip()
+        if not reason.startswith("exit_manager_status_stale"):
+            return False, "exit_manager_reason_not_stale"
+
+        active_positions = int(exit_manager_gate.get("active_positions", 0) or 0)
+        if active_positions > int(
+            max(0, FLYWHEEL_EXIT_MANAGER_BYPASS_TERMINAL_CANCELLED_MAX_OPEN_POSITIONS)
+        ):
+            return (
+                False,
+                (
+                    f"exit_manager_active_positions_exceeds_threshold:"
+                    f"{active_positions}>"
+                    f"{FLYWHEEL_EXIT_MANAGER_BYPASS_TERMINAL_CANCELLED_MAX_OPEN_POSITIONS}"
+                ),
+            )
+
+        return True, "terminal_cancelled_exit_manager_stale_bypass"
 
     def _sync_trading_lock(self, decision):
         lock_state = read_trading_lock() or {}
@@ -899,8 +1258,32 @@ class FlywheelController:
                     "Reconcile gate failed but bootstrap active — bypassing: %s",
                     reconcile_close_gate.get("reason", "unknown"),
                 )
-        close_gate_blocks_growth = reconcile_gate_failed and not bootstrap_bypass
+        reconcile_bypass = False
+        reconcile_bypass_reason = ""
+        if reconcile_gate_failed:
+            reconcile_bypass, reconcile_bypass_reason = self._reconcile_gate_terminal_cancelled_bypass(
+                reconcile_close_gate
+            )
+            if reconcile_bypass:
+                logger.info(
+                    "Reconcile gate failed but terminal-cancelled bypass enabled — bypassing: %s",
+                    reconcile_bypass_reason,
+                )
+        close_gate_blocks_growth = (
+            reconcile_gate_failed and not bootstrap_bypass and not reconcile_bypass
+        )
         exit_manager_gate = self._read_exit_manager_gate()
+        exit_manager_bypass = False
+        exit_manager_bypass_reason = ""
+        if reconcile_bypass and not close_gate_blocks_growth:
+            exit_manager_bypass, exit_manager_bypass_reason = self._exit_manager_gate_terminal_cancelled_bypass(
+                exit_manager_gate
+            )
+            if exit_manager_bypass:
+                logger.info(
+                    "Terminal-cancelled path bypasses stale exit-manager gate: %s",
+                    exit_manager_bypass_reason,
+                )
         used_supervisor_fallback = False
 
         supervisor_args = ["--collector-interval-seconds", str(self.collector_interval_seconds)]
@@ -955,21 +1338,24 @@ class FlywheelController:
                     used_supervisor_fallback = True
         supervisor_failed = supervisor_cmd["returncode"] != 0
 
-        if bench_run:
-            commands.append(self._run_py("bench_fast_exec.py"))
-        commands.append(self._run_py("claude_stager_agent.py", "--once"))
-        if AUTONOMOUS_WORK_ENABLED:
-            commands.append(self._run_py("autonomous_work_manager.py", "--once"))
-        if self.enable_win_tasks:
-            win_exec_top = WIN_TASKS_EXECUTE_TOP if self.cycle % 3 == 1 else 0
-            commands.append(
-                self._run_py(
-                    "win_1000_runner.py",
-                    "--work-through-all",
-                    "--execute-top",
-                    str(int(win_exec_top)),
-                )
-            )
+        allow_escalation = self._compute_allow_escalation(decision)
+        pilot_mode = bool(
+            not bool(decision.get("go_live", False))
+            and FLYWHEEL_WARM_PILOT_ENABLED
+            and self._decision_supports_pilot(decision)
+        )
+        if pilot_mode:
+            self._record_cog_transition("pilot_roll_in", "warm_pilot_mode")
+        escalated_cogs = self._select_flywheel_cogs(
+            quant_run, bench_run, allow_escalation, pilot_mode=pilot_mode
+        )
+        for script_name, args in escalated_cogs:
+            command = self._run_py(script_name, *args)
+            command["is_flywheel_cog"] = True
+            command["cog_script"] = script_name
+            command["cog_args"] = list(args)
+            command["cog_id"] = self._cog_id(script_name, args)
+            commands.append(command)
 
         # Auto-heal concentration NO_GO by forcing stricter rebalance and re-evaluating in-cycle.
         if (
@@ -1008,12 +1394,37 @@ class FlywheelController:
             }
 
         if exit_manager_gate.get("enabled", False) and not exit_manager_gate.get("passed", False):
-            reasons = decision.get("reasons", []) if isinstance(decision.get("reasons"), list) else []
-            reasons = list(reasons)
-            reasons.append(f"exit_manager_gate_failed:{exit_manager_gate.get('reason', 'unknown')}")
-            decision["reasons"] = sorted(set(str(r) for r in reasons if str(r).strip()))
-            decision["go_live"] = False
-            decision["decision"] = "NO_GO"
+            if exit_manager_bypass:
+                exit_manager_gate = dict(exit_manager_gate)
+                exit_manager_gate["passed"] = True
+                exit_manager_gate["reason"] = (
+                    f"{exit_manager_gate.get('reason', 'unknown')}:{exit_manager_bypass_reason}"
+                )
+            else:
+                reasons = decision.get("reasons", []) if isinstance(decision.get("reasons"), list) else []
+                reasons = list(reasons)
+                reasons.append(f"exit_manager_gate_failed:{exit_manager_gate.get('reason', 'unknown')}")
+                decision["reasons"] = sorted(set(str(r) for r in reasons if str(r).strip()))
+                decision["go_live"] = False
+                decision["decision"] = "NO_GO"
+
+        cycle_had_failures = bool(supervisor_failed)
+        for command in commands:
+            if not isinstance(command, dict):
+                continue
+            if command.get("is_flywheel_cog"):
+                self._record_cog_command_result(
+                    str(command.get("cog_script", "")),
+                    tuple(command.get("cog_args") or []),
+                    command,
+                )
+            if bool(command.get("timed_out")):
+                cycle_had_failures = True
+                break
+            if int(command.get("returncode", 0) or 0) != 0 and not bool(command.get("skipped", False)):
+                cycle_had_failures = True
+                break
+        self._update_cog_state_from_cycle(decision, cycle_had_failures=cycle_had_failures)
 
         lock_state = self._sync_trading_lock(decision)
         portfolio = self._get_portfolio_snapshot()
@@ -1049,6 +1460,16 @@ class FlywheelController:
             },
             "metal_runtime": metal_runtime,
             "quant_blockers": quant_blockers,
+            "cog_control": {
+                "tier": self._cog_tier(),
+                "go_streak": int(self.cog_state.get("go_streak", 0)),
+                "failure_streak": int(self.cog_state.get("failure_streak", 0)),
+                "commands_run_total": int(self.cog_state.get("commands_run_total", 0)),
+                "active_transitions": list(self.cog_state.get("cog_transitions") or [])[-12:],
+                "cog_last_run_at": dict(self.cog_state.get("cog_last_run_at") or {}),
+                "cog_failures": dict(self.cog_state.get("cog_failures") or {}),
+                "cog_pause_until": dict(self.cog_state.get("cog_pause_until") or {}),
+            },
             "commands": commands,
         }
         win_status = _load_json(BASE / "win_1000_status.json", {})

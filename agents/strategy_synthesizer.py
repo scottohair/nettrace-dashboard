@@ -21,10 +21,16 @@ import json
 import logging
 import sqlite3
 from datetime import datetime, timedelta
-import anthropic
 import subprocess
 import hashlib
 import random
+
+# Optional imports
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('strategy_synthesizer')
@@ -37,8 +43,11 @@ class StrategySynthesizer:
 
     def __init__(self, api_key=None, generation_rate=10):
         self.api_key = api_key or os.getenv('ANTHROPIC_API_KEY')
-        if not self.api_key:
-            logger.warning('ANTHROPIC_API_KEY not set - using mock mode')
+        if not self.api_key or not ANTHROPIC_AVAILABLE:
+            if not ANTHROPIC_AVAILABLE:
+                logger.warning('anthropic module not installed (pip install anthropic) - using mock mode')
+            else:
+                logger.warning('ANTHROPIC_API_KEY not set - using mock mode')
             self.mock_mode = True
         else:
             self.client = anthropic.Anthropic(api_key=self.api_key)

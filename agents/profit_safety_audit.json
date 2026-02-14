@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-14T11:25:02.942444+00:00",
+  "generated_at": "2026-02-14T19:32:58.629128+00:00",
   "overall_pass": true,
   "checks": [
     {
@@ -20,28 +20,28 @@
       "name": "Active Profit Pipeline",
       "passed": true,
       "severity": "high",
-      "detail": "Quant promoted WARM=0, Quant retained HOT passed=0, Quant retained WARM passed=0, Quant funded promoted=0, Pipeline promoted HOT=3726, Pipeline promoted HOT (24h)=3647, Pipeline funded strategies=13",
+      "detail": "Quant promoted WARM=43, Quant retained HOT passed=18, Quant retained WARM passed=0, Quant funded promoted=0, Pipeline promoted HOT=3738, Pipeline promoted HOT (24h)=3659, Pipeline funded strategies=13",
       "remediation": "Increase positive OOS candidates and keep only funded strategies with robust gate metrics."
     },
     {
       "name": "Live Profit Evidence",
       "passed": true,
       "severity": "critical",
-      "detail": "Promoted HOT events(all-time)=3726, promoted HOT events(24h)=3647, funded HOT strategies=12, retained HOT passed=0",
+      "detail": "Promoted HOT events(all-time)=3738, promoted HOT events(24h)=3659, funded HOT strategies=11, retained HOT passed=18",
       "remediation": "Run WARM strategies through runtime gate and promote only if paper PnL remains positive over required window."
     },
     {
       "name": "WARM Promotion Feed",
       "passed": true,
       "severity": "high",
-      "detail": "WARM stage count=44, HOT stage count=3085, Quant implementable=0",
+      "detail": "WARM stage count=75, HOT stage count=3094, Quant implementable=61",
       "remediation": "Keep WARM candidate feed non-empty by refreshing/rotating quant-validated candidates."
     },
     {
       "name": "Funded Diversification",
       "passed": true,
       "severity": "high",
-      "detail": "Max funded pair budget share=67.98%, funded_per_pair={'BTC-USD': {'count': 4, 'budget_usd': 0.4}, 'ETH-USD': {'count': 4, 'budget_usd': 5.54}, 'LINK-USD': {'count': 1, 'budget_usd': 0.91}, 'SOL-USD': {'count': 4, 'budget_usd': 1.3}}, bootstrap_exception=False",
+      "detail": "Max funded pair budget share=68.01%, funded_per_pair={'BTC-USD': {'count': 4, 'budget_usd': 0.4}, 'ETH-USD': {'count': 4, 'budget_usd': 5.74}, 'LINK-USD': {'count': 1, 'budget_usd': 1.0}, 'SOL-USD': {'count': 4, 'budget_usd': 1.3}}, bootstrap_exception=False",
       "remediation": "Enforce per-pair funded cap and total funded budget cap before granting new starter budget."
     },
     {
@@ -60,31 +60,31 @@
   },
   "metrics": {
     "quant": {
-      "promoted_warm": 0,
+      "promoted_warm": 43,
       "retained_warm_passed": 0,
-      "retained_hot_passed": 0,
-      "implementable_count": 0,
-      "rejected_cold": 80,
+      "retained_hot_passed": 18,
+      "implementable_count": 61,
+      "rejected_cold": 861,
       "no_data": 0,
       "funded_promoted": 0,
       "funded_with_oos_trades": 0
     },
     "pipeline": {
       "stage_counts": {
-        "COLD": 7386,
-        "HOT": 3085,
-        "WARM": 44
+        "COLD": 7856,
+        "HOT": 3094,
+        "WARM": 75
       },
-      "promoted_hot_events": 3726,
-      "promoted_hot_events_recent_24h": 3647,
+      "promoted_hot_events": 3738,
+      "promoted_hot_events_recent_24h": 3659,
       "killed_events": 0,
-      "max_pair_share": 0.6798,
-      "total_funded_budget": 8.15,
+      "max_pair_share": 0.6801,
+      "total_funded_budget": 8.44,
       "funded_strategy_count": 13,
-      "funded_hot_strategy_count": 12,
-      "funded_warm_strategy_count": 1,
-      "hot_stage_count": 3085,
-      "warm_stage_count": 44,
+      "funded_hot_strategy_count": 11,
+      "funded_warm_strategy_count": 2,
+      "hot_stage_count": 3094,
+      "warm_stage_count": 75,
       "funded_with_oos_trades": 13
     }
   }

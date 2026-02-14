@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clawd.bot - Autonomous Trading Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <!-- Hero Section -->
+    <div class="min-h-screen flex flex-col">
+        <header class="border-b border-gray-800">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                        clawd.bot
+                    </h1>
+                    <div class="space-x-4">
+                        <a href="/frontend/dashboard.html" class="px-4 py-2 text-gray-300 hover:text-white transition">Login</a>
+                        <a href="/frontend/dashboard.html" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition">Get Started</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1">
+            <!-- Hero -->
+            <div class="max-w-7xl mx-auto px-4 py-20 text-center">
+                <h2 class="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                    Autonomous Trading,<br/>Simplified
+                </h2>
+                <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+                    Deploy AI-powered trading strategies in seconds. No coding required.
+                    Join thousands of traders automating their way to profit.
+                </p>
+                <div class="flex items-center justify-center space-x-4">
+                    <a href="/frontend/marketplace.html" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-lg transition">
+                        Browse Strategies
+                    </a>
+                    <a href="/frontend/backtest.html" class="px-8 py-4 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg font-bold text-lg transition">
+                        Try Backtest
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="bg-gray-800 border-y border-gray-700">
+                <div class="max-w-7xl mx-auto px-4 py-12">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                        <div>
+                            <div class="text-4xl font-bold text-blue-400 mb-2">858</div>
+                            <div class="text-gray-400">Strategies</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-green-400 mb-2">95+</div>
+                            <div class="text-gray-400">Active Agents</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-purple-400 mb-2">7</div>
+                            <div class="text-gray-400">Global Regions</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-yellow-400 mb-2">24/7</div>
+                            <div class="text-gray-400">Uptime</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="max-w-7xl mx-auto px-4 py-20">
+                <h3 class="text-3xl font-bold text-center mb-12">Why clawd.bot?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-gray-800 rounded-lg p-8 border border-gray-700">
+                        <div class="text-4xl mb-4">🚀</div>
+                        <h4 class="text-xl font-bold mb-2">Deploy in Seconds</h4>
+                        <p class="text-gray-400">
+                            Browse our marketplace, pick a strategy, and deploy with one click. No coding or setup required.
+                        </p>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-8 border border-gray-700">
+                        <div class="text-4xl mb-4">🤖</div>
+                        <h4 class="text-xl font-bold mb-2">AI-Powered</h4>
+                        <p class="text-gray-400">
+                            Every strategy uses advanced ML models and multi-agent reinforcement learning for optimal performance.
+                        </p>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-8 border border-gray-700">
+                        <div class="text-4xl mb-4">📊</div>
+                        <h4 class="text-xl font-bold mb-2">Proven Results</h4>
+                        <p class="text-gray-400">
+                            All strategies show verified backtest results and live performance metrics. No black boxes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="bg-gray-800 border-y border-gray-700">
+                <div class="max-w-7xl mx-auto px-4 py-20">
+                    <h3 class="text-3xl font-bold text-center mb-12">Simple Pricing</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Free -->
+                        <div class="bg-gray-900 rounded-lg p-8 border border-gray-700">
+                            <div class="text-2xl font-bold mb-2">Free</div>
+                            <div class="text-4xl font-bold mb-6">$0<span class="text-lg text-gray-400">/mo</span></div>
+                            <ul class="space-y-3 mb-8 text-gray-400">
+                                <li>✓ 1 agent</li>
+                                <li>✓ 100 API calls/day</li>
+                                <li>✓ Basic strategies</li>
+                                <li>✓ Community support</li>
+                            </ul>
+                            <a href="/frontend/dashboard.html" class="block w-full px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold text-center transition">
+                                Get Started
+                            </a>
+                        </div>
+
+                        <!-- Pro -->
+                        <div class="bg-blue-600 rounded-lg p-8 border-2 border-blue-500 relative">
+                            <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-blue-500 rounded-full text-sm font-semibold">
+                                Most Popular
+                            </div>
+                            <div class="text-2xl font-bold mb-2">Pro</div>
+                            <div class="text-4xl font-bold mb-6">$99<span class="text-lg text-blue-200">/mo</span></div>
+                            <ul class="space-y-3 mb-8">
+                                <li>✓ 10 agents</li>
+                                <li>✓ 10K API calls/day</li>
+                                <li>✓ All strategies</li>
+                                <li>✓ Unlimited backtests</li>
+                                <li>✓ Priority support</li>
+                            </ul>
+                            <a href="/frontend/dashboard.html" class="block w-full px-6 py-3 bg-white text-blue-600 hover:bg-blue-50 rounded-lg font-bold text-center transition">
+                                Start Pro Trial
+                            </a>
+                        </div>
+
+                        <!-- Enterprise -->
+                        <div class="bg-gray-900 rounded-lg p-8 border border-gray-700">
+                            <div class="text-2xl font-bold mb-2">Enterprise</div>
+                            <div class="text-4xl font-bold mb-6">Custom</div>
+                            <ul class="space-y-3 mb-8 text-gray-400">
+                                <li>✓ Unlimited agents</li>
+                                <li>✓ Unlimited API calls</li>
+                                <li>✓ White-label</li>
+                                <li>✓ Custom strategies</li>
+                                <li>✓ Dedicated support</li>
+                            </ul>
+                            <a href="mailto:sales@clawd.bot" class="block w-full px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold text-center transition">
+                                Contact Sales
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="max-w-7xl mx-auto px-4 py-20 text-center">
+                <h3 class="text-4xl font-bold mb-4">Ready to automate?</h3>
+                <p class="text-xl text-gray-400 mb-8">Join thousands of traders already using clawd.bot</p>
+                <a href="/frontend/dashboard.html" class="inline-block px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-lg transition">
+                    Get Started Free
+                </a>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-800">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="flex items-center justify-between text-sm text-gray-400">
+                    <div>© 2026 clawd.bot. Built with Claude Code.</div>
+                    <div class="space-x-6">
+                        <a href="#" class="hover:text-gray-200">Docs</a>
+                        <a href="#" class="hover:text-gray-200">API</a>
+                        <a href="#" class="hover:text-gray-200">Status</a>
+                        <a href="#" class="hover:text-gray-200">Twitter</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

@@ -322,6 +322,7 @@ COINBASE_CIRCUIT_REOPEN_BACKOFF_SECONDS = _env_int("COINBASE_CIRCUIT_REOPEN_BACK
 COINBASE_CIRCUIT_REOPEN_HEALTH_CACHE_SECONDS = _env_int(
     "COINBASE_CIRCUIT_REOPEN_HEALTH_CACHE_SECONDS", 15
 )
+COINBASE_CIRCUIT_REOPEN_EGRESS_GATE = _env_flag("COINBASE_CIRCUIT_REOPEN_EGRESS_GATE", "1")
 
 COINBASE_RETRY_DEFAULT_ATTEMPTS = _env_int("COINBASE_RETRY_DEFAULT_ATTEMPTS", 3)
 
@@ -810,6 +811,31 @@ class CoinbaseTrader:
             "portfolio_value_estimate": _portfolio_value_estimate_from_status(),
         }
         return False, {"error": "ORDER_NOTIONAL_CAP", "message": reason, "details": details}
+
+    @staticmethod
+    def _exception_error_text(exc):
+        parts = []
+        raw = str(exc or "").strip()
+        if raw:
+            parts.append(raw)
+
+        reason = getattr(exc, "reason", None)
+        reason_text = str(reason or "").strip()
+        if reason_text and reason_text not in parts:
+            parts.append(reason_text)
+
+        errno = getattr(exc, "errno", None)
+        if errno is None and reason is not None:
+            errno = getattr(reason, "errno", None)
+        if errno is not None:
+            errno_text = f"errno {int(errno)}"
+            if errno_text not in parts:
+                parts.append(errno_text)
+
+        if parts:
+            return " | ".join(parts).lower()
+        return exc.__class__.__name__.lower()
+
     @staticmethod
     def _is_dns_failure(exc):
         if isinstance(exc, socket.gaierror):
@@ -817,7 +843,7 @@ class CoinbaseTrader:
         reason = getattr(exc, "reason", None)
         if isinstance(reason, socket.gaierror):
             return True
-        text = str(exc).lower()
+        text = CoinbaseTrader._exception_error_text(exc)
         dns_needles = (
             "nodename nor servname provided",
             "name or service not known",
@@ -829,7 +855,7 @@ class CoinbaseTrader:
 
     @staticmethod
     def _is_egress_failure(exc):
-        text = str(exc).lower()
+        text = CoinbaseTrader._exception_error_text(exc)
         egress_needles = (
             "operation not permitted",
             "network is unreachable",
@@ -837,11 +863,14 @@ class CoinbaseTrader:
             "host is down",
             "cannot assign requested address",
             "permission denied",
+            "connection refused",
             "errno 1",
             "errno 101",
             "errno 65",
             "errno 51",
             "errno 13",
+            "errno 111",
+            "errno 113",
         )
         return any(n in text for n in egress_needles)
 
@@ -972,9 +1001,16 @@ class CoinbaseTrader:
     @classmethod
     def _health_allows_circuit_reopen(cls):
         scope = str(COINBASE_CIRCUIT_REOPEN_HEALTH_SCOPE or "dns").strip().lower()
-        if scope in ("off", "none", "disabled"):
+        open_reason = str(cls._circuit_open_reason or "").strip().lower()
+        egress_gate_required = bool(COINBASE_CIRCUIT_REOPEN_EGRESS_GATE and "egress" in open_reason)
+
+        if scope in ("off", "none", "disabled") and not egress_gate_required:
             return True, "health_gate_disabled"
-        if scope == "dns" and "dns" not in str(cls._circuit_open_reason or "").lower():
+        if (
+            scope == "dns"
+            and "dns" not in open_reason
+            and not egress_gate_required
+        ):
             return True, "health_gate_not_required"
 
         status = cls._load_execution_health_status()
@@ -984,12 +1020,28 @@ class CoinbaseTrader:
         max_age = max(30, int(COINBASE_CIRCUIT_REOPEN_HEALTH_MAX_AGE_SECONDS))
         if age is None or age > max_age:
             return False, "execution_health_stale"
+
+        components = status.get("components", {}) if isinstance(status.get("components"), dict) else {}
+        dns_payload = components.get("dns", {}) if isinstance(components.get("dns"), dict) else {}
+        probe_payload = components.get("api_probe", {}) if isinstance(components.get("api_probe"), dict) else {}
+        dns_green = bool(dns_payload.get("green", False))
+        dns_ok_count = 0
+        try:
+            dns_ok_count = int(dns_payload.get("ok_count", 0) or 0)
+        except Exception:
+            dns_ok_count = 0
+        probe_green = bool(probe_payload.get("green", False))
+
+        if egress_gate_required:
+            if bool(status.get("egress_blocked", False)):
+                return False, "execution_health_egress_blocked"
+            if probe_green or dns_green or dns_ok_count > 0:
+                return True, "execution_health_network_recovered"
+
         if bool(status.get("green", False)):
             return True, "execution_health_green"
         if scope == "dns":
-            components = status.get("components", {}) if isinstance(status.get("components"), dict) else {}
-            dns_payload = components.get("dns", {}) if isinstance(components.get("dns"), dict) else {}
-            if bool(dns_payload.get("green", False)):
+            if dns_green:
                 return True, "execution_health_dns_green"
         return False, str(status.get("reason", "execution_health_unhealthy")) or "execution_health_unhealthy"
 

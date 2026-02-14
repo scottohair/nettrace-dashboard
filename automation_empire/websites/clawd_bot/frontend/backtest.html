@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backtest - clawd.bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function Backtest() {
+            const [strategyCode, setStrategyCode] = useState(`# Example Strategy
+class Strategy:
+    def __init__(self, pair, params=None):
+        self.pair = pair
+        self.params = params or {}
+        self.window = self.params.get('window', 20)
+
+    def generate_signal(self, candle_data):
+        if len(candle_data) < self.window:
+            return {'signal': 'HOLD', 'confidence': 0.0, 'reason': 'insufficient_data'}
+
+        prices = [c['close'] for c in candle_data[-self.window:]]
+        current_price = prices[-1]
+        avg_price = sum(prices) / len(prices)
+
+        if current_price > avg_price * 1.02:
+            return {'signal': 'BUY', 'confidence': 0.75, 'reason': 'breakout'}
+        elif current_price < avg_price * 0.98:
+            return {'signal': 'SELL', 'confidence': 0.75, 'reason': 'breakdown'}
+        else:
+            return {'signal': 'HOLD', 'confidence': 0.5, 'reason': 'neutral'}
+
+    def get_params(self):
+        return {'window': self.window}
+`);
+            const [pair, setPair] = useState('BTC-USD');
+            const [startDate, setStartDate] = useState('2024-01-01');
+            const [endDate, setEndDate] = useState('2024-12-31');
+            const [results, setResults] = useState(null);
+            const [running, setRunning] = useState(false);
+
+            const runBacktest = async () => {
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    alert('Please login first');
+                    return;
+                }
+
+                setRunning(true);
+                setResults(null);
+
+                try {
+                    const res = await fetch('/api/backtest', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            strategy_code: strategyCode,
+                            pair,
+                            start_date: startDate,
+                            end_date: endDate
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        setResults(data.results);
+                    } else {
+                        alert(data.error || 'Backtest failed');
+                    }
+                } catch (error) {
+                    alert('Error running backtest');
+                } finally {
+                    setRunning(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen">
+                    {/* Header */}
+                    <header className="bg-gray-800 border-b border-gray-700">
+                        <div className="max-w-7xl mx-auto px-4 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-8">
+                                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                                        clawd.bot
+                                    </h1>
+                                    <nav className="flex space-x-4">
+                                        <a href="/frontend/dashboard.html" className="text-gray-400 hover:text-gray-200">Dashboard</a>
+                                        <a href="/frontend/marketplace.html" className="text-gray-400 hover:text-gray-200">Marketplace</a>
+                                        <a href="/frontend/backtest.html" className="text-blue-400 font-semibold">Backtest</a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div className="max-w-7xl mx-auto px-4 py-8">
+                        <div className="mb-8">
+                            <h2 className="text-3xl font-bold mb-2">Strategy Backtester</h2>
+                            <p className="text-gray-400">Test your strategy before deploying</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* Left: Code Editor */}
+                            <div className="bg-gray-800 rounded-lg border border-gray-700">
+                                <div className="p-4 border-b border-gray-700">
+                                    <h3 className="font-bold">Strategy Code</h3>
+                                </div>
+                                <div className="p-4">
+                                    <textarea
+                                        value={strategyCode}
+                                        onChange={(e) => setStrategyCode(e.target.value)}
+                                        className="w-full h-96 px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-sm font-mono text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                        placeholder="Paste your strategy code here..."
+                                    />
+                                    <div className="mt-4 text-xs text-gray-400">
+                                        Requirements: Class named <code className="bg-gray-700 px-1 py-0.5 rounded">Strategy</code> with{' '}
+                                        <code className="bg-gray-700 px-1 py-0.5 rounded">generate_signal()</code> method
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right: Config & Results */}
+                            <div className="space-y-6">
+                                {/* Backtest Config */}
+                                <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                                    <h3 className="font-bold mb-4">Backtest Configuration</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">Trading Pair</label>
+                                            <select
+                                                value={pair}
+                                                onChange={(e) => setPair(e.target.value)}
+                                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                <option value="BTC-USD">BTC-USD</option>
+                                                <option value="ETH-USD">ETH-USD</option>
+                                                <option value="SOL-USD">SOL-USD</option>
+                                                <option value="DOGE-USD">DOGE-USD</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">Start Date</label>
+                                            <input
+                                                type="date"
+                                                value={startDate}
+                                                onChange={(e) => setStartDate(e.target.value)}
+                                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">End Date</label>
+                                            <input
+                                                type="date"
+                                                value={endDate}
+                                                onChange={(e) => setEndDate(e.target.value)}
+                                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={runBacktest}
+                                            disabled={running}
+                                            className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg font-bold transition"
+                                        >
+                                            {running ? 'Running Backtest...' : 'Run Backtest'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Results */}
+                                {results && (
+                                    <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                                        <h3 className="font-bold mb-4">Results</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-gray-900 rounded p-3">
+                                                <div className="text-xs text-gray-400 mb-1">Total Trades</div>
+                                                <div className="text-2xl font-bold">{results.total_trades}</div>
+                                            </div>
+                                            <div className="bg-gray-900 rounded p-3">
+                                                <div className="text-xs text-gray-400 mb-1">Win Rate</div>
+                                                <div className="text-2xl font-bold text-green-400">
+                                                    {(results.win_rate * 100).toFixed(1)}%
+                                                </div>
+                                            </div>
+                                            <div className="bg-gray-900 rounded p-3">
+                                                <div className="text-xs text-gray-400 mb-1">Sharpe Ratio</div>
+                                                <div className="text-2xl font-bold text-blue-400">
+                                                    {results.sharpe_ratio.toFixed(2)}
+                                                </div>
+                                            </div>
+                                            <div className="bg-gray-900 rounded p-3">
+                                                <div className="text-xs text-gray-400 mb-1">Total Return</div>
+                                                <div className="text-2xl font-bold text-purple-400">
+                                                    {(results.total_return * 100).toFixed(1)}%
+                                                </div>
+                                            </div>
+                                            <div className="bg-gray-900 rounded p-3">
+                                                <div className="text-xs text-gray-400 mb-1">Max Drawdown</div>
+                                                <div className="text-2xl font-bold text-red-400">
+                                                    {(results.max_drawdown * 100).toFixed(1)}%
+                                                </div>
+                                            </div>
+                                            <div className="bg-gray-900 rounded p-3">
+                                                <div className="text-xs text-gray-400 mb-1">Avg Trade P&L</div>
+                                                <div className="text-2xl font-bold text-yellow-400">
+                                                    ${results.avg_trade_pnl.toFixed(2)}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Deploy if good */}
+                                        {results.sharpe_ratio > 1.0 && results.win_rate > 0.6 && (
+                                            <div className="mt-6 p-4 bg-green-900/20 border border-green-700 rounded-lg">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <div className="font-semibold text-green-400 mb-1">✓ Strategy Passed</div>
+                                                        <div className="text-sm text-gray-300">Ready for deployment</div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => alert('Deploy to WARM tier - feature coming soon')}
+                                                        className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition"
+                                                    >
+                                                        Deploy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Help */}
+                        <div className="mt-8 bg-gray-800 rounded-lg border border-gray-700 p-6">
+                            <h3 className="font-bold mb-4">Quick Start Guide</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                                <div>
+                                    <div className="text-blue-400 font-semibold mb-2">1. Write Strategy</div>
+                                    <div className="text-gray-400">
+                                        Create a Strategy class with generate_signal() method that returns signal, confidence, and reason.
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-blue-400 font-semibold mb-2">2. Configure Test</div>
+                                    <div className="text-gray-400">
+                                        Select trading pair and date range. Longer periods give more reliable results.
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-blue-400 font-semibold mb-2">3. Deploy Winners</div>
+                                    <div className="text-gray-400">
+                                        Strategies with Sharpe > 1.0 and WR > 60% can be deployed to live trading.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<Backtest />, document.getElementById('root'));
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Deployment Optimizer Roadmap
 
-Updated: 2026-02-14T11:23:10.846308+00:00
+Updated: 2026-02-14T19:34:22.188104+00:00
 
 ## Summary
 - Runtime region: local
@@ -25,5 +25,5 @@ Updated: 2026-02-14T11:23:10.846308+00:00
 - Stabilize Coinbase API health before live budget escalation (improve retries + region routing).
 - Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.
 - Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.
-- Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>
+- Top recent Coinbase failures: 8x fallback_spot_unavailable | 8x _fetch_json:api.exchange.coinbase.com:fallback_failed:<urlopen error [Errno 1] Operation not permitted> | 6x <urlopen error [Errno 1] Operation not permitted> | [Errno 1] Operation not permitted | errno 1
 - Start continuous traceroute sampling to venue hosts for region-level routing evidence.

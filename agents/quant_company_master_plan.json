@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T11:23:15.113055+00:00",
+  "updated_at": "2026-02-14T19:34:26.234479+00:00",
   "cycle": 1,
   "win_objective": {
     "definition": "WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.",
@@ -9,11 +9,13 @@
     ]
   },
   "progress": {
-    "alpha_score": 0.5927,
+    "alpha_score": 0.889,
     "migration_score": 0.704,
-    "gtm_score": 0.95,
-    "go_live": true,
-    "blockers": [],
+    "gtm_score": 0.7,
+    "go_live": false,
+    "blockers": [
+      "close_flow_gate_failed:reconcile_close_gate_failed:sell_close_completion_missing:not_completed_pending"
+    ],
     "opportunity_count": 12,
     "deployment_score": 0.31,
     "hf_live_ready": false,
@@ -25,67 +27,37 @@
   },
   "portfolio_metrics": {
     "daily_pnl_usd": 0.0,
-    "total_value_usd": 252.19,
-    "drawdown_pct": 21.84
+    "total_value_usd": 240.62,
+    "drawdown_pct": 25.43
   },
   "realized_close_evidence": {
-    "source": "exit_manager.db.exit_events",
+    "source": "trader_db.agent_trades",
     "passed": true,
     "reason": "passed",
     "lookback_hours": 48,
     "window_hours": 4,
-    "positive_windows": 4,
+    "positive_windows": 3,
     "required_positive_windows": 3,
-    "total_closes": 73,
-    "total_net_pnl_usd": 7.990991,
+    "total_closes": 17,
+    "total_net_pnl_usd": 5.187881,
     "windows": [
+      {
+        "bucket_id": 122992,
+        "closes": 8,
+        "net_pnl_usd": 3.833227,
+        "positive_window": true
+      },
+      {
+        "bucket_id": 122990,
+        "closes": 2,
+        "net_pnl_usd": 0.366294,
+        "positive_window": true
+      },
       {
         "bucket_id": 122989,
         "closes": 7,
-        "net_pnl_usd": 0.988362,
+        "net_pnl_usd": 0.988361,
         "positive_window": true
-      },
-      {
-        "bucket_id": 122986,
-        "closes": 43,
-        "net_pnl_usd": 11.12577,
-        "positive_window": true
-      },
-      {
-        "bucket_id": 122983,
-        "closes": 2,
-        "net_pnl_usd": 0.032276,
-        "positive_window": true
-      },
-      {
-        "bucket_id": 122982,
-        "closes": 10,
-        "net_pnl_usd": 1.523448,
-        "positive_window": true
-      },
-      {
-        "bucket_id": 122981,
-        "closes": 11,
-        "net_pnl_usd": -5.678865,
-        "positive_window": false
-      }
-    ],
-    "source_candidates": [
-      {
-        "source": "trader_db.agent_trades",
-        "passed": false,
-        "reason": "insufficient_positive_realized_windows",
-        "positive_windows": 1,
-        "total_net_pnl_usd": 0.988361,
-        "total_closes": 7
-      },
-      {
-        "source": "exit_manager.db.exit_events",
-        "passed": true,
-        "reason": "passed",
-        "positive_windows": 4,
-        "total_net_pnl_usd": 7.990991,
-        "total_closes": 73
       }
     ]
   },
@@ -103,8 +75,8 @@
     "daily_pnl_usd": 0.0,
     "achievement_pct_to_next": 0.0,
     "shortfall_usd": 1000.0,
-    "day_elapsed_pct_utc": 0.4745,
-    "required_hourly_run_rate_usd": 79.29
+    "day_elapsed_pct_utc": 0.8156,
+    "required_hourly_run_rate_usd": 225.93
   },
   "budget_escalator": {
     "action": "de_escalate",
@@ -128,27 +100,27 @@
     "realized_evidence": {
       "passed": true,
       "reason": "passed",
-      "positive_windows": 4,
+      "positive_windows": 3,
       "required_positive_windows": 3,
-      "total_net_pnl_usd": 7.990991,
-      "total_closes": 73,
-      "recent_window_net_pnl_usd": 0.988362
+      "total_net_pnl_usd": 5.187881,
+      "total_closes": 17,
+      "recent_window_net_pnl_usd": 3.833227
     },
     "execution_health": {
       "green": true,
       "reason": "passed",
-      "updated_at": "2026-02-14T11:23:15.109307+00:00",
-      "green_streak": 1,
+      "updated_at": "2026-02-14T19:34:26.231622+00:00",
+      "green_streak": 3,
       "recent_green_ratio": 0.6
     },
     "trade_flow": {
       "lookback_hours": 6,
       "buy_fills": 0,
-      "sell_fills": 47,
-      "sell_close_events": 7,
-      "sell_close_attempts": 139,
-      "sell_close_completions": 137,
-      "sell_close_completion_rate": 0.985612,
+      "sell_fills": 12,
+      "sell_close_events": 0,
+      "sell_close_attempts": 188,
+      "sell_close_completions": 167,
+      "sell_close_completion_rate": 0.888298,
       "buy_sell_ratio": 0.0,
       "close_balance_ok": true,
       "close_balance_reason": "balanced_close_flow"
@@ -158,19 +130,19 @@
     "enabled": true,
     "green": true,
     "reason": "passed",
-    "updated_at": "2026-02-14T11:23:15.109307+00:00",
-    "green_streak": 1,
+    "updated_at": "2026-02-14T19:34:26.231622+00:00",
+    "green_streak": 3,
     "recent_green_ratio": 0.6,
     "recent_samples": 10
   },
   "trade_flow_metrics": {
     "lookback_hours": 6,
     "buy_fills": 0,
-    "sell_fills": 47,
-    "sell_close_events": 7,
-    "sell_close_attempts": 139,
-    "sell_close_completions": 137,
-    "sell_close_completion_rate": 0.985612,
+    "sell_fills": 12,
+    "sell_close_events": 0,
+    "sell_close_attempts": 188,
+    "sell_close_completions": 167,
+    "sell_close_completion_rate": 0.888298,
     "buy_sell_ratio": 0.0,
     "close_balance_ok": true,
     "close_balance_reason": "balanced_close_flow"
@@ -231,7 +203,7 @@
       "ok": 0,
       "total": 4
     },
-    "flywheel_cycle": 57,
+    "flywheel_cycle": 63,
     "deployment_optimizer": {
       "score": 0.31,
       "hf_live_ready": false,
@@ -244,7 +216,7 @@
         "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
         "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
         "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
-        "Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+        "Top recent Coinbase failures: 8x fallback_spot_unavailable | 8x _fetch_json:api.exchange.coinbase.com:fallback_failed:<urlopen error [Errno 1] Operation not permitted> | 6x <urlopen error [Errno 1] Operation not permitted> | [Errno 1] Operation not permitted | errno 1",
         "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
       ],
       "region_ranking": [
@@ -289,22 +261,10 @@
   "market_strategy": {
     "ranked_pairs": [
       {
-        "pair": "BTC-USDC",
-        "signal_count": 2,
-        "avg_score": 0.8864,
-        "avg_edge_pct": 7.0395,
-        "sources": [
-          "quant_bias"
-        ],
-        "actions": [
-          "BUY"
-        ]
-      },
-      {
         "pair": "SOL-USDC",
-        "signal_count": 10,
-        "avg_score": 0.6791,
-        "avg_edge_pct": 0.7215,
+        "signal_count": 12,
+        "avg_score": 0.445,
+        "avg_edge_pct": 0.4675,
         "sources": [
           "quant_bias"
         ],
@@ -315,74 +275,74 @@
     ],
     "quant_priority_pairs": [
       {
-        "pair": "BTC-USD",
-        "return_pct": 15.6433,
-        "win_rate": 1.0,
-        "trades": 4
-      },
-      {
-        "pair": "BTC-USD",
-        "return_pct": 15.6433,
-        "win_rate": 1.0,
-        "trades": 4
-      },
-      {
         "pair": "SOL-USD",
-        "return_pct": 1.6967,
+        "return_pct": 1.1631,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "SOL-USD",
-        "return_pct": 1.6038,
+        "return_pct": 0.9773,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "SOL-USD",
-        "return_pct": 1.5917,
+        "return_pct": 0.9773,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "SOL-USD",
-        "return_pct": 1.5917,
+        "return_pct": 0.9773,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "SOL-USD",
-        "return_pct": 1.5917,
+        "return_pct": 0.9773,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "SOL-USD",
-        "return_pct": 1.5917,
+        "return_pct": 0.9773,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "SOL-USD",
-        "return_pct": 1.5917,
+        "return_pct": 0.9773,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "SOL-USD",
-        "return_pct": 1.5917,
+        "return_pct": 0.9773,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "SOL-USD",
-        "return_pct": 1.5917,
+        "return_pct": 1.2891,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "SOL-USD",
-        "return_pct": 1.5917,
+        "return_pct": 0.9202,
+        "win_rate": 1.0,
+        "trades": 6
+      },
+      {
+        "pair": "SOL-USD",
+        "return_pct": 0.9773,
+        "win_rate": 1.0,
+        "trades": 6
+      },
+      {
+        "pair": "SOL-USD",
+        "return_pct": 1.2759,
         "win_rate": 1.0,
         "trades": 6
       }
@@ -411,6 +371,7 @@
   "go_to_market_strategy": {
     "launch_ready": false,
     "blockers": [
+      "close_flow_gate_failed:reconcile_close_gate_failed:sell_close_completion_missing:not_completed_pending",
       "hf_live_not_ready"
     ],
     "stages": [
@@ -438,22 +399,10 @@
     ],
     "top_market_targets": [
       {
-        "pair": "BTC-USDC",
-        "signal_count": 2,
-        "avg_score": 0.8864,
-        "avg_edge_pct": 7.0395,
-        "sources": [
-          "quant_bias"
-        ],
-        "actions": [
-          "BUY"
-        ]
-      },
-      {
         "pair": "SOL-USDC",
-        "signal_count": 10,
-        "avg_score": 0.6791,
-        "avg_edge_pct": 0.7215,
+        "signal_count": 12,
+        "avg_score": 0.445,
+        "avg_edge_pct": 0.4675,
         "sources": [
           "quant_bias"
         ],
@@ -516,9 +465,9 @@
     "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
     "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
     "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
-    "Current run-rate gap: need $79.29/hour to hit next daily target $1,000.00.",
+    "Current run-rate gap: need $225.93/hour to hit next daily target $1,000.00.",
     "Deploy primary execution to region order: ewr -> nrt -> sin.",
-    "Focus quant sweeps + walk-forward + Monte Carlo on top pairs: BTC-USDC, SOL-USDC.",
+    "Focus quant sweeps + walk-forward + Monte Carlo on top pairs: SOL-USDC.",
     "Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.",
     "Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.",
     "Continuously harvest realized gains into treasury assets: USD and USDC.",

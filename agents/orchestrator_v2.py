@@ -84,6 +84,53 @@ ORCH_STARTUP_PREFLIGHT_IGNORE_REASONS = tuple(
     ).split(",")
     if reason.strip()
 )
+ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED = os.environ.get("ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+ORCH_EXEC_HEALTH_SELF_HEAL_INTERVAL_SECONDS = int(
+    os.environ.get("ORCH_EXEC_HEALTH_SELF_HEAL_INTERVAL_SECONDS", "30")
+)
+ORCH_EXEC_HEALTH_SELF_HEAL_MAX_AGE_SECONDS = int(
+    os.environ.get("ORCH_EXEC_HEALTH_SELF_HEAL_MAX_AGE_SECONDS", "180")
+)
+ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_INTERVAL_SECONDS = int(
+    os.environ.get("ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_INTERVAL_SECONDS", "120")
+)
+ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_MAX_ORDERS = int(
+    os.environ.get("ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_MAX_ORDERS", "120")
+)
+ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_LOOKBACK_HOURS = int(
+    os.environ.get("ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_LOOKBACK_HOURS", "96")
+)
+ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_TIMEOUT_SECONDS = float(
+    os.environ.get("ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_TIMEOUT_SECONDS", "120")
+)
+ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_ON_NOT_GREEN = os.environ.get(
+    "ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_ON_NOT_GREEN", "1"
+).lower() not in ("0", "false", "no")
+ORCH_EXEC_HEALTH_SELF_HEAL_CLEAR_ON_RECOVERY = os.environ.get(
+    "ORCH_EXEC_HEALTH_SELF_HEAL_CLEAR_ON_RECOVERY", "1"
+).lower() not in ("0", "false", "no")
+ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_SOURCE = str(
+    os.environ.get(
+        "ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_SOURCE",
+        "orchestrator_v2.execution_health_guard",
+    )
+    or "orchestrator_v2.execution_health_guard"
+).strip()
+ORCH_EXEC_HEALTH_SELF_HEAL_NON_BLOCKING_REASONS = tuple(
+    part.strip().lower()
+    for part in str(
+        os.environ.get(
+            "ORCH_EXEC_HEALTH_SELF_HEAL_NON_BLOCKING_REASONS",
+            "candle_feed_",
+        )
+        or "candle_feed_"
+    ).split(",")
+    if part.strip()
+)
 DNS_FAILOVER_RUNTIME_DEFAULTS = {
     "COINBASE_DNS_FAILOVER_ENABLED": "1",
     "COINBASE_DNS_FAILOVER_PROFILE": "system_then_fallback",
@@ -512,6 +559,19 @@ class OrchestratorV2:
             "reason": "startup_not_evaluated",
             "checked_at": "",
         }
+        self._last_exec_health_self_heal = 0.0
+        self._last_exec_health_reconcile_refresh = 0.0
+        self.execution_health_self_heal = {
+            "enabled": bool(ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED),
+            "checked_at": "",
+            "blocked": False,
+            "reason": "self_heal_not_checked",
+            "status_updated_at": "",
+            "status_age_seconds": None,
+            "payload_reason": "",
+            "payload_green": False,
+            "lock_action": "none",
+        }
 
     def _get_starting_capital(self):
         """Get starting capital from DB history (no more hardcoding)."""
@@ -744,6 +804,217 @@ class OrchestratorV2:
 
         self.startup_preflight = report
         self._persist_startup_preflight(report)
+        return report
+
+    def _run_reconcile_refresh_once(self):
+        cmd = [
+            sys.executable,
+            str(BASE_DIR / "reconcile_agent_trades.py"),
+            "--max-orders",
+            str(max(1, int(ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_MAX_ORDERS))),
+            "--lookback-hours",
+            str(max(1, int(ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_LOOKBACK_HOURS))),
+        ]
+        started = time.perf_counter()
+        try:
+            proc = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=max(10.0, float(ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_TIMEOUT_SECONDS)),
+                check=False,
+            )
+            stdout_tail = str(proc.stdout or "").strip()
+            stderr_tail = str(proc.stderr or "").strip()
+            if len(stdout_tail) > 800:
+                stdout_tail = stdout_tail[-800:]
+            if len(stderr_tail) > 800:
+                stderr_tail = stderr_tail[-800:]
+            return {
+                "ok": proc.returncode == 0,
+                "returncode": int(proc.returncode),
+                "elapsed_seconds": round((time.perf_counter() - started), 3),
+                "stdout_tail": stdout_tail,
+                "stderr_tail": stderr_tail,
+                "cmd": cmd,
+            }
+        except Exception as exc:
+            return {
+                "ok": False,
+                "returncode": -1,
+                "elapsed_seconds": round((time.perf_counter() - started), 3),
+                "error": str(exc),
+                "cmd": cmd,
+            }
+
+    def _refresh_execution_health_payload(self):
+        payload = {}
+        try:
+            import execution_health  # type: ignore
+
+            payload = execution_health.evaluate_execution_health(
+                refresh=True,
+                probe_http=None,
+                write_status=True,
+                status_path=EXECUTION_HEALTH_STATUS_FILE,
+            )
+        except Exception as e:
+            logger.warning("Runtime self-heal: execution_health refresh failed: %s", e)
+        if not isinstance(payload, dict) or not payload:
+            payload = self._load_json_file(EXECUTION_HEALTH_STATUS_FILE, {})
+        return payload if isinstance(payload, dict) else {}
+
+    def _execution_health_self_heal_block_reason(self, payload):
+        if not isinstance(payload, dict) or not payload:
+            return "execution_health_status_missing", None
+
+        def _reason_matches_prefix(reason):
+            text = str(reason or "").strip().lower()
+            if not text:
+                return False
+            for prefix in ORCH_EXEC_HEALTH_SELF_HEAL_NON_BLOCKING_REASONS:
+                pref = str(prefix or "").strip().lower()
+                if pref and text.startswith(pref):
+                    return True
+            return False
+
+        def _is_non_blocking_reason():
+            if not ORCH_EXEC_HEALTH_SELF_HEAL_NON_BLOCKING_REASONS:
+                return False
+            if _reason_matches_prefix(payload.get("reason", "")):
+                return True
+            reasons = payload.get("reasons")
+            if isinstance(reasons, list):
+                return any(_reason_matches_prefix(item) for item in reasons)
+            return False
+
+        updated_at = str(payload.get("updated_at", "") or "")
+        age = self._iso_age_seconds(updated_at)
+        max_age = max(30, int(ORCH_EXEC_HEALTH_SELF_HEAL_MAX_AGE_SECONDS))
+        if age is None:
+            return "execution_health_updated_at_missing", None
+        if age > float(max_age):
+            return f"execution_health_stale:{int(age)}s>{max_age}s", age
+
+        payload_reason = str(payload.get("reason", "") or "unknown")
+        if bool(payload.get("egress_blocked", False)):
+            return f"egress_blocked:{payload_reason}", age
+        if _is_non_blocking_reason():
+            return "", age
+        if ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_ON_NOT_GREEN and not bool(payload.get("green", False)):
+            return f"execution_health_not_green:{payload_reason}", age
+        return "", age
+
+    def _set_execution_health_self_heal_lock(self, reason, payload):
+        try:
+            from trading_guard import set_trading_lock
+        except Exception:
+            return False
+        try:
+            set_trading_lock(
+                reason=f"Execution health runtime guard blocked: {reason}",
+                source=ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_SOURCE,
+                metadata={
+                    "event": "EXECUTION_HEALTH_RUNTIME_GUARD_BLOCK",
+                    "payload_reason": str(payload.get("reason", "") if isinstance(payload, dict) else ""),
+                    "payload_green": bool(payload.get("green", False)) if isinstance(payload, dict) else False,
+                    "payload_updated_at": str(payload.get("updated_at", "") if isinstance(payload, dict) else ""),
+                },
+            )
+            return True
+        except Exception as e:
+            logger.warning("Runtime self-heal: failed setting trading lock: %s", e)
+            return False
+
+    def _clear_execution_health_self_heal_lock(self, note="execution_health_runtime_recovered"):
+        if not ORCH_EXEC_HEALTH_SELF_HEAL_CLEAR_ON_RECOVERY:
+            return False
+        try:
+            from trading_guard import clear_trading_lock, read_trading_lock
+        except Exception:
+            return False
+        try:
+            state = read_trading_lock()
+            if not isinstance(state, dict) or not bool(state.get("locked", False)):
+                return False
+            if str(state.get("source", "")) != ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_SOURCE:
+                return False
+            clear_trading_lock(
+                source=ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_SOURCE,
+                note=str(note or "execution_health_runtime_recovered"),
+            )
+            return True
+        except Exception as e:
+            logger.debug("Runtime self-heal: failed clearing trading lock: %s", e)
+            return False
+
+    def run_execution_health_self_heal(self, force=False):
+        report = {
+            "enabled": bool(ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED),
+            "checked_at": datetime.now(timezone.utc).isoformat(),
+            "blocked": False,
+            "reason": "self_heal_disabled",
+            "status_updated_at": "",
+            "status_age_seconds": None,
+            "payload_reason": "",
+            "payload_green": False,
+            "lock_action": "none",
+            "reconcile_refresh": None,
+            "refresh_performed": False,
+        }
+        if not ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED:
+            self.execution_health_self_heal = report
+            return report
+
+        now_mono = time.monotonic()
+        interval = max(5, int(ORCH_EXEC_HEALTH_SELF_HEAL_INTERVAL_SECONDS))
+        if (not force) and (now_mono - self._last_exec_health_self_heal < float(interval)):
+            return self.execution_health_self_heal
+        self._last_exec_health_self_heal = now_mono
+
+        reconcile_due = bool(force) or (
+            now_mono - self._last_exec_health_reconcile_refresh
+            >= float(max(30, int(ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_INTERVAL_SECONDS)))
+        )
+        if reconcile_due:
+            report["reconcile_refresh"] = self._run_reconcile_refresh_once()
+            self._last_exec_health_reconcile_refresh = now_mono
+
+        payload = self._refresh_execution_health_payload()
+        report["refresh_performed"] = True
+        report["status_updated_at"] = str(payload.get("updated_at", "") if isinstance(payload, dict) else "")
+        report["payload_reason"] = str(payload.get("reason", "") if isinstance(payload, dict) else "")
+        report["payload_green"] = bool(payload.get("green", False)) if isinstance(payload, dict) else False
+
+        block_reason, age = self._execution_health_self_heal_block_reason(payload)
+        report["status_age_seconds"] = None if age is None else round(float(age), 3)
+        report["blocked"] = bool(block_reason)
+        report["reason"] = block_reason or "execution_health_green"
+
+        prev = self.execution_health_self_heal if isinstance(self.execution_health_self_heal, dict) else {}
+        prev_blocked = bool(prev.get("blocked", False))
+        prev_reason = str(prev.get("reason", "") or "")
+
+        if block_reason:
+            lock_set = self._set_execution_health_self_heal_lock(block_reason, payload)
+            report["lock_action"] = "set" if lock_set else "set_failed"
+            if (not prev_blocked) or (prev_reason != block_reason):
+                self._log_risk_event(
+                    "execution_health_guard_blocked",
+                    block_reason,
+                    "trading_lock_set" if lock_set else "trading_lock_set_failed",
+                )
+        else:
+            lock_cleared = self._clear_execution_health_self_heal_lock()
+            report["lock_action"] = "cleared" if lock_cleared else "none"
+            if prev_blocked or lock_cleared:
+                self._log_risk_event(
+                    "execution_health_guard_recovered",
+                    "execution_health_green",
+                    "trading_lock_cleared" if lock_cleared else "trading_lock_unchanged",
+                )
+
+        self.execution_health_self_heal = report
         return report
 
     def run_integration_guard(self, force=False):
@@ -1175,6 +1446,7 @@ class OrchestratorV2:
 
     def health_check(self):
         """Check all agents are alive. Restart crashed ones."""
+        self.run_execution_health_self_heal(force=False)
         self._reconcile_stray_processes()
         for name, agent in list(self.agents.items()):
             proc = agent["process"]
@@ -1558,6 +1830,15 @@ class OrchestratorV2:
             if isinstance(failures, list) and failures:
                 print(f"  Guard blockers: {', '.join(str(x) for x in failures[:6])}")
 
+        if bool(self.execution_health_self_heal.get("enabled", False)):
+            blocked = bool(self.execution_health_self_heal.get("blocked", False))
+            checked = str(self.execution_health_self_heal.get("checked_at", "") or "n/a")
+            reason = str(self.execution_health_self_heal.get("reason", "") or "unknown")
+            print(
+                f"\n  Execution self-heal: {'BLOCKED' if blocked else 'OK'} "
+                f"(checked: {checked}) reason={reason}"
+            )
+
         # Recent risk events
         events = self.db.execute(
             "SELECT * FROM risk_events ORDER BY id DESC LIMIT 5"
@@ -1607,6 +1888,7 @@ class OrchestratorV2:
                         pass
                     self.running = False
                 else:
+                    self.run_execution_health_self_heal(force=True)
                     # Start all agents
                     self.start_all()
 
@@ -1740,6 +2022,20 @@ def read_status():
                 print(
                     f"\n  Startup preflight: {'PASSED' if passed else 'BLOCKED'} "
                     f"(checked: {checked}) reason={reason}"
+                )
+        except Exception:
+            pass
+
+    if EXECUTION_HEALTH_STATUS_FILE.exists():
+        try:
+            health = json.loads(EXECUTION_HEALTH_STATUS_FILE.read_text())
+            if isinstance(health, dict):
+                green = bool(health.get("green", False))
+                updated = str(health.get("updated_at", "") or "n/a")
+                reason = str(health.get("reason", "") or "unknown")
+                print(
+                    f"\n  Execution health: {'GREEN' if green else 'BLOCKED'} "
+                    f"(updated: {updated}) reason={reason}"
                 )
         except Exception:
             pass

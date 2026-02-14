@@ -2359,3 +2359,67 @@ when serializing dict item 'route_hint'
 2026-02-14 06:22:28,038 [exit_manager] INFO EXIT_MGR: Unregistered position ETH-USDC
 2026-02-14 06:22:28,038 [exit_manager] INFO EXIT_MGR: SOL-USDC value $0.00 below dust threshold $0.75, untracking
 2026-02-14 06:22:28,038 [exit_manager] INFO EXIT_MGR: Unregistered position SOL-USDC
+2026-02-14 13:35:39,831 [exit_manager] INFO EXIT_MGR: Position monitor started (base interval=30s)
+2026-02-14 13:35:39,864 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 13:35:39,869 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 13:35:39,875 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 13:35:39,876 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:35:39,877 [exchange] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 13:35:39,877 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 13:35:39,878 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 13:35:39,878 [exit_manager] INFO EXIT_MGR: No holdings found on Coinbase for auto-discovery
+2026-02-14 13:35:39,878 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 13:35:39,878 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 13:36:23,047 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 76s, reason=egress_blocked)
+2026-02-14 13:36:23,048 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 76s, reason=egress_blocked)
+2026-02-14 13:37:09,194 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 30s, reason=egress_blocked)
+2026-02-14 13:37:09,194 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 30s, reason=egress_blocked)
+2026-02-14 13:37:58,362 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:37:58,363 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:38:50,530 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:38:50,530 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:39:45,736 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:39:45,737 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:40:43,944 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:40:43,945 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:41:45,163 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:41:45,165 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:42:49,400 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:42:49,401 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:43:56,668 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:43:56,669 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 14:33:39,456 [exit_manager] INFO EXIT_MGR: Position monitor started (base interval=30s)
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position SOL-USD: entry=$77.84, amount=0.00000002
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position ETH-USD: entry=$1910.15, amount=0.00025911
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position AVAX-USD: entry=$8.69, amount=0.00000001
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position FET-USD: entry=$0.16, amount=1.13296301
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position BTC-USD: entry=$65379.99, amount=0.00000001
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position FET-USDC: entry=$0.16, amount=1.13296301
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position BTC-USDC: entry=$65875.27, amount=0.00000001
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position ETH-USDC: entry=$1930.55, amount=0.00025911
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position DOGE-USDC: entry=$0.09, amount=1.80000000
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position SOL-USDC: entry=$77.73, amount=0.00000002
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Registered new position AVAX-USDC: entry=$8.74, amount=0.00000001
+2026-02-14 14:33:39,591 [exit_manager] INFO EXIT_MGR: Loaded 11 positions from sniper_trades
+2026-02-14 14:33:40,521 [exit_manager] INFO EXIT_MGR: SOL-USD value $0.00 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,521 [exit_manager] INFO EXIT_MGR: Unregistered position SOL-USD
+2026-02-14 14:33:40,580 [exit_manager] INFO EXIT_MGR: ETH-USD value $0.54 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,580 [exit_manager] INFO EXIT_MGR: Unregistered position ETH-USD
+2026-02-14 14:33:40,629 [exit_manager] INFO EXIT_MGR: AVAX-USD value $0.00 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,629 [exit_manager] INFO EXIT_MGR: Unregistered position AVAX-USD
+2026-02-14 14:33:40,696 [exit_manager] INFO EXIT_MGR: FET-USD value $0.21 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,696 [exit_manager] INFO EXIT_MGR: Unregistered position FET-USD
+2026-02-14 14:33:40,749 [exit_manager] INFO EXIT_MGR: BTC-USD value $0.00 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,749 [exit_manager] INFO EXIT_MGR: Unregistered position BTC-USD
+2026-02-14 14:33:40,749 [exit_manager] INFO EXIT_MGR: FET-USDC value $0.21 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,749 [exit_manager] INFO EXIT_MGR: Unregistered position FET-USDC
+2026-02-14 14:33:40,749 [exit_manager] INFO EXIT_MGR: BTC-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,749 [exit_manager] INFO EXIT_MGR: Unregistered position BTC-USDC
+2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: ETH-USDC value $0.54 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: Unregistered position ETH-USDC
+2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: DOGE-USDC value $0.20 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: Unregistered position DOGE-USDC
+2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: SOL-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: Unregistered position SOL-USDC
+2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: AVAX-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 14:33:40,750 [exit_manager] INFO EXIT_MGR: Unregistered position AVAX-USDC

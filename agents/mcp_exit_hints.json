@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T11:25:39.518030+00:00",
+  "updated_at": "2026-02-14T18:43:47.772211+00:00",
   "source": "mcp_opportunity_agent",
   "global": {
     "vol_scale": 1.0,
@@ -8,5 +8,13 @@
     "force_eval_hours_mult": 1.0,
     "tp_bias_pct": 0.0
   },
-  "pairs": {}
+  "pairs": {
+    "SOL-USDC": {
+      "vol_scale": 1.0,
+      "stop_scale": 1.0637144,
+      "dead_money_hours_mult": 1.0955716,
+      "force_eval_hours_mult": 1.079643,
+      "tp_bias_pct": 0.0079643
+    }
+  }
 }

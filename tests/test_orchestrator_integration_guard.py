@@ -4,7 +4,7 @@
 import os
 import sys
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "agents"))
 
@@ -204,3 +204,177 @@ def test_startup_preflight_fail_open_overrides_block(monkeypatch, tmp_path):
     assert report["passed"] is True
     assert report["reason"] == "startup_preflight_fail_open"
     assert report["pass_override_reason"].startswith("execution_health_not_green:")
+
+
+def test_execution_health_self_heal_sets_lock_on_egress(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_INTERVAL_SECONDS", 5)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_INTERVAL_SECONDS", 120)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_MAX_AGE_SECONDS", 180)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_ON_NOT_GREEN", True)
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_refresh_execution_health_payload",
+        lambda: {
+            "updated_at": now_iso,
+            "green": False,
+            "reason": "egress_blocked",
+            "egress_blocked": True,
+        },
+    )
+    monkeypatch.setattr(instance, "_run_reconcile_refresh_once", lambda: {"ok": True})
+    lock_capture = {}
+
+    def _set_lock(reason, payload):
+        lock_capture["reason"] = reason
+        lock_capture["payload"] = payload
+        return True
+
+    monkeypatch.setattr(instance, "_set_execution_health_self_heal_lock", _set_lock)
+    monkeypatch.setattr(instance, "_clear_execution_health_self_heal_lock", lambda note="": False)
+
+    report = instance.run_execution_health_self_heal(force=True)
+    assert report["blocked"] is True
+    assert report["reason"].startswith("egress_blocked:")
+    assert report["lock_action"] == "set"
+    assert lock_capture["reason"].startswith("egress_blocked:")
+
+
+def test_execution_health_self_heal_blocks_stale_status(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_INTERVAL_SECONDS", 5)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_INTERVAL_SECONDS", 120)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_MAX_AGE_SECONDS", 120)
+    stale_iso = (datetime.now(timezone.utc) - timedelta(seconds=900)).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_refresh_execution_health_payload",
+        lambda: {
+            "updated_at": stale_iso,
+            "green": True,
+            "reason": "passed",
+            "egress_blocked": False,
+        },
+    )
+    monkeypatch.setattr(instance, "_run_reconcile_refresh_once", lambda: {"ok": True})
+    monkeypatch.setattr(instance, "_set_execution_health_self_heal_lock", lambda reason, payload: True)
+    monkeypatch.setattr(instance, "_clear_execution_health_self_heal_lock", lambda note="": False)
+
+    report = instance.run_execution_health_self_heal(force=True)
+    assert report["blocked"] is True
+    assert report["reason"].startswith("execution_health_stale:")
+    assert report["lock_action"] == "set"
+
+
+def test_execution_health_self_heal_ignores_non_blocking_reason(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_INTERVAL_SECONDS", 5)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_INTERVAL_SECONDS", 120)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_MAX_AGE_SECONDS", 180)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_ON_NOT_GREEN", True)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_NON_BLOCKING_REASONS", ("candle_feed_",))
+    now_iso = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_refresh_execution_health_payload",
+        lambda: {
+            "updated_at": now_iso,
+            "green": False,
+            "reason": "candle_feed_stale:900s>360s",
+            "reasons": ["candle_feed_stale:900s>360s"],
+            "egress_blocked": False,
+        },
+    )
+    monkeypatch.setattr(instance, "_run_reconcile_refresh_once", lambda: {"ok": True})
+    monkeypatch.setattr(instance, "_set_execution_health_self_heal_lock", lambda reason, payload: True)
+    monkeypatch.setattr(instance, "_clear_execution_health_self_heal_lock", lambda note="": False)
+
+    report = instance.run_execution_health_self_heal(force=True)
+    assert report["blocked"] is False
+    assert report["reason"] == "execution_health_green"
+    assert report["lock_action"] == "none"
+
+
+def test_execution_health_self_heal_reconcile_refresh_is_interval_driven(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_INTERVAL_SECONDS", 5)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_INTERVAL_SECONDS", 60)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_MAX_AGE_SECONDS", 180)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_LOCK_ON_NOT_GREEN", True)
+    clock = {"now": 1000.0}
+    monkeypatch.setattr(orch.time, "monotonic", lambda: clock["now"])
+    now_iso = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_refresh_execution_health_payload",
+        lambda: {
+            "updated_at": now_iso,
+            "green": True,
+            "reason": "passed",
+            "egress_blocked": False,
+        },
+    )
+    reconcile_calls = []
+    monkeypatch.setattr(
+        instance,
+        "_run_reconcile_refresh_once",
+        lambda: reconcile_calls.append(clock["now"]) or {"ok": True},
+    )
+    monkeypatch.setattr(instance, "_set_execution_health_self_heal_lock", lambda reason, payload: False)
+    clear_calls = []
+    monkeypatch.setattr(
+        instance,
+        "_clear_execution_health_self_heal_lock",
+        lambda note="execution_health_runtime_recovered": clear_calls.append(note) or True,
+    )
+
+    instance.execution_health_self_heal = {"enabled": True, "blocked": True, "reason": "egress_blocked:test"}
+    first = instance.run_execution_health_self_heal(force=False)
+    assert first["blocked"] is False
+    assert first["lock_action"] == "cleared"
+    assert len(reconcile_calls) == 1
+
+    clock["now"] = 1006.0
+    second = instance.run_execution_health_self_heal(force=False)
+    assert second["blocked"] is False
+    assert len(reconcile_calls) == 1
+    assert len(clear_calls) >= 1
+
+
+def test_execution_health_self_heal_clears_stale_owned_lock_on_healthy_restart(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_INTERVAL_SECONDS", 5)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_RECONCILE_INTERVAL_SECONDS", 120)
+    monkeypatch.setattr(orch, "ORCH_EXEC_HEALTH_SELF_HEAL_MAX_AGE_SECONDS", 180)
+    now_iso = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_refresh_execution_health_payload",
+        lambda: {
+            "updated_at": now_iso,
+            "green": True,
+            "reason": "passed",
+            "egress_blocked": False,
+        },
+    )
+    monkeypatch.setattr(instance, "_run_reconcile_refresh_once", lambda: {"ok": True})
+    monkeypatch.setattr(instance, "_set_execution_health_self_heal_lock", lambda reason, payload: False)
+    clear_calls = []
+    monkeypatch.setattr(
+        instance,
+        "_clear_execution_health_self_heal_lock",
+        lambda note="execution_health_runtime_recovered": clear_calls.append(note) or True,
+    )
+
+    instance.execution_health_self_heal = {"enabled": True, "blocked": False, "reason": "self_heal_not_checked"}
+    report = instance.run_execution_health_self_heal(force=True)
+    assert report["blocked"] is False
+    assert report["lock_action"] == "cleared"
+    assert len(clear_calls) == 1

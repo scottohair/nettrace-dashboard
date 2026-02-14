@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T11:23:09.422599+00:00",
+  "updated_at": "2026-02-14T19:34:20.870928+00:00",
   "running": true,
   "cycle": 1,
   "interval_seconds": 300,
@@ -14,5 +14,5 @@
     "ready_connectors": 1,
     "connector_count": 4
   },
-  "portfolio_total_usd": 241.08
+  "portfolio_total_usd": 236.06
 }

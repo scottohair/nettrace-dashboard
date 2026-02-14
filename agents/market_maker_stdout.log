@@ -8000,3 +8000,320 @@
 2026-02-14 06:25:36,775 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
 2026-02-14 06:25:36,776 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
 2026-02-14 06:25:36,777 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:39,014 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:39,017 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:39,018 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:39,022 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:41,123 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:41,124 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:41,125 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:41,127 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:43,334 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:43,337 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:43,339 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:43,340 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:45,440 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:45,441 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:45,443 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:45,444 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:47,546 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:47,548 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:47,549 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:47,551 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:49,793 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:49,794 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:49,797 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:49,798 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:51,891 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:51,891 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:51,892 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:51,893 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:54,007 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:54,008 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:54,010 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:54,012 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:56,111 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:56,113 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:56,114 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:56,116 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:58,212 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:58,215 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:58,216 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:27:58,217 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:29:00,509 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:00,512 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:00,514 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:00,515 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:02,632 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:02,638 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:02,645 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:02,648 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:04,740 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:04,744 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:04,747 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:04,749 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:04,850 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01467674 @ $87.59 (post_only=True)
+2026-02-14 06:29:05,094 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01467674 @ $88.02 (post_only=True)
+2026-02-14 06:29:05,361 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01467674 @ $88.45 (post_only=True)
+2026-02-14 06:29:05,607 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01467674 @ $89.32 (post_only=True)
+2026-02-14 06:29:05,756 [grid_harvester] INFO GRID SOL-USDC: 4 orders placed around $86.72 (inventory=3.7%)
+2026-02-14 06:29:07,851 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:07,855 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:07,856 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:07,858 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:09,963 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:09,967 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:09,971 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:29:09,973 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:12,629 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:12,631 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:12,633 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:12,635 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:14,743 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:14,745 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:14,746 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:14,749 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:19,015 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:19,018 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:19,019 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:19,022 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:21,132 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:21,133 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:21,135 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:30:21,136 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:31:23,766 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:23,768 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:23,769 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:23,772 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:25,874 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:25,876 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:25,877 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:25,878 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:28,077 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01715843 @ $87.42 (post_only=True)
+2026-02-14 06:31:28,343 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01707391 @ $87.85 (post_only=True)
+2026-02-14 06:31:28,611 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01699021 @ $88.28 (post_only=True)
+2026-02-14 06:31:28,868 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01682526 @ $89.15 (post_only=True)
+2026-02-14 06:31:29,025 [grid_harvester] INFO GRID SOL-USDC: 4 orders placed around $86.56 (inventory=20.6%)
+2026-02-14 06:31:31,122 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:31,125 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:31,127 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:31,129 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:33,233 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:33,236 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:33,240 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:31:33,243 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:36,235 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:36,238 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:36,240 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:36,242 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:38,467 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:38,479 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:38,529 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:38,592 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:42,961 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:42,966 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:42,970 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:42,976 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:45,124 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:45,127 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:45,129 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:32:45,131 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:egress_blocked
+2026-02-14 06:33:47,776 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:47,791 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:47,795 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:47,797 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:49,924 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:49,926 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:49,928 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:49,930 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:54,147 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:54,149 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:54,151 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:54,153 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:56,261 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:56,263 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:56,265 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:56,267 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:33:58,276 [grid_harvester] INFO Status: cycle=10 fills=0 round_trips=0 pnl=$0.0000 open=4
+2026-02-14 06:34:58,961 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:34:58,967 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:34:58,971 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:34:58,978 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:01,092 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:01,098 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:01,107 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:01,110 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:05,393 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:05,411 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:05,415 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:05,427 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:07,529 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:07,531 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:07,536 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:35:07,537 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:10,178 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:10,180 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:10,182 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:10,184 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:12,293 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:12,295 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:12,298 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:12,299 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:16,519 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:16,525 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:16,527 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:16,528 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:18,678 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:18,680 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:18,682 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:36:18,683 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:not_completed_pending
+2026-02-14 06:37:21,300 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:21,303 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:21,304 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:21,310 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:23,508 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070875 @ $2116.39 (post_only=True)
+2026-02-14 06:37:23,754 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070525 @ $2126.87 (post_only=True)
+2026-02-14 06:37:24,027 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.0007018 @ $2137.35 (post_only=True)
+2026-02-14 06:37:24,275 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069498 @ $2158.3 (post_only=True)
+2026-02-14 06:37:24,419 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2095.44 (inventory=9.9%)
+2026-02-14 06:37:26,765 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01714061 @ $87.51 (post_only=True)
+2026-02-14 06:37:26,982 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01705617 @ $87.94 (post_only=True)
+2026-02-14 06:37:27,221 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01697256 @ $88.37 (post_only=True)
+2026-02-14 06:37:27,441 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01680778 @ $89.24 (post_only=True)
+2026-02-14 06:37:29,675 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:29,678 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:29,679 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:29,681 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:31,782 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:31,784 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:31,785 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:37:31,787 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:34,426 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:34,428 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:34,428 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:34,431 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:38,660 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:38,661 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:38,663 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:38,664 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:40,770 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:40,771 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:40,775 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:40,777 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:42,893 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:42,897 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:42,899 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:38:42,902 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:45,496 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:45,497 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:45,499 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:45,500 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:49,709 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:49,712 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:49,713 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:49,715 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:51,820 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:51,821 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:51,822 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:51,823 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:51,913 [exchange] INFO Placing LIMIT SELL: AVAX-USDC 0.15943623 @ $9.4 (post_only=True)
+2026-02-14 06:39:52,144 [exchange] INFO Placing LIMIT SELL: AVAX-USDC 0.15865083 @ $9.45 (post_only=True)
+2026-02-14 06:39:52,381 [exchange] INFO Placing LIMIT SELL: AVAX-USDC 0.15787313 @ $9.5 (post_only=True)
+2026-02-14 06:39:52,627 [exchange] INFO Placing LIMIT SELL: AVAX-USDC 0.15634038 @ $9.59 (post_only=True)
+2026-02-14 06:39:52,782 [grid_harvester] INFO GRID AVAX-USDC: 4 orders placed around $9.32 (inventory=4.7%)
+2026-02-14 06:39:54,913 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:54,914 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:54,915 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:54,916 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:39:55,015 [exchange] INFO Placing LIMIT SELL: LINK-USDC 0.16 @ $9.09 (post_only=True)
+2026-02-14 06:39:55,262 [exchange] INFO Placing LIMIT SELL: LINK-USDC 0.16 @ $9.135 (post_only=True)
+2026-02-14 06:39:55,540 [exchange] INFO Placing LIMIT SELL: LINK-USDC 0.16 @ $9.18 (post_only=True)
+2026-02-14 06:39:55,795 [exchange] INFO Placing LIMIT SELL: LINK-USDC 0.16 @ $9.27 (post_only=True)
+2026-02-14 06:39:55,957 [grid_harvester] INFO GRID LINK-USDC: 4 orders placed around $9.00 (inventory=4.4%)
+2026-02-14 06:40:59,569 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:40:59,570 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:40:59,572 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:40:59,573 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:41:03,810 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:41:03,815 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:41:03,817 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:41:03,818 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: sell_close_reconcile_gate_failed:sell_close_completion_missing:terminal_cancelled
+2026-02-14 06:42:17,549 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01712677 @ $87.58 (post_only=True)
+2026-02-14 06:42:17,785 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.0170424 @ $88.01 (post_only=True)
+2026-02-14 06:42:18,036 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01695886 @ $88.44 (post_only=True)
+2026-02-14 06:42:18,278 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01679421 @ $89.31 (post_only=True)
+2026-02-14 06:42:18,425 [grid_harvester] INFO GRID SOL-USDC: 4 orders placed around $86.72 (inventory=2.2%)
+2026-02-14 06:46:06,137 [exchange] INFO Placing LIMIT SELL: AVAX-USDC 0.15909464 @ $9.42 (post_only=True)
+2026-02-14 06:46:06,384 [exchange] INFO Placing LIMIT SELL: AVAX-USDC 0.15831092 @ $9.47 (post_only=True)
+2026-02-14 06:46:06,782 [exchange] INFO Placing LIMIT SELL: AVAX-USDC 0.15753489 @ $9.52 (post_only=True)
+2026-02-14 06:46:07,023 [exchange] INFO Placing LIMIT SELL: AVAX-USDC 0.15600542 @ $9.61 (post_only=True)
+2026-02-14 06:46:07,180 [grid_harvester] INFO GRID AVAX-USDC: 4 orders placed around $9.34 (inventory=2.8%)
+2026-02-14 06:46:11,837 [exchange] INFO Placing LIMIT SELL: LINK-USDC 0.16 @ $9.106 (post_only=True)
+2026-02-14 06:46:12,108 [exchange] INFO Placing LIMIT SELL: LINK-USDC 0.16 @ $9.151 (post_only=True)
+2026-02-14 06:46:12,350 [exchange] INFO Placing LIMIT SELL: LINK-USDC 0.16 @ $9.196 (post_only=True)
+2026-02-14 06:46:12,617 [exchange] INFO Placing LIMIT SELL: LINK-USDC 0.16 @ $9.286 (post_only=True)
+2026-02-14 06:46:12,768 [grid_harvester] INFO GRID LINK-USDC: 4 orders placed around $9.02 (inventory=2.4%)
+2026-02-14 06:46:14,772 [grid_harvester] INFO Status: cycle=20 fills=0 round_trips=0 pnl=$0.0000 open=12
+2026-02-14 13:36:07,939 [grid_harvester] INFO Grid Harvester starting | Pairs: ['BTC-USDC', 'ETH-USDC', 'SOL-USDC', 'AVAX-USDC', 'LINK-USDC'] | Order size: $1.50 | Cycle: 60s
+2026-02-14 13:36:07,940 [grid_harvester] INFO Buy levels: ['-1.0%', '-1.5%', '-2.0%', '-3.0%'] | Sell levels: ['+1.0%', '+1.5%', '+2.0%', '+3.0%']
+2026-02-14 13:36:07,987 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 13:36:07,992 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 13:36:07,997 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 13:36:07,998 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:36:07,999 [exchange] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 13:36:07,999 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 13:36:08,000 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 13:36:10,005 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 13:36:12,010 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 13:36:14,010 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 113s, reason=egress_blocked)
+2026-02-14 13:36:16,014 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 111s, reason=egress_blocked)
+2026-02-14 13:37:18,020 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 13:37:18,021 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 13:37:20,026 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 47s, reason=egress_blocked)
+2026-02-14 13:37:22,030 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 45s, reason=egress_blocked)
+2026-02-14 13:37:24,033 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 43s, reason=egress_blocked)
+2026-02-14 13:37:26,038 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 41s, reason=egress_blocked)
+2026-02-14 13:38:28,046 [exchange] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_network_recovered)
+2026-02-14 13:38:28,047 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=2
+2026-02-14 13:38:28,053 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 13:38:28,058 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 13:38:28,059 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: egress_blocked:<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 13:38:28,060 [exchange] ERROR Circuit breaker OPEN — 2 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 13:38:28,060 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': 'egress_blocked:<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 13:38:28,060 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 13:38:30,071 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 13:38:32,077 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 13:38:34,082 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 113s, reason=egress_blocked)
+2026-02-14 13:38:36,088 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 111s, reason=egress_blocked)
+2026-02-14 13:39:38,095 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 13:39:38,095 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 13:39:40,100 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 47s, reason=egress_blocked)
+2026-02-14 13:39:42,101 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 45s, reason=egress_blocked)
+2026-02-14 13:39:44,104 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 43s, reason=egress_blocked)
+2026-02-14 13:39:46,107 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 41s, reason=egress_blocked)
+2026-02-14 13:40:48,118 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:40:48,119 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:40:50,124 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 7s, reason=egress_blocked)
+2026-02-14 13:40:52,129 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 5s, reason=egress_blocked)
+2026-02-14 13:40:54,134 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 3s, reason=egress_blocked)
+2026-02-14 13:40:56,139 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 1s, reason=egress_blocked)
+2026-02-14 13:41:58,147 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:41:58,147 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:42:00,151 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 7s, reason=egress_blocked)
+2026-02-14 13:42:02,156 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 5s, reason=egress_blocked)
+2026-02-14 13:42:04,161 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 3s, reason=egress_blocked)
+2026-02-14 13:42:06,166 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 1s, reason=egress_blocked)
+2026-02-14 13:43:08,174 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:43:08,174 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:43:10,180 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 7s, reason=egress_blocked)
+2026-02-14 13:43:12,182 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 5s, reason=egress_blocked)
+2026-02-14 13:43:14,184 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 3s, reason=egress_blocked)
+2026-02-14 13:43:16,185 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 1s, reason=egress_blocked)
+2026-02-14 13:44:18,196 [exchange] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:44:18,197 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 9s, reason=egress_blocked)
+2026-02-14 13:44:20,202 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 7s, reason=egress_blocked)
+2026-02-14 13:44:22,206 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 5s, reason=egress_blocked)
+2026-02-14 13:44:24,209 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 3s, reason=egress_blocked)
+2026-02-14 13:44:26,214 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 1s, reason=egress_blocked)
+2026-02-14 14:34:07,909 [grid_harvester] INFO Grid Harvester starting | Pairs: ['BTC-USDC', 'ETH-USDC', 'SOL-USDC', 'AVAX-USDC', 'LINK-USDC'] | Order size: $1.50 | Cycle: 60s
+2026-02-14 14:34:07,909 [grid_harvester] INFO Buy levels: ['-1.0%', '-1.5%', '-2.0%', '-3.0%'] | Sell levels: ['+1.0%', '+1.5%', '+2.0%', '+3.0%']

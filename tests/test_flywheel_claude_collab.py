@@ -155,6 +155,89 @@ def test_flywheel_blocks_growth_when_close_reconcile_gate_fails(monkeypatch, tmp
     assert "reconcile_agent_trades.py" in invoked_scripts
 
 
+def test_flywheel_allows_growth_when_reconcile_gate_fails_with_terminal_cancelled_bypass(
+    monkeypatch, tmp_path
+):
+    reconcile_status = tmp_path / "reconcile_agent_trades_status.json"
+    reconcile_status.write_text(
+        json.dumps(
+            {
+                "updated_at": "2026-02-13T00:00:00+00:00",
+                "summary": {
+                    "close_attempts": 4,
+                    "close_completions": 0,
+                    "close_failures": 4,
+                    "close_failure_reasons": {"terminal_cancelled": 4},
+                    "close_gate_passed": False,
+                    "close_gate_reason": "sell_close_completion_missing:terminal_cancelled",
+                },
+                "close_reconciliation": {
+                    "attempts": 4,
+                    "completions": 0,
+                    "failures": 4,
+                    "failure_reasons": {"terminal_cancelled": 4},
+                    "gate_passed": False,
+                    "gate_reason": "sell_close_completion_missing:terminal_cancelled",
+                },
+            }
+        )
+    )
+    monkeypatch.setattr(fc, "claude_duplex", None)
+    monkeypatch.setattr(fc, "STATUS_FILE", tmp_path / "flywheel_status.json")
+    monkeypatch.setattr(fc, "CYCLE_LOG", tmp_path / "flywheel_cycles.jsonl")
+    monkeypatch.setattr(fc, "RESERVE_STATUS_FILE", tmp_path / "reserve_targets_status.json")
+    monkeypatch.setattr(fc, "RECONCILE_STATUS_FILE", reconcile_status)
+    monkeypatch.setattr(fc, "RECONCILE_AGENT_TRADES_ENABLED", True)
+    monkeypatch.setattr(fc, "CLOSE_FIRST_RECONCILE_GROWTH_GATE_ENABLED", True)
+    monkeypatch.setattr(fc, "CLOSE_FIRST_RECONCILE_BOOTSTRAP_BYPASS", False)
+    monkeypatch.setattr(fc, "FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_BYPASS", True)
+    monkeypatch.setattr(fc, "FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_ATTEMPTS", 8)
+    monkeypatch.setattr(fc, "FLYWHEEL_RECONCILE_GATE_TERMINAL_CANCELLED_MAX_COMPLETIONS", 0)
+    monkeypatch.setattr(fc, "FLYWHEEL_EXIT_MANAGER_BYPASS_ON_TERMINAL_CANCELLED", True)
+
+    controller = fc.FlywheelController(enable_claude_updates=False, enable_win_tasks=False)
+    invoked_scripts = []
+
+    def _fake_run_py(script_name, *args, **kwargs):
+        invoked_scripts.append(script_name)
+        return {
+            "cmd": [script_name, *list(args)],
+            "returncode": 0,
+            "elapsed_seconds": 0.001,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "env_overrides": dict(kwargs.get("env_overrides") or {}),
+        }
+
+    monkeypatch.setattr(controller, "_run_py", _fake_run_py)
+    monkeypatch.setattr(controller, "_read_growth_decision", lambda: {"decision": "GO", "go_live": True, "reasons": []})
+    monkeypatch.setattr(controller, "_sync_trading_lock", lambda _decision: {"locked": True, "reason": "test", "source": "test"})
+    monkeypatch.setattr(
+        controller,
+        "_get_portfolio_snapshot",
+        lambda: {"total_usd": 0.0, "available_cash": 0.0, "held_in_orders": 0.0, "holdings": {}, "source": "test"},
+    )
+    monkeypatch.setattr(controller, "_reserve_targets_snapshot", lambda _portfolio: {"updated_at": "t", "portfolio_total_usd": 0.0, "targets": []})
+    monkeypatch.setattr(controller, "_daily_realized_pnl", lambda: 0.0)
+    monkeypatch.setattr(controller, "_target_progress", lambda _pnl: [])
+    monkeypatch.setattr(controller, "_metal_runtime_snapshot", lambda: {})
+    monkeypatch.setattr(controller, "_quant_blockers", lambda: [])
+    monkeypatch.setattr(
+        controller,
+        "_run_claude_collaboration",
+        lambda _payload: {"enabled": False, "team_loop_enabled": False, "sent": {"sent_count": 0}, "received": {"received_count_total": 0}},
+    )
+
+    payload = controller.run_cycle(force_quant=False)
+
+    assert payload["reconcile_close_gate"]["passed"] is False
+    assert "terminal_cancelled" in payload["reconcile_close_gate"]["reason"]
+    assert payload["growth_decision"]["decision"] == "GO"
+    assert "growth_supervisor.py" in invoked_scripts
+    growth_cmd = next(c for c in payload["commands"] if "growth_supervisor.py" in " ".join(c.get("cmd", [])))
+    assert growth_cmd.get("skipped", False) is False
+
+
 def test_flywheel_blocks_growth_when_exit_manager_status_stale(monkeypatch, tmp_path):
     stale_exit_status = tmp_path / "exit_manager_status.json"
     stale_exit_status.write_text(

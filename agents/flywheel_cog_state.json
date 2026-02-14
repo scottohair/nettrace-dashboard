@@ -1,0 +1,23 @@
+{
+  "active_tier": 1,
+  "go_streak": 0,
+  "failure_streak": 1,
+  "last_update_at": 1771097532.7445388,
+  "last_no_go_at": 1771097532.744537,
+  "last_success_at": 0.0,
+  "cog_last_run_at": {
+    "claude_stager_agent.py::--once": 1771097532.744531,
+    "autonomous_work_manager.py::--once": 1771097532.744533,
+    "quant_company_agent.py::--once": 1771097532.744534,
+    "mcp_opportunity_agent.py::--once": 1771097532.744535
+  },
+  "cog_pause_until": {},
+  "cog_failures": {
+    "claude_stager_agent.py::--once": 0,
+    "autonomous_work_manager.py::--once": 0,
+    "quant_company_agent.py::--once": 0,
+    "mcp_opportunity_agent.py::--once": 0
+  },
+  "cog_transitions": [],
+  "commands_run_total": 1
+}

@@ -1,14 +1,23 @@
 {
-  "updated_at": "2026-02-14T11:25:39.520772+00:00",
+  "updated_at": "2026-02-14T18:43:47.772962+00:00",
   "running": true,
-  "cycle": 2,
+  "cycle": 4,
   "interval_seconds": 150,
-  "go_live": true,
-  "opportunity_count": 0,
-  "top_sources": [],
+  "go_live": false,
+  "opportunity_count": 12,
+  "top_sources": [
+    "quant_bias"
+  ],
   "files": {
     "opportunities": "/Users/scott/src/quant/agents/mcp_opportunities.json",
     "exit_hints": "/Users/scott/src/quant/agents/mcp_exit_hints.json",
     "outbox": "/Users/scott/src/quant/agents/mcp_opportunity_outbox.json"
+  },
+  "claude_duplex_delivery": {
+    "sent": true,
+    "channel": "to_claude",
+    "message_id": 1407,
+    "trace_id": "7a04cb60138913a3034863df",
+    "status": "queued"
   }
 }

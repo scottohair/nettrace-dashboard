@@ -1,24 +1,24 @@
 # Quant Company Roadmap
 
-Updated: 2026-02-14T11:23:15.113055+00:00
+Updated: 2026-02-14T19:34:26.234479+00:00
 
 ## WIN Objective
 - WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.
 - Treasury capture assets: USD, USDC
 
 ## Scores
-- Alpha score: 0.59
+- Alpha score: 0.89
 - Migration score: 0.70
-- GTM score: 0.95
+- GTM score: 0.70
 - Deployment score: 0.31
-- GO live: True
+- GO live: False
 - HF live ready: False
 
 ## Profit Targets
 - Daily PnL: $0.00
 - Next target: $1,000.00
 - Target progress: 0.00%
-- Required run-rate: $79.29/hour
+- Required run-rate: $225.93/hour
 - Budget escalator: de_escalate x0.80
 - Realized close gate: passed=True reason=passed
 
@@ -36,8 +36,7 @@ Updated: 2026-02-14T11:23:15.113055+00:00
 - fra: score=0.15 role=European Backup + Risk Monitor (Frankfurt)
 
 ## Market Priorities
-- BTC-USDC: score=0.89, edge=7.040%
-- SOL-USDC: score=0.68, edge=0.722%
+- SOL-USDC: score=0.45, edge=0.468%
 
 ## GTM Stages
 - private_alpha: in_progress (risk-capped automated strategy basket)
@@ -45,6 +44,7 @@ Updated: 2026-02-14T11:23:15.113055+00:00
 - public_launch: planned (multi-market quant platform + treasury custody controls)
 
 ## Blockers
+- close_flow_gate_failed:reconcile_close_gate_failed:sell_close_completion_missing:not_completed_pending
 - hf_live_not_ready
 
 ## Profit Task Queue
@@ -53,9 +53,9 @@ Updated: 2026-02-14T11:23:15.113055+00:00
 - Stabilize Coinbase API health before live budget escalation (improve retries + region routing).
 - Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.
 - Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.
-- Current run-rate gap: need $79.29/hour to hit next daily target $1,000.00.
+- Current run-rate gap: need $225.93/hour to hit next daily target $1,000.00.
 - Deploy primary execution to region order: ewr -> nrt -> sin.
-- Focus quant sweeps + walk-forward + Monte Carlo on top pairs: BTC-USDC, SOL-USDC.
+- Focus quant sweeps + walk-forward + Monte Carlo on top pairs: SOL-USDC.
 - Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.
 - Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.
 - Continuously harvest realized gains into treasury assets: USD and USDC.

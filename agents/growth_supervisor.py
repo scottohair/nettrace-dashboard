@@ -173,6 +173,22 @@ CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_REQUIRE_NO_RECENT_BUYS = _env_flag(
     "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_REQUIRE_NO_RECENT_BUYS",
     default=True,
 )
+CLOSE_FLOW_SAFE_LOW_RATE_AUTONOMY = _env_flag(
+    "CLOSE_FLOW_SAFE_LOW_RATE_AUTONOMY",
+    default=False,
+)
+CLOSE_FLOW_SAFE_LOW_RATE_MAX_ATTEMPTS = _env_int(
+    "CLOSE_FLOW_SAFE_LOW_RATE_MAX_ATTEMPTS",
+    6,
+)
+CLOSE_FLOW_SAFE_LOW_RATE_MAX_COMPLETIONS = _env_int(
+    "CLOSE_FLOW_SAFE_LOW_RATE_MAX_COMPLETIONS",
+    1,
+)
+CLOSE_FLOW_SAFE_LOW_RATE_REQUIRE_NO_RECENT_BUYS = _env_flag(
+    "CLOSE_FLOW_SAFE_LOW_RATE_REQUIRE_NO_RECENT_BUYS",
+    default=True,
+)
 GROWTH_STRICT_HOT_PROMOTION_REQUIRED = _env_flag(
     "GROWTH_STRICT_HOT_PROMOTION_REQUIRED",
     default=False,
@@ -255,6 +271,44 @@ AUTONOMY_SAFE_EXEC_HEALTH_ALLOWLIST = tuple(
 EXECUTION_HEALTH_GO_LIVE_REQUIRED = os.environ.get(
     "EXECUTION_HEALTH_GO_LIVE_REQUIRED", "1"
 ).lower() not in ("0", "false", "no")
+WARM_EVIDENCE_DATA_MODE = os.environ.get("WARM_EVIDENCE_DATA_MODE", "candle").strip() or "candle"
+WARM_EVIDENCE_AGGRESSIVE_MODE = _env_flag(
+    "WARM_EVIDENCE_AGGRESSIVE_MODE",
+    default=True,
+    aliases=("WARM_FAST_EVIDENCE_MODE",),
+)
+WARM_EVIDENCE_NO_GO_DATA_MODE = str(
+    os.environ.get("WARM_EVIDENCE_NO_GO_DATA_MODE", "non_candle")
+).strip() or "non_candle"
+WARM_EVIDENCE_NO_GO_MIN_BARS = _env_int(
+    "WARM_EVIDENCE_NO_GO_MIN_BARS",
+    5,
+    aliases=("WARM_EVIDENCE_AGGRESSIVE_MIN_BARS",),
+)
+WARM_EVIDENCE_NO_GO_MIN_CANDLES = _env_int(
+    "WARM_EVIDENCE_NO_GO_MIN_CANDLES",
+    8,
+    aliases=("WARM_MIN_EVIDENCE_CANDLES_NO_GO",),
+)
+WARM_EVIDENCE_AGGRESSIVE_HOURS = _env_int(
+    "WARM_EVIDENCE_AGGRESSIVE_HOURS",
+    1,
+)
+WARM_EVIDENCE_AGGRESSIVE_GRANULARITY = str(
+    os.environ.get("WARM_EVIDENCE_AGGRESSIVE_GRANULARITY", "1min")
+).strip() or "1min"
+WARM_EVIDENCE_AGGRESSIVE_MAX_AGE_SECONDS = _env_int(
+    "WARM_EVIDENCE_AGGRESSIVE_MAX_AGE_SECONDS",
+    30 * 60,
+    aliases=("WARM_NO_GO_AGGRESSIVE_MAX_AGE_SECONDS",),
+)
+WARM_EVIDENCE_AGGRESSIVE_BUDGET_CAP = float(
+    os.environ.get("WARM_EVIDENCE_AGGRESSIVE_BUDGET_CAP", "3.0")
+)
+WARM_EVIDENCE_AGGRESSIVE_STRATEGY_CAP = _env_int(
+    "WARM_EVIDENCE_AGGRESSIVE_STRATEGY_CAP",
+    2,
+)
 TRADER_DB_PATH = BASE / "trader.db"
 EXIT_MANAGER_DB_PATH = BASE / "exit_manager.db"
 COMPLETED_TRADE_STATUSES = (
@@ -289,7 +343,9 @@ def _load_json(path, default):
 
 
 def _save_json(path, payload):
-    path.write_text(json.dumps(payload, indent=2))
+    temp = path.with_suffix(f"{path.suffix}.tmp")
+    temp.write_text(json.dumps(payload, indent=2))
+    temp.replace(path)
 
 
 def _append_log(event):
@@ -297,31 +353,113 @@ def _append_log(event):
         f.write(json.dumps(event) + "\n")
 
 
-def _run_py(script_name, *args):
+def _run_py(script_name, *args, env_overrides=None, timeout_seconds=None):
     cmd = [sys.executable, str(BASE / script_name), *list(args)]
+    env = os.environ.copy()
+    if isinstance(env_overrides, dict):
+        for key, value in env_overrides.items():
+            env[str(key)] = str(value)
+    if timeout_seconds is None:
+        timeout_seconds = GROWTH_SUBPROCESS_TIMEOUT_SECONDS
     try:
         proc = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=GROWTH_SUBPROCESS_TIMEOUT_SECONDS,
+            env=env,
+            timeout=int(max(5, timeout_seconds)),
         )
     except subprocess.TimeoutExpired as exc:
-        return {
-            "cmd": cmd,
-            "returncode": 124,
-            "stdout_tail": "\n".join((exc.stdout or "").strip().splitlines()[-20:]),
-            "stderr_tail": (
-                f"command timed out after {GROWTH_SUBPROCESS_TIMEOUT_SECONDS}s"
+            return {
+                "cmd": cmd,
+                "returncode": 124,
+                "stdout_tail": "\n".join((exc.stdout or "").strip().splitlines()[-20:]),
+                "stderr_tail": (
+                f"command timed out after {timeout_seconds}s"
             ),
-            "timed_out": True,
-        }
+                "timed_out": True,
+            }
     return {
         "cmd": cmd,
         "returncode": int(proc.returncode),
         "stdout_tail": "\n".join((proc.stdout or "").strip().splitlines()[-20:]),
         "stderr_tail": "\n".join((proc.stderr or "").strip().splitlines()[-20:]),
     }
+
+
+def _is_no_go_for_warm_bootstrap(decision):
+    if not isinstance(decision, dict):
+        return False
+    if bool(decision.get("go_live", False)):
+        return False
+    reasons = decision.get("reasons")
+    if not isinstance(reasons, list):
+        return False
+    return any(
+        str(r).strip() in {
+            "no_hot_promotions",
+            "warm_runtime_not_hot_eligible",
+            "warm_promotion_runner_no_hot",
+        }
+        for r in reasons
+    )
+
+
+def _warm_runner_env_overrides(decision):
+    if not WARM_EVIDENCE_AGGRESSIVE_MODE:
+        return {}
+    if not isinstance(decision, dict):
+        return {}
+    if not _is_no_go_for_warm_bootstrap(decision):
+        fallback_min_candles = str(
+            max(1, int(os.environ.get("WARM_MIN_EVIDENCE_CANDLES", "24")))
+        )
+        return {
+            "WARM_EVIDENCE_DATA_MODE": WARM_EVIDENCE_DATA_MODE,
+            "WARM_MIN_EVIDENCE_CANDLES": fallback_min_candles,
+        }
+
+    if _is_no_go_for_warm_bootstrap(decision):
+        return {
+            "WARM_EVIDENCE_DATA_MODE": WARM_EVIDENCE_NO_GO_DATA_MODE,
+            "WARM_EVIDENCE_NON_CANDLE_STRICT_MODE": "0",
+            "WARM_EVIDENCE_NON_CANDLE_MIN_BARS": str(max(1, WARM_EVIDENCE_NO_GO_MIN_BARS)),
+            "WARM_EVIDENCE_NON_CANDLE_FALLBACK": "1",
+            "WARM_MIN_EVIDENCE_CANDLES": str(max(1, int(WARM_EVIDENCE_NO_GO_MIN_CANDLES))),
+        }
+
+    return {}
+
+
+def _decision_age_seconds(decision, now=None):
+    if not isinstance(decision, dict):
+        return None
+    if now is None:
+        now = time.time()
+    generated_at = str(decision.get("generated_at", "")).strip()
+    if not generated_at:
+        return None
+    try:
+        dt = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
+    except Exception:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return max(0.0, (datetime.now(timezone.utc) - dt).total_seconds())
+
+
+def _extract_previous_decision_for_adaptation(report_payload):
+    if not isinstance(report_payload, dict):
+        return {}
+    decision = report_payload.get("decision")
+    if not isinstance(decision, dict):
+        return {}
+    extracted = dict(decision)
+    if not extracted.get("generated_at"):
+        extracted_generated_at = report_payload.get("generated_at")
+        if extracted_generated_at:
+            extracted["generated_at"] = extracted_generated_at
+    return extracted
 
 
 def _trade_flow_metrics(lookback_hours=CLOSE_FLOW_LOOKBACK_HOURS):
@@ -645,6 +783,36 @@ def _is_close_flow_gate_safe_for_autonomy(close_flow_gate):
     return True, "terminal_cancelled_autonomy_override"
 
 
+def _is_close_flow_low_rate_safe_for_autonomy(close_flow_gate):
+    gate = close_flow_gate if isinstance(close_flow_gate, dict) else {}
+    if not CLOSE_FLOW_SAFE_LOW_RATE_AUTONOMY:
+        return False, "close_flow_low_rate_autonomy_disabled"
+    reason = str(gate.get("reason", "") or "").strip()
+    if not (
+        reason.startswith("close_completion_rate_low:")
+        or reason.startswith("close_flow_gate_failed:close_completion_rate_low:")
+    ):
+        return False, "close_flow_gate_reason_not_low_rate"
+
+    attempts = int(gate.get("sell_close_attempts", 0) or 0)
+    completions = int(gate.get("sell_close_completions", 0) or 0)
+    buys = int(gate.get("buy_fills", 0) or 0)
+
+    if completions > CLOSE_FLOW_SAFE_LOW_RATE_MAX_COMPLETIONS:
+        return (
+            False,
+            f"low_rate_completions_exceeds_limit:{completions}>{CLOSE_FLOW_SAFE_LOW_RATE_MAX_COMPLETIONS}",
+        )
+    if attempts > CLOSE_FLOW_SAFE_LOW_RATE_MAX_ATTEMPTS:
+        return (
+            False,
+            f"low_rate_attempts_exceeds_limit:{attempts}>{CLOSE_FLOW_SAFE_LOW_RATE_MAX_ATTEMPTS}",
+        )
+    if CLOSE_FLOW_SAFE_LOW_RATE_REQUIRE_NO_RECENT_BUYS and buys > 0:
+        return False, "recent_buys_present"
+    return True, "close_completion_rate_low_autonomy_override"
+
+
 def _is_reconcile_not_completed_pending_safe_for_autonomy(close_flow_gate):
     gate = close_flow_gate if isinstance(close_flow_gate, dict) else {}
     if not CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_AUTONOMY:
@@ -716,6 +884,10 @@ def _safe_warm_autonomy_override(
             close_flow_safe, _close_reason = _is_close_flow_gate_safe_for_autonomy(
                 close_flow_gate=close_flow_gate
             )
+            if not close_flow_safe:
+                close_flow_safe, _close_reason = _is_close_flow_low_rate_safe_for_autonomy(
+                    close_flow_gate=close_flow_gate
+                )
             if not close_flow_safe:
                 close_flow_safe, _close_reason = _is_reconcile_not_completed_pending_safe_for_autonomy(
                     close_flow_gate=close_flow_gate
@@ -838,10 +1010,17 @@ def _build_decision(
             reasons.append("strict_realized_gate_status_missing")
         elif not realized_gate_passed:
             bootstrap_reason_codes = {"insufficient_realized_closes", "insufficient_positive_realized_windows"}
+            normalized_realized_gate_reason = str(realized_gate_reason or "").strip().lower()
+            bootstrap_reason_matched = any(
+                normalized_realized_gate_reason == code
+                or normalized_realized_gate_reason.startswith(f"{code}:")
+                or normalized_realized_gate_reason.startswith(f"{code}_")
+                for code in bootstrap_reason_codes
+            )
             near_window_pass = realized_positive_windows >= max(1, realized_required_windows - 1)
             can_bootstrap = (
                 STRICT_REALIZED_BOOTSTRAP_ALLOW
-                and realized_gate_reason in bootstrap_reason_codes
+                and bootstrap_reason_matched
                 and total_funded_budget <= float(STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET)
                 and funded_strategy_count <= int(STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_STRATEGIES)
                 and realized_total_net_pnl > 0.0
@@ -1129,10 +1308,64 @@ def run_cycle(
     if quant_run:
         cycle["commands"].append(_run_py("quant_100_runner.py", "run"))
 
+    previous_report = _load_json(REPORT_PATH, {})
+    no_go_previous = _extract_previous_decision_for_adaptation(previous_report)
+    warm_env_overrides = _warm_runner_env_overrides(no_go_previous)
     hours = max(1, int(warm_hours if warm_hours is not None else GROWTH_SUPERVISOR_RUNTIME_HOURS))
     granularity = str(
         warm_granularity or GROWTH_SUPERVISOR_RUNTIME_GRANULARITY
     ).strip() or "5min"
+    warm_adaptation = {
+        "enabled": bool(WARM_EVIDENCE_AGGRESSIVE_MODE),
+        "active": False,
+        "reason": "no_recent_no_go_reference",
+        "requested_hours": int(hours),
+        "requested_granularity": str(granularity),
+        "applied_hours": int(hours),
+        "applied_granularity": str(granularity),
+        "previous_decision_age_seconds": _decision_age_seconds(no_go_previous),
+        "previous_reasons": list(no_go_previous.get("reasons", [])),
+        "adaptation_reason": "",
+    }
+    if (
+        WARM_EVIDENCE_AGGRESSIVE_MODE
+        and _is_no_go_for_warm_bootstrap(no_go_previous)
+        and warm_adaptation["previous_decision_age_seconds"] is not None
+        and warm_adaptation["previous_decision_age_seconds"] <= float(WARM_EVIDENCE_AGGRESSIVE_MAX_AGE_SECONDS)
+    ):
+        pipeline = _load_json(AUDIT_PATH, {}).get("metrics", {})
+        if isinstance(pipeline, dict):
+            pipe = pipeline.get("pipeline", {})
+            if isinstance(pipe, dict):
+                total_funded_budget = float(pipe.get("total_funded_budget", 0.0) or 0.0)
+                funded_strategy_count = int(pipe.get("funded_strategy_count", 0) or 0)
+                if total_funded_budget <= WARM_EVIDENCE_AGGRESSIVE_BUDGET_CAP and funded_strategy_count <= WARM_EVIDENCE_AGGRESSIVE_STRATEGY_CAP:
+                    hours = max(1, int(WARM_EVIDENCE_AGGRESSIVE_HOURS))
+                    granularity = str(WARM_EVIDENCE_AGGRESSIVE_GRANULARITY).strip() or "1min"
+                    warm_adaptation["active"] = True
+                    warm_adaptation["reason"] = "no_go_budget_bootstrap"
+                    warm_adaptation["applied_hours"] = int(hours)
+                    warm_adaptation["applied_granularity"] = str(granularity)
+                    warm_adaptation["adaptation_reason"] = (
+                        "recent_no_go_hot_blockers:"
+                        f"age={warm_adaptation['previous_decision_age_seconds']:.0f}s:"
+                        f"budget={total_funded_budget:.4f}:"
+                        f"strategies={funded_strategy_count}"
+                    )
+                else:
+                    warm_adaptation["adaptation_reason"] = (
+                        f"no_go_recent_hot_blocker_but_budget_limit:{total_funded_budget:.4f}>={WARM_EVIDENCE_AGGRESSIVE_BUDGET_CAP}"
+                        f" or strategies={funded_strategy_count}>={WARM_EVIDENCE_AGGRESSIVE_STRATEGY_CAP}"
+                    )
+            else:
+                warm_adaptation["reason"] = "pipeline_metrics_missing"
+        else:
+            warm_adaptation["reason"] = "audit_metrics_missing"
+    elif WARM_EVIDENCE_AGGRESSIVE_MODE and _is_no_go_for_warm_bootstrap(no_go_previous):
+        if warm_adaptation["previous_decision_age_seconds"] is None:
+            warm_adaptation["reason"] = "previous_no_go_age_missing"
+        else:
+            warm_adaptation["reason"] = "previous_no_go_age_exceeded"
     cycle["commands"].append(
         _run_py(
             "warm_runtime_collector.py",
@@ -1143,6 +1376,7 @@ def run_cycle(
             "--interval-seconds",
             str(int(collector_interval_seconds)),
             "--promote",
+            env_overrides=warm_env_overrides,
         )
     )
     cycle["commands"].append(
@@ -1153,6 +1387,7 @@ def run_cycle(
             "--granularity",
             granularity,
             "--promote",
+            env_overrides=warm_env_overrides,
         )
     )
     cycle["commands"].append(_run_py("rebalance_funded_budgets.py", "--db", str(BASE / "pipeline.db"), "--commit"))
@@ -1186,6 +1421,7 @@ def run_cycle(
         "audit": audit.get("summary", {}),
         "warm_collector": warm_collector.get("summary", {}),
         "warm_promotion": warm_promotion.get("summary", {}),
+        "warm_adaptation": warm_adaptation,
         "quant": (quant.get("summary", {}) if isinstance(quant, dict) else {}),
         "quant_company_status": {
             "go_live": bool((quant_company_status or {}).get("go_live", False)),

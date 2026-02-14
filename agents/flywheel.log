@@ -654,3 +654,45 @@
 2026-02-14 05:48:26,523 [flywheel] INFO received signal 15; stopping flywheel...
 2026-02-14 06:22:31,439 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
 2026-02-14 06:24:51,595 [flywheel] INFO cycle=58 decision=NO_GO quant_run=True pnl_today=+39.9884 total=$241.04 lock=ON
+2026-02-14 06:28:21,057 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 06:28:21,072 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:28:21,089 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:28:21,095 [flywheel] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 06:28:21,099 [flywheel] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 06:28:21,100 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 06:28:21,191 [flywheel] INFO cycle=1 decision=NO_GO quant_run=False pnl_today=+40.9547 total=$12.26 lock=ON
+2026-02-14 06:28:47,945 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 06:28:47,961 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:28:47,975 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:28:47,979 [flywheel] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 06:28:47,981 [flywheel] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 06:28:47,982 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 06:28:48,063 [flywheel] INFO cycle=1 decision=GO quant_run=False pnl_today=+40.9547 total=$12.26 lock=OFF
+2026-02-14 06:28:50,788 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 06:28:50,802 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:28:50,825 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:28:50,831 [flywheel] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 06:28:50,834 [flywheel] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 06:28:50,835 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 06:28:50,943 [flywheel] INFO cycle=1 decision=GO quant_run=False pnl_today=+40.9547 total=$12.26 lock=OFF
+2026-02-14 06:28:54,560 [flywheel] INFO cycle=59 decision=NO_GO quant_run=False pnl_today=+40.9547 total=$240.97 lock=ON
+2026-02-14 06:30:37,465 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 06:30:37,479 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:30:37,494 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:30:37,499 [flywheel] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 06:30:37,501 [flywheel] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 06:30:37,502 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 06:30:37,601 [flywheel] INFO cycle=60 decision=NO_GO quant_run=False pnl_today=+42.1547 total=$12.26 lock=ON
+2026-02-14 06:33:02,084 [flywheel] INFO cycle=60 decision=NO_GO quant_run=False pnl_today=+42.7547 total=$240.11 lock=ON
+2026-02-14 06:37:04,834 [flywheel] INFO cycle=61 decision=NO_GO quant_run=True pnl_today=+43.9547 total=$239.88 lock=ON
+2026-02-14 06:41:42,877 [flywheel] INFO cycle=62 decision=GO quant_run=False pnl_today=+43.9547 total=$239.41 lock=OFF
+2026-02-14 06:46:22,926 [flywheel] INFO cycle=63 decision=NO_GO quant_run=False pnl_today=+43.9547 total=$239.18 lock=ON
+2026-02-14 06:46:28,987 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-14 06:46:29,967 [flywheel] INFO flywheel stopped
+2026-02-14 14:00:35,485 [flywheel] INFO Reconcile gate failed but terminal-cancelled bypass enabled — bypassing: terminal_cancelled_bypass
+2026-02-14 14:00:35,486 [flywheel] INFO cycle=1 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$0.00 lock=ON
+2026-02-14 14:01:20,339 [flywheel] INFO Reconcile gate failed but terminal-cancelled bypass enabled — bypassing: terminal_cancelled_bypass
+2026-02-14 14:01:20,340 [flywheel] INFO cycle=1 decision=GO quant_run=True pnl_today=+0.0000 total=$0.00 lock=ON
+2026-02-14 14:02:00,786 [flywheel] INFO Reconcile gate failed but terminal-cancelled bypass enabled — bypassing: terminal_cancelled_bypass
+2026-02-14 14:02:00,787 [flywheel] INFO cycle=1 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$0.00 lock=ON
+2026-02-14 14:33:43,539 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True

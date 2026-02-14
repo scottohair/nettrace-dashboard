@@ -1,29 +1,165 @@
 {
-  "updated_at": "2026-02-14T11:24:51.589249+00:00",
-  "cycle": 58,
-  "quant_run": true,
+  "updated_at": "2026-02-14T11:46:22.921961+00:00",
+  "cycle": 63,
+  "quant_run": false,
   "bench_run": false,
-  "cycle_elapsed_seconds": 140.15,
+  "cycle_elapsed_seconds": 38.75,
   "growth_decision": {
     "decision": "NO_GO",
     "go_live": false,
     "reasons": [
-      "growth_supervisor_failed_rc_-9"
-    ]
+      "close_flow_gate_failed:close_completion_rate_low:0.333<0.400 attempts=3 completions=1"
+    ],
+    "warnings": [
+      "warm_runtime_rejections_top=return_below_min:32,sharpe_below_min:32,drawdown_above_max:29"
+    ],
+    "autonomy": {
+      "enabled": false,
+      "active": false,
+      "warm_max_funded_budget": 2.0,
+      "warm_max_funded_strategies": 2,
+      "blocked_reasons": [],
+      "details": []
+    },
+    "limits": {
+      "max_pair_share_cap": 0.7,
+      "concentration_cap_enforced": true
+    },
+    "strict_realized_gate": {
+      "enabled": true,
+      "status_available": true,
+      "passed": true,
+      "reason": "passed",
+      "bootstrap_override": false,
+      "bootstrap_reason": "",
+      "bootstrap_limits": {
+        "enabled": true,
+        "max_funded_budget": 2.0,
+        "max_funded_strategies": 8
+      }
+    },
+    "hot_evidence_bootstrap": {
+      "strict_required": false,
+      "enabled": true,
+      "active": false,
+      "warning": "",
+      "limits": {
+        "max_funded_budget": 2.0,
+        "max_funded_strategies": 2
+      }
+    },
+    "execution_health_gate": {
+      "enabled": true,
+      "status_available": true,
+      "green": true,
+      "reason": "passed",
+      "reasons": [],
+      "bootstrap_enabled": true,
+      "bootstrap_active": false,
+      "bootstrap_reason": "",
+      "bootstrap_max_budget_usd": 2.0,
+      "bootstrap_max_strategies": 2,
+      "updated_at": "2026-02-14T11:46:21.737488+00:00"
+    },
+    "close_flow_gate": {
+      "enabled": true,
+      "passed": false,
+      "reason": "close_completion_rate_low:0.333<0.400 attempts=3 completions=1",
+      "lookback_hours": 6,
+      "buy_fills": 0,
+      "sell_fills": 58,
+      "sell_close_events": 7,
+      "effective_sell_completions": 58,
+      "buy_sell_ratio": 0.0,
+      "max_buy_sell_ratio": 2.5,
+      "min_sell_completions": 1,
+      "sell_close_attempts": 3,
+      "sell_close_completions": 1,
+      "sell_close_completion_rate": 0.333333,
+      "min_close_attempts": 2,
+      "min_close_completion_rate": 0.4,
+      "reconcile_gate_passed": true,
+      "reconcile_gate_reason": "sell_close_completion_observed"
+    },
+    "audit_summary": {
+      "total_checks": 7,
+      "failed_checks": 0,
+      "critical_failures": 0,
+      "high_failures": 0
+    },
+    "pipeline_metrics": {
+      "stage_counts": {
+        "COLD": 7386,
+        "HOT": 3097,
+        "WARM": 32
+      },
+      "promoted_hot_events": 3738,
+      "promoted_hot_events_recent_24h": 3659,
+      "killed_events": 0,
+      "max_pair_share": 0.6801,
+      "total_funded_budget": 8.44,
+      "funded_strategy_count": 13,
+      "funded_hot_strategy_count": 11,
+      "funded_warm_strategy_count": 2,
+      "hot_stage_count": 3097,
+      "warm_stage_count": 32,
+      "funded_with_oos_trades": 13
+    },
+    "warm_collector_summary": {
+      "warm_checked": 32,
+      "eligible_hot": 0,
+      "promoted_hot": 0,
+      "collecting": 0,
+      "rejected": 32,
+      "not_ready": 32,
+      "skipped": 0
+    },
+    "warm_promotion_summary": {
+      "warm_checked": 32,
+      "promoted_hot": 0,
+      "eligible_hot": 0,
+      "collecting": 0,
+      "rejected": 32,
+      "not_ready": 32,
+      "skipped": 0
+    },
+    "promotion_feed": {
+      "has_active_hot_evidence": true,
+      "pipeline_hot_stage_count": 3097,
+      "pipeline_warm_stage_count": 32,
+      "pipeline_promoted_hot_events": 3738,
+      "pipeline_funded_hot_strategy_count": 11,
+      "quant_retained_hot_passed": 0,
+      "quant_retained_warm_passed": 0,
+      "quant_implementable_count": 0,
+      "collector_reason_codes_top": [
+        [
+          "return_below_min",
+          32
+        ],
+        [
+          "sharpe_below_min",
+          32
+        ],
+        [
+          "drawdown_above_max",
+          29
+        ]
+      ]
+    }
   },
   "reconcile_close_gate": {
     "enabled": true,
     "status_available": true,
     "passed": true,
     "reason": "sell_close_completion_observed",
-    "attempts": 139,
-    "completions": 137,
+    "attempts": 3,
+    "completions": 1,
     "failures": 2,
     "failure_reasons": {
-      "terminal_cancelled": 1,
-      "terminal_failed": 1
+      "not_completed_pending": 2
     },
-    "updated_at": "2026-02-14T11:22:31.578231+00:00"
+    "updated_at": "2026-02-14T11:45:44.749906+00:00"
   },
   "exit_manager_gate": {
     "enabled": true,
@@ -31,8 +167,8 @@
     "passed": true,
     "reason": "exit_manager_healthy",
     "running": true,
-    "updated_at": "2026-02-14T11:22:28.038116+00:00",
-    "age_seconds": 3.572,
+    "updated_at": "2026-02-14T11:45:35.806887+00:00",
+    "age_seconds": 8.984,
     "max_stale_seconds": 300,
     "require_running": true,
     "idle_stale_grace_seconds": 1800,
@@ -43,115 +179,252 @@
   },
   "trading_lock": {
     "locked": true,
-    "reason": "NO_GO: growth_supervisor_failed_rc_-9",
+    "reason": "NO_GO: close_flow_gate_failed:close_completion_rate_low:0.333<0.400 attempts=3 completions=1",
     "source": "flywheel_controller",
-    "set_at": "2026-02-14T11:24:50.974926+00:00",
+    "set_at": "2026-02-14T11:46:22.260522+00:00",
     "metadata": {
       "decision": {
         "decision": "NO_GO",
         "go_live": false,
         "reasons": [
-          "growth_supervisor_failed_rc_-9"
-        ]
+          "close_flow_gate_failed:close_completion_rate_low:0.333<0.400 attempts=3 completions=1"
+        ],
+        "warnings": [
+          "warm_runtime_rejections_top=return_below_min:32,sharpe_below_min:32,drawdown_above_max:29"
+        ],
+        "autonomy": {
+          "enabled": false,
+          "active": false,
+          "warm_max_funded_budget": 2.0,
+          "warm_max_funded_strategies": 2,
+          "blocked_reasons": [],
+          "details": []
+        },
+        "limits": {
+          "max_pair_share_cap": 0.7,
+          "concentration_cap_enforced": true
+        },
+        "strict_realized_gate": {
+          "enabled": true,
+          "status_available": true,
+          "passed": true,
+          "reason": "passed",
+          "bootstrap_override": false,
+          "bootstrap_reason": "",
+          "bootstrap_limits": {
+            "enabled": true,
+            "max_funded_budget": 2.0,
+            "max_funded_strategies": 8
+          }
+        },
+        "hot_evidence_bootstrap": {
+          "strict_required": false,
+          "enabled": true,
+          "active": false,
+          "warning": "",
+          "limits": {
+            "max_funded_budget": 2.0,
+            "max_funded_strategies": 2
+          }
+        },
+        "execution_health_gate": {
+          "enabled": true,
+          "status_available": true,
+          "green": true,
+          "reason": "passed",
+          "reasons": [],
+          "bootstrap_enabled": true,
+          "bootstrap_active": false,
+          "bootstrap_reason": "",
+          "bootstrap_max_budget_usd": 2.0,
+          "bootstrap_max_strategies": 2,
+          "updated_at": "2026-02-14T11:46:21.737488+00:00"
+        },
+        "close_flow_gate": {
+          "enabled": true,
+          "passed": false,
+          "reason": "close_completion_rate_low:0.333<0.400 attempts=3 completions=1",
+          "lookback_hours": 6,
+          "buy_fills": 0,
+          "sell_fills": 58,
+          "sell_close_events": 7,
+          "effective_sell_completions": 58,
+          "buy_sell_ratio": 0.0,
+          "max_buy_sell_ratio": 2.5,
+          "min_sell_completions": 1,
+          "sell_close_attempts": 3,
+          "sell_close_completions": 1,
+          "sell_close_completion_rate": 0.333333,
+          "min_close_attempts": 2,
+          "min_close_completion_rate": 0.4,
+          "reconcile_gate_passed": true,
+          "reconcile_gate_reason": "sell_close_completion_observed"
+        },
+        "audit_summary": {
+          "total_checks": 7,
+          "failed_checks": 0,
+          "critical_failures": 0,
+          "high_failures": 0
+        },
+        "pipeline_metrics": {
+          "stage_counts": {
+            "COLD": 7386,
+            "HOT": 3097,
+            "WARM": 32
+          },
+          "promoted_hot_events": 3738,
+          "promoted_hot_events_recent_24h": 3659,
+          "killed_events": 0,
+          "max_pair_share": 0.6801,
+          "total_funded_budget": 8.44,
+          "funded_strategy_count": 13,
+          "funded_hot_strategy_count": 11,
+          "funded_warm_strategy_count": 2,
+          "hot_stage_count": 3097,
+          "warm_stage_count": 32,
+          "funded_with_oos_trades": 13
+        },
+        "warm_collector_summary": {
+          "warm_checked": 32,
+          "eligible_hot": 0,
+          "promoted_hot": 0,
+          "collecting": 0,
+          "rejected": 32,
+          "not_ready": 32,
+          "skipped": 0
+        },
+        "warm_promotion_summary": {
+          "warm_checked": 32,
+          "promoted_hot": 0,
+          "eligible_hot": 0,
+          "collecting": 0,
+          "rejected": 32,
+          "not_ready": 32,
+          "skipped": 0
+        },
+        "promotion_feed": {
+          "has_active_hot_evidence": true,
+          "pipeline_hot_stage_count": 3097,
+          "pipeline_warm_stage_count": 32,
+          "pipeline_promoted_hot_events": 3738,
+          "pipeline_funded_hot_strategy_count": 11,
+          "quant_retained_hot_passed": 0,
+          "quant_retained_warm_passed": 0,
+          "quant_implementable_count": 0,
+          "collector_reason_codes_top": [
+            [
+              "return_below_min",
+              32
+            ],
+            [
+              "sharpe_below_min",
+              32
+            ],
+            [
+              "drawdown_above_max",
+              29
+            ]
+          ]
+        }
       },
-      "set_at": "2026-02-14T11:24:50.974888+00:00"
+      "set_at": "2026-02-14T11:46:22.260466+00:00"
     },
-    "epoch": 1771068290.974931,
+    "epoch": 1771069582.260524,
     "pid": 80507
   },
   "portfolio": {
-    "total_usd": 241.04,
-    "available_cash": 221.79,
-    "held_in_orders": 18.26,
+    "total_usd": 239.18,
+    "available_cash": 144.18,
+    "held_in_orders": 66.99,
     "source": "agent_tools"
   },
   "reserve_targets": {
-    "updated_at": "2026-02-14T11:24:51.579797+00:00",
-    "portfolio_total_usd": 241.04,
+    "updated_at": "2026-02-14T11:46:22.905183+00:00",
+    "portfolio_total_usd": 239.18,
     "targets": [
-      {
-        "asset": "USD",
-        "target_pct": 25.0,
-        "target_usd": 60.26,
-        "actual_usd": 151.23,
-        "gap_usd": -90.97
-      },
       {
         "asset": "BTC",
         "target_pct": 20.0,
-        "target_usd": 48.21,
+        "target_usd": 47.84,
         "actual_usd": 0.0,
-        "gap_usd": 48.21
+        "gap_usd": 47.84
+      },
+      {
+        "asset": "USD",
+        "target_pct": 25.0,
+        "target_usd": 59.8,
+        "actual_usd": 90.79,
+        "gap_usd": -31.0
       },
       {
         "asset": "ETH",
         "target_pct": 12.0,
-        "target_usd": 28.92,
-        "actual_usd": 0.0,
-        "gap_usd": 28.92
-      },
-      {
-        "asset": "MKD",
-        "target_pct": 2.0,
-        "target_usd": 4.82,
-        "actual_usd": 0.0,
-        "gap_usd": 4.82
-      },
-      {
-        "asset": "KRW",
-        "target_pct": 2.0,
-        "target_usd": 4.82,
-        "actual_usd": 0.0,
-        "gap_usd": 4.82
-      },
-      {
-        "asset": "EUR",
-        "target_pct": 2.0,
-        "target_usd": 4.82,
-        "actual_usd": 0.0,
-        "gap_usd": 4.82
-      },
-      {
-        "asset": "GBP",
-        "target_pct": 2.0,
-        "target_usd": 4.82,
-        "actual_usd": 0.0,
-        "gap_usd": 4.82
+        "target_usd": 28.7,
+        "actual_usd": 1.48,
+        "gap_usd": 27.22
       },
       {
         "asset": "USDC",
         "target_pct": 35.0,
-        "target_usd": 84.36,
-        "actual_usd": 80.8,
-        "gap_usd": 3.56
+        "target_usd": 83.71,
+        "actual_usd": 101.35,
+        "gap_usd": -17.64
+      },
+      {
+        "asset": "MKD",
+        "target_pct": 2.0,
+        "target_usd": 4.78,
+        "actual_usd": 0.0,
+        "gap_usd": 4.78
+      },
+      {
+        "asset": "KRW",
+        "target_pct": 2.0,
+        "target_usd": 4.78,
+        "actual_usd": 0.0,
+        "gap_usd": 4.78
+      },
+      {
+        "asset": "EUR",
+        "target_pct": 2.0,
+        "target_usd": 4.78,
+        "actual_usd": 0.0,
+        "gap_usd": 4.78
+      },
+      {
+        "asset": "GBP",
+        "target_pct": 2.0,
+        "target_usd": 4.78,
+        "actual_usd": 0.0,
+        "gap_usd": 4.78
       }
     ]
   },
-  "realized_daily_pnl_usd": 39.988361,
+  "realized_daily_pnl_usd": 43.954655,
   "target_progress": [
     {
       "target_usd_per_day": 1000,
-      "realized_usd_today": 39.988361,
-      "progress_pct": 3.9988,
-      "remaining_usd": 960.01,
-      "required_hourly_run_rate_usd": 76.28,
-      "day_elapsed_pct_utc": 0.4756
+      "realized_usd_today": 43.954655,
+      "progress_pct": 4.3955,
+      "remaining_usd": 956.05,
+      "required_hourly_run_rate_usd": 78.19,
+      "day_elapsed_pct_utc": 0.4905
     },
     {
       "target_usd_per_day": 1000000,
-      "realized_usd_today": 39.988361,
-      "progress_pct": 0.004,
-      "remaining_usd": 999960.01,
-      "required_hourly_run_rate_usd": 79451.24,
-      "day_elapsed_pct_utc": 0.4756
+      "realized_usd_today": 43.954655,
+      "progress_pct": 0.0044,
+      "remaining_usd": 999956.05,
+      "required_hourly_run_rate_usd": 81781.13,
+      "day_elapsed_pct_utc": 0.4905
     },
     {
       "target_usd_per_day": 9999999,
-      "realized_usd_today": 39.988361,
+      "realized_usd_today": 43.954655,
       "progress_pct": 0.0004,
-      "remaining_usd": 9999959.01,
-      "required_hourly_run_rate_usd": 794540.87,
-      "day_elapsed_pct_utc": 0.4756
+      "remaining_usd": 9999955.05,
+      "required_hourly_run_rate_usd": 817843.57,
+      "day_elapsed_pct_utc": 0.4905
     }
   ],
   "win_objective": {
@@ -204,8 +477,8 @@
         "96"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.17,
-      "stdout_tail": "{\"updated_at\": \"2026-02-14T11:22:31.578231+00:00\", \"max_orders\": 120, \"lookback_hours\": 96, \"reconcile_statuses\": [\"accepted\", \"ack_ok\", \"open\", \"pending\", \"placed\"], \"summary\": {\"checked\": 0, \"updated\": 0, \"filled\": 0, \"partial\": 0, \"cancelled\": 0, \"failed\": 0, \"expired\": 0, \"early_exit_reason\": \"\", \"close_attempts\": 139, \"close_completions\": 137, \"close_failures\": 2, \"close_failure_reasons\": {\"terminal_cancelled\": 1, \"terminal_failed\": 1}, \"close_gate_passed\": true, \"close_gate_reason\": \"sell_close_completion_observed\"}, \"close_reconciliation\": {\"attempts\": 139, \"completions\": 137, \"failures\": 2, \"completion_rate\": 0.985612, \"failure_reasons\": {\"terminal_cancelled\": 1, \"terminal_failed\": 1}, \"gate_passed\": true, \"gate_reason\": \"sell_close_completion_observed\"}}",
+      "elapsed_seconds": 0.618,
+      "stdout_tail": "{\"updated_at\": \"2026-02-14T11:45:44.749906+00:00\", \"max_orders\": 120, \"lookback_hours\": 96, \"reconcile_statuses\": [\"accepted\", \"ack_ok\", \"open\", \"pending\", \"placed\"], \"summary\": {\"checked\": 3, \"updated\": 1, \"filled\": 1, \"partial\": 0, \"cancelled\": 0, \"failed\": 0, \"expired\": 0, \"early_exit_reason\": \"\", \"close_attempts\": 3, \"close_completions\": 1, \"close_failures\": 2, \"close_failure_reasons\": {\"not_completed_pending\": 2}, \"close_gate_passed\": true, \"close_gate_reason\": \"sell_close_completion_observed\"}, \"close_reconciliation\": {\"attempts\": 3, \"completions\": 1, \"failures\": 2, \"completion_rate\": 0.333333, \"failure_reasons\": {\"not_completed_pending\": 2}, \"gate_passed\": true, \"gate_reason\": \"sell_close_completion_observed\"}}",
       "stderr_tail": "",
       "env_overrides": {}
     },
@@ -214,12 +487,11 @@
         "/opt/homebrew/bin/python3",
         "/Users/scott/src/quant/agents/growth_supervisor.py",
         "--collector-interval-seconds",
-        "300",
-        "--quant-run"
+        "300"
       ],
-      "returncode": -9,
-      "elapsed_seconds": 138.153,
-      "stdout_tail": "",
+      "returncode": 0,
+      "elapsed_seconds": 36.973,
+      "stdout_tail": "  \"promotion_feed\": {\n    \"has_active_hot_evidence\": true,\n    \"pipeline_hot_stage_count\": 3097,\n    \"pipeline_warm_stage_count\": 32,\n    \"pipeline_promoted_hot_events\": 3738,\n    \"pipeline_funded_hot_strategy_count\": 11,\n    \"quant_retained_hot_passed\": 0,\n    \"quant_retained_warm_passed\": 0,\n    \"quant_implementable_count\": 0,\n    \"collector_reason_codes_top\": [\n      [\n        \"return_below_min\",\n        32\n      ],\n      [\n        \"sharpe_below_min\",\n        32\n      ],\n      [\n        \"drawdown_above_max\",\n        29\n      ]\n    ]\n  }\n}",
       "stderr_tail": "",
       "env_overrides": {}
     },
@@ -230,9 +502,9 @@
         "--once"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.617,
-      "stdout_tail": "    ],\n    \"online_nodes\": 1,\n    \"frameworks\": {\n      \"numpy\": 3,\n      \"mlx\": 2,\n      \"pytorch\": 2,\n      \"mps\": 2\n    },\n    \"advanced_msgs\": 120,\n    \"operator_msgs\": 132,\n    \"duplex_to\": 120,\n    \"duplex_from\": 120\n  },\n  \"bundle_id\": \"bundle-253-993b838aeb09\",\n  \"bundle_hash\": \"993b838aeb0983f02ab5dfe8d42900bd71e22c9105c94880a525bc1de90de8f3\",\n  \"bundle_sequence\": 253,\n  \"schema_version\": 1,\n  \"metadata\": {\n    \"bundle_id\": \"bundle-253-993b838aeb09\",\n    \"bundle_hash\": \"993b838aeb0983f02ab5dfe8d42900bd71e22c9105c94880a525bc1de90de8f3\",\n    \"bundle_sequence\": 253,\n    \"generated_at\": \"2026-02-14T11:24:49.900141+00:00\",\n    \"schema_version\": 1\n  }\n}",
-      "stderr_tail": "2026-02-14 06:24:50,345 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/132",
+      "elapsed_seconds": 0.234,
+      "stdout_tail": "    ],\n    \"online_nodes\": 1,\n    \"frameworks\": {\n      \"numpy\": 3,\n      \"mlx\": 2,\n      \"pytorch\": 2,\n      \"mps\": 2\n    },\n    \"advanced_msgs\": 120,\n    \"operator_msgs\": 132,\n    \"duplex_to\": 120,\n    \"duplex_from\": 120\n  },\n  \"bundle_id\": \"bundle-266-3d2dfb1775f3\",\n  \"bundle_hash\": \"3d2dfb1775f324c2cd67dae4d914b1e956b0d878fb08132fca0661da45eb938e\",\n  \"bundle_sequence\": 266,\n  \"schema_version\": 1,\n  \"metadata\": {\n    \"bundle_id\": \"bundle-266-3d2dfb1775f3\",\n    \"bundle_hash\": \"3d2dfb1775f324c2cd67dae4d914b1e956b0d878fb08132fca0661da45eb938e\",\n    \"bundle_sequence\": 266,\n    \"generated_at\": \"2026-02-14T11:46:21.853047+00:00\",\n    \"schema_version\": 1\n  }\n}",
+      "stderr_tail": "2026-02-14 06:46:21,971 [claude_stager] INFO cycle=1 focus_pairs=10 online_nodes=1 frameworks=4 msgs=120/132",
       "env_overrides": {}
     },
     {
@@ -242,9 +514,9 @@
         "--once"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.393,
-      "stdout_tail": "      \"priority_score\": 100.0,\n      \"dispatch_count\": 0,\n      \"trace_id\": \"\",\n      \"verification_reason\": \"\"\n    }\n  ],\n  \"win_1000_snapshot\": {\n    \"updated_at\": \"2026-02-14T03:31:58.419768+00:00\",\n    \"tasks_total\": 1000,\n    \"worked_through_count\": 1000,\n    \"status_counts\": {\n      \"completed\": 220,\n      \"in_progress\": 780,\n      \"pending\": 0,\n      \"blocked\": 0\n    },\n    \"priority_counts\": {\n      \"P0\": 660,\n      \"P1\": 144,\n      \"P2\": 140,\n      \"P3\": 56,\n      \"P4\": 0\n    }\n  }\n}",
-      "stderr_tail": "2026-02-14 06:24:50,751 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0",
+      "elapsed_seconds": 0.147,
+      "stdout_tail": "      \"priority_score\": 100.0,\n      \"dispatch_count\": 0,\n      \"trace_id\": \"\",\n      \"verification_reason\": \"source_truth:win_task_status_completed\"\n    }\n  ],\n  \"win_1000_snapshot\": {\n    \"updated_at\": \"2026-02-14T11:41:42.239595+00:00\",\n    \"tasks_total\": 1000,\n    \"worked_through_count\": 1000,\n    \"status_counts\": {\n      \"completed\": 520,\n      \"in_progress\": 480,\n      \"pending\": 0,\n      \"blocked\": 0\n    },\n    \"priority_counts\": {\n      \"P0\": 660,\n      \"P1\": 144,\n      \"P2\": 140,\n      \"P3\": 56,\n      \"P4\": 0\n    }\n  }\n}",
+      "stderr_tail": "2026-02-14 06:46:22,134 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0",
       "env_overrides": {}
     },
     {
@@ -256,8 +528,8 @@
         "0"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.196,
-      "stdout_tail": "      \"worked_through\": true,\n      \"blocked_reason\": \"hf_live_not_ready\",\n      \"acceptance\": \"Positive OOS + Monte Carlo + realized close-profit evidence where applicable.\",\n      \"last_reviewed_at\": \"2026-02-14T11:24:50.931333+00:00\",\n      \"notes\": [],\n      \"priority_rank\": 24\n    },\n    {\n      \"id\": \"WIN-0896\",\n      \"title\": \"Region routing benchmark 96: compare latency and fill quality in sin\",\n      \"category\": \"deployment_regions\",\n      \"pair\": \"PEPE-USD\",\n      \"region\": \"sin\",\n      \"priority_score\": 100.0,\n      \"priority_tier\": \"P0\",\n      \"status\": \"in_progress\",\n      \"worked_through\": true,\n      \"blocked_reason\": \"hf_live_not_ready\",\n      \"acceptance\": \"Positive OOS + Monte Carlo + realized close-profit evidence where applicable.\",\n      \"last_reviewed_at\": \"2026-02-14T11:24:50.931335+00:00\",\n      \"notes\": [],\n      \"priority_rank\": 25\n    }\n  ]\n}",
+      "elapsed_seconds": 0.11,
+      "stdout_tail": "      \"worked_through\": true,\n      \"blocked_reason\": \"\",\n      \"acceptance\": \"Positive OOS + Monte Carlo + realized close-profit evidence where applicable.\",\n      \"last_reviewed_at\": \"2026-02-14T11:46:22.235512+00:00\",\n      \"notes\": [],\n      \"priority_rank\": 24\n    },\n    {\n      \"id\": \"WIN-0896\",\n      \"title\": \"Region routing benchmark 96: compare latency and fill quality in sin\",\n      \"category\": \"deployment_regions\",\n      \"pair\": \"PEPE-USD\",\n      \"region\": \"sin\",\n      \"priority_score\": 100.0,\n      \"priority_tier\": \"P0\",\n      \"status\": \"completed\",\n      \"worked_through\": true,\n      \"blocked_reason\": \"\",\n      \"acceptance\": \"Positive OOS + Monte Carlo + realized close-profit evidence where applicable.\",\n      \"last_reviewed_at\": \"2026-02-14T11:46:22.235513+00:00\",\n      \"notes\": [],\n      \"priority_rank\": 25\n    }\n  ]\n}",
       "stderr_tail": "",
       "env_overrides": {}
     }
@@ -266,9 +538,9 @@
     "tasks_total": 1000,
     "worked_through_count": 1000,
     "status_counts": {
-      "completed": 220,
-      "in_progress": 780,
-      "pending": 0,
+      "completed": 520,
+      "in_progress": 220,
+      "pending": 260,
       "blocked": 0
     },
     "priority_counts": {
@@ -279,30 +551,30 @@
       "P4": 0
     },
     "state_snapshot": {
-      "go_live": true,
+      "go_live": false,
       "realized_ok": true,
-      "hf_live_ready": false,
-      "coinbase_ready": false,
+      "hf_live_ready": true,
+      "coinbase_ready": true,
       "dns_coinbase_ok": true,
       "creds_coinbase": true,
-      "run_rate_usd_per_hour": 79.29,
+      "run_rate_usd_per_hour": 81.34,
       "top_regions": [
         "ewr",
         "nrt",
         "sin"
       ]
     },
-    "updated_at": "2026-02-14T11:24:50.933718+00:00"
+    "updated_at": "2026-02-14T11:46:22.237102+00:00"
   },
   "autonomous_work": {
     "queue_size": 85,
     "counts": {
-      "queued": 71,
-      "dispatched": 0,
-      "acknowledged": 12,
+      "queued": 33,
+      "dispatched": 12,
+      "acknowledged": 0,
       "completion_claimed": 0,
-      "completed": 0,
-      "stale": 2,
+      "completed": 40,
+      "stale": 0,
       "blocked": 0
     },
     "dispatch": {
@@ -318,13 +590,13 @@
       "claimed": 0,
       "completed": 0,
       "completion_waiting_verification": 0,
-      "last_from_claude_id": 1254
+      "last_from_claude_id": 1315
     },
-    "updated_at": "2026-02-14T11:24:50.749914+00:00"
+    "updated_at": "2026-02-14T11:46:22.133781+00:00"
   },
   "claude_update": {
-    "id": 1316,
-    "timestamp": "2026-02-14T11:24:51.590274+00:00"
+    "id": 1380,
+    "timestamp": "2026-02-14T11:46:22.922822+00:00"
   },
   "claude_collaboration": {
     "enabled": true,
@@ -333,48 +605,19 @@
     "sent": {
       "sent_count": 3,
       "sent_ids": [
-        1317,
-        1318,
-        1319
+        1381,
+        1382,
+        1383
       ],
       "priority": "high"
     },
     "received": {
-      "received_count_total": 18,
-      "received_role_count": 9,
+      "received_count_total": 0,
+      "received_role_count": 0,
       "last_from_claude_id": 1315,
-      "sources": {
-        "claude_opus": 3,
-        "claude_sonnet": 3,
-        "claude_team": 3
-      },
-      "msg_types": {
-        "role_update": 6,
-        "team_consensus": 3
-      },
-      "latest": [
-        {
-          "source": "claude_opus",
-          "id": 1313,
-          "msg_type": "role_update",
-          "timestamp": "2026-02-14T11:24:51.200769+00:00",
-          "message": "Opus role update: refine strategy hypotheses toward realized-close-positive outcomes, tighten risk gates, and prefer high-confidence deterministic exits."
-        },
-        {
-          "source": "claude_sonnet",
-          "id": 1314,
-          "msg_type": "role_update",
-          "timestamp": "2026-02-14T11:24:51.201029+00:00",
-          "message": "Sonnet role update: implement execution fixes that increase filled SELL closes, improve fill quality, and reduce pending/open order drift."
-        },
-        {
-          "source": "claude_team",
-          "id": 1315,
-          "msg_type": "team_consensus",
-          "timestamp": "2026-02-14T11:24:51.204880+00:00",
-          "message": "Opus+Sonnet consensus: cycle=1 promoted=0 rejected=80 no_data=0. Joint plan: prioritize realized close-profit evidence before any budget escalation."
-        }
-      ]
+      "sources": {},
+      "msg_types": {},
+      "latest": []
     }
   }
 }

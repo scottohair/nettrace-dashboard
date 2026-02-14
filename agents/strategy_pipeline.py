@@ -3497,31 +3497,53 @@ class StrategyValidator:
             float(budget_profile.get("current_budget_usd", 0.0) or 0.0),
             float(budget_profile.get("starter_budget_usd", 0.0) or 0.0),
         )
+        pair_text = str(pair or "").strip().upper()
+        is_non_btc_lane = bool(pair_text) and not pair_text.startswith("BTC")
+        pair_fallback_budget_cap = float(REALIZED_ESCALATION_PAIR_FALLBACK_MAX_BUDGET_USD)
+        pair_fallback_budget_eligible = strategy_budget_cap <= pair_fallback_budget_cap
         pair_fallback_active = False
+        pair_non_btc_strict_override_active = False
         if (
             not realized_close_passed
             and REALIZED_ESCALATION_PAIR_FALLBACK_ENABLED
-            and strategy_budget_cap <= float(REALIZED_ESCALATION_PAIR_FALLBACK_MAX_BUDGET_USD)
+            and (pair_fallback_budget_eligible or is_non_btc_lane)
         ):
             pair_level_realized_evidence = self._pair_realized_close_evidence(pair, strategy_name=None)
             pair_closed = int(pair_level_realized_evidence.get("closed_trades", 0) or 0)
             pair_net = float(pair_level_realized_evidence.get("net_pnl_usd", 0.0) or 0.0)
             pair_win_rate = float(pair_level_realized_evidence.get("win_rate", 0.0) or 0.0)
+            pair_level_strict_passed = bool(pair_level_realized_evidence.get("passed", False))
             pair_bootstrap_passed = bool(
                 pair_closed >= int(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_CLOSES)
                 and pair_net > float(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_NET_PNL_USD)
                 and pair_win_rate >= float(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_WIN_RATE)
             )
-            if bool(pair_level_realized_evidence.get("passed", False)) or pair_bootstrap_passed:
+            pair_non_btc_strict_override_active = bool(
+                is_non_btc_lane and not pair_fallback_budget_eligible and pair_level_strict_passed
+            )
+            pair_fallback_passed = bool(
+                pair_level_strict_passed
+                or (pair_fallback_budget_eligible and pair_bootstrap_passed)
+            )
+            if pair_fallback_passed:
                 pair_fallback_active = True
                 realized_close_passed = True
-                realized_close_reason = (
-                    "pair_level_fallback_passed:"
-                    f"closes={pair_closed},"
-                    f"net_pnl={pair_net:.4f},"
-                    f"win_rate={pair_win_rate:.4f},"
-                    f"budget_cap={strategy_budget_cap:.2f}<={REALIZED_ESCALATION_PAIR_FALLBACK_MAX_BUDGET_USD:.2f}"
-                )
+                if pair_non_btc_strict_override_active:
+                    realized_close_reason = (
+                        "pair_level_non_btc_strict_passed:"
+                        f"pair={pair_text},"
+                        f"closes={pair_closed},"
+                        f"net_pnl={pair_net:.4f},"
+                        f"win_rate={pair_win_rate:.4f}"
+                    )
+                else:
+                    realized_close_reason = (
+                        "pair_level_fallback_passed:"
+                        f"closes={pair_closed},"
+                        f"net_pnl={pair_net:.4f},"
+                        f"win_rate={pair_win_rate:.4f},"
+                        f"budget_cap={strategy_budget_cap:.2f}<={pair_fallback_budget_cap:.2f}"
+                    )
         execution_health = self._execution_health_gate_status()
         execution_health_green = bool(execution_health.get("green", False))
         execution_health_reason = str(execution_health.get("reason", "unknown"))
@@ -3547,10 +3569,12 @@ class StrategyValidator:
             "realized_close_reason": realized_close_reason,
             "realized_close_pair_fallback_enabled": bool(REALIZED_ESCALATION_PAIR_FALLBACK_ENABLED),
             "realized_close_pair_fallback_active": bool(pair_fallback_active),
+            "realized_close_pair_fallback_budget_eligible": bool(pair_fallback_budget_eligible),
             "realized_close_pair_fallback_max_budget_usd": float(REALIZED_ESCALATION_PAIR_FALLBACK_MAX_BUDGET_USD),
             "realized_close_pair_fallback_min_closes": int(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_CLOSES),
             "realized_close_pair_fallback_min_net_pnl_usd": float(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_NET_PNL_USD),
             "realized_close_pair_fallback_min_win_rate": float(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_WIN_RATE),
+            "realized_close_non_btc_pair_strict_override_active": bool(pair_non_btc_strict_override_active),
             "realized_close_strategy_budget_cap_usd": round(float(strategy_budget_cap), 4),
             "execution_health_required": bool(
                 EXECUTION_HEALTH_ESCALATION_GATE and EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION

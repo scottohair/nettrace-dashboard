@@ -133,6 +133,37 @@ def test_strict_realized_gate_bootstrap_allows_near_pass_positive_windows(monkey
     assert any("bootstrap_realized_override" in w for w in decision["warnings"])
 
 
+def test_strict_realized_gate_bootstrap_allows_scoped_non_btc_reason(monkeypatch):
+    monkeypatch.setattr(gs, "STRICT_REALIZED_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "STRICT_REALIZED_BOOTSTRAP_ALLOW", True)
+    monkeypatch.setattr(gs, "STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_STRATEGIES", 8)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.25
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 4
+    decision = gs._build_decision(
+        audit,
+        _base_warm(),
+        _base_warm(),
+        quant_company_status={
+            "realized_gate_passed": False,
+            "realized_gate_reason": "insufficient_realized_closes:ETH-USD",
+            "realized_positive_windows": 2,
+            "realized_required_windows": 3,
+            "realized_total_closes": 9,
+            "realized_total_net_pnl_usd": 1.71,
+        },
+        execution_health=_green_execution_health(),
+    )
+
+    assert decision["go_live"] is True
+    assert not any("strict_realized_gate_failed" in r for r in decision["reasons"])
+    gate = decision.get("strict_realized_gate", {})
+    assert gate.get("bootstrap_override") is True
+
+
 def test_close_flow_gate_blocks_buy_heavy_no_sell_closes(monkeypatch):
     monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
     monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
@@ -219,6 +250,110 @@ def test_close_flow_gate_blocks_low_close_completion_rate(monkeypatch):
     )
 
     assert decision["go_live"] is False
+    assert any("close_flow_gate_failed:close_completion_rate_low:" in r for r in decision["reasons"])
+
+
+def test_autonomy_warm_override_allows_low_close_completion_rate(monkeypatch):
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_OVERRIDE", True)
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", False)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_LOW_RATE_AUTONOMY", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_LOW_RATE_MAX_ATTEMPTS", 8)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_LOW_RATE_MAX_COMPLETIONS", 1)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_LOW_RATE_REQUIRE_NO_RECENT_BUYS", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", True)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES", 2)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.0
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    audit["summary"]["critical_failures"] = 0
+
+    decision = gs._build_decision(
+        audit,
+        _base_warm(),
+        _base_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={
+            "green": False,
+            "reason": "egress_blocked",
+            "reasons": ["egress_blocked", "api_probe_failed"],
+            "updated_at": "2026-02-14T00:00:00+00:00",
+        },
+        trade_flow_metrics={
+            "lookback_hours": 6,
+            "buy_fills": 0,
+            "sell_fills": 3,
+            "sell_close_events": 3,
+            "effective_sell_completions": 2,
+            "buy_sell_ratio": 0.0,
+            "sell_close_attempts": 3,
+            "sell_close_completions": 1,
+            "sell_close_completion_rate": 0.333,
+            "reconcile_gate_passed": True,
+        },
+    )
+
+    assert decision["go_live"] is True
+    assert decision["decision"] == "GO"
+    assert any("autonomy_safe_warm_override" in w for w in decision["warnings"])
+    assert decision["autonomy"]["active"] is True
+    assert not any("close_flow_gate_failed" in r for r in decision["reasons"])
+
+
+def test_autonomy_warm_override_blocks_low_close_completion_rate_with_recent_buys(monkeypatch):
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_OVERRIDE", True)
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", False)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_LOW_RATE_AUTONOMY", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_LOW_RATE_MAX_ATTEMPTS", 2)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_LOW_RATE_MAX_COMPLETIONS", 1)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_LOW_RATE_REQUIRE_NO_RECENT_BUYS", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", True)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES", 2)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.0
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    audit["summary"]["critical_failures"] = 0
+
+    decision = gs._build_decision(
+        audit,
+        _base_warm(),
+        _base_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={
+            "green": False,
+            "reason": "egress_blocked",
+            "reasons": ["egress_blocked", "api_probe_failed"],
+            "updated_at": "2026-02-14T00:00:00+00:00",
+        },
+        trade_flow_metrics={
+            "lookback_hours": 6,
+            "buy_fills": 4,
+            "sell_fills": 3,
+            "sell_close_events": 3,
+            "effective_sell_completions": 2,
+            "buy_sell_ratio": 1.3333,
+            "sell_close_attempts": 3,
+            "sell_close_completions": 1,
+            "sell_close_completion_rate": 0.333,
+            "reconcile_gate_passed": True,
+        },
+    )
+
+    assert decision["go_live"] is False
+    assert decision["autonomy"]["active"] is False
     assert any("close_flow_gate_failed:close_completion_rate_low:" in r for r in decision["reasons"])
 
 
@@ -431,3 +566,218 @@ def test_autonomy_warm_override_blocks_critical_failures(monkeypatch):
     assert decision["go_live"] is False
     assert decision["autonomy"]["active"] is False
     assert any("critical_audit_failures_present" in r for r in decision["reasons"])
+
+
+def test_autonomy_warm_override_allows_terminal_cancelled_close_flow(monkeypatch):
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_OVERRIDE", True)
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_AUTONOMY", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_ATTEMPTS", 8)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_COMPLETIONS", 0)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_REQUIRE_NO_RECENT_BUYS", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", False)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES", 2)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.5
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    audit["summary"]["critical_failures"] = 0
+
+    decision = gs._build_decision(
+        audit,
+        _base_warm(),
+        _base_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={
+            "green": False,
+            "reason": "egress_blocked",
+            "reasons": ["egress_blocked", "api_probe_failed"],
+            "updated_at": "2026-02-14T00:00:00+00:00",
+        },
+        trade_flow_metrics={
+            "lookback_hours": 6,
+            "buy_fills": 0,
+            "sell_fills": 4,
+            "sell_close_events": 4,
+            "effective_sell_completions": 0,
+            "buy_sell_ratio": 0.0,
+            "sell_close_attempts": 4,
+            "sell_close_completions": 0,
+            "sell_close_completion_rate": 0.0,
+            "reconcile_gate_passed": False,
+            "reconcile_gate_reason": "sell_close_completion_missing:terminal_cancelled",
+        },
+    )
+
+    assert decision["go_live"] is True
+    assert decision["decision"] == "GO"
+    assert any("autonomy_safe_warm_override" in w for w in decision["warnings"])
+    assert decision["autonomy"]["active"] is True
+    assert not any("close_flow_gate_failed" in r for r in decision["reasons"])
+
+
+def test_autonomy_warm_override_blocks_terminal_cancelled_close_flow_with_recent_buys(monkeypatch):
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_OVERRIDE", True)
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_AUTONOMY", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_ATTEMPTS", 8)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_COMPLETIONS", 0)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_REQUIRE_NO_RECENT_BUYS", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", False)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES", 2)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.5
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    audit["summary"]["critical_failures"] = 0
+
+    decision = gs._build_decision(
+        audit,
+        _base_warm(),
+        _base_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={
+            "green": False,
+            "reason": "egress_blocked",
+            "reasons": ["egress_blocked", "api_probe_failed"],
+            "updated_at": "2026-02-14T00:00:00+00:00",
+        },
+        trade_flow_metrics={
+            "lookback_hours": 6,
+            "buy_fills": 2,
+            "sell_fills": 4,
+            "sell_close_events": 4,
+            "effective_sell_completions": 0,
+            "buy_sell_ratio": 0.0,
+            "sell_close_attempts": 4,
+            "sell_close_completions": 0,
+            "sell_close_completion_rate": 0.0,
+            "reconcile_gate_passed": False,
+            "reconcile_gate_reason": "sell_close_completion_missing:terminal_cancelled",
+        },
+    )
+
+    assert decision["go_live"] is False
+    assert decision["autonomy"]["active"] is False
+    assert any("close_flow_gate_failed:reconcile_close_gate_failed:sell_close_completion_missing:terminal_cancelled" in r for r in decision["reasons"])
+
+
+def test_autonomy_warm_override_allows_not_completed_pending_close_flow(monkeypatch):
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_OVERRIDE", True)
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_AUTONOMY", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_ATTEMPTS", 8)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_COMPLETIONS", 0)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_REQUIRE_NO_RECENT_BUYS", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", False)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES", 2)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.5
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    audit["summary"]["critical_failures"] = 0
+
+    decision = gs._build_decision(
+        audit,
+        _base_warm(),
+        _base_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={
+            "green": False,
+            "reason": "egress_blocked",
+            "reasons": ["egress_blocked", "api_probe_failed"],
+            "updated_at": "2026-02-14T00:00:00+00:00",
+        },
+        trade_flow_metrics={
+            "lookback_hours": 6,
+            "buy_fills": 0,
+            "sell_fills": 4,
+            "sell_close_events": 4,
+            "effective_sell_completions": 0,
+            "buy_sell_ratio": 0.0,
+            "sell_close_attempts": 4,
+            "sell_close_completions": 0,
+            "sell_close_completion_rate": 0.0,
+            "reconcile_gate_passed": False,
+            "reconcile_gate_reason": "sell_close_completion_missing:not_completed_pending",
+        },
+    )
+
+    assert decision["go_live"] is True
+    assert decision["decision"] == "GO"
+    assert any("autonomy_safe_warm_override" in w for w in decision["warnings"])
+    assert decision["autonomy"]["active"] is True
+    assert not any("close_flow_gate_failed" in r for r in decision["reasons"])
+
+
+def test_autonomy_warm_override_blocks_not_completed_pending_close_flow_with_recent_buys(monkeypatch):
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_OVERRIDE", True)
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_AUTONOMY", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_ATTEMPTS", 8)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_COMPLETIONS", 0)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_REQUIRE_NO_RECENT_BUYS", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", False)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES", 2)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.5
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    audit["summary"]["critical_failures"] = 0
+
+    decision = gs._build_decision(
+        audit,
+        _base_warm(),
+        _base_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={
+            "green": False,
+            "reason": "egress_blocked",
+            "reasons": ["egress_blocked", "api_probe_failed"],
+            "updated_at": "2026-02-14T00:00:00+00:00",
+        },
+        trade_flow_metrics={
+            "lookback_hours": 6,
+            "buy_fills": 2,
+            "sell_fills": 4,
+            "sell_close_events": 4,
+            "effective_sell_completions": 0,
+            "buy_sell_ratio": 0.0,
+            "sell_close_attempts": 4,
+            "sell_close_completions": 0,
+            "sell_close_completion_rate": 0.0,
+            "reconcile_gate_passed": False,
+            "reconcile_gate_reason": "sell_close_completion_missing:not_completed_pending",
+        },
+    )
+
+    assert decision["go_live"] is False
+    assert decision["autonomy"]["active"] is False
+    assert any(
+        "close_flow_gate_failed:reconcile_close_gate_failed:sell_close_completion_missing:not_completed_pending" in r
+        for r in decision["reasons"]
+    )

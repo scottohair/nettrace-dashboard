@@ -3623,3 +3623,51 @@
 2026-02-14 06:22:36,189 [ALLOC] INFO Treasury synced: was $252.16, now $242.58 (delta $-9.58)
 2026-02-14 06:22:36,189 [ALLOC] CRITICAL PRINCIPLE LOCK: Gains ($178.96) exceeded 100% of principle ($119.41). Locking principle in savings!
 2026-02-14 06:22:36,190 [ALLOC] INFO Locked $0.00 principle in savings. Now playing with house money.
+2026-02-14 06:27:40,594 [ALLOC] INFO Wallet total: $1.41 across 4 chains
+2026-02-14 06:27:41,180 [ALLOC] INFO Coinbase total: $241.01
+2026-02-14 06:27:41,181 [ALLOC] INFO Absorbed $0.16 loss from checking/growth
+2026-02-14 06:27:41,184 [ALLOC] INFO Treasury synced: was $242.58, now $242.42 (delta $-0.16)
+2026-02-14 06:32:43,967 [ALLOC] INFO Wallet total: $1.41 across 4 chains
+2026-02-14 06:32:44,526 [ALLOC] INFO Coinbase total: $240.13
+2026-02-14 06:32:44,535 [ALLOC] INFO Absorbed $0.88 loss from checking/growth
+2026-02-14 06:32:44,536 [ALLOC] INFO Treasury synced: was $242.42, now $241.54 (delta $-0.88)
+2026-02-14 06:37:47,011 [ALLOC] INFO Wallet total: $1.41 across 4 chains
+2026-02-14 06:37:47,478 [ALLOC] INFO Coinbase total: $239.62
+2026-02-14 06:37:47,480 [ALLOC] INFO Absorbed $0.51 loss from checking/growth
+2026-02-14 06:37:47,480 [ALLOC] INFO Treasury synced: was $241.54, now $241.03 (delta $-0.51)
+2026-02-14 06:42:49,586 [ALLOC] INFO Wallet total: $1.41 across 4 chains
+2026-02-14 06:42:50,170 [ALLOC] INFO Coinbase total: $239.25
+2026-02-14 06:42:50,171 [ALLOC] INFO Absorbed $0.37 loss from checking/growth
+2026-02-14 06:42:50,171 [ALLOC] INFO Treasury synced: was $241.03, now $240.66 (delta $-0.37)
+2026-02-14 13:35:45,844 [ALLOC] INFO Capital Allocator starting (interval=300s)
+2026-02-14 13:35:45,867 [ALLOC] ERROR Failed to get ethereum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:35:45,880 [ALLOC] ERROR Failed to get base balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:35:45,894 [ALLOC] ERROR Failed to get arbitrum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:35:45,908 [ALLOC] ERROR Failed to get polygon balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:35:45,908 [ALLOC] INFO Wallet total: $0.00 across 4 chains
+2026-02-14 13:35:45,934 [ALLOC] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 13:35:45,939 [ALLOC] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 13:35:45,944 [ALLOC] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 13:35:45,945 [ALLOC] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:35:45,946 [ALLOC] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 13:35:45,946 [ALLOC] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 13:35:45,946 [ALLOC] INFO Coinbase total: $0.00
+2026-02-14 13:35:45,946 [ALLOC] WARNING No balances found to sync
+2026-02-14 13:35:45,946 [ALLOC] CRITICAL PRINCIPLE LOCK: Gains ($177.04) exceeded 100% of principle ($119.41). Locking principle in savings!
+2026-02-14 13:35:45,947 [ALLOC] INFO Locked $0.00 principle in savings. Now playing with house money.
+2026-02-14 13:35:45,947 [ALLOC] INFO PULL-TO-USD: Converting $88.52 of gains to USD (4x daily cycle)
+2026-02-14 13:40:45,983 [ALLOC] ERROR Failed to get ethereum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:40:46,000 [ALLOC] ERROR Failed to get base balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:40:46,016 [ALLOC] ERROR Failed to get arbitrum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:40:46,031 [ALLOC] ERROR Failed to get polygon balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:40:46,032 [ALLOC] INFO Wallet total: $0.00 across 4 chains
+2026-02-14 13:40:46,032 [ALLOC] WARNING Circuit reopen blocked by health gate (execution_health_egress_blocked); extending cooldown by 10s
+2026-02-14 13:40:46,032 [ALLOC] INFO Coinbase total: $0.00
+2026-02-14 13:40:46,032 [ALLOC] WARNING No balances found to sync
+2026-02-14 14:33:45,553 [ALLOC] INFO Capital Allocator starting (interval=300s)
+2026-02-14 14:33:47,412 [ALLOC] INFO Wallet total: $1.40 across 4 chains
+2026-02-14 14:33:48,173 [ALLOC] INFO Coinbase total: $236.06
+2026-02-14 14:33:48,174 [ALLOC] INFO Absorbed $3.20 loss from checking/growth
+2026-02-14 14:33:48,174 [ALLOC] INFO Treasury synced: was $240.66, now $237.46 (delta $-3.20)
+2026-02-14 14:33:48,174 [ALLOC] CRITICAL PRINCIPLE LOCK: Gains ($173.84) exceeded 100% of principle ($119.41). Locking principle in savings!
+2026-02-14 14:33:48,175 [ALLOC] INFO Locked $0.00 principle in savings. Now playing with house money.

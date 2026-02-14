@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T11:23:10.846308+00:00",
+  "updated_at": "2026-02-14T19:34:22.188104+00:00",
   "cycle": 1,
   "summary": {
     "runtime_region": "local",
@@ -25,13 +25,13 @@
     "api.coinbase.com": {
       "host": "api.coinbase.com",
       "ok": true,
-      "latency_ms": 4.881,
+      "latency_ms": 3.084,
       "error": ""
     },
     "api.exchange.coinbase.com": {
       "host": "api.exchange.coinbase.com",
       "ok": true,
-      "latency_ms": 0.464,
+      "latency_ms": 0.601,
       "error": ""
     }
   },
@@ -39,13 +39,13 @@
     "coinbase": {
       "venue": "coinbase",
       "window_minutes": 60,
-      "samples": 1067,
-      "success_rate": 0.119,
-      "failure_rate": 0.881,
-      "p50_latency_ms": 21.236,
-      "p90_latency_ms": 80.864,
-      "p99_latency_ms": 107.868,
-      "dns_failures_excluded": 933
+      "samples": 1993,
+      "success_rate": 0.2534,
+      "failure_rate": 0.7466,
+      "p50_latency_ms": 24.34,
+      "p90_latency_ms": 121.302,
+      "p99_latency_ms": 208.747,
+      "dns_failures_excluded": 7
     },
     "ibkr": {
       "venue": "ibkr",
@@ -86,9 +86,9 @@
       "live_ready": false,
       "dns_ok": true,
       "credentials_present": true,
-      "success_rate": 0.119,
-      "samples": 1067,
-      "p90_latency_ms": 80.864,
+      "success_rate": 0.2534,
+      "samples": 1993,
+      "p90_latency_ms": 121.302,
       "reason": "requires_dns+credentials+healthy_telemetry"
     },
     "fix": {
@@ -192,7 +192,7 @@
     "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
     "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
     "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
-    "Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+    "Top recent Coinbase failures: 8x fallback_spot_unavailable | 8x _fetch_json:api.exchange.coinbase.com:fallback_failed:<urlopen error [Errno 1] Operation not permitted> | 6x <urlopen error [Errno 1] Operation not permitted> | [Errno 1] Operation not permitted | errno 1",
     "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
   ],
   "source_manifest_regions": [

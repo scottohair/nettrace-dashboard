@@ -107,3 +107,127 @@
 2026-02-14 06:24:21,197 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
 2026-02-14 06:25:21,204 [phase1_executor] INFO Starting Phase 1 signal execution...
 2026-02-14 06:25:21,207 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:26:21,213 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:26:21,216 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:27:21,219 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:27:21,224 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:28:21,231 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:28:21,241 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:29:21,246 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:29:21,249 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:30:21,255 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:30:21,258 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:31:21,262 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:31:21,264 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:32:21,267 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:32:21,269 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:33:21,274 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:33:21,276 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:34:21,279 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:34:21,281 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:35:21,286 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:35:21,288 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:36:21,291 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:36:21,294 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:37:21,300 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:37:21,303 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:38:21,309 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:38:21,311 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:39:21,312 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:39:21,314 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:40:21,308 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:40:21,313 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:41:21,301 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:41:21,304 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:42:21,314 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:42:21,318 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:43:21,319 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:43:21,322 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:44:21,330 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:44:21,332 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:45:21,337 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:45:21,340 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 06:46:21,343 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 06:46:21,351 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 13:36:32,071 [phase1_executor] INFO ✓ AgentTools loaded
+2026-02-14 13:36:32,072 [phase1_executor] INFO ✓ RiskController loaded
+2026-02-14 13:36:32,075 [phase1_executor] INFO ✓ ExitManager loaded
+2026-02-14 13:36:32,075 [phase1_executor] INFO Starting Phase 1 executor (interval=60s)
+2026-02-14 13:36:32,076 [phase1_executor] INFO Allocations: {
+  "sentiment_leech": {
+    "enabled": true,
+    "allocation_usd": 10.0,
+    "max_position_pct": 0.25
+  },
+  "regulatory_scanner": {
+    "enabled": false,
+    "allocation_usd": 5.0,
+    "max_position_pct": 0.15
+  },
+  "liquidation_hunter": {
+    "enabled": false,
+    "allocation_usd": 5.0,
+    "max_position_pct": 0.2
+  },
+  "narrative_tracker": {
+    "enabled": false,
+    "allocation_usd": 5.0,
+    "max_position_pct": 0.15
+  },
+  "futures_mispricing": {
+    "enabled": false,
+    "allocation_usd": 5.0,
+    "max_position_pct": 0.1
+  }
+}
+2026-02-14 13:36:32,076 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 13:36:32,076 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 13:37:32,080 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 13:37:32,082 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 13:38:32,086 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 13:38:32,088 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 13:39:32,088 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 13:39:32,089 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 13:40:32,094 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 13:40:32,096 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 13:41:32,101 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 13:41:32,103 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 13:42:32,109 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 13:42:32,112 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 13:43:32,118 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 13:43:32,120 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 13:44:32,125 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 13:44:32,127 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)
+2026-02-14 14:34:32,265 [phase1_executor] INFO ✓ AgentTools loaded
+2026-02-14 14:34:32,265 [phase1_executor] INFO ✓ RiskController loaded
+2026-02-14 14:34:32,268 [phase1_executor] INFO ✓ ExitManager loaded
+2026-02-14 14:34:32,268 [phase1_executor] INFO Starting Phase 1 executor (interval=60s)
+2026-02-14 14:34:32,268 [phase1_executor] INFO Allocations: {
+  "sentiment_leech": {
+    "enabled": true,
+    "allocation_usd": 10.0,
+    "max_position_pct": 0.25
+  },
+  "regulatory_scanner": {
+    "enabled": false,
+    "allocation_usd": 5.0,
+    "max_position_pct": 0.15
+  },
+  "liquidation_hunter": {
+    "enabled": false,
+    "allocation_usd": 5.0,
+    "max_position_pct": 0.2
+  },
+  "narrative_tracker": {
+    "enabled": false,
+    "allocation_usd": 5.0,
+    "max_position_pct": 0.15
+  },
+  "futures_mispricing": {
+    "enabled": false,
+    "allocation_usd": 5.0,
+    "max_position_pct": 0.1
+  }
+}
+2026-02-14 14:34:32,268 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 14:34:32,269 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)

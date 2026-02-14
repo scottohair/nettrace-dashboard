@@ -1,0 +1,34 @@
+2026-02-14 13:41:51,661 [multi_exchange_autogen] INFO 
+
+2026-02-14 13:41:51,661 [multi_exchange_autogen] INFO ################################################################################
+2026-02-14 13:41:51,661 [multi_exchange_autogen] INFO # MULTI-EXCHANGE AUTO-GENERATOR
+2026-02-14 13:41:51,661 [multi_exchange_autogen] INFO ################################################################################
+2026-02-14 13:41:51,661 [multi_exchange_autogen] INFO ================================================================================
+2026-02-14 13:41:51,661 [multi_exchange_autogen] INFO REGISTERING PUBLIC APIS (NO AUTH NEEDED)
+2026-02-14 13:41:51,661 [multi_exchange_autogen] INFO ================================================================================
+2026-02-14 13:42:33,435 [multi_exchange_autogen] INFO 
+✓ Registered 0 public APIs
+2026-02-14 13:42:33,435 [multi_exchange_autogen] INFO 
+================================================================================
+2026-02-14 13:42:33,435 [multi_exchange_autogen] INFO REGISTERING ON-CHAIN APIS
+2026-02-14 13:42:33,435 [multi_exchange_autogen] INFO ================================================================================
+2026-02-14 13:42:33,489 [multi_exchange_autogen] INFO ✓ Solana               → https://api.mainnet-beta.solana.com
+2026-02-14 13:42:33,843 [multi_exchange_autogen] INFO ✓ Polygon              → https://polygon-rpc.com
+2026-02-14 13:42:33,843 [multi_exchange_autogen] INFO 
+✓ Registered 0 on-chain APIs
+2026-02-14 13:42:33,843 [multi_exchange_autogen] INFO 
+================================================================================
+2026-02-14 13:42:33,843 [multi_exchange_autogen] INFO REGISTERING DEX APIS (GraphQL)
+2026-02-14 13:42:33,843 [multi_exchange_autogen] INFO ================================================================================
+2026-02-14 13:42:33,998 [multi_exchange_autogen] INFO ✓ Uniswap V3           → https://api.thegraph.com/subgraphs/name/uniswap/un
+2026-02-14 13:42:34,312 [multi_exchange_autogen] INFO ✓ 1inch                → https://api.1inch.io/v5.0
+2026-02-14 13:42:34,377 [multi_exchange_autogen] INFO ✓ 0x Protocol          → https://api.0x.org
+2026-02-14 13:42:34,377 [multi_exchange_autogen] INFO 
+✓ Registered 0 DEX APIs
+2026-02-14 13:42:34,377 [multi_exchange_autogen] INFO 
+================================================================================
+2026-02-14 13:42:34,377 [multi_exchange_autogen] INFO FINAL REPORT
+2026-02-14 13:42:34,377 [multi_exchange_autogen] INFO ================================================================================
+2026-02-14 13:42:34,377 [multi_exchange_autogen] INFO Total exchanges registered: 5
+2026-02-14 13:42:34,377 [multi_exchange_autogen] INFO By type: {'blockchain': 2, 'dex': 3}
+2026-02-14 13:42:34,377 [multi_exchange_autogen] INFO ================================================================================

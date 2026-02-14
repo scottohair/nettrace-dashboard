@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-02-14T11:26:01.587533+00:00",
+  "updated_at": "2026-02-14T19:34:54.017957+00:00",
   "running": true,
   "team_count": 5,
   "teams": {
     "momentum": {
       "name": "momentum",
       "type": "HF",
-      "scans": 24,
-      "signals": 9,
+      "scans": 7,
+      "signals": 0,
       "trades": 0,
       "pnl": 0.0,
       "buy_throttled": 0,
@@ -19,19 +19,23 @@
       "close_first_forced": 0,
       "close_first_forced_blocked": 0,
       "sell_no_inventory_blocked": 0,
-      "pairs_source": "agg_db",
-      "pairs_refresh_count": 3,
+      "pairs_source": "candle_feed",
+      "pairs_refresh_count": 1,
       "active_pairs": [
-        "ETH-USD",
         "SOL-USD",
-        "BTC-USD"
+        "ETH-USD",
+        "BTC-USD",
+        "DOGE-USD",
+        "NEAR-USD",
+        "FIL-USD",
+        "YFI-USD"
       ],
       "alive": true
     },
     "arbitrage": {
       "name": "arbitrage",
       "type": "HF",
-      "scans": 23,
+      "scans": 6,
       "signals": 0,
       "trades": 0,
       "pnl": 0.0,
@@ -44,73 +48,22 @@
       "close_first_forced": 0,
       "close_first_forced_blocked": 0,
       "sell_no_inventory_blocked": 0,
-      "pairs_source": "agg_db",
-      "pairs_refresh_count": 4,
+      "pairs_source": "candle_feed",
+      "pairs_refresh_count": 1,
       "active_pairs": [
-        "ETH-USD",
         "SOL-USD",
-        "BTC-USD"
+        "ETH-USD",
+        "BTC-USD",
+        "NEAR-USD",
+        "FIL-USD",
+        "YFI-USD"
       ],
       "alive": true
     },
     "mean_reversion": {
       "name": "mean_reversion",
       "type": "LF",
-      "scans": 15,
-      "signals": 3,
-      "trades": 0,
-      "pnl": 0.0,
-      "buy_throttled": 0,
-      "exec_health_blocked": 0,
-      "sell_attempted": 0,
-      "sell_completed": 0,
-      "sell_failed": 0,
-      "sell_close_completion_rate": 1.0,
-      "close_first_forced": 0,
-      "close_first_forced_blocked": 0,
-      "sell_no_inventory_blocked": 1,
-      "pairs_source": "agg_db",
-      "pairs_refresh_count": 3,
-      "active_pairs": [
-        "ETH-USD",
-        "SOL-USD",
-        "BTC-USD",
-        "FET-USD",
-        "LINK-USD"
-      ],
-      "alive": true
-    },
-    "breakout": {
-      "name": "breakout",
-      "type": "LF",
-      "scans": 14,
-      "signals": 1,
-      "trades": 0,
-      "pnl": 0.0,
-      "buy_throttled": 0,
-      "exec_health_blocked": 0,
-      "sell_attempted": 0,
-      "sell_completed": 0,
-      "sell_failed": 0,
-      "sell_close_completion_rate": 1.0,
-      "close_first_forced": 0,
-      "close_first_forced_blocked": 0,
-      "sell_no_inventory_blocked": 0,
-      "pairs_source": "agg_db",
-      "pairs_refresh_count": 2,
-      "active_pairs": [
-        "ETH-USD",
-        "SOL-USD",
-        "BTC-USD",
-        "FET-USD",
-        "LINK-USD"
-      ],
-      "alive": true
-    },
-    "correlation": {
-      "name": "correlation",
-      "type": "LF",
-      "scans": 14,
+      "scans": 4,
       "signals": 0,
       "trades": 0,
       "pnl": 0.0,
@@ -123,16 +76,74 @@
       "close_first_forced": 0,
       "close_first_forced_blocked": 0,
       "sell_no_inventory_blocked": 0,
-      "pairs_source": "agg_db",
-      "pairs_refresh_count": 2,
+      "pairs_source": "candle_feed",
+      "pairs_refresh_count": 1,
       "active_pairs": [
-        "ETH-USD",
         "SOL-USD",
+        "ETH-USD",
         "BTC-USD",
-        "FET-USD",
-        "LINK-USD"
+        "AVAX-USD"
+      ],
+      "alive": true
+    },
+    "breakout": {
+      "name": "breakout",
+      "type": "LF",
+      "scans": 3,
+      "signals": 0,
+      "trades": 0,
+      "pnl": 0.0,
+      "buy_throttled": 0,
+      "exec_health_blocked": 0,
+      "sell_attempted": 0,
+      "sell_completed": 0,
+      "sell_failed": 0,
+      "sell_close_completion_rate": 1.0,
+      "close_first_forced": 0,
+      "close_first_forced_blocked": 0,
+      "sell_no_inventory_blocked": 0,
+      "pairs_source": "candle_feed",
+      "pairs_refresh_count": 1,
+      "active_pairs": [
+        "SOL-USD",
+        "ETH-USD",
+        "BTC-USD"
+      ],
+      "alive": true
+    },
+    "correlation": {
+      "name": "correlation",
+      "type": "LF",
+      "scans": 3,
+      "signals": 0,
+      "trades": 0,
+      "pnl": 0.0,
+      "buy_throttled": 0,
+      "exec_health_blocked": 0,
+      "sell_attempted": 0,
+      "sell_completed": 0,
+      "sell_failed": 0,
+      "sell_close_completion_rate": 1.0,
+      "close_first_forced": 0,
+      "close_first_forced_blocked": 0,
+      "sell_no_inventory_blocked": 0,
+      "pairs_source": "candle_feed",
+      "pairs_refresh_count": 1,
+      "active_pairs": [
+        "SOL-USD",
+        "ETH-USD",
+        "BTC-USD"
       ],
       "alive": true
     }
+  },
+  "execution_health_self_heal": {
+    "enabled": true,
+    "checked_at": "2026-02-14T19:34:39.014606+00:00",
+    "blocked": false,
+    "reason": "execution_health_green",
+    "lock_action": "none",
+    "last_error": "",
+    "reconcile_refresh": null
   }
 }

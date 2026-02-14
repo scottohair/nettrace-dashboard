@@ -236,6 +236,21 @@ CONFIG = {
     "close_evidence_profit_buffer_pct": float(
         os.environ.get("SNIPER_CLOSE_EVIDENCE_PROFIT_BUFFER_PCT", "0.001")
     ),
+    "close_evidence_reconcile_pending_mode": os.environ.get(
+        "SNIPER_CLOSE_EVIDENCE_RECONCILE_PENDING_MODE", "1"
+    ).lower() not in ("0", "false", "no"),
+    "close_evidence_reconcile_lookback_hours": int(
+        os.environ.get("SNIPER_CLOSE_EVIDENCE_RECONCILE_LOOKBACK_HOURS", "96")
+    ),
+    "close_evidence_reconcile_max_rows": int(
+        os.environ.get("SNIPER_CLOSE_EVIDENCE_RECONCILE_MAX_ROWS", "16")
+    ),
+    "close_evidence_reconcile_poll_seconds": float(
+        os.environ.get("SNIPER_CLOSE_EVIDENCE_RECONCILE_POLL_SECONDS", "2.5")
+    ),
+    "close_evidence_sell_fill_wait_seconds": float(
+        os.environ.get("SNIPER_CLOSE_EVIDENCE_SELL_FILL_WAIT_SECONDS", "6.0")
+    ),
 }
 
 
@@ -912,6 +927,198 @@ class Sniper:
         ).fetchone()
         return bool(row)
 
+    @staticmethod
+    def _completed_trade_statuses():
+        return ("filled", "closed", "executed", "partial_filled", "partially_filled", "settled")
+
+    @staticmethod
+    def _pending_reconcile_statuses():
+        return ("pending", "placed", "open", "accepted", "ack_ok")
+
+    @staticmethod
+    def _normalize_trade_terminal_status(status, filled_size=0.0):
+        raw = str(status or "").strip().upper()
+        if raw == "FILLED":
+            return "filled"
+        if raw in {"PARTIAL_FILLED", "PARTIALLY_FILLED"}:
+            return "partial_filled"
+        if raw in {"CANCELLED", "CANCELED"}:
+            return "cancelled"
+        if raw in {"FAILED", "REJECTED"}:
+            return "failed"
+        if raw == "EXPIRED":
+            return "expired"
+        if float(filled_size or 0.0) > 0.0:
+            return "filled"
+        return ""
+
+    def _estimate_realized_sell_pnl(self, pair, exit_price, quantity, total_usd):
+        pair_norm = self._normalize_pair(pair)
+        notional = float(total_usd or 0.0)
+        px = float(exit_price or 0.0)
+        qty = float(quantity or 0.0)
+        if notional <= 0.0 and px > 0.0 and qty > 0.0:
+            notional = px * qty
+        if px <= 0.0 or qty <= 0.0 or notional <= 0.0:
+            return None
+        buy_price = self._latest_filled_buy_price_any(pair_norm, fallback_price=0.0)
+        if buy_price <= 0.0:
+            buy_price = self._shared_buy_cost_basis(pair_norm)
+        if buy_price <= 0.0:
+            return None
+        fees = notional * max(0.0, float(CONFIG.get("round_trip_fee_pct", 0.008) or 0.008))
+        return ((px - buy_price) / buy_price) * notional - fees
+
+    def _reconcile_pending_close_rows(self, pair):
+        if not bool(CONFIG.get("close_evidence_reconcile_pending_mode", True)):
+            return {"checked": 0, "updated": 0}
+        if not TRADER_DB_PATH.exists():
+            return {"checked": 0, "updated": 0}
+
+        focus_pair = self._normalize_pair(pair)
+        aliases = self._pair_aliases(focus_pair)
+        if not aliases:
+            return {"checked": 0, "updated": 0}
+
+        pending = self._pending_reconcile_statuses()
+        pair_marks = ",".join("?" for _ in aliases)
+        status_marks = ",".join("?" for _ in pending)
+        lookback_h = min(
+            max(1, int(CONFIG.get("close_evidence_lookback_hours", 168) or 168)),
+            max(1, int(CONFIG.get("close_evidence_reconcile_lookback_hours", 96) or 96)),
+        )
+        row_limit = max(1, int(CONFIG.get("close_evidence_reconcile_max_rows", 16) or 16))
+        poll_seconds = max(0.5, float(CONFIG.get("close_evidence_reconcile_poll_seconds", 2.5) or 2.5))
+        completed = set(self._completed_trade_statuses())
+        target_aliases = self._close_evidence_target_aliases()
+
+        conn = None
+        rows = []
+        checked = 0
+        updated = 0
+        try:
+            conn = sqlite3.connect(str(TRADER_DB_PATH), timeout=5.0)
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA busy_timeout=5000")
+            if not self._trader_table_exists(conn, "agent_trades"):
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+                return {"checked": 0, "updated": 0}
+            rows = conn.execute(
+                f"""
+                SELECT id, pair, side, price, quantity, total_usd, order_id, status, pnl
+                FROM agent_trades
+                WHERE pair IN ({pair_marks})
+                  AND UPPER(COALESCE(side, ''))='SELL'
+                  AND order_id IS NOT NULL
+                  AND TRIM(COALESCE(order_id, ''))!=''
+                  AND LOWER(COALESCE(status, '')) IN ({status_marks})
+                  AND created_at >= datetime('now', ?)
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (*aliases, *pending, f"-{int(lookback_h)} hours", int(row_limit)),
+            ).fetchall()
+        except Exception:
+            rows = []
+
+        if not rows or conn is None:
+            try:
+                if conn is not None:
+                    conn.close()
+            except Exception:
+                pass
+            return {"checked": int(checked), "updated": int(updated)}
+
+        try:
+            from exchange_connector import CoinbaseTrader
+
+            trader = CoinbaseTrader()
+        except Exception:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            return {"checked": int(checked), "updated": int(updated)}
+
+        for row in rows:
+            checked += 1
+            order_id = str(row["order_id"] or "").strip()
+            if not order_id:
+                continue
+            try:
+                fill = trader.get_order_fill(order_id, max_wait=poll_seconds, poll_interval=0.4) or {}
+            except Exception:
+                fill = {}
+            if not fill:
+                continue
+
+            try:
+                filled_sz = float(fill.get("filled_size", 0.0) or 0.0)
+            except Exception:
+                filled_sz = 0.0
+            try:
+                avg_px = float(
+                    fill.get("average_filled_price", fill.get("avg_price", 0.0)) or 0.0
+                )
+            except Exception:
+                avg_px = 0.0
+
+            new_status = self._normalize_trade_terminal_status(fill.get("status"), filled_sz)
+            if not new_status:
+                continue
+            old_status = str(row["status"] or "").strip().lower()
+            if new_status == old_status:
+                continue
+
+            qty = filled_sz if filled_sz > 0.0 else float(row["quantity"] or 0.0)
+            px = avg_px if avg_px > 0.0 else float(row["price"] or 0.0)
+            usd = (qty * px) if qty > 0.0 and px > 0.0 else float(row["total_usd"] or 0.0)
+
+            pnl_val = row["pnl"]
+            if new_status in completed:
+                pnl_val = self._estimate_realized_sell_pnl(row["pair"], px, qty, usd)
+                if pnl_val is None and self._normalize_pair(row["pair"]) in target_aliases:
+                    pnl_val = 0.0
+
+            try:
+                conn.execute(
+                    """
+                    UPDATE agent_trades
+                       SET price=?,
+                           quantity=?,
+                           total_usd=?,
+                           status=?,
+                           pnl=?
+                     WHERE id=?
+                    """,
+                    (
+                        float(px),
+                        float(qty),
+                        float(usd),
+                        str(new_status),
+                        None if pnl_val is None else float(pnl_val),
+                        int(row["id"]),
+                    ),
+                )
+                updated += 1
+            except Exception:
+                continue
+
+        try:
+            if updated > 0:
+                conn.commit()
+        except Exception:
+            pass
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+        return {"checked": int(checked), "updated": int(updated)}
+
     def _query_realized_close_evidence(self, pair):
         evidence = {
             "pair": self._normalize_pair(pair),
@@ -1053,6 +1260,7 @@ class Sniper:
             and isinstance(cached.get("value"), dict)
         ):
             return dict(cached.get("value") or {})
+        self._reconcile_pending_close_rows(key)
         fresh = self._query_realized_close_evidence(key)
         self._close_evidence_cache[key] = {"ts": now, "value": dict(fresh)}
         return fresh
@@ -2601,18 +2809,31 @@ class Sniper:
             try:
                 from exchange_connector import CoinbaseTrader
                 fill_trader = CoinbaseTrader()
-                fill_data = fill_trader.get_order_fill(order_id, max_wait=2, poll_interval=0.4) or {}
+                fill_wait = 2.0
+                if (
+                    str(side or "").upper() == "SELL"
+                    and self._normalize_pair(pair) in self._close_evidence_target_aliases()
+                ):
+                    fill_wait = max(
+                        fill_wait,
+                        float(CONFIG.get("close_evidence_sell_fill_wait_seconds", 6.0) or 6.0),
+                    )
+                fill_data = fill_trader.get_order_fill(
+                    order_id,
+                    max_wait=fill_wait,
+                    poll_interval=0.4,
+                ) or {}
             except Exception:
                 fill_data = {}
 
-            fill_status = str(fill_data.get("status", "") or "").upper()
             try:
                 filled_size = float(fill_data.get("filled_size", 0.0) or 0.0)
             except Exception:
                 filled_size = 0.0
-            if fill_status in {"FILLED", "PARTIAL_FILLED", "PARTIALLY_FILLED"} or filled_size > 0.0:
+            terminal_status = self._normalize_trade_terminal_status(fill_data.get("status"), filled_size)
+            if terminal_status in {"filled", "partial_filled"}:
                 status = "filled"
-            elif fill_status in {"FAILED", "CANCELLED", "CANCELED", "EXPIRED", "REJECTED"}:
+            elif terminal_status in {"failed", "cancelled", "expired"}:
                 status = "failed"
 
         if fill_data:
@@ -2653,19 +2874,15 @@ class Sniper:
         # Calculate P&L on SELL trades
         pnl = None
         if side == "SELL" and status == "filled":
-            buy_price = self._latest_filled_buy_price_any(pair, fallback_price=0.0)
-            if buy_price <= 0.0:
-                buy_price = self._shared_buy_cost_basis(pair)
-            if buy_price > 0:
-                fees = effective_notional * max(0.0, float(CONFIG.get("round_trip_fee_pct", 0.008) or 0.008))
-                pnl = ((effective_price - buy_price) / buy_price) * effective_notional - fees
+            pnl = self._estimate_realized_sell_pnl(pair, effective_price, effective_qty, effective_notional)
+            if pnl is None and self._normalize_pair(pair) in self._close_evidence_target_aliases():
+                pnl = 0.0
+            if pnl is not None:
                 logger.info(
-                    "SNIPER P&L: %s SELL pnl=$%.4f (entry=$%.2f exit=$%.2f fees=$%.4f)",
+                    "SNIPER P&L: %s SELL pnl=$%.4f (exit=$%.2f)",
                     pair,
                     pnl,
-                    buy_price,
                     effective_price,
-                    fees,
                 )
 
         trade_uuid = f"{pair}:{side}:{int(time.time() * 1000)}:{(order_id or 'none')[:12]}"
@@ -2719,7 +2936,7 @@ class Sniper:
 
         ledger_pnl = None
         if side == "SELL" and status == "filled":
-            ledger_pnl = pnl
+            ledger_pnl = 0.0 if pnl is None else float(pnl)
         elif side == "BUY" and status == "filled":
             ledger_pnl = 0.0
         self._record_shared_trade_ledger(

@@ -315,6 +315,30 @@ def _coerce_int(value, default=0):
         return int(default)
 
 
+def _exception_error_text(exc):
+    parts = []
+    raw = str(exc or "").strip()
+    if raw:
+        parts.append(raw)
+
+    reason = getattr(exc, "reason", None)
+    reason_text = str(reason or "").strip()
+    if reason_text and reason_text not in parts:
+        parts.append(reason_text)
+
+    errno = getattr(exc, "errno", None)
+    if errno is None and reason is not None:
+        errno = getattr(reason, "errno", None)
+    if errno is not None:
+        errno_text = f"errno {int(errno)}"
+        if errno_text not in parts:
+            parts.append(errno_text)
+
+    if parts:
+        return " | ".join(parts)
+    return exc.__class__.__name__
+
+
 def _candle_feed_health():
     health = {
         "enabled": bool(CANDLE_FEED_GATE_ENABLED),
@@ -439,7 +463,7 @@ def _dns_probe(host):
             if ips:
                 break
         except Exception as e:
-            error = str(e)
+            error = _exception_error_text(e)
         if not ips and attempt + 1 < attempts:
             time.sleep(max(0.0, float(DNS_PROBE_RETRY_DELAY_SECONDS)))
     if not ips:
@@ -487,7 +511,7 @@ def _dns_probe(host):
                     error = f"system_dns_failed_public_dns_recovered:{error}"
         except Exception as e:
             if not error:
-                error = str(e)
+                error = _exception_error_text(e)
     return {
         "host": str(host),
         "ok": bool(ips),
@@ -542,7 +566,7 @@ def _http_probe(url, timeout_seconds, fallback_ips=None):
                     _ = resp.read(128)
                 ok = 200 <= status < 300
             except Exception as e:
-                error = str(e)
+                error = _exception_error_text(e)
                 continue
             if ok:
                 break
@@ -580,10 +604,18 @@ def _is_egress_error_text(text):
     needles = (
         "operation not permitted",
         "network is unreachable",
+        "no route to host",
+        "host is down",
+        "cannot assign requested address",
         "permission denied",
+        "connection refused",
         "errno 1",
         "errno 101",
         "errno 13",
+        "errno 51",
+        "errno 65",
+        "errno 111",
+        "errno 113",
     )
     return any(n in t for n in needles)
 
@@ -595,6 +627,25 @@ def _all_probe_failures_are_egress_related(probe_rows):
     if not failures:
         return False
     return all(_is_egress_error_text(row.get("error", "")) for row in failures)
+
+
+def _probe_transport_blackout(dns_rows, probe_rows):
+    if not probe_rows:
+        return False
+    failures = [row for row in probe_rows if not bool(row.get("ok"))]
+    if len(failures) != len(probe_rows):
+        return False
+    if not all(int(row.get("status", 0) or 0) == 0 for row in failures):
+        return False
+    if all(_is_egress_error_text(row.get("error", "")) for row in failures):
+        return True
+    # If DNS resolved but every probe failed at transport layer, treat as egress outage.
+    dns_any_ok = any(
+        bool(row.get("ok")) and bool(row.get("ips"))
+        for row in (dns_rows or [])
+        if isinstance(row, dict)
+    )
+    return bool(dns_any_ok)
 
 
 def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, status_path=STATUS_PATH):
@@ -736,6 +787,9 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
             for r in probe_rows
         )
     )
+    probe_transport_blackout = False if LOCAL_TEST_MODE else _probe_transport_blackout(dns_rows, probe_rows)
+    if probe_transport_blackout:
+        egress_blocked = True
     probe_failures_all_egress = _all_probe_failures_are_egress_related(probe_rows)
 
     reconcile_payload = _load_json(RECON_STATUS_PATH, {})
@@ -938,6 +992,7 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
             "api_probe": {
                 "enabled": bool(do_probe),
                 "green": bool(probe_green),
+                "transport_blackout": bool(probe_transport_blackout),
                 "rows": probe_rows,
             },
         "telemetry": {

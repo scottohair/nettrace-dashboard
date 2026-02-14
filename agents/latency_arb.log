@@ -9100,3 +9100,148 @@
 2026-02-14 06:25:38,346 [latency_arb] INFO No actionable signals from NetTrace
 2026-02-14 06:26:08,355 [latency_arb] INFO === LATENCY ARB SCAN ===
 2026-02-14 06:26:08,407 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:26:38,451 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:26:38,517 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:27:08,578 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:27:08,614 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:27:38,655 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:27:38,712 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:28:08,776 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:28:08,831 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:28:38,902 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:28:38,943 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:29:08,987 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:29:09,034 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:29:39,085 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:29:39,123 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:30:09,167 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:30:09,256 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:30:39,295 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:30:39,422 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:31:09,469 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:31:09,566 [latency_arb] ERROR Failed to fetch NetTrace signals: HTTP Error 401: UNAUTHORIZED
+2026-02-14 06:31:09,569 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 06:31:39,575 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:31:39,631 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:32:09,702 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:32:09,744 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:32:39,886 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:32:40,131 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:33:11,586 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:33:11,633 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:33:41,690 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:33:41,733 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:34:11,808 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:34:11,851 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:34:41,917 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:34:41,967 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:35:12,054 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:35:12,119 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:35:42,164 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:35:42,210 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:36:12,287 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:36:12,333 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:36:42,359 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:36:42,393 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:37:12,431 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:37:12,481 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:37:42,515 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:37:42,552 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:38:12,592 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:38:12,633 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:38:42,675 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:38:42,729 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:39:12,771 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:39:12,808 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:39:42,844 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:39:42,882 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:40:12,907 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:40:12,960 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:40:42,999 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:40:43,044 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:41:13,085 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:41:13,126 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:41:43,169 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:41:43,204 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:42:13,231 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:42:13,270 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:42:43,315 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:42:43,438 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:43:13,470 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:43:13,517 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:43:43,556 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:43:43,600 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:44:13,649 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:44:13,688 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:44:43,726 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:44:43,765 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:45:13,804 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:45:16,898 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:45:46,925 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:45:51,538 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 06:46:21,576 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 06:46:26,579 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 13:35:49,860 [latency_arb] INFO Latency Arb Agent starting — scanning every 30s
+2026-02-14 13:35:49,861 [latency_arb] INFO Pairs: BTC-USDC, ETH-USDC, SOL-USDC, AVAX-USDC
+2026-02-14 13:35:49,861 [latency_arb] INFO Thresholds: confidence >= 70%, z-score >= 3.0
+2026-02-14 13:35:49,861 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:35:49,872 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:35:49,872 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:36:19,878 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:36:19,887 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:36:19,888 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:36:49,893 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:36:49,899 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:36:49,899 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:37:19,905 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:37:19,910 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:37:19,911 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:37:49,914 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:37:49,921 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:37:49,922 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:38:19,922 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:38:19,929 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:38:19,930 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:38:49,935 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:38:49,940 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:38:49,941 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:39:19,946 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:39:19,952 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:39:19,952 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:39:49,958 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:39:49,963 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:39:49,964 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:40:19,969 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:40:19,977 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:40:19,978 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:40:49,981 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:40:49,990 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:40:49,991 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:41:19,993 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:41:19,999 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:41:19,999 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:41:50,004 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:41:50,011 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:41:50,012 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:42:20,016 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:42:20,021 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:42:20,022 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:42:50,027 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:42:50,038 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:42:50,039 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:43:20,045 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:43:20,053 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:43:20,054 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:43:50,060 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:43:50,066 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:43:50,066 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 13:44:20,067 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 13:44:20,073 [latency_arb] ERROR Failed to fetch NetTrace signals: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 13:44:20,074 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 14:33:49,622 [latency_arb] INFO Latency Arb Agent starting — scanning every 30s
+2026-02-14 14:33:49,622 [latency_arb] INFO Pairs: BTC-USDC, ETH-USDC, SOL-USDC, AVAX-USDC
+2026-02-14 14:33:49,622 [latency_arb] INFO Thresholds: confidence >= 70%, z-score >= 3.0
+2026-02-14 14:33:49,622 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 14:33:50,266 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 14:34:20,289 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 14:34:28,905 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)

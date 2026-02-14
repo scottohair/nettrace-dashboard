@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T11:24:51.195409+00:00",
+  "updated_at": "2026-02-14T19:34:45.116742+00:00",
   "cycle": 1,
   "priority_pairs": [
     "BTC-USD",
@@ -8,28 +8,31 @@
     "AVAX-USD",
     "LINK-USD",
     "DOGE-USD",
-    "XRP-USD"
+    "XRP-USD",
+    "ARB-USD",
+    "MATIC-USD",
+    "UNI-USD"
   ],
   "summary": {
     "total": 100,
     "promoted": 0,
-    "rejected": 80,
+    "rejected": 82,
     "no_data": 0
   },
   "directive_digest": {
-    "total": 200,
+    "total": 17,
     "from_codex": 0,
-    "high_priority": 113,
+    "high_priority": 10,
     "target_role_counts": {
       "opus": 0,
       "sonnet": 0
     },
     "topic_hits": {
-      "realized_pnl": 26,
-      "budget": 26,
+      "realized_pnl": 6,
+      "budget": 2,
       "risk": 0,
-      "execution": 0,
-      "quant": 88
+      "execution": 2,
+      "quant": 4
     }
   },
   "roles": {
