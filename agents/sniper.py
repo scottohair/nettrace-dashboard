@@ -732,7 +732,8 @@ class Sniper:
         self.daily_loss = 0.0
         self.trades_today = 0
         # Trade frequency throttle — prevent churning (1,086 fills in 2 days killed $78 in fees)
-        self._trade_timestamps = []  # list of trade execution timestamps
+        # PERSISTENT: Load existing timestamps from database on startup
+        self._trade_timestamps = self._load_throttle_state()
         self._max_trades_per_hour = int(os.environ.get("SNIPER_MAX_TRADES_PER_HOUR", "4"))
         self._max_trades_per_day = int(os.environ.get("SNIPER_MAX_TRADES_PER_DAY", "20"))
         self._price_cache = {}
@@ -778,6 +779,11 @@ class Sniper:
                 entry_price REAL,
                 pnl REAL,
                 status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS trade_throttle_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                trade_timestamp REAL NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
@@ -1983,6 +1989,30 @@ class Sniper:
             return degraded
         return healthy
 
+    def _load_throttle_state(self):
+        """Load trade timestamps from database (last 24 hours).
+
+        Called on startup to restore throttle state across restarts/deploys.
+        Prevents fee-burning bursts when app comes back online.
+        """
+        try:
+            now = time.time()
+            cutoff_time = now - 86400  # 24 hours ago
+
+            with self._db_lock:
+                rows = self.db.execute(
+                    "SELECT trade_timestamp FROM trade_throttle_log WHERE trade_timestamp > ? ORDER BY trade_timestamp ASC",
+                    (cutoff_time,)
+                ).fetchall()
+
+            timestamps = [row[0] for row in rows]
+            if timestamps:
+                logger.info("PERSISTENT THROTTLE: Loaded %d timestamps from last 24h (from DB)", len(timestamps))
+            return timestamps
+        except Exception as e:
+            logger.warning("Failed to load throttle state from DB: %s. Starting with empty list.", e)
+            return []
+
     def _check_trade_throttle(self):
         """Check if trade frequency limits are exceeded. Returns (ok, reason)."""
         now = time.time()
@@ -1999,8 +2029,24 @@ class Sniper:
         return True, ""
 
     def _record_trade_timestamp(self):
-        """Record a trade execution for throttle tracking."""
-        self._trade_timestamps.append(time.time())
+        """Record a trade execution for throttle tracking (persisted to DB).
+
+        This prevents fee-burning bursts on app restart by maintaining state
+        across restarts/deploys.
+        """
+        now = time.time()
+        self._trade_timestamps.append(now)
+
+        # Persist to database for recovery after restart/deploy
+        try:
+            with self._db_lock:
+                self.db.execute(
+                    "INSERT INTO trade_throttle_log (trade_timestamp) VALUES (?)",
+                    (now,)
+                )
+                self.db.commit()
+        except Exception as e:
+            logger.warning("Failed to persist trade timestamp to DB: %s", e)
 
     def execute_trade(self, signal):
         """Execute a high-confidence trade on Coinbase.
