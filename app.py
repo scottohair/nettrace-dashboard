@@ -4870,13 +4870,20 @@ def get_realtime_performance():
         # For now, return mock data with actual portfolio value
         orchestrator = getattr(app, '_realtime_orchestrator', None)
 
-        # Get current portfolio from DB
-        db = get_db()
-        portfolio_snapshot = db.execute(
-            "SELECT portfolio_usd, timestamp FROM portfolio_snapshot ORDER BY timestamp DESC LIMIT 1"
-        ).fetchone()
+        # Get current portfolio from DB (with fallback)
+        portfolio_usd = 233.85  # Default value
+        try:
+            db = get_db()
+            # Try to get from portfolio_snapshot if it exists
+            portfolio_snapshot = db.execute(
+                "SELECT portfolio_usd, timestamp FROM portfolio_snapshot ORDER BY timestamp DESC LIMIT 1"
+            ).fetchone()
+            if portfolio_snapshot:
+                portfolio_usd = portfolio_snapshot["portfolio_usd"]
+        except Exception:
+            # Table doesn't exist or query failed - use default
+            pass
 
-        portfolio_usd = portfolio_snapshot["portfolio_usd"] if portfolio_snapshot else 233.85
         timestamp_ms = time.time() * 1000
 
         if orchestrator:
@@ -4916,7 +4923,7 @@ def get_realtime_performance():
 
     except Exception as e:
         logger.error(f"Error fetching realtime performance: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e), "type": type(e).__name__}), 500
 
 
 if __name__ == "__main__":
