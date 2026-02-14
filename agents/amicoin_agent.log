@@ -546,3 +546,9 @@
 2026-02-14 16:23:42,594 [amicoin_agent] INFO cycle=36 reserve=$10422.19 open=29 realized=$422.19 blocked_losses=12459
 2026-02-14 17:33:10,335 [amicoin_agent] INFO AmiCoin agent started (interval=180s)
 2026-02-14 17:33:10,483 [amicoin_agent] INFO cycle=1 reserve=$10422.19 open=29 realized=$422.19 blocked_losses=12488
+2026-02-14 17:36:11,438 [amicoin_agent] INFO cycle=2 reserve=$10422.19 open=30 realized=$422.19 blocked_losses=12517
+2026-02-14 17:39:12,379 [amicoin_agent] INFO cycle=3 reserve=$10422.19 open=30 realized=$422.19 blocked_losses=12547
+2026-02-14 17:42:13,438 [amicoin_agent] INFO cycle=4 reserve=$10422.19 open=30 realized=$422.19 blocked_losses=12576
+2026-02-14 17:45:14,409 [amicoin_agent] INFO cycle=5 reserve=$10422.19 open=30 realized=$422.19 blocked_losses=12606
+2026-02-14 17:48:15,336 [amicoin_agent] INFO cycle=6 reserve=$10422.19 open=30 realized=$422.19 blocked_losses=12634
+2026-02-14 17:51:16,275 [amicoin_agent] INFO cycle=7 reserve=$10422.96 open=29 realized=$422.96 blocked_losses=12662

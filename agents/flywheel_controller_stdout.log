@@ -438,3 +438,4 @@
 2026-02-14 16:22:23,361 [flywheel] INFO cycle=74 decision=GO quant_run=False pnl_today=+47.9364 total=$233.85 lock=OFF
 2026-02-14 17:32:45,876 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
 2026-02-14 17:33:08,978 [flywheel] INFO cycle=75 decision=NO_GO quant_run=False pnl_today=+47.9364 total=$233.67 lock=ON
+2026-02-14 17:52:14,603 [flywheel] INFO cycle=76 decision=NO_GO quant_run=True pnl_today=+47.9364 total=$233.07 lock=ON

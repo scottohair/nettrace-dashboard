@@ -1184,3 +1184,9 @@
 2026-02-14 17:33:24,593 [treasury_registry] INFO starting treasury_registry_agent loop interval=300s
 2026-02-14 17:33:24,594 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
 2026-02-14 17:33:25,296 [treasury_registry] INFO cycle=1 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.67
+2026-02-14 17:38:25,557 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 17:38:27,315 [treasury_registry] INFO cycle=2 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.62
+2026-02-14 17:43:26,714 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 17:43:27,397 [treasury_registry] INFO cycle=3 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.23
+2026-02-14 17:48:27,660 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 17:48:28,322 [treasury_registry] INFO cycle=4 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.20

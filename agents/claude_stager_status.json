@@ -1,13 +1,46 @@
 {
   "agent": "claude_stager",
-  "state": "sleeping",
-  "updated_at": "2026-02-14T22:33:06.279670+00:00",
+  "state": "idle",
+  "updated_at": "2026-02-14T22:52:10.307733+00:00",
   "interval_seconds": 180,
   "cycle_count": 1,
-  "summary": {},
-  "bundle_id": "",
-  "bundle_hash": "",
-  "bundle_sequence": 0,
+  "summary": {
+    "focus_pairs": [
+      "BTC-USD",
+      "ETH-USD",
+      "SOL-USD",
+      "AVAX-USD",
+      "LINK-USD",
+      "DOGE-USD",
+      "XRP-USD",
+      "BCH-USD",
+      "LTC-USD",
+      "ADA-USD"
+    ],
+    "hard_priority_pairs": [
+      "BTC-USD",
+      "ETH-USD",
+      "SOL-USD",
+      "AVAX-USD",
+      "LINK-USD",
+      "DOGE-USD",
+      "XRP-USD"
+    ],
+    "online_nodes": 1,
+    "frameworks": {
+      "numpy": 3,
+      "mlx": 2,
+      "pytorch": 2,
+      "mps": 2
+    },
+    "advanced_msgs": 120,
+    "operator_msgs": 141,
+    "duplex_to": 120,
+    "duplex_from": 120
+  },
+  "bundle_id": "bundle-328-ddd2f45fd0b5",
+  "bundle_hash": "ddd2f45fd0b532058d923568a4d2ca253aeaec6cee9cd26357da5848f9705741",
+  "bundle_sequence": 328,
   "bundle_path": "/Users/scott/src/quant/agents/claude_staging/claude_ingest_bundle.json",
   "error": ""
 }

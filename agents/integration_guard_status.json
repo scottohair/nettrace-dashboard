@@ -1,31 +1,33 @@
 {
   "repo_root": "/Users/scott/src/quant",
-  "ready_for_staged_rollout": true,
-  "required_failures": [],
+  "ready_for_staged_rollout": false,
+  "required_failures": [
+    "trading_lock_allows_rollout"
+  ],
   "checks": [
     {
       "name": "execution_health_green",
-      "passed": false,
+      "passed": true,
       "required": false,
-      "details": "green=False reason=candle_feed_stale:4026.8s>360.0s"
+      "details": "green=True reason=passed"
     },
     {
       "name": "trading_lock_allows_rollout",
-      "passed": true,
+      "passed": false,
       "required": true,
-      "details": "locked=False reason=recovered_stale_dead_owner_lock:Startup preflight blocked: execution_health_not_green:candle_feed_stale:4019.4s>360.0s"
+      "details": "locked=True reason=NO_GO: growth_supervisor_failed_rc_124"
     },
     {
       "name": "quant_validation_has_signal",
       "passed": true,
       "required": true,
-      "details": "promoted=0 rejected=861 no_data=0"
+      "details": "promoted=0 rejected=82 no_data=0"
     },
     {
       "name": "claude_bundle_metadata_present",
       "passed": true,
       "required": true,
-      "details": "bundle_id=bundle-319-97b3a17dae2b sequence=319"
+      "details": "bundle_id=bundle-328-ddd2f45fd0b5 sequence=328"
     },
     {
       "name": "claude_duplex_traceable",
@@ -41,11 +43,9 @@
     }
   ],
   "next_steps": [
-    "Run staged rollout in paper mode first (no budget escalation).",
-    "Require realized close PnL evidence before any HOT budget increase.",
-    "Promote only strategies with trace-linked Claude directive lineage."
+    "Fix trading_lock_allows_rollout: locked=True reason=NO_GO: growth_supervisor_failed_rc_124"
   ],
-  "checked_at": "2026-02-14T22:32:39.069354+00:00",
+  "checked_at": "2026-02-14T22:53:04.194423+00:00",
   "guard_enabled": true,
   "guard_fail_open": false,
   "guarded_agents": [

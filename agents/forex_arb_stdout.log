@@ -8154,3 +8154,174 @@
 2026-02-14 17:33:51,205 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
 2026-02-14 17:33:51,205 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
 2026-02-14 17:33:51,206 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:34:51,212 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:34:51,483 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:34:51,484 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:34:51,756 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:34:51,935 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:34:51,938 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:34:52,424 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 17:34:52,424 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:34:52,425 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:35:52,430 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:35:52,470 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:35:52,470 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:35:52,533 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:35:52,633 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:35:52,634 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:35:52,824 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 17:35:52,824 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:35:52,825 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:36:52,830 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:36:52,873 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:36:52,873 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:36:52,970 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:36:53,042 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:36:53,043 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:36:53,196 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 17:36:53,196 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:36:53,196 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:37:53,201 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:37:53,252 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:37:53,252 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:37:53,323 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:37:53,402 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:37:53,402 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:37:53,553 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 17:37:53,554 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:37:53,554 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:38:53,559 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:38:53,602 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:38:53,603 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:38:53,664 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:38:53,732 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:38:53,732 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:38:53,883 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 17:38:53,883 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:38:53,884 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:39:53,889 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:39:53,933 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:39:53,934 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:39:54,013 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:39:54,117 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:39:54,118 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:39:54,282 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 17:39:54,282 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:39:54,282 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:40:54,288 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:40:54,331 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:40:54,331 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:40:54,390 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:40:54,434 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:40:54,434 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:40:54,595 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 17:40:54,595 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:40:54,596 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:41:54,606 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:41:54,662 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:41:54,663 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:41:54,741 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:41:54,831 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:41:54,832 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:41:55,064 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 17:41:55,064 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:41:55,065 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:42:55,068 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:42:55,104 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:42:55,105 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:42:55,176 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.3% | EURC underpriced: $1.1845 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:42:55,224 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:42:55,225 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:42:55,374 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5328 @ $1.1856) | conf=69.3% | eurc_usdc_arb
+2026-02-14 17:42:55,374 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:42:55,374 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:43:55,380 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:43:55,419 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:43:55,420 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:43:55,489 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.3% | EURC underpriced: $1.1845 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:43:55,537 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:43:55,538 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:43:55,664 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5328 @ $1.1856) | conf=69.3% | eurc_usdc_arb
+2026-02-14 17:43:55,665 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:43:55,665 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:44:55,670 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:44:55,714 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:44:55,715 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:44:55,777 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:44:55,820 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:44:55,820 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:44:56,016 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 17:44:56,016 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:44:56,016 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:45:56,021 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:45:56,063 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:45:56,063 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:45:56,123 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:45:56,185 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:45:56,185 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:45:56,373 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 17:45:56,374 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:45:56,374 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:46:56,377 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:46:56,422 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:46:56,423 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:46:56,511 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:46:56,576 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 17:46:56,576 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:46:56,733 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 17:46:56,733 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:46:56,734 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:47:56,739 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:47:56,782 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:47:56,782 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:47:56,841 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:47:56,929 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 17:47:56,929 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:47:57,064 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 17:47:57,064 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:47:57,065 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:48:57,067 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:48:57,111 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:48:57,111 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:48:57,188 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:48:57,260 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 17:48:57,261 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:48:57,417 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 17:48:57,417 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:48:57,418 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:49:57,423 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:49:57,489 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:49:57,490 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:49:57,557 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:49:57,607 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 17:49:57,607 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:49:57,860 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 17:49:57,860 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:49:57,860 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:50:57,865 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:50:57,914 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:50:57,915 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:50:57,980 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 17:50:58,058 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 17:50:58,059 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:50:58,237 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 17:50:58,237 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:50:58,237 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:51:58,243 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:51:58,285 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:51:58,286 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:51:58,355 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 17:51:58,425 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 17:51:58,426 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:51:58,574 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 17:51:58,575 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:51:58,575 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s
+2026-02-14 17:52:58,580 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 17:52:58,627 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 17:52:58,628 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 17:52:58,699 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 17:52:58,800 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 17:52:58,801 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 17:52:58,947 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 17:52:58,947 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 17:52:58,948 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124

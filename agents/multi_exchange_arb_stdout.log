@@ -14,3 +14,136 @@ Traceback (most recent call last):
     opportunities = await self.orchestrator.run_scan()
                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
 AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #3...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #4...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #5...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #6...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #7...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #8...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #9...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #10...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #11...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #12...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #13...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #14...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #15...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #16...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #17...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #18...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #19...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #20...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+INFO:arb_service:Starting scan #21...
+ERROR:arb_service:Error in arbitrage scan: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/multi_exchange_service.py", line 49, in start
+    opportunities = await self.orchestrator.run_scan()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MultiExchangeOrchestrator' object has no attribute 'run_scan'

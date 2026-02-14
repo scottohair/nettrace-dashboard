@@ -13684,3 +13684,278 @@
 2026-02-14 16:09:52,261 [mean_reversion] INFO BTC/SOL: z=0.72 ratio=794.8559 mean=793.8892 obs=80 
 2026-02-14 16:09:52,261 [mean_reversion] INFO LINK/AVAX: z=0.18 ratio=0.9540 mean=0.9536 obs=80 
 2026-02-14 17:33:14,405 [mean_reversion] INFO Mean Reversion Agent starting | Pairs: ['BTC/ETH', 'ETH/SOL', 'BTC/SOL', 'LINK/AVAX'] | Z-entry: 2.0 | Z-exit: 0.2
+2026-02-14 17:34:28,211 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 17:34:28,212 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 51] Network is unreachable>
+2026-02-14 17:34:28,213 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 51] Network is unreachable>
+2026-02-14 17:34:28,215 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 17:34:28,215 [exchange] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 17:34:28,215 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 51] Network is unreachable>'}
+2026-02-14 17:34:28,215 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 17:34:28,215 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 17:34:28,215 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 17:34:30,220 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 17:34:30,220 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 17:34:30,221 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 17:34:30,221 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 17:35:32,224 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 55s, reason=egress_blocked)
+2026-02-14 17:35:32,224 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 55s, reason=egress_blocked)
+2026-02-14 17:35:32,224 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 55s, reason=egress_blocked)
+2026-02-14 17:35:32,224 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 55s, reason=egress_blocked)
+2026-02-14 17:35:34,229 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 53s, reason=egress_blocked)
+2026-02-14 17:35:34,230 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 53s, reason=egress_blocked)
+2026-02-14 17:35:34,230 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 53s, reason=egress_blocked)
+2026-02-14 17:35:34,230 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 53s, reason=egress_blocked)
+2026-02-14 17:35:36,235 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 51s, reason=egress_blocked)
+2026-02-14 17:35:36,235 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 51s, reason=egress_blocked)
+2026-02-14 17:35:36,235 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 51s, reason=egress_blocked)
+2026-02-14 17:35:36,235 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 51s, reason=egress_blocked)
+2026-02-14 17:35:38,240 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 17:35:38,240 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 17:35:38,240 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 17:35:38,240 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 17:36:40,250 [exchange] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_network_recovered)
+2026-02-14 17:36:40,252 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:36:40,349 [exchange] INFO Circuit breaker CLOSED — api_recovered_via_dns_failover
+2026-02-14 17:36:40,351 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:36:40,352 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:36:40,463 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:36:42,469 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:36:42,581 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:36:42,582 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:36:42,677 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:36:44,683 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:36:44,777 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:36:44,778 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:36:44,875 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:36:46,881 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:36:46,975 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:36:46,977 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:36:47,099 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:37:49,110 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:37:49,221 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:37:49,222 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:37:49,323 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:37:51,329 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:37:51,428 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:37:51,429 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:37:51,524 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:37:53,530 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:37:53,634 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:37:53,635 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:37:53,814 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:37:55,816 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:37:55,914 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:37:55,915 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:37:56,005 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:38:58,014 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:38:58,118 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:38:58,118 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:38:58,255 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:39:00,260 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:39:00,352 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:39:00,353 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:39:00,454 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:39:02,459 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:39:02,558 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:39:02,558 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:39:02,670 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:39:04,676 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:39:04,786 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:39:04,787 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:39:04,878 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:40:06,888 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:40:06,992 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:40:06,993 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:40:07,091 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:40:09,097 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:40:09,201 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:40:09,202 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:40:09,323 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:40:11,329 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:40:11,618 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:40:11,618 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:40:11,721 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:40:13,725 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:40:13,822 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:40:13,822 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:40:13,916 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:41:15,926 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:41:16,123 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:41:16,124 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:41:16,258 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:41:18,262 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:41:18,388 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:41:18,389 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:41:18,491 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:41:20,497 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:41:20,599 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:41:20,600 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:41:20,700 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:41:22,705 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:41:22,829 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:41:22,830 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:41:22,960 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:42:24,970 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:42:25,085 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:42:25,086 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:42:25,182 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:42:27,188 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:42:27,285 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:42:27,286 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:42:27,387 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:42:29,393 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:42:29,499 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:42:29,500 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:42:29,609 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:42:31,615 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:42:31,727 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:42:31,728 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:42:31,837 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:43:33,845 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:43:33,954 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:43:33,955 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:43:34,058 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:43:36,065 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:43:36,216 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:43:36,217 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:43:36,311 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:43:38,317 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:43:38,430 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:43:38,431 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:43:38,534 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:43:40,540 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:43:40,637 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:43:40,638 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:43:40,747 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:44:42,757 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:44:42,858 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:44:42,859 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:44:42,970 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:44:42,970 [mean_reversion] INFO Warming up BTC/ETH: 10/100 observations
+2026-02-14 17:44:44,976 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:44:45,076 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:44:45,076 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:44:45,195 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:44:45,195 [mean_reversion] INFO Warming up ETH/SOL: 10/100 observations
+2026-02-14 17:44:47,201 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:44:47,311 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:44:47,312 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:44:47,459 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:44:49,463 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:44:49,558 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:44:49,559 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:44:49,657 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:45:51,667 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:45:51,765 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:45:51,766 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:45:51,871 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:45:53,874 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:45:53,965 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:45:53,966 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:45:54,070 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:45:56,076 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:45:56,181 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:45:56,182 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:45:56,283 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:45:56,283 [mean_reversion] INFO Warming up BTC/SOL: 10/100 observations
+2026-02-14 17:45:58,284 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:45:58,384 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:45:58,385 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:45:58,486 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:45:58,486 [mean_reversion] INFO Warming up LINK/AVAX: 10/100 observations
+2026-02-14 17:47:00,497 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:47:00,595 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:47:00,596 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:47:00,691 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:47:02,697 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:47:02,803 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:47:02,804 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:47:02,904 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:47:04,910 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:47:05,013 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:47:05,014 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:47:05,109 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:47:07,115 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:47:07,218 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:47:07,219 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:47:07,321 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:48:09,326 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:48:09,420 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:48:09,421 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:48:09,547 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:48:11,553 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:48:11,656 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:48:11,657 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:48:11,767 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:48:13,773 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:48:13,892 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:48:13,893 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:48:13,990 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:48:15,996 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:48:16,101 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:48:16,102 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:48:16,207 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:49:18,216 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:49:18,342 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:49:18,343 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:49:18,440 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:49:20,446 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:49:20,554 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:49:20,555 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:49:20,656 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:49:22,662 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:49:22,775 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:49:22,776 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:49:22,890 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:49:24,896 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:49:24,999 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:49:25,000 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:49:25,101 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:50:27,108 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:50:27,218 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:50:27,219 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:50:27,314 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:50:29,319 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:50:29,416 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:50:29,417 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:50:29,528 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:50:31,534 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:50:31,630 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:50:31,631 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:50:31,812 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:50:33,819 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:50:33,918 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:50:33,919 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:50:34,016 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:51:36,024 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:51:36,119 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:51:36,120 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:51:36,215 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:51:38,221 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:51:38,322 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:51:38,323 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:51:38,437 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:51:40,443 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:51:40,558 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:51:40,559 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:51:40,660 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:51:42,663 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:51:42,760 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:51:42,761 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:51:42,856 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:52:44,867 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:52:44,961 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:52:44,962 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:52:45,061 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:52:47,067 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:52:47,175 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:52:47,176 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:52:47,291 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:52:49,297 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:52:49,395 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:52:49,396 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:52:49,521 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:52:51,527 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:52:51,627 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded
+2026-02-14 17:52:51,628 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=4
+2026-02-14 17:52:51,722 [exchange] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded

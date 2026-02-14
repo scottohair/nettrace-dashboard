@@ -1,36 +1,36 @@
 {
-  "updated_at": "2026-02-14T22:34:04.186096+00:00",
+  "updated_at": "2026-02-14T22:52:53.137665+00:00",
   "ok": true,
   "error": "",
-  "runtime_ms": 21516.919,
+  "runtime_ms": 21459.684,
   "target_points": 1000,
   "since_hours": 48,
   "interval_seconds": 20,
   "summary": {
     "target_points": 1000,
-    "total_points": 22216,
+    "total_points": 23014,
     "target_achieved": true,
     "pair_count": 48,
     "timeframe_count": 4,
-    "latest_ts": 1771108380,
-    "latest_at": "2026-02-14T22:33:00+00:00",
-    "freshness_seconds": 64,
+    "latest_ts": 1771109520,
+    "latest_at": "2026-02-14T22:52:00+00:00",
+    "freshness_seconds": 53,
     "source_breakdown": [
       {
         "source": "coinbase_adv_public",
-        "count": 20204
+        "count": 21016
       },
       {
         "source": "local:exchange_scanner",
-        "count": 1561
+        "count": 1533
       },
       {
         "source": "local:trader",
-        "count": 432
+        "count": 445
       },
       {
         "source": "local:sniper",
-        "count": 15
+        "count": 16
       },
       {
         "source": "local:latency_arb",
@@ -41,9 +41,9 @@
     "effective_since_hours": 48,
     "requested_pairs": 55,
     "requested_timeframes": 4,
-    "inserted_points": 5887,
+    "inserted_points": 6662,
     "source_counts": {
-      "coinbase_adv_public": 5886,
+      "coinbase_adv_public": 6661,
       "local_fallback": 1
     }
   }

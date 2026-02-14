@@ -93399,3 +93399,1069 @@ when serializing dict item 'route_hint'
 2026-02-14 17:34:15,513 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.62% (worst 1.50%) vs mins 1.20%/0.10%)
 2026-02-14 17:34:15,514 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
 2026-02-14 17:34:15,514 [sniper] INFO SNIPER: scan interval now 20s (health-adaptive)
+2026-02-14 17:34:35,615 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:34:35,615 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:34:35,723 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:34:35,723 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:34:35,725 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:34:35,737 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:34:35,782 [sniper] INFO   [orderbook] BUY | conf=80.3% | Bid imbalance 0.51 (bids 857818.7 vs asks 280629.6)
+2026-02-14 17:34:35,868 [sniper] INFO   [latency] BUY | conf=88.8% | 14 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:34:35,900 [sniper] INFO   [latency] BUY | conf=88.8% | 14 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:34:35,923 [sniper] INFO   [latency] BUY | conf=88.8% | 14 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:34:36,873 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:34:36,874 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:34:36,874 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:34:37,534 [sniper] INFO   [planner] territory=0.44 | chain_moves=2 | entry_checks=3
+2026-02-14 17:34:37,534 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.71% (worst 1.68%) vs mins 1.20%/0.10%)
+2026-02-14 17:34:37,534 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.98% (worst 2.13%) vs mins 1.20%/0.10%)
+2026-02-14 17:34:37,534 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.67% (worst 1.60%) vs mins 1.20%/0.10%)
+2026-02-14 17:34:37,535 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:34:57,630 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:34:57,631 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:34:57,741 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:34:57,743 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:34:57,749 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:34:57,749 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:34:57,851 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:34:57,857 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:34:57,857 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:34:57,860 [sniper] INFO   [latency] BUY | conf=88.6% | 13 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:34:57,890 [sniper] INFO   [latency] BUY | conf=88.6% | 13 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:34:57,911 [sniper] INFO   [latency] BUY | conf=88.6% | 13 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:34:57,924 [sniper] INFO   [orderbook] BUY | conf=81.0% | Bid imbalance 0.52 (bids 883656.9 vs asks 278619.7)
+2026-02-14 17:34:58,237 [sniper] INFO   [orderbook] BUY | conf=64.1% | Bid imbalance 0.18 (bids 21.4 vs asks 14.8)
+2026-02-14 17:34:59,091 [sniper] INFO   [planner] territory=0.44 | chain_moves=2 | entry_checks=3
+2026-02-14 17:34:59,091 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 2.98% (worst 0.85%) vs mins 1.20%/0.10%)
+2026-02-14 17:34:59,091 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.97% (worst 2.10%) vs mins 1.20%/0.10%)
+2026-02-14 17:34:59,091 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.68% (worst 1.63%) vs mins 1.20%/0.10%)
+2026-02-14 17:34:59,091 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:35:19,212 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:35:19,212 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:35:19,353 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:35:19,355 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:35:19,355 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:35:19,377 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:35:19,457 [sniper] INFO   [orderbook] BUY | conf=79.1% | Bid imbalance 0.48 (bids 802347.7 vs asks 280496.0)
+2026-02-14 17:35:19,470 [sniper] INFO   [orderbook] SELL | conf=90.0% | Ask imbalance -0.70
+2026-02-14 17:35:19,485 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:35:19,485 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:35:19,512 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:35:19,536 [sniper] INFO   [latency] BUY | conf=88.6% | 13 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:35:19,558 [sniper] INFO   [latency] BUY | conf=88.6% | 13 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:35:19,587 [sniper] INFO   [latency] BUY | conf=88.6% | 13 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:35:20,439 [sniper] INFO   [planner] territory=0.44 | chain_moves=2 | entry_checks=3
+2026-02-14 17:35:20,440 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.70% (worst 1.66%) vs mins 1.20%/0.10%)
+2026-02-14 17:35:20,440 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.97% (worst 2.10%) vs mins 1.20%/0.10%)
+2026-02-14 17:35:20,440 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.62% (worst 1.50%) vs mins 1.20%/0.10%)
+2026-02-14 17:35:20,440 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:35:40,585 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:35:40,585 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:35:40,699 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:35:40,703 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:35:40,703 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:35:40,706 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:35:40,789 [sniper] INFO   [orderbook] BUY | conf=76.8% | Bid imbalance 0.44 (bids 795627.6 vs asks 312100.5)
+2026-02-14 17:35:40,803 [sniper] INFO   [orderbook] SELL | conf=63.7% | Ask imbalance -0.17
+2026-02-14 17:35:40,821 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:35:40,821 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:35:40,826 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:35:40,866 [sniper] INFO   [latency] BUY | conf=87.5% | 13 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:35:40,891 [sniper] INFO   [latency] BUY | conf=87.5% | 13 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:35:40,914 [sniper] INFO   [latency] BUY | conf=87.5% | 13 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:35:41,587 [sniper] INFO   [planner] territory=0.44 | chain_moves=2 | entry_checks=3
+2026-02-14 17:35:41,587 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.65% (worst 1.55%) vs mins 1.20%/0.10%)
+2026-02-14 17:35:41,587 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.92% (worst 2.00%) vs mins 1.20%/0.10%)
+2026-02-14 17:35:41,587 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.51% (worst 1.28%) vs mins 1.20%/0.10%)
+2026-02-14 17:35:41,588 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:36:01,726 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:36:01,727 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:36:01,840 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:36:01,855 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:36:01,866 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:36:01,866 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:36:01,927 [sniper] INFO   [orderbook] BUY | conf=76.3% | Bid imbalance 0.43 (bids 781379.9 vs asks 314085.8)
+2026-02-14 17:36:01,967 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:36:01,974 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:36:01,979 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:36:01,985 [sniper] INFO   [latency] BUY | conf=88.2% | 14 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:36:02,015 [sniper] INFO   [latency] BUY | conf=88.2% | 14 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:36:02,041 [sniper] INFO   [latency] BUY | conf=88.2% | 14 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:36:02,792 [sniper] INFO   [planner] territory=0.44 | chain_moves=2 | entry_checks=3
+2026-02-14 17:36:02,792 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.69% (worst 1.62%) vs mins 1.20%/0.10%)
+2026-02-14 17:36:02,792 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.96% (worst 2.07%) vs mins 1.20%/0.10%)
+2026-02-14 17:36:02,792 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.52% (worst 1.29%) vs mins 1.20%/0.10%)
+2026-02-14 17:36:02,794 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:36:22,914 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:36:22,914 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:36:23,011 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:36:23,015 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:36:23,022 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:36:23,022 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:36:23,098 [sniper] INFO   [orderbook] SELL | conf=63.3% | Ask imbalance -0.17
+2026-02-14 17:36:23,112 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:36:23,120 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:36:23,133 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:36:23,227 [sniper] INFO   [orderbook] BUY | conf=78.1% | Bid imbalance 0.46 (bids 767765.2 vs asks 281894.9)
+2026-02-14 17:36:23,276 [sniper] INFO   [growth_engine] ETH-USD | GF quality=29.2% lattice=FAIL | conf 70.5%->59.9% (dampened)
+2026-02-14 17:36:23,757 [sniper] INFO   [planner] territory=0.44 | chain_moves=0 | entry_checks=3
+2026-02-14 17:36:23,757 [sniper] INFO   ETH-USD: BUY conf=59.9% (2 signals, 1Q) — below threshold
+2026-02-14 17:36:23,757 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.26% (worst 0.61%) vs mins 1.20%/0.10%)
+2026-02-14 17:36:23,757 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.13% (worst 0.47%) vs mins 1.20%/0.10%)
+2026-02-14 17:36:23,757 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:36:43,873 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:36:43,873 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:36:43,987 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:36:43,993 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:36:43,993 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:36:43,994 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:36:44,095 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:36:44,099 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:36:44,099 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:36:44,110 [sniper] INFO   [latency] BUY | conf=88.5% | 14 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:36:44,135 [sniper] INFO   [latency] BUY | conf=88.5% | 14 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:36:44,159 [sniper] INFO   [latency] BUY | conf=88.5% | 14 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:36:44,204 [sniper] INFO   [orderbook] BUY | conf=76.6% | Bid imbalance 0.43 (bids 786573.2 vs asks 312439.7)
+2026-02-14 17:36:44,295 [sniper] INFO   [orderbook] SELL | conf=71.1% | Ask imbalance -0.32
+2026-02-14 17:36:44,338 [sniper] INFO   [orderbook] SELL | conf=65.7% | Ask imbalance -0.21
+2026-02-14 17:36:44,865 [sniper] INFO   [planner] territory=0.53 | chain_moves=2 | entry_checks=3
+2026-02-14 17:36:44,865 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.70% (worst 1.65%) vs mins 1.20%/0.10%)
+2026-02-14 17:36:44,865 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.97% (worst 2.10%) vs mins 1.20%/0.10%)
+2026-02-14 17:36:44,865 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.54% (worst 1.33%) vs mins 1.20%/0.10%)
+2026-02-14 17:36:44,866 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:37:04,970 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:37:04,970 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:37:05,076 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:37:05,087 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:37:05,087 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:37:05,101 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:37:05,155 [sniper] INFO   [orderbook] BUY | conf=76.5% | Bid imbalance 0.43 (bids 780504.5 vs asks 311150.6)
+2026-02-14 17:37:05,161 [sniper] INFO   [orderbook] SELL | conf=68.9% | Ask imbalance -0.28
+2026-02-14 17:37:05,183 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:37:05,194 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:37:05,201 [sniper] INFO   [latency] BUY | conf=88.3% | 12 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:37:05,207 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:37:05,225 [sniper] INFO   [latency] BUY | conf=88.3% | 12 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:37:05,253 [sniper] INFO   [latency] BUY | conf=88.3% | 12 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:37:05,459 [sniper] INFO   [orderbook] BUY | conf=64.0% | Bid imbalance 0.18 (bids 12.2 vs asks 8.5)
+2026-02-14 17:37:06,032 [sniper] INFO   [planner] territory=0.53 | chain_moves=2 | entry_checks=3
+2026-02-14 17:37:06,032 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 2.97% (worst 0.82%) vs mins 1.20%/0.10%)
+2026-02-14 17:37:06,032 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.96% (worst 2.08%) vs mins 1.20%/0.10%)
+2026-02-14 17:37:06,032 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.53% (worst 1.31%) vs mins 1.20%/0.10%)
+2026-02-14 17:37:06,033 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:37:26,137 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:37:26,137 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:37:26,244 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:37:26,244 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:37:26,247 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:37:26,352 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:37:26,352 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:37:26,374 [sniper] INFO   [latency] BUY | conf=90.1% | 12 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:37:26,396 [sniper] INFO   [latency] BUY | conf=90.1% | 12 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:37:26,419 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:37:26,469 [sniper] INFO   [orderbook] BUY | conf=80.5% | Bid imbalance 0.51 (bids 860287.2 vs asks 278899.1)
+2026-02-14 17:37:26,522 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:37:26,539 [sniper] INFO   [latency] BUY | conf=90.1% | 12 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:37:27,200 [sniper] INFO   [planner] territory=0.59 | chain_moves=2 | entry_checks=3
+2026-02-14 17:37:27,200 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.78% (worst 1.82%) vs mins 1.20%/0.10%)
+2026-02-14 17:37:27,200 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.05% (worst 2.27%) vs mins 1.20%/0.10%)
+2026-02-14 17:37:27,200 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.72% (worst 1.70%) vs mins 1.20%/0.10%)
+2026-02-14 17:37:27,202 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:37:47,294 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:37:47,297 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:37:47,398 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:37:47,399 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:37:47,411 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:37:47,411 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:37:47,475 [sniper] INFO   [orderbook] BUY | conf=80.6% | Bid imbalance 0.51 (bids 862152.3 vs asks 277928.2)
+2026-02-14 17:37:47,494 [sniper] INFO   [orderbook] SELL | conf=92.4% | Ask imbalance -0.75
+2026-02-14 17:37:47,501 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:37:47,501 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:37:47,513 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:37:47,519 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:37:47,542 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:37:47,564 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:37:47,605 [sniper] INFO   [orderbook] SELL | conf=65.5% | Ask imbalance -0.21
+2026-02-14 17:37:48,422 [sniper] INFO   [planner] territory=0.59 | chain_moves=2 | entry_checks=3
+2026-02-14 17:37:48,422 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.76% (worst 1.76%) vs mins 1.20%/0.10%)
+2026-02-14 17:37:48,422 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.02% (worst 2.21%) vs mins 1.20%/0.10%)
+2026-02-14 17:37:48,422 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.70% (worst 1.67%) vs mins 1.20%/0.10%)
+2026-02-14 17:37:48,424 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:38:08,575 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:38:08,576 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:38:08,670 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:38:08,671 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:38:08,674 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:38:08,678 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:38:08,733 [sniper] INFO   [orderbook] BUY | conf=82.9% | Bid imbalance 0.56 (bids 22.4 vs asks 6.4)
+2026-02-14 17:38:08,755 [sniper] INFO   [orderbook] SELL | conf=63.6% | Ask imbalance -0.17
+2026-02-14 17:38:08,776 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:38:08,776 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:38:08,785 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:38:08,803 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:38:08,833 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:38:08,855 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:38:08,869 [sniper] INFO   [orderbook] BUY | conf=80.5% | Bid imbalance 0.51 (bids 858767.4 vs asks 278803.2)
+2026-02-14 17:38:09,494 [sniper] INFO   [planner] territory=0.66 | chain_moves=2 | entry_checks=3
+2026-02-14 17:38:09,495 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.81% (worst 1.89%) vs mins 1.20%/0.10%)
+2026-02-14 17:38:09,495 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.02% (worst 2.21%) vs mins 1.20%/0.10%)
+2026-02-14 17:38:09,495 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.70% (worst 1.67%) vs mins 1.20%/0.10%)
+2026-02-14 17:38:09,496 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:38:29,623 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:38:29,623 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:38:29,715 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:38:29,715 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:38:29,719 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:38:29,720 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:38:29,789 [sniper] INFO   [orderbook] SELL | conf=81.4% | Ask imbalance -0.53
+2026-02-14 17:38:29,799 [sniper] INFO   [orderbook] BUY | conf=78.1% | Bid imbalance 0.46 (bids 770632.4 vs asks 284127.6)
+2026-02-14 17:38:29,822 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:38:29,826 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:38:29,826 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:38:29,830 [sniper] INFO   [latency] BUY | conf=89.6% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:38:29,860 [sniper] INFO   [latency] BUY | conf=89.6% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:38:29,886 [sniper] INFO   [latency] BUY | conf=89.6% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:38:30,579 [sniper] INFO   [planner] territory=0.66 | chain_moves=2 | entry_checks=3
+2026-02-14 17:38:30,579 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.76% (worst 1.76%) vs mins 1.20%/0.10%)
+2026-02-14 17:38:30,580 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.02% (worst 2.21%) vs mins 1.20%/0.10%)
+2026-02-14 17:38:30,580 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.62% (worst 1.50%) vs mins 1.20%/0.10%)
+2026-02-14 17:38:30,580 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:38:50,713 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:38:50,713 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:38:50,815 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:38:50,818 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:38:50,822 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:38:50,822 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:38:50,871 [sniper] INFO   [orderbook] BUY | conf=74.6% | Bid imbalance 0.39 (bids 743867.4 vs asks 324932.6)
+2026-02-14 17:38:50,888 [sniper] INFO   [orderbook] SELL | conf=66.1% | Ask imbalance -0.22
+2026-02-14 17:38:50,931 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:38:50,931 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:38:50,931 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:38:50,933 [sniper] INFO   [latency] BUY | conf=89.6% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:38:50,958 [sniper] INFO   [latency] BUY | conf=89.6% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:38:50,983 [sniper] INFO   [latency] BUY | conf=89.6% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:38:51,617 [sniper] INFO   [planner] territory=0.66 | chain_moves=2 | entry_checks=3
+2026-02-14 17:38:51,617 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.76% (worst 1.76%) vs mins 1.20%/0.10%)
+2026-02-14 17:38:51,617 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.02% (worst 2.21%) vs mins 1.20%/0.10%)
+2026-02-14 17:38:51,617 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.51% (worst 1.26%) vs mins 1.20%/0.10%)
+2026-02-14 17:38:51,617 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:39:11,711 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:39:11,711 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:39:11,800 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:39:11,811 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:39:11,812 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:39:11,812 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:39:11,862 [sniper] INFO   [orderbook] BUY | conf=79.4% | Bid imbalance 0.49 (bids 779082.6 vs asks 267636.9)
+2026-02-14 17:39:11,867 [sniper] INFO   [orderbook] SELL | conf=66.1% | Ask imbalance -0.22
+2026-02-14 17:39:11,885 [sniper] INFO   [orderbook] SELL | conf=81.8% | Ask imbalance -0.54
+2026-02-14 17:39:11,908 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:39:11,912 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:39:11,919 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:39:11,937 [sniper] INFO   [latency] BUY | conf=90.5% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:39:11,959 [sniper] INFO   [latency] BUY | conf=90.5% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:39:11,988 [sniper] INFO   [latency] BUY | conf=90.5% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:39:12,600 [sniper] INFO   [planner] territory=0.47 | chain_moves=2 | entry_checks=3
+2026-02-14 17:39:12,600 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.80% (worst 1.86%) vs mins 1.20%/0.10%)
+2026-02-14 17:39:12,600 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.07% (worst 2.31%) vs mins 1.20%/0.10%)
+2026-02-14 17:39:12,600 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.69% (worst 1.65%) vs mins 1.20%/0.10%)
+2026-02-14 17:39:12,600 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:39:32,718 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:39:32,719 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:39:32,817 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:39:32,817 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:39:32,820 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:39:32,825 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:39:32,867 [sniper] INFO   [orderbook] BUY | conf=79.0% | Bid imbalance 0.48 (bids 771229.3 vs asks 271086.2)
+2026-02-14 17:39:32,893 [sniper] INFO   [orderbook] SELL | conf=64.8% | Ask imbalance -0.20
+2026-02-14 17:39:32,920 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:39:32,929 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:39:32,929 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:39:32,938 [sniper] INFO   [latency] BUY | conf=89.2% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:39:32,964 [sniper] INFO   [latency] BUY | conf=89.2% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:39:32,988 [sniper] INFO   [latency] BUY | conf=89.2% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:39:33,605 [sniper] INFO   [planner] territory=0.44 | chain_moves=2 | entry_checks=3
+2026-02-14 17:39:33,605 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.74% (worst 1.72%) vs mins 1.20%/0.10%)
+2026-02-14 17:39:33,605 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.00% (worst 2.17%) vs mins 1.20%/0.10%)
+2026-02-14 17:39:33,605 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.64% (worst 1.54%) vs mins 1.20%/0.10%)
+2026-02-14 17:39:33,606 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:39:53,709 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:39:53,710 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:39:53,806 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:39:53,808 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:39:53,848 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:39:53,848 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:39:53,873 [sniper] INFO   [orderbook] SELL | conf=64.3% | Ask imbalance -0.19
+2026-02-14 17:39:53,915 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:39:53,915 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:39:53,930 [sniper] INFO   [latency] BUY | conf=88.2% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:39:53,953 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:39:53,958 [sniper] INFO   [orderbook] SELL | conf=71.6% | Ask imbalance -0.33
+2026-02-14 17:39:53,959 [sniper] INFO   [latency] BUY | conf=88.2% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:39:53,981 [sniper] INFO   [latency] BUY | conf=88.2% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:39:54,001 [sniper] INFO   [orderbook] BUY | conf=81.9% | Bid imbalance 0.54 (bids 876283.1 vs asks 263237.2)
+2026-02-14 17:39:54,568 [sniper] INFO   [planner] territory=0.44 | chain_moves=2 | entry_checks=3
+2026-02-14 17:39:54,568 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.69% (worst 1.62%) vs mins 1.20%/0.10%)
+2026-02-14 17:39:54,568 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.07%) vs mins 1.20%/0.10%)
+2026-02-14 17:39:54,568 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.70% (worst 1.67%) vs mins 1.20%/0.10%)
+2026-02-14 17:39:54,569 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:40:14,671 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:40:14,671 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:40:14,853 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:40:14,853 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:40:14,854 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:40:14,863 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:40:14,938 [sniper] INFO   [orderbook] SELL | conf=64.8% | Ask imbalance -0.20
+2026-02-14 17:40:14,960 [sniper] INFO   [orderbook] BUY | conf=62.8% | Bid imbalance 0.16 (bids 17.1 vs asks 12.4)
+2026-02-14 17:40:14,961 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:40:14,962 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:40:14,966 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:40:14,979 [sniper] INFO   [latency] BUY | conf=88.2% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:40:15,090 [sniper] INFO   [latency] BUY | conf=88.2% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:40:15,091 [sniper] INFO   [orderbook] BUY | conf=80.4% | Bid imbalance 0.51 (bids 803794.2 vs asks 261593.2)
+2026-02-14 17:40:15,097 [sniper] INFO   [latency] BUY | conf=88.2% | 9 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:40:15,966 [sniper] INFO   [planner] territory=0.44 | chain_moves=2 | entry_checks=3
+2026-02-14 17:40:15,966 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 2.95% (worst 0.79%) vs mins 1.20%/0.10%)
+2026-02-14 17:40:15,966 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.07%) vs mins 1.20%/0.10%)
+2026-02-14 17:40:15,966 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.65% (worst 1.57%) vs mins 1.20%/0.10%)
+2026-02-14 17:40:15,967 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:40:36,085 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:40:36,085 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:40:36,179 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:40:36,179 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:40:36,185 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:40:36,189 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:40:36,251 [sniper] INFO   [orderbook] BUY | conf=80.5% | Bid imbalance 0.51 (bids 803558.8 vs asks 261118.3)
+2026-02-14 17:40:36,296 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:40:36,296 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:40:36,298 [sniper] INFO   [orderbook] SELL | conf=64.8% | Ask imbalance -0.20
+2026-02-14 17:40:36,324 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:40:36,365 [sniper] INFO   [latency] BUY | conf=88.2% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:40:36,389 [sniper] INFO   [latency] BUY | conf=88.2% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:40:36,420 [sniper] INFO   [latency] BUY | conf=88.2% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:40:36,967 [sniper] INFO   [planner] territory=0.49 | chain_moves=2 | entry_checks=3
+2026-02-14 17:40:36,967 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.69% (worst 1.62%) vs mins 1.20%/0.10%)
+2026-02-14 17:40:36,967 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.07%) vs mins 1.20%/0.10%)
+2026-02-14 17:40:36,967 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.65% (worst 1.57%) vs mins 1.20%/0.10%)
+2026-02-14 17:40:36,968 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:40:57,084 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:40:57,084 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:40:57,190 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:40:57,190 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:40:57,190 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:40:57,199 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:40:57,201 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:40:57,298 [sniper] INFO   [orderbook] SELL | conf=72.2% | Ask imbalance -0.34
+2026-02-14 17:40:57,308 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:40:57,317 [sniper] INFO   [orderbook] SELL | conf=65.1% | Ask imbalance -0.20
+2026-02-14 17:40:57,354 [sniper] INFO   [latency] BUY | conf=88.8% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:40:57,377 [sniper] INFO   [latency] BUY | conf=88.8% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:40:57,401 [sniper] INFO   [latency] BUY | conf=88.8% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:40:57,446 [sniper] INFO   [orderbook] BUY | conf=78.8% | Bid imbalance 0.48 (bids 795114.8 vs asks 281858.2)
+2026-02-14 17:40:58,306 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:40:58,310 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:40:58,862 [sniper] INFO   [planner] territory=0.64 | chain_moves=2 | entry_checks=3
+2026-02-14 17:40:58,862 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.23% (worst 1.20%) vs mins 1.20%/0.10%)
+2026-02-14 17:40:58,862 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.98% (worst 2.13%) vs mins 1.20%/0.10%)
+2026-02-14 17:40:58,862 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.62% (worst 1.50%) vs mins 1.20%/0.10%)
+2026-02-14 17:40:58,862 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:41:19,024 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:41:19,024 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:41:19,124 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:41:19,124 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:41:19,124 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:41:19,133 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:41:19,142 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:41:19,228 [sniper] INFO   [orderbook] BUY | conf=67.1% | Bid imbalance 0.24 (bids 17.8 vs asks 10.9)
+2026-02-14 17:41:19,234 [sniper] INFO   [orderbook] BUY | conf=79.9% | Bid imbalance 0.50 (bids 778196.3 vs asks 261123.4)
+2026-02-14 17:41:19,262 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:41:19,262 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:41:19,281 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:41:19,296 [sniper] INFO   [latency] BUY | conf=89.3% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:41:19,333 [sniper] INFO   [latency] BUY | conf=89.3% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:41:19,366 [sniper] INFO   [latency] BUY | conf=89.3% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:41:20,076 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:41:20,077 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 2.92% (worst 0.85%) vs mins 1.20%/0.10%)
+2026-02-14 17:41:20,077 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.01% (worst 2.18%) vs mins 1.20%/0.10%)
+2026-02-14 17:41:20,077 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.67% (worst 1.60%) vs mins 1.20%/0.10%)
+2026-02-14 17:41:20,078 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:41:40,180 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:41:40,180 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:41:40,280 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:41:40,280 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:41:40,280 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:41:40,302 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:41:40,318 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:41:40,372 [sniper] INFO   [orderbook] BUY | conf=79.4% | Bid imbalance 0.49 (bids 766520.0 vs asks 263334.9)
+2026-02-14 17:41:40,387 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:41:40,408 [sniper] INFO   [latency] BUY | conf=88.8% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:41:40,409 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:41:40,424 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:41:40,437 [sniper] INFO   [latency] BUY | conf=88.8% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:41:40,465 [sniper] INFO   [latency] BUY | conf=88.8% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:41:41,223 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:41:41,223 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.23% (worst 1.20%) vs mins 1.20%/0.10%)
+2026-02-14 17:41:41,223 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.98% (worst 2.12%) vs mins 1.20%/0.10%)
+2026-02-14 17:41:41,223 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.64% (worst 1.54%) vs mins 1.20%/0.10%)
+2026-02-14 17:41:41,223 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:42:01,364 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:42:01,364 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:42:01,483 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:42:01,494 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:42:01,500 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:42:01,500 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:42:01,500 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:42:01,661 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:42:01,661 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:42:01,661 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:42:01,687 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:42:01,715 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:42:01,733 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:42:01,944 [sniper] INFO   [orderbook] BUY | conf=79.7% | Bid imbalance 0.49 (bids 776093.8 vs asks 263273.9)
+2026-02-14 17:42:02,724 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:42:02,724 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.28% (worst 1.29%) vs mins 1.20%/0.10%)
+2026-02-14 17:42:02,724 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.03% (worst 2.21%) vs mins 1.20%/0.10%)
+2026-02-14 17:42:02,724 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.67% (worst 1.61%) vs mins 1.20%/0.10%)
+2026-02-14 17:42:02,724 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:42:22,834 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:42:22,834 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:42:22,935 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:42:22,935 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:42:22,935 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:42:22,936 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:42:22,941 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:42:23,038 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:42:23,038 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:42:23,041 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:42:23,063 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:42:23,092 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:42:23,126 [sniper] INFO   [latency] BUY | conf=89.6% | 11 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:42:23,139 [sniper] INFO   [orderbook] BUY | conf=79.6% | Bid imbalance 0.49 (bids 777859.9 vs asks 264814.1)
+2026-02-14 17:42:23,334 [sniper] INFO   [orderbook] BUY | conf=71.5% | Bid imbalance 0.33 (bids 19.5 vs asks 9.8)
+2026-02-14 17:42:23,919 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:42:23,919 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 2.97% (worst 0.95%) vs mins 1.20%/0.10%)
+2026-02-14 17:42:23,919 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.03% (worst 2.21%) vs mins 1.20%/0.10%)
+2026-02-14 17:42:23,919 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.67% (worst 1.61%) vs mins 1.20%/0.10%)
+2026-02-14 17:42:23,920 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:42:44,006 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:42:44,006 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:42:44,100 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:42:44,102 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:42:44,102 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:42:44,102 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:42:44,164 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:42:44,205 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:42:44,205 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:42:44,217 [sniper] INFO   [latency] BUY | conf=90.1% | 12 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:42:44,246 [sniper] INFO   [latency] BUY | conf=90.1% | 12 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:42:44,267 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:42:44,316 [sniper] INFO   [latency] BUY | conf=90.1% | 12 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:42:44,364 [sniper] INFO   [orderbook] BUY | conf=79.6% | Bid imbalance 0.49 (bids 775305.2 vs asks 264336.6)
+2026-02-14 17:42:44,489 [sniper] INFO   [orderbook] BUY | conf=72.4% | Bid imbalance 0.35 (bids 19.0 vs asks 9.2)
+2026-02-14 17:42:45,060 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:42:45,060 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.00% (worst 1.01%) vs mins 1.20%/0.10%)
+2026-02-14 17:42:45,060 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.05% (worst 2.27%) vs mins 1.20%/0.10%)
+2026-02-14 17:42:45,060 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.69% (worst 1.64%) vs mins 1.20%/0.10%)
+2026-02-14 17:42:45,061 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:43:05,186 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:43:05,186 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:43:05,280 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:43:05,280 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:43:05,280 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:43:05,294 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:43:05,302 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:43:05,340 [sniper] INFO   [orderbook] BUY | conf=79.7% | Bid imbalance 0.49 (bids 776428.8 vs asks 262938.4)
+2026-02-14 17:43:05,358 [sniper] INFO   [orderbook] BUY | conf=71.8% | Bid imbalance 0.34 (bids 23.6 vs asks 11.7)
+2026-02-14 17:43:05,380 [sniper] INFO   [orderbook] SELL | conf=64.9% | Ask imbalance -0.20
+2026-02-14 17:43:05,385 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:43:05,395 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:43:05,404 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:43:05,411 [sniper] INFO   [latency] BUY | conf=89.9% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:43:05,437 [sniper] INFO   [latency] BUY | conf=89.9% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:43:05,459 [sniper] INFO   [latency] BUY | conf=89.9% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:43:06,270 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:43:06,270 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 2.98% (worst 0.98%) vs mins 1.20%/0.10%)
+2026-02-14 17:43:06,270 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.04% (worst 2.24%) vs mins 1.20%/0.10%)
+2026-02-14 17:43:06,270 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.68% (worst 1.63%) vs mins 1.20%/0.10%)
+2026-02-14 17:43:06,271 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:43:26,375 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:43:26,375 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:43:26,467 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:43:26,476 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:43:26,479 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:43:26,479 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:43:26,479 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:43:26,513 [sniper] INFO   [orderbook] BUY | conf=79.7% | Bid imbalance 0.49 (bids 775428.8 vs asks 262938.3)
+2026-02-14 17:43:26,542 [sniper] INFO   [orderbook] SELL | conf=63.1% | Ask imbalance -0.16
+2026-02-14 17:43:26,557 [sniper] INFO   [orderbook] BUY | conf=80.8% | Bid imbalance 0.52 (bids 23.1 vs asks 7.4)
+2026-02-14 17:43:26,576 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:43:26,576 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:43:26,588 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:43:26,594 [sniper] INFO   [latency] BUY | conf=87.9% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:43:26,618 [sniper] INFO   [latency] BUY | conf=87.9% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:43:26,642 [sniper] INFO   [latency] BUY | conf=87.9% | 10 exchanges improving latency (9 anomalies from 7 regions)
+2026-02-14 17:43:27,268 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:43:27,268 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.21% (worst 1.15%) vs mins 1.20%/0.10%)
+2026-02-14 17:43:27,268 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.94% (worst 2.03%) vs mins 1.20%/0.10%)
+2026-02-14 17:43:27,268 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.62% (worst 1.49%) vs mins 1.20%/0.10%)
+2026-02-14 17:43:27,269 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:43:47,390 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:43:47,390 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:43:47,477 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:43:47,492 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:43:47,493 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:43:47,493 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:43:47,496 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:43:47,556 [sniper] INFO   [orderbook] BUY | conf=82.2% | Bid imbalance 0.54 (bids 772598.0 vs asks 227529.2)
+2026-02-14 17:43:47,581 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:43:47,599 [sniper] INFO   [latency] BUY | conf=87.9% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:43:47,600 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:43:47,608 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:43:47,627 [sniper] INFO   [orderbook] BUY | conf=87.0% | Bid imbalance 0.64 (bids 30.7 vs asks 6.7)
+2026-02-14 17:43:47,627 [sniper] INFO   [latency] BUY | conf=87.9% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:43:47,652 [sniper] INFO   [latency] BUY | conf=87.9% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:43:48,294 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:43:48,294 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.41% (worst 1.57%) vs mins 1.20%/0.10%)
+2026-02-14 17:43:48,294 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.94% (worst 2.03%) vs mins 1.20%/0.10%)
+2026-02-14 17:43:48,294 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.70% (worst 1.67%) vs mins 1.20%/0.10%)
+2026-02-14 17:43:48,295 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:44:08,631 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:44:08,632 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:44:08,764 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:44:08,772 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:44:08,772 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:44:08,772 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:44:08,843 [sniper] INFO   [orderbook] BUY | conf=81.6% | Bid imbalance 0.53 (bids 761759.8 vs asks 232788.2)
+2026-02-14 17:44:08,896 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:44:08,896 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:44:08,899 [sniper] INFO   [orderbook] SELL | conf=65.8% | Ask imbalance -0.22
+2026-02-14 17:44:08,912 [sniper] INFO   [latency] BUY | conf=87.9% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:44:08,928 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:44:08,944 [sniper] INFO   [latency] BUY | conf=87.9% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:44:09,089 [sniper] INFO   [latency] BUY | conf=87.9% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:44:09,214 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:44:10,773 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:44:10,773 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.19% (worst 1.10%) vs mins 1.20%/0.10%)
+2026-02-14 17:44:10,773 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.94% (worst 2.03%) vs mins 1.20%/0.10%)
+2026-02-14 17:44:10,773 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.68% (worst 1.62%) vs mins 1.20%/0.10%)
+2026-02-14 17:44:10,774 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:44:30,870 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:44:30,870 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:44:30,975 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:44:30,975 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:44:30,975 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:44:30,977 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:44:30,979 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:44:31,037 [sniper] INFO   [orderbook] BUY | conf=81.6% | Bid imbalance 0.53 (bids 768471.4 vs asks 234424.1)
+2026-02-14 17:44:31,088 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:44:31,093 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:44:31,093 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:44:31,129 [sniper] INFO   [latency] BUY | conf=87.9% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:44:31,152 [sniper] INFO   [latency] BUY | conf=87.9% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:44:31,180 [sniper] INFO   [latency] BUY | conf=87.9% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:44:31,777 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:44:31,777 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.19% (worst 1.10%) vs mins 1.20%/0.10%)
+2026-02-14 17:44:31,777 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.94% (worst 2.03%) vs mins 1.20%/0.10%)
+2026-02-14 17:44:31,777 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.68% (worst 1.63%) vs mins 1.20%/0.10%)
+2026-02-14 17:44:31,778 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:44:51,902 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:44:51,903 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:44:52,003 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:44:52,013 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:44:52,015 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:44:52,015 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:44:52,015 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:44:52,055 [sniper] INFO   [orderbook] BUY | conf=81.6% | Bid imbalance 0.53 (bids 771490.7 vs asks 236212.3)
+2026-02-14 17:44:52,107 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:44:52,122 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:44:52,122 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:44:52,125 [sniper] INFO   [latency] BUY | conf=87.9% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:44:52,173 [sniper] INFO   [latency] BUY | conf=87.9% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:44:52,202 [sniper] INFO   [latency] BUY | conf=87.9% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:44:52,871 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:44:52,871 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.19% (worst 1.10%) vs mins 1.20%/0.10%)
+2026-02-14 17:44:52,871 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.94% (worst 2.03%) vs mins 1.20%/0.10%)
+2026-02-14 17:44:52,872 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.68% (worst 1.62%) vs mins 1.20%/0.10%)
+2026-02-14 17:44:52,873 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:45:12,982 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:45:12,982 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:45:13,077 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:45:13,083 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:45:13,083 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:45:13,083 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:45:13,085 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:45:13,165 [sniper] INFO   [orderbook] BUY | conf=81.6% | Bid imbalance 0.53 (bids 767617.5 vs asks 234905.8)
+2026-02-14 17:45:13,178 [sniper] INFO   [orderbook] BUY | conf=83.9% | Bid imbalance 0.58 (bids 22.3 vs asks 6.0)
+2026-02-14 17:45:13,178 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:45:13,188 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:45:13,189 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:45:13,198 [sniper] INFO   [latency] BUY | conf=86.6% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:45:13,224 [sniper] INFO   [latency] BUY | conf=86.6% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:45:13,242 [sniper] INFO   [latency] BUY | conf=86.6% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:45:13,864 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:45:13,864 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.27% (worst 1.28%) vs mins 1.20%/0.10%)
+2026-02-14 17:45:13,864 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.88% (worst 1.90%) vs mins 1.20%/0.10%)
+2026-02-14 17:45:13,864 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.64% (worst 1.54%) vs mins 1.20%/0.10%)
+2026-02-14 17:45:13,864 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:45:33,960 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:45:33,960 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:45:34,050 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:45:34,050 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:45:34,050 [sniper] INFO   [uptick] SELL | conf=64.4% | Downtick from high: 0.18% drop, 0.18% range
+2026-02-14 17:45:34,064 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:45:34,066 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:45:34,154 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:45:34,158 [sniper] INFO   [orderbook] BUY | conf=89.0% | Bid imbalance 0.68 (bids 23.6 vs asks 4.5)
+2026-02-14 17:45:34,167 [sniper] INFO   [latency] BUY | conf=86.2% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:45:34,173 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:45:34,173 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:45:34,213 [sniper] INFO   [latency] BUY | conf=86.2% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:45:34,231 [sniper] INFO   [latency] BUY | conf=86.2% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:45:34,272 [sniper] INFO   [orderbook] BUY | conf=84.2% | Bid imbalance 0.58 (bids 901965.4 vs asks 236746.7)
+2026-02-14 17:45:34,944 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:45:34,944 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.43% (worst 1.60%) vs mins 1.20%/0.10%)
+2026-02-14 17:45:34,944 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.86% (worst 1.86%) vs mins 1.20%/0.10%)
+2026-02-14 17:45:34,944 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.71% (worst 1.69%) vs mins 1.20%/0.10%)
+2026-02-14 17:45:34,945 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:45:55,043 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:45:55,043 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:45:55,147 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:45:55,147 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:45:55,148 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:45:55,157 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:45:55,210 [sniper] INFO   [orderbook] BUY | conf=80.6% | Bid imbalance 0.51 (bids 830821.8 vs asks 268422.4)
+2026-02-14 17:45:55,256 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:45:55,257 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:45:55,261 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:45:55,279 [sniper] INFO   [latency] BUY | conf=88.0% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:45:55,309 [sniper] INFO   [latency] BUY | conf=88.0% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:45:55,330 [sniper] INFO   [latency] BUY | conf=88.0% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:45:55,907 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:45:55,907 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.68% (worst 1.60%) vs mins 1.20%/0.10%)
+2026-02-14 17:45:55,907 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.05%) vs mins 1.20%/0.10%)
+2026-02-14 17:45:55,907 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.65% (worst 1.57%) vs mins 1.20%/0.10%)
+2026-02-14 17:45:55,908 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:46:16,026 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:46:16,027 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:46:16,171 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:46:16,190 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:46:16,193 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:46:16,193 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:46:16,239 [sniper] INFO   [orderbook] BUY | conf=85.6% | Bid imbalance 0.61 (bids 827869.2 vs asks 199020.5)
+2026-02-14 17:46:16,284 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:46:16,312 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:46:16,320 [sniper] INFO   [latency] BUY | conf=88.0% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:46:16,321 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:46:16,354 [sniper] INFO   [latency] BUY | conf=88.0% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:46:16,372 [sniper] INFO   [latency] BUY | conf=88.0% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:46:16,736 [sniper] INFO   [orderbook] BUY | conf=66.3% | Bid imbalance 0.23 (bids 14.1 vs asks 8.9)
+2026-02-14 17:46:17,523 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:46:17,523 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 2.97% (worst 0.83%) vs mins 1.20%/0.10%)
+2026-02-14 17:46:17,523 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.05%) vs mins 1.20%/0.10%)
+2026-02-14 17:46:17,523 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.82% (worst 1.91%) vs mins 1.20%/0.10%)
+2026-02-14 17:46:17,524 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:46:37,652 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:46:37,652 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:46:37,743 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:46:37,748 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:46:37,753 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:46:37,753 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:46:37,845 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:46:37,848 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:46:37,855 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:46:37,873 [sniper] INFO   [latency] BUY | conf=88.0% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:46:37,890 [sniper] INFO   [latency] BUY | conf=88.0% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:46:37,912 [sniper] INFO   [orderbook] BUY | conf=80.9% | Bid imbalance 0.52 (bids 808328.6 vs asks 256962.6)
+2026-02-14 17:46:37,912 [sniper] INFO   [latency] BUY | conf=88.0% | 11 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:46:37,932 [sniper] INFO   [orderbook] BUY | conf=85.2% | Bid imbalance 0.60 (bids 26.8 vs asks 6.6)
+2026-02-14 17:46:38,494 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:46:38,494 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.84% (worst 1.94%) vs mins 1.20%/0.10%)
+2026-02-14 17:46:38,494 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.05%) vs mins 1.20%/0.10%)
+2026-02-14 17:46:38,494 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.66% (worst 1.59%) vs mins 1.20%/0.10%)
+2026-02-14 17:46:38,496 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:46:58,593 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:46:58,593 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:46:58,689 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:46:58,689 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:46:58,690 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:46:58,694 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:46:58,759 [sniper] INFO   [orderbook] SELL | conf=73.2% | Ask imbalance -0.36
+2026-02-14 17:46:58,774 [sniper] INFO   [orderbook] BUY | conf=84.0% | Bid imbalance 0.58 (bids 813253.9 vs asks 216716.6)
+2026-02-14 17:46:58,798 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:46:58,798 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:46:58,798 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:46:58,819 [sniper] INFO   [latency] BUY | conf=88.0% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:46:58,842 [sniper] INFO   [latency] BUY | conf=88.0% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:46:58,868 [sniper] INFO   [latency] BUY | conf=88.0% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:46:59,524 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:46:59,524 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.68% (worst 1.60%) vs mins 1.20%/0.10%)
+2026-02-14 17:46:59,524 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.05%) vs mins 1.20%/0.10%)
+2026-02-14 17:46:59,524 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.76% (worst 1.80%) vs mins 1.20%/0.10%)
+2026-02-14 17:46:59,524 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:47:19,628 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:47:19,628 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:47:19,786 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:47:19,786 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:47:19,786 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:47:19,840 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:47:19,840 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:47:19,860 [sniper] INFO   [orderbook] SELL | conf=65.1% | Ask imbalance -0.20
+2026-02-14 17:47:19,898 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:47:19,898 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:47:19,924 [sniper] INFO   [latency] BUY | conf=88.6% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:47:19,946 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:47:19,949 [sniper] INFO   [latency] BUY | conf=88.6% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:47:19,975 [sniper] INFO   [orderbook] SELL | conf=76.4% | Ask imbalance -0.43
+2026-02-14 17:47:19,997 [sniper] INFO   [latency] BUY | conf=88.6% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:47:20,050 [sniper] INFO   [orderbook] BUY | conf=79.4% | Bid imbalance 0.49 (bids 813294.3 vs asks 279856.9)
+2026-02-14 17:47:20,595 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:47:20,595 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.71% (worst 1.66%) vs mins 1.20%/0.10%)
+2026-02-14 17:47:20,595 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.98% (worst 2.11%) vs mins 1.20%/0.10%)
+2026-02-14 17:47:20,595 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.14% (worst 1.03%) vs mins 1.20%/0.10%)
+2026-02-14 17:47:20,595 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:47:40,734 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:47:40,734 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:47:40,840 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:47:40,898 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:47:40,898 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:47:40,950 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:47:40,950 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:47:40,965 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:47:41,009 [sniper] INFO   [orderbook] BUY | conf=79.3% | Bid imbalance 0.49 (bids 812713.5 vs asks 281545.2)
+2026-02-14 17:47:41,011 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:47:41,055 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:47:41,069 [sniper] INFO   [latency] BUY | conf=88.6% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:47:41,094 [sniper] INFO   [latency] BUY | conf=88.6% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:47:41,120 [sniper] INFO   [latency] BUY | conf=88.6% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:47:41,750 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:47:41,750 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.71% (worst 1.66%) vs mins 1.20%/0.10%)
+2026-02-14 17:47:41,750 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.98% (worst 2.11%) vs mins 1.20%/0.10%)
+2026-02-14 17:47:41,750 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.13% (worst 1.02%) vs mins 1.20%/0.10%)
+2026-02-14 17:47:41,751 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:48:01,856 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:48:01,856 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:48:01,963 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:48:01,975 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:48:01,976 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:48:01,976 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:48:01,976 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:48:02,023 [sniper] INFO   [orderbook] BUY | conf=78.6% | Bid imbalance 0.47 (bids 785607.6 vs asks 281595.2)
+2026-02-14 17:48:02,065 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:48:02,076 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:48:02,080 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:48:02,084 [sniper] INFO   [latency] BUY | conf=88.3% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:48:02,107 [sniper] INFO   [latency] BUY | conf=88.3% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:48:02,130 [sniper] INFO   [latency] BUY | conf=88.3% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:48:02,872 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:48:02,872 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.69% (worst 1.63%) vs mins 1.20%/0.10%)
+2026-02-14 17:48:02,872 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.96% (worst 2.08%) vs mins 1.20%/0.10%)
+2026-02-14 17:48:02,872 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.10% (worst 0.96%) vs mins 1.20%/0.10%)
+2026-02-14 17:48:02,873 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:48:22,979 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:48:22,980 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:48:23,063 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:48:23,063 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:48:23,073 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:48:23,079 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:48:23,079 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:48:23,142 [sniper] INFO   [orderbook] BUY | conf=69.2% | Bid imbalance 0.28 (bids 13719.4 vs asks 7640.0)
+2026-02-14 17:48:23,146 [sniper] INFO   [orderbook] BUY | conf=68.1% | Bid imbalance 0.26 (bids 15.2 vs asks 8.9)
+2026-02-14 17:48:23,150 [sniper] INFO   [orderbook] BUY | conf=78.6% | Bid imbalance 0.47 (bids 776561.0 vs asks 278068.9)
+2026-02-14 17:48:23,176 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:48:23,180 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:48:23,186 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:48:23,199 [sniper] INFO   [latency] BUY | conf=89.3% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:48:23,218 [sniper] INFO   [latency] BUY | conf=89.3% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:48:23,242 [sniper] INFO   [latency] BUY | conf=89.3% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:48:23,861 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:48:23,861 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.32% (worst 0.85%) vs mins 1.20%/0.10%)
+2026-02-14 17:48:23,861 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.57% (worst 1.26%) vs mins 1.20%/0.10%)
+2026-02-14 17:48:23,861 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.13% (worst 1.02%) vs mins 1.20%/0.10%)
+2026-02-14 17:48:23,862 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:48:43,985 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:48:43,986 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:48:44,076 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:48:44,084 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:48:44,084 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:48:44,085 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:48:44,085 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:48:44,149 [sniper] INFO   [orderbook] BUY | conf=73.3% | Bid imbalance 0.37 (bids 14487.6 vs asks 6730.1)
+2026-02-14 17:48:44,185 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:48:44,185 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:48:44,190 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:48:44,199 [sniper] INFO   [latency] BUY | conf=89.3% | 9 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:48:44,222 [sniper] INFO   [latency] BUY | conf=89.3% | 9 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:48:44,245 [sniper] INFO   [latency] BUY | conf=89.3% | 9 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:48:44,257 [sniper] INFO   [orderbook] BUY | conf=81.8% | Bid imbalance 0.54 (bids 786547.4 vs asks 237387.6)
+2026-02-14 17:48:45,002 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:48:45,002 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.74% (worst 1.73%) vs mins 1.20%/0.10%)
+2026-02-14 17:48:45,002 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.70% (worst 1.54%) vs mins 1.20%/0.10%)
+2026-02-14 17:48:45,002 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.24% (worst 1.24%) vs mins 1.20%/0.10%)
+2026-02-14 17:48:45,003 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:49:05,105 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:49:05,105 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:49:05,205 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:49:05,205 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:49:05,234 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:49:05,235 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:49:05,236 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:49:05,285 [sniper] INFO   [orderbook] BUY | conf=77.9% | Bid imbalance 0.46 (bids 761420.7 vs asks 282611.4)
+2026-02-14 17:49:05,311 [sniper] INFO   [orderbook] BUY | conf=67.1% | Bid imbalance 0.24 (bids 13266.2 vs asks 8096.8)
+2026-02-14 17:49:05,312 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:49:05,322 [sniper] INFO   [latency] BUY | conf=88.9% | 9 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:49:05,337 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:49:05,337 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:49:05,350 [sniper] INFO   [latency] BUY | conf=88.9% | 9 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:49:05,372 [sniper] INFO   [latency] BUY | conf=88.9% | 9 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:49:05,903 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:49:05,903 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.72% (worst 1.69%) vs mins 1.20%/0.10%)
+2026-02-14 17:49:05,903 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.49% (worst 1.09%) vs mins 1.20%/0.10%)
+2026-02-14 17:49:05,903 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.10% (worst 0.95%) vs mins 1.20%/0.10%)
+2026-02-14 17:49:05,904 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:49:26,003 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:49:26,003 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:49:26,096 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:49:26,099 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:49:26,099 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:49:26,109 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:49:26,109 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:49:26,163 [sniper] INFO   [orderbook] SELL | conf=67.0% | Ask imbalance -0.24
+2026-02-14 17:49:26,173 [sniper] INFO   [orderbook] BUY | conf=78.9% | Bid imbalance 0.48 (bids 14.7 vs asks 5.2)
+2026-02-14 17:49:26,174 [sniper] INFO   [orderbook] BUY | conf=81.0% | Bid imbalance 0.52 (bids 805655.8 vs asks 254110.7)
+2026-02-14 17:49:26,201 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:49:26,201 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:49:26,210 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:49:26,237 [sniper] INFO   [latency] BUY | conf=87.5% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:49:26,259 [sniper] INFO   [latency] BUY | conf=87.5% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:49:26,291 [sniper] INFO   [latency] BUY | conf=87.5% | 10 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:49:27,061 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:49:27,061 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.62% (worst 1.48%) vs mins 1.20%/0.10%)
+2026-02-14 17:49:27,061 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.92% (worst 1.99%) vs mins 1.20%/0.10%)
+2026-02-14 17:49:27,061 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.15% (worst 1.07%) vs mins 1.20%/0.10%)
+2026-02-14 17:49:27,061 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:49:47,169 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:49:47,169 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:49:47,266 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:49:47,269 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:49:47,269 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:49:47,277 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:49:47,277 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:49:47,317 [sniper] INFO   [orderbook] BUY | conf=79.0% | Bid imbalance 0.48 (bids 819514.1 vs asks 287411.4)
+2026-02-14 17:49:47,369 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:49:47,374 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:49:47,384 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:49:47,393 [sniper] INFO   [latency] BUY | conf=87.5% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:49:47,419 [sniper] INFO   [latency] BUY | conf=87.5% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:49:47,453 [sniper] INFO   [latency] BUY | conf=87.5% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:49:47,535 [sniper] INFO   [orderbook] SELL | conf=63.4% | Ask imbalance -0.17
+2026-02-14 17:49:47,627 [sniper] INFO   [orderbook] SELL | conf=77.7% | Ask imbalance -0.45
+2026-02-14 17:49:48,184 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:49:48,184 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.65% (worst 1.55%) vs mins 1.20%/0.10%)
+2026-02-14 17:49:48,184 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.92% (worst 1.99%) vs mins 1.20%/0.10%)
+2026-02-14 17:49:48,184 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.09% (worst 0.93%) vs mins 1.20%/0.10%)
+2026-02-14 17:49:48,185 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:50:08,306 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:50:08,308 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:50:08,396 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:50:08,396 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:50:08,410 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:50:08,455 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:50:08,455 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:50:08,480 [sniper] INFO   [orderbook] SELL | conf=64.0% | Ask imbalance -0.18
+2026-02-14 17:50:08,502 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:50:08,510 [sniper] INFO   [latency] BUY | conf=88.0% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:50:08,516 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:50:08,536 [sniper] INFO   [orderbook] BUY | conf=79.0% | Bid imbalance 0.48 (bids 813104.7 vs asks 286374.5)
+2026-02-14 17:50:08,536 [sniper] INFO   [latency] BUY | conf=88.0% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:50:08,558 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:50:08,614 [sniper] INFO   [latency] BUY | conf=88.0% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:50:09,255 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:50:09,255 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.68% (worst 1.60%) vs mins 1.20%/0.10%)
+2026-02-14 17:50:09,255 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.05%) vs mins 1.20%/0.10%)
+2026-02-14 17:50:09,255 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.10% (worst 0.96%) vs mins 1.20%/0.10%)
+2026-02-14 17:50:09,257 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:50:29,372 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:50:29,373 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:50:29,463 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:50:29,487 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:50:29,487 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:50:29,504 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:50:29,504 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:50:29,567 [sniper] INFO   [orderbook] BUY | conf=79.4% | Bid imbalance 0.49 (bids 27.5 vs asks 9.5)
+2026-02-14 17:50:29,567 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:50:29,579 [sniper] INFO   [latency] BUY | conf=88.0% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:50:29,589 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:50:29,603 [sniper] INFO   [latency] BUY | conf=88.0% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:50:29,604 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:50:29,627 [sniper] INFO   [latency] BUY | conf=88.0% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:50:29,676 [sniper] INFO   [orderbook] BUY | conf=79.3% | Bid imbalance 0.49 (bids 814374.1 vs asks 281718.2)
+2026-02-14 17:50:29,816 [sniper] INFO   [orderbook] SELL | conf=66.0% | Ask imbalance -0.22
+2026-02-14 17:50:30,396 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:50:30,397 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.65% (worst 1.55%) vs mins 1.20%/0.10%)
+2026-02-14 17:50:30,397 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.05%) vs mins 1.20%/0.10%)
+2026-02-14 17:50:30,397 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.12% (worst 0.98%) vs mins 1.20%/0.10%)
+2026-02-14 17:50:30,397 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:50:50,509 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:50:50,510 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:50:50,632 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:50:50,632 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:50:50,642 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:50:50,652 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:50:50,652 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:50:50,685 [sniper] INFO   [orderbook] BUY | conf=81.7% | Bid imbalance 0.53 (bids 798165.6 vs asks 242114.7)
+2026-02-14 17:50:50,713 [sniper] INFO   [orderbook] SELL | conf=64.1% | Ask imbalance -0.18
+2026-02-14 17:50:50,736 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:50:50,748 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:50:50,757 [sniper] INFO   [latency] BUY | conf=88.0% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:50:50,757 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:50:50,803 [sniper] INFO   [latency] BUY | conf=88.0% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:50:50,827 [sniper] INFO   [latency] BUY | conf=88.0% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:50:50,842 [sniper] INFO   [orderbook] BUY | conf=75.5% | Bid imbalance 0.41 (bids 15.6 vs asks 6.5)
+2026-02-14 17:50:51,458 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:50:51,458 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.52% (worst 1.28%) vs mins 1.20%/0.10%)
+2026-02-14 17:50:51,458 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.05%) vs mins 1.20%/0.10%)
+2026-02-14 17:50:51,458 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.19% (worst 1.15%) vs mins 1.20%/0.10%)
+2026-02-14 17:50:51,460 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:51:11,559 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:51:11,559 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:51:11,654 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:51:11,654 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:51:11,659 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:51:11,661 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:51:11,661 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:51:11,709 [sniper] INFO   [orderbook] BUY | conf=80.4% | Bid imbalance 0.51 (bids 878803.1 vs asks 286422.4)
+2026-02-14 17:51:11,723 [sniper] INFO   [orderbook] BUY | conf=68.4% | Bid imbalance 0.27 (bids 16.3 vs asks 9.4)
+2026-02-14 17:51:11,740 [sniper] INFO   [orderbook] SELL | conf=65.8% | Ask imbalance -0.22
+2026-02-14 17:51:11,757 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:51:11,766 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:51:11,768 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:51:11,784 [sniper] INFO   [latency] BUY | conf=88.1% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:51:11,806 [sniper] INFO   [latency] BUY | conf=88.1% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:51:11,832 [sniper] INFO   [latency] BUY | conf=88.1% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:51:12,517 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:51:12,517 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 2.99% (worst 0.87%) vs mins 1.20%/0.10%)
+2026-02-14 17:51:12,517 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.95% (worst 2.06%) vs mins 1.20%/0.10%)
+2026-02-14 17:51:12,517 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.15% (worst 1.07%) vs mins 1.20%/0.10%)
+2026-02-14 17:51:12,518 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:51:32,617 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:51:32,617 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:51:32,707 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:51:32,707 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:51:32,716 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:51:32,716 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:51:32,718 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:51:32,765 [sniper] INFO   [orderbook] BUY | conf=83.7% | Bid imbalance 0.57 (bids 878208.5 vs asks 237470.0)
+2026-02-14 17:51:32,799 [sniper] INFO   [orderbook] SELL | conf=65.1% | Ask imbalance -0.20
+2026-02-14 17:51:32,811 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:51:32,823 [sniper] INFO   [latency] BUY | conf=89.7% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:51:32,825 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:51:32,825 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:51:32,851 [sniper] INFO   [latency] BUY | conf=89.7% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:51:32,879 [sniper] INFO   [latency] BUY | conf=89.7% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:51:32,935 [sniper] INFO   [orderbook] BUY | conf=67.7% | Bid imbalance 0.25 (bids 14.9 vs asks 8.9)
+2026-02-14 17:51:33,544 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:51:33,544 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.06% (worst 1.02%) vs mins 1.20%/0.10%)
+2026-02-14 17:51:33,544 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.03% (worst 2.23%) vs mins 1.20%/0.10%)
+2026-02-14 17:51:33,544 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.31% (worst 1.40%) vs mins 1.20%/0.10%)
+2026-02-14 17:51:33,545 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:51:53,645 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:51:53,645 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:51:53,736 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:51:53,736 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:51:53,742 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:51:53,758 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:51:53,758 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:51:53,846 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:51:53,850 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:51:53,858 [sniper] INFO   [latency] BUY | conf=89.7% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:51:53,859 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:51:53,885 [sniper] INFO   [latency] BUY | conf=89.7% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:51:53,908 [sniper] INFO   [orderbook] BUY | conf=80.3% | Bid imbalance 0.51 (bids 855899.0 vs asks 281267.2)
+2026-02-14 17:51:53,909 [sniper] INFO   [latency] BUY | conf=89.7% | 8 exchanges improving latency (8 anomalies from 7 regions)
+2026-02-14 17:51:53,958 [sniper] INFO   [orderbook] BUY | conf=65.0% | Bid imbalance 0.20 (bids 11.9 vs asks 7.9)
+2026-02-14 17:51:54,103 [sniper] INFO   [orderbook] SELL | conf=65.0% | Ask imbalance -0.20
+2026-02-14 17:51:54,744 [sniper] INFO   [planner] territory=0.67 | chain_moves=2 | entry_checks=3
+2026-02-14 17:51:54,744 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.04% (worst 0.98%) vs mins 1.20%/0.10%)
+2026-02-14 17:51:54,744 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.03% (worst 2.23%) vs mins 1.20%/0.10%)
+2026-02-14 17:51:54,744 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.20% (worst 1.17%) vs mins 1.20%/0.10%)
+2026-02-14 17:51:54,745 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:52:14,850 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:52:14,851 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:52:14,949 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:52:14,949 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:52:14,958 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:52:14,970 [sniper] INFO   [uptick] SELL | conf=66.4% | Downtick from high: 0.23% drop, 0.35% range
+2026-02-14 17:52:14,970 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:52:15,028 [sniper] INFO   [orderbook] SELL | conf=63.0% | Ask imbalance -0.16
+2026-02-14 17:52:15,060 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:52:15,064 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:52:15,090 [sniper] INFO   [latency] BUY | conf=89.8% | 7 exchanges improving latency (7 anomalies from 7 regions)
+2026-02-14 17:52:15,096 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:52:15,116 [sniper] INFO   [latency] BUY | conf=89.8% | 7 exchanges improving latency (7 anomalies from 7 regions)
+2026-02-14 17:52:15,137 [sniper] INFO   [latency] BUY | conf=89.8% | 7 exchanges improving latency (7 anomalies from 7 regions)
+2026-02-14 17:52:15,141 [sniper] INFO   [orderbook] BUY | conf=80.2% | Bid imbalance 0.50 (bids 854841.1 vs asks 281575.4)
+2026-02-14 17:52:15,717 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:52:15,717 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.77% (worst 1.78%) vs mins 1.20%/0.10%)
+2026-02-14 17:52:15,717 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.03% (worst 2.23%) vs mins 1.20%/0.10%)
+2026-02-14 17:52:15,717 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.20% (worst 1.17%) vs mins 1.20%/0.10%)
+2026-02-14 17:52:15,717 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:52:35,842 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:52:35,843 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:52:35,929 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:52:35,929 [sniper] INFO   [uptick] BUY | conf=67.9% | Uptick from low: 0.23% bounce, 0.64% range
+2026-02-14 17:52:35,932 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:52:35,932 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:52:35,942 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:52:35,972 [sniper] INFO   [orderbook] BUY | conf=80.8% | Bid imbalance 0.52 (bids 908546.5 vs asks 290278.9)
+2026-02-14 17:52:36,024 [sniper] INFO   [orderbook] BUY | conf=83.3% | Bid imbalance 0.57 (bids 30.4 vs asks 8.4)
+2026-02-14 17:52:36,031 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:52:36,035 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:52:36,049 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:52:36,049 [sniper] INFO   [latency] BUY | conf=89.8% | 8 exchanges improving latency (6 anomalies from 7 regions)
+2026-02-14 17:52:36,076 [sniper] INFO   [latency] BUY | conf=89.8% | 8 exchanges improving latency (6 anomalies from 7 regions)
+2026-02-14 17:52:36,100 [sniper] INFO   [latency] BUY | conf=89.8% | 8 exchanges improving latency (6 anomalies from 7 regions)
+2026-02-14 17:52:36,694 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:52:36,694 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.84% (worst 1.93%) vs mins 1.20%/0.10%)
+2026-02-14 17:52:36,694 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.03% (worst 2.23%) vs mins 1.20%/0.10%)
+2026-02-14 17:52:36,694 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.14% (worst 2.04%) vs mins 1.20%/0.10%)
+2026-02-14 17:52:36,695 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:52:56,795 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:52:56,795 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:52:56,892 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:52:56,915 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:52:56,915 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:52:56,923 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:52:56,923 [sniper] INFO   [uptick] BUY | conf=67.9% | Uptick from low: 0.23% bounce, 0.64% range
+2026-02-14 17:52:56,985 [sniper] INFO   [orderbook] BUY | conf=79.0% | Bid imbalance 0.48 (bids 810900.2 vs asks 284434.6)
+2026-02-14 17:52:56,988 [sniper] INFO   [orderbook] BUY | conf=84.0% | Bid imbalance 0.58 (bids 24.3 vs asks 6.5)
+2026-02-14 17:52:56,997 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:52:57,022 [sniper] INFO   [latency] BUY | conf=89.8% | 8 exchanges improving latency (6 anomalies from 7 regions)
+2026-02-14 17:52:57,024 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:52:57,024 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:52:57,049 [sniper] INFO   [latency] BUY | conf=89.8% | 8 exchanges improving latency (6 anomalies from 7 regions)
+2026-02-14 17:52:57,072 [sniper] INFO   [latency] BUY | conf=89.8% | 8 exchanges improving latency (6 anomalies from 7 regions)
+2026-02-14 17:52:57,601 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:52:57,601 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.86% (worst 1.97%) vs mins 1.20%/0.10%)
+2026-02-14 17:52:57,601 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.03% (worst 2.23%) vs mins 1.20%/0.10%)
+2026-02-14 17:52:57,601 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.09% (worst 1.93%) vs mins 1.20%/0.10%)
+2026-02-14 17:52:57,602 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550
+2026-02-14 17:53:17,734 [sniper] INFO === SNIPER SCAN ===
+2026-02-14 17:53:17,735 [sniper] INFO SNIPER: pair focus universe ['ETH-USD', 'SOL-USD', 'FET-USD'] (base=['ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD', 'FET-USD'])
+2026-02-14 17:53:17,837 [sniper] INFO   [rsi_extreme] SELL | conf=68.8% | RSI overbought: 67.5
+2026-02-14 17:53:17,837 [sniper] INFO   [momentum] BUY | conf=63.6% | 4h momentum +0.72%
+2026-02-14 17:53:17,847 [sniper] INFO   [momentum] BUY | conf=69.6% | 4h momentum +1.93%
+2026-02-14 17:53:17,852 [sniper] INFO   [momentum] BUY | conf=62.5% | 4h momentum +0.50%
+2026-02-14 17:53:17,853 [sniper] INFO   [uptick] BUY | conf=67.9% | Uptick from low: 0.23% bounce, 0.64% range
+2026-02-14 17:53:17,905 [sniper] INFO   [orderbook] BUY | conf=77.3% | Bid imbalance 0.45 (bids 27.0 vs asks 10.4)
+2026-02-14 17:53:17,906 [sniper] INFO   [orderbook] BUY | conf=80.0% | Bid imbalance 0.50 (bids 917578.5 vs asks 305723.2)
+2026-02-14 17:53:17,951 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:53:17,951 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:53:17,956 [sniper] INFO   [latency] BUY | conf=89.8% | 8 exchanges improving latency (6 anomalies from 7 regions)
+2026-02-14 17:53:17,956 [sniper] INFO   [fear_greed] BUY | conf=84.2% | Fear & Greed=9 (Extreme Fear) — contrarian BUY
+2026-02-14 17:53:17,978 [sniper] INFO   [latency] BUY | conf=89.8% | 8 exchanges improving latency (6 anomalies from 7 regions)
+2026-02-14 17:53:18,006 [sniper] INFO   [latency] BUY | conf=89.8% | 8 exchanges improving latency (6 anomalies from 7 regions)
+2026-02-14 17:53:18,208 [sniper] INFO   [orderbook] SELL | conf=64.8% | Ask imbalance -0.20
+2026-02-14 17:53:18,739 [sniper] INFO   [planner] territory=0.68 | chain_moves=2 | entry_checks=3
+2026-02-14 17:53:18,739 [sniper] INFO   ETH-USD: BLOCKED — long-chain gate failed (blocked: chain edge 3.64% (worst 1.52%) vs mins 1.20%/0.10%)
+2026-02-14 17:53:18,739 [sniper] INFO   SOL-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.04% (worst 2.24%) vs mins 1.20%/0.10%)
+2026-02-14 17:53:18,739 [sniper] INFO   FET-USD: BLOCKED — long-chain gate failed (blocked: chain edge 4.12% (worst 1.99%) vs mins 1.20%/0.10%)
+2026-02-14 17:53:18,739 [sniper] INFO SNIPER: balanced growth mode=buy_accelerate conf_factor=1.060 size_factor=1.120 reason=balance_underweight_buy_flow:0.000<=0.550

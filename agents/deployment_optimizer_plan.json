@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-02-14T22:33:26.692917+00:00",
-  "cycle": 1,
+  "updated_at": "2026-02-14T22:48:27.777732+00:00",
+  "cycle": 4,
   "summary": {
     "runtime_region": "local",
     "deployment_score": 0.5233,
@@ -25,13 +25,13 @@
     "api.coinbase.com": {
       "host": "api.coinbase.com",
       "ok": true,
-      "latency_ms": 3.114,
+      "latency_ms": 0.674,
       "error": ""
     },
     "api.exchange.coinbase.com": {
       "host": "api.exchange.coinbase.com",
       "ok": true,
-      "latency_ms": 0.569,
+      "latency_ms": 0.517,
       "error": ""
     }
   },
@@ -39,12 +39,12 @@
     "coinbase": {
       "venue": "coinbase",
       "window_minutes": 60,
-      "samples": 99,
-      "success_rate": 0.9293,
-      "failure_rate": 0.0707,
-      "p50_latency_ms": 99.304,
-      "p90_latency_ms": 129.845,
-      "p99_latency_ms": 208.681,
+      "samples": 2000,
+      "success_rate": 1.0,
+      "failure_rate": 0.0,
+      "p50_latency_ms": 48.347,
+      "p90_latency_ms": 68.173,
+      "p99_latency_ms": 127.19,
       "dns_failures_excluded": 0
     },
     "ibkr": {
@@ -86,9 +86,9 @@
       "live_ready": true,
       "dns_ok": true,
       "credentials_present": true,
-      "success_rate": 0.9293,
-      "samples": 99,
-      "p90_latency_ms": 129.845,
+      "success_rate": 1.0,
+      "samples": 2000,
+      "p90_latency_ms": 68.173,
       "reason": "ready"
     },
     "fix": {
@@ -181,7 +181,7 @@
   "priority_actions": [
     "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
     "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
-    "Top recent Coinbase failures: 9x API down | 8x <urlopen error [Errno 1] Operation not permitted> | [Errno 1] Operation not permitted | errno 1 | 6x Server Error",
+    "Top recent Coinbase failures: 9x API down | 7x <urlopen error [Errno 1] Operation not permitted> | [Errno 1] Operation not permitted | errno 1 | 6x Server Error",
     "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
   ],
   "source_manifest_regions": [

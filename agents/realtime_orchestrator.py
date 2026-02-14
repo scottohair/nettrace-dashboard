@@ -42,6 +42,14 @@ if _env_path.exists():
             key, val = line.split("=", 1)
             os.environ.setdefault(key.strip(), val.strip().strip('"'))
 
+# v77 Phase 3: Import Coinbase trading for live execution
+try:
+    from exchange_connector import CoinbaseTrader
+    COINBASE_AVAILABLE = True
+except Exception as e:
+    COINBASE_AVAILABLE = False
+    logger.warning(f"CoinbaseTrader unavailable: {e} - using mock execution")
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [ORCH] %(levelname)s %(message)s",
@@ -330,6 +338,16 @@ class RealtimeOrchestrator:
         self.total_latency_ms = 0.0
         self.running = False
 
+        # v77 Phase 3: Initialize Coinbase trader for live execution
+        self.trader = None
+        if COINBASE_AVAILABLE and not mock_mode:
+            try:
+                self.trader = CoinbaseTrader()
+                logger.info("CoinbaseTrader initialized for live execution")
+            except Exception as e:
+                logger.warning(f"Failed to initialize CoinbaseTrader: {e}")
+                self.trader = None
+
     async def run(self, duration_s: Optional[float] = None):
         """Main orchestration loop."""
         self.running = True
@@ -405,24 +423,73 @@ class RealtimeOrchestrator:
             top_signals = signals[:5]
 
             for agent_name, signal, score in top_signals:
-                # Simulate or real execute depending on mock_mode
-                if not self.mock_mode:
-                    # TODO: Call actual execution (Coinbase API, etc.)
-                    pass
+                pair = signal.get("pair")
+                direction = signal.get("direction", "HOLD").upper()
 
-                # For now, mock execution with random PnL
-                if self.mock_mode:
-                    import random
-                    pnl = random.uniform(-0.5, 1.5)  # Random PnL for mock
+                # v77 Phase 3: Execute live orders via Coinbase
+                if not self.mock_mode and self.trader and direction != "HOLD":
+                    try:
+                        # Calculate order size (small for testing)
+                        order_usd = 3.0  # $3 per order (configurable)
+
+                        # Get current price from trader
+                        ticker = self.trader.get_ticker(pair)
+                        if not ticker or "price" not in ticker:
+                            logger.warning(f"Could not get price for {pair}, skipping")
+                            continue
+
+                        current_price = float(ticker["price"])
+                        base_size = order_usd / current_price
+
+                        # Calculate limit price (slightly better than market)
+                        if direction == "BUY":
+                            # Buy 0.1% below market for maker fills
+                            limit_price = current_price * 0.999
+                        else:  # SELL
+                            # Sell 0.1% above market for maker fills
+                            limit_price = current_price * 1.001
+
+                        # Place limit order (post_only=True enforces maker fee 0.4%, not taker 1.2%)
+                        result = self.trader.place_limit_order(
+                            product_id=pair,
+                            side=direction,
+                            base_size=base_size,
+                            limit_price=limit_price,
+                            post_only=True,
+                            signal_confidence=signal.get("confidence", 0.5)
+                        )
+
+                        # Check result
+                        order_id = result.get("order_id") or result.get("id")
+                        if order_id:
+                            logger.info(
+                                f"✅ Order placed: {direction} {pair} "
+                                f"size={base_size:.6f} @ ${limit_price:.2f} "
+                                f"(market=${current_price:.2f}) | agent={agent_name} | order_id={order_id}"
+                            )
+                            pnl = 0.0  # Real PnL tracked by exit_manager
+                        else:
+                            error_msg = result.get("error_response", {}).get("message", "Unknown error")
+                            logger.warning(f"Order placement failed: {error_msg}")
+                            pnl = 0.0
+
+                    except Exception as e:
+                        logger.error(f"Execution error for {pair}: {e}", exc_info=True)
+                        pnl = 0.0
+
                 else:
-                    pnl = 0.0  # Real execution would return actual PnL
+                    # Mock execution for testing or when trader unavailable
+                    import random
+                    pnl = random.uniform(-0.5, 1.5) if self.mock_mode else 0.0
 
                 executed.append({
                     "agent_name": agent_name,
-                    "pair": signal.get("pair"),
+                    "pair": pair,
+                    "direction": direction,
                     "realized_pnl_usd": pnl,
                     "region": region,
                     "score": score,
+                    "timestamp_ms": time.time() * 1000,
                 })
 
         return executed

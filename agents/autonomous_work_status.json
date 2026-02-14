@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-02-14T22:33:08.344623+00:00",
+  "updated_at": "2026-02-14T22:52:10.415553+00:00",
   "agent": "autonomous_work_manager",
   "duplex_available": true,
   "queue_size": 80,
   "queue_target_size": 80,
   "max_outstanding": 12,
   "dispatch_per_cycle": 4,
-  "last_from_claude_id": 1418,
+  "last_from_claude_id": 1614,
   "counts": {
     "queued": 62,
-    "dispatched": 2,
-    "acknowledged": 10,
+    "dispatched": 0,
+    "acknowledged": 12,
     "completion_claimed": 0,
     "completed": 0,
     "stale": 6,
@@ -36,7 +36,7 @@
     "claimed": 0,
     "completed": 0,
     "completion_waiting_verification": 0,
-    "last_from_claude_id": 1418
+    "last_from_claude_id": 1614
   },
   "dispatch": {
     "available": true,
@@ -174,7 +174,7 @@
     {
       "task_id": "WIN-0796",
       "title": "USD/USDC treasury capture optimization 136 for DOT-USD",
-      "status": "dispatched",
+      "status": "acknowledged",
       "priority_score": 100.0,
       "dispatch_count": 3,
       "trace_id": "5211a51d6dbf74aa42bc2c72",
@@ -183,7 +183,7 @@
     {
       "task_id": "WIN-0795",
       "title": "USD/USDC treasury capture optimization 135 for BCH-USD",
-      "status": "dispatched",
+      "status": "acknowledged",
       "priority_score": 100.0,
       "dispatch_count": 3,
       "trace_id": "6a88ba2d620b1955ee92cb8a",

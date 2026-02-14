@@ -1,160 +1,18 @@
 {
   "locked": true,
-  "reason": "NO_GO: execution_health_not_green:candle_feed_stale:4052.4s>360.0s, exit_manager_gate_failed:exit_manager_status_stale:4002s>300s",
+  "reason": "NO_GO: growth_supervisor_failed_rc_124",
   "source": "flywheel_controller",
-  "set_at": "2026-02-14T22:33:08.344122+00:00",
+  "set_at": "2026-02-14T22:52:13.728622+00:00",
   "metadata": {
     "decision": {
       "decision": "NO_GO",
       "go_live": false,
       "reasons": [
-        "execution_health_not_green:candle_feed_stale:4052.4s>360.0s",
-        "exit_manager_gate_failed:exit_manager_status_stale:4002s>300s"
-      ],
-      "warnings": [
-        "warm_runtime_rejections_top=return_below_min:19,drawdown_above_max:19,sharpe_below_min:19"
-      ],
-      "autonomy": {
-        "enabled": true,
-        "active": false,
-        "warm_max_funded_budget": 2.0,
-        "warm_max_funded_strategies": 2,
-        "blocked_reasons": [
-          "autonomy_warm_budget_limit_exceeded"
-        ],
-        "details": []
-      },
-      "limits": {
-        "max_pair_share_cap": 0.7,
-        "concentration_cap_enforced": true
-      },
-      "strict_realized_gate": {
-        "enabled": true,
-        "status_available": true,
-        "passed": true,
-        "reason": "passed",
-        "bootstrap_override": false,
-        "bootstrap_reason": "",
-        "bootstrap_limits": {
-          "enabled": true,
-          "max_funded_budget": 2.0,
-          "max_funded_strategies": 8
-        }
-      },
-      "hot_evidence_bootstrap": {
-        "strict_required": false,
-        "enabled": true,
-        "active": false,
-        "warning": "",
-        "limits": {
-          "max_funded_budget": 2.0,
-          "max_funded_strategies": 2
-        }
-      },
-      "execution_health_gate": {
-        "enabled": true,
-        "status_available": true,
-        "green": false,
-        "reason": "candle_feed_stale:4052.4s>360.0s",
-        "reasons": [
-          "candle_feed_stale:4052.4s>360.0s"
-        ],
-        "bootstrap_enabled": true,
-        "bootstrap_active": false,
-        "bootstrap_reason": "",
-        "bootstrap_max_budget_usd": 2.0,
-        "bootstrap_max_strategies": 2,
-        "updated_at": "2026-02-14T22:33:04.609111+00:00"
-      },
-      "close_flow_gate": {
-        "enabled": true,
-        "passed": true,
-        "reason": "balanced_close_flow",
-        "lookback_hours": 6,
-        "buy_fills": 0,
-        "sell_fills": 30,
-        "sell_close_events": 1,
-        "effective_sell_completions": 30,
-        "buy_sell_ratio": 0.0,
-        "max_buy_sell_ratio": 2.5,
-        "min_sell_completions": 1,
-        "sell_close_attempts": 207,
-        "sell_close_completions": 185,
-        "sell_close_completion_rate": 0.89372,
-        "min_close_attempts": 2,
-        "min_close_completion_rate": 0.4,
-        "reconcile_gate_passed": true,
-        "reconcile_gate_reason": "sell_close_completion_observed"
-      },
-      "audit_summary": {
-        "total_checks": 7,
-        "failed_checks": 0,
-        "critical_failures": 0,
-        "high_failures": 0
-      },
-      "pipeline_metrics": {
-        "stage_counts": {
-          "COLD": 8456,
-          "HOT": 3150,
-          "WARM": 19
-        },
-        "promoted_hot_events": 3794,
-        "promoted_hot_events_recent_24h": 3715,
-        "killed_events": 0,
-        "max_pair_share": 0.3894,
-        "total_funded_budget": 14.74,
-        "funded_strategy_count": 13,
-        "funded_hot_strategy_count": 13,
-        "funded_warm_strategy_count": 0,
-        "hot_stage_count": 3150,
-        "warm_stage_count": 19,
-        "funded_with_oos_trades": 13
-      },
-      "warm_collector_summary": {
-        "warm_checked": 19,
-        "eligible_hot": 0,
-        "promoted_hot": 0,
-        "collecting": 0,
-        "rejected": 19,
-        "not_ready": 19,
-        "skipped": 0
-      },
-      "warm_promotion_summary": {
-        "warm_checked": 19,
-        "promoted_hot": 0,
-        "eligible_hot": 0,
-        "collecting": 0,
-        "rejected": 19,
-        "not_ready": 19,
-        "skipped": 0
-      },
-      "promotion_feed": {
-        "has_active_hot_evidence": true,
-        "pipeline_hot_stage_count": 3150,
-        "pipeline_warm_stage_count": 19,
-        "pipeline_promoted_hot_events": 3794,
-        "pipeline_funded_hot_strategy_count": 13,
-        "quant_retained_hot_passed": 0,
-        "quant_retained_warm_passed": 0,
-        "quant_implementable_count": 0,
-        "collector_reason_codes_top": [
-          [
-            "return_below_min",
-            19
-          ],
-          [
-            "drawdown_above_max",
-            19
-          ],
-          [
-            "sharpe_below_min",
-            19
-          ]
-        ]
-      }
+        "growth_supervisor_failed_rc_124"
+      ]
     },
-    "set_at": "2026-02-14T22:33:08.344111+00:00"
+    "set_at": "2026-02-14T22:52:13.728606+00:00"
   },
-  "epoch": 1771108388.3441238,
+  "epoch": 1771109533.7286232,
   "pid": 7317
 }

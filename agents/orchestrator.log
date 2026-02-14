@@ -4235,3 +4235,13 @@
 2026-02-14 17:33:42,788 [ORCH] INFO Started 31/31 agents
 2026-02-14 17:33:45,131 [ORCH] INFO Wallet: $1.40 across 4 chains
 2026-02-14 17:33:45,132 [ORCH] INFO Portfolio: $235.07 | Cash: $220.57 | Held: $12.11 | Bridge: $0.00 | Day P&L: $+0.00 | DD: 27.1% | Agents: 31
+2026-02-14 17:37:46,840 [ORCH] WARNING Integration guard BLOCKED: ['trading_lock_allows_rollout']
+2026-02-14 17:38:51,206 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 17:38:51,208 [ORCH] INFO Portfolio: $235.02 | Cash: $142.50 | Held: $89.45 | Bridge: $0.00 | Day P&L: $-0.05 | DD: 27.2% | Agents: 31
+2026-02-14 17:42:52,561 [ORCH] WARNING Integration guard BLOCKED: ['trading_lock_allows_rollout']
+2026-02-14 17:43:56,148 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 17:43:56,150 [ORCH] INFO Portfolio: $234.66 | Cash: $106.55 | Held: $80.45 | Bridge: $0.00 | Day P&L: $-0.41 | DD: 27.3% | Agents: 31
+2026-02-14 17:47:57,553 [ORCH] WARNING Integration guard BLOCKED: ['trading_lock_allows_rollout']
+2026-02-14 17:49:02,806 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 17:49:02,807 [ORCH] INFO Portfolio: $234.52 | Cash: $106.55 | Held: $68.75 | Bridge: $0.00 | Day P&L: $-0.55 | DD: 27.3% | Agents: 31
+2026-02-14 17:53:04,194 [ORCH] WARNING Integration guard BLOCKED: ['trading_lock_allows_rollout']
