@@ -33,6 +33,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+try:
+    from kraken_connector import KrakenConnector
+except ImportError:
+    KrakenConnector = None
+
 # Load .env
 _env_path = Path(__file__).parent / ".env"
 if _env_path.exists():
@@ -138,10 +143,15 @@ class LiquidationHunter:
         self.db.commit()
 
     def fetch_funding_rate(self, pair):
-        """Fetch current funding rate (placeholder - real impl uses Binance/Deribit)."""
-        # Coinbase API doesn't directly expose funding rates
-        # In production: use Binance perpetuals API or Deribit
-        # For now: return simulated data
+        """Fetch current funding rate from Kraken or Coinbase."""
+        # Try Kraken first (if API keys configured)
+        if KrakenConnector:
+            kraken_data = KrakenConnector.get_funding_rate(pair)
+            if "error" not in kraken_data and kraken_data.get("funding_rate"):
+                logger.info(f"Kraken funding rate for {pair}: {kraken_data}")
+                return kraken_data
+
+        # Fallback to Coinbase (limited data)
         data = _fetch_json(FUNDING_RATE_URLS.get(pair, ""))
         if data:
             return {

@@ -83,6 +83,13 @@ VENUES = {
             "TLT-USD", "IEF-USD", "SHY-USD", "AGG-USD",
         ],
     },
+    "kraken": {
+        "type": "cex", "maker_fee": 0.002, "taker_fee": 0.0026,  # US-friendly
+        "latency_ms": 100, "min_order_usd": 1.0,
+        "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD",
+                  "LINK-USD", "DOGE-USD", "XRP-USD", "ADA-USD"],
+        "data_feeds": ["funding_rates", "open_interest", "orderbook", "recent_trades"],
+    },
     # DEX venues (per chain)
     "uniswap_base": {
         "type": "dex", "chain": "base",
