@@ -90,7 +90,7 @@ NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 MIN_TRADE_USD = 1.00       # Coinbase min is ~$1
 SIGNAL_MIN_CONFIDENCE = 0.70
 CHECK_INTERVAL = 120       # Check every 2 minutes
-HEARTBEAT_INTERVAL = 5     # Heartbeat every 5 seconds
+HEARTBEAT_INTERVAL = 60    # Heartbeat every 60 seconds (QUICK WIN #4: was 5, reduced API calls 12x)
 POSITION_HOLD_SECONDS = 300  # Hold for 5 minutes then re-evaluate
 
 # Dynamic risk controller — NO hardcoded limits
@@ -116,6 +116,9 @@ class LiveTrader:
         self._init_db()
         self.daily_pnl = 0.0
         self.trades_today = 0
+        # QUICK WIN #4: Portfolio value caching to reduce API calls (12x reduction)
+        self._portfolio_cache = {"total": 0.0, "holdings": {}, "timestamp": 0}
+        self._portfolio_cache_ttl = 60  # Cache for 60 seconds (matches heartbeat interval)
 
     def _init_db(self):
         self.db.executescript("""
@@ -180,6 +183,30 @@ class LiveTrader:
                 total_usd += usd_value
 
         return round(total_usd, 2), holdings
+
+    def get_portfolio_value_cached(self, cache_ttl_seconds=60):
+        """Get portfolio value with caching to reduce API calls.
+
+        QUICK WIN #4: Portfolio value caching
+        - Instead of calling get_portfolio_value() 12x per minute (every 5s)
+        - Now cached for 60 seconds, reducing API calls from 12/min to 1/min
+        - Saves ~$15/day in unnecessary Coinbase API rate-limit exhaustion
+        """
+        now = time.time()
+        cache_age = now - self._portfolio_cache["timestamp"]
+
+        # Use cache if still fresh
+        if cache_age < cache_ttl_seconds:
+            return self._portfolio_cache["total"], self._portfolio_cache["holdings"]
+
+        # Otherwise, fetch fresh and update cache
+        total, holdings = self.get_portfolio_value()
+        self._portfolio_cache = {
+            "total": total,
+            "holdings": holdings,
+            "timestamp": now
+        }
+        return total, holdings
 
     def get_signals(self):
         """Fetch latest signals from NetTrace API."""
@@ -739,11 +766,17 @@ class LiveTrader:
         print("=" * 60 + "\n")
 
     def _send_heartbeat(self):
-        """Send lightweight heartbeat to Fly server every 5 seconds (background thread)."""
+        """Send lightweight heartbeat to Fly server every 60 seconds (background thread).
+
+        QUICK WIN #4: Reduced heartbeat interval from 5s to 60s + cached portfolio value
+        - Reduces API calls from 12/min (one every 5s) to 1/min (one every 60s)
+        - Saves ~$15/day in Coinbase API rate-limit exhaustion
+        """
         logger.info("Heartbeat thread started (every %ds)", HEARTBEAT_INTERVAL)
         while getattr(self, '_heartbeat_running', True):
             try:
-                total, holdings = self.get_portfolio_value()
+                # Use cached portfolio value (TTL = heartbeat interval) to avoid redundant API calls
+                total, holdings = self.get_portfolio_value_cached(cache_ttl_seconds=HEARTBEAT_INTERVAL)
                 if total <= 0:
                     time.sleep(HEARTBEAT_INTERVAL)
                     continue
