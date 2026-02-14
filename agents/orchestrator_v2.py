@@ -448,6 +448,14 @@ AGENT_CONFIGS = [
         "critical": False,
         "description": "Execute pending signals from Phase 1 agents (sentiment, regulatory, liquidation, narrative, futures)",
     },
+    {
+        "name": "phase1_monitor",
+        "script": "phase1_monitor.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Monitor Phase 1 performance + auto-escalate winners (30-min cycles, Sharpe > 0.5)",
+    },
 ]
 
 

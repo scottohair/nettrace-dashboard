@@ -81,26 +81,36 @@
 - Ready for deployment to Fly (all 7 regions)
 - Once deployed, flywheel activation will start automatically
 
-### Next Steps: Deployment & Go-Live
+### ✅ DEPLOYMENT COMPLETE (v71)
 
-To activate the 4-agent flywheel:
+**Decisions Made:**
+1. **Policy: Enable WARM Microlane** (Option B) ✓
+   - Allow $5 sentiment_leech allocation for live trading evidence
+   - Generate HOT promotion data faster than strict NO_GO
+   - Risk-controlled: $5 loss is acceptable for learning
+
+2. **Config Changes:**
+   - `WARM_MICROLANE_ALLOW = 1`
+   - `WARM_MICROLANE_MAX_FUNDED_BUDGET = 5.0`
+   - `WARM_MICROLANE_MAX_FUNDED_STRATEGIES = 1` (sentiment_leech only)
+   - `WARM_MICROLANE_REQUIRE_REALIZED_PROOF = 0` (eager learning)
+
+3. **All 7 Regions Deployed & Healthy:**
+   - ewr, nrt, sin, lhr, bom, ord, fra
+   - Flywheel framework ready
+   - Autoproceed enabled
+   - WARM lane active
+
+**Expected Next (within 5 minutes of restart):**
+- growth_supervisor evaluates NO_GO blockers
+- sentiment_leech places first $5 trades (F&G = 9 = extreme fear = BUY)
+- Early WARM evidence collected
+- Path to HOT promotion opens after 3-5 successful trades
+
+**Monitoring:**
 ```bash
-# 1. Deploy v70 to Fly
-/Users/scott/.fly/bin/flyctl deploy --remote-only
-
-# 2. SSH into primary region and start flywheel
-/Users/scott/.fly/bin/flyctl ssh console -s
-python3 agents/flywheel_activator.py &
-
-# 3. Monitor flywheel status
-tail -f /data/flywheel_activator.log
-tail -f /data/flywheel_cycles.jsonl
-
-# 4. Expect within 5m:
-# - Strategy Pipeline: scanning COLD strategies
-# - Growth Engine: computing GF(2^9) signal fusion + lattice decisions
-# - Meta Engine: training ML models, searching for alpha
-# - ClawdBot: orchestrating across 7 regions, sending alerts
+/Users/scott/.fly/bin/flyctl logs -a nettrace-dashboard -r ewr | grep -i "warm\|sentiment\|go_live"
+/Users/scott/.fly/bin/flyctl logs -a nettrace-dashboard -r ewr | grep -i "critical_audit\|promotion"
 ```
 
 ---

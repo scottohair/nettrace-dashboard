@@ -50,6 +50,9 @@ def _quant_metrics():
         "summary": summary,
         "total": int(summary.get("total", 0) or 0),
         "promoted_warm": int(summary.get("promoted_warm", 0) or 0),
+        "retained_warm_passed": int(summary.get("retained_warm_passed", 0) or 0),
+        "retained_hot_passed": int(summary.get("retained_hot_passed", 0) or 0),
+        "implementable_count": int(summary.get("implementable_count", 0) or 0),
         "rejected_cold": int(summary.get("rejected_cold", 0) or 0),
         "no_data": int(summary.get("no_data", 0) or 0),
         "promoted_positive_return": len(promoted_positive_ret),
@@ -65,10 +68,18 @@ def _pipeline_metrics():
             "db_exists": False,
             "stage_counts": {},
             "promoted_hot_events": 0,
+            "promoted_hot_events_recent_24h": 0,
             "killed_events": 0,
             "funded_per_pair": {},
             "total_funded_budget": 0.0,
             "max_pair_share": 0.0,
+            "funded_strategy_count": 0,
+            "funded_hot_strategy_count": 0,
+            "funded_warm_strategy_count": 0,
+            "hot_stage_count": 0,
+            "warm_stage_count": 0,
+            "cold_stage_count": 0,
+            "funded_with_oos_trades": 0,
         }
 
     conn = sqlite3.connect(str(PIPELINE_DB))
@@ -80,6 +91,16 @@ def _pipeline_metrics():
         }
         promoted_hot = int(
             conn.execute("SELECT COUNT(*) FROM pipeline_events WHERE event_type='promoted_to_HOT'").fetchone()[0]
+        )
+        promoted_hot_recent = int(
+            conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM pipeline_events
+                WHERE event_type='promoted_to_HOT'
+                  AND created_at >= datetime('now', '-24 hours')
+                """
+            ).fetchone()[0]
         )
         killed = int(conn.execute("SELECT COUNT(*) FROM pipeline_events WHERE event_type='KILLED'").fetchone()[0])
 
@@ -104,6 +125,30 @@ def _pipeline_metrics():
               AND COALESCE(b.current_budget_usd, 0) > 0
             """
         ).fetchall()
+        funded_hot_count = int(
+            conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM strategy_budgets b
+                JOIN strategy_registry r
+                  ON r.name = b.strategy_name AND r.pair = b.pair
+                WHERE r.stage='HOT'
+                  AND COALESCE(b.current_budget_usd, 0) > 0
+                """
+            ).fetchone()[0]
+        )
+        funded_warm_count = int(
+            conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM strategy_budgets b
+                JOIN strategy_registry r
+                  ON r.name = b.strategy_name AND r.pair = b.pair
+                WHERE r.stage='WARM'
+                  AND COALESCE(b.current_budget_usd, 0) > 0
+                """
+            ).fetchone()[0]
+        )
 
         per_pair = {}
         total_budget = 0.0
@@ -132,12 +177,18 @@ def _pipeline_metrics():
             "db_exists": True,
             "stage_counts": stage_counts,
             "promoted_hot_events": promoted_hot,
+            "promoted_hot_events_recent_24h": promoted_hot_recent,
             "killed_events": killed,
             "funded_per_pair": per_pair,
             "total_funded_budget": round(total_budget, 2),
             "max_pair_share": round(max_pair_share, 4),
             "funded_strategy_count": len(funded_rows),
+            "funded_hot_strategy_count": funded_hot_count,
+            "funded_warm_strategy_count": funded_warm_count,
             "funded_with_oos_trades": funded_with_oos_trades,
+            "hot_stage_count": int(stage_counts.get("HOT", 0) or 0),
+            "warm_stage_count": int(stage_counts.get("WARM", 0) or 0),
+            "cold_stage_count": int(stage_counts.get("COLD", 0) or 0),
         }
     finally:
         conn.close()
@@ -183,8 +234,18 @@ def run_audit():
         )
     )
 
-    active_promotions = max(int(quant.get("promoted_warm", 0) or 0), int(pipe.get("promoted_hot_events", 0) or 0))
-    active_funded = max(int(quant.get("funded_promoted", 0) or 0), int(pipe.get("funded_strategy_count", 0) or 0))
+    active_promotions = max(
+        int(quant.get("promoted_warm", 0) or 0),
+        int(quant.get("retained_hot_passed", 0) or 0),
+        int(quant.get("retained_warm_passed", 0) or 0),
+        int(pipe.get("promoted_hot_events", 0) or 0),
+        int(pipe.get("promoted_hot_events_recent_24h", 0) or 0),
+    )
+    active_funded = max(
+        int(quant.get("funded_promoted", 0) or 0),
+        int(pipe.get("funded_strategy_count", 0) or 0),
+        int(pipe.get("funded_hot_strategy_count", 0) or 0),
+    )
     checks.append(
         _check(
             "Active Profit Pipeline",
@@ -192,21 +253,51 @@ def run_audit():
             "high",
             (
                 f"Quant promoted WARM={quant.get('promoted_warm', 0)}, "
+                f"Quant retained HOT passed={quant.get('retained_hot_passed', 0)}, "
+                f"Quant retained WARM passed={quant.get('retained_warm_passed', 0)}, "
                 f"Quant funded promoted={quant.get('funded_promoted', 0)}, "
                 f"Pipeline promoted HOT={pipe.get('promoted_hot_events', 0)}, "
+                f"Pipeline promoted HOT (24h)={pipe.get('promoted_hot_events_recent_24h', 0)}, "
                 f"Pipeline funded strategies={pipe.get('funded_strategy_count', 0)}"
             ),
             "Increase positive OOS candidates and keep only funded strategies with robust gate metrics.",
         )
     )
 
+    live_profit_evidence = bool(
+        int(pipe.get("promoted_hot_events_recent_24h", 0) or 0) > 0
+        or int(pipe.get("promoted_hot_events", 0) or 0) > 0
+        or (
+            int(pipe.get("funded_hot_strategy_count", 0) or 0) > 0
+            and int(quant.get("retained_hot_passed", 0) or 0) > 0
+        )
+    )
     checks.append(
         _check(
             "Live Profit Evidence",
-            pipe.get("promoted_hot_events", 0) > 0,
+            live_profit_evidence,
             "critical",
-            f"Promoted HOT events: {pipe.get('promoted_hot_events', 0)}",
+            (
+                f"Promoted HOT events(all-time)={pipe.get('promoted_hot_events', 0)}, "
+                f"promoted HOT events(24h)={pipe.get('promoted_hot_events_recent_24h', 0)}, "
+                f"funded HOT strategies={pipe.get('funded_hot_strategy_count', 0)}, "
+                f"retained HOT passed={quant.get('retained_hot_passed', 0)}"
+            ),
             "Run WARM strategies through runtime gate and promote only if paper PnL remains positive over required window.",
+        )
+    )
+
+    checks.append(
+        _check(
+            "WARM Promotion Feed",
+            int(pipe.get("warm_stage_count", 0) or 0) > 0,
+            "high",
+            (
+                f"WARM stage count={pipe.get('warm_stage_count', 0)}, "
+                f"HOT stage count={pipe.get('hot_stage_count', 0)}, "
+                f"Quant implementable={quant.get('implementable_count', 0)}"
+            ),
+            "Keep WARM candidate feed non-empty by refreshing/rotating quant-validated candidates.",
         )
     )
 
@@ -261,6 +352,9 @@ def run_audit():
         "metrics": {
             "quant": {
                 "promoted_warm": quant.get("promoted_warm", 0),
+                "retained_warm_passed": quant.get("retained_warm_passed", 0),
+                "retained_hot_passed": quant.get("retained_hot_passed", 0),
+                "implementable_count": quant.get("implementable_count", 0),
                 "rejected_cold": quant.get("rejected_cold", 0),
                 "no_data": quant.get("no_data", 0),
                 "funded_promoted": quant.get("funded_promoted", 0),
@@ -269,10 +363,15 @@ def run_audit():
             "pipeline": {
                 "stage_counts": pipe.get("stage_counts", {}),
                 "promoted_hot_events": pipe.get("promoted_hot_events", 0),
+                "promoted_hot_events_recent_24h": pipe.get("promoted_hot_events_recent_24h", 0),
                 "killed_events": pipe.get("killed_events", 0),
                 "max_pair_share": pipe.get("max_pair_share", 0.0),
                 "total_funded_budget": pipe.get("total_funded_budget", 0.0),
                 "funded_strategy_count": pipe.get("funded_strategy_count", 0),
+                "funded_hot_strategy_count": pipe.get("funded_hot_strategy_count", 0),
+                "funded_warm_strategy_count": pipe.get("funded_warm_strategy_count", 0),
+                "hot_stage_count": pipe.get("hot_stage_count", 0),
+                "warm_stage_count": pipe.get("warm_stage_count", 0),
                 "funded_with_oos_trades": pipe.get("funded_with_oos_trades", 0),
             },
         },

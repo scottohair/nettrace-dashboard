@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T10:19:15.273607+00:00",
+  "updated_at": "2026-02-14T10:28:17.770814+00:00",
   "reason": "scheduled",
   "priority_config": {
     "updated_at": "2026-02-13T02:43:39.722076+00:00",
@@ -80,7 +80,7 @@
     }
   },
   "strategy_stage": {
-    "updated_at": "2026-02-14T10:19:15.536565+00:00",
+    "updated_at": "2026-02-14T10:28:17.788571+00:00",
     "stage_counts": {
       "COLD": 354,
       "WARM": 7,
@@ -439,7 +439,7 @@
     ]
   },
   "framework_stage": {
-    "updated_at": "2026-02-14T10:19:15.537977+00:00",
+    "updated_at": "2026-02-14T10:28:17.789974+00:00",
     "online_nodes": 1,
     "total_nodes": 3,
     "framework_totals": {
@@ -497,260 +497,8 @@
     ]
   },
   "message_stage": {
-    "updated_at": "2026-02-14T10:19:15.565437+00:00",
+    "updated_at": "2026-02-14T10:28:17.818517+00:00",
     "advanced_team_messages": [
-      {
-        "id": 5731,
-        "timestamp": "2026-02-14T09:39:24.500410+00:00",
-        "sender": "dashboard_optimizer",
-        "recipient": "broadcast",
-        "type": "dashboard_optimization",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5732,
-        "timestamp": "2026-02-14T09:41:27.423477+00:00",
-        "sender": "research",
-        "recipient": "strategy",
-        "type": "research_memo",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5733,
-        "timestamp": "2026-02-14T09:41:29.448567+00:00",
-        "sender": "strategy",
-        "recipient": "risk",
-        "type": "strategy_proposal",
-        "pair": "NONE",
-        "summary": null
-      },
-      {
-        "id": 5734,
-        "timestamp": "2026-02-14T09:41:31.487561+00:00",
-        "sender": "risk",
-        "recipient": "execution",
-        "type": "risk_verdict",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5736,
-        "timestamp": "2026-02-14T09:41:35.508741+00:00",
-        "sender": "learning",
-        "recipient": "research",
-        "type": "learning_insights",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5737,
-        "timestamp": "2026-02-14T09:41:37.527455+00:00",
-        "sender": "algorithm_optimizer",
-        "recipient": "broadcast",
-        "type": "algorithm_tuning",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5738,
-        "timestamp": "2026-02-14T09:41:39.549733+00:00",
-        "sender": "quant_optimizer",
-        "recipient": "broadcast",
-        "type": "quant_optimization",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5740,
-        "timestamp": "2026-02-14T09:41:41.570464+00:00",
-        "sender": "dashboard_optimizer",
-        "recipient": "broadcast",
-        "type": "dashboard_optimization",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5741,
-        "timestamp": "2026-02-14T09:43:44.550872+00:00",
-        "sender": "research",
-        "recipient": "strategy",
-        "type": "research_memo",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5742,
-        "timestamp": "2026-02-14T09:43:46.572409+00:00",
-        "sender": "strategy",
-        "recipient": "risk",
-        "type": "strategy_proposal",
-        "pair": "NONE",
-        "summary": null
-      },
-      {
-        "id": 5743,
-        "timestamp": "2026-02-14T09:43:48.594748+00:00",
-        "sender": "risk",
-        "recipient": "execution",
-        "type": "risk_verdict",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5745,
-        "timestamp": "2026-02-14T09:43:52.618034+00:00",
-        "sender": "learning",
-        "recipient": "research",
-        "type": "learning_insights",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5746,
-        "timestamp": "2026-02-14T09:43:54.638197+00:00",
-        "sender": "algorithm_optimizer",
-        "recipient": "broadcast",
-        "type": "algorithm_tuning",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5747,
-        "timestamp": "2026-02-14T09:43:56.654744+00:00",
-        "sender": "quant_optimizer",
-        "recipient": "broadcast",
-        "type": "quant_optimization",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5749,
-        "timestamp": "2026-02-14T09:43:58.670454+00:00",
-        "sender": "dashboard_optimizer",
-        "recipient": "broadcast",
-        "type": "dashboard_optimization",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5750,
-        "timestamp": "2026-02-14T09:46:01.587824+00:00",
-        "sender": "research",
-        "recipient": "strategy",
-        "type": "research_memo",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5751,
-        "timestamp": "2026-02-14T09:46:03.613164+00:00",
-        "sender": "strategy",
-        "recipient": "risk",
-        "type": "strategy_proposal",
-        "pair": "NONE",
-        "summary": null
-      },
-      {
-        "id": 5752,
-        "timestamp": "2026-02-14T09:46:05.643650+00:00",
-        "sender": "risk",
-        "recipient": "execution",
-        "type": "risk_verdict",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5754,
-        "timestamp": "2026-02-14T09:46:09.673785+00:00",
-        "sender": "learning",
-        "recipient": "research",
-        "type": "learning_insights",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5755,
-        "timestamp": "2026-02-14T09:46:11.698420+00:00",
-        "sender": "algorithm_optimizer",
-        "recipient": "broadcast",
-        "type": "algorithm_tuning",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5756,
-        "timestamp": "2026-02-14T09:46:13.716118+00:00",
-        "sender": "quant_optimizer",
-        "recipient": "broadcast",
-        "type": "quant_optimization",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5758,
-        "timestamp": "2026-02-14T09:46:15.727009+00:00",
-        "sender": "dashboard_optimizer",
-        "recipient": "broadcast",
-        "type": "dashboard_optimization",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5759,
-        "timestamp": "2026-02-14T09:48:18.716629+00:00",
-        "sender": "research",
-        "recipient": "strategy",
-        "type": "research_memo",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5760,
-        "timestamp": "2026-02-14T09:48:20.740132+00:00",
-        "sender": "strategy",
-        "recipient": "risk",
-        "type": "strategy_proposal",
-        "pair": "NONE",
-        "summary": null
-      },
-      {
-        "id": 5761,
-        "timestamp": "2026-02-14T09:48:22.775431+00:00",
-        "sender": "risk",
-        "recipient": "execution",
-        "type": "risk_verdict",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5763,
-        "timestamp": "2026-02-14T09:48:26.804589+00:00",
-        "sender": "learning",
-        "recipient": "research",
-        "type": "learning_insights",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5764,
-        "timestamp": "2026-02-14T09:48:28.821036+00:00",
-        "sender": "algorithm_optimizer",
-        "recipient": "broadcast",
-        "type": "algorithm_tuning",
-        "pair": null,
-        "summary": null
-      },
-      {
-        "id": 5765,
-        "timestamp": "2026-02-14T09:48:30.844139+00:00",
-        "sender": "quant_optimizer",
-        "recipient": "broadcast",
-        "type": "quant_optimization",
-        "pair": null,
-        "summary": null
-      },
       {
         "id": 5767,
         "timestamp": "2026-02-14T09:48:32.867605+00:00",
@@ -1578,37 +1326,261 @@
         "type": "dashboard_optimization",
         "pair": null,
         "summary": null
+      },
+      {
+        "id": 5885,
+        "timestamp": "2026-02-14T10:20:17.807062+00:00",
+        "sender": "research",
+        "recipient": "strategy",
+        "type": "research_memo",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5886,
+        "timestamp": "2026-02-14T10:20:19.823286+00:00",
+        "sender": "strategy",
+        "recipient": "risk",
+        "type": "strategy_proposal",
+        "pair": "NONE",
+        "summary": null
+      },
+      {
+        "id": 5887,
+        "timestamp": "2026-02-14T10:20:21.846981+00:00",
+        "sender": "risk",
+        "recipient": "execution",
+        "type": "risk_verdict",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5889,
+        "timestamp": "2026-02-14T10:20:25.863628+00:00",
+        "sender": "learning",
+        "recipient": "research",
+        "type": "learning_insights",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5890,
+        "timestamp": "2026-02-14T10:20:27.883606+00:00",
+        "sender": "algorithm_optimizer",
+        "recipient": "broadcast",
+        "type": "algorithm_tuning",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5891,
+        "timestamp": "2026-02-14T10:20:29.898285+00:00",
+        "sender": "quant_optimizer",
+        "recipient": "broadcast",
+        "type": "quant_optimization",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5893,
+        "timestamp": "2026-02-14T10:20:31.916355+00:00",
+        "sender": "dashboard_optimizer",
+        "recipient": "broadcast",
+        "type": "dashboard_optimization",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5894,
+        "timestamp": "2026-02-14T10:22:34.555388+00:00",
+        "sender": "research",
+        "recipient": "strategy",
+        "type": "research_memo",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5895,
+        "timestamp": "2026-02-14T10:22:36.583046+00:00",
+        "sender": "strategy",
+        "recipient": "risk",
+        "type": "strategy_proposal",
+        "pair": "NONE",
+        "summary": null
+      },
+      {
+        "id": 5896,
+        "timestamp": "2026-02-14T10:22:38.616008+00:00",
+        "sender": "risk",
+        "recipient": "execution",
+        "type": "risk_verdict",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5898,
+        "timestamp": "2026-02-14T10:22:42.631249+00:00",
+        "sender": "learning",
+        "recipient": "research",
+        "type": "learning_insights",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5899,
+        "timestamp": "2026-02-14T10:22:44.651404+00:00",
+        "sender": "algorithm_optimizer",
+        "recipient": "broadcast",
+        "type": "algorithm_tuning",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5900,
+        "timestamp": "2026-02-14T10:22:46.671057+00:00",
+        "sender": "quant_optimizer",
+        "recipient": "broadcast",
+        "type": "quant_optimization",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5902,
+        "timestamp": "2026-02-14T10:22:48.685984+00:00",
+        "sender": "dashboard_optimizer",
+        "recipient": "broadcast",
+        "type": "dashboard_optimization",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5903,
+        "timestamp": "2026-02-14T10:24:51.355312+00:00",
+        "sender": "research",
+        "recipient": "strategy",
+        "type": "research_memo",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5904,
+        "timestamp": "2026-02-14T10:24:53.376538+00:00",
+        "sender": "strategy",
+        "recipient": "risk",
+        "type": "strategy_proposal",
+        "pair": "NONE",
+        "summary": null
+      },
+      {
+        "id": 5905,
+        "timestamp": "2026-02-14T10:24:55.402728+00:00",
+        "sender": "risk",
+        "recipient": "execution",
+        "type": "risk_verdict",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5907,
+        "timestamp": "2026-02-14T10:24:59.419213+00:00",
+        "sender": "learning",
+        "recipient": "research",
+        "type": "learning_insights",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5908,
+        "timestamp": "2026-02-14T10:25:01.436238+00:00",
+        "sender": "algorithm_optimizer",
+        "recipient": "broadcast",
+        "type": "algorithm_tuning",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5909,
+        "timestamp": "2026-02-14T10:25:03.450653+00:00",
+        "sender": "quant_optimizer",
+        "recipient": "broadcast",
+        "type": "quant_optimization",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5911,
+        "timestamp": "2026-02-14T10:25:05.467008+00:00",
+        "sender": "dashboard_optimizer",
+        "recipient": "broadcast",
+        "type": "dashboard_optimization",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5912,
+        "timestamp": "2026-02-14T10:27:08.157949+00:00",
+        "sender": "research",
+        "recipient": "strategy",
+        "type": "research_memo",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5913,
+        "timestamp": "2026-02-14T10:27:10.181556+00:00",
+        "sender": "strategy",
+        "recipient": "risk",
+        "type": "strategy_proposal",
+        "pair": "NONE",
+        "summary": null
+      },
+      {
+        "id": 5914,
+        "timestamp": "2026-02-14T10:27:12.221886+00:00",
+        "sender": "risk",
+        "recipient": "execution",
+        "type": "risk_verdict",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5916,
+        "timestamp": "2026-02-14T10:27:16.243826+00:00",
+        "sender": "learning",
+        "recipient": "research",
+        "type": "learning_insights",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5917,
+        "timestamp": "2026-02-14T10:27:18.258932+00:00",
+        "sender": "algorithm_optimizer",
+        "recipient": "broadcast",
+        "type": "algorithm_tuning",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5918,
+        "timestamp": "2026-02-14T10:27:20.274510+00:00",
+        "sender": "quant_optimizer",
+        "recipient": "broadcast",
+        "type": "quant_optimization",
+        "pair": null,
+        "summary": null
+      },
+      {
+        "id": 5920,
+        "timestamp": "2026-02-14T10:27:22.290677+00:00",
+        "sender": "dashboard_optimizer",
+        "recipient": "broadcast",
+        "type": "dashboard_optimization",
+        "pair": null,
+        "summary": null
       }
     ],
     "operator_messages": [
-      {
-        "timestamp": "2026-02-14T04:26:46.597070+00:00",
-        "category": "mcp_opportunity",
-        "priority": "high",
-        "sender": "mcp_opportunity_agent",
-        "message": "MCP opportunity cycle 23: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.421% score=0.89"
-      },
-      {
-        "timestamp": "2026-02-14T04:29:16.392697+00:00",
-        "category": "mcp_opportunity",
-        "priority": "high",
-        "sender": "mcp_opportunity_agent",
-        "message": "MCP opportunity cycle 24: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.421% score=0.89"
-      },
-      {
-        "timestamp": "2026-02-14T04:31:46.219534+00:00",
-        "category": "mcp_opportunity",
-        "priority": "high",
-        "sender": "mcp_opportunity_agent",
-        "message": "MCP opportunity cycle 25: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.421% score=0.89"
-      },
-      {
-        "timestamp": "2026-02-14T04:34:16.288858+00:00",
-        "category": "mcp_opportunity",
-        "priority": "high",
-        "sender": "mcp_opportunity_agent",
-        "message": "MCP opportunity cycle 26: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.421% score=0.89"
-      },
       {
         "timestamp": "2026-02-14T04:36:46.159817+00:00",
         "category": "mcp_opportunity",
@@ -2140,984 +2112,38 @@
         "priority": "high",
         "sender": "mcp_opportunity_agent",
         "message": "MCP opportunity cycle 163: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.539% score=0.89"
+      },
+      {
+        "timestamp": "2026-02-14T10:19:24.878482+00:00",
+        "category": "mcp_opportunity",
+        "priority": "high",
+        "sender": "mcp_opportunity_agent",
+        "message": "MCP opportunity cycle 164: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.539% score=0.89"
+      },
+      {
+        "timestamp": "2026-02-14T10:21:54.711608+00:00",
+        "category": "mcp_opportunity",
+        "priority": "normal",
+        "sender": "mcp_opportunity_agent",
+        "message": "MCP opportunity cycle 165: quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=6.539% score=0.75"
+      },
+      {
+        "timestamp": "2026-02-14T10:24:24.526460+00:00",
+        "category": "mcp_opportunity",
+        "priority": "normal",
+        "sender": "mcp_opportunity_agent",
+        "message": "MCP opportunity cycle 166: quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=6.539% score=0.75"
+      },
+      {
+        "timestamp": "2026-02-14T10:26:54.317641+00:00",
+        "category": "mcp_opportunity",
+        "priority": "normal",
+        "sender": "mcp_opportunity_agent",
+        "message": "MCP opportunity cycle 167: quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=6.539% score=0.75"
       }
     ],
     "duplex": {
       "to_claude": [
-        {
-          "id": 1091,
-          "timestamp": "2026-02-14T08:46:48.235955+00:00",
-          "channel": "to_claude",
-          "msg_type": "opportunity_digest",
-          "priority": "high",
-          "source": "mcp_opportunity_agent",
-          "message": "mcp_opportunity top3: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.539% score=0.89",
-          "meta": {
-            "top": [
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-061",
-                  "strategy_name": "dip_buyer_q100_061",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "sin",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-071",
-                  "strategy_name": "dip_buyer_q100_071",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "ewr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 6.539175,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-031",
-                  "strategy_name": "momentum_q100_031",
-                  "strategy_base": "momentum",
-                  "pair": "BTC-USD",
-                  "target_region": "lhr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 107.59286,
-                  "return_pct": 14.5315,
-                  "walkforward_oos_return_pct": 13.746,
-                  "drawdown_pct": 0.3261,
-                  "sharpe": 1.0321,
-                  "win_rate": 1.0,
-                  "trades": 6,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              }
-            ],
-            "go_live": true,
-            "trace_id": "a228fff042d355d2178dd9fd",
-            "schema_version": 1
-          },
-          "trace_id": "a228fff042d355d2178dd9fd",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1092,
-          "timestamp": "2026-02-14T08:47:20.754504+00:00",
-          "channel": "to_claude",
-          "msg_type": "treasury_status",
-          "priority": "normal",
-          "source": "treasury_registry_agent",
-          "message": "treasury_registry cycle=64 wallets=4 connectors_ready=1/4 retrievability=0.76",
-          "meta": {
-            "retrievability": {
-              "wallet_score": 1.0,
-              "connector_score": 0.25,
-              "total_score": 0.76,
-              "retrievable_wallets": 4,
-              "wallet_count": 4,
-              "ready_connectors": 1,
-              "connector_count": 4
-            },
-            "trace_id": "72067d3ab62be6c0da37ef77",
-            "schema_version": 1
-          },
-          "trace_id": "72067d3ab62be6c0da37ef77",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1093,
-          "timestamp": "2026-02-14T08:47:22.895758+00:00",
-          "channel": "to_claude",
-          "msg_type": "deployment_optimizer",
-          "priority": "high",
-          "source": "deployment_optimizer_agent",
-          "message": "deployment_optimizer cycle=64 score=0.31 hf_live_ready=False top_regions=ewr,nrt,sin",
-          "meta": {
-            "summary": {
-              "runtime_region": "local",
-              "deployment_score": 0.31,
-              "hf_live_ready": false,
-              "top_regions": [
-                "ewr",
-                "nrt",
-                "sin"
-              ]
-            },
-            "venue_readiness": {
-              "coinbase": {
-                "live_ready": false,
-                "dns_ok": false,
-                "credentials_present": true,
-                "success_rate": 0.0105,
-                "samples": 2000,
-                "p90_latency_ms": 19.033,
-                "reason": "requires_dns+credentials+healthy_telemetry"
-              },
-              "fix": {
-                "live_ready": false,
-                "dns_ok": true,
-                "credentials_present": false,
-                "timeout_ms": 0,
-                "reason": "requires_gateway_url+dns+timeout"
-              },
-              "ibkr": {
-                "live_ready": false,
-                "dns_ok": true,
-                "credentials_present": false,
-                "success_rate": 0.0,
-                "samples": 0,
-                "reason": "requires_host_port+health"
-              }
-            },
-            "priority_actions": [
-              "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
-              "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
-              "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
-              "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
-              "Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com",
-              "Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>",
-              "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
-            ],
-            "trace_id": "c595f2979e2e635ad9f5a0b5",
-            "schema_version": 1
-          },
-          "trace_id": "c595f2979e2e635ad9f5a0b5",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1094,
-          "timestamp": "2026-02-14T08:48:33.311559+00:00",
-          "channel": "to_claude",
-          "msg_type": "bundle_update",
-          "priority": "normal",
-          "source": "claude_stager",
-          "message": "Claude ingest bundle refreshed",
-          "meta": {
-            "bundle_id": "bundle-200-f9303f34f9ed",
-            "bundle_hash": "f9303f34f9ed374f90fe2443f1122085a23f75aae1976776f18925d112aed7cb",
-            "bundle_sequence": 200,
-            "reason": "scheduled",
-            "focus_pairs": [
-              "BTC-USD",
-              "ETH-USD",
-              "SOL-USD",
-              "AVAX-USD",
-              "LINK-USD",
-              "DOGE-USD",
-              "XRP-USD"
-            ],
-            "trace_id": "e3356e6441ad08b85504d240",
-            "schema_version": 1
-          },
-          "trace_id": "e3356e6441ad08b85504d240",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1095,
-          "timestamp": "2026-02-14T08:49:18.436192+00:00",
-          "channel": "to_claude",
-          "msg_type": "opportunity_digest",
-          "priority": "high",
-          "source": "mcp_opportunity_agent",
-          "message": "mcp_opportunity top3: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.539% score=0.89",
-          "meta": {
-            "top": [
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-061",
-                  "strategy_name": "dip_buyer_q100_061",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "sin",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-071",
-                  "strategy_name": "dip_buyer_q100_071",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "ewr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 6.539175,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-031",
-                  "strategy_name": "momentum_q100_031",
-                  "strategy_base": "momentum",
-                  "pair": "BTC-USD",
-                  "target_region": "lhr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 107.59286,
-                  "return_pct": 14.5315,
-                  "walkforward_oos_return_pct": 13.746,
-                  "drawdown_pct": 0.3261,
-                  "sharpe": 1.0321,
-                  "win_rate": 1.0,
-                  "trades": 6,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              }
-            ],
-            "go_live": true,
-            "trace_id": "7ac3dc2577c91398c320b1d1",
-            "schema_version": 1
-          },
-          "trace_id": "7ac3dc2577c91398c320b1d1",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1096,
-          "timestamp": "2026-02-14T08:50:55.269192+00:00",
-          "channel": "to_claude",
-          "msg_type": "company_control_plane",
-          "priority": "high",
-          "source": "quant_company_agent",
-          "message": "quant_company cycle=54 alpha=0.59 migration=0.70 gtm=0.95 launch_ready=False hf_live_ready=False top_regions=ewr,nrt,sin daily_pnl=$0.00 next_target=$1,000.00 run_rate=$66.00/hr budget=de_escalatex0.80",
-          "meta": {
-            "progress": {
-              "alpha_score": 0.5913,
-              "migration_score": 0.704,
-              "gtm_score": 0.95,
-              "go_live": true,
-              "blockers": [],
-              "opportunity_count": 12,
-              "deployment_score": 0.31,
-              "hf_live_ready": false,
-              "top_regions": [
-                "ewr",
-                "nrt",
-                "sin"
-              ]
-            },
-            "launch_ready": false,
-            "portfolio_metrics": {
-              "daily_pnl_usd": 0.0,
-              "total_value_usd": 252.19,
-              "drawdown_pct": 21.84
-            },
-            "realized_close_evidence": {
-              "source": "exit_manager.db.exit_events",
-              "passed": true,
-              "reason": "passed",
-              "lookback_hours": 48,
-              "window_hours": 4,
-              "positive_windows": 4,
-              "required_positive_windows": 3,
-              "total_closes": 73,
-              "total_net_pnl_usd": 7.990991,
-              "windows": [
-                {
-                  "bucket_id": 122989,
-                  "closes": 7,
-                  "net_pnl_usd": 0.988362,
-                  "positive_window": true
-                },
-                {
-                  "bucket_id": 122986,
-                  "closes": 43,
-                  "net_pnl_usd": 11.12577,
-                  "positive_window": true
-                },
-                {
-                  "bucket_id": 122983,
-                  "closes": 2,
-                  "net_pnl_usd": 0.032276,
-                  "positive_window": true
-                },
-                {
-                  "bucket_id": 122982,
-                  "closes": 10,
-                  "net_pnl_usd": 1.523448,
-                  "positive_window": true
-                },
-                {
-                  "bucket_id": 122981,
-                  "closes": 11,
-                  "net_pnl_usd": -5.678865,
-                  "positive_window": false
-                }
-              ],
-              "source_candidates": [
-                {
-                  "source": "trader_db.agent_trades",
-                  "passed": false,
-                  "reason": "insufficient_positive_realized_windows",
-                  "positive_windows": 1,
-                  "total_net_pnl_usd": 0.988361,
-                  "total_closes": 7
-                },
-                {
-                  "source": "exit_manager.db.exit_events",
-                  "passed": true,
-                  "reason": "passed",
-                  "positive_windows": 4,
-                  "total_net_pnl_usd": 7.990991,
-                  "total_closes": 73
-                }
-              ]
-            },
-            "target_tracker": {
-              "daily_targets_usd": [
-                1000.0,
-                2500.0,
-                9888.0,
-                15600.0,
-                1000000.0,
-                9999999.0
-              ],
-              "completed_targets": [],
-              "next_target_usd": 1000.0,
-              "daily_pnl_usd": 0.0,
-              "achievement_pct_to_next": 0.0,
-              "shortfall_usd": 1000.0,
-              "day_elapsed_pct_utc": 0.3687,
-              "required_hourly_run_rate_usd": 66.0
-            },
-            "budget_escalator": {
-              "action": "de_escalate",
-              "factor": 0.8,
-              "reason": "drawdown_or_negative_pnl",
-              "constraints": {
-                "requires_positive_realized_pnl": true,
-                "requires_positive_realized_windows": 3,
-                "max_daily_drawdown_pct_for_escalation": 8.0,
-                "requires_go_live": true,
-                "requires_execution_health_green": true,
-                "required_execution_health_green_streak": 2,
-                "required_execution_health_green_ratio": 0.6,
-                "max_buy_sell_ratio": 2.5,
-                "min_close_completion_rate": 0.4,
-                "min_close_attempts": 2,
-                "escalation_max_factor": 1.15,
-                "deescalation_min_factor": 0.75,
-                "escalation_cooldown_seconds": 900
-              },
-              "realized_evidence": {
-                "passed": true,
-                "reason": "passed",
-                "positive_windows": 4,
-                "required_positive_windows": 3,
-                "total_net_pnl_usd": 7.990991,
-                "total_closes": 73,
-                "recent_window_net_pnl_usd": 0.988362
-              },
-              "execution_health": {
-                "green": false,
-                "reason": "telemetry_success_rate_low:0.0120<0.5500",
-                "updated_at": "2026-02-14T08:50:55.265840+00:00",
-                "green_streak": 0,
-                "recent_green_ratio": 0.0
-              },
-              "trade_flow": {
-                "lookback_hours": 6,
-                "buy_fills": 0,
-                "sell_fills": 73,
-                "sell_close_events": 7,
-                "sell_close_attempts": 86,
-                "sell_close_completions": 84,
-                "sell_close_completion_rate": 0.976744,
-                "buy_sell_ratio": 0.0,
-                "close_balance_ok": true,
-                "close_balance_reason": "balanced_close_flow"
-              }
-            },
-            "profit_task_queue": [
-              "Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.",
-              "HF live gate is blocked; keep HF lane in paper mode and fix DNS + venue credentials before live budget.",
-              "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
-              "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
-              "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
-              "Execution-health gate failed (telemetry_success_rate_low:0.0120<0.5500); block budget escalations until DNS/API/reconcile checks are green.",
-              "Current run-rate gap: need $66.00/hour to hit next daily target $1,000.00.",
-              "Deploy primary execution to region order: ewr -> nrt -> sin.",
-              "Focus quant sweeps + walk-forward + Monte Carlo on top pairs: BTC-USDC, SOL-USDC, ETH-USDC.",
-              "Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.",
-              "Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.",
-              "Continuously harvest realized gains into treasury assets: USD and USDC."
-            ],
-            "win_objective": {
-              "definition": "WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.",
-              "treasury_capture_assets": [
-                "USD",
-                "USDC"
-              ],
-              "operator_directive": "Best-in-class: reuse proven building blocks; ship paradigm shifts only if they beat baselines."
-            },
-            "trace_id": "9a8300b89b2ec0505269bceb",
-            "schema_version": 1
-          },
-          "trace_id": "9a8300b89b2ec0505269bceb",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1097,
-          "timestamp": "2026-02-14T08:51:34.720360+00:00",
-          "channel": "to_claude",
-          "msg_type": "bundle_update",
-          "priority": "normal",
-          "source": "claude_stager",
-          "message": "Claude ingest bundle refreshed",
-          "meta": {
-            "bundle_id": "bundle-201-0288cf21acb2",
-            "bundle_hash": "0288cf21acb2e87e1b7bd66ebd2d8725742307b2a0e4213b4da3a08d8faeb70b",
-            "bundle_sequence": 201,
-            "reason": "scheduled",
-            "focus_pairs": [
-              "BTC-USD",
-              "ETH-USD",
-              "SOL-USD",
-              "AVAX-USD",
-              "LINK-USD",
-              "DOGE-USD",
-              "XRP-USD"
-            ],
-            "trace_id": "1933762eb329703e7f27e7b3",
-            "schema_version": 1
-          },
-          "trace_id": "1933762eb329703e7f27e7b3",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1098,
-          "timestamp": "2026-02-14T08:51:48.599145+00:00",
-          "channel": "to_claude",
-          "msg_type": "opportunity_digest",
-          "priority": "high",
-          "source": "mcp_opportunity_agent",
-          "message": "mcp_opportunity top3: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.539% score=0.89",
-          "meta": {
-            "top": [
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-061",
-                  "strategy_name": "dip_buyer_q100_061",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "sin",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-071",
-                  "strategy_name": "dip_buyer_q100_071",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "ewr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 6.539175,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-031",
-                  "strategy_name": "momentum_q100_031",
-                  "strategy_base": "momentum",
-                  "pair": "BTC-USD",
-                  "target_region": "lhr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 107.59286,
-                  "return_pct": 14.5315,
-                  "walkforward_oos_return_pct": 13.746,
-                  "drawdown_pct": 0.3261,
-                  "sharpe": 1.0321,
-                  "win_rate": 1.0,
-                  "trades": 6,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              }
-            ],
-            "go_live": true,
-            "trace_id": "8759c4cf35197fe6edd8d2f1",
-            "schema_version": 1
-          },
-          "trace_id": "8759c4cf35197fe6edd8d2f1",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1099,
-          "timestamp": "2026-02-14T08:52:21.632760+00:00",
-          "channel": "to_claude",
-          "msg_type": "treasury_status",
-          "priority": "normal",
-          "source": "treasury_registry_agent",
-          "message": "treasury_registry cycle=65 wallets=4 connectors_ready=1/4 retrievability=0.76",
-          "meta": {
-            "retrievability": {
-              "wallet_score": 1.0,
-              "connector_score": 0.25,
-              "total_score": 0.76,
-              "retrievable_wallets": 4,
-              "wallet_count": 4,
-              "ready_connectors": 1,
-              "connector_count": 4
-            },
-            "trace_id": "b4b1ac243f3427d576420600",
-            "schema_version": 1
-          },
-          "trace_id": "b4b1ac243f3427d576420600",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1100,
-          "timestamp": "2026-02-14T08:52:23.821777+00:00",
-          "channel": "to_claude",
-          "msg_type": "deployment_optimizer",
-          "priority": "high",
-          "source": "deployment_optimizer_agent",
-          "message": "deployment_optimizer cycle=65 score=0.31 hf_live_ready=False top_regions=ewr,nrt,sin",
-          "meta": {
-            "summary": {
-              "runtime_region": "local",
-              "deployment_score": 0.31,
-              "hf_live_ready": false,
-              "top_regions": [
-                "ewr",
-                "nrt",
-                "sin"
-              ]
-            },
-            "venue_readiness": {
-              "coinbase": {
-                "live_ready": false,
-                "dns_ok": false,
-                "credentials_present": true,
-                "success_rate": 0.012,
-                "samples": 2000,
-                "p90_latency_ms": 19.191,
-                "reason": "requires_dns+credentials+healthy_telemetry"
-              },
-              "fix": {
-                "live_ready": false,
-                "dns_ok": true,
-                "credentials_present": false,
-                "timeout_ms": 0,
-                "reason": "requires_gateway_url+dns+timeout"
-              },
-              "ibkr": {
-                "live_ready": false,
-                "dns_ok": true,
-                "credentials_present": false,
-                "success_rate": 0.0,
-                "samples": 0,
-                "reason": "requires_host_port+health"
-              }
-            },
-            "priority_actions": [
-              "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
-              "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
-              "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
-              "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
-              "Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com",
-              "Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>",
-              "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
-            ],
-            "trace_id": "fa0bc0e2154983445814311b",
-            "schema_version": 1
-          },
-          "trace_id": "fa0bc0e2154983445814311b",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1101,
-          "timestamp": "2026-02-14T08:54:18.853198+00:00",
-          "channel": "to_claude",
-          "msg_type": "opportunity_digest",
-          "priority": "high",
-          "source": "mcp_opportunity_agent",
-          "message": "mcp_opportunity top3: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.539% score=0.89",
-          "meta": {
-            "top": [
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-061",
-                  "strategy_name": "dip_buyer_q100_061",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "sin",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-071",
-                  "strategy_name": "dip_buyer_q100_071",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "ewr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 6.539175,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-031",
-                  "strategy_name": "momentum_q100_031",
-                  "strategy_base": "momentum",
-                  "pair": "BTC-USD",
-                  "target_region": "lhr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 107.59286,
-                  "return_pct": 14.5315,
-                  "walkforward_oos_return_pct": 13.746,
-                  "drawdown_pct": 0.3261,
-                  "sharpe": 1.0321,
-                  "win_rate": 1.0,
-                  "trades": 6,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              }
-            ],
-            "go_live": true,
-            "trace_id": "cba64cfe56bd2c0fce6219a4",
-            "schema_version": 1
-          },
-          "trace_id": "cba64cfe56bd2c0fce6219a4",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1102,
-          "timestamp": "2026-02-14T08:54:36.219511+00:00",
-          "channel": "to_claude",
-          "msg_type": "bundle_update",
-          "priority": "normal",
-          "source": "claude_stager",
-          "message": "Claude ingest bundle refreshed",
-          "meta": {
-            "bundle_id": "bundle-202-b740e061c69d",
-            "bundle_hash": "b740e061c69d9bab238fc99e490fa75d9857e8a7361292ef72bcb0d683c36e30",
-            "bundle_sequence": 202,
-            "reason": "scheduled",
-            "focus_pairs": [
-              "BTC-USD",
-              "ETH-USD",
-              "SOL-USD",
-              "AVAX-USD",
-              "LINK-USD",
-              "DOGE-USD",
-              "XRP-USD"
-            ],
-            "trace_id": "4a9469280382c9ae55297049",
-            "schema_version": 1
-          },
-          "trace_id": "4a9469280382c9ae55297049",
-          "schema_version": 1,
-          "status": "queued"
-        },
-        {
-          "id": 1103,
-          "timestamp": "2026-02-14T08:56:49.049274+00:00",
-          "channel": "to_claude",
-          "msg_type": "opportunity_digest",
-          "priority": "high",
-          "source": "mcp_opportunity_agent",
-          "message": "mcp_opportunity top3: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.539% score=0.89",
-          "meta": {
-            "top": [
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-061",
-                  "strategy_name": "dip_buyer_q100_061",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "sin",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 7.469685,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-071",
-                  "strategy_name": "dip_buyer_q100_071",
-                  "strategy_base": "dip_buyer",
-                  "pair": "BTC-USD",
-                  "target_region": "ewr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 125.22286,
-                  "return_pct": 16.5993,
-                  "walkforward_oos_return_pct": 16.6982,
-                  "drawdown_pct": 0.4732,
-                  "sharpe": 0.975,
-                  "win_rate": 1.0,
-                  "trades": 4,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              },
-              {
-                "source": "quant_bias",
-                "symbol": "BTC-USDC",
-                "action": "BUY",
-                "expected_edge_pct": 6.539175,
-                "confidence": 0.92,
-                "latency_ms": 140.0,
-                "details": {
-                  "id": "Q100-031",
-                  "strategy_name": "momentum_q100_031",
-                  "strategy_base": "momentum",
-                  "pair": "BTC-USD",
-                  "target_region": "lhr",
-                  "status": "retained_hot_passed",
-                  "expected_gain_score": 107.59286,
-                  "return_pct": 14.5315,
-                  "walkforward_oos_return_pct": 13.746,
-                  "drawdown_pct": 0.3261,
-                  "sharpe": 1.0321,
-                  "win_rate": 1.0,
-                  "trades": 6,
-                  "gain_gate_passed": true,
-                  "implementable": true,
-                  "blockers": [
-                    "Retained HOT (refresh passed)"
-                  ]
-                },
-                "score": 0.886433
-              }
-            ],
-            "go_live": true,
-            "trace_id": "357eec76e0ff3c2fff5e5c28",
-            "schema_version": 1
-          },
-          "trace_id": "357eec76e0ff3c2fff5e5c28",
-          "schema_version": 1,
-          "status": "queued"
-        },
         {
           "id": 1104,
           "timestamp": "2026-02-14T08:56:56.894230+00:00",
@@ -11344,6 +10370,1063 @@
           "trace_id": "379dfed63901241163dd79db",
           "schema_version": 1,
           "status": "queued"
+        },
+        {
+          "id": 1211,
+          "timestamp": "2026-02-14T10:19:15.587710+00:00",
+          "channel": "to_claude",
+          "msg_type": "bundle_update",
+          "priority": "normal",
+          "source": "claude_stager",
+          "message": "Claude ingest bundle refreshed",
+          "meta": {
+            "bundle_id": "bundle-230-43ab0579359d",
+            "bundle_hash": "43ab0579359d71fb451f4742e07e92448fb2a37bbe09d4b089f63e661f7ed469",
+            "bundle_sequence": 230,
+            "reason": "scheduled",
+            "focus_pairs": [
+              "BTC-USD",
+              "ETH-USD",
+              "SOL-USD",
+              "AVAX-USD",
+              "LINK-USD",
+              "DOGE-USD",
+              "XRP-USD"
+            ],
+            "trace_id": "7bf0dcf51cf49af0394b4834",
+            "schema_version": 1
+          },
+          "trace_id": "7bf0dcf51cf49af0394b4834",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1212,
+          "timestamp": "2026-02-14T10:19:24.878893+00:00",
+          "channel": "to_claude",
+          "msg_type": "opportunity_digest",
+          "priority": "high",
+          "source": "mcp_opportunity_agent",
+          "message": "mcp_opportunity top3: quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=7.470% score=0.89; quant_bias:BTC-USDC:BUY edge=6.539% score=0.89",
+          "meta": {
+            "top": [
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 7.469685,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-061",
+                  "strategy_name": "dip_buyer_q100_061",
+                  "strategy_base": "dip_buyer",
+                  "pair": "BTC-USD",
+                  "target_region": "sin",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 125.22286,
+                  "return_pct": 16.5993,
+                  "walkforward_oos_return_pct": 16.6982,
+                  "drawdown_pct": 0.4732,
+                  "sharpe": 0.975,
+                  "win_rate": 1.0,
+                  "trades": 4,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.886433
+              },
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 7.469685,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-071",
+                  "strategy_name": "dip_buyer_q100_071",
+                  "strategy_base": "dip_buyer",
+                  "pair": "BTC-USD",
+                  "target_region": "ewr",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 125.22286,
+                  "return_pct": 16.5993,
+                  "walkforward_oos_return_pct": 16.6982,
+                  "drawdown_pct": 0.4732,
+                  "sharpe": 0.975,
+                  "win_rate": 1.0,
+                  "trades": 4,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.886433
+              },
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 6.539175,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-031",
+                  "strategy_name": "momentum_q100_031",
+                  "strategy_base": "momentum",
+                  "pair": "BTC-USD",
+                  "target_region": "lhr",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 107.59286,
+                  "return_pct": 14.5315,
+                  "walkforward_oos_return_pct": 13.746,
+                  "drawdown_pct": 0.3261,
+                  "sharpe": 1.0321,
+                  "win_rate": 1.0,
+                  "trades": 6,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.886433
+              }
+            ],
+            "go_live": true,
+            "trace_id": "59050c30b7f4d80dea0726b8",
+            "schema_version": 1
+          },
+          "trace_id": "59050c30b7f4d80dea0726b8",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1213,
+          "timestamp": "2026-02-14T10:21:17.675160+00:00",
+          "channel": "to_claude",
+          "msg_type": "company_control_plane",
+          "priority": "high",
+          "source": "quant_company_agent",
+          "message": "quant_company cycle=69 alpha=0.59 migration=0.70 gtm=0.70 launch_ready=False hf_live_ready=False top_regions=ewr,nrt,sin daily_pnl=$0.00 next_target=$1,000.00 run_rate=$73.29/hr budget=de_escalatex0.80",
+          "meta": {
+            "progress": {
+              "alpha_score": 0.5913,
+              "migration_score": 0.704,
+              "gtm_score": 0.7,
+              "go_live": false,
+              "blockers": [
+                "execution_health_not_green:telemetry_samples_low:0<3"
+              ],
+              "opportunity_count": 12,
+              "deployment_score": 0.31,
+              "hf_live_ready": false,
+              "top_regions": [
+                "ewr",
+                "nrt",
+                "sin"
+              ]
+            },
+            "launch_ready": false,
+            "portfolio_metrics": {
+              "daily_pnl_usd": 0.0,
+              "total_value_usd": 252.19,
+              "drawdown_pct": 21.84
+            },
+            "realized_close_evidence": {
+              "source": "exit_manager.db.exit_events",
+              "passed": true,
+              "reason": "passed",
+              "lookback_hours": 48,
+              "window_hours": 4,
+              "positive_windows": 4,
+              "required_positive_windows": 3,
+              "total_closes": 73,
+              "total_net_pnl_usd": 7.990991,
+              "windows": [
+                {
+                  "bucket_id": 122989,
+                  "closes": 7,
+                  "net_pnl_usd": 0.988362,
+                  "positive_window": true
+                },
+                {
+                  "bucket_id": 122986,
+                  "closes": 43,
+                  "net_pnl_usd": 11.12577,
+                  "positive_window": true
+                },
+                {
+                  "bucket_id": 122983,
+                  "closes": 2,
+                  "net_pnl_usd": 0.032276,
+                  "positive_window": true
+                },
+                {
+                  "bucket_id": 122982,
+                  "closes": 10,
+                  "net_pnl_usd": 1.523448,
+                  "positive_window": true
+                },
+                {
+                  "bucket_id": 122981,
+                  "closes": 11,
+                  "net_pnl_usd": -5.678865,
+                  "positive_window": false
+                }
+              ],
+              "source_candidates": [
+                {
+                  "source": "trader_db.agent_trades",
+                  "passed": false,
+                  "reason": "insufficient_positive_realized_windows",
+                  "positive_windows": 1,
+                  "total_net_pnl_usd": 0.988361,
+                  "total_closes": 7
+                },
+                {
+                  "source": "exit_manager.db.exit_events",
+                  "passed": true,
+                  "reason": "passed",
+                  "positive_windows": 4,
+                  "total_net_pnl_usd": 7.990991,
+                  "total_closes": 73
+                }
+              ]
+            },
+            "target_tracker": {
+              "daily_targets_usd": [
+                1000.0,
+                2500.0,
+                9888.0,
+                15600.0,
+                1000000.0,
+                9999999.0
+              ],
+              "completed_targets": [],
+              "next_target_usd": 1000.0,
+              "daily_pnl_usd": 0.0,
+              "achievement_pct_to_next": 0.0,
+              "shortfall_usd": 1000.0,
+              "day_elapsed_pct_utc": 0.4314,
+              "required_hourly_run_rate_usd": 73.29
+            },
+            "budget_escalator": {
+              "action": "de_escalate",
+              "factor": 0.8,
+              "reason": "drawdown_or_negative_pnl",
+              "constraints": {
+                "requires_positive_realized_pnl": true,
+                "requires_positive_realized_windows": 3,
+                "max_daily_drawdown_pct_for_escalation": 8.0,
+                "requires_go_live": true,
+                "requires_execution_health_green": true,
+                "required_execution_health_green_streak": 2,
+                "required_execution_health_green_ratio": 0.6,
+                "max_buy_sell_ratio": 2.5,
+                "min_close_completion_rate": 0.4,
+                "min_close_attempts": 2,
+                "escalation_max_factor": 1.15,
+                "deescalation_min_factor": 0.75,
+                "escalation_cooldown_seconds": 900
+              },
+              "realized_evidence": {
+                "passed": true,
+                "reason": "passed",
+                "positive_windows": 4,
+                "required_positive_windows": 3,
+                "total_net_pnl_usd": 7.990991,
+                "total_closes": 73,
+                "recent_window_net_pnl_usd": 0.988362
+              },
+              "execution_health": {
+                "green": false,
+                "reason": "telemetry_success_rate_low:0.0175<0.5500",
+                "updated_at": "2026-02-14T10:21:17.671797+00:00",
+                "green_streak": 0,
+                "recent_green_ratio": 0.0
+              },
+              "trade_flow": {
+                "lookback_hours": 6,
+                "buy_fills": 0,
+                "sell_fills": 49,
+                "sell_close_events": 7,
+                "sell_close_attempts": 86,
+                "sell_close_completions": 84,
+                "sell_close_completion_rate": 0.976744,
+                "buy_sell_ratio": 0.0,
+                "close_balance_ok": true,
+                "close_balance_reason": "balanced_close_flow"
+              }
+            },
+            "profit_task_queue": [
+              "Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.",
+              "HF live gate is blocked; keep HF lane in paper mode and fix DNS + venue credentials before live budget.",
+              "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
+              "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
+              "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
+              "Execution-health gate failed (telemetry_success_rate_low:0.0175<0.5500); block budget escalations until DNS/API/reconcile checks are green.",
+              "Current run-rate gap: need $73.29/hour to hit next daily target $1,000.00.",
+              "Deploy primary execution to region order: ewr -> nrt -> sin.",
+              "Focus quant sweeps + walk-forward + Monte Carlo on top pairs: BTC-USDC, SOL-USDC, ETH-USDC.",
+              "Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.",
+              "Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.",
+              "Continuously harvest realized gains into treasury assets: USD and USDC."
+            ],
+            "win_objective": {
+              "definition": "WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.",
+              "treasury_capture_assets": [
+                "USD",
+                "USDC"
+              ],
+              "operator_directive": "Best-in-class: reuse proven building blocks; ship paradigm shifts only if they beat baselines."
+            },
+            "trace_id": "31cdc3e14a2dd0073a729f06",
+            "schema_version": 1
+          },
+          "trace_id": "31cdc3e14a2dd0073a729f06",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1214,
+          "timestamp": "2026-02-14T10:21:54.712050+00:00",
+          "channel": "to_claude",
+          "msg_type": "opportunity_digest",
+          "priority": "normal",
+          "source": "mcp_opportunity_agent",
+          "message": "mcp_opportunity top3: quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=6.539% score=0.75",
+          "meta": {
+            "top": [
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 7.469685,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-061",
+                  "strategy_name": "dip_buyer_q100_061",
+                  "strategy_base": "dip_buyer",
+                  "pair": "BTC-USD",
+                  "target_region": "sin",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 125.22286,
+                  "return_pct": 16.5993,
+                  "walkforward_oos_return_pct": 16.6982,
+                  "drawdown_pct": 0.4732,
+                  "sharpe": 0.975,
+                  "win_rate": 1.0,
+                  "trades": 4,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.749093
+              },
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 7.469685,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-071",
+                  "strategy_name": "dip_buyer_q100_071",
+                  "strategy_base": "dip_buyer",
+                  "pair": "BTC-USD",
+                  "target_region": "ewr",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 125.22286,
+                  "return_pct": 16.5993,
+                  "walkforward_oos_return_pct": 16.6982,
+                  "drawdown_pct": 0.4732,
+                  "sharpe": 0.975,
+                  "win_rate": 1.0,
+                  "trades": 4,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.749093
+              },
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 6.539175,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-031",
+                  "strategy_name": "momentum_q100_031",
+                  "strategy_base": "momentum",
+                  "pair": "BTC-USD",
+                  "target_region": "lhr",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 107.59286,
+                  "return_pct": 14.5315,
+                  "walkforward_oos_return_pct": 13.746,
+                  "drawdown_pct": 0.3261,
+                  "sharpe": 1.0321,
+                  "win_rate": 1.0,
+                  "trades": 6,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.749093
+              }
+            ],
+            "go_live": false,
+            "trace_id": "034581cf4b0b33e9d12c2253",
+            "schema_version": 1
+          },
+          "trace_id": "034581cf4b0b33e9d12c2253",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1215,
+          "timestamp": "2026-02-14T10:22:16.403393+00:00",
+          "channel": "to_claude",
+          "msg_type": "bundle_update",
+          "priority": "normal",
+          "source": "claude_stager",
+          "message": "Claude ingest bundle refreshed",
+          "meta": {
+            "bundle_id": "bundle-231-87945604fb9c",
+            "bundle_hash": "87945604fb9c41d447dc1bf801054873539e31394c5fdc8c880c4c574cc751ea",
+            "bundle_sequence": 231,
+            "reason": "scheduled",
+            "focus_pairs": [
+              "BTC-USD",
+              "ETH-USD",
+              "SOL-USD",
+              "AVAX-USD",
+              "LINK-USD",
+              "DOGE-USD",
+              "XRP-USD"
+            ],
+            "trace_id": "221a4997b52c1ffda03b37df",
+            "schema_version": 1
+          },
+          "trace_id": "221a4997b52c1ffda03b37df",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1216,
+          "timestamp": "2026-02-14T10:22:36.107545+00:00",
+          "channel": "to_claude",
+          "msg_type": "treasury_status",
+          "priority": "normal",
+          "source": "treasury_registry_agent",
+          "message": "treasury_registry cycle=83 wallets=4 connectors_ready=1/4 retrievability=0.76",
+          "meta": {
+            "retrievability": {
+              "wallet_score": 1.0,
+              "connector_score": 0.25,
+              "total_score": 0.76,
+              "retrievable_wallets": 4,
+              "wallet_count": 4,
+              "ready_connectors": 1,
+              "connector_count": 4
+            },
+            "trace_id": "cd5ec981491cdc24b75791ed",
+            "schema_version": 1
+          },
+          "trace_id": "cd5ec981491cdc24b75791ed",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1217,
+          "timestamp": "2026-02-14T10:22:38.500975+00:00",
+          "channel": "to_claude",
+          "msg_type": "deployment_optimizer",
+          "priority": "high",
+          "source": "deployment_optimizer_agent",
+          "message": "deployment_optimizer cycle=83 score=0.31 hf_live_ready=False top_regions=ewr,nrt,sin",
+          "meta": {
+            "summary": {
+              "runtime_region": "local",
+              "deployment_score": 0.31,
+              "hf_live_ready": false,
+              "top_regions": [
+                "ewr",
+                "nrt",
+                "sin"
+              ]
+            },
+            "venue_readiness": {
+              "coinbase": {
+                "live_ready": false,
+                "dns_ok": false,
+                "credentials_present": true,
+                "success_rate": 0.013,
+                "samples": 2000,
+                "p90_latency_ms": 17.238,
+                "reason": "requires_dns+credentials+healthy_telemetry"
+              },
+              "fix": {
+                "live_ready": false,
+                "dns_ok": true,
+                "credentials_present": false,
+                "timeout_ms": 0,
+                "reason": "requires_gateway_url+dns+timeout"
+              },
+              "ibkr": {
+                "live_ready": false,
+                "dns_ok": true,
+                "credentials_present": false,
+                "success_rate": 0.0,
+                "samples": 0,
+                "reason": "requires_host_port+health"
+              }
+            },
+            "priority_actions": [
+              "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
+              "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
+              "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
+              "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
+              "Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com",
+              "Top recent Coinbase failures: 16x <urlopen error [Errno 8] nodename nor servname provided, or not known> | 14x fallback_spot_unavailable",
+              "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
+            ],
+            "trace_id": "8fe8925dcca33595db9f2b63",
+            "schema_version": 1
+          },
+          "trace_id": "8fe8925dcca33595db9f2b63",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1218,
+          "timestamp": "2026-02-14T10:24:24.529326+00:00",
+          "channel": "to_claude",
+          "msg_type": "opportunity_digest",
+          "priority": "normal",
+          "source": "mcp_opportunity_agent",
+          "message": "mcp_opportunity top3: quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=6.539% score=0.75",
+          "meta": {
+            "top": [
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 7.469685,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-061",
+                  "strategy_name": "dip_buyer_q100_061",
+                  "strategy_base": "dip_buyer",
+                  "pair": "BTC-USD",
+                  "target_region": "sin",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 125.22286,
+                  "return_pct": 16.5993,
+                  "walkforward_oos_return_pct": 16.6982,
+                  "drawdown_pct": 0.4732,
+                  "sharpe": 0.975,
+                  "win_rate": 1.0,
+                  "trades": 4,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.749093
+              },
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 7.469685,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-071",
+                  "strategy_name": "dip_buyer_q100_071",
+                  "strategy_base": "dip_buyer",
+                  "pair": "BTC-USD",
+                  "target_region": "ewr",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 125.22286,
+                  "return_pct": 16.5993,
+                  "walkforward_oos_return_pct": 16.6982,
+                  "drawdown_pct": 0.4732,
+                  "sharpe": 0.975,
+                  "win_rate": 1.0,
+                  "trades": 4,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.749093
+              },
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 6.539175,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-031",
+                  "strategy_name": "momentum_q100_031",
+                  "strategy_base": "momentum",
+                  "pair": "BTC-USD",
+                  "target_region": "lhr",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 107.59286,
+                  "return_pct": 14.5315,
+                  "walkforward_oos_return_pct": 13.746,
+                  "drawdown_pct": 0.3261,
+                  "sharpe": 1.0321,
+                  "win_rate": 1.0,
+                  "trades": 6,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.749093
+              }
+            ],
+            "go_live": false,
+            "trace_id": "3e6921b670fd58586a233178",
+            "schema_version": 1
+          },
+          "trace_id": "3e6921b670fd58586a233178",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1219,
+          "timestamp": "2026-02-14T10:25:17.117808+00:00",
+          "channel": "to_claude",
+          "msg_type": "bundle_update",
+          "priority": "normal",
+          "source": "claude_stager",
+          "message": "Claude ingest bundle refreshed",
+          "meta": {
+            "bundle_id": "bundle-232-a546fafcd32a",
+            "bundle_hash": "a546fafcd32ad3dcfce7e556f8eeb0368bd03de14ecf1852a8151b5a441ed0df",
+            "bundle_sequence": 232,
+            "reason": "scheduled",
+            "focus_pairs": [
+              "BTC-USD",
+              "ETH-USD",
+              "SOL-USD",
+              "AVAX-USD",
+              "LINK-USD",
+              "DOGE-USD",
+              "XRP-USD"
+            ],
+            "trace_id": "7c95518b137f09d3ad9779da",
+            "schema_version": 1
+          },
+          "trace_id": "7c95518b137f09d3ad9779da",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1220,
+          "timestamp": "2026-02-14T10:26:54.318050+00:00",
+          "channel": "to_claude",
+          "msg_type": "opportunity_digest",
+          "priority": "normal",
+          "source": "mcp_opportunity_agent",
+          "message": "mcp_opportunity top3: quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=7.470% score=0.75; quant_bias:BTC-USDC:BUY edge=6.539% score=0.75",
+          "meta": {
+            "top": [
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 7.469685,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-061",
+                  "strategy_name": "dip_buyer_q100_061",
+                  "strategy_base": "dip_buyer",
+                  "pair": "BTC-USD",
+                  "target_region": "sin",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 125.22286,
+                  "return_pct": 16.5993,
+                  "walkforward_oos_return_pct": 16.6982,
+                  "drawdown_pct": 0.4732,
+                  "sharpe": 0.975,
+                  "win_rate": 1.0,
+                  "trades": 4,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.749093
+              },
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 7.469685,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-071",
+                  "strategy_name": "dip_buyer_q100_071",
+                  "strategy_base": "dip_buyer",
+                  "pair": "BTC-USD",
+                  "target_region": "ewr",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 125.22286,
+                  "return_pct": 16.5993,
+                  "walkforward_oos_return_pct": 16.6982,
+                  "drawdown_pct": 0.4732,
+                  "sharpe": 0.975,
+                  "win_rate": 1.0,
+                  "trades": 4,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.749093
+              },
+              {
+                "source": "quant_bias",
+                "symbol": "BTC-USDC",
+                "action": "BUY",
+                "expected_edge_pct": 6.539175,
+                "confidence": 0.92,
+                "latency_ms": 140.0,
+                "details": {
+                  "id": "Q100-031",
+                  "strategy_name": "momentum_q100_031",
+                  "strategy_base": "momentum",
+                  "pair": "BTC-USD",
+                  "target_region": "lhr",
+                  "status": "retained_hot_passed",
+                  "expected_gain_score": 107.59286,
+                  "return_pct": 14.5315,
+                  "walkforward_oos_return_pct": 13.746,
+                  "drawdown_pct": 0.3261,
+                  "sharpe": 1.0321,
+                  "win_rate": 1.0,
+                  "trades": 6,
+                  "gain_gate_passed": true,
+                  "implementable": true,
+                  "blockers": [
+                    "Retained HOT (refresh passed)"
+                  ]
+                },
+                "score": 0.749093
+              }
+            ],
+            "go_live": false,
+            "trace_id": "3bc4f9e6a1287b09635c7e46",
+            "schema_version": 1
+          },
+          "trace_id": "3bc4f9e6a1287b09635c7e46",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1221,
+          "timestamp": "2026-02-14T10:27:18.270573+00:00",
+          "channel": "to_claude",
+          "msg_type": "company_control_plane",
+          "priority": "high",
+          "source": "quant_company_agent",
+          "message": "quant_company cycle=70 alpha=0.57 migration=0.70 gtm=0.70 launch_ready=False hf_live_ready=False top_regions=ewr,nrt,sin daily_pnl=$0.00 next_target=$1,000.00 run_rate=$73.83/hr budget=de_escalatex0.80",
+          "meta": {
+            "progress": {
+              "alpha_score": 0.5692,
+              "migration_score": 0.704,
+              "gtm_score": 0.7,
+              "go_live": false,
+              "blockers": [
+                "execution_health_not_green:telemetry_samples_low:0<3"
+              ],
+              "opportunity_count": 12,
+              "deployment_score": 0.31,
+              "hf_live_ready": false,
+              "top_regions": [
+                "ewr",
+                "nrt",
+                "sin"
+              ]
+            },
+            "launch_ready": false,
+            "portfolio_metrics": {
+              "daily_pnl_usd": 0.0,
+              "total_value_usd": 252.19,
+              "drawdown_pct": 21.84
+            },
+            "realized_close_evidence": {
+              "source": "exit_manager.db.exit_events",
+              "passed": true,
+              "reason": "passed",
+              "lookback_hours": 48,
+              "window_hours": 4,
+              "positive_windows": 4,
+              "required_positive_windows": 3,
+              "total_closes": 73,
+              "total_net_pnl_usd": 7.990991,
+              "windows": [
+                {
+                  "bucket_id": 122989,
+                  "closes": 7,
+                  "net_pnl_usd": 0.988362,
+                  "positive_window": true
+                },
+                {
+                  "bucket_id": 122986,
+                  "closes": 43,
+                  "net_pnl_usd": 11.12577,
+                  "positive_window": true
+                },
+                {
+                  "bucket_id": 122983,
+                  "closes": 2,
+                  "net_pnl_usd": 0.032276,
+                  "positive_window": true
+                },
+                {
+                  "bucket_id": 122982,
+                  "closes": 10,
+                  "net_pnl_usd": 1.523448,
+                  "positive_window": true
+                },
+                {
+                  "bucket_id": 122981,
+                  "closes": 11,
+                  "net_pnl_usd": -5.678865,
+                  "positive_window": false
+                }
+              ],
+              "source_candidates": [
+                {
+                  "source": "trader_db.agent_trades",
+                  "passed": false,
+                  "reason": "insufficient_positive_realized_windows",
+                  "positive_windows": 1,
+                  "total_net_pnl_usd": 0.988361,
+                  "total_closes": 7
+                },
+                {
+                  "source": "exit_manager.db.exit_events",
+                  "passed": true,
+                  "reason": "passed",
+                  "positive_windows": 4,
+                  "total_net_pnl_usd": 7.990991,
+                  "total_closes": 73
+                }
+              ]
+            },
+            "target_tracker": {
+              "daily_targets_usd": [
+                1000.0,
+                2500.0,
+                9888.0,
+                15600.0,
+                1000000.0,
+                9999999.0
+              ],
+              "completed_targets": [],
+              "next_target_usd": 1000.0,
+              "daily_pnl_usd": 0.0,
+              "achievement_pct_to_next": 0.0,
+              "shortfall_usd": 1000.0,
+              "day_elapsed_pct_utc": 0.4356,
+              "required_hourly_run_rate_usd": 73.83
+            },
+            "budget_escalator": {
+              "action": "de_escalate",
+              "factor": 0.8,
+              "reason": "drawdown_or_negative_pnl",
+              "constraints": {
+                "requires_positive_realized_pnl": true,
+                "requires_positive_realized_windows": 3,
+                "max_daily_drawdown_pct_for_escalation": 8.0,
+                "requires_go_live": true,
+                "requires_execution_health_green": true,
+                "required_execution_health_green_streak": 2,
+                "required_execution_health_green_ratio": 0.6,
+                "max_buy_sell_ratio": 2.5,
+                "min_close_completion_rate": 0.4,
+                "min_close_attempts": 2,
+                "escalation_max_factor": 1.15,
+                "deescalation_min_factor": 0.75,
+                "escalation_cooldown_seconds": 900
+              },
+              "realized_evidence": {
+                "passed": true,
+                "reason": "passed",
+                "positive_windows": 4,
+                "required_positive_windows": 3,
+                "total_net_pnl_usd": 7.990991,
+                "total_closes": 73,
+                "recent_window_net_pnl_usd": 0.988362
+              },
+              "execution_health": {
+                "green": false,
+                "reason": "telemetry_success_rate_low:0.0145<0.5500",
+                "updated_at": "2026-02-14T10:27:18.267282+00:00",
+                "green_streak": 0,
+                "recent_green_ratio": 0.0
+              },
+              "trade_flow": {
+                "lookback_hours": 6,
+                "buy_fills": 0,
+                "sell_fills": 48,
+                "sell_close_events": 7,
+                "sell_close_attempts": 86,
+                "sell_close_completions": 84,
+                "sell_close_completion_rate": 0.976744,
+                "buy_sell_ratio": 0.0,
+                "close_balance_ok": true,
+                "close_balance_reason": "balanced_close_flow"
+              }
+            },
+            "profit_task_queue": [
+              "Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.",
+              "HF live gate is blocked; keep HF lane in paper mode and fix DNS + venue credentials before live budget.",
+              "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
+              "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
+              "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
+              "Execution-health gate failed (telemetry_success_rate_low:0.0145<0.5500); block budget escalations until DNS/API/reconcile checks are green.",
+              "Current run-rate gap: need $73.83/hour to hit next daily target $1,000.00.",
+              "Deploy primary execution to region order: ewr -> nrt -> sin.",
+              "Focus quant sweeps + walk-forward + Monte Carlo on top pairs: BTC-USDC, SOL-USDC, ETH-USDC.",
+              "Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.",
+              "Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.",
+              "Continuously harvest realized gains into treasury assets: USD and USDC."
+            ],
+            "win_objective": {
+              "definition": "WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.",
+              "treasury_capture_assets": [
+                "USD",
+                "USDC"
+              ],
+              "operator_directive": "Best-in-class: reuse proven building blocks; ship paradigm shifts only if they beat baselines."
+            },
+            "trace_id": "43321b2c9607ad1a1a2aaaba",
+            "schema_version": 1
+          },
+          "trace_id": "43321b2c9607ad1a1a2aaaba",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1222,
+          "timestamp": "2026-02-14T10:27:36.231341+00:00",
+          "channel": "to_claude",
+          "msg_type": "treasury_status",
+          "priority": "normal",
+          "source": "treasury_registry_agent",
+          "message": "treasury_registry cycle=84 wallets=4 connectors_ready=1/4 retrievability=0.76",
+          "meta": {
+            "retrievability": {
+              "wallet_score": 1.0,
+              "connector_score": 0.25,
+              "total_score": 0.76,
+              "retrievable_wallets": 4,
+              "wallet_count": 4,
+              "ready_connectors": 1,
+              "connector_count": 4
+            },
+            "trace_id": "23626e493fdc267982d34c30",
+            "schema_version": 1
+          },
+          "trace_id": "23626e493fdc267982d34c30",
+          "schema_version": 1,
+          "status": "queued"
+        },
+        {
+          "id": 1223,
+          "timestamp": "2026-02-14T10:27:38.617702+00:00",
+          "channel": "to_claude",
+          "msg_type": "deployment_optimizer",
+          "priority": "high",
+          "source": "deployment_optimizer_agent",
+          "message": "deployment_optimizer cycle=84 score=0.31 hf_live_ready=False top_regions=ewr,nrt,sin",
+          "meta": {
+            "summary": {
+              "runtime_region": "local",
+              "deployment_score": 0.31,
+              "hf_live_ready": false,
+              "top_regions": [
+                "ewr",
+                "nrt",
+                "sin"
+              ]
+            },
+            "venue_readiness": {
+              "coinbase": {
+                "live_ready": false,
+                "dns_ok": false,
+                "credentials_present": true,
+                "success_rate": 0.016,
+                "samples": 2000,
+                "p90_latency_ms": 18.782,
+                "reason": "requires_dns+credentials+healthy_telemetry"
+              },
+              "fix": {
+                "live_ready": false,
+                "dns_ok": true,
+                "credentials_present": false,
+                "timeout_ms": 0,
+                "reason": "requires_gateway_url+dns+timeout"
+              },
+              "ibkr": {
+                "live_ready": false,
+                "dns_ok": true,
+                "credentials_present": false,
+                "success_rate": 0.0,
+                "samples": 0,
+                "reason": "requires_host_port+health"
+              }
+            },
+            "priority_actions": [
+              "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
+              "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
+              "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
+              "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
+              "Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com",
+              "Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+              "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
+            ],
+            "trace_id": "757310d3b288b06e9dbabec5",
+            "schema_version": 1
+          },
+          "trace_id": "757310d3b288b06e9dbabec5",
+          "schema_version": 1,
+          "status": "queued"
         }
       ],
       "from_claude": [
@@ -16737,11 +16820,11 @@
       ],
       "to_claude_count": 120,
       "from_claude_count": 120,
-      "to_claude_last_id": 1210,
+      "to_claude_last_id": 1223,
       "from_claude_last_id": 996
     },
     "advanced_team_message_count": 120,
-    "operator_message_count": 104,
+    "operator_message_count": 108,
     "duplex_to_count": 120,
     "duplex_from_count": 120
   },
@@ -16780,19 +16863,19 @@
       "mps": 2
     },
     "advanced_msgs": 120,
-    "operator_msgs": 104,
+    "operator_msgs": 108,
     "duplex_to": 120,
     "duplex_from": 120
   },
-  "bundle_id": "bundle-230-43ab0579359d",
-  "bundle_hash": "43ab0579359d71fb451f4742e07e92448fb2a37bbe09d4b089f63e661f7ed469",
-  "bundle_sequence": 230,
+  "bundle_id": "bundle-233-4bfd89df9644",
+  "bundle_hash": "4bfd89df9644b871d4a114deed28632162cc08bd6bfe3a3cf0f239bcc732619d",
+  "bundle_sequence": 233,
   "schema_version": 1,
   "metadata": {
-    "bundle_id": "bundle-230-43ab0579359d",
-    "bundle_hash": "43ab0579359d71fb451f4742e07e92448fb2a37bbe09d4b089f63e661f7ed469",
-    "bundle_sequence": 230,
-    "generated_at": "2026-02-14T10:19:15.273607+00:00",
+    "bundle_id": "bundle-233-4bfd89df9644",
+    "bundle_hash": "4bfd89df9644b871d4a114deed28632162cc08bd6bfe3a3cf0f239bcc732619d",
+    "bundle_sequence": 233,
+    "generated_at": "2026-02-14T10:28:17.770814+00:00",
     "schema_version": 1
   }
 }

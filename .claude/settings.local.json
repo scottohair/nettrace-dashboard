@@ -7,7 +7,10 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nActivate flywheel: clawdbot + growth_engine + meta_engine + strategy_pipeline\n\nAdded flywheel_activator.py to coordinate 4-agent trading loop:\n- Strategy Pipeline \\(COLD→WARM→HOT, feeds growth engine\\)\n- Growth Engine \\(algebraic signal fusion, boosts sniper confidence\\)\n- Meta Engine \\(strategy evolution, ML research, new alpha discovery\\)\n- ClawdBot \\(orchestration hub, alerts across 7 Fly regions\\)\n\nFixed sniper quote capacity routing: now correctly routes to alt quote\nwhen current quote can''t satisfy requested size \\(even if min_viable met\\).\n\nThis creates a self-reinforcing flywheel where:\n1. Pipeline graduates winning strategies\n2. Growth engine optimizes position sizing\n3. Meta engine evolves new strategies\n4. Loop repeats with compounding portfolio\n\nCo-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(/Users/scott/.fly/bin/flyctl deploy:*)",
-      "Bash(/Users/scott/.fly/bin/flyctl ssh console:*)"
+      "Bash(/Users/scott/.fly/bin/flyctl ssh console:*)",
+      "Bash(__NEW_LINE_1e264569e4a177c6__ sleep 5)",
+      "Bash(grep:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nEnable WARM Microlane: $5 sentiment_leech allocation for HOT promotion evidence\n\nPolicy Decision: Unlock tiny-budget WARM lane to generate live trading evidence.\n- Max allocation: $5 \\(sentiment_leech contrarian fear trades\\)\n- Max strategies: 1 \\(sentiment_leech only\\)\n- No realized proof required \\(eager learning mode\\)\n- Generates data to justify HOT promotion cycle\n\nMarket context: F&G = 9 \\(Extreme Fear\\) = strong contrarian opportunity.\nStrategy: prove system works on $5, use evidence to promote to $25+ HOT lane.\n\nCo-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   },
   "enableAllProjectMcpServers": true,

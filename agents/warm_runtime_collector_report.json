@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-14T10:20:49.268858+00:00",
+  "generated_at": "2026-02-14T10:30:03.221259+00:00",
   "config": {
     "hours": 168,
     "granularity": "5min",
@@ -15,30 +15,28 @@
     }
   },
   "summary": {
-    "warm_checked": 23,
-    "eligible_hot": 0,
+    "warm_checked": 22,
+    "eligible_hot": 2,
     "promoted_hot": 0,
     "collecting": 0,
-    "rejected": 23,
-    "not_ready": 23,
+    "rejected": 20,
+    "not_ready": 22,
     "skipped": 0
   },
   "results": [
     {
-      "strategy_name": "momentum_q100_021",
-      "pair": "BTC-USD",
+      "strategy_name": "momentum_q100_017",
+      "pair": "ETH-USD",
       "strategy_base": "momentum",
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "eligible_hot": false,
+      "status": "not_ready",
+      "message": "Not ready (eligible_hot): near_miss_override; realized_close_evidence_required:closed_trades 0 < 10, realized_close_gate_failed:closed_trades 0 < 10",
+      "eligible_hot": true,
       "reasons": [
-        "sharpe -0.72 < 0.5"
+        "Not ready (eligible_hot): near_miss_override; realized_close_evidence_required:closed_trades 0 < 10, realized_close_gate_failed:closed_trades 0 < 10"
       ],
-      "reason_codes": [
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
+      "reason_codes": [],
+      "gate_decision": "eligible_hot",
+      "gate_decision_reason": "near_miss_override",
       "criteria": {
         "min_trades": 10,
         "min_win_rate": 0.55,
@@ -48,10 +46,12 @@
         "min_sharpe": 0.5
       },
       "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "new_sell_trades": 3,
+      "criteria_adjustments": [
+        "near_miss_override:sharpe_gap<=0.3,drawdown_excess<=0.4,return_shortfall<=0.06"
+      ],
+      "new_sell_trades": 0,
       "data_source": {
-        "pair": "BTC-USD",
+        "pair": "ETH-USD",
         "granularity_seconds": 300,
         "hours": 168,
         "source": "coinbase_public",
@@ -59,15 +59,17 @@
         "notes": []
       },
       "paper_metrics": {
-        "strategy": "momentum_q100_021",
-        "pair": "BTC-USD",
-        "runtime_seconds": 92393,
-        "total_trades": 159,
+        "strategy": "momentum_q100_017",
+        "pair": "ETH-USD",
+        "runtime_seconds": 102313,
+        "total_trades": 120,
         "win_rate": 1.0,
-        "total_return_pct": 0.271222,
-        "max_drawdown_pct": 2.8393,
-        "sharpe_ratio": -0.720643,
-        "wins": 159,
+        "total_return_pct": 0.120044,
+        "max_drawdown_pct": 2.634004,
+        "rolling_drawdown_pct": 2.634004,
+        "lifetime_worst_drawdown_pct": 3.114,
+        "sharpe_ratio": 0.394652,
+        "wins": 120,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -85,26 +87,110 @@
             168,
             2016
           ],
+          "active_window_count": 7,
+          "active_windows": [
+            66,
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
     {
-      "strategy_name": "momentum_q100_017",
+      "strategy_name": "momentum_q100_022",
       "pair": "ETH-USD",
       "strategy_base": "momentum",
+      "status": "not_ready",
+      "message": "Not ready (eligible_hot): passed; realized_close_evidence_required:closed_trades 0 < 10, realized_close_gate_failed:closed_trades 0 < 10",
+      "eligible_hot": true,
+      "reasons": [
+        "Not ready (eligible_hot): passed; realized_close_evidence_required:closed_trades 0 < 10, realized_close_gate_failed:closed_trades 0 < 10"
+      ],
+      "reason_codes": [],
+      "gate_decision": "eligible_hot",
+      "gate_decision_reason": "passed",
+      "criteria": {
+        "min_trades": 10,
+        "min_win_rate": 0.55,
+        "min_return_pct": 0.1,
+        "max_drawdown_pct": 3.0,
+        "min_runtime_seconds": 3600,
+        "min_sharpe": 0.5
+      },
+      "criteria_mode": "baseline",
+      "criteria_adjustments": [],
+      "new_sell_trades": 0,
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "coinbase_public",
+        "candles": 2016,
+        "notes": []
+      },
+      "paper_metrics": {
+        "strategy": "momentum_q100_022",
+        "pair": "ETH-USD",
+        "runtime_seconds": 92291,
+        "total_trades": 349,
+        "win_rate": 1.0,
+        "total_return_pct": 0.192416,
+        "max_drawdown_pct": 2.838676,
+        "rolling_drawdown_pct": 2.838676,
+        "lifetime_worst_drawdown_pct": 3.4103,
+        "sharpe_ratio": 0.504213,
+        "wins": 349,
+        "losses": 0,
+        "var95_loss_pct": 0.0,
+        "es97_5_loss_pct": 0.0,
+        "evidence": {
+          "window_count": 10,
+          "windows": [
+            30,
+            42,
+            54,
+            66,
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
+          "active_window_count": 7,
+          "active_windows": [
+            66,
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
+          "source": "multi_window_replay",
+          "canonical_window": 2016
+        }
+      }
+    },
+    {
+      "strategy_name": "rsi_q100_042",
+      "pair": "ETH-USD",
+      "strategy_base": "rsi",
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "return -0.19% < 0.1%",
-        "drawdown 3.11% > 3.0%",
-        "sharpe -0.34 < 0.5"
+        "return -0.18% < 0.1%",
+        "sharpe -0.43 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
-        "drawdown_above_max",
         "sharpe_below_min"
       ],
       "gate_decision": "rejected",
@@ -129,153 +215,17 @@
         "notes": []
       },
       "paper_metrics": {
-        "strategy": "momentum_q100_017",
-        "pair": "ETH-USD",
-        "runtime_seconds": 92333,
-        "total_trades": 110,
-        "win_rate": 1.0,
-        "total_return_pct": -0.185284,
-        "max_drawdown_pct": 3.114,
-        "sharpe_ratio": -0.340885,
-        "wins": 110,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "cycle_bucket": 5903548
-        }
-      }
-    },
-    {
-      "strategy_name": "momentum_q100_022",
-      "pair": "ETH-USD",
-      "strategy_base": "momentum",
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "eligible_hot": false,
-      "reasons": [
-        "drawdown 3.41% > 3.0%",
-        "sharpe 0.21 < 0.5"
-      ],
-      "reason_codes": [
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "new_sell_trades": 2,
-      "data_source": {
-        "pair": "ETH-USD",
-        "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
-      },
-      "paper_metrics": {
-        "strategy": "momentum_q100_022",
-        "pair": "ETH-USD",
-        "runtime_seconds": 82311,
-        "total_trades": 333,
-        "win_rate": 1.0,
-        "total_return_pct": 0.192101,
-        "max_drawdown_pct": 3.4103,
-        "sharpe_ratio": 0.208697,
-        "wins": 333,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "cycle_bucket": 5903548
-        }
-      }
-    },
-    {
-      "strategy_name": "rsi_q100_042",
-      "pair": "ETH-USD",
-      "strategy_base": "rsi",
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "eligible_hot": false,
-      "reasons": [
-        "return 0.05% < 0.1%",
-        "drawdown 3.48% > 3.0%",
-        "sharpe -0.19 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "new_sell_trades": 2,
-      "data_source": {
-        "pair": "ETH-USD",
-        "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
-      },
-      "paper_metrics": {
         "strategy": "rsi_q100_042",
         "pair": "ETH-USD",
-        "runtime_seconds": 28735,
-        "total_trades": 176,
+        "runtime_seconds": 38715,
+        "total_trades": 194,
         "win_rate": 1.0,
-        "total_return_pct": 0.053973,
-        "max_drawdown_pct": 3.4776,
-        "sharpe_ratio": -0.186588,
-        "wins": 176,
+        "total_return_pct": -0.179606,
+        "max_drawdown_pct": 2.971083,
+        "rolling_drawdown_pct": 2.971083,
+        "lifetime_worst_drawdown_pct": 3.4776,
+        "sharpe_ratio": -0.429393,
+        "wins": 194,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -293,8 +243,21 @@
             168,
             2016
           ],
+          "active_window_count": 10,
+          "active_windows": [
+            30,
+            42,
+            54,
+            66,
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -306,8 +269,8 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "return 0.00% < 0.1%",
-        "sharpe 0.00 < 0.5"
+        "return -0.75% < 0.1%",
+        "sharpe -0.28 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -325,7 +288,7 @@
       },
       "criteria_mode": "baseline",
       "criteria_adjustments": [],
-      "new_sell_trades": 6,
+      "new_sell_trades": 0,
       "data_source": {
         "pair": "LINK-USD",
         "granularity_seconds": 300,
@@ -337,13 +300,15 @@
       "paper_metrics": {
         "strategy": "vwap_q100_064_batch_20260213_033001",
         "pair": "LINK-USD",
-        "runtime_seconds": 20173,
-        "total_trades": 76,
+        "runtime_seconds": 25530,
+        "total_trades": 86,
         "win_rate": 1.0,
-        "total_return_pct": 0.0,
-        "max_drawdown_pct": 2.8099,
-        "sharpe_ratio": 0.0,
-        "wins": 76,
+        "total_return_pct": -0.7482,
+        "max_drawdown_pct": 2.810392,
+        "rolling_drawdown_pct": 2.810392,
+        "lifetime_worst_drawdown_pct": 2.8104,
+        "sharpe_ratio": -0.2807,
+        "wins": 86,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -361,8 +326,12 @@
             168,
             2016
           ],
+          "active_window_count": 1,
+          "active_windows": [
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -374,9 +343,9 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "return 0.00% < 0.1%",
-        "drawdown 4.07% > 3.0%",
-        "sharpe -0.00 < 0.5"
+        "return -1.42% < 0.1%",
+        "drawdown 3.01% > 3.0%",
+        "sharpe -0.43 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -407,13 +376,15 @@
       "paper_metrics": {
         "strategy": "dip_buyer_q100_062",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 239,
+        "runtime_seconds": 102322,
+        "total_trades": 263,
         "win_rate": 1.0,
-        "total_return_pct": 1e-06,
-        "max_drawdown_pct": 4.0745,
-        "sharpe_ratio": -1e-06,
-        "wins": 239,
+        "total_return_pct": -1.416652,
+        "max_drawdown_pct": 3.014912,
+        "rolling_drawdown_pct": 3.014912,
+        "lifetime_worst_drawdown_pct": 4.0745,
+        "sharpe_ratio": -0.428372,
+        "wins": 263,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -431,8 +402,12 @@
             168,
             2016
           ],
+          "active_window_count": 1,
+          "active_windows": [
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -444,77 +419,9 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.94% > 3.0%",
-        "sharpe 0.07 < 0.5"
-      ],
-      "reason_codes": [
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "new_sell_trades": 2,
-      "data_source": {
-        "pair": "SOL-USD",
-        "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
-      },
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_063",
-        "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 264,
-        "win_rate": 1.0,
-        "total_return_pct": 0.14743,
-        "max_drawdown_pct": 4.9353,
-        "sharpe_ratio": 0.072306,
-        "wins": 264,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "cycle_bucket": 5903548
-        }
-      }
-    },
-    {
-      "strategy_name": "dip_buyer_q100_065",
-      "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "eligible_hot": false,
-      "reasons": [
-        "return 0.00% < 0.1%",
-        "drawdown 3.59% > 3.0%",
-        "sharpe -0.00 < 0.5"
+        "return -0.61% < 0.1%",
+        "drawdown 4.21% > 3.0%",
+        "sharpe -0.25 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -543,15 +450,17 @@
         "notes": []
       },
       "paper_metrics": {
-        "strategy": "dip_buyer_q100_065",
+        "strategy": "dip_buyer_q100_063",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 238,
+        "runtime_seconds": 102322,
+        "total_trades": 295,
         "win_rate": 1.0,
-        "total_return_pct": 1e-06,
-        "max_drawdown_pct": 3.5915,
-        "sharpe_ratio": -1e-06,
-        "wins": 238,
+        "total_return_pct": -0.60835,
+        "max_drawdown_pct": 4.208542,
+        "rolling_drawdown_pct": 4.208542,
+        "lifetime_worst_drawdown_pct": 4.9353,
+        "sharpe_ratio": -0.251918,
+        "wins": 295,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -569,8 +478,87 @@
             168,
             2016
           ],
+          "active_window_count": 2,
+          "active_windows": [
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
+        }
+      }
+    },
+    {
+      "strategy_name": "dip_buyer_q100_065",
+      "pair": "SOL-USD",
+      "strategy_base": "dip_buyer",
+      "status": "rejected",
+      "message": "performance_or_risk_gate_failed",
+      "eligible_hot": false,
+      "reasons": [
+        "return -1.28% < 0.1%",
+        "sharpe -0.38 < 0.5"
+      ],
+      "reason_codes": [
+        "return_below_min",
+        "sharpe_below_min"
+      ],
+      "gate_decision": "rejected",
+      "gate_decision_reason": "performance_or_risk_gate_failed",
+      "criteria": {
+        "min_trades": 10,
+        "min_win_rate": 0.55,
+        "min_return_pct": 0.1,
+        "max_drawdown_pct": 3.0,
+        "min_runtime_seconds": 3600,
+        "min_sharpe": 0.5
+      },
+      "criteria_mode": "baseline",
+      "criteria_adjustments": [],
+      "new_sell_trades": 0,
+      "data_source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "coinbase_public",
+        "candles": 2016,
+        "notes": []
+      },
+      "paper_metrics": {
+        "strategy": "dip_buyer_q100_065",
+        "pair": "SOL-USD",
+        "runtime_seconds": 102322,
+        "total_trades": 262,
+        "win_rate": 1.0,
+        "total_return_pct": -1.275333,
+        "max_drawdown_pct": 2.875947,
+        "rolling_drawdown_pct": 2.875947,
+        "lifetime_worst_drawdown_pct": 3.5915,
+        "sharpe_ratio": -0.377823,
+        "wins": 262,
+        "losses": 0,
+        "var95_loss_pct": 0.0,
+        "es97_5_loss_pct": 0.0,
+        "evidence": {
+          "window_count": 10,
+          "windows": [
+            30,
+            42,
+            54,
+            66,
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
+          "active_window_count": 1,
+          "active_windows": [
+            2016
+          ],
+          "source": "multi_window_replay",
+          "canonical_window": 2016
         }
       }
     },
@@ -582,9 +570,9 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "return 0.00% < 0.1%",
-        "drawdown 4.80% > 3.0%",
-        "sharpe -0.00 < 0.5"
+        "return -1.00% < 0.1%",
+        "drawdown 4.16% > 3.0%",
+        "sharpe -0.20 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -615,13 +603,15 @@
       "paper_metrics": {
         "strategy": "dip_buyer_q100_067",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 258,
+        "runtime_seconds": 102322,
+        "total_trades": 276,
         "win_rate": 1.0,
-        "total_return_pct": 1e-06,
-        "max_drawdown_pct": 4.8014,
-        "sharpe_ratio": -1e-06,
-        "wins": 258,
+        "total_return_pct": -1.001977,
+        "max_drawdown_pct": 4.155472,
+        "rolling_drawdown_pct": 4.155472,
+        "lifetime_worst_drawdown_pct": 4.8014,
+        "sharpe_ratio": -0.198635,
+        "wins": 276,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -639,8 +629,12 @@
             168,
             2016
           ],
+          "active_window_count": 1,
+          "active_windows": [
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -652,13 +646,11 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "return 0.00% < 0.1%",
-        "drawdown 4.61% > 3.0%",
-        "sharpe -0.00 < 0.5"
+        "return -1.18% < 0.1%",
+        "sharpe -0.36 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
-        "drawdown_above_max",
         "sharpe_below_min"
       ],
       "gate_decision": "rejected",
@@ -685,13 +677,15 @@
       "paper_metrics": {
         "strategy": "dip_buyer_q100_068",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 235,
+        "runtime_seconds": 102322,
+        "total_trades": 259,
         "win_rate": 1.0,
-        "total_return_pct": 1e-06,
-        "max_drawdown_pct": 4.6123,
-        "sharpe_ratio": -1e-06,
-        "wins": 235,
+        "total_return_pct": -1.181259,
+        "max_drawdown_pct": 2.789451,
+        "rolling_drawdown_pct": 2.789451,
+        "lifetime_worst_drawdown_pct": 4.6123,
+        "sharpe_ratio": -0.35591,
+        "wins": 259,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -709,8 +703,12 @@
             168,
             2016
           ],
+          "active_window_count": 1,
+          "active_windows": [
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -722,9 +720,9 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "return 0.00% < 0.1%",
-        "drawdown 4.75% > 3.0%",
-        "sharpe -0.00 < 0.5"
+        "return -0.96% < 0.1%",
+        "drawdown 4.12% > 3.0%",
+        "sharpe -0.19 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -755,13 +753,15 @@
       "paper_metrics": {
         "strategy": "dip_buyer_q100_070",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 232,
+        "runtime_seconds": 102322,
+        "total_trades": 250,
         "win_rate": 1.0,
-        "total_return_pct": 1e-06,
-        "max_drawdown_pct": 4.7539,
-        "sharpe_ratio": -1e-06,
-        "wins": 232,
+        "total_return_pct": -0.960234,
+        "max_drawdown_pct": 4.115336,
+        "rolling_drawdown_pct": 4.115336,
+        "lifetime_worst_drawdown_pct": 4.754,
+        "sharpe_ratio": -0.186951,
+        "wins": 250,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -779,8 +779,12 @@
             168,
             2016
           ],
+          "active_window_count": 1,
+          "active_windows": [
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -792,13 +796,11 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "return 0.00% < 0.1%",
-        "drawdown 3.89% > 3.0%",
-        "sharpe -0.00 < 0.5"
+        "return -1.21% < 0.1%",
+        "sharpe -0.39 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
-        "drawdown_above_max",
         "sharpe_below_min"
       ],
       "gate_decision": "rejected",
@@ -825,13 +827,15 @@
       "paper_metrics": {
         "strategy": "dip_buyer_q100_071",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 232,
+        "runtime_seconds": 102322,
+        "total_trades": 254,
         "win_rate": 1.0,
-        "total_return_pct": 1e-06,
-        "max_drawdown_pct": 3.8907,
-        "sharpe_ratio": -1e-06,
-        "wins": 232,
+        "total_return_pct": -1.213354,
+        "max_drawdown_pct": 2.815164,
+        "rolling_drawdown_pct": 2.815164,
+        "lifetime_worst_drawdown_pct": 3.8907,
+        "sharpe_ratio": -0.387898,
+        "wins": 254,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -849,8 +853,12 @@
             168,
             2016
           ],
+          "active_window_count": 1,
+          "active_windows": [
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -862,77 +870,9 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.94% > 3.0%",
-        "sharpe 0.07 < 0.5"
-      ],
-      "reason_codes": [
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "new_sell_trades": 2,
-      "data_source": {
-        "pair": "SOL-USD",
-        "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
-      },
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_073",
-        "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 245,
-        "win_rate": 1.0,
-        "total_return_pct": 0.14743,
-        "max_drawdown_pct": 4.9353,
-        "sharpe_ratio": 0.072306,
-        "wins": 245,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "cycle_bucket": 5903548
-        }
-      }
-    },
-    {
-      "strategy_name": "dip_buyer_q100_074",
-      "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "eligible_hot": false,
-      "reasons": [
-        "return 0.00% < 0.1%",
-        "drawdown 3.89% > 3.0%",
-        "sharpe -0.00 < 0.5"
+        "return -0.61% < 0.1%",
+        "drawdown 4.21% > 3.0%",
+        "sharpe -0.25 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -961,15 +901,17 @@
         "notes": []
       },
       "paper_metrics": {
-        "strategy": "dip_buyer_q100_074",
+        "strategy": "dip_buyer_q100_073",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 231,
+        "runtime_seconds": 102322,
+        "total_trades": 276,
         "win_rate": 1.0,
-        "total_return_pct": 1e-06,
-        "max_drawdown_pct": 3.8907,
-        "sharpe_ratio": -1e-06,
-        "wins": 231,
+        "total_return_pct": -0.60835,
+        "max_drawdown_pct": 4.208542,
+        "rolling_drawdown_pct": 4.208542,
+        "lifetime_worst_drawdown_pct": 4.9353,
+        "sharpe_ratio": -0.251918,
+        "wins": 276,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -987,8 +929,87 @@
             168,
             2016
           ],
+          "active_window_count": 2,
+          "active_windows": [
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
+        }
+      }
+    },
+    {
+      "strategy_name": "dip_buyer_q100_074",
+      "pair": "SOL-USD",
+      "strategy_base": "dip_buyer",
+      "status": "rejected",
+      "message": "performance_or_risk_gate_failed",
+      "eligible_hot": false,
+      "reasons": [
+        "return -1.21% < 0.1%",
+        "sharpe -0.39 < 0.5"
+      ],
+      "reason_codes": [
+        "return_below_min",
+        "sharpe_below_min"
+      ],
+      "gate_decision": "rejected",
+      "gate_decision_reason": "performance_or_risk_gate_failed",
+      "criteria": {
+        "min_trades": 10,
+        "min_win_rate": 0.55,
+        "min_return_pct": 0.1,
+        "max_drawdown_pct": 3.0,
+        "min_runtime_seconds": 3600,
+        "min_sharpe": 0.5
+      },
+      "criteria_mode": "baseline",
+      "criteria_adjustments": [],
+      "new_sell_trades": 0,
+      "data_source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "coinbase_public",
+        "candles": 2016,
+        "notes": []
+      },
+      "paper_metrics": {
+        "strategy": "dip_buyer_q100_074",
+        "pair": "SOL-USD",
+        "runtime_seconds": 102322,
+        "total_trades": 253,
+        "win_rate": 1.0,
+        "total_return_pct": -1.213354,
+        "max_drawdown_pct": 2.815164,
+        "rolling_drawdown_pct": 2.815164,
+        "lifetime_worst_drawdown_pct": 3.8907,
+        "sharpe_ratio": -0.387898,
+        "wins": 253,
+        "losses": 0,
+        "var95_loss_pct": 0.0,
+        "es97_5_loss_pct": 0.0,
+        "evidence": {
+          "window_count": 10,
+          "windows": [
+            30,
+            42,
+            54,
+            66,
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
+          "active_window_count": 1,
+          "active_windows": [
+            2016
+          ],
+          "source": "multi_window_replay",
+          "canonical_window": 2016
         }
       }
     },
@@ -1000,10 +1021,12 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.17% > 3.0%",
-        "sharpe -0.33 < 0.5"
+        "return -0.07% < 0.1%",
+        "drawdown 3.62% > 3.0%",
+        "sharpe -0.74 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1019,7 +1042,7 @@
       },
       "criteria_mode": "baseline",
       "criteria_adjustments": [],
-      "new_sell_trades": 1,
+      "new_sell_trades": 0,
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
@@ -1031,13 +1054,15 @@
       "paper_metrics": {
         "strategy": "mean_reversion_q100_003",
         "pair": "SOL-USD",
-        "runtime_seconds": 28735,
-        "total_trades": 149,
+        "runtime_seconds": 38715,
+        "total_trades": 171,
         "win_rate": 1.0,
-        "total_return_pct": 0.321967,
-        "max_drawdown_pct": 4.1728,
-        "sharpe_ratio": -0.329533,
-        "wins": 149,
+        "total_return_pct": -0.069619,
+        "max_drawdown_pct": 3.619016,
+        "rolling_drawdown_pct": 3.619016,
+        "lifetime_worst_drawdown_pct": 4.1728,
+        "sharpe_ratio": -0.735929,
+        "wins": 171,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1055,8 +1080,21 @@
             168,
             2016
           ],
+          "active_window_count": 10,
+          "active_windows": [
+            30,
+            42,
+            54,
+            66,
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -1068,8 +1106,8 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.71% > 3.0%",
-        "sharpe 0.06 < 0.5"
+        "drawdown 3.94% > 3.0%",
+        "sharpe -0.25 < 0.5"
       ],
       "reason_codes": [
         "drawdown_above_max",
@@ -1087,7 +1125,7 @@
       },
       "criteria_mode": "baseline",
       "criteria_adjustments": [],
-      "new_sell_trades": 1,
+      "new_sell_trades": 0,
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
@@ -1099,13 +1137,15 @@
       "paper_metrics": {
         "strategy": "multi_timeframe_q100_076",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 228,
+        "runtime_seconds": 102322,
+        "total_trades": 242,
         "win_rate": 1.0,
-        "total_return_pct": 0.568257,
-        "max_drawdown_pct": 4.7138,
-        "sharpe_ratio": 0.058383,
-        "wins": 228,
+        "total_return_pct": 0.185013,
+        "max_drawdown_pct": 3.941016,
+        "rolling_drawdown_pct": 3.941016,
+        "lifetime_worst_drawdown_pct": 4.7138,
+        "sharpe_ratio": -0.252706,
+        "wins": 242,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1123,8 +1163,17 @@
             168,
             2016
           ],
+          "active_window_count": 6,
+          "active_windows": [
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -1136,8 +1185,8 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.37% > 3.0%",
-        "sharpe 0.05 < 0.5"
+        "drawdown 3.62% > 3.0%",
+        "sharpe -0.25 < 0.5"
       ],
       "reason_codes": [
         "drawdown_above_max",
@@ -1167,13 +1216,15 @@
       "paper_metrics": {
         "strategy": "multi_timeframe_q100_079",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 219,
+        "runtime_seconds": 102322,
+        "total_trades": 234,
         "win_rate": 1.0,
-        "total_return_pct": 0.565962,
-        "max_drawdown_pct": 4.3705,
-        "sharpe_ratio": 0.051439,
-        "wins": 219,
+        "total_return_pct": 0.185572,
+        "max_drawdown_pct": 3.61954,
+        "rolling_drawdown_pct": 3.61954,
+        "lifetime_worst_drawdown_pct": 4.3705,
+        "sharpe_ratio": -0.252706,
+        "wins": 234,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1191,8 +1242,17 @@
             168,
             2016
           ],
+          "active_window_count": 6,
+          "active_windows": [
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -1204,8 +1264,8 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.26% > 3.0%",
-        "sharpe 0.10 < 0.5"
+        "drawdown 3.52% > 3.0%",
+        "sharpe -0.25 < 0.5"
       ],
       "reason_codes": [
         "drawdown_above_max",
@@ -1235,13 +1295,15 @@
       "paper_metrics": {
         "strategy": "multi_timeframe_q100_080",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 211,
+        "runtime_seconds": 102322,
+        "total_trades": 226,
         "win_rate": 1.0,
-        "total_return_pct": 0.568241,
-        "max_drawdown_pct": 4.2568,
-        "sharpe_ratio": 0.103088,
-        "wins": 211,
+        "total_return_pct": 0.182835,
+        "max_drawdown_pct": 3.523736,
+        "rolling_drawdown_pct": 3.523736,
+        "lifetime_worst_drawdown_pct": 4.2568,
+        "sharpe_ratio": -0.25262,
+        "wins": 226,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1259,8 +1321,17 @@
             168,
             2016
           ],
+          "active_window_count": 6,
+          "active_windows": [
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -1272,8 +1343,8 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.59% > 3.0%",
-        "sharpe 0.04 < 0.5"
+        "drawdown 3.93% > 3.0%",
+        "sharpe -0.32 < 0.5"
       ],
       "reason_codes": [
         "drawdown_above_max",
@@ -1291,7 +1362,7 @@
       },
       "criteria_mode": "baseline",
       "criteria_adjustments": [],
-      "new_sell_trades": 1,
+      "new_sell_trades": 0,
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
@@ -1303,13 +1374,15 @@
       "paper_metrics": {
         "strategy": "multi_timeframe_q100_085",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 276,
+        "runtime_seconds": 102322,
+        "total_trades": 291,
         "win_rate": 1.0,
-        "total_return_pct": 0.577755,
-        "max_drawdown_pct": 4.5905,
-        "sharpe_ratio": 0.038512,
-        "wins": 276,
+        "total_return_pct": 0.174206,
+        "max_drawdown_pct": 3.931237,
+        "rolling_drawdown_pct": 3.931237,
+        "lifetime_worst_drawdown_pct": 4.5905,
+        "sharpe_ratio": -0.320698,
+        "wins": 291,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1327,8 +1400,17 @@
             168,
             2016
           ],
+          "active_window_count": 6,
+          "active_windows": [
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -1340,8 +1422,8 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.47% > 3.0%",
-        "sharpe 0.08 < 0.5"
+        "drawdown 3.83% > 3.0%",
+        "sharpe -0.25 < 0.5"
       ],
       "reason_codes": [
         "drawdown_above_max",
@@ -1371,13 +1453,15 @@
       "paper_metrics": {
         "strategy": "multi_timeframe_q100_086",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 234,
+        "runtime_seconds": 102322,
+        "total_trades": 248,
         "win_rate": 1.0,
-        "total_return_pct": 0.58397,
-        "max_drawdown_pct": 4.4749,
-        "sharpe_ratio": 0.077928,
-        "wins": 234,
+        "total_return_pct": 0.194754,
+        "max_drawdown_pct": 3.832723,
+        "rolling_drawdown_pct": 3.832723,
+        "lifetime_worst_drawdown_pct": 4.4749,
+        "sharpe_ratio": -0.25279,
+        "wins": 248,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1395,8 +1479,17 @@
             168,
             2016
           ],
+          "active_window_count": 6,
+          "active_windows": [
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -1408,8 +1501,8 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.19% > 3.0%",
-        "sharpe 0.08 < 0.5"
+        "drawdown 3.60% > 3.0%",
+        "sharpe -0.25 < 0.5"
       ],
       "reason_codes": [
         "drawdown_above_max",
@@ -1439,13 +1532,15 @@
       "paper_metrics": {
         "strategy": "multi_timeframe_q100_088",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 230,
+        "runtime_seconds": 102322,
+        "total_trades": 247,
         "win_rate": 1.0,
-        "total_return_pct": 0.593479,
-        "max_drawdown_pct": 4.187,
-        "sharpe_ratio": 0.082881,
-        "wins": 230,
+        "total_return_pct": 0.198065,
+        "max_drawdown_pct": 3.604085,
+        "rolling_drawdown_pct": 3.604085,
+        "lifetime_worst_drawdown_pct": 4.187,
+        "sharpe_ratio": -0.25269,
+        "wins": 247,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1463,8 +1558,17 @@
             168,
             2016
           ],
+          "active_window_count": 6,
+          "active_windows": [
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -1476,8 +1580,8 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.13% > 3.0%",
-        "sharpe 0.09 < 0.5"
+        "drawdown 3.56% > 3.0%",
+        "sharpe -0.25 < 0.5"
       ],
       "reason_codes": [
         "drawdown_above_max",
@@ -1507,13 +1611,15 @@
       "paper_metrics": {
         "strategy": "multi_timeframe_q100_089",
         "pair": "SOL-USD",
-        "runtime_seconds": 92342,
-        "total_trades": 208,
+        "runtime_seconds": 102322,
+        "total_trades": 225,
         "win_rate": 1.0,
-        "total_return_pct": 0.589226,
-        "max_drawdown_pct": 4.1325,
-        "sharpe_ratio": 0.090675,
-        "wins": 208,
+        "total_return_pct": 0.195328,
+        "max_drawdown_pct": 3.557139,
+        "rolling_drawdown_pct": 3.557139,
+        "lifetime_worst_drawdown_pct": 4.1325,
+        "sharpe_ratio": -0.252663,
+        "wins": 225,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1531,8 +1637,17 @@
             168,
             2016
           ],
+          "active_window_count": 6,
+          "active_windows": [
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     },
@@ -1544,10 +1659,12 @@
       "message": "performance_or_risk_gate_failed",
       "eligible_hot": false,
       "reasons": [
-        "drawdown 4.24% > 3.0%",
-        "sharpe -0.32 < 0.5"
+        "return -0.08% < 0.1%",
+        "drawdown 3.66% > 3.0%",
+        "sharpe -0.69 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1563,7 +1680,7 @@
       },
       "criteria_mode": "baseline",
       "criteria_adjustments": [],
-      "new_sell_trades": 3,
+      "new_sell_trades": 0,
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
@@ -1575,13 +1692,15 @@
       "paper_metrics": {
         "strategy": "rsi_q100_043",
         "pair": "SOL-USD",
-        "runtime_seconds": 28735,
-        "total_trades": 162,
+        "runtime_seconds": 38715,
+        "total_trades": 180,
         "win_rate": 1.0,
-        "total_return_pct": 0.230636,
-        "max_drawdown_pct": 4.2448,
-        "sharpe_ratio": -0.322881,
-        "wins": 162,
+        "total_return_pct": -0.079076,
+        "max_drawdown_pct": 3.65779,
+        "rolling_drawdown_pct": 3.65779,
+        "lifetime_worst_drawdown_pct": 4.2448,
+        "sharpe_ratio": -0.694595,
+        "wins": 180,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1599,8 +1718,21 @@
             168,
             2016
           ],
+          "active_window_count": 10,
+          "active_windows": [
+            30,
+            42,
+            54,
+            66,
+            78,
+            96,
+            120,
+            144,
+            168,
+            2016
+          ],
           "source": "multi_window_replay",
-          "cycle_bucket": 5903548
+          "canonical_window": 2016
         }
       }
     }

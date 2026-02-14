@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-02-14T10:15:17.093074+00:00",
-  "cycle": 68,
+  "updated_at": "2026-02-14T10:27:18.269298+00:00",
+  "cycle": 70,
   "win_objective": {
     "definition": "WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.",
     "treasury_capture_assets": [
@@ -9,11 +9,13 @@
     ]
   },
   "progress": {
-    "alpha_score": 0.5913,
+    "alpha_score": 0.5692,
     "migration_score": 0.704,
-    "gtm_score": 0.95,
-    "go_live": true,
-    "blockers": [],
+    "gtm_score": 0.7,
+    "go_live": false,
+    "blockers": [
+      "execution_health_not_green:telemetry_samples_low:0<3"
+    ],
     "opportunity_count": 12,
     "deployment_score": 0.31,
     "hf_live_ready": false,
@@ -103,8 +105,8 @@
     "daily_pnl_usd": 0.0,
     "achievement_pct_to_next": 0.0,
     "shortfall_usd": 1000.0,
-    "day_elapsed_pct_utc": 0.4273,
-    "required_hourly_run_rate_usd": 72.75
+    "day_elapsed_pct_utc": 0.4356,
+    "required_hourly_run_rate_usd": 73.83
   },
   "budget_escalator": {
     "action": "de_escalate",
@@ -136,15 +138,15 @@
     },
     "execution_health": {
       "green": false,
-      "reason": "telemetry_success_rate_low:0.0110<0.5500",
-      "updated_at": "2026-02-14T10:15:17.091072+00:00",
+      "reason": "telemetry_success_rate_low:0.0145<0.5500",
+      "updated_at": "2026-02-14T10:27:18.267282+00:00",
       "green_streak": 0,
       "recent_green_ratio": 0.0
     },
     "trade_flow": {
       "lookback_hours": 6,
       "buy_fills": 0,
-      "sell_fills": 47,
+      "sell_fills": 48,
       "sell_close_events": 7,
       "sell_close_attempts": 86,
       "sell_close_completions": 84,
@@ -157,8 +159,8 @@
   "execution_health": {
     "enabled": true,
     "green": false,
-    "reason": "telemetry_success_rate_low:0.0110<0.5500",
-    "updated_at": "2026-02-14T10:15:17.091072+00:00",
+    "reason": "telemetry_success_rate_low:0.0145<0.5500",
+    "updated_at": "2026-02-14T10:27:18.267282+00:00",
     "green_streak": 0,
     "recent_green_ratio": 0.0,
     "recent_samples": 10
@@ -166,7 +168,7 @@
   "trade_flow_metrics": {
     "lookback_hours": 6,
     "buy_fills": 0,
-    "sell_fills": 47,
+    "sell_fills": 48,
     "sell_close_events": 7,
     "sell_close_attempts": 86,
     "sell_close_completions": 84,
@@ -246,7 +248,7 @@
         "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
         "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
         "Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com",
-        "Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+        "Top recent Coinbase failures: 16x <urlopen error [Errno 8] nodename nor servname provided, or not known> | 14x fallback_spot_unavailable",
         "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
       ],
       "region_ranking": [
@@ -293,7 +295,7 @@
       {
         "pair": "BTC-USDC",
         "signal_count": 3,
-        "avg_score": 0.8864,
+        "avg_score": 0.7491,
         "avg_edge_pct": 7.1595,
         "sources": [
           "quant_bias"
@@ -305,7 +307,7 @@
       {
         "pair": "SOL-USDC",
         "signal_count": 6,
-        "avg_score": 0.6973,
+        "avg_score": 0.5883,
         "avg_edge_pct": 0.7635,
         "sources": [
           "quant_bias"
@@ -317,7 +319,7 @@
       {
         "pair": "ETH-USDC",
         "signal_count": 3,
-        "avg_score": 0.545,
+        "avg_score": 0.4588,
         "avg_edge_pct": 0.4891,
         "sources": [
           "quant_bias"
@@ -425,6 +427,7 @@
   "go_to_market_strategy": {
     "launch_ready": false,
     "blockers": [
+      "execution_health_not_green:telemetry_samples_low:0<3",
       "hf_live_not_ready"
     ],
     "stages": [
@@ -454,7 +457,7 @@
       {
         "pair": "BTC-USDC",
         "signal_count": 3,
-        "avg_score": 0.8864,
+        "avg_score": 0.7491,
         "avg_edge_pct": 7.1595,
         "sources": [
           "quant_bias"
@@ -466,7 +469,7 @@
       {
         "pair": "SOL-USDC",
         "signal_count": 6,
-        "avg_score": 0.6973,
+        "avg_score": 0.5883,
         "avg_edge_pct": 0.7635,
         "sources": [
           "quant_bias"
@@ -478,7 +481,7 @@
       {
         "pair": "ETH-USDC",
         "signal_count": 3,
-        "avg_score": 0.545,
+        "avg_score": 0.4588,
         "avg_edge_pct": 0.4891,
         "sources": [
           "quant_bias"
@@ -542,8 +545,8 @@
     "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
     "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
     "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
-    "Execution-health gate failed (telemetry_success_rate_low:0.0110<0.5500); block budget escalations until DNS/API/reconcile checks are green.",
-    "Current run-rate gap: need $72.75/hour to hit next daily target $1,000.00.",
+    "Execution-health gate failed (telemetry_success_rate_low:0.0145<0.5500); block budget escalations until DNS/API/reconcile checks are green.",
+    "Current run-rate gap: need $73.83/hour to hit next daily target $1,000.00.",
     "Deploy primary execution to region order: ewr -> nrt -> sin.",
     "Focus quant sweeps + walk-forward + Monte Carlo on top pairs: BTC-USDC, SOL-USDC, ETH-USDC.",
     "Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.",

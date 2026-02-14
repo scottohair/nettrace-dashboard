@@ -10,11 +10,11 @@
       "venue": "coinbase",
       "window_minutes": 30,
       "samples": 2000,
-      "success_rate": 0.0225,
-      "failure_rate": 0.9775,
-      "p50_latency_ms": 9.938,
-      "p90_latency_ms": 17.508,
-      "p99_latency_ms": 89.572
+      "success_rate": 0.0155,
+      "failure_rate": 0.9845,
+      "p50_latency_ms": 13.73,
+      "p90_latency_ms": 18.297,
+      "p99_latency_ms": 92.61
     },
     "etrade": {
       "venue": "etrade",
@@ -52,28 +52,28 @@
       "url": "https://nettrace-dashboard.fly.dev/",
       "ok": false,
       "status_code": 0,
-      "latency_ms": 5.514,
+      "latency_ms": 5.77,
       "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
       "url": "https://nettrace-dashboard.fly.dev/trading",
       "ok": false,
       "status_code": 0,
-      "latency_ms": 4.414,
+      "latency_ms": 4.435,
       "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
       "url": "https://nettrace-dashboard.fly.dev/status",
       "ok": false,
       "status_code": 0,
-      "latency_ms": 4.302,
+      "latency_ms": 4.948,
       "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
       "url": "https://nettrace-dashboard.fly.dev/playground",
       "ok": false,
       "status_code": 0,
-      "latency_ms": 4.264,
+      "latency_ms": 4.832,
       "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     }
   ],

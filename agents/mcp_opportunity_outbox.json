@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-02-14T10:19:24.878433+00:00",
-  "cycle": 164,
-  "go_live": true,
+  "updated_at": "2026-02-14T10:29:24.143466+00:00",
+  "cycle": 168,
+  "go_live": false,
   "opportunity_count": 12,
   "top_opportunities": [
     {
@@ -31,7 +31,7 @@
           "Retained HOT (refresh passed)"
         ]
       },
-      "score": 0.886433
+      "score": 0.749093
     },
     {
       "source": "quant_bias",
@@ -60,7 +60,7 @@
           "Retained HOT (refresh passed)"
         ]
       },
-      "score": 0.886433
+      "score": 0.749093
     },
     {
       "source": "quant_bias",
@@ -89,7 +89,7 @@
           "Retained HOT (refresh passed)"
         ]
       },
-      "score": 0.886433
+      "score": 0.749093
     }
   ],
   "dashboard_latency_ms": {
@@ -99,8 +99,8 @@
   "claude_duplex_delivery": {
     "sent": true,
     "channel": "to_claude",
-    "message_id": 1212,
-    "trace_id": "59050c30b7f4d80dea0726b8",
+    "message_id": 1225,
+    "trace_id": "2ec169e78da838c8f2f0e538",
     "status": "queued"
   }
 }

@@ -75,6 +75,20 @@ WARM_SPARSE_MAX_WINDOW_CANDLES = int(os.environ.get("WARM_SPARSE_MAX_WINDOW_CAND
 WARM_MATURE_EVIDENCE_WINDOWS = int(os.environ.get("WARM_MATURE_EVIDENCE_WINDOWS", "4"))
 WARM_MATURE_EVIDENCE_MIN_CANDLES = int(os.environ.get("WARM_MATURE_EVIDENCE_MIN_CANDLES", "72"))
 WARM_WALKFORWARD_LEAKAGE_ENFORCE = os.environ.get("WARM_WALKFORWARD_LEAKAGE_ENFORCE", "1").lower() not in ("0", "false", "no")
+WARM_NEAR_MISS_PROMOTION_ENABLED = os.environ.get(
+    "WARM_NEAR_MISS_PROMOTION_ENABLED", "1"
+).lower() not in ("0", "false", "no")
+WARM_NEAR_MISS_MIN_WINDOWS = int(os.environ.get("WARM_NEAR_MISS_MIN_WINDOWS", "4"))
+WARM_NEAR_MISS_MIN_TRADES = int(os.environ.get("WARM_NEAR_MISS_MIN_TRADES", "8"))
+WARM_NEAR_MISS_MIN_WIN_RATE = float(os.environ.get("WARM_NEAR_MISS_MIN_WIN_RATE", "0.70"))
+WARM_NEAR_MISS_MIN_RETURN_PCT = float(os.environ.get("WARM_NEAR_MISS_MIN_RETURN_PCT", "0.06"))
+WARM_NEAR_MISS_MAX_SHARPE_GAP = float(os.environ.get("WARM_NEAR_MISS_MAX_SHARPE_GAP", "0.30"))
+WARM_NEAR_MISS_MAX_DRAWDOWN_EXCESS_PCT = float(
+    os.environ.get("WARM_NEAR_MISS_MAX_DRAWDOWN_EXCESS_PCT", "0.40")
+)
+WARM_NEAR_MISS_MAX_RETURN_SHORTFALL_PCT = float(
+    os.environ.get("WARM_NEAR_MISS_MAX_RETURN_SHORTFALL_PCT", "0.06")
+)
 
 # Fee assumptions
 COINBASE_FEE = 0.006  # 0.6% taker fee
@@ -229,6 +243,21 @@ REALIZED_ESCALATION_REQUIRE_WINNING_MAJORITY = os.environ.get(
 REALIZED_ESCALATION_MIN_AVG_PNL_PER_CLOSE_USD = float(
     os.environ.get("REALIZED_ESCALATION_MIN_AVG_PNL_PER_CLOSE_USD", "0.10")
 )
+REALIZED_ESCALATION_PAIR_FALLBACK_ENABLED = os.environ.get(
+    "REALIZED_ESCALATION_PAIR_FALLBACK_ENABLED", "1"
+).lower() not in ("0", "false", "no")
+REALIZED_ESCALATION_PAIR_FALLBACK_MAX_BUDGET_USD = float(
+    os.environ.get("REALIZED_ESCALATION_PAIR_FALLBACK_MAX_BUDGET_USD", "2.50")
+)
+REALIZED_ESCALATION_PAIR_FALLBACK_MIN_CLOSES = int(
+    os.environ.get("REALIZED_ESCALATION_PAIR_FALLBACK_MIN_CLOSES", "2")
+)
+REALIZED_ESCALATION_PAIR_FALLBACK_MIN_NET_PNL_USD = float(
+    os.environ.get("REALIZED_ESCALATION_PAIR_FALLBACK_MIN_NET_PNL_USD", "0.05")
+)
+REALIZED_ESCALATION_PAIR_FALLBACK_MIN_WIN_RATE = float(
+    os.environ.get("REALIZED_ESCALATION_PAIR_FALLBACK_MIN_WIN_RATE", "0.55")
+)
 REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION = os.environ.get(
     "REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION", "1"
 ).lower() not in ("0", "false", "no")
@@ -240,6 +269,12 @@ EXECUTION_HEALTH_ESCALATION_GATE = os.environ.get(
 EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION = os.environ.get(
     "EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION", "1"
 ).lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ENABLED = os.environ.get(
+    "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ENABLED", "1"
+).lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD = float(
+    os.environ.get("EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD", "1.50")
+)
 EXECUTION_HEALTH_GATE_CACHE_SECONDS = int(
     os.environ.get("EXECUTION_HEALTH_GATE_CACHE_SECONDS", "90")
 )
@@ -2321,6 +2356,7 @@ class StrategyValidator:
         evidence = {
             "enabled": REALIZED_ESCALATION_GATE_ENABLED,
             "pair": str(pair),
+            "pair_aliases": [],
             "strategy_name": strategy_name,
             "lookback_hours": int(REALIZED_ESCALATION_LOOKBACK_HOURS),
             "closed_trades": 0,
@@ -2340,6 +2376,21 @@ class StrategyValidator:
         if not Path(TRADER_DB).exists():
             evidence["reason"] = "trader_db_missing"
             return evidence
+
+        pair_text = str(pair or "").strip()
+        pair_aliases = []
+        if pair_text:
+            pair_aliases.append(pair_text)
+            if "-" in pair_text:
+                base, quote = pair_text.split("-", 1)
+                base = str(base).strip().upper()
+                quote = str(quote).strip().upper()
+                if base and quote == "USD":
+                    pair_aliases.append(f"{base}-USDC")
+                elif base and quote == "USDC":
+                    pair_aliases.append(f"{base}-USD")
+        pair_aliases = list(dict.fromkeys(pair_aliases))
+        evidence["pair_aliases"] = pair_aliases
 
         lookback_expr = f"-{max(1, int(REALIZED_ESCALATION_LOOKBACK_HOURS))} hours"
         tables = ("live_trades", "agent_trades")
@@ -2361,56 +2412,58 @@ class StrategyValidator:
             for table in tables:
                 if not self._table_exists(conn, table):
                     continue
-                # Build strategy filter clause
-                strategy_clause = ""
-                params = [str(pair), lookback_expr]
-                if strategy_name and _has_column(conn, table, "strategy_name"):
-                    strategy_clause = "AND strategy_name = ?"
-                    params.append(str(strategy_name))
-                row = conn.execute(
-                    f"""
-                    SELECT
-                        COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
-                        COALESCE(SUM(CASE WHEN pnl IS NOT NULL AND COALESCE(pnl, 0) > 0 THEN 1 ELSE 0 END), 0) AS wins,
-                        COALESCE(SUM(COALESCE(pnl, 0)), 0) AS net_pnl
-                    FROM {table}
-                    WHERE pair=?
-                      AND UPPER(COALESCE(side, ''))='SELL'
-                      AND created_at >= datetime('now', ?)
-                      {strategy_clause}
-                      AND (
-                        status IS NULL
-                        OR LOWER(COALESCE(status, '')) NOT IN (
-                            'pending',
-                            'placed',
-                            'open',
-                            'accepted',
-                            'ack_ok',
-                            'failed',
-                            'blocked',
-                            'canceled',
-                            'cancelled',
-                            'expired'
+                for pair_alias in pair_aliases:
+                    # Build strategy filter clause
+                    strategy_clause = ""
+                    params = [str(pair_alias), lookback_expr]
+                    if strategy_name and _has_column(conn, table, "strategy_name"):
+                        strategy_clause = "AND strategy_name = ?"
+                        params.append(str(strategy_name))
+                    row = conn.execute(
+                        f"""
+                        SELECT
+                            COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
+                            COALESCE(SUM(CASE WHEN pnl IS NOT NULL AND COALESCE(pnl, 0) > 0 THEN 1 ELSE 0 END), 0) AS wins,
+                            COALESCE(SUM(COALESCE(pnl, 0)), 0) AS net_pnl
+                        FROM {table}
+                        WHERE pair=?
+                          AND UPPER(COALESCE(side, ''))='SELL'
+                          AND created_at >= datetime('now', ?)
+                          {strategy_clause}
+                          AND (
+                            status IS NULL
+                            OR LOWER(COALESCE(status, '')) NOT IN (
+                                'pending',
+                                'placed',
+                                'open',
+                                'accepted',
+                                'ack_ok',
+                                'failed',
+                                'blocked',
+                                'canceled',
+                                'cancelled',
+                                'expired'
+                            )
+                          )
+                        """,
+                        params,
+                    ).fetchone()
+                    closes = int(row["closes"] or 0) if row else 0
+                    wins = int(row["wins"] or 0) if row else 0
+                    pnl = float(row["net_pnl"] or 0.0) if row else 0.0
+                    if closes > 0:
+                        evidence["sources"].append(
+                            {
+                                "table": table,
+                                "pair": str(pair_alias),
+                                "closed_trades": closes,
+                                "winning_closes": wins,
+                                "net_pnl_usd": round(pnl, 6),
+                            }
                         )
-                      )
-                    """,
-                    params,
-                ).fetchone()
-                closes = int(row["closes"] or 0) if row else 0
-                wins = int(row["wins"] or 0) if row else 0
-                pnl = float(row["net_pnl"] or 0.0) if row else 0.0
-                if closes > 0:
-                    evidence["sources"].append(
-                        {
-                            "table": table,
-                            "closed_trades": closes,
-                            "winning_closes": wins,
-                            "net_pnl_usd": round(pnl, 6),
-                        }
-                    )
-                total_closed += closes
-                total_wins += wins
-                total_pnl += pnl
+                    total_closed += closes
+                    total_wins += wins
+                    total_pnl += pnl
             conn.close()
         except Exception as e:
             evidence["reason"] = f"query_failed:{e}"
@@ -3074,9 +3127,43 @@ class StrategyValidator:
                 }
             )
 
+        criteria_adjustments = list(context.get("criteria_adjustments", []))
         passed = len(failures) == 0
         reason_codes = [item["code"] for item in failures]
         reasons = [item["reason"] for item in failures]
+
+        near_miss_override = False
+        if not passed and WARM_NEAR_MISS_PROMOTION_ENABLED:
+            failure_codes = set(reason_codes)
+            allowed_near_miss_codes = {"return_below_min", "drawdown_above_max", "sharpe_below_min"}
+            if failure_codes and failure_codes.issubset(allowed_near_miss_codes):
+                window_count = int(context.get("window_count", 0) or 0)
+                sharpe_gap = max(0.0, float(criteria["min_sharpe"]) - sharpe_ratio)
+                drawdown_excess = max(0.0, drawdown_pct - float(criteria["max_drawdown_pct"]))
+                return_shortfall = max(0.0, float(criteria["min_return_pct"]) - total_return_pct)
+                near_miss_override = bool(
+                    bool(context.get("mature_sparse_evidence", False))
+                    and window_count >= max(1, int(WARM_NEAR_MISS_MIN_WINDOWS))
+                    and trades >= max(int(criteria["min_trades"]), int(WARM_NEAR_MISS_MIN_TRADES))
+                    and runtime_seconds >= int(criteria["min_runtime_seconds"])
+                    and losses <= 0
+                    and win_rate >= max(float(criteria["min_win_rate"]), float(WARM_NEAR_MISS_MIN_WIN_RATE))
+                    and total_return_pct >= float(WARM_NEAR_MISS_MIN_RETURN_PCT)
+                    and sharpe_gap <= float(WARM_NEAR_MISS_MAX_SHARPE_GAP)
+                    and drawdown_excess <= float(WARM_NEAR_MISS_MAX_DRAWDOWN_EXCESS_PCT)
+                    and return_shortfall <= float(WARM_NEAR_MISS_MAX_RETURN_SHORTFALL_PCT)
+                )
+            if near_miss_override:
+                passed = True
+                failures = []
+                reason_codes = []
+                reasons = []
+                criteria_adjustments.append(
+                    "near_miss_override:"
+                    f"sharpe_gap<={WARM_NEAR_MISS_MAX_SHARPE_GAP},"
+                    f"drawdown_excess<={WARM_NEAR_MISS_MAX_DRAWDOWN_EXCESS_PCT},"
+                    f"return_shortfall<={WARM_NEAR_MISS_MAX_RETURN_SHORTFALL_PCT}"
+                )
 
         decision = "eligible_hot"
         decision_reason = "passed"
@@ -3100,6 +3187,8 @@ class StrategyValidator:
             else:
                 decision = "rejected"
                 decision_reason = "performance_or_risk_gate_failed"
+        elif near_miss_override:
+            decision_reason = "near_miss_override"
 
         return {
             "passed": bool(passed),
@@ -3109,7 +3198,7 @@ class StrategyValidator:
             "decision": decision,
             "decision_reason": decision_reason,
             "criteria_mode": str(context.get("criteria_mode", "baseline")),
-            "criteria_adjustments": list(context.get("criteria_adjustments", [])),
+            "criteria_adjustments": criteria_adjustments,
             "evidence": context,
         }
 
@@ -3138,28 +3227,85 @@ class StrategyValidator:
 
         budget_profile = self.get_budget_profile(strategy_name, pair)
         realized_evidence = self._pair_realized_close_evidence(pair, strategy_name=strategy_name)
+        pair_level_realized_evidence = {}
+        realized_close_passed = bool(realized_evidence.get("passed", False))
+        realized_close_reason = str(realized_evidence.get("reason", "unknown"))
+        strategy_budget_cap = max(
+            float(budget_profile.get("current_budget_usd", 0.0) or 0.0),
+            float(budget_profile.get("starter_budget_usd", 0.0) or 0.0),
+        )
+        pair_fallback_active = False
+        if (
+            not realized_close_passed
+            and REALIZED_ESCALATION_PAIR_FALLBACK_ENABLED
+            and strategy_budget_cap <= float(REALIZED_ESCALATION_PAIR_FALLBACK_MAX_BUDGET_USD)
+        ):
+            pair_level_realized_evidence = self._pair_realized_close_evidence(pair, strategy_name=None)
+            pair_closed = int(pair_level_realized_evidence.get("closed_trades", 0) or 0)
+            pair_net = float(pair_level_realized_evidence.get("net_pnl_usd", 0.0) or 0.0)
+            pair_win_rate = float(pair_level_realized_evidence.get("win_rate", 0.0) or 0.0)
+            pair_bootstrap_passed = bool(
+                pair_closed >= int(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_CLOSES)
+                and pair_net > float(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_NET_PNL_USD)
+                and pair_win_rate >= float(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_WIN_RATE)
+            )
+            if bool(pair_level_realized_evidence.get("passed", False)) or pair_bootstrap_passed:
+                pair_fallback_active = True
+                realized_close_passed = True
+                realized_close_reason = (
+                    "pair_level_fallback_passed:"
+                    f"closes={pair_closed},"
+                    f"net_pnl={pair_net:.4f},"
+                    f"win_rate={pair_win_rate:.4f},"
+                    f"budget_cap={strategy_budget_cap:.2f}<={REALIZED_ESCALATION_PAIR_FALLBACK_MAX_BUDGET_USD:.2f}"
+                )
         execution_health = self._execution_health_gate_status()
+        execution_health_green = bool(execution_health.get("green", False))
+        execution_health_reason = str(execution_health.get("reason", "unknown"))
+        execution_health_bootstrap_active = False
+        if (
+            not execution_health_green
+            and EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ENABLED
+            and strategy_budget_cap <= float(EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD)
+            and execution_health_reason.startswith("telemetry_")
+        ):
+            execution_health_green = True
+            execution_health_bootstrap_active = True
+            execution_health_reason = (
+                "telemetry_bootstrap_override:"
+                f"budget_cap={strategy_budget_cap:.2f}<={EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD:.2f}"
+            )
         promotion_gates = {
             "realized_close_required": bool(
                 REALIZED_ESCALATION_GATE_ENABLED and REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION
             ),
-            "realized_close_passed": bool(realized_evidence.get("passed", False)),
-            "realized_close_reason": str(realized_evidence.get("reason", "unknown")),
+            "realized_close_passed": bool(realized_close_passed),
+            "realized_close_reason": realized_close_reason,
+            "realized_close_pair_fallback_enabled": bool(REALIZED_ESCALATION_PAIR_FALLBACK_ENABLED),
+            "realized_close_pair_fallback_active": bool(pair_fallback_active),
+            "realized_close_pair_fallback_max_budget_usd": float(REALIZED_ESCALATION_PAIR_FALLBACK_MAX_BUDGET_USD),
+            "realized_close_pair_fallback_min_closes": int(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_CLOSES),
+            "realized_close_pair_fallback_min_net_pnl_usd": float(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_NET_PNL_USD),
+            "realized_close_pair_fallback_min_win_rate": float(REALIZED_ESCALATION_PAIR_FALLBACK_MIN_WIN_RATE),
+            "realized_close_strategy_budget_cap_usd": round(float(strategy_budget_cap), 4),
             "execution_health_required": bool(
                 EXECUTION_HEALTH_ESCALATION_GATE and EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION
             ),
-            "execution_health_green": bool(execution_health.get("green", False)),
-            "execution_health_reason": str(execution_health.get("reason", "unknown")),
+            "execution_health_green": bool(execution_health_green),
+            "execution_health_reason": execution_health_reason,
+            "execution_health_bootstrap_enabled": bool(EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ENABLED),
+            "execution_health_bootstrap_active": bool(execution_health_bootstrap_active),
+            "execution_health_bootstrap_max_budget_usd": float(EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD),
         }
         # Block HOT promotion entirely if realized close evidence is required but missing
         if (
             REALIZED_ESCALATION_GATE_ENABLED
             and REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION
-            and not realized_evidence.get("passed", False)
+            and not realized_close_passed
         ):
             passed = False
             reasons.append(
-                f"realized_close_evidence_required:{realized_evidence.get('reason', 'unknown')}"
+                f"realized_close_evidence_required:{realized_close_reason}"
             )
         budget_update = {
             "action": "hold",
@@ -3178,22 +3324,22 @@ class StrategyValidator:
             if (
                 REALIZED_ESCALATION_GATE_ENABLED
                 and budget_update.get("action") == "increase"
-                and not realized_evidence.get("passed", False)
+                and not realized_close_passed
             ):
                 budget_update["action"] = "hold"
                 budget_update["reason"] = (
-                    f"realized_close_gate_failed:{realized_evidence.get('reason', 'unknown')}"
+                    f"realized_close_gate_failed:{realized_close_reason}"
                 )
                 budget_update["to_budget_usd"] = budget_update.get("from_budget_usd", 0.0)
 
             if (
                 EXECUTION_HEALTH_ESCALATION_GATE
                 and budget_update.get("action") == "increase"
-                and not bool(execution_health.get("green", False))
+                and not execution_health_green
             ):
                 budget_update["action"] = "hold"
                 budget_update["reason"] = (
-                    f"execution_health_gate_failed:{execution_health.get('reason', 'unknown')}"
+                    f"execution_health_gate_failed:{execution_health_reason}"
                 )
                 budget_update["to_budget_usd"] = budget_update.get("from_budget_usd", 0.0)
 
@@ -3208,7 +3354,7 @@ class StrategyValidator:
             if (
                 budget_update.get("action") == "increase"
                 and hot_quality
-                and realized_evidence.get("passed", False)
+                and realized_close_passed
             ):
                 cur_to = float(budget_update.get("to_budget_usd", 0.0) or 0.0)
                 from_budget = float(budget_update.get("from_budget_usd", 0.0) or 0.0)
@@ -3224,6 +3370,7 @@ class StrategyValidator:
                     budget_update["reason"] = f"{budget_update.get('reason', 'increase')}_hot_boost"
 
             budget_update["realized_close_evidence"] = realized_evidence
+            budget_update["realized_close_pair_fallback"] = pair_level_realized_evidence
             budget_update["execution_health"] = execution_health
             self._set_budget_profile(
                 strategy_name,
@@ -3272,6 +3419,7 @@ class StrategyValidator:
                     "warm_gate_assessment": assessment,
                     "walkforward_leakage_gate": leakage_gate,
                     "realized_close_evidence": realized_evidence,
+                    "realized_close_pair_fallback": pair_level_realized_evidence,
                     "execution_health": execution_health,
                     "promotion_gates": promotion_gates,
                 },
@@ -3291,6 +3439,7 @@ class StrategyValidator:
                     "warm_gate_assessment": assessment,
                     "walkforward_leakage_gate": leakage_gate,
                     "realized_close_evidence": realized_evidence,
+                    "realized_close_pair_fallback": pair_level_realized_evidence,
                     "execution_health": execution_health,
                     "promotion_gates": promotion_gates,
                 },

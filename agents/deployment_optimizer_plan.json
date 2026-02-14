@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-02-14T10:17:38.390436+00:00",
-  "cycle": 82,
+  "updated_at": "2026-02-14T10:27:38.616662+00:00",
+  "cycle": 84,
   "summary": {
     "runtime_region": "local",
     "deployment_score": 0.31,
@@ -25,13 +25,13 @@
     "api.coinbase.com": {
       "host": "api.coinbase.com",
       "ok": false,
-      "latency_ms": 0.31,
+      "latency_ms": 0.317,
       "error": "[Errno 8] nodename nor servname provided, or not known"
     },
     "api.exchange.coinbase.com": {
       "host": "api.exchange.coinbase.com",
       "ok": false,
-      "latency_ms": 0.06,
+      "latency_ms": 0.058,
       "error": "[Errno 8] nodename nor servname provided, or not known"
     }
   },
@@ -40,11 +40,11 @@
       "venue": "coinbase",
       "window_minutes": 60,
       "samples": 2000,
-      "success_rate": 0.0245,
-      "failure_rate": 0.9755,
-      "p50_latency_ms": 10.81,
-      "p90_latency_ms": 18.57,
-      "p99_latency_ms": 93.229
+      "success_rate": 0.016,
+      "failure_rate": 0.984,
+      "p50_latency_ms": 13.676,
+      "p90_latency_ms": 18.782,
+      "p99_latency_ms": 92.61
     },
     "ibkr": {
       "venue": "ibkr",
@@ -82,9 +82,9 @@
       "live_ready": false,
       "dns_ok": false,
       "credentials_present": true,
-      "success_rate": 0.0245,
+      "success_rate": 0.016,
       "samples": 2000,
-      "p90_latency_ms": 18.57,
+      "p90_latency_ms": 18.782,
       "reason": "requires_dns+credentials+healthy_telemetry"
     },
     "fix": {

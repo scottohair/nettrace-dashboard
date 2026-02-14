@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-02-14T10:19:24.878443+00:00",
+  "updated_at": "2026-02-14T10:29:24.143479+00:00",
   "running": true,
-  "cycle": 164,
+  "cycle": 168,
   "interval_seconds": 150,
-  "go_live": true,
+  "go_live": false,
   "opportunity_count": 12,
   "top_sources": [
     "quant_bias"
@@ -16,8 +16,8 @@
   "claude_duplex_delivery": {
     "sent": true,
     "channel": "to_claude",
-    "message_id": 1212,
-    "trace_id": "59050c30b7f4d80dea0726b8",
+    "message_id": 1225,
+    "trace_id": "2ec169e78da838c8f2f0e538",
     "status": "queued"
   }
 }

@@ -27403,3 +27403,183 @@
 2026-02-14 05:20:31,917 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=none
 2026-02-14 05:20:33,922 [coordinator] INFO CYCLE 180 COMPLETE in 16.4s
 2026-02-14 05:20:33,927 [coordinator] INFO Next cycle in 120s...
+2026-02-14 05:22:34,324 [coordinator] INFO ============================================================
+2026-02-14 05:22:34,326 [coordinator] INFO CYCLE 181 STARTING at 2026-02-14 10:22:34 UTC
+2026-02-14 05:22:34,327 [coordinator] INFO ============================================================
+2026-02-14 05:22:34,327 [research_agent] INFO ResearchAgent cycle 181 starting
+2026-02-14 05:22:34,555 [research_agent] INFO ResearchAgent published memo (msg_id=5894) with 0 price pairs, 0 signals, fear_greed=50
+2026-02-14 05:22:34,555 [coordinator] INFO   [research] 0.2s — 0 price pairs gathered
+2026-02-14 05:22:36,561 [strategy_agent] INFO StrategyAgent cycle 181 starting
+2026-02-14 05:22:36,573 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:22:36,574 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:22:36,574 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:22:36,575 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:22:36,575 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:22:36,576 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:22:36,583 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 05:22:36,583 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 05:22:38,587 [risk_agent] INFO RiskAgent cycle 181 starting
+2026-02-14 05:22:38,590 [risk_agent] INFO Quant overrides: min_conf=0.73 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 05:22:38,594 [exchange] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 05:22:38,601 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:22:38,607 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:22:38,612 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:22:38,614 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:22:38,615 [exchange] ERROR Circuit breaker OPEN — 181 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:22:38,615 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:22:38,616 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=5896)
+2026-02-14 05:22:38,616 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 05:22:38,616 [coordinator] INFO   [risk] 0.0s — 0/1 approved
+2026-02-14 05:22:40,619 [execution_agent] INFO ExecutionAgent cycle 181 starting (mode=queue)
+2026-02-14 05:22:40,622 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 05:22:42,625 [learning_agent] INFO LearningAgent cycle 181 starting
+2026-02-14 05:22:42,630 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 05:22:42,631 [learning_agent] INFO LearningAgent: portfolio=$99.59 | Sharpe=-2.62 | DD=65.1% | trades=0 | recommendations=1 (msg_id=5898)
+2026-02-14 05:22:42,632 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 05:22:42,633 [coordinator] INFO   [learning] 0.0s — portfolio=$99.59 Sharpe=-2.62
+2026-02-14 05:22:44,638 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 181 starting
+2026-02-14 05:22:44,651 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=5899): min_conf=0.66 size_mult=0.68x pair_biases=0
+2026-02-14 05:22:44,651 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.66 pair_biases=0
+2026-02-14 05:22:46,654 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 181 starting
+2026-02-14 05:22:46,671 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=5900,5901): posture=DEFENSIVE top_pairs=0 blocked=0
+2026-02-14 05:22:46,672 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=0
+2026-02-14 05:22:48,677 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 181 starting
+2026-02-14 05:22:48,686 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=5902): posture=DEFENSIVE focus_pairs=none
+2026-02-14 05:22:48,686 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=none
+2026-02-14 05:22:50,687 [coordinator] INFO CYCLE 181 COMPLETE in 16.4s
+2026-02-14 05:22:50,688 [coordinator] INFO Next cycle in 120s...
+2026-02-14 05:24:51,112 [coordinator] INFO ============================================================
+2026-02-14 05:24:51,113 [coordinator] INFO CYCLE 182 STARTING at 2026-02-14 10:24:51 UTC
+2026-02-14 05:24:51,114 [coordinator] INFO ============================================================
+2026-02-14 05:24:51,115 [research_agent] INFO ResearchAgent cycle 182 starting
+2026-02-14 05:24:51,355 [research_agent] INFO ResearchAgent published memo (msg_id=5903) with 0 price pairs, 0 signals, fear_greed=50
+2026-02-14 05:24:51,355 [coordinator] INFO   [research] 0.2s — 0 price pairs gathered
+2026-02-14 05:24:53,361 [strategy_agent] INFO StrategyAgent cycle 182 starting
+2026-02-14 05:24:53,369 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:24:53,369 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:24:53,370 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:24:53,370 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:24:53,370 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:24:53,371 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:24:53,376 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 05:24:53,377 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 05:24:55,379 [risk_agent] INFO RiskAgent cycle 182 starting
+2026-02-14 05:24:55,382 [risk_agent] INFO Quant overrides: min_conf=0.73 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 05:24:55,385 [exchange] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 05:24:55,387 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=2
+2026-02-14 05:24:55,393 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:24:55,398 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:24:55,400 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: egress_blocked:<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:24:55,401 [exchange] ERROR Circuit breaker OPEN — 182 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:24:55,401 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': 'egress_blocked:<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:24:55,402 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=5905)
+2026-02-14 05:24:55,403 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 05:24:55,403 [coordinator] INFO   [risk] 0.0s — 0/1 approved
+2026-02-14 05:24:57,406 [execution_agent] INFO ExecutionAgent cycle 182 starting (mode=queue)
+2026-02-14 05:24:57,412 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 05:24:59,414 [learning_agent] INFO LearningAgent cycle 182 starting
+2026-02-14 05:24:59,418 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 05:24:59,420 [learning_agent] INFO LearningAgent: portfolio=$99.59 | Sharpe=-2.62 | DD=65.1% | trades=0 | recommendations=1 (msg_id=5907)
+2026-02-14 05:24:59,420 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 05:24:59,421 [coordinator] INFO   [learning] 0.0s — portfolio=$99.59 Sharpe=-2.62
+2026-02-14 05:25:01,422 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 182 starting
+2026-02-14 05:25:01,436 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=5908): min_conf=0.66 size_mult=0.68x pair_biases=0
+2026-02-14 05:25:01,436 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.66 pair_biases=0
+2026-02-14 05:25:03,442 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 182 starting
+2026-02-14 05:25:03,450 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=5909,5910): posture=DEFENSIVE top_pairs=0 blocked=0
+2026-02-14 05:25:03,451 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=0
+2026-02-14 05:25:05,456 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 182 starting
+2026-02-14 05:25:05,467 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=5911): posture=DEFENSIVE focus_pairs=none
+2026-02-14 05:25:05,467 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=none
+2026-02-14 05:25:07,472 [coordinator] INFO CYCLE 182 COMPLETE in 16.4s
+2026-02-14 05:25:07,473 [coordinator] INFO Next cycle in 120s...
+2026-02-14 05:27:07,909 [coordinator] INFO ============================================================
+2026-02-14 05:27:07,911 [coordinator] INFO CYCLE 183 STARTING at 2026-02-14 10:27:07 UTC
+2026-02-14 05:27:07,912 [coordinator] INFO ============================================================
+2026-02-14 05:27:07,913 [research_agent] INFO ResearchAgent cycle 183 starting
+2026-02-14 05:27:08,158 [research_agent] INFO ResearchAgent published memo (msg_id=5912) with 0 price pairs, 0 signals, fear_greed=50
+2026-02-14 05:27:08,158 [coordinator] INFO   [research] 0.2s — 0 price pairs gathered
+2026-02-14 05:27:10,162 [strategy_agent] INFO StrategyAgent cycle 183 starting
+2026-02-14 05:27:10,172 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:27:10,172 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:27:10,173 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:27:10,173 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:27:10,174 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:27:10,174 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:27:10,181 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 05:27:10,182 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 05:27:12,187 [risk_agent] INFO RiskAgent cycle 183 starting
+2026-02-14 05:27:12,192 [risk_agent] INFO Quant overrides: min_conf=0.73 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 05:27:12,196 [exchange] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 05:27:12,204 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:27:12,210 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:27:12,217 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:27:12,219 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:27:12,220 [exchange] ERROR Circuit breaker OPEN — 183 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:27:12,221 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:27:12,221 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=5914)
+2026-02-14 05:27:12,222 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 05:27:12,222 [coordinator] INFO   [risk] 0.0s — 0/1 approved
+2026-02-14 05:27:14,228 [execution_agent] INFO ExecutionAgent cycle 183 starting (mode=queue)
+2026-02-14 05:27:14,233 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 05:27:16,238 [learning_agent] INFO LearningAgent cycle 183 starting
+2026-02-14 05:27:16,243 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 05:27:16,244 [learning_agent] INFO LearningAgent: portfolio=$99.59 | Sharpe=-2.62 | DD=65.1% | trades=0 | recommendations=1 (msg_id=5916)
+2026-02-14 05:27:16,245 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 05:27:16,245 [coordinator] INFO   [learning] 0.0s — portfolio=$99.59 Sharpe=-2.62
+2026-02-14 05:27:18,246 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 183 starting
+2026-02-14 05:27:18,259 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=5917): min_conf=0.66 size_mult=0.68x pair_biases=0
+2026-02-14 05:27:18,259 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.66 pair_biases=0
+2026-02-14 05:27:20,260 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 183 starting
+2026-02-14 05:27:20,274 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=5918,5919): posture=DEFENSIVE top_pairs=0 blocked=0
+2026-02-14 05:27:20,275 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=0
+2026-02-14 05:27:22,278 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 183 starting
+2026-02-14 05:27:22,290 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=5920): posture=DEFENSIVE focus_pairs=none
+2026-02-14 05:27:22,291 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=none
+2026-02-14 05:27:24,295 [coordinator] INFO CYCLE 183 COMPLETE in 16.4s
+2026-02-14 05:27:24,296 [coordinator] INFO Next cycle in 120s...
+2026-02-14 05:29:24,723 [coordinator] INFO ============================================================
+2026-02-14 05:29:24,724 [coordinator] INFO CYCLE 184 STARTING at 2026-02-14 10:29:24 UTC
+2026-02-14 05:29:24,725 [coordinator] INFO ============================================================
+2026-02-14 05:29:24,725 [research_agent] INFO ResearchAgent cycle 184 starting
+2026-02-14 05:29:24,969 [research_agent] INFO ResearchAgent published memo (msg_id=5921) with 0 price pairs, 0 signals, fear_greed=50
+2026-02-14 05:29:24,969 [coordinator] INFO   [research] 0.2s — 0 price pairs gathered
+2026-02-14 05:29:26,975 [strategy_agent] INFO StrategyAgent cycle 184 starting
+2026-02-14 05:29:26,985 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:29:26,985 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:29:26,986 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:29:26,986 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:29:26,986 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:29:26,987 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 05:29:26,993 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 05:29:26,993 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 05:29:28,996 [risk_agent] INFO RiskAgent cycle 184 starting
+2026-02-14 05:29:28,999 [risk_agent] INFO Quant overrides: min_conf=0.73 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 05:29:29,002 [exchange] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 05:29:29,004 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=2
+2026-02-14 05:29:29,009 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:29:29,014 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:29:29,016 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: egress_blocked:<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:29:29,016 [exchange] ERROR Circuit breaker OPEN — 184 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:29:29,017 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': 'egress_blocked:<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:29:29,018 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=5923)
+2026-02-14 05:29:29,018 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 05:29:29,018 [coordinator] INFO   [risk] 0.0s — 0/1 approved
+2026-02-14 05:29:31,019 [execution_agent] INFO ExecutionAgent cycle 184 starting (mode=queue)
+2026-02-14 05:29:31,022 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 05:29:33,027 [learning_agent] INFO LearningAgent cycle 184 starting
+2026-02-14 05:29:33,032 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 05:29:33,034 [learning_agent] INFO LearningAgent: portfolio=$99.59 | Sharpe=-2.62 | DD=65.1% | trades=0 | recommendations=1 (msg_id=5925)
+2026-02-14 05:29:33,034 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 05:29:33,035 [coordinator] INFO   [learning] 0.0s — portfolio=$99.59 Sharpe=-2.62
+2026-02-14 05:29:35,037 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 184 starting
+2026-02-14 05:29:35,046 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=5926): min_conf=0.66 size_mult=0.68x pair_biases=0
+2026-02-14 05:29:35,046 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.66 pair_biases=0
+2026-02-14 05:29:37,052 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 184 starting
+2026-02-14 05:29:37,064 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=5927,5928): posture=DEFENSIVE top_pairs=0 blocked=0
+2026-02-14 05:29:37,065 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=0
+2026-02-14 05:29:39,070 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 184 starting
+2026-02-14 05:29:39,080 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=5929): posture=DEFENSIVE focus_pairs=none
+2026-02-14 05:29:39,081 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=none
+2026-02-14 05:29:41,085 [coordinator] INFO CYCLE 184 COMPLETE in 16.4s
+2026-02-14 05:29:41,085 [coordinator] INFO Next cycle in 120s...

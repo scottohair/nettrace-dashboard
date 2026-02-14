@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T10:19:36.256363+00:00",
+  "updated_at": "2026-02-14T10:29:49.963359+00:00",
   "green": false,
   "reason": "telemetry_samples_low:0<3",
   "reasons": [
@@ -48,7 +48,7 @@
           ],
           "error": "",
           "resolver_source": "system",
-          "latency_ms": 3.657
+          "latency_ms": 5.088
         },
         {
           "host": "api.exchange.coinbase.com",
@@ -61,7 +61,7 @@
           ],
           "error": "",
           "resolver_source": "system",
-          "latency_ms": 3.548
+          "latency_ms": 5.0
         }
       ]
     },
@@ -74,14 +74,14 @@
           "ok": true,
           "status": 200,
           "error": "",
-          "latency_ms": 41.266
+          "latency_ms": 39.91
         },
         {
           "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
           "ok": true,
           "status": 200,
           "error": "",
-          "latency_ms": 39.464
+          "latency_ms": 40.985
         }
       ]
     },
@@ -138,7 +138,7 @@
       "stale_no_pending_grace_seconds": 3600,
       "stale_no_activity_grace_seconds": 7200,
       "stale_grace_applied": false,
-      "age_seconds": 18284.8,
+      "age_seconds": 18898.507,
       "summary": {
         "checked": 0,
         "updated": 0,

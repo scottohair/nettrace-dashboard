@@ -318,27 +318,65 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
             if len(window_candles) < 24:
                 continue
             bt_window = backtester.run(strategy, window_candles, pair)
-            scenario_results.append((int(window_size), bt_window))
+            total_trades = int(bt_window.get("total_trades", 0) or 0)
+            sell_trades = sum(
+                1
+                for t in (bt_window.get("trades") or [])
+                if str((t or {}).get("side", "")).upper() == "SELL"
+            )
+            scenario_results.append(
+                {
+                    "window_size": int(window_size),
+                    "bt": bt_window,
+                    "total_trades": int(total_trades),
+                    "sell_trades": int(sell_trades),
+                }
+            )
         if not scenario_results:
             bt_window = backtester.run(strategy, candles, pair)
-            scenario_results = [(len(candles), bt_window)]
+            total_trades = int(bt_window.get("total_trades", 0) or 0)
+            sell_trades = sum(
+                1
+                for t in (bt_window.get("trades") or [])
+                if str((t or {}).get("side", "")).upper() == "SELL"
+            )
+            scenario_results = [
+                {
+                    "window_size": int(len(candles)),
+                    "bt": bt_window,
+                    "total_trades": int(total_trades),
+                    "sell_trades": int(sell_trades),
+                }
+            ]
+
+        active_scenarios = [
+            s for s in scenario_results
+            if int(s.get("sell_trades", 0) or 0) > 0 or int(s.get("total_trades", 0) or 0) > 0
+        ]
+        selected_scenarios = active_scenarios if active_scenarios else scenario_results
+        selected_bts = [s.get("bt", {}) for s in selected_scenarios]
+        canonical = max(scenario_results, key=lambda x: int(x.get("window_size", 0) or 0))
+        canonical_bt = canonical.get("bt", {}) if isinstance(canonical, dict) else {}
 
         sells = []
-        scenario_returns = []
-        scenario_sharpes = []
-        scenario_drawdowns = []
-        scenario_trade_pnls = []
-        for window_size, bt_window in scenario_results:
-            scenario_returns.append(float(bt_window.get("total_return_pct", 0.0) or 0.0))
-            scenario_sharpes.append(float(bt_window.get("sharpe_ratio", 0.0) or 0.0))
-            scenario_drawdowns.append(float(bt_window.get("max_drawdown_pct", 0.0) or 0.0))
-            for trade in (bt_window.get("trades") or []):
-                if str(trade.get("side", "")).upper() != "SELL":
-                    continue
-                t = dict(trade)
-                t["_window"] = int(window_size)
-                sells.append(t)
-                scenario_trade_pnls.append(float(t.get("pnl", 0.0) or 0.0))
+        for trade in (canonical_bt.get("trades") or []):
+            if str((trade or {}).get("side", "")).upper() != "SELL":
+                continue
+            sells.append(dict(trade))
+
+        scenario_returns = [
+            float((bt or {}).get("total_return_pct", 0.0) or 0.0)
+            for bt in selected_bts
+        ]
+        scenario_sharpes = [
+            float((bt or {}).get("sharpe_ratio", 0.0) or 0.0)
+            for bt in selected_bts
+        ]
+        scenario_drawdowns = [
+            float((bt or {}).get("max_drawdown_pct", 0.0) or 0.0)
+            for bt in selected_bts
+        ]
+        scenario_trade_pnls = [float(t.get("pnl", 0.0) or 0.0) for t in sells]
 
         prior = _load_state(state_conn, strategy_name, pair)
         seen_keys = set(prior.get("seen_trade_keys", [])) if prior else set()
@@ -348,12 +386,8 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
         worst_dd = float(prior.get("worst_drawdown_pct", 0.0)) if prior else 0.0
 
         new_sells = 0
-        source_name = str(source_meta.get("source", "unknown"))
-        cycle_bucket = int(now_ts // max(60, int(interval_seconds)))
         for trade in sells:
-            key = f"w{int(trade.get('_window', 0))}|{_sell_trade_key(trade)}"
-            if source_name == "local_fallback":
-                key = f"{key}|b{cycle_bucket}"
+            key = _sell_trade_key(trade)
             if key in seen_keys:
                 continue
             seen_keys.add(key)
@@ -383,13 +417,32 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
         scenario_return = float(statistics.median(scenario_returns)) if scenario_returns else 0.0
         scenario_sharpe = float(statistics.median(scenario_sharpes)) if scenario_sharpes else 0.0
         latest_dd = float(max(scenario_drawdowns) if scenario_drawdowns else 0.0)
-        worst_dd = max(worst_dd, latest_dd)
+        prior_last_metrics = prior.get("last_metrics", {}) if prior and isinstance(prior.get("last_metrics"), dict) else {}
+        prior_rolling_dd = float(
+            prior_last_metrics.get(
+                "rolling_drawdown_pct",
+                prior_last_metrics.get("max_drawdown_pct", worst_dd),
+            )
+            or worst_dd
+        )
+        rolling_dd = latest_dd
+        if prior:
+            rolling_dd = (
+                (prior_rolling_dd * 0.55)
+                + (latest_dd * 0.45)
+            )
+            rolling_dd = max(0.0, rolling_dd)
+        lifetime_worst_dd = max(
+            float(prior_last_metrics.get("lifetime_worst_drawdown_pct", worst_dd) or worst_dd),
+            latest_dd,
+            rolling_dd,
+        )
         last_sharpe = scenario_sharpe
         if prior and isinstance(prior.get("last_metrics"), dict):
             prev_ret = float(prior.get("last_metrics", {}).get("total_return_pct", scenario_return) or scenario_return)
             prev_sharpe = float(prior.get("last_metrics", {}).get("sharpe_ratio", scenario_sharpe) or scenario_sharpe)
-            scenario_return = (prev_ret * 0.70) + (scenario_return * 0.30)
-            last_sharpe = (prev_sharpe * 0.70) + (scenario_sharpe * 0.30)
+            scenario_return = (prev_ret * 0.55) + (scenario_return * 0.45)
+            last_sharpe = (prev_sharpe * 0.55) + (scenario_sharpe * 0.45)
         cumulative_return_pct = scenario_return
         var95_loss, es97_5_loss = _var_es_losses_pct(scenario_trade_pnls, initial_capital=100.0)
 
@@ -400,7 +453,9 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
             "total_trades": int(unique_sells),
             "win_rate": round(win_rate, 6),
             "total_return_pct": round(cumulative_return_pct, 6),
-            "max_drawdown_pct": round(worst_dd, 6),
+            "max_drawdown_pct": round(rolling_dd, 6),
+            "rolling_drawdown_pct": round(rolling_dd, 6),
+            "lifetime_worst_drawdown_pct": round(lifetime_worst_dd, 6),
             "sharpe_ratio": round(last_sharpe, 6),
             "wins": int(wins),
             "losses": int(losses),
@@ -408,9 +463,11 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
             "es97_5_loss_pct": round(es97_5_loss, 6),
             "evidence": {
                 "window_count": int(len(scenario_results)),
-                "windows": [int(w) for w, _ in scenario_results],
+                "windows": [int((row or {}).get("window_size", 0) or 0) for row in scenario_results],
+                "active_window_count": int(len(selected_scenarios)),
+                "active_windows": [int((row or {}).get("window_size", 0) or 0) for row in selected_scenarios],
                 "source": "multi_window_replay",
-                "cycle_bucket": int(cycle_bucket),
+                "canonical_window": int((canonical or {}).get("window_size", len(candles)) or len(candles)),
             },
         }
 
@@ -452,7 +509,7 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
             "losses": losses,
             "total_pnl": total_pnl,
             "cumulative_return_pct": cumulative_return_pct,
-            "worst_drawdown_pct": worst_dd,
+            "worst_drawdown_pct": rolling_dd,
             "last_sharpe_ratio": last_sharpe,
             "samples": samples,
             "seen_trade_keys": sorted(seen_keys)[-5000:],

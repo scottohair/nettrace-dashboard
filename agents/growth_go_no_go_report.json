@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-14T10:19:07.037594+00:00",
+  "generated_at": "2026-02-14T10:29:28.259350+00:00",
   "activation": null,
   "commands": [
     {
@@ -15,7 +15,7 @@
         "--promote"
       ],
       "returncode": 0,
-      "stdout_tail": "/Users/scott/src/quant/agents/warm_runtime_collector_report.json\n{\n  \"warm_checked\": 23,\n  \"eligible_hot\": 0,\n  \"promoted_hot\": 0,\n  \"collecting\": 0,\n  \"rejected\": 23,\n  \"not_ready\": 23,\n  \"skipped\": 0\n}",
+      "stdout_tail": "/Users/scott/src/quant/agents/warm_runtime_collector_report.json\n{\n  \"warm_checked\": 22,\n  \"eligible_hot\": 2,\n  \"promoted_hot\": 0,\n  \"collecting\": 0,\n  \"rejected\": 20,\n  \"not_ready\": 22,\n  \"skipped\": 0\n}",
       "stderr_tail": ""
     },
     {
@@ -29,7 +29,7 @@
         "--promote"
       ],
       "returncode": 0,
-      "stdout_tail": "/Users/scott/src/quant/agents/warm_promotion_report.json\n{\n  \"warm_checked\": 23,\n  \"promoted_hot\": 0,\n  \"eligible_hot\": 0,\n  \"collecting\": 0,\n  \"rejected\": 23,\n  \"not_ready\": 23,\n  \"skipped\": 0\n}",
+      "stdout_tail": "/Users/scott/src/quant/agents/warm_promotion_report.json\n{\n  \"warm_checked\": 22,\n  \"promoted_hot\": 0,\n  \"eligible_hot\": 0,\n  \"collecting\": 0,\n  \"rejected\": 20,\n  \"not_ready\": 22,\n  \"skipped\": 0\n}",
       "stderr_tail": ""
     },
     {
@@ -41,7 +41,7 @@
         "--commit"
       ],
       "returncode": 0,
-      "stdout_tail": "{\n  \"updated\": 12,\n  \"final_total_funded_budget\": 30.47,\n  \"max_total_budget\": 157.53,\n  \"pair_counts\": {\n    \"BTC-USD\": 4,\n    \"SOL-USD\": 4,\n    \"ETH-USD\": 4,\n    \"LINK-USD\": 1\n  },\n  \"execution_health\": {\n    \"enabled\": true,\n    \"green\": false,\n    \"reason\": \"telemetry_samples_low:0<3\",\n    \"updated_at\": \"2026-02-14T10:19:35.293961+00:00\"\n  }\n}",
+      "stdout_tail": "{\n  \"updated\": 14,\n  \"final_total_funded_budget\": 31.22,\n  \"max_total_budget\": 157.53,\n  \"pair_counts\": {\n    \"BTC-USD\": 5,\n    \"SOL-USD\": 4,\n    \"ETH-USD\": 4,\n    \"LINK-USD\": 1\n  },\n  \"execution_health\": {\n    \"enabled\": true,\n    \"green\": false,\n    \"reason\": \"telemetry_samples_low:0<3\",\n    \"updated_at\": \"2026-02-14T10:29:31.159995+00:00\"\n  }\n}",
       "stderr_tail": ""
     },
     {
@@ -56,33 +56,33 @@
         "/Users/scott/src/quant/agents/profit_safety_audit.json"
       ],
       "returncode": 0,
-      "stdout_tail": "/Users/scott/src/quant/agents/profit_safety_audit.json\n{\n  \"total_checks\": 6,\n  \"failed_checks\": 0,\n  \"critical_failures\": 0,\n  \"high_failures\": 0\n}",
+      "stdout_tail": "/Users/scott/src/quant/agents/profit_safety_audit.json\n{\n  \"total_checks\": 7,\n  \"failed_checks\": 0,\n  \"critical_failures\": 0,\n  \"high_failures\": 0\n}",
       "stderr_tail": ""
     }
   ],
   "artifacts": {
     "audit": {
-      "total_checks": 6,
+      "total_checks": 7,
       "failed_checks": 0,
       "critical_failures": 0,
       "high_failures": 0
     },
     "warm_collector": {
-      "warm_checked": 23,
-      "eligible_hot": 0,
+      "warm_checked": 22,
+      "eligible_hot": 2,
       "promoted_hot": 0,
       "collecting": 0,
-      "rejected": 23,
-      "not_ready": 23,
+      "rejected": 20,
+      "not_ready": 22,
       "skipped": 0
     },
     "warm_promotion": {
-      "warm_checked": 23,
+      "warm_checked": 22,
       "promoted_hot": 0,
       "eligible_hot": 0,
       "collecting": 0,
-      "rejected": 23,
-      "not_ready": 23,
+      "rejected": 20,
+      "not_ready": 22,
       "skipped": 0
     },
     "quant": {
@@ -3005,27 +3005,27 @@
       ]
     },
     "quant_company_status": {
-      "go_live": true,
+      "go_live": false,
       "realized_gate_passed": true,
       "realized_gate_reason": "passed",
-      "updated_at": "2026-02-14T10:15:17.093869+00:00"
+      "updated_at": "2026-02-14T10:27:18.270177+00:00"
     },
     "execution_health": {
       "green": false,
       "reason": "telemetry_samples_low:0<3",
-      "updated_at": "2026-02-14T10:19:36.256363+00:00"
+      "updated_at": "2026-02-14T10:29:49.963359+00:00"
     },
     "trade_flow": {
       "lookback_hours": 6,
       "buy_fills": 0,
-      "sell_fills": 49,
+      "sell_fills": 48,
       "sell_close_events": 7,
       "sell_close_attempts": 86,
       "sell_close_completions": 84,
       "sell_close_completion_rate": 0.976744,
       "reconcile_gate_passed": true,
       "reconcile_gate_reason": "sell_close_completion_observed",
-      "effective_sell_completions": 49,
+      "effective_sell_completions": 48,
       "buy_sell_ratio": 0.0
     }
   },
@@ -3053,12 +3053,27 @@
         "max_funded_strategies": 8
       }
     },
+    "hot_evidence_bootstrap": {
+      "strict_required": false,
+      "enabled": true,
+      "active": false,
+      "warning": "",
+      "limits": {
+        "max_funded_budget": 2.0,
+        "max_funded_strategies": 2
+      }
+    },
     "execution_health_gate": {
       "enabled": true,
       "status_available": true,
       "green": false,
       "reason": "telemetry_samples_low:0<3",
-      "updated_at": "2026-02-14T10:19:36.256363+00:00"
+      "bootstrap_enabled": true,
+      "bootstrap_active": false,
+      "bootstrap_reason": "",
+      "bootstrap_max_budget_usd": 2.0,
+      "bootstrap_max_strategies": 2,
+      "updated_at": "2026-02-14T10:29:49.963359+00:00"
     },
     "close_flow_gate": {
       "enabled": true,
@@ -3066,9 +3081,9 @@
       "reason": "balanced_close_flow",
       "lookback_hours": 6,
       "buy_fills": 0,
-      "sell_fills": 49,
+      "sell_fills": 48,
       "sell_close_events": 7,
-      "effective_sell_completions": 49,
+      "effective_sell_completions": 48,
       "buy_sell_ratio": 0.0,
       "max_buy_sell_ratio": 2.5,
       "min_sell_completions": 1,
@@ -3081,7 +3096,7 @@
       "reconcile_gate_reason": "sell_close_completion_observed"
     },
     "audit_summary": {
-      "total_checks": 6,
+      "total_checks": 7,
       "failed_checks": 0,
       "critical_failures": 0,
       "high_failures": 0
@@ -3089,33 +3104,62 @@
     "pipeline_metrics": {
       "stage_counts": {
         "COLD": 7407,
-        "HOT": 3084,
-        "WARM": 23
+        "HOT": 3085,
+        "WARM": 22
       },
-      "promoted_hot_events": 3725,
+      "promoted_hot_events": 3726,
+      "promoted_hot_events_recent_24h": 3647,
       "killed_events": 0,
-      "max_pair_share": 0.4752,
-      "total_funded_budget": 30.47,
-      "funded_strategy_count": 13,
-      "funded_with_oos_trades": 13
+      "max_pair_share": 0.4878,
+      "total_funded_budget": 31.22,
+      "funded_strategy_count": 14,
+      "funded_hot_strategy_count": 11,
+      "funded_warm_strategy_count": 3,
+      "hot_stage_count": 3085,
+      "warm_stage_count": 22,
+      "funded_with_oos_trades": 14
     },
     "warm_collector_summary": {
-      "warm_checked": 23,
-      "eligible_hot": 0,
+      "warm_checked": 22,
+      "eligible_hot": 2,
       "promoted_hot": 0,
       "collecting": 0,
-      "rejected": 23,
-      "not_ready": 23,
+      "rejected": 20,
+      "not_ready": 22,
       "skipped": 0
     },
     "warm_promotion_summary": {
-      "warm_checked": 23,
+      "warm_checked": 22,
       "promoted_hot": 0,
       "eligible_hot": 0,
       "collecting": 0,
-      "rejected": 23,
-      "not_ready": 23,
+      "rejected": 20,
+      "not_ready": 22,
       "skipped": 0
+    },
+    "promotion_feed": {
+      "has_active_hot_evidence": true,
+      "pipeline_hot_stage_count": 3085,
+      "pipeline_warm_stage_count": 22,
+      "pipeline_promoted_hot_events": 3726,
+      "pipeline_funded_hot_strategy_count": 11,
+      "quant_retained_hot_passed": 11,
+      "quant_retained_warm_passed": 3,
+      "quant_implementable_count": 14,
+      "collector_reason_codes_top": [
+        [
+          "sharpe_below_min",
+          20
+        ],
+        [
+          "drawdown_above_max",
+          13
+        ],
+        [
+          "return_below_min",
+          11
+        ]
+      ]
     }
   }
 }

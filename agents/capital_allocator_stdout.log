@@ -3418,3 +3418,31 @@
 2026-02-14 05:16:28,347 [ALLOC] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
 2026-02-14 05:16:28,347 [ALLOC] INFO Coinbase total: $0.00
 2026-02-14 05:16:28,347 [ALLOC] WARNING No balances found to sync
+2026-02-14 05:21:28,373 [ALLOC] ERROR Failed to get ethereum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:21:28,387 [ALLOC] ERROR Failed to get base balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:21:28,401 [ALLOC] ERROR Failed to get arbitrum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:21:28,415 [ALLOC] ERROR Failed to get polygon balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:21:28,416 [ALLOC] INFO Wallet total: $0.00 across 4 chains
+2026-02-14 05:21:28,416 [ALLOC] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 05:21:28,422 [ALLOC] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:21:28,426 [ALLOC] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:21:28,431 [ALLOC] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:21:28,433 [ALLOC] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:21:28,433 [ALLOC] ERROR Circuit breaker OPEN — 83 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:21:28,433 [ALLOC] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:21:28,433 [ALLOC] INFO Coinbase total: $0.00
+2026-02-14 05:21:28,434 [ALLOC] WARNING No balances found to sync
+2026-02-14 05:26:28,463 [ALLOC] ERROR Failed to get ethereum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:26:28,479 [ALLOC] ERROR Failed to get base balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:26:28,494 [ALLOC] ERROR Failed to get arbitrum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:26:28,508 [ALLOC] ERROR Failed to get polygon balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:26:28,509 [ALLOC] INFO Wallet total: $0.00 across 4 chains
+2026-02-14 05:26:28,509 [ALLOC] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 05:26:28,515 [ALLOC] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:26:28,520 [ALLOC] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:26:28,525 [ALLOC] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:26:28,526 [ALLOC] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:26:28,526 [ALLOC] ERROR Circuit breaker OPEN — 84 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:26:28,527 [ALLOC] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:26:28,527 [ALLOC] INFO Coinbase total: $0.00
+2026-02-14 05:26:28,527 [ALLOC] WARNING No balances found to sync

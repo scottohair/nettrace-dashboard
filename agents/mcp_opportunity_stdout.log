@@ -720,3 +720,15 @@
 2026-02-14 05:19:24,624 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
 2026-02-14 05:19:24,696 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
 2026-02-14 05:19:24,879 [mcp_opportunity] INFO cycle=164 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 05:21:54,451 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:21:54,537 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:21:54,712 [mcp_opportunity] INFO cycle=165 go_live=False opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 05:24:24,233 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:24:24,319 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:24:24,529 [mcp_opportunity] INFO cycle=166 go_live=False opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 05:26:54,048 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:26:54,131 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:26:54,318 [mcp_opportunity] INFO cycle=167 go_live=False opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 05:29:23,871 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:29:23,956 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:29:24,145 [mcp_opportunity] INFO cycle=168 go_live=False opportunities=12 top=quant_bias:BTC-USDC

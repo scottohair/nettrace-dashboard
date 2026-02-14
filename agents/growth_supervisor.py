@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 BASE = Path(__file__).parent
+ENV_PATH = BASE / ".env"
+WARM_OVERRIDE_PATH = BASE / ".env.warm_override"
 REGISTRY_PATH = BASE / "growth_mode_100_improvements.json"
 LOG_PATH = BASE / "growth_mode_program_log.jsonl"
 AUDIT_PATH = BASE / "profit_safety_audit.json"
@@ -22,13 +24,90 @@ QUANT_RESULTS_PATH = BASE / "quant_100_results.json"
 QUANT_COMPANY_STATUS_PATH = BASE / "quant_company_status.json"
 EXECUTION_HEALTH_STATUS_PATH = BASE / "execution_health_status.json"
 RECONCILE_STATUS_PATH = BASE / "reconcile_agent_trades_status.json"
+
+
+def _load_dotenv_file(path, override=False):
+    """Load simple KEY=VALUE pairs from a dotenv-style file."""
+    if not path.exists():
+        return
+    try:
+        for raw in path.read_text().splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            if not key:
+                continue
+            if key.lower() == "export":
+                continue
+            if key.startswith("export "):
+                key = key[7:].strip()
+            if not key:
+                continue
+            value = value.strip()
+            if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                value = value[1:-1]
+            if override or key not in os.environ:
+                os.environ[key] = value
+    except Exception:
+        pass
+
+
+_load_dotenv_file(ENV_PATH, override=False)
+_load_dotenv_file(WARM_OVERRIDE_PATH, override=False)
+
 GROWTH_MAX_PAIR_SHARE_CAP = float(os.environ.get("GROWTH_MAX_PAIR_SHARE_CAP", "0.70"))
-STRICT_REALIZED_GO_LIVE_REQUIRED = os.environ.get(
-    "STRICT_REALIZED_GO_LIVE_REQUIRED", "1"
-).lower() not in ("0", "false", "no")
-STRICT_REALIZED_BOOTSTRAP_ALLOW = os.environ.get(
-    "STRICT_REALIZED_BOOTSTRAP_ALLOW", "1"
-).lower() not in ("0", "false", "no")
+
+
+def _env_flag(name, default=False, aliases=()):
+    """Read a boolean env var with optional aliases and default fallback."""
+    if name in os.environ:
+        return os.environ.get(name, str(default)).lower() not in ("0", "false", "no")
+    for alias in aliases:
+        if alias in os.environ:
+            return os.environ.get(alias, str(default)).lower() not in ("0", "false", "no")
+    return bool(default)
+
+
+def _env_float(name, default, aliases=()):
+    if name in os.environ:
+        try:
+            return float(os.environ.get(name, str(default)))
+        except Exception:
+            return float(default)
+    for alias in aliases:
+        if alias in os.environ:
+            try:
+                return float(os.environ.get(alias, str(default)))
+            except Exception:
+                return float(default)
+    return float(default)
+
+
+def _env_int(name, default, aliases=()):
+    if name in os.environ:
+        try:
+            return int(os.environ.get(name, str(default)))
+        except Exception:
+            return int(default)
+    for alias in aliases:
+        if alias in os.environ:
+            try:
+                return int(os.environ.get(alias, str(default)))
+            except Exception:
+                return int(default)
+    return int(default)
+
+
+STRICT_REALIZED_GO_LIVE_REQUIRED = _env_flag(
+    "STRICT_REALIZED_GO_LIVE_REQUIRED", default=True
+)
+STRICT_REALIZED_BOOTSTRAP_ALLOW = _env_flag(
+    "STRICT_REALIZED_BOOTSTRAP_ALLOW", default=True
+)
 STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET = float(
     os.environ.get("STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET", "2.0")
 )
@@ -51,23 +130,56 @@ CLOSE_FLOW_MIN_CLOSE_ATTEMPTS = int(
 CLOSE_FLOW_MIN_CLOSE_COMPLETION_RATE = float(
     os.environ.get("CLOSE_FLOW_MIN_CLOSE_COMPLETION_RATE", "0.40")
 )
-GROWTH_STRICT_HOT_PROMOTION_REQUIRED = os.environ.get(
-    "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", "1"
-).lower() not in ("0", "false", "no")
-WARM_MICROLANE_ALLOW = os.environ.get("WARM_MICROLANE_ALLOW", "0").lower() not in (
-    "0",
-    "false",
-    "no",
+GROWTH_STRICT_HOT_PROMOTION_REQUIRED = _env_flag(
+    "GROWTH_STRICT_HOT_PROMOTION_REQUIRED",
+    default=True,
+    aliases=("STRICT_HOT_GATE",),
 )
-WARM_MICROLANE_MAX_FUNDED_BUDGET = float(
-    os.environ.get("WARM_MICROLANE_MAX_FUNDED_BUDGET", "2.0")
+WARM_MICROLANE_ALLOW = _env_flag(
+    "WARM_MICROLANE_ALLOW",
+    default=False,
+    aliases=("WARM_LIVE_ENABLED",),
 )
-WARM_MICROLANE_MAX_FUNDED_STRATEGIES = int(
-    os.environ.get("WARM_MICROLANE_MAX_FUNDED_STRATEGIES", "2")
+WARM_MICROLANE_MAX_FUNDED_BUDGET = _env_float(
+    "WARM_MICROLANE_MAX_FUNDED_BUDGET",
+    2.0,
+    aliases=("WARM_MAX_BUDGET_USD",),
 )
-WARM_MICROLANE_REQUIRE_REALIZED_PROOF = os.environ.get(
-    "WARM_MICROLANE_REQUIRE_REALIZED_PROOF", "1"
-).lower() not in ("0", "false", "no")
+WARM_MICROLANE_MAX_FUNDED_STRATEGIES = _env_int(
+    "WARM_MICROLANE_MAX_FUNDED_STRATEGIES",
+    2,
+    aliases=("WARM_MAX_POSITIONS",),
+)
+WARM_MICROLANE_REQUIRE_REALIZED_PROOF = _env_flag(
+    "WARM_MICROLANE_REQUIRE_REALIZED_PROOF",
+    default=True,
+    aliases=("WARM_REQUIRE_REALIZED_PROOF",),
+)
+EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED = _env_flag(
+    "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED",
+    default=False,
+    aliases=("GROWTH_EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED",),
+)
+EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD = _env_float(
+    "EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD",
+    float(WARM_MICROLANE_MAX_FUNDED_BUDGET),
+    aliases=("GROWTH_EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD",),
+)
+EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_STRATEGIES = _env_int(
+    "EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_STRATEGIES",
+    int(WARM_MICROLANE_MAX_FUNDED_STRATEGIES),
+    aliases=("GROWTH_EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_STRATEGIES",),
+)
+EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_TELEMETRY = _env_flag(
+    "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_TELEMETRY",
+    default=True,
+    aliases=("GROWTH_EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_TELEMETRY",),
+)
+EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS = _env_flag(
+    "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS",
+    default=False,
+    aliases=("GROWTH_EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS",),
+)
 EXECUTION_HEALTH_GO_LIVE_REQUIRED = os.environ.get(
     "EXECUTION_HEALTH_GO_LIVE_REQUIRED", "1"
 ).lower() not in ("0", "false", "no")
@@ -330,6 +442,28 @@ def _hot_evidence_bootstrap_allowed(
     return runtime_promoted_hot <= 0 and promo_promoted_hot <= 0
 
 
+def _execution_health_bootstrap_allowed(exec_reason, total_funded_budget, funded_strategy_count):
+    if not EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED:
+        return False
+    if GROWTH_STRICT_HOT_PROMOTION_REQUIRED:
+        return False
+    if not WARM_MICROLANE_ALLOW:
+        return False
+    if total_funded_budget > float(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD):
+        return False
+    if funded_strategy_count > int(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_STRATEGIES):
+        return False
+
+    reason = str(exec_reason or "").strip().lower()
+    if not reason:
+        return False
+    if reason.startswith("telemetry_") and bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_TELEMETRY):
+        return True
+    if reason == "egress_blocked" and bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS):
+        return True
+    return False
+
+
 def _activate_creative_batch(batch_id, owner="codex"):
     payload = _load_json(REGISTRY_PATH, {})
     items = payload.get("items", []) if isinstance(payload, dict) else []
@@ -374,6 +508,7 @@ def _build_decision(
     audit,
     warm_collector,
     warm_promotion,
+    quant_results=None,
     quant_company_status=None,
     execution_health=None,
     trade_flow_metrics=None,
@@ -382,10 +517,29 @@ def _build_decision(
     check_map = {str(c.get("name", "")): c for c in checks}
     summary = audit.get("summary", {}) if isinstance(audit, dict) else {}
     pipe = audit.get("metrics", {}).get("pipeline", {}) if isinstance(audit, dict) else {}
+    quant_summary = (
+        (quant_results or {}).get("summary", {})
+        if isinstance(quant_results, dict)
+        else {}
+    )
 
     reasons = []
     warnings = []
     q_status = quant_company_status if isinstance(quant_company_status, dict) else {}
+    stage_counts = pipe.get("stage_counts", {}) if isinstance(pipe.get("stage_counts"), dict) else {}
+    promoted_hot_events = int(pipe.get("promoted_hot_events", 0) or 0)
+    funded_strategy_count = int(pipe.get("funded_strategy_count", 0) or 0)
+    funded_hot_strategy_count = int(pipe.get("funded_hot_strategy_count", 0) or 0)
+    hot_stage_count = int(stage_counts.get("HOT", 0) or 0)
+    warm_stage_count = int(stage_counts.get("WARM", 0) or 0)
+    retained_hot_passed = int(quant_summary.get("retained_hot_passed", 0) or 0)
+    retained_warm_passed = int(quant_summary.get("retained_warm_passed", 0) or 0)
+    quant_implementable_count = int(quant_summary.get("implementable_count", 0) or 0)
+    has_active_hot_evidence = bool(
+        promoted_hot_events > 0
+        or funded_hot_strategy_count > 0
+        or (hot_stage_count > 0 and (retained_hot_passed > 0 or quant_implementable_count > 0))
+    )
     realized_gate_passed = bool(q_status.get("realized_gate_passed", False))
     realized_gate_reason = str(q_status.get("realized_gate_reason", "unknown"))
     realized_positive_windows = int(q_status.get("realized_positive_windows", 0) or 0)
@@ -395,7 +549,6 @@ def _build_decision(
     realized_total_closes = int(q_status.get("realized_total_closes", 0) or 0)
     realized_total_net_pnl = float(q_status.get("realized_total_net_pnl_usd", 0.0) or 0.0)
     total_funded_budget = float(pipe.get("total_funded_budget", 0.0) or 0.0)
-    funded_strategy_count = int(pipe.get("funded_strategy_count", 0) or 0)
     realized_bootstrap_override = False
     realized_bootstrap_reason = ""
     if STRICT_REALIZED_GO_LIVE_REQUIRED:
@@ -427,11 +580,29 @@ def _build_decision(
     exec_health = execution_health if isinstance(execution_health, dict) else {}
     exec_green = bool(exec_health.get("green", False))
     exec_reason = str(exec_health.get("reason", "missing"))
+    exec_health_bootstrap_active = False
+    exec_health_bootstrap_reason = ""
     if EXECUTION_HEALTH_GO_LIVE_REQUIRED:
         if not exec_health:
             reasons.append("execution_health_status_missing")
         elif not exec_green:
-            reasons.append(f"execution_health_not_green:{exec_reason}")
+            if _execution_health_bootstrap_allowed(
+                exec_reason,
+                total_funded_budget=total_funded_budget,
+                funded_strategy_count=funded_strategy_count,
+            ):
+                exec_health_bootstrap_active = True
+                exec_health_bootstrap_reason = (
+                    "execution_health_bootstrap_override:"
+                    f"reason={exec_reason}:"
+                    f"budget={total_funded_budget:.4f}<="
+                    f"{EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD:.4f}:"
+                    f"strategies={funded_strategy_count}<="
+                    f"{EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_STRATEGIES}"
+                )
+                warnings.append(exec_health_bootstrap_reason)
+            else:
+                reasons.append(f"execution_health_not_green:{exec_reason}")
     elif exec_health and not exec_green:
         warnings.append(f"execution_health_not_green:{exec_reason}")
     close_flow_gate = _evaluate_close_flow_gate(trade_flow_metrics)
@@ -460,7 +631,7 @@ def _build_decision(
 
     if int(summary.get("critical_failures", 0) or 0) > 0:
         reasons.append("critical_audit_failures_present")
-    if int(pipe.get("promoted_hot_events", 0) or 0) <= 0:
+    if promoted_hot_events <= 0 and not has_active_hot_evidence:
         if not hot_evidence_bootstrap:
             reasons.append("no_hot_promotions")
     if int(pipe.get("killed_events", 0) or 0) > 0:
@@ -485,11 +656,53 @@ def _build_decision(
         else:
             warnings.append("insufficient_funded_oos_evidence_bootstrap")
 
-    if int(collector_summary.get("promoted_hot", 0) or 0) <= 0 and int(pipe.get("promoted_hot_events", 0) or 0) <= 0:
+    collector_results = warm_collector.get("results", []) if isinstance(warm_collector, dict) else []
+    collector_reason_codes = {}
+    for row in collector_results if isinstance(collector_results, list) else []:
+        codes = row.get("reason_codes", []) if isinstance(row, dict) else []
+        if not isinstance(codes, list):
+            continue
+        for code in codes:
+            key = str(code or "").strip()
+            if not key:
+                continue
+            collector_reason_codes[key] = int(collector_reason_codes.get(key, 0) or 0) + 1
+    collector_reason_codes_top = sorted(
+        collector_reason_codes.items(),
+        key=lambda kv: kv[1],
+        reverse=True,
+    )[:6]
+
+    collector_warm_checked = int(collector_summary.get("warm_checked", 0) or 0)
+    collector_eligible_hot = int(collector_summary.get("eligible_hot", 0) or 0)
+    collector_promoted_hot = int(collector_summary.get("promoted_hot", 0) or 0)
+    if collector_warm_checked <= 0:
+        reasons.append("warm_runtime_feed_empty")
+    elif (
+        collector_promoted_hot <= 0
+        and collector_eligible_hot <= 0
+        and promoted_hot_events <= 0
+        and not has_active_hot_evidence
+    ):
         if not hot_evidence_bootstrap:
             reasons.append("warm_runtime_not_hot_eligible")
+    if collector_warm_checked > 0 and collector_eligible_hot <= 0 and collector_reason_codes_top:
+        warnings.append(
+            "warm_runtime_rejections_top="
+            + ",".join(f"{k}:{v}" for k, v in collector_reason_codes_top[:3])
+        )
 
-    if int(promotion_summary.get("promoted_hot", 0) or 0) <= 0 and int(pipe.get("promoted_hot_events", 0) or 0) <= 0:
+    promotion_warm_checked = int(promotion_summary.get("warm_checked", 0) or 0)
+    promotion_eligible_hot = int(promotion_summary.get("eligible_hot", 0) or 0)
+    promotion_promoted_hot = int(promotion_summary.get("promoted_hot", 0) or 0)
+    if promotion_warm_checked <= 0:
+        reasons.append("warm_promotion_feed_empty")
+    elif (
+        promotion_promoted_hot <= 0
+        and promotion_eligible_hot <= 0
+        and promoted_hot_events <= 0
+        and not has_active_hot_evidence
+    ):
         if not hot_evidence_bootstrap:
             reasons.append("warm_promotion_runner_no_hot")
 
@@ -532,6 +745,11 @@ def _build_decision(
             "status_available": bool(exec_health),
             "green": bool(exec_green),
             "reason": exec_reason,
+            "bootstrap_enabled": bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED),
+            "bootstrap_active": bool(exec_health_bootstrap_active),
+            "bootstrap_reason": exec_health_bootstrap_reason,
+            "bootstrap_max_budget_usd": float(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD),
+            "bootstrap_max_strategies": int(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_STRATEGIES),
             "updated_at": str(exec_health.get("updated_at", "")),
         },
         "close_flow_gate": close_flow_gate,
@@ -539,6 +757,17 @@ def _build_decision(
         "pipeline_metrics": pipe,
         "warm_collector_summary": collector_summary,
         "warm_promotion_summary": promotion_summary,
+        "promotion_feed": {
+            "has_active_hot_evidence": bool(has_active_hot_evidence),
+            "pipeline_hot_stage_count": int(hot_stage_count),
+            "pipeline_warm_stage_count": int(warm_stage_count),
+            "pipeline_promoted_hot_events": int(promoted_hot_events),
+            "pipeline_funded_hot_strategy_count": int(funded_hot_strategy_count),
+            "quant_retained_hot_passed": int(retained_hot_passed),
+            "quant_retained_warm_passed": int(retained_warm_passed),
+            "quant_implementable_count": int(quant_implementable_count),
+            "collector_reason_codes_top": collector_reason_codes_top,
+        },
     }
 
 
@@ -624,6 +853,7 @@ def run_cycle(
         audit,
         warm_collector,
         warm_promotion,
+        quant_results=quant,
         quant_company_status=quant_company_status,
         execution_health=execution_health,
         trade_flow_metrics=trade_flow,

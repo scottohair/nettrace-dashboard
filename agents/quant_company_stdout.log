@@ -116,3 +116,5 @@
 2026-02-14 05:03:14,031 [quant_company] INFO cycle=66 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
 2026-02-14 05:09:15,637 [quant_company] INFO cycle=67 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
 2026-02-14 05:15:17,094 [quant_company] INFO cycle=68 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 05:21:17,675 [quant_company] INFO cycle=69 alpha=0.59 migration=0.70 gtm=0.70 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 05:27:18,270 [quant_company] INFO cycle=70 alpha=0.57 migration=0.70 gtm=0.70 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
