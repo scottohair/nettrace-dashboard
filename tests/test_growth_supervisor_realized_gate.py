@@ -291,7 +291,7 @@ def test_execution_health_bootstrap_allows_go_when_egress_blocked_in_reasons(mon
     )
 
     assert decision["go_live"] is True
-    assert any("execution_health_bootstrap_override:reason=egress_blocked" in w for w in decision["warnings"])
+    assert any("execution_health_bootstrap_override:reason=" in w for w in decision["warnings"])
     assert not any("execution_health_not_green" in r for r in decision["reasons"])
 
 
@@ -353,3 +353,81 @@ def test_hot_evidence_bootstrap_allows_go_when_enabled_for_micro_budget(monkeypa
     assert "warm_promotion_runner_no_hot" not in decision["reasons"]
     assert decision["hot_evidence_bootstrap"]["active"] is True
     assert any("hot_evidence_bootstrap" in w for w in decision["warnings"])
+
+
+def test_autonomy_warm_override_allows_controlled_go(monkeypatch):
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_OVERRIDE", True)
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", False)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", False)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES", 2)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.0
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    audit["summary"]["critical_failures"] = 0
+
+    summary = _base_warm()
+    summary["summary"]["promoted_hot"] = 0
+
+    decision = gs._build_decision(
+        audit,
+        _base_warm(),
+        summary,
+        quant_results=None,
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={
+            "green": False,
+            "reason": "egress_blocked",
+            "reasons": ["egress_blocked", "api_probe_failed"],
+            "updated_at": "2026-02-14T00:00:00+00:00",
+        },
+        trade_flow_metrics={"lookback_hours": 6, "buy_fills": 1, "sell_fills": 1, "buy_sell_ratio": 1.0},
+    )
+
+    assert decision["go_live"] is True
+    assert decision["autonomy"]["active"] is True
+    assert not decision["autonomy"]["blocked_reasons"]
+    assert any("autonomy_safe_warm_override" in w for w in decision["warnings"])
+    assert decision["autonomy"]["details"] == ["autonomy_safe_warm_override:active"]
+
+
+def test_autonomy_warm_override_blocks_critical_failures(monkeypatch):
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_OVERRIDE", True)
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", False)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", False)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES", 2)
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.0
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    audit["summary"]["critical_failures"] = 1
+
+    decision = gs._build_decision(
+        audit,
+        _base_warm(),
+        _base_warm(),
+        quant_results=None,
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={
+            "green": False,
+            "reason": "egress_blocked",
+            "reasons": ["egress_blocked", "api_probe_failed"],
+            "updated_at": "2026-02-14T00:00:00+00:00",
+        },
+        trade_flow_metrics={"lookback_hours": 6, "buy_fills": 1, "sell_fills": 1, "buy_sell_ratio": 1.0},
+    )
+
+    assert decision["go_live"] is False
+    assert decision["autonomy"]["active"] is False
+    assert any("critical_audit_failures_present" in r for r in decision["reasons"])

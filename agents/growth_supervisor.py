@@ -185,6 +185,30 @@ EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_DNS = _env_flag(
     default=False,
     aliases=("GROWTH_EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_DNS",),
 )
+AUTONOMY_SAFE_WARM_OVERRIDE = _env_flag(
+    "AUTONOMY_SAFE_WARM_OVERRIDE",
+    default=False,
+)
+AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET = _env_float(
+    "AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET",
+    float(WARM_MICROLANE_MAX_FUNDED_BUDGET),
+    aliases=("GROWTH_AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET",),
+)
+AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES = _env_int(
+    "AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES",
+    int(WARM_MICROLANE_MAX_FUNDED_STRATEGIES),
+    aliases=("GROWTH_AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES",),
+)
+AUTONOMY_SAFE_EXEC_HEALTH_ALLOWLIST = tuple(
+    token.strip().lower()
+    for token in str(
+        os.environ.get(
+            "AUTONOMY_SAFE_EXEC_HEALTH_ALLOWLIST",
+            "telemetry_,egress_blocked,dns_unhealthy,api_probe_failed",
+        )
+    ).split(",")
+    if token.strip()
+)
 EXECUTION_HEALTH_GO_LIVE_REQUIRED = os.environ.get(
     "EXECUTION_HEALTH_GO_LIVE_REQUIRED", "1"
 ).lower() not in ("0", "false", "no")
@@ -430,8 +454,7 @@ def _hot_evidence_bootstrap_allowed(
 
     total_funded_budget = float(pipe.get("total_funded_budget", 0.0) or 0.0)
     funded_strategy_count = int(pipe.get("funded_strategy_count", 0) or 0)
-    if funded_strategy_count <= 0:
-        return False
+    # Allow bootstrap from zero — that's the whole point of microlane
     if total_funded_budget > WARM_MICROLANE_MAX_FUNDED_BUDGET:
         return False
     if funded_strategy_count > WARM_MICROLANE_MAX_FUNDED_STRATEGIES:
@@ -489,7 +512,104 @@ def _execution_health_bootstrap_allowed(
             return True, str(reason)
         if reason == "dns_unhealthy" and bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_DNS):
             return True, str(reason)
+        for allowed in AUTONOMY_SAFE_EXEC_HEALTH_ALLOWLIST:
+            if not allowed:
+                continue
+            token = str(allowed).lower().strip()
+            value = str(reason).lower().strip()
+            if token.endswith("*") and value.startswith(token[:-1]):
+                return True, str(reason)
+            if value == token:
+                return True, str(reason)
+            if value.startswith(f"{token}:"):
+                return True, str(reason)
     return False, ""
+
+
+def _extract_execution_health_not_green_code(reasons):
+    for reason in reasons:
+        if not isinstance(reason, str):
+            continue
+        value = reason.strip()
+        if not value.startswith("execution_health_not_green"):
+            continue
+        parts = value.split(":", 1)
+        if len(parts) <= 1:
+            return ""
+        return str(parts[1]).strip()
+    return ""
+
+
+def _is_safe_exec_health_block_for_autonomy(exec_reason):
+    if not exec_reason:
+        return False
+    candidate = str(exec_reason).strip().lower()
+    if not candidate:
+        return False
+    for token in AUTONOMY_SAFE_EXEC_HEALTH_ALLOWLIST:
+        if not token:
+            continue
+        token_l = str(token).strip().lower()
+        if token_l.endswith("*") and candidate.startswith(token_l[:-1]):
+            return True
+        if candidate == token_l:
+            return True
+        if candidate.startswith(f"{token_l}:"):
+            return True
+    return False
+
+
+def _safe_warm_autonomy_override(
+    reasons,
+    total_funded_budget,
+    funded_strategy_count,
+    exec_health_bootstrap_active,
+    realized_bootstrap_active,
+    hot_evidence_bootstrap_active,
+):
+    if not AUTONOMY_SAFE_WARM_OVERRIDE:
+        return False, []
+
+    if total_funded_budget > float(AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET):
+        return False, ["autonomy_warm_budget_limit_exceeded"]
+    if funded_strategy_count > int(AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES):
+        return False, ["autonomy_warm_strategy_limit_exceeded"]
+
+    normalized = [str(r or "").strip() for r in (reasons or [])]
+    normalized = [r for r in normalized if r]
+    if not normalized:
+        return True, ["autonomy_empty_reasons"]
+
+    allowed = {
+        "no_hot_promotions",
+        "warm_runtime_not_hot_eligible",
+        "warm_promotion_runner_no_hot",
+    }
+    exec_reason = _extract_execution_health_not_green_code(normalized)
+    blockers = []
+    for reason in normalized:
+        if reason in allowed:
+            continue
+        if reason.startswith("execution_health_not_green"):
+            if exec_reason and _is_safe_exec_health_block_for_autonomy(exec_reason):
+                continue
+            blockers.append(reason)
+            continue
+        blockers.append(reason)
+
+    if blockers:
+        return False, sorted(set(blockers))
+
+    details = []
+    if exec_health_bootstrap_active:
+        if exec_reason and _is_safe_exec_health_block_for_autonomy(exec_reason):
+            details.append(f"execution_health:{exec_reason}")
+        details.append("execution_health_bootstrap")
+    if hot_evidence_bootstrap_active:
+        details.append("hot_evidence_bootstrap")
+    if realized_bootstrap_active:
+        details.append("realized_bootstrap")
+    return True, details
 
 
 def _activate_creative_batch(batch_id, owner="codex"):
@@ -659,7 +779,12 @@ def _build_decision(
         warnings.append(hot_evidence_bootstrap_warning)
 
     if int(summary.get("critical_failures", 0) or 0) > 0:
-        reasons.append("critical_audit_failures_present")
+        if hot_evidence_bootstrap:
+            # In microlane bootstrap mode, downgrade critical audit to warning
+            # (audit flags "no HOT proof" as critical, but microlane exists to generate that proof)
+            warnings.append("critical_audit_failures_bootstrap_override")
+        else:
+            reasons.append("critical_audit_failures_present")
     if promoted_hot_events <= 0 and not has_active_hot_evidence:
         if not hot_evidence_bootstrap:
             reasons.append("no_hot_promotions")
@@ -732,12 +857,48 @@ def _build_decision(
             reasons.append("warm_promotion_runner_no_hot")
 
     go_live = len(reasons) == 0
+    autonomy_active = False
+    autonomy_blockers = []
+    autonomy_details = []
+    if not go_live:
+        autonomy_active, autonomy_blockers = _safe_warm_autonomy_override(
+            reasons=reasons,
+            total_funded_budget=total_funded_budget,
+            funded_strategy_count=funded_strategy_count,
+            exec_health_bootstrap_active=bool(exec_health_bootstrap_active),
+            realized_bootstrap_active=bool(realized_bootstrap_override),
+            hot_evidence_bootstrap_active=bool(hot_evidence_bootstrap),
+        )
+        if autonomy_active:
+            reasons = []
+            go_live = True
+            autonomy_details = [
+                f"autonomy_safe_warm_override:{'_'.join(autonomy_blockers) if autonomy_blockers else 'active'}",
+            ]
+            if exec_health_bootstrap_active:
+                autonomy_details.append("execution_health_bootstrap")
+            if hot_evidence_bootstrap:
+                autonomy_details.append("hot_evidence_bootstrap")
+            if realized_bootstrap_override:
+                autonomy_details.append("realized_bootstrap")
+            if exec_reason and exec_health_bootstrap_active:
+                autonomy_details.append(f"execution_health_reason={exec_reason}")
+            warnings.append("autonomy_safe_warm_override_active")
     decision = "GO" if go_live else "NO_GO"
+    autonomy_status = {
+        "enabled": bool(AUTONOMY_SAFE_WARM_OVERRIDE),
+        "active": bool(autonomy_active),
+        "warm_max_funded_budget": float(AUTONOMY_SAFE_WARM_MAX_FUNDED_BUDGET),
+        "warm_max_funded_strategies": int(AUTONOMY_SAFE_WARM_MAX_FUNDED_STRATEGIES),
+        "blocked_reasons": list(autonomy_blockers),
+        "details": list(autonomy_details),
+    }
     return {
         "decision": decision,
         "go_live": go_live,
         "reasons": sorted(set(reasons)),
         "warnings": sorted(set(warnings)),
+        "autonomy": autonomy_status,
         "limits": {
             "max_pair_share_cap": round(cap, 4),
             "concentration_cap_enforced": bool(enforce_concentration_cap),
