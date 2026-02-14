@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-02-14T10:28:17.788571+00:00",
+  "updated_at": "2026-02-14T10:43:23.129223+00:00",
   "stage_counts": {
     "COLD": 354,
-    "WARM": 7,
-    "HOT": 39,
+    "WARM": 6,
+    "HOT": 40,
     "KILLED": 0
   },
   "warm_candidates": [
@@ -41,13 +41,6 @@
       "stage": "WARM",
       "updated_at": "2026-02-14 07:32:37",
       "promoted_at": "2026-02-14 00:24:27"
-    },
-    {
-      "name": "momentum_q100_021",
-      "pair": "BTC-USD",
-      "stage": "WARM",
-      "updated_at": "2026-02-14 07:32:37",
-      "promoted_at": "2026-02-13 03:41:16"
     },
     {
       "name": "momentum_q100_022",
@@ -127,6 +120,13 @@
       "stage": "HOT",
       "updated_at": "2026-02-14 07:32:37",
       "promoted_at": "2026-02-14 04:38:04"
+    },
+    {
+      "name": "momentum_q100_021",
+      "pair": "BTC-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:37",
+      "promoted_at": "2026-02-14 10:29:06"
     },
     {
       "name": "momentum_q100_023",

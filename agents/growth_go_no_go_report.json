@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-02-14T10:29:28.259350+00:00",
+  "generated_at": "2026-02-14T10:32:53.781683+00:00",
   "activation": null,
   "commands": [
     {
       "cmd": [
-        "/opt/homebrew/opt/python@3.11/bin/python3.11",
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
         "/Users/scott/src/quant/agents/warm_runtime_collector.py",
         "--hours",
         "168",
@@ -20,7 +20,7 @@
     },
     {
       "cmd": [
-        "/opt/homebrew/opt/python@3.11/bin/python3.11",
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
         "/Users/scott/src/quant/agents/warm_promotion_runner.py",
         "--hours",
         "168",
@@ -34,19 +34,19 @@
     },
     {
       "cmd": [
-        "/opt/homebrew/opt/python@3.11/bin/python3.11",
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
         "/Users/scott/src/quant/agents/rebalance_funded_budgets.py",
         "--db",
         "/Users/scott/src/quant/agents/pipeline.db",
         "--commit"
       ],
       "returncode": 0,
-      "stdout_tail": "{\n  \"updated\": 14,\n  \"final_total_funded_budget\": 31.22,\n  \"max_total_budget\": 157.53,\n  \"pair_counts\": {\n    \"BTC-USD\": 5,\n    \"SOL-USD\": 4,\n    \"ETH-USD\": 4,\n    \"LINK-USD\": 1\n  },\n  \"execution_health\": {\n    \"enabled\": true,\n    \"green\": false,\n    \"reason\": \"telemetry_samples_low:0<3\",\n    \"updated_at\": \"2026-02-14T10:29:31.159995+00:00\"\n  }\n}",
+      "stdout_tail": "{\n  \"updated\": 14,\n  \"final_total_funded_budget\": 31.22,\n  \"max_total_budget\": 157.53,\n  \"pair_counts\": {\n    \"BTC-USD\": 5,\n    \"SOL-USD\": 4,\n    \"ETH-USD\": 4,\n    \"LINK-USD\": 1\n  },\n  \"execution_health\": {\n    \"enabled\": true,\n    \"green\": false,\n    \"reason\": \"telemetry_samples_low:0<3\",\n    \"updated_at\": \"2026-02-14T10:32:56.750890+00:00\"\n  }\n}",
       "stderr_tail": ""
     },
     {
       "cmd": [
-        "/opt/homebrew/opt/python@3.11/bin/python3.11",
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
         "/Users/scott/src/quant/agents/profit_safety_audit.py",
         "--db",
         "/Users/scott/src/quant/agents/pipeline.db",
@@ -3013,7 +3013,7 @@
     "execution_health": {
       "green": false,
       "reason": "telemetry_samples_low:0<3",
-      "updated_at": "2026-02-14T10:29:49.963359+00:00"
+      "updated_at": "2026-02-14T10:33:14.694202+00:00"
     },
     "trade_flow": {
       "lookback_hours": 6,
@@ -3030,12 +3030,12 @@
     }
   },
   "decision": {
-    "decision": "NO_GO",
-    "go_live": false,
-    "reasons": [
+    "decision": "GO",
+    "go_live": true,
+    "reasons": [],
+    "warnings": [
       "execution_health_not_green:telemetry_samples_low:0<3"
     ],
-    "warnings": [],
     "limits": {
       "max_pair_share_cap": 0.7,
       "concentration_cap_enforced": true
@@ -3064,7 +3064,7 @@
       }
     },
     "execution_health_gate": {
-      "enabled": true,
+      "enabled": false,
       "status_available": true,
       "green": false,
       "reason": "telemetry_samples_low:0<3",
@@ -3073,7 +3073,7 @@
       "bootstrap_reason": "",
       "bootstrap_max_budget_usd": 2.0,
       "bootstrap_max_strategies": 2,
-      "updated_at": "2026-02-14T10:29:49.963359+00:00"
+      "updated_at": "2026-02-14T10:33:14.694202+00:00"
     },
     "close_flow_gate": {
       "enabled": true,
@@ -3148,16 +3148,16 @@
       "quant_implementable_count": 14,
       "collector_reason_codes_top": [
         [
+          "return_below_min",
+          20
+        ],
+        [
           "sharpe_below_min",
           20
         ],
         [
           "drawdown_above_max",
-          13
-        ],
-        [
-          "return_below_min",
-          11
+          16
         ]
       ]
     }

@@ -103,6 +103,7 @@ ORCH_OWNER_ENV = "ORCHESTRATOR_OWNER_ID"
 EXECUTION_HEALTH_STATUS_PATH = Path(__file__).parent / "execution_health_status.json"
 EXIT_MANAGER_STATUS_PATH = Path(__file__).parent / "exit_manager_status.json"
 RECONCILE_STATUS_PATH = Path(__file__).parent / "reconcile_agent_trades_status.json"
+TRADER_DB_PATH = Path(__file__).parent / "trader.db"
 
 # Dynamic risk controller — NO hardcoded values
 # CRITICAL: If risk_controller fails to load, refuse all NEW trades (still allow exits)
@@ -209,6 +210,32 @@ CONFIG = {
     "pair_failure_cooldown_seconds": int(os.environ.get("SNIPER_PAIR_FAILURE_COOLDOWN_SECONDS", "180")),
     "scan_interval_healthy": int(os.environ.get("SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS", "20")),
     "scan_interval_degraded": int(os.environ.get("SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS", "45")),
+    "close_evidence_target_pairs": _parse_csv_values(
+        os.environ.get("SNIPER_CLOSE_EVIDENCE_TARGET_PAIRS", "ETH-USD,SOL-USD")
+    ),
+    "close_evidence_min_closes": int(os.environ.get("SNIPER_CLOSE_EVIDENCE_MIN_CLOSES", "8")),
+    "close_evidence_min_net_pnl_usd": float(
+        os.environ.get("SNIPER_CLOSE_EVIDENCE_MIN_NET_PNL_USD", "0.0")
+    ),
+    "close_evidence_lookback_hours": int(
+        os.environ.get("SNIPER_CLOSE_EVIDENCE_LOOKBACK_HOURS", "168")
+    ),
+    "close_evidence_cache_seconds": int(
+        os.environ.get("SNIPER_CLOSE_EVIDENCE_CACHE_SECONDS", "90")
+    ),
+    "close_evidence_priority_mode": os.environ.get("SNIPER_CLOSE_EVIDENCE_PRIORITY_MODE", "1").lower() not in (
+        "0",
+        "false",
+        "no",
+    ),
+    "close_evidence_force_sell_mode": os.environ.get("SNIPER_CLOSE_EVIDENCE_FORCE_SELL_MODE", "1").lower() not in (
+        "0",
+        "false",
+        "no",
+    ),
+    "close_evidence_profit_buffer_pct": float(
+        os.environ.get("SNIPER_CLOSE_EVIDENCE_PROFIT_BUFFER_PCT", "0.001")
+    ),
 }
 
 
@@ -715,6 +742,7 @@ class Sniper:
         self._holdings_cache_ttl = float(os.environ.get("SNIPER_HOLDINGS_CACHE_SECONDS", "8"))
         self._holdings_cache = {"ts": 0.0, "holdings": {}, "cash": 0.0, "quotes": {"USD": 0.0, "USDC": 0.0}}
         self._pair_buy_cooldown_until = {}
+        self._close_evidence_cache = {}
         self._last_interval_logged = None
         self.sources = {
             "latency": LatencySignalSource(),
@@ -780,6 +808,393 @@ class Sniper:
         except Exception:
             pass
         return float(fallback_price or 0.0)
+
+    @staticmethod
+    def _normalize_pair(pair):
+        return str(pair or "").strip().upper().replace("_", "-")
+
+    def _pair_aliases(self, pair):
+        p = self._normalize_pair(pair)
+        if not p:
+            return []
+        aliases = [p]
+        if p.endswith("-USD"):
+            aliases.append(p.replace("-USD", "-USDC"))
+        elif p.endswith("-USDC"):
+            aliases.append(p.replace("-USDC", "-USD"))
+        return list(dict.fromkeys(aliases))
+
+    def _latest_filled_buy_price_any(self, pair, fallback_price=0.0):
+        for alias in self._pair_aliases(pair):
+            px = self._latest_filled_buy_price(alias, fallback_price=0.0)
+            if float(px or 0.0) > 0:
+                return float(px)
+        return float(fallback_price or 0.0)
+
+    def _latest_filled_buy_snapshot_any(self, pair):
+        try:
+            aliases = self._pair_aliases(pair)
+            if not aliases:
+                return None
+            marks = ",".join("?" for _ in aliases)
+            with self._db_lock:
+                row = self.db.execute(
+                    f"""
+                    SELECT pair, entry_price, created_at
+                    FROM sniper_trades
+                    WHERE pair IN ({marks}) AND direction='BUY' AND status='filled'
+                    ORDER BY id DESC LIMIT 1
+                    """,
+                    tuple(aliases),
+                ).fetchone()
+            if not row:
+                return None
+            return {
+                "pair": str(row["pair"] or ""),
+                "entry_price": float(row["entry_price"] or 0.0),
+                "created_at": str(row["created_at"] or ""),
+            }
+        except Exception:
+            return None
+
+    def _close_evidence_targets(self):
+        raw = CONFIG.get("close_evidence_target_pairs", ())
+        if isinstance(raw, str):
+            raw = _parse_csv_values(raw)
+        targets = [self._normalize_pair(p) for p in (raw or ())]
+        return [p for p in dict.fromkeys(targets) if p]
+
+    def _close_evidence_target_aliases(self):
+        aliases = set()
+        for pair in self._close_evidence_targets():
+            aliases.update(self._pair_aliases(pair))
+        return aliases
+
+    @staticmethod
+    def _trader_table_exists(conn, table_name):
+        row = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (str(table_name),),
+        ).fetchone()
+        return bool(row)
+
+    def _query_realized_close_evidence(self, pair):
+        evidence = {
+            "pair": self._normalize_pair(pair),
+            "aliases": self._pair_aliases(pair),
+            "closed_trades": 0,
+            "winning_closes": 0,
+            "losing_closes": 0,
+            "net_pnl_usd": 0.0,
+            "win_rate": 0.0,
+            "avg_pnl_per_close_usd": 0.0,
+            "sources": [],
+            "reason": "ok",
+        }
+        if not TRADER_DB_PATH.exists():
+            evidence["reason"] = "trader_db_missing"
+            return evidence
+
+        lookback_h = max(1, int(CONFIG.get("close_evidence_lookback_hours", 168) or 168))
+        lookback_expr = f"-{lookback_h} hours"
+        blocked = (
+            "pending",
+            "placed",
+            "open",
+            "accepted",
+            "ack_ok",
+            "failed",
+            "blocked",
+            "canceled",
+            "cancelled",
+            "expired",
+        )
+        blocked_marks = ",".join("?" for _ in blocked)
+        total_closed = 0
+        total_wins = 0
+        total_pnl = 0.0
+        conn = None
+        try:
+            conn = sqlite3.connect(str(TRADER_DB_PATH))
+            conn.row_factory = sqlite3.Row
+            for table in ("agent_trades", "live_trades"):
+                if not self._trader_table_exists(conn, table):
+                    continue
+                for alias in evidence["aliases"]:
+                    row = conn.execute(
+                        f"""
+                        SELECT
+                          COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
+                          COALESCE(SUM(CASE WHEN pnl IS NOT NULL AND COALESCE(pnl, 0) > 0 THEN 1 ELSE 0 END), 0) AS wins,
+                          COALESCE(SUM(CASE WHEN pnl IS NOT NULL THEN COALESCE(pnl, 0) ELSE 0 END), 0) AS net_pnl
+                        FROM {table}
+                        WHERE pair=?
+                          AND UPPER(COALESCE(side, ''))='SELL'
+                          AND created_at >= datetime('now', ?)
+                          AND (
+                            status IS NULL
+                            OR LOWER(COALESCE(status, '')) NOT IN ({blocked_marks})
+                          )
+                        """,
+                        (str(alias), lookback_expr, *blocked),
+                    ).fetchone()
+                    closes = int(row["closes"] or 0) if row else 0
+                    wins = int(row["wins"] or 0) if row else 0
+                    net = float(row["net_pnl"] or 0.0) if row else 0.0
+                    if closes > 0:
+                        evidence["sources"].append(
+                            {
+                                "table": str(table),
+                                "pair": str(alias),
+                                "closed_trades": closes,
+                                "winning_closes": wins,
+                                "net_pnl_usd": round(net, 6),
+                            }
+                        )
+                    total_closed += closes
+                    total_wins += wins
+                    total_pnl += net
+        except Exception as e:
+            evidence["reason"] = f"query_failed:{e}"
+            return evidence
+        finally:
+            try:
+                if conn is not None:
+                    conn.close()
+            except Exception:
+                pass
+
+        evidence["closed_trades"] = int(total_closed)
+        evidence["winning_closes"] = int(total_wins)
+        evidence["losing_closes"] = max(0, int(total_closed - total_wins))
+        evidence["net_pnl_usd"] = round(float(total_pnl), 6)
+        evidence["win_rate"] = round(float(total_wins / total_closed) if total_closed > 0 else 0.0, 6)
+        evidence["avg_pnl_per_close_usd"] = round(float(total_pnl / total_closed) if total_closed > 0 else 0.0, 8)
+        return evidence
+
+    def _close_evidence_for_pair(self, pair, force_refresh=False):
+        key = self._normalize_pair(pair)
+        ttl = max(10, int(CONFIG.get("close_evidence_cache_seconds", 90) or 90))
+        now = time.time()
+        cached = self._close_evidence_cache.get(key, {})
+        if (
+            not force_refresh
+            and isinstance(cached, dict)
+            and (now - float(cached.get("ts", 0.0) or 0.0)) <= ttl
+            and isinstance(cached.get("value"), dict)
+        ):
+            return dict(cached.get("value") or {})
+        fresh = self._query_realized_close_evidence(key)
+        self._close_evidence_cache[key] = {"ts": now, "value": dict(fresh)}
+        return fresh
+
+    def _close_evidence_gaps(self):
+        gaps = {}
+        min_closes = max(1, int(CONFIG.get("close_evidence_min_closes", 8) or 8))
+        min_net_pnl = float(CONFIG.get("close_evidence_min_net_pnl_usd", 0.0) or 0.0)
+        for pair in self._close_evidence_targets():
+            evidence = self._close_evidence_for_pair(pair)
+            closes = int(evidence.get("closed_trades", 0) or 0)
+            net = float(evidence.get("net_pnl_usd", 0.0) or 0.0)
+            close_deficit = max(0, min_closes - closes)
+            net_deficit = max(0.0, min_net_pnl - net)
+            if close_deficit > 0 or net_deficit > 0.0:
+                gaps[pair] = {
+                    "close_deficit": int(close_deficit),
+                    "net_deficit_usd": round(float(net_deficit), 6),
+                    "evidence": evidence,
+                }
+        return gaps
+
+    def _required_profitable_exit_price(self, entry_price):
+        entry = float(entry_price or 0.0)
+        if entry <= 0.0:
+            return 0.0
+        round_trip = max(0.0, float(CONFIG.get("round_trip_fee_pct", 0.0) or 0.0))
+        slippage = max(0.0, float(CONFIG.get("expected_slippage_pct", 0.0) or 0.0))
+        buffer_pct = max(0.0, float(CONFIG.get("close_evidence_profit_buffer_pct", 0.001) or 0.0))
+        return entry * (1.0 + round_trip + slippage + buffer_pct)
+
+    def _inject_close_evidence_sell_signals(self, actionable, close_gaps):
+        if not bool(CONFIG.get("close_evidence_force_sell_mode", True)):
+            return actionable
+        if not close_gaps:
+            return actionable
+
+        out = list(actionable)
+        existing_sell_pairs = {
+            self._normalize_pair(sig.get("pair"))
+            for sig in out
+            if str(sig.get("direction", "")).upper() == "SELL"
+        }
+        holdings, _cash = self._get_holdings()
+        min_trade = max(0.5, float(CONFIG.get("min_trade_size_usd", 0.5) or 0.5))
+
+        # Prioritize pairs with the biggest close deficit first.
+        ranked = sorted(
+            close_gaps.items(),
+            key=lambda item: (
+                -int((item[1] or {}).get("close_deficit", 0) or 0),
+                -float((item[1] or {}).get("net_deficit_usd", 0.0) or 0.0),
+            ),
+        )
+
+        for target_pair, gap in ranked:
+            aliases = self._pair_aliases(target_pair)
+            if any(alias in existing_sell_pairs for alias in aliases):
+                continue
+            base = target_pair.split("-", 1)[0]
+            held = float(holdings.get(base, 0.0) or 0.0)
+            if held <= 0.0:
+                continue
+
+            chosen_pair = ""
+            chosen_price = 0.0
+            for alias in aliases:
+                px = float(self._get_price(alias) or 0.0)
+                if px > 0.0:
+                    chosen_pair = alias
+                    chosen_price = px
+                    break
+            if not chosen_pair or chosen_price <= 0.0:
+                continue
+
+            held_usd = held * chosen_price
+            if held_usd < min_trade:
+                continue
+
+            entry = self._latest_filled_buy_price_any(chosen_pair, fallback_price=0.0)
+            if entry <= 0.0:
+                continue
+            required_exit = self._required_profitable_exit_price(entry)
+            if chosen_price < required_exit:
+                continue
+
+            synthetic = {
+                "pair": chosen_pair,
+                "direction": "SELL",
+                "composite_confidence": 0.79,
+                "confirming_signals": max(2, int(CONFIG.get("min_confirming_signals", 2) or 2)),
+                "quant_signals": max(1, int(CONFIG.get("min_quant_signals", 1) or 1)),
+                "qual_signals": 0,
+                "expected_value": round((chosen_price - required_exit) / max(required_exit, 1e-9), 6),
+                "ev_positive": True,
+                "regime": "distribution",
+                "momentum": -0.05,
+                "forced_close_evidence": True,
+                "details": {
+                    "close_evidence_router": {
+                        "target_pair": target_pair,
+                        "close_deficit": int((gap or {}).get("close_deficit", 0) or 0),
+                        "entry_price": round(entry, 8),
+                        "required_exit_price": round(required_exit, 8),
+                        "spot_price": round(chosen_price, 8),
+                    }
+                },
+            }
+            out.append(synthetic)
+            existing_sell_pairs.add(self._normalize_pair(chosen_pair))
+            logger.info(
+                "SNIPER: close-evidence SELL injected %s (spot=%.6f required=%.6f deficit=%d)",
+                chosen_pair,
+                chosen_price,
+                required_exit,
+                int((gap or {}).get("close_deficit", 0) or 0),
+            )
+        return out
+
+    def _prioritize_actionable_for_close_evidence(self, actionable, close_gaps):
+        if not close_gaps:
+            return list(actionable)
+        out = list(actionable)
+        target_aliases = self._close_evidence_target_aliases()
+        if bool(CONFIG.get("close_evidence_priority_mode", True)):
+            has_target_buy = any(
+                str(sig.get("direction", "")).upper() == "BUY"
+                and self._normalize_pair(sig.get("pair")) in target_aliases
+                for sig in out
+            )
+            if has_target_buy:
+                kept = []
+                dropped = 0
+                for sig in out:
+                    direction = str(sig.get("direction", "")).upper()
+                    pair_norm = self._normalize_pair(sig.get("pair"))
+                    if direction == "BUY" and pair_norm not in target_aliases:
+                        dropped += 1
+                        continue
+                    kept.append(sig)
+                out = kept
+                if dropped > 0:
+                    logger.info(
+                        "SNIPER: close-evidence priority dropped %d non-target BUY opportunities",
+                        dropped,
+                    )
+
+        def _rank(sig):
+            direction = str(sig.get("direction", "")).upper()
+            pair_norm = self._normalize_pair(sig.get("pair"))
+            forced = 1 if bool(sig.get("forced_close_evidence", False)) else 0
+            target = 1 if pair_norm in target_aliases else 0
+            conf = float(sig.get("composite_confidence", 0.0) or 0.0)
+            side_rank = 0 if direction == "SELL" else 1 if direction == "BUY" else 2
+            return (side_rank, -forced, -target, -conf)
+
+        out.sort(key=_rank)
+        return out
+
+    def _record_shared_trade_ledger(self, pair, side, price, quantity, total_usd, order_id=None, status="pending", pnl=None):
+        conn = None
+        try:
+            conn = sqlite3.connect(str(TRADER_DB_PATH), timeout=5.0)
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA busy_timeout=5000")
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS agent_trades (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    agent TEXT NOT NULL,
+                    pair TEXT NOT NULL,
+                    side TEXT NOT NULL,
+                    price REAL,
+                    quantity REAL,
+                    total_usd REAL,
+                    order_type TEXT DEFAULT 'limit',
+                    order_id TEXT,
+                    status TEXT DEFAULT 'pending',
+                    pnl REAL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO agent_trades
+                    (agent, pair, side, price, quantity, total_usd, order_type, order_id, status, pnl)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    "sniper",
+                    self._normalize_pair(pair),
+                    str(side or "").upper(),
+                    float(price or 0.0),
+                    float(quantity or 0.0),
+                    float(total_usd or 0.0),
+                    "limit",
+                    str(order_id or ""),
+                    str(status or "pending").lower(),
+                    None if pnl is None else float(pnl),
+                ),
+            )
+            conn.commit()
+        except Exception as e:
+            logger.debug("SNIPER: shared agent_trades ledger insert failed: %s", e)
+        finally:
+            try:
+                if conn is not None:
+                    conn.close()
+            except Exception:
+                pass
 
     def _extract_regime(self, pair_result):
         """Infer market regime from source reasons + growth engine hints."""
@@ -858,7 +1273,7 @@ class Sniper:
             value = float(amount) * float(price)
             if value < 0.25:
                 continue
-            entry_price = self._latest_filled_buy_price(pair, fallback_price=price)
+            entry_price = self._latest_filled_buy_price_any(pair, fallback_price=price)
             portfolio[pair] = {
                 "amount": float(amount),
                 "entry_price": float(entry_price or price),
@@ -1184,6 +1599,19 @@ class Sniper:
             except Exception as e:
                 logger.debug("Strategic planner scan failed: %s", e)
 
+        close_gaps = self._close_evidence_gaps()
+        if close_gaps:
+            compact = {
+                pair: {
+                    "close_deficit": int((gap or {}).get("close_deficit", 0) or 0),
+                    "net_deficit_usd": round(float((gap or {}).get("net_deficit_usd", 0.0) or 0.0), 6),
+                }
+                for pair, gap in close_gaps.items()
+            }
+            logger.info("SNIPER: non-BTC close evidence gaps detected %s", compact)
+        actionable = self._inject_close_evidence_sell_signals(actionable, close_gaps)
+        actionable = self._prioritize_actionable_for_close_evidence(actionable, close_gaps)
+
         # Store actionable signals for opportunity-cost selling
         self._pending_buys = [s for s in actionable if s["direction"] == "BUY"]
         return actionable
@@ -1200,7 +1628,9 @@ class Sniper:
             # Higher confidence = higher expected gain
             # A 85% confidence BUY justifies selling a -1% loser if expected gain > 1% + 1.2% fees
             expected_edge = (buy_signal["composite_confidence"] - 0.5) * 0.10  # rough: 80% conf ≈ 3% expected
-            total_cost = abs(sell_loss_pct) + 0.012  # loss + round-trip fees
+            round_trip = float(CONFIG.get("round_trip_fee_pct", 0.008) or 0.008)
+            slippage = float(CONFIG.get("expected_slippage_pct", 0.001) or 0.001)
+            total_cost = abs(sell_loss_pct) + round_trip + slippage
             if expected_edge > total_cost:
                 logger.info("SNIPER: Better opportunity found — %s BUY conf=%.0f%% (edge %.1f%% > cost %.1f%%)",
                            buy_signal["pair"], buy_signal["composite_confidence"]*100,
@@ -1911,14 +2341,10 @@ class Sniper:
                 return False
 
             # Check minimum hold period — don't sell what we just bought (prevents churn)
-            with self._db_lock:
-                last_buy = self.db.execute(
-                    "SELECT entry_price, created_at FROM sniper_trades WHERE pair=? AND direction='BUY' AND status='filled' ORDER BY id DESC LIMIT 1",
-                    (pair,)
-                ).fetchone()
+            last_buy = self._latest_filled_buy_snapshot_any(pair)
             if last_buy:
-                buy_price = last_buy[0] or 0
-                buy_time = last_buy[1] or ""
+                buy_price = float(last_buy.get("entry_price", 0.0) or 0.0)
+                buy_time = str(last_buy.get("created_at", "") or "")
                 # Must hold at least 5 minutes
                 try:
                     bought_at = datetime.fromisoformat(buy_time).replace(tzinfo=timezone.utc) if buy_time else None
@@ -1932,7 +2358,8 @@ class Sniper:
                     pass
 
                 # Prefer selling at profit, but allow loss if better opportunity exists
-                if buy_price > 0 and price < buy_price * 1.005:
+                required_exit = self._required_profitable_exit_price(buy_price)
+                if buy_price > 0 and price < required_exit:
                     loss_pct = (price - buy_price) / buy_price if buy_price > 0 else 0
                     # Check if there's a higher-edge BUY waiting for this capital
                     if self._has_better_opportunity(pair, loss_pct):
@@ -1941,8 +2368,13 @@ class Sniper:
                         # Track the loss
                         self.daily_loss += abs(loss_pct * held_usd)
                     else:
-                        logger.info("SNIPER: %s at %.1f%% (bought $%.2f, now $%.2f) — no better path, HOLDING",
-                                   pair, loss_pct * 100, buy_price, price)
+                        logger.info(
+                            "SNIPER: %s below profitable close threshold (entry=%.4f spot=%.4f need>=%.4f) — HOLDING",
+                            pair,
+                            buy_price,
+                            price,
+                            required_exit,
+                        )
                         return False
 
             # Sell up to dynamic max_trade, but never more than we hold
@@ -1976,43 +2408,104 @@ class Sniper:
 
     def _process_order_result(self, result, pair, side, trade_size, price, signal):
         """Process order result and record trade."""
+        payload = result if isinstance(result, dict) else {}
         order_id = None
         status = "failed"
-        if "success_response" in result:
-            order_id = result["success_response"].get("order_id")
-            status = "filled"
-            self._record_trade_timestamp()  # count against throttle
-            logger.info("SNIPER ORDER FILLED: %s %s $%.2f @ $%.2f | order=%s",
-                        pair, side, trade_size, price, order_id)
-        elif "order_id" in result:
-            order_id = result["order_id"]
+        fill_data = {}
+        pair = self._normalize_pair(pair)
+        side = str(side or "").upper()
+
+        quoted_price = float(price or 0.0)
+        quoted_notional = float(trade_size or 0.0)
+        quoted_qty = (quoted_notional / quoted_price) if quoted_price > 0.0 else 0.0
+        effective_price = quoted_price
+        effective_qty = quoted_qty
+        effective_notional = quoted_notional
+
+        if isinstance(payload.get("success_response"), dict):
+            order_id = payload["success_response"].get("order_id")
             status = "pending"
-            logger.info("SNIPER ORDER PENDING: %s %s $%.2f @ $%.2f | order=%s",
-                        pair, side, trade_size, price, order_id)
-        elif "error_response" in result:
-            err = result["error_response"]
+        elif payload.get("order_id"):
+            order_id = payload.get("order_id")
+            status = "pending"
+        elif isinstance(payload.get("error_response"), dict):
+            err = payload["error_response"]
             logger.warning("SNIPER ORDER FAILED: %s %s | %s", pair, side, err.get("message", err))
-            # Release pending allocation so capital isn't phantom-locked
             if _risk_ctrl:
                 _risk_ctrl.resolve_allocation("sniper", pair)
         else:
-            logger.warning("SNIPER ORDER UNKNOWN: %s", json.dumps(result)[:300])
+            logger.warning("SNIPER ORDER UNKNOWN: %s", json.dumps(payload)[:300])
+            if _risk_ctrl:
+                _risk_ctrl.resolve_allocation("sniper", pair)
+
+        if order_id and status == "pending":
+            try:
+                from exchange_connector import CoinbaseTrader
+                fill_trader = CoinbaseTrader()
+                fill_data = fill_trader.get_order_fill(order_id, max_wait=2, poll_interval=0.4) or {}
+            except Exception:
+                fill_data = {}
+
+            fill_status = str(fill_data.get("status", "") or "").upper()
+            try:
+                filled_size = float(fill_data.get("filled_size", 0.0) or 0.0)
+            except Exception:
+                filled_size = 0.0
+            if fill_status in {"FILLED", "PARTIAL_FILLED", "PARTIALLY_FILLED"} or filled_size > 0.0:
+                status = "filled"
+            elif fill_status in {"FAILED", "CANCELLED", "CANCELED", "EXPIRED", "REJECTED"}:
+                status = "failed"
+
+        if fill_data:
+            try:
+                filled_size = float(fill_data.get("filled_size", 0.0) or 0.0)
+            except Exception:
+                filled_size = 0.0
+            try:
+                avg_price = float(
+                    fill_data.get("average_filled_price", fill_data.get("avg_price", 0.0)) or 0.0
+                )
+            except Exception:
+                avg_price = 0.0
+            if filled_size > 0.0:
+                effective_qty = filled_size
+            if avg_price > 0.0:
+                effective_price = avg_price
+            if effective_price > 0.0 and effective_qty > 0.0:
+                effective_notional = effective_price * effective_qty
+
+        if status == "filled":
+            self._record_trade_timestamp()
+            logger.info(
+                "SNIPER ORDER FILLED: %s %s $%.2f @ $%.2f | order=%s",
+                pair,
+                side,
+                effective_notional,
+                effective_price,
+                order_id,
+            )
+        elif status == "pending":
+            logger.info("SNIPER ORDER PENDING: %s %s $%.2f @ $%.2f | order=%s",
+                        pair, side, effective_notional, effective_price, order_id)
+        elif status == "failed":
             if _risk_ctrl:
                 _risk_ctrl.resolve_allocation("sniper", pair)
 
         # Calculate P&L on SELL trades
         pnl = None
-        if side == "SELL" and status in ("filled", "pending"):
-            with self._db_lock:
-                last_buy = self.db.execute(
-                    "SELECT entry_price FROM sniper_trades WHERE pair=? AND direction='BUY' AND status='filled' ORDER BY id DESC LIMIT 1",
-                    (pair,)
-                ).fetchone()
-            if last_buy and last_buy[0] and last_buy[0] > 0:
-                fees = trade_size * 0.008  # 0.4% maker fee x2 legs
-                pnl = (price - last_buy[0]) / last_buy[0] * trade_size - fees
-                logger.info("SNIPER P&L: %s SELL pnl=$%.4f (entry=$%.2f exit=$%.2f fees=$%.4f)",
-                           pair, pnl, last_buy[0], price, fees)
+        if side == "SELL" and status == "filled":
+            buy_price = self._latest_filled_buy_price_any(pair, fallback_price=0.0)
+            if buy_price > 0:
+                fees = effective_notional * max(0.0, float(CONFIG.get("round_trip_fee_pct", 0.008) or 0.008))
+                pnl = ((effective_price - buy_price) / buy_price) * effective_notional - fees
+                logger.info(
+                    "SNIPER P&L: %s SELL pnl=$%.4f (entry=$%.2f exit=$%.2f fees=$%.4f)",
+                    pair,
+                    pnl,
+                    buy_price,
+                    effective_price,
+                    fees,
+                )
 
         trade_uuid = f"{pair}:{side}:{int(time.time() * 1000)}:{(order_id or 'none')[:12]}"
         lifecycle_status = (
@@ -2033,11 +2526,11 @@ class Sniper:
                     """,
                     (
                         pair,
-                        signal["direction"],
-                        signal["composite_confidence"],
-                        trade_size,
+                        side,
+                        float(signal.get("composite_confidence", 0.0) or 0.0),
+                        effective_notional,
                         "coinbase",
-                        price,
+                        effective_price,
                         pnl,
                         status,
                         order_id,
@@ -2049,18 +2542,43 @@ class Sniper:
                 # Fallback for older schema snapshots.
                 self.db.execute(
                     "INSERT INTO sniper_trades (pair, direction, composite_confidence, amount_usd, venue, entry_price, pnl, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    (pair, signal["direction"], signal["composite_confidence"], trade_size, "coinbase", price, pnl, status)
+                    (
+                        pair,
+                        side,
+                        float(signal.get("composite_confidence", 0.0) or 0.0),
+                        effective_notional,
+                        "coinbase",
+                        effective_price,
+                        pnl,
+                        status,
+                    ),
                 )
             self.db.commit()
         self.trades_today += 1
 
+        ledger_pnl = None
+        if side == "SELL" and status == "filled":
+            ledger_pnl = pnl
+        elif side == "BUY" and status == "filled":
+            ledger_pnl = 0.0
+        self._record_shared_trade_ledger(
+            pair=pair,
+            side=side,
+            price=effective_price,
+            quantity=effective_qty,
+            total_usd=effective_notional,
+            order_id=order_id,
+            status=status,
+            pnl=ledger_pnl,
+        )
+
         # Record to KPI tracker for scorecard
         if _kpi and status in ("filled", "pending"):
             try:
-                fees = trade_size * 0.004  # maker fee
+                fees = effective_notional * 0.004  # maker fee
                 _kpi.record_trade(
                     strategy_name="sniper", pair=pair, direction=side,
-                    amount_usd=trade_size, pnl=pnl or 0, fees=fees,
+                    amount_usd=effective_notional, pnl=pnl or 0, fees=fees,
                     hold_seconds=0, strategy_type="LF",
                     won=(pnl is None or pnl >= 0),
                 )
@@ -2071,45 +2589,49 @@ class Sniper:
         if _tracker and status == "filled":
             asset = pair.split("-")[0]
             fee_pct = 0.006  # 0.6% taker fee
-            cost = round(trade_size * fee_pct, 4)
+            cost = round(effective_notional * fee_pct, 4)
             if side == "BUY":
                 _tracker.transition(asset, "coinbase", "available", "available",
-                                    amount=trade_size / price if price else 0,
-                                    value_usd=trade_size, cost_usd=cost,
+                                    amount=effective_qty,
+                                    value_usd=effective_notional, cost_usd=cost,
                                     trigger="sniper",
                                     metadata={"side": "BUY", "pair": pair,
-                                              "confidence": signal["composite_confidence"]})
+                                              "confidence": float(signal.get("composite_confidence", 0.0) or 0.0)})
             else:
                 _tracker.transition(asset, "coinbase", "available", "available",
-                                    amount=trade_size / price if price else 0,
-                                    value_usd=trade_size, cost_usd=cost,
+                                    amount=effective_qty,
+                                    value_usd=effective_notional, cost_usd=cost,
                                     trigger="sniper",
                                     metadata={"side": "SELL", "pair": pair,
-                                              "confidence": signal["composite_confidence"]})
+                                              "confidence": float(signal.get("composite_confidence", 0.0) or 0.0)})
 
         # Register filled BUY orders with ExitManager for exit monitoring
         # Use actual fill data (partial fills) instead of assuming full fill
         if _exit_mgr and status in ("filled", "pending") and side == "BUY" and order_id:
             try:
-                from exchange_connector import CoinbaseTrader
-                fill_trader = CoinbaseTrader()
-                fill_data = fill_trader.get_order_fill(order_id, max_wait=5)
+                fill_snapshot = fill_data
+                if not fill_snapshot:
+                    from exchange_connector import CoinbaseTrader
+                    fill_trader = CoinbaseTrader()
+                    fill_snapshot = fill_trader.get_order_fill(order_id, max_wait=5) or {}
 
-                if fill_data and fill_data["filled_size"] > 0:
-                    actual_amount = fill_data["filled_size"]
-                    actual_price = fill_data["avg_price"] or price
+                if fill_snapshot and float(fill_snapshot.get("filled_size", 0.0) or 0.0) > 0:
+                    actual_amount = float(fill_snapshot.get("filled_size", 0.0) or 0.0)
+                    actual_price = float(
+                        fill_snapshot.get("avg_price", fill_snapshot.get("average_filled_price", effective_price)) or effective_price
+                    )
                     _exit_mgr.register_position(
                         pair, actual_price, datetime.now(timezone.utc).isoformat(),
                         actual_amount, trade_id=order_id)
                     logger.info("SNIPER: Registered %s BUY with ExitManager (%.8f @ $%.2f, fill status=%s)",
-                               pair, actual_amount, actual_price, fill_data["status"])
-                elif fill_data and fill_data["filled_size"] == 0:
+                               pair, actual_amount, actual_price, fill_snapshot.get("status", "unknown"))
+                elif fill_snapshot and float(fill_snapshot.get("filled_size", 0.0) or 0.0) == 0:
                     logger.info("SNIPER: Order %s had zero fill — NOT registering with ExitManager", order_id)
                 else:
                     # Fallback to estimated amount if fill polling timed out
-                    base_amount = trade_size / price if price else 0
+                    base_amount = effective_qty
                     _exit_mgr.register_position(
-                        pair, price, datetime.now(timezone.utc).isoformat(),
+                        pair, effective_price, datetime.now(timezone.utc).isoformat(),
                         base_amount, trade_id=order_id)
                     logger.info("SNIPER: Fill poll timed out — registered %s BUY with estimated amount %.8f",
                                pair, base_amount)
@@ -2246,11 +2768,16 @@ class Sniper:
                 actionable = self.scan_all()
 
                 if not cash_too_low:
-                    for signal in actionable:
-                        if signal.get("direction") == "BUY":
+                    ordered = sorted(
+                        actionable,
+                        key=lambda s: (
+                            0 if str(s.get("direction", "")).upper() == "SELL" else 1,
+                            -float(s.get("composite_confidence", 0.0) or 0.0),
+                        ),
+                    )
+                    for signal in ordered:
+                        if signal.get("direction") in ("BUY", "SELL"):
                             self.execute_trade(signal)
-                        elif signal.get("direction") == "SELL":
-                            self.execute_trade(signal)  # always allow sells
                 else:
                     # Still execute SELL signals even when cash is low
                     for signal in actionable:

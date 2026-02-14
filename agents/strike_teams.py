@@ -101,6 +101,20 @@ STRIKE_DYNAMIC_INCLUDE_USDC = os.environ.get("STRIKE_DYNAMIC_INCLUDE_USDC", "0")
     "false",
     "no",
 )
+STRIKE_CLOSE_EVIDENCE_PRIORITY_ENABLED = os.environ.get("STRIKE_CLOSE_EVIDENCE_PRIORITY_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+STRIKE_CLOSE_EVIDENCE_TARGET_PAIRS = _parse_csv_values(
+    os.environ.get("STRIKE_CLOSE_EVIDENCE_TARGET_PAIRS", "ETH-USD,SOL-USD")
+)
+STRIKE_CLOSE_EVIDENCE_LOOKBACK_HOURS = int(
+    os.environ.get("STRIKE_CLOSE_EVIDENCE_LOOKBACK_HOURS", "168") or 168
+)
+STRIKE_CLOSE_EVIDENCE_MIN_CLOSES = int(
+    os.environ.get("STRIKE_CLOSE_EVIDENCE_MIN_CLOSES", "8") or 8
+)
 COMPLETED_TRADE_STATUSES = (
     "filled",
     "closed",
@@ -313,6 +327,116 @@ def _canonical_dynamic_pair(pair):
     if not STRIKE_DYNAMIC_INCLUDE_USDC and p.endswith("-USDC"):
         return p.replace("-USDC", "-USD")
     return p
+
+
+def _close_evidence_targets():
+    out = []
+    for item in STRIKE_CLOSE_EVIDENCE_TARGET_PAIRS:
+        p = _canonical_dynamic_pair(item)
+        if p:
+            out.append(p)
+    return list(dict.fromkeys(out))
+
+
+def _realized_close_count_for_pair(pair, lookback_hours=168):
+    if not TRADER_DB_PATH.exists():
+        return 0
+    pair_aliases = _pair_variants(pair)
+    if not pair_aliases:
+        return 0
+    blocked = (
+        "pending",
+        "placed",
+        "open",
+        "accepted",
+        "ack_ok",
+        "failed",
+        "blocked",
+        "canceled",
+        "cancelled",
+        "expired",
+    )
+    blocked_marks = ",".join("?" for _ in blocked)
+    conn = None
+    total = 0
+    try:
+        conn = _open_trader_db()
+        for table in ("agent_trades", "live_trades"):
+            if not _table_exists(conn, table):
+                continue
+            for alias in pair_aliases:
+                row = conn.execute(
+                    f"""
+                    SELECT COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes
+                    FROM {table}
+                    WHERE pair=?
+                      AND UPPER(COALESCE(side, ''))='SELL'
+                      AND created_at >= datetime('now', ?)
+                      AND (
+                        status IS NULL
+                        OR LOWER(COALESCE(status, '')) NOT IN ({blocked_marks})
+                      )
+                    """,
+                    (
+                        str(alias),
+                        f"-{int(max(1, lookback_hours))} hours",
+                        *blocked,
+                    ),
+                ).fetchone()
+                total += int((row["closes"] if row else 0) or 0)
+    except Exception:
+        return int(total)
+    finally:
+        try:
+            if conn is not None:
+                conn.close()
+        except Exception:
+            pass
+    return int(total)
+
+
+def _prioritize_pairs_for_close_evidence(pairs, limit):
+    ordered = [p for p in (pairs or []) if p]
+    if not STRIKE_CLOSE_EVIDENCE_PRIORITY_ENABLED:
+        return ordered[: int(max(1, limit))]
+    targets = _close_evidence_targets()
+    if not targets:
+        return ordered[: int(max(1, limit))]
+
+    deficits = []
+    for target in targets:
+        closes = _realized_close_count_for_pair(
+            target,
+            lookback_hours=STRIKE_CLOSE_EVIDENCE_LOOKBACK_HOURS,
+        )
+        deficit = max(0, int(STRIKE_CLOSE_EVIDENCE_MIN_CLOSES) - int(closes))
+        if deficit > 0:
+            deficits.append((target, deficit, closes))
+    if not deficits:
+        return ordered[: int(max(1, limit))]
+
+    deficits.sort(key=lambda item: item[1], reverse=True)
+    prioritized = []
+    seen = set()
+    for target, deficit, closes in deficits:
+        if target in seen:
+            continue
+        prioritized.append(target)
+        seen.add(target)
+        logger.info(
+            "STRIKE: close-evidence lane priority %s (closes=%d deficit=%d)",
+            target,
+            int(closes),
+            int(deficit),
+        )
+
+    for pair in ordered:
+        if pair in seen:
+            continue
+        prioritized.append(pair)
+        seen.add(pair)
+
+    return prioritized[: int(max(1, limit))]
 
 
 def _granularity_to_timeframe(granularity):
@@ -571,6 +695,7 @@ def _dynamic_pair_universe(team_type, defaults):
             continue
         seen.add(p)
         out.append(p)
+    out = _prioritize_pairs_for_close_evidence(out, limit=limit)
     out = out[:limit]
     _PAIR_UNIVERSE_CACHE["ts"] = now
     _PAIR_UNIVERSE_CACHE[key] = list(out)

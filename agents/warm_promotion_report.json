@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-14T10:29:49.465651+00:00",
+  "generated_at": "2026-02-14T10:33:14.153824+00:00",
   "config": {
     "hours": 168,
     "granularity": "5min",
@@ -58,9 +58,9 @@
         "runtime_seconds": 604800,
         "total_trades": 120,
         "win_rate": 1.0,
-        "total_return_pct": 0.099626,
+        "total_return_pct": 0.131274,
         "max_drawdown_pct": 3.0476,
-        "sharpe_ratio": 0.273604,
+        "sharpe_ratio": 0.461184,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -134,11 +134,11 @@
         "strategy": "momentum_q100_022",
         "pair": "ETH-USD",
         "runtime_seconds": 604800,
-        "total_trades": 349,
+        "total_trades": 350,
         "win_rate": 1.0,
-        "total_return_pct": 0.234647,
+        "total_return_pct": 0.169189,
         "max_drawdown_pct": 3.2757,
-        "sharpe_ratio": 0.504796,
+        "sharpe_ratio": 0.503892,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -191,9 +191,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return 0.01% < 0.1%",
+        "return -0.27% < 0.1%",
         "drawdown 3.45% > 3.0%",
-        "sharpe -0.25 < 0.5"
+        "sharpe -0.49 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -216,11 +216,11 @@
         "strategy": "rsi_q100_042",
         "pair": "ETH-USD",
         "runtime_seconds": 604800,
-        "total_trades": 194,
+        "total_trades": 195,
         "win_rate": 1.0,
-        "total_return_pct": 0.014789,
+        "total_return_pct": -0.269401,
         "max_drawdown_pct": 3.4459,
-        "sharpe_ratio": -0.251596,
+        "sharpe_ratio": -0.486,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -297,11 +297,11 @@
         "strategy": "vwap_q100_064_batch_20260213_033001",
         "pair": "LINK-USD",
         "runtime_seconds": 604800,
-        "total_trades": 86,
+        "total_trades": 94,
         "win_rate": 1.0,
-        "total_return_pct": -0.7482,
-        "max_drawdown_pct": 2.8104,
-        "sharpe_ratio": -0.2807,
+        "total_return_pct": -0.748695,
+        "max_drawdown_pct": 2.8113,
+        "sharpe_ratio": -0.280835,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -348,9 +348,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return -1.16% < 0.1%",
+        "return -1.56% < 0.1%",
         "drawdown 3.45% > 3.0%",
-        "sharpe -0.30 < 0.5"
+        "sharpe -0.50 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -375,9 +375,9 @@
         "runtime_seconds": 604800,
         "total_trades": 263,
         "win_rate": 1.0,
-        "total_return_pct": -1.163467,
+        "total_return_pct": -1.555904,
         "max_drawdown_pct": 3.4544,
-        "sharpe_ratio": -0.297767,
+        "sharpe_ratio": -0.500205,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -424,9 +424,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return -0.35% < 0.1%",
+        "return -0.75% < 0.1%",
         "drawdown 4.85% > 3.0%",
-        "sharpe -0.11 < 0.5"
+        "sharpe -0.33 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -451,9 +451,9 @@
         "runtime_seconds": 604800,
         "total_trades": 295,
         "win_rate": 1.0,
-        "total_return_pct": -0.348372,
+        "total_return_pct": -0.7456,
         "max_drawdown_pct": 4.852,
-        "sharpe_ratio": -0.111123,
+        "sharpe_ratio": -0.32769,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -501,9 +501,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return -1.04% < 0.1%",
+        "return -1.40% < 0.1%",
         "drawdown 3.29% > 3.0%",
-        "sharpe -0.25 < 0.5"
+        "sharpe -0.45 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -528,9 +528,9 @@
         "runtime_seconds": 604800,
         "total_trades": 262,
         "win_rate": 1.0,
-        "total_return_pct": -1.043079,
+        "total_return_pct": -1.403028,
         "max_drawdown_pct": 3.2903,
-        "sharpe_ratio": -0.254705,
+        "sharpe_ratio": -0.445538,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -577,9 +577,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return -0.81% < 0.1%",
+        "return -1.11% < 0.1%",
         "drawdown 4.80% > 3.0%",
-        "sharpe -0.10 < 0.5"
+        "sharpe -0.26 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -604,9 +604,9 @@
         "runtime_seconds": 604800,
         "total_trades": 276,
         "win_rate": 1.0,
-        "total_return_pct": -0.813121,
+        "total_return_pct": -1.105802,
         "max_drawdown_pct": 4.8014,
-        "sharpe_ratio": -0.095818,
+        "sharpe_ratio": -0.255184,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -653,9 +653,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return -0.96% < 0.1%",
+        "return -1.30% < 0.1%",
         "drawdown 3.19% > 3.0%",
-        "sharpe -0.25 < 0.5"
+        "sharpe -0.42 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -680,9 +680,9 @@
         "runtime_seconds": 604800,
         "total_trades": 259,
         "win_rate": 1.0,
-        "total_return_pct": -0.957207,
+        "total_return_pct": -1.304487,
         "max_drawdown_pct": 3.1881,
-        "sharpe_ratio": -0.245381,
+        "sharpe_ratio": -0.416701,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -729,9 +729,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return -0.78% < 0.1%",
+        "return -1.06% < 0.1%",
         "drawdown 4.75% > 3.0%",
-        "sharpe -0.09 < 0.5"
+        "sharpe -0.24 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -756,9 +756,9 @@
         "runtime_seconds": 604800,
         "total_trades": 250,
         "win_rate": 1.0,
-        "total_return_pct": -0.777561,
+        "total_return_pct": -1.060704,
         "max_drawdown_pct": 4.754,
-        "sharpe_ratio": -0.085865,
+        "sharpe_ratio": -0.242548,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -805,9 +805,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return -0.99% < 0.1%",
+        "return -1.34% < 0.1%",
         "drawdown 3.22% > 3.0%",
-        "sharpe -0.26 < 0.5"
+        "sharpe -0.46 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -832,9 +832,9 @@
         "runtime_seconds": 604800,
         "total_trades": 254,
         "win_rate": 1.0,
-        "total_return_pct": -0.99028,
+        "total_return_pct": -1.336045,
         "max_drawdown_pct": 3.2185,
-        "sharpe_ratio": -0.263288,
+        "sharpe_ratio": -0.456434,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -881,9 +881,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return -0.35% < 0.1%",
+        "return -0.75% < 0.1%",
         "drawdown 4.85% > 3.0%",
-        "sharpe -0.11 < 0.5"
+        "sharpe -0.33 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -908,9 +908,9 @@
         "runtime_seconds": 604800,
         "total_trades": 276,
         "win_rate": 1.0,
-        "total_return_pct": -0.348372,
+        "total_return_pct": -0.7456,
         "max_drawdown_pct": 4.852,
-        "sharpe_ratio": -0.111123,
+        "sharpe_ratio": -0.32769,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -958,9 +958,9 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "return -0.99% < 0.1%",
+        "return -1.34% < 0.1%",
         "drawdown 3.22% > 3.0%",
-        "sharpe -0.26 < 0.5"
+        "sharpe -0.46 < 0.5"
       ],
       "reason_codes": [
         "return_below_min",
@@ -985,9 +985,9 @@
         "runtime_seconds": 604800,
         "total_trades": 253,
         "win_rate": 1.0,
-        "total_return_pct": -0.99028,
+        "total_return_pct": -1.336045,
         "max_drawdown_pct": 3.2185,
-        "sharpe_ratio": -0.263288,
+        "sharpe_ratio": -0.456434,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1033,10 +1033,12 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
+        "return -0.24% < 0.1%",
         "drawdown 4.17% > 3.0%",
-        "sharpe -0.49 < 0.5"
+        "sharpe -0.51 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1058,9 +1060,9 @@
         "runtime_seconds": 604800,
         "total_trades": 171,
         "win_rate": 1.0,
-        "total_return_pct": 0.265124,
+        "total_return_pct": -0.244818,
         "max_drawdown_pct": 4.1728,
-        "sharpe_ratio": -0.489966,
+        "sharpe_ratio": -0.5086,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1116,10 +1118,12 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
+        "return 0.04% < 0.1%",
         "drawdown 4.60% > 3.0%",
-        "sharpe -0.08 < 0.5"
+        "sharpe -0.35 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1141,9 +1145,9 @@
         "runtime_seconds": 604800,
         "total_trades": 242,
         "win_rate": 1.0,
-        "total_return_pct": 0.443488,
+        "total_return_pct": 0.042852,
         "max_drawdown_pct": 4.6007,
-        "sharpe_ratio": -0.07946,
+        "sharpe_ratio": -0.347991,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1195,10 +1199,12 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
+        "return 0.04% < 0.1%",
         "drawdown 4.22% > 3.0%",
-        "sharpe -0.08 < 0.5"
+        "sharpe -0.32 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1220,9 +1226,9 @@
         "runtime_seconds": 604800,
         "total_trades": 234,
         "win_rate": 1.0,
-        "total_return_pct": 0.444749,
+        "total_return_pct": 0.043025,
         "max_drawdown_pct": 4.2209,
-        "sharpe_ratio": -0.07946,
+        "sharpe_ratio": -0.3243,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1274,10 +1280,12 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
+        "return 0.04% < 0.1%",
         "drawdown 4.11% > 3.0%",
-        "sharpe -0.08 < 0.5"
+        "sharpe -0.30 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1299,9 +1307,9 @@
         "runtime_seconds": 604800,
         "total_trades": 226,
         "win_rate": 1.0,
-        "total_return_pct": 0.438463,
+        "total_return_pct": 0.042239,
         "max_drawdown_pct": 4.1085,
-        "sharpe_ratio": -0.079386,
+        "sharpe_ratio": -0.3044,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1353,10 +1361,12 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
+        "return 0.03% < 0.1%",
         "drawdown 4.59% > 3.0%",
-        "sharpe -0.14 < 0.5"
+        "sharpe -0.38 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1378,9 +1388,9 @@
         "runtime_seconds": 604800,
         "total_trades": 291,
         "win_rate": 1.0,
-        "total_return_pct": 0.442574,
+        "total_return_pct": 0.026603,
         "max_drawdown_pct": 4.5876,
-        "sharpe_ratio": -0.137301,
+        "sharpe_ratio": -0.3815,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1432,10 +1442,12 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
+        "return 0.05% < 0.1%",
         "drawdown 4.47% > 3.0%",
-        "sharpe -0.08 < 0.5"
+        "sharpe -0.35 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1457,9 +1469,9 @@
         "runtime_seconds": 604800,
         "total_trades": 248,
         "win_rate": 1.0,
-        "total_return_pct": 0.456125,
+        "total_return_pct": 0.051,
         "max_drawdown_pct": 4.472,
-        "sharpe_ratio": -0.079531,
+        "sharpe_ratio": -0.348082,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1511,10 +1523,12 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
+        "return 0.05% < 0.1%",
         "drawdown 4.18% > 3.0%",
-        "sharpe -0.08 < 0.5"
+        "sharpe -0.34 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1536,9 +1550,9 @@
         "runtime_seconds": 604800,
         "total_trades": 247,
         "win_rate": 1.0,
-        "total_return_pct": 0.4637,
+        "total_return_pct": 0.051966,
         "max_drawdown_pct": 4.1849,
-        "sharpe_ratio": -0.079431,
+        "sharpe_ratio": -0.3421,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1590,10 +1604,12 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
+        "return 0.05% < 0.1%",
         "drawdown 4.13% > 3.0%",
-        "sharpe -0.08 < 0.5"
+        "sharpe -0.34 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1615,9 +1631,9 @@
         "runtime_seconds": 604800,
         "total_trades": 225,
         "win_rate": 1.0,
-        "total_return_pct": 0.457414,
+        "total_return_pct": 0.05118,
         "max_drawdown_pct": 4.1304,
-        "sharpe_ratio": -0.079423,
+        "sharpe_ratio": -0.3426,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,
@@ -1669,10 +1685,12 @@
       "status": "rejected",
       "message": "performance_or_risk_gate_failed",
       "reasons": [
-        "drawdown 4.20% > 3.0%",
-        "sharpe -0.46 < 0.5"
+        "return -0.23% < 0.1%",
+        "drawdown 4.18% > 3.0%",
+        "sharpe -0.50 < 0.5"
       ],
       "reason_codes": [
+        "return_below_min",
         "drawdown_above_max",
         "sharpe_below_min"
       ],
@@ -1692,11 +1710,11 @@
         "strategy": "rsi_q100_043",
         "pair": "SOL-USD",
         "runtime_seconds": 604800,
-        "total_trades": 180,
+        "total_trades": 184,
         "win_rate": 1.0,
-        "total_return_pct": 0.215899,
-        "max_drawdown_pct": 4.2025,
-        "sharpe_ratio": -0.464928,
+        "total_return_pct": -0.232177,
+        "max_drawdown_pct": 4.1794,
+        "sharpe_ratio": -0.5,
         "losses": 0,
         "var95_loss_pct": 0.0,
         "es97_5_loss_pct": 0.0,

@@ -180,6 +180,11 @@ EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS = _env_flag(
     default=False,
     aliases=("GROWTH_EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS",),
 )
+EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_DNS = _env_flag(
+    "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_DNS",
+    default=False,
+    aliases=("GROWTH_EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_DNS",),
+)
 EXECUTION_HEALTH_GO_LIVE_REQUIRED = os.environ.get(
     "EXECUTION_HEALTH_GO_LIVE_REQUIRED", "1"
 ).lower() not in ("0", "false", "no")
@@ -442,26 +447,49 @@ def _hot_evidence_bootstrap_allowed(
     return runtime_promoted_hot <= 0 and promo_promoted_hot <= 0
 
 
-def _execution_health_bootstrap_allowed(exec_reason, total_funded_budget, funded_strategy_count):
-    if not EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED:
-        return False
-    if GROWTH_STRICT_HOT_PROMOTION_REQUIRED:
-        return False
-    if not WARM_MICROLANE_ALLOW:
-        return False
-    if total_funded_budget > float(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD):
-        return False
-    if funded_strategy_count > int(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_STRATEGIES):
-        return False
+def _execution_health_bootstrap_allowed(
+    exec_health,
+    total_funded_budget,
+    funded_strategy_count,
+):
+    if isinstance(exec_health, dict):
+        exec_reason = str(exec_health.get("reason", "")).strip().lower()
+        exec_reasons = exec_health.get("reasons", [])
+        if isinstance(exec_reasons, str):
+            exec_reasons = [exec_reasons]
+        if not isinstance(exec_reasons, list):
+            exec_reasons = []
+        normalized_reasons = [str(r).strip().lower() for r in exec_reasons if str(r).strip()]
+    else:
+        exec_reason = str(exec_health or "").strip().lower()
+        normalized_reasons = []
 
-    reason = str(exec_reason or "").strip().lower()
-    if not reason:
-        return False
-    if reason.startswith("telemetry_") and bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_TELEMETRY):
-        return True
-    if reason == "egress_blocked" and bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS):
-        return True
-    return False
+    reasons = []
+    if exec_reason:
+        reasons.append(exec_reason)
+    reasons.extend(normalized_reasons)
+
+    if not EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED:
+        return False, ""
+    if GROWTH_STRICT_HOT_PROMOTION_REQUIRED:
+        return False, ""
+    if not WARM_MICROLANE_ALLOW:
+        return False, ""
+    if total_funded_budget > float(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD):
+        return False, ""
+    if funded_strategy_count > int(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_STRATEGIES):
+        return False, ""
+
+    if not reasons:
+        return False, ""
+    for reason in dict.fromkeys(reasons):
+        if reason.startswith("telemetry_") and bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_TELEMETRY):
+            return True, str(reason)
+        if reason == "egress_blocked" and bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS):
+            return True, str(reason)
+        if reason == "dns_unhealthy" and bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_DNS):
+            return True, str(reason)
+    return False, ""
 
 
 def _activate_creative_batch(batch_id, owner="codex"):
@@ -586,15 +614,16 @@ def _build_decision(
         if not exec_health:
             reasons.append("execution_health_status_missing")
         elif not exec_green:
-            if _execution_health_bootstrap_allowed(
-                exec_reason,
+            exec_health_bootstrap_active, exec_health_bootstrap_matched_reason = _execution_health_bootstrap_allowed(
+                exec_health,
                 total_funded_budget=total_funded_budget,
                 funded_strategy_count=funded_strategy_count,
-            ):
-                exec_health_bootstrap_active = True
+            )
+            if exec_health_bootstrap_active:
+                matched_reason = exec_health_bootstrap_matched_reason or exec_reason
                 exec_health_bootstrap_reason = (
                     "execution_health_bootstrap_override:"
-                    f"reason={exec_reason}:"
+                    f"reason={matched_reason}:"
                     f"budget={total_funded_budget:.4f}<="
                     f"{EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD:.4f}:"
                     f"strategies={funded_strategy_count}<="
@@ -745,6 +774,7 @@ def _build_decision(
             "status_available": bool(exec_health),
             "green": bool(exec_green),
             "reason": exec_reason,
+            "reasons": list(exec_health.get("reasons", [])),
             "bootstrap_enabled": bool(EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED),
             "bootstrap_active": bool(exec_health_bootstrap_active),
             "bootstrap_reason": exec_health_bootstrap_reason,

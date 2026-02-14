@@ -26,7 +26,7 @@
         "Retained HOT (refresh passed)"
       ]
     },
-    "score": 0.749093
+    "score": 0.886433
   },
   {
     "source": "quant_bias",
@@ -55,7 +55,7 @@
         "Retained HOT (refresh passed)"
       ]
     },
-    "score": 0.749093
+    "score": 0.886433
   },
   {
     "source": "quant_bias",
@@ -84,7 +84,7 @@
         "Retained HOT (refresh passed)"
       ]
     },
-    "score": 0.749093
+    "score": 0.886433
   },
   {
     "source": "quant_bias",
@@ -113,7 +113,7 @@
         "Retained HOT (refresh passed)"
       ]
     },
-    "score": 0.63319
+    "score": 0.750076
   },
   {
     "source": "quant_bias",
@@ -142,7 +142,7 @@
         "Retained WARM (refresh passed)"
       ]
     },
-    "score": 0.622068
+    "score": 0.736992
   },
   {
     "source": "quant_bias",
@@ -171,7 +171,7 @@
         "Retained WARM (refresh passed)"
       ]
     },
-    "score": 0.601465
+    "score": 0.712753
   },
   {
     "source": "quant_bias",
@@ -200,7 +200,7 @@
         "Retained HOT (refresh passed)"
       ]
     },
-    "score": 0.565531
+    "score": 0.670477
   },
   {
     "source": "quant_bias",
@@ -229,7 +229,7 @@
         "Retained HOT (refresh passed)"
       ]
     },
-    "score": 0.565531
+    "score": 0.670477
   },
   {
     "source": "quant_bias",
@@ -258,7 +258,7 @@
         "Retained HOT (refresh passed)"
       ]
     },
-    "score": 0.54221
+    "score": 0.643041
   },
   {
     "source": "quant_bias",
@@ -287,7 +287,7 @@
         "Retained WARM (refresh passed)"
       ]
     },
-    "score": 0.522087
+    "score": 0.619367
   },
   {
     "source": "quant_bias",
@@ -316,7 +316,7 @@
         "Retained HOT (refresh passed)"
       ]
     },
-    "score": 0.427213
+    "score": 0.507751
   },
   {
     "source": "quant_bias",
@@ -345,6 +345,6 @@
         "Retained HOT (refresh passed)"
       ]
     },
-    "score": 0.427213
+    "score": 0.507751
   }
 ]

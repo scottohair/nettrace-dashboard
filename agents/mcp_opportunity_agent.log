@@ -746,3 +746,18 @@
 2026-02-14 05:29:23,871 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
 2026-02-14 05:29:23,956 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
 2026-02-14 05:29:24,145 [mcp_opportunity] INFO cycle=168 go_live=False opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 05:31:53,717 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:31:53,802 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:31:53,991 [mcp_opportunity] INFO cycle=169 go_live=False opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 05:34:23,486 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:34:23,564 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:34:23,759 [mcp_opportunity] INFO cycle=170 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 05:36:53,294 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:36:53,377 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:36:53,579 [mcp_opportunity] INFO cycle=171 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 05:39:23,158 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:39:23,285 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:39:23,583 [mcp_opportunity] INFO cycle=172 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 05:41:53,094 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:41:53,551 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:41:54,759 [mcp_opportunity] INFO cycle=173 go_live=True opportunities=12 top=quant_bias:BTC-USDC

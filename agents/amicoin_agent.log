@@ -467,3 +467,7 @@
 2026-02-14 05:24:53,657 [amicoin_agent] INFO cycle=138 reserve=$10388.31 open=26 realized=$388.31 blocked_losses=10590
 2026-02-14 05:27:54,379 [amicoin_agent] INFO cycle=139 reserve=$10388.31 open=28 realized=$388.31 blocked_losses=10616
 2026-02-14 05:30:55,079 [amicoin_agent] INFO cycle=140 reserve=$10388.81 open=28 realized=$388.81 blocked_losses=10643
+2026-02-14 05:33:55,773 [amicoin_agent] INFO cycle=141 reserve=$10390.07 open=28 realized=$390.07 blocked_losses=10670
+2026-02-14 05:36:56,538 [amicoin_agent] INFO cycle=142 reserve=$10390.07 open=28 realized=$390.07 blocked_losses=10696
+2026-02-14 05:39:57,378 [amicoin_agent] INFO cycle=143 reserve=$10390.07 open=29 realized=$390.07 blocked_losses=10722
+2026-02-14 05:42:58,177 [amicoin_agent] INFO cycle=144 reserve=$10391.01 open=29 realized=$391.01 blocked_losses=10750

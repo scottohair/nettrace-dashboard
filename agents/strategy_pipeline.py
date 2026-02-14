@@ -91,7 +91,7 @@ WARM_NEAR_MISS_MAX_RETURN_SHORTFALL_PCT = float(
 )
 
 # Fee assumptions
-COINBASE_FEE = 0.006  # 0.6% taker fee
+COINBASE_FEE = 0.012  # 1.2% taker fee (Intro tier actual, NOT 0.6%)
 SLIPPAGE = 0.001      # 0.1% slippage assumption
 BACKTEST_AUTO_EXIT_ENABLED = os.environ.get("BACKTEST_AUTO_EXIT_ENABLED", "1").lower() not in (
     "0",
@@ -275,6 +275,15 @@ EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ENABLED = os.environ.get(
 EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD = float(
     os.environ.get("EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD", "1.50")
 )
+EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_TELEMETRY = os.environ.get(
+    "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_TELEMETRY", "1"
+).lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_EGRESS = os.environ.get(
+    "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_EGRESS", "0"
+).lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_DNS = os.environ.get(
+    "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_DNS", "0"
+).lower() not in ("0", "false", "no")
 EXECUTION_HEALTH_GATE_CACHE_SECONDS = int(
     os.environ.get("EXECUTION_HEALTH_GATE_CACHE_SECONDS", "90")
 )
@@ -2193,6 +2202,33 @@ class StrategyValidator:
             "updated_at": str(payload.get("updated_at", "")),
         }
 
+    @staticmethod
+    def _execution_health_bootstrap_allowed(execution_health, strategy_budget_cap):
+        if not EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ENABLED:
+            return False, ""
+        if not isinstance(execution_health, dict):
+            reason = str(execution_health or "").strip().lower()
+            reasons = [reason] if reason else []
+        else:
+            reason = str(execution_health.get("reason", "")).strip().lower()
+            raw_reasons = execution_health.get("reasons", [])
+            if isinstance(raw_reasons, str):
+                raw_reasons = [raw_reasons]
+            if not isinstance(raw_reasons, list):
+                raw_reasons = []
+            reasons = [r for r in [reason] + [str(x).strip().lower() for x in raw_reasons] if r]
+
+        if strategy_budget_cap > float(EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD):
+            return False, ""
+        for r in dict.fromkeys(reasons):
+            if r.startswith("telemetry_") and bool(EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_TELEMETRY):
+                return True, str(r)
+            if r == "egress_blocked" and bool(EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_EGRESS):
+                return True, str(r)
+            if r == "dns_unhealthy" and bool(EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_DNS):
+                return True, str(r)
+        return False, ""
+
     def _init_db(self):
         self.db.executescript("""
             CREATE TABLE IF NOT EXISTS strategy_registry (
@@ -3263,18 +3299,19 @@ class StrategyValidator:
         execution_health_green = bool(execution_health.get("green", False))
         execution_health_reason = str(execution_health.get("reason", "unknown"))
         execution_health_bootstrap_active = False
-        if (
-            not execution_health_green
-            and EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ENABLED
-            and strategy_budget_cap <= float(EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD)
-            and execution_health_reason.startswith("telemetry_")
-        ):
-            execution_health_green = True
-            execution_health_bootstrap_active = True
-            execution_health_reason = (
-                "telemetry_bootstrap_override:"
-                f"budget_cap={strategy_budget_cap:.2f}<={EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD:.2f}"
+        execution_health_bootstrap_reason = ""
+        if not execution_health_green and EXECUTION_HEALTH_ESCALATION_GATE:
+            execution_health_bootstrap_active, execution_health_bootstrap_reason = self._execution_health_bootstrap_allowed(
+                execution_health,
+                strategy_budget_cap,
             )
+            if execution_health_bootstrap_active:
+                execution_health_green = True
+                execution_health_reason = (
+                    f"execution_health_bootstrap_override:"
+                    f"reason={execution_health_bootstrap_reason}:"
+                    f"budget_cap={strategy_budget_cap:.2f}<={EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD:.2f}"
+                )
         promotion_gates = {
             "realized_close_required": bool(
                 REALIZED_ESCALATION_GATE_ENABLED and REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION

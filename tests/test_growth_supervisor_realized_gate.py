@@ -254,6 +254,47 @@ def test_execution_health_gate_blocks_go_when_not_green(monkeypatch):
     assert "execution_health_not_green:dns_unhealthy" in decision["reasons"]
 
 
+def test_execution_health_bootstrap_allows_go_when_egress_blocked_in_reasons(monkeypatch):
+    monkeypatch.setattr(gs, "STRICT_REALIZED_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", False)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_MAX_FUNDED_STRATEGIES", 2)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_TELEMETRY", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_WARM_BOOTSTRAP_ALLOW_EGRESS", True)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.0
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+
+    warm_summary = {
+        "promoted_hot": 1,
+        "promoted_warm": 0,
+        "warm_checked": 12,
+        "eligible_hot": 4,
+        "not_ready": 1,
+    }
+
+    decision = gs._build_decision(
+        audit,
+        {"summary": warm_summary},
+        {"summary": warm_summary},
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={
+            "green": False,
+            "reasons": ["dns_unhealthy", "egress_blocked", "telemetry_samples_low:0<3"],
+            "reason": "dns_unhealthy",
+            "updated_at": "2026-02-14T00:00:00+00:00",
+        },
+    )
+
+    assert decision["go_live"] is True
+    assert any("execution_health_bootstrap_override:reason=egress_blocked" in w for w in decision["warnings"])
+    assert not any("execution_health_not_green" in r for r in decision["reasons"])
+
+
 def _no_promoted_warm():
     return {"summary": {"promoted_hot": 0}}
 

@@ -1,6 +1,6 @@
 # Deployment Optimizer Roadmap
 
-Updated: 2026-02-14T10:27:38.616662+00:00
+Updated: 2026-02-14T10:42:39.181595+00:00
 
 ## Summary
 - Runtime region: local
@@ -27,5 +27,5 @@ Updated: 2026-02-14T10:27:38.616662+00:00
 - Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.
 - Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.
 - Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com
-- Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>
+- Top recent Coinbase failures: 16x <urlopen error [Errno 8] nodename nor servname provided, or not known> | 14x fallback_spot_unavailable
 - Start continuous traceroute sampling to venue hosts for region-level routing evidence.
