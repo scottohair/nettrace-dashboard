@@ -146,11 +146,12 @@ def test_realized_close_required_gate_blocks_hot_promotion(monkeypatch, tmp_path
     monkeypatch.setattr(
         validator,
         "_pair_realized_close_evidence",
-        lambda _pair: {
+        lambda _pair, strategy_name=None: {
             "enabled": True,
             "pair": _pair,
+            "strategy_name": strategy_name,
             "passed": False,
-            "reason": "closed_trades 0 < 2",
+            "reason": "closed_trades 0 < 10",
         },
     )
 
@@ -165,5 +166,5 @@ def test_realized_close_required_gate_blocks_hot_promotion(monkeypatch, tmp_path
     }
     promoted, msg = validator.check_warm_promotion(strategy.name, pair, paper_metrics)
     assert promoted is False
-    assert "realized_close_gate_failed:closed_trades 0 < 2" in msg
+    assert "realized_close_gate_failed:closed_trades 0 < 10" in msg
     validator.db.close()

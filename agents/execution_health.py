@@ -583,6 +583,15 @@ def _is_egress_error_text(text):
     return any(n in t for n in needles)
 
 
+def _all_probe_failures_are_egress_related(probe_rows):
+    if not probe_rows:
+        return False
+    failures = [row for row in probe_rows if not bool(row.get("ok"))]
+    if not failures:
+        return False
+    return all(_is_egress_error_text(row.get("error", "")) for row in failures)
+
+
 def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, status_path=STATUS_PATH):
     """Evaluate venue execution health and optionally persist status."""
     path = Path(status_path)
@@ -666,6 +675,7 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
             for r in probe_rows
         )
     )
+    probe_failures_all_egress = _all_probe_failures_are_egress_related(probe_rows)
 
     reconcile_payload = _load_json(RECON_STATUS_PATH, {})
     reconcile_summary = (
@@ -780,14 +790,19 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
     if (
         FORCE_TELEMETRY_BYPASS
         and not dns_degraded
-        and probe_green
+        and (probe_green or probe_failures_all_egress)
         and reconcile_green
         and (telemetry_samples < int(MIN_TELEMETRY_SAMPLES) or telemetry_success_rate < float(MIN_SUCCESS_RATE))
     ):
         telemetry_bypass_used = True
         telemetry_green = True
-        reasons = [r for r in reasons if not r.startswith("telemetry_")]
-        reasons.append("telemetry_bypass_enabled")
+        reasons = [
+            r
+            for r in reasons
+            if not r.startswith("telemetry_")
+            and r != "egress_blocked"
+            and r != "api_probe_failed"
+        ]
     if not reconcile_green:
         if not reconcile_summary:
             reasons.append("reconcile_status_missing")

@@ -124,6 +124,11 @@ AUTOPROCEED_TIMEOUT_SECONDS = max(
 AUTOPROCEED_WITH_CLAUDE_UPDATES = os.environ.get(
     "AGENT_AUTOPROCEED_WITH_CLAUDE_UPDATES", "1"
 ).lower() not in ("0", "false", "no")
+AUTOPROCEED_LEAN_MODE = os.environ.get("AGENT_AUTOPROCEED_LEAN_MODE", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
 AUTO_ACCEPT_EDITS_ALWAYS = os.environ.get("AGENT_AUTO_ACCEPT_EDITS_ALWAYS", "0").lower() not in (
     "0",
     "false",
@@ -211,6 +216,7 @@ class FlyAgentRunner:
         self._autoproceed_interval_seconds = int(AUTOPROCEED_INTERVAL_SECONDS)
         self._autoproceed_timeout_seconds = int(AUTOPROCEED_TIMEOUT_SECONDS)
         self._autoproceed_with_claude_updates = bool(AUTOPROCEED_WITH_CLAUDE_UPDATES)
+        self._autoproceed_lean_mode = bool(AUTOPROCEED_LEAN_MODE)
         self._auto_accept_edits_always = bool(AUTO_ACCEPT_EDITS_ALWAYS)
         self._venue_universe_enabled = bool(VENUE_UNIVERSE_ENABLED and self.is_primary)
         self._venue_onboarding_enabled = bool(VENUE_ONBOARDING_ENABLED and self.is_primary)
@@ -249,6 +255,8 @@ class FlyAgentRunner:
             "target_achievement_pct_to_next": 0.0,
             "stdout_tail": "",
             "stderr_tail": "",
+            "lean_mode": bool(self._autoproceed_lean_mode),
+            "env_overrides": {},
         }
         self._last_venue_universe = {
             "ok": False,
@@ -797,6 +805,8 @@ class FlyAgentRunner:
             "stderr_tail": "",
             "elapsed_seconds": 0.0,
             "cmd": [],
+            "lean_mode": bool(self._autoproceed_lean_mode),
+            "env_overrides": {},
         }
         if not self.is_primary:
             result["ok"] = True
@@ -814,12 +824,22 @@ class FlyAgentRunner:
         if not self._autoproceed_with_claude_updates:
             cmd.append("--no-claude-updates")
         result["cmd"] = list(cmd)
+        env = os.environ.copy()
+        if self._autoproceed_lean_mode:
+            overrides = {
+                "FLYWHEEL_WIN_TASKS_ENABLED": "0",
+                "FLYWHEEL_AUTONOMOUS_WORK_ENABLED": "0",
+                "FLYWHEEL_BENCH_EVERY_CYCLES": "9999",
+            }
+            env.update(overrides)
+            result["env_overrides"] = dict(overrides)
 
         started = time.time()
         proc = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
+            env=env,
             timeout=float(self._autoproceed_timeout_seconds),
         )
         result["returncode"] = int(proc.returncode)
@@ -1146,6 +1166,7 @@ class FlyAgentRunner:
                 "autoproceed_interval_seconds": int(self._autoproceed_interval_seconds),
                 "autoproceed_timeout_seconds": int(self._autoproceed_timeout_seconds),
                 "autoproceed_with_claude_updates": bool(self._autoproceed_with_claude_updates),
+                "autoproceed_lean_mode": bool(self._autoproceed_lean_mode),
                 "auto_accept_edits_always": bool(self._auto_accept_edits_always),
                 "venue_universe_enabled": bool(self._venue_universe_enabled and self.is_primary),
                 "venue_onboarding_enabled": bool(self._venue_onboarding_enabled and self.is_primary),
