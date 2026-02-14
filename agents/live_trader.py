@@ -322,46 +322,25 @@ class LiveTrader:
             else:
                 base_size = max(0.0, float(usd_amount) / float(limit_price))
 
-            order_attempts = [
-                {
-                    "route": "limit_post_only",
-                    "fn": lambda p=pair_candidate, sz=base_size, px=limit_price: self.exchange.place_limit_order(
-                        p,
-                        "BUY",
-                        sz,
-                        px,
-                        post_only=True,
-                        expected_edge_pct=expected_edge_pct,
-                        signal_confidence=signal_confidence,
-                        market_regime=market_regime,
-                    ),
-                },
-                {
-                    "route": "limit_taker_fallback",
-                    "fn": lambda p=pair_candidate, sz=base_size, px=limit_price: self.exchange.place_limit_order(
-                        p,
-                        "BUY",
-                        sz,
-                        px,
-                        post_only=False,
-                        expected_edge_pct=expected_edge_pct,
-                        signal_confidence=signal_confidence,
-                        market_regime=market_regime,
-                    ),
-                },
-                {
-                    "route": "market_ioc_fallback",
-                    "fn": lambda p=pair_candidate, amt=usd_amount: self.exchange.place_order(
-                        p,
-                        "BUY",
-                        amt,
-                        order_type="market",
-                        expected_edge_pct=expected_edge_pct,
-                        signal_confidence=signal_confidence,
-                        market_regime=market_regime,
-                    ),
-                },
-            ]
+            order_attempts = []
+            if base_size > 0:
+                order_attempts.extend([
+                    {
+                        "route": "limit_post_only",
+                        "fn": lambda p=pair_candidate, sz=base_size, px=limit_price: self.exchange.place_limit_order(
+                            p,
+                            "BUY",
+                            sz,
+                            px,
+                            post_only=True,
+                            expected_edge_pct=expected_edge_pct,
+                            signal_confidence=signal_confidence,
+                            market_regime=market_regime,
+                        ),
+                    },
+                ])
+            # NO taker/market fallback — BE A MAKER (0.4% vs 1.2% fee)
+            # If post_only is rejected, we wait for next cycle rather than overpay
 
             for attempt in order_attempts:
                 route_name = str(attempt["route"])
@@ -464,9 +443,12 @@ class LiveTrader:
             if is_buy:
                 buy_signals.setdefault(pair, []).append(signal)
 
-        # Also check C engine signals — expanded to high-volatility pairs
+        # Also check C engine signals — expanded to high-volatility pairs.
+        # Cache regime checks because they are expensive and reused later in execution path.
+        pair_regime = {}
         for pair in ["BTC-USD", "ETH-USD", "SOL-USD", "DOGE-USD", "AVAX-USD", "LINK-USD", "XRP-USD"]:
             regime = self._get_regime(pair)
+            pair_regime[pair] = regime
 
             # Skip downtrend pairs — Rule #1
             if regime.get("recommendation") == "HOLD":
@@ -502,8 +484,8 @@ class LiveTrader:
             avg_conf = sum(float(s.get("confidence", 0)) for s in sigs) / len(sigs)
             trade_usd = min(max_trade_usd, max(MIN_TRADE_USD, avg_conf * max_trade_usd * 1.2))
             trade_usd = min(trade_usd, available_cash)
-            regime = self._get_regime(pair)
-            regime_name = str(regime.get("regime", "UNKNOWN"))
+            regime_info = pair_regime.get(pair, {})
+            regime_name = str(regime_info.get("regime", "UNKNOWN"))
             expected_edge_pct = max(0.0, (avg_conf - 0.50) * 10.0)  # 80% conf -> ~3% edge
 
             logger.info("BUY SIGNAL: %s | %d confirming signals | avg_conf=%.2f | $%.2f",
@@ -516,6 +498,7 @@ class LiveTrader:
                 expected_edge_pct=expected_edge_pct,
                 signal_confidence=avg_conf,
                 market_regime=regime_name,
+                market_regime_info=regime_info,
                 risk_portfolio_value=total_val,
             )
             break  # One trade per cycle
@@ -529,6 +512,7 @@ class LiveTrader:
         expected_edge_pct=0.0,
         signal_confidence=0.75,
         market_regime="UNKNOWN",
+        market_regime_info=None,
         risk_portfolio_value=None,
     ):
         """Execute a real BUY trade on Coinbase. SELL is disabled (accumulation mode)."""
@@ -579,13 +563,17 @@ class LiveTrader:
                 execution_status = "failed_price"
                 return
 
+            regime_name = market_regime
+            if isinstance(market_regime_info, dict):
+                regime_name = str(market_regime_info.get("regime", market_regime or "UNKNOWN"))
+
             decision, route = self._evaluate_no_loss_gate(
                 pair=pair,
                 side=side,
                 amount_usd=usd_amount,
                 expected_edge_pct=expected_edge_pct,
                 confidence=signal_confidence,
-                regime=market_regime,
+                regime=regime_name,
             )
             if not decision.get("approved", False):
                 reason = decision.get("reason", "blocked")

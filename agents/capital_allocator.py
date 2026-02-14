@@ -82,8 +82,23 @@ class CapitalAllocator:
         self.db = sqlite3.connect(ALLOC_DB)
         self.db.row_factory = sqlite3.Row
         self._init_db()
-        self._last_pull_time = 0
+        # Load last pull time from DB so deploys don't reset the cooldown
+        self._last_pull_time = self._load_last_pull_time()
         self._principle_locked = False
+
+    def _load_last_pull_time(self):
+        """Load last pull-to-USD timestamp from DB to survive restarts."""
+        try:
+            row = self.db.execute(
+                "SELECT created_at FROM pull_to_usd_log ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+            if row and row[0]:
+                from datetime import datetime, timezone
+                ts = datetime.fromisoformat(str(row[0]).replace("Z", "+00:00"))
+                return ts.replace(tzinfo=timezone.utc).timestamp()
+        except Exception:
+            pass
+        return 0
 
     def _init_db(self):
         self.db.executescript("""

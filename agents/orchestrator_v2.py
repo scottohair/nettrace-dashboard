@@ -17,7 +17,7 @@ Features:
   - HARDSTOP on runaway losses
 
 Usage:
-  python orchestrator_v2.py            # Run in foreground
+  python orchestrator_v2.py run        # Run in foreground
   nohup python orchestrator_v2.py &    # Run as daemon
   python orchestrator_v2.py status     # Show status
   python orchestrator_v2.py stop       # Stop all agents
@@ -71,10 +71,19 @@ ORCH_INTEGRATION_GUARD_ENABLED = os.environ.get("ORCH_INTEGRATION_GUARD_ENABLED"
 ORCH_INTEGRATION_GUARD_INTERVAL_SECONDS = int(os.environ.get("ORCH_INTEGRATION_GUARD_INTERVAL_SECONDS", "300"))
 ORCH_INTEGRATION_GUARD_FAIL_OPEN = os.environ.get("ORCH_INTEGRATION_GUARD_FAIL_OPEN", "0").lower() in ("1", "true", "yes")
 ORCH_GUARDED_GROWTH_AGENTS = os.environ.get("ORCH_GUARDED_GROWTH_AGENTS", "flywheel_controller")
+ORCH_GUARD_ALWAYS_ALLOW = os.environ.get("ORCH_GUARD_ALWAYS_ALLOW", "")
 DNS_FAILOVER_RUNTIME_DEFAULTS = {
     "COINBASE_DNS_FAILOVER_ENABLED": "1",
     "COINBASE_DNS_FAILOVER_PROFILE": "system_then_fallback",
     "COINBASE_DNS_FAILOVER_MAX_CANDIDATES": "8",
+    "COINBASE_DNS_FAILOVER_HOST_MAP_JSON": (
+        '{"api.coinbase.com":["104.18.35.15","172.64.152.241"],'
+        '"api.exchange.coinbase.com":["104.18.36.178","172.64.151.78"]}'
+    ),
+    "COINBASE_DNS_PUBLIC_RESOLVER_ENABLED": "1",
+    "COINBASE_DNS_PUBLIC_RESOLVERS": "1.1.1.1,8.8.8.8,9.9.9.9",
+    "COINBASE_DNS_PUBLIC_RESOLVER_TIMEOUT_SECONDS": "1.2",
+    "COINBASE_DNS_PUBLIC_RESOLVER_MAX_IPS": "8",
     "COINBASE_DNS_DEGRADED_TTL_SECONDS": "180",
     "COINBASE_CIRCUIT_FAIL_THRESHOLD": "3",
     "COINBASE_CIRCUIT_OPEN_SECONDS": "30",
@@ -83,10 +92,14 @@ DNS_FAILOVER_RUNTIME_DEFAULTS = {
     "COINBASE_CIRCUIT_REOPEN_HEALTH_MAX_AGE_SECONDS": "180",
     "COINBASE_CIRCUIT_REOPEN_BACKOFF_SECONDS": "10",
     "COINBASE_CIRCUIT_REOPEN_HEALTH_CACHE_SECONDS": "15",
+    "EXEC_HEALTH_PUBLIC_DNS_ENABLED": "1",
+    "EXEC_HEALTH_PUBLIC_DNS_RESOLVERS": "1.1.1.1,8.8.8.8,9.9.9.9",
+    "EXEC_HEALTH_PUBLIC_DNS_TIMEOUT_SECONDS": "1.2",
+    "EXEC_HEALTH_PUBLIC_DNS_MAX_IPS": "8",
 }
 
 # Risk limits — NEVER violate
-HARDSTOP_FLOOR_USD = 500.00   # ABSOLUTE FLOOR — kill everything if portfolio drops below this
+HARDSTOP_FLOOR_USD = 10.00    # ABSOLUTE FLOOR — only kill at near-zero (was $500, too high for $52 portfolio)
 HARDSTOP_DRAWDOWN_PCT = 0.30  # 30% drawdown from peak → kill everything (was 15%, too sensitive with bridges)
 STARTING_CAPITAL = None       # Auto-detect from DB (no more hardcoding)
 
@@ -102,7 +115,7 @@ INTEGRATION_GUARD_STATUS_FILE = BASE_DIR / "integration_guard_status.json"
 
 # Drawdown sanity check — if portfolio drops more than this in one check, verify before HARDSTOP
 MAX_SANE_SINGLE_DROP_PCT = 0.40  # 40% drop in 5 minutes is suspicious, verify first
-MAX_ZERO_SNAPSHOT_GRACE_CYCLES = int(os.environ.get("ORCH_ZERO_SNAPSHOT_GRACE_CYCLES", "3") or 3)
+MAX_ZERO_SNAPSHOT_GRACE_CYCLES = int(os.environ.get("ORCH_ZERO_SNAPSHOT_GRACE_CYCLES", "5") or 5)
 
 # Timing
 HEALTH_CHECK_INTERVAL = 30    # seconds
@@ -248,6 +261,14 @@ AGENT_CONFIGS = [
         "description": "Stages strategy/framework/message context for Claude ingestion",
     },
     {
+        "name": "autonomous_work",
+        "script": "autonomous_work_manager.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Persistent autonomous work queue: dispatches prioritized tasks to clawd.bot/Claude duplex and tracks ACK/completion.",
+    },
+    {
         "name": "amicoin",
         "script": "amicoin_agent.py",
         "args": [],
@@ -354,6 +375,10 @@ class OrchestratorV2:
     """Master orchestrator managing all trading agents."""
 
     def __init__(self):
+        # Ensure orchestrator self-requests (starting capital / portfolio checks)
+        # use the same DNS failover posture as child agents.
+        for env_key, env_val in DNS_FAILOVER_RUNTIME_DEFAULTS.items():
+            os.environ.setdefault(env_key, str(env_val))
         self.agents = {}      # name -> {"process": Popen, "config": dict, ...}
         self.restart_log = {} # name -> [timestamps of restarts]
         self.db = sqlite3.connect(ORCH_DB)
@@ -377,6 +402,11 @@ class OrchestratorV2:
             for token in str(ORCH_GUARDED_GROWTH_AGENTS).split(",")
             if token.strip()
         }
+        self.guard_always_allow_agents = {
+            token.strip()
+            for token in str(ORCH_GUARD_ALWAYS_ALLOW).split(",")
+            if token.strip()
+        }
         self._guard_runner = None
         self._last_guard_check = 0.0
         self.guard_status = {
@@ -386,6 +416,7 @@ class OrchestratorV2:
             "checked_at": "",
             "guard_enabled": self.guard_enabled,
             "guarded_agents": sorted(self.guarded_growth_agents),
+            "always_allow_agents": sorted(self.guard_always_allow_agents),
         }
 
     def _get_starting_capital(self):
@@ -496,6 +527,7 @@ class OrchestratorV2:
         report["guard_enabled"] = True
         report["guard_fail_open"] = self.guard_fail_open
         report["guarded_agents"] = sorted(self.guarded_growth_agents)
+        report["always_allow_agents"] = sorted(self.guard_always_allow_agents)
         self.guard_status = report
         self._persist_guard_status(report)
 
@@ -508,6 +540,15 @@ class OrchestratorV2:
 
     def _guard_block_reason(self, name):
         if not self.guard_enabled:
+            return ""
+        if name in self.guard_always_allow_agents:
+            if not bool(self.guard_status.get("ready_for_staged_rollout", False)):
+                blockers = self.guard_status.get("required_failures", [])
+                logger.info(
+                    "Bypassing integration guard for control-plane agent '%s' (blockers=%s)",
+                    name,
+                    blockers,
+                )
             return ""
         if name not in self.guarded_growth_agents:
             return ""
@@ -1010,6 +1051,24 @@ class OrchestratorV2:
         available = float(portfolio.get("available_cash", 0.0) or 0.0)
         held = float(portfolio.get("held_in_orders", 0.0) or 0.0)
         holdings = portfolio.get("holdings", {}) if isinstance(portfolio.get("holdings"), dict) else {}
+
+        # Retry once if $0 — API timeouts commonly return $0 (DON'T hardstop on that)
+        if total <= 0:
+            import time as _t
+            _t.sleep(2)
+            try:
+                portfolio2 = tools.get_portfolio() if tools else None
+                if portfolio2 and float(portfolio2.get("total_usd", 0) or 0) > 0:
+                    logger.warning("Portfolio retry recovered: $0 → $%.2f (first read was stale)",
+                                   float(portfolio2["total_usd"]))
+                    portfolio = portfolio2
+                    total = float(portfolio.get("total_usd", 0.0) or 0.0)
+                    available = float(portfolio.get("available_cash", 0.0) or 0.0)
+                    held = float(portfolio.get("held_in_orders", 0.0) or 0.0)
+                    holdings = portfolio.get("holdings", {}) if isinstance(portfolio.get("holdings"), dict) else {}
+            except Exception:
+                pass
+
         if total <= 0 and not holdings:
             fallback = self._portfolio_snapshot_fallback()
             if fallback:
@@ -1481,6 +1540,9 @@ if __name__ == "__main__":
             read_status()
         elif cmd == "stop":
             stop_orchestrator()
+        elif cmd == "run":
+            orch = OrchestratorV2()
+            orch.run()
         else:
             print("Usage: orchestrator_v2.py [run|status|stop]")
     else:

@@ -669,6 +669,10 @@ class Sniper:
         self._init_db()
         self.daily_loss = 0.0
         self.trades_today = 0
+        # Trade frequency throttle — prevent churning (1,086 fills in 2 days killed $78 in fees)
+        self._trade_timestamps = []  # list of trade execution timestamps
+        self._max_trades_per_hour = int(os.environ.get("SNIPER_MAX_TRADES_PER_HOUR", "4"))
+        self._max_trades_per_day = int(os.environ.get("SNIPER_MAX_TRADES_PER_DAY", "20"))
         self._price_cache = {}
         self._price_cache_lock = threading.Lock()
         self._price_cache_ttl = float(os.environ.get("SNIPER_PRICE_CACHE_SECONDS", "1.5"))
@@ -1366,6 +1370,25 @@ class Sniper:
         ok, _ = self._execution_health_allows_buy()
         return healthy if ok else degraded
 
+    def _check_trade_throttle(self):
+        """Check if trade frequency limits are exceeded. Returns (ok, reason)."""
+        now = time.time()
+        # Prune old timestamps (keep last 24h)
+        self._trade_timestamps = [t for t in self._trade_timestamps if now - t < 86400]
+        # Hourly check
+        hour_ago = now - 3600
+        trades_last_hour = sum(1 for t in self._trade_timestamps if t > hour_ago)
+        if trades_last_hour >= self._max_trades_per_hour:
+            return False, f"Throttled: {trades_last_hour} trades last hour (max {self._max_trades_per_hour})"
+        # Daily check
+        if len(self._trade_timestamps) >= self._max_trades_per_day:
+            return False, f"Throttled: {len(self._trade_timestamps)} trades today (max {self._max_trades_per_day})"
+        return True, ""
+
+    def _record_trade_timestamp(self):
+        """Record a trade execution for throttle tracking."""
+        self._trade_timestamps.append(time.time())
+
     def execute_trade(self, signal):
         """Execute a high-confidence trade on Coinbase.
 
@@ -1375,6 +1398,12 @@ class Sniper:
         signal = dict(signal)
         pair = signal["pair"]
         direction = signal["direction"]
+
+        # Trade frequency throttle — prevent fee-burning churn
+        throttle_ok, throttle_reason = self._check_trade_throttle()
+        if not throttle_ok:
+            logger.info("SNIPER: %s %s BLOCKED — %s", pair, direction, throttle_reason)
+            return False
 
         if direction == "BUY":
             # Fear & Greed circuit breaker — NEVER buy in extreme fear
@@ -1527,7 +1556,8 @@ class Sniper:
                             if not approved:
                                 logger.warning("SNIPER: Rebalance SELL blocked: %s", reason)
                             else:
-                                result = trader.place_order(pair, "SELL", sell_amount, bypass_profit_guard=True)
+                                rebal_limit = price * 1.0005  # maker: just above spot
+                                result = trader.place_limit_order(pair, "SELL", sell_amount, rebal_limit, post_only=True, bypass_profit_guard=True)
                                 if result and "success_response" in result:
                                     logger.info("SNIPER: REBALANCE SELL FILLED %s | $%.2f freed for trading", pair, sell_value)
                                 else:
@@ -1536,7 +1566,8 @@ class Sniper:
                                 if _risk_ctrl:
                                     _risk_ctrl.resolve_allocation("sniper", pair)
                         else:
-                            result = trader.place_order(pair, "SELL", sell_amount, bypass_profit_guard=True)
+                            rebal_limit = price * 1.0005
+                            result = trader.place_limit_order(pair, "SELL", sell_amount, rebal_limit, post_only=True, bypass_profit_guard=True)
                             if result and "success_response" in result:
                                 logger.info("SNIPER: REBALANCE SELL FILLED %s | $%.2f freed", pair, sell_value)
                     except Exception as e:
@@ -1597,10 +1628,11 @@ class Sniper:
                 return False
             trade_size = round(trade_size, 2)
 
-            # Use LIMIT order at bid price (maker fee 0.6% vs taker 1.2%)
-            # Place at best bid = likely instant fill as maker
+            # MAKER ONLY: limit order at/below bid (0.4% fee vs 1.2% taker)
+            # BE A MAKER not a taker — Rule from game theory playbook
+            # post_only=True rejects if it would match immediately (guarantees maker)
             base_size = trade_size / price
-            limit_price = price * 1.001  # slightly above spot to ensure fill
+            limit_price = price * 0.9995  # just below spot — sits on book as maker
 
             logger.info("SNIPER EXECUTE: LIMIT BUY %s | $%.2f (%.6f @ $%.2f) | conf=%.1f%% | %d signals",
                         pair, trade_size, base_size, limit_price,
@@ -1611,7 +1643,7 @@ class Sniper:
                 from exchange_connector import CoinbaseTrader
                 trader = CoinbaseTrader()
                 result = trader.place_limit_order(
-                    pair, "BUY", base_size, limit_price, post_only=False,
+                    pair, "BUY", base_size, limit_price, post_only=True,
                     expected_edge_pct=signal["composite_confidence"] * 100,
                     signal_confidence=signal["composite_confidence"],
                     market_regime=signal.get("regime", "neutral"),
@@ -1681,15 +1713,19 @@ class Sniper:
             base_size = trade_size / price
             base_size = min(base_size, held)  # never sell more than we have
 
-            logger.info("SNIPER EXECUTE: SELL %s | $%.2f (%.8f %s) @ $%.2f | conf=%.1f%% | %d signals",
-                        pair, trade_size, base_size, base_currency, price,
+            # MAKER ONLY: limit SELL just above spot (0.4% fee vs 1.2% taker)
+            limit_price = price * 1.0005  # just above spot — sits on book as maker
+
+            logger.info("SNIPER EXECUTE: LIMIT SELL %s | $%.2f (%.8f %s) @ $%.2f | conf=%.1f%% | %d signals",
+                        pair, trade_size, base_size, base_currency, limit_price,
                         signal["composite_confidence"]*100, signal["confirming_signals"])
 
             try:
                 from exchange_connector import CoinbaseTrader
                 trader = CoinbaseTrader()
-                # For sells, pass base_size instead of quote_size
-                result = trader.place_order(pair, "SELL", base_size, bypass_profit_guard=True)
+                result = trader.place_limit_order(
+                    pair, "SELL", base_size, limit_price, post_only=True,
+                    bypass_profit_guard=True)
                 return self._process_order_result(result, pair, "SELL", trade_size, price, signal)
             except Exception as e:
                 logger.error("SELL execution error: %s", e, exc_info=True)
@@ -1704,6 +1740,7 @@ class Sniper:
         if "success_response" in result:
             order_id = result["success_response"].get("order_id")
             status = "filled"
+            self._record_trade_timestamp()  # count against throttle
             logger.info("SNIPER ORDER FILLED: %s %s $%.2f @ $%.2f | order=%s",
                         pair, side, trade_size, price, order_id)
         elif "order_id" in result:

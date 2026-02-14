@@ -86,7 +86,7 @@ DEPLOYMENT_MANIFEST = {
         "role": "CME/NYMEX Proximity (US Central)",
         "agents": [
             {"name": "exchange_scanner",   "priority": 1, "reason": "CME, NYMEX, CBOT futures data proximity"},
-            {"name": "momentum_scalper",   "priority": 2, "reason": "Scalp CME micro-futures correlation signals"},
+            # {"name": "momentum_scalper",   "priority": 2, "reason": "DISABLED: 424 failed trades, zero value, fee burner"},
         ],
         "exchanges": ["cme", "nymex", "cbot", "cboe"],
         "notes": "Chicago data center proximity. Futures correlation signals fed to ewr coordinator.",
@@ -113,7 +113,7 @@ DEPLOYMENT_MANIFEST = {
         "role": "Asian Exchange Primary (Tokyo)",
         "agents": [
             {"name": "latency_arb",        "priority": 1, "reason": "Asian exchange arb (bitFlyer, Liquid, GMO)"},
-            {"name": "momentum_scalper",    "priority": 1, "reason": "Asian session volatility scalping"},
+            # {"name": "momentum_scalper",    "priority": 1, "reason": "DISABLED: 424 failed trades, zero value, fee burner"},
         ],
         "exchanges": ["bitflyer", "liquid", "gmo_coin", "tse", "ose"],
         "notes": "Tokyo/Asian session 00:00-09:00 UTC. Japanese exchanges often lead Asian price action.",

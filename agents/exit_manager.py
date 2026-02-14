@@ -1058,13 +1058,20 @@ class ExitManager:
 
         urgent_types = {"loss_limit", "trailing_stop", "force_eval_stop"}
         urgent = str(exit_type) in urgent_types
+        # MAKER ONLY for non-urgent: sell just above spot (0.4% fee vs 1.2%)
+        # Urgent exits: sell at spot - slippage (still limit, but allows taker)
         slippage_frac = max(1e-6, float(EXIT_EXECUTION_SLIPPAGE_BPS) / 10000.0)
-        limit_price = current_price * (1.0 - slippage_frac)
 
         plan = []
         if not urgent:
-            plan.append(("limit", {"price": limit_price, "post_only": False}))
-        plan.append(("market", {}))
+            # Maker: sell just above spot, post_only=True ensures maker fee
+            maker_price = current_price * 1.0005
+            plan.append(("limit", {"price": maker_price, "post_only": True}))
+        else:
+            # Urgent: accept taker to guarantee fill
+            taker_price = current_price * (1.0 - slippage_frac)
+            plan.append(("limit", {"price": taker_price, "post_only": False}))
+        plan.append(("market", {}))  # last resort fallback
         plan = plan[:max(1, int(EXIT_EXECUTION_RETRY_LIMIT))]
 
         success = False
