@@ -825,6 +825,7 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
         telemetry_green = True
 
     reasons = []
+    blocking_reasons = []
     if not dns_green:
         reasons.append("dns_unhealthy")
         if failover_active:
@@ -883,6 +884,7 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
     if not reconcile_green:
         if not reconcile_summary:
             reasons.append("reconcile_status_missing")
+            blocking_reasons.append("reconcile_status_missing")
         elif reconcile_early_exit:
             reasons.append(f"reconcile_early_exit:{reconcile_early_exit}")
         elif (
@@ -893,18 +895,23 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
             )
         ):
             reasons.append("reconcile_status_stale")
+            blocking_reasons.append("reconcile_status_stale")
         elif reconcile_checked <= 0 and not close_gate_passed:
             reasons.append("reconcile_no_orders_checked")
+            blocking_reasons.append("reconcile_no_orders_checked")
         else:
             reasons.append("reconcile_unhealthy")
+            blocking_reasons.append("reconcile_unhealthy")
     if not candle_feed_green:
-        reasons.append(str(candle_feed.get("reason", "candle_feed_unhealthy")))
+        reason = str(candle_feed.get("reason", "candle_feed_unhealthy"))
+        reasons.append(reason)
+        blocking_reasons.append(reason)
 
-    green = len(reasons) == 0
+    green = len(blocking_reasons) == 0
     payload = {
         "updated_at": _now_iso(),
         "green": bool(green),
-        "reason": "passed" if green else reasons[0],
+        "reason": reasons[0] if reasons else "passed",
         "reasons": reasons,
         "dns_degraded": bool(dns_degraded),
         "egress_blocked": bool(egress_blocked),
