@@ -14,6 +14,7 @@ import socket
 import time
 import urllib.error
 import urllib.request
+import urllib.parse
 from pathlib import Path
 
 logger = logging.getLogger("low_latency_connector")
@@ -48,11 +49,67 @@ except Exception:
         IBKRTrader = None  # type: ignore
 
 
-def _fetch_json(url, timeout=3.5):
-    req = urllib.request.Request(url, headers={"User-Agent": "NetTrace-LowLatency/1.0"})
+def _is_retryable_network_error(exc):
+    text = str(exc or "").lower()
+    reason = getattr(exc, "reason", None)
+    reason_text = str(reason or "").lower()
+    return any(
+        token in text or token in reason_text
+        for token in (
+            "nodename nor servname provided",
+            "name or service not known",
+            "temporary failure in name resolution",
+            "getaddrinfo failed",
+            "operation not permitted",
+            "network is unreachable",
+            "permission denied",
+            "errno 1",
+            "errno 101",
+            "errno 13",
+            "name or service not known",
+        )
+    )
+
+
+def _json_fetch_direct(url, req, timeout):
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return json.loads(resp.read().decode())
 
+
+def _fetch_json(url, timeout=3.5):
+    req = urllib.request.Request(url, headers={"User-Agent": "NetTrace-LowLatency/1.0"})
+    parsed = urllib.parse.urlparse(url)
+    host = str(parsed.hostname or "").strip().lower()
+    primary_exc = None
+
+    try:
+        return _json_fetch_direct(url, req, timeout)
+    except Exception as exc:
+        if not host or not _is_retryable_network_error(exc):
+            raise
+        primary_exc = exc
+
+    if CoinbaseTrader is None:
+        raise primary_exc
+
+    try:
+        candidates = CoinbaseTrader._resolve_dns_candidates(host)
+    except Exception as exc:  # pragma: no cover - defensive guard for compatibility
+        raise RuntimeError(f"_fetch_json:{host}:fallback_setup_failed:{exc}") from exc
+
+    if not candidates:
+        raise primary_exc
+
+    last_error = ""
+    for candidate in candidates:
+        try:
+            with CoinbaseTrader._urlopen_with_host_override(req, host=host, ip=candidate, timeout=timeout) as resp:
+                return json.loads(resp.read().decode())
+        except Exception as exc:
+            last_error = str(exc)
+            continue
+
+    raise RuntimeError(f"_fetch_json:{host}:fallback_failed:{last_error}")
 
 class LowLatencyConnector:
     """Execution facade for fast venue routing."""
@@ -115,6 +172,13 @@ class LowLatencyConnector:
             socket.getaddrinfo(host, None)
             return True
         except Exception:
+            try:
+                if CoinbaseTrader is not None:
+                    candidates = CoinbaseTrader._resolve_dns_candidates(host)
+                    if candidates:
+                        return True
+            except Exception:
+                pass
             return False
 
     def _spot_price_fallback(self, pair):

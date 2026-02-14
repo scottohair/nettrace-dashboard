@@ -32,6 +32,20 @@ from werkzeug.security import generate_password_hash, check_password_hash
 BASE_DIR = Path(__file__).parent
 DB_PATH = os.environ.get("DB_PATH", str(BASE_DIR / "traceroute.db"))
 DEMO_RESULTS = BASE_DIR / "results.json"
+AGENT_DATA_DIR = Path("/data") if Path("/data").is_dir() else (BASE_DIR / "agents")
+
+
+def _agent_data_file(env_name: str, default_name: str) -> Path:
+    return Path(os.environ.get(env_name, str(AGENT_DATA_DIR / default_name)))
+
+
+VENUE_UNIVERSE_FILE = _agent_data_file("AGENT_VENUE_UNIVERSE_PATH", "venue_universe.json")
+VENUE_ONBOARDING_QUEUE_FILE = _agent_data_file("AGENT_VENUE_ONBOARDING_QUEUE_PATH", "venue_onboarding_queue.json")
+VENUE_UNIVERSE_STATUS_FILE = _agent_data_file("AGENT_VENUE_UNIVERSE_STATUS_PATH", "venue_universe_status.json")
+VENUE_ONBOARDING_STATUS_FILE = _agent_data_file(
+    "AGENT_VENUE_ONBOARDING_WORKER_STATUS_PATH",
+    "venue_onboarding_worker_status.json",
+)
 
 
 def _env_flag(name: str, default: str = "0") -> bool:
@@ -112,6 +126,10 @@ CREDENTIAL_KEY_FALLBACKS_ENV = "CREDENTIAL_ENCRYPTION_KEY_FALLBACKS"
 ALLOW_LEGACY_XOR_CREDENTIAL_DECRYPT = _env_flag("ALLOW_LEGACY_XOR_CREDENTIAL_DECRYPT", "0")
 
 socketio = SocketIO(app, async_mode="gevent", cors_allowed_origins="*")
+
+# In-memory cache for 5-second trading heartbeats (NOT persisted to SQLite)
+_trading_heartbeat_cache: dict = {}
+_trading_heartbeat_lock = threading.Lock()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -3026,7 +3044,76 @@ def receive_trading_snapshot():
          json.dumps(data.get("trades", [])))
     )
     db.commit()
+
+    # Emit real-time trading update via WebSocket to all connected clients
+    ws_payload = {
+        "portfolio_value": float(data.get("total_value_usd", 0)),
+        "daily_pnl": float(data.get("daily_pnl", 0)),
+        "trades_today": int(data.get("trades_today", 0)),
+        "trades_total": int(data.get("trades_total", 0)),
+        "holdings": data.get("holdings", {}),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "source": "snapshot",
+    }
+    try:
+        socketio.emit("trading_update", ws_payload)
+    except Exception:
+        pass  # Don't let WS errors break the snapshot endpoint
+
     return jsonify({"ok": True})
+
+
+# ---------------------------------------------------------------------------
+# Trading heartbeat — lightweight 5-second status updates (in-memory only)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/trading-heartbeat", methods=["POST"])
+def receive_trading_heartbeat():
+    """Receive lightweight heartbeat from live trader (every 5s, in-memory only)."""
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        api_key = auth_header[7:].strip()
+    else:
+        api_key = request.headers.get("X-Api-Key") or ""
+        if not api_key and ALLOW_QUERY_API_KEY_AUTH:
+            api_key = request.args.get("api_key") or ""
+    expected_key = os.environ.get("NETTRACE_API_KEY", "")
+    if not api_key or not expected_key or not hmac.compare_digest(str(api_key), str(expected_key)):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data"}), 400
+
+    heartbeat = {
+        "portfolio_value": float(data.get("portfolio_value", 0)),
+        "daily_pnl": float(data.get("daily_pnl", 0)),
+        "holdings": data.get("holdings", {}),
+        "latest_trade": data.get("latest_trade"),
+        "trades_today": int(data.get("trades_today", 0)),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "source": "heartbeat",
+    }
+
+    with _trading_heartbeat_lock:
+        _trading_heartbeat_cache.update(heartbeat)
+
+    # Emit real-time update via WebSocket
+    try:
+        socketio.emit("trading_update", heartbeat)
+    except Exception:
+        pass
+
+    return jsonify({"ok": True})
+
+
+@app.route("/api/trading-heartbeat", methods=["GET"])
+def get_trading_heartbeat():
+    """Return the latest cached heartbeat (no DB hit)."""
+    with _trading_heartbeat_lock:
+        if not _trading_heartbeat_cache:
+            return jsonify({"error": "No heartbeat received yet"}), 404
+        return jsonify(_trading_heartbeat_cache)
 
 
 # ---------------------------------------------------------------------------
@@ -3174,12 +3261,30 @@ def store_credential():
         return jsonify({"error": "No data"}), 400
 
     exchange = str(data.get("exchange", "")).strip().lower()
-    if exchange not in ("coinbase", "metamask", "wallet"):
-        return jsonify({"error": "Unsupported exchange. Use: coinbase, metamask, wallet"}), 400
+    if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{1,63}", exchange):
+        return jsonify({"error": "Invalid exchange slug format"}), 400
 
-    credential_json = json.dumps({
-        k: v for k, v in data.items() if k not in ("exchange",)
-    })
+    credential_payload = {k: v for k, v in data.items() if k not in ("exchange",)}
+    if not credential_payload:
+        return jsonify({"error": "No credential payload provided"}), 400
+
+    sensitive_markers = ("password", "passphrase", "seed", "mnemonic", "private_key")
+    unsafe_secret_fields = [
+        key for key, value in credential_payload.items()
+        if any(marker in str(key).lower() for marker in sensitive_markers)
+        and isinstance(value, str)
+        and value
+        and not value.startswith(("vault://", "kms://", "env://"))
+    ]
+    if unsafe_secret_fields:
+        return jsonify({
+            "error": "Raw password/private key fields are blocked. Store references like vault://, kms://, or env://.",
+            "fields": unsafe_secret_fields,
+        }), 400
+
+    credential_json = json.dumps(credential_payload)
+    if len(credential_json.encode("utf-8")) > 65536:
+        return jsonify({"error": "Credential payload too large (max 64KB)"}), 400
 
     try:
         encrypted = encrypt_credential(credential_json)
@@ -4063,6 +4168,33 @@ def fc_accounts():
 # Agent Control API (for OpenClaw skills / external automation)
 # ---------------------------------------------------------------------------
 
+def _load_json_file(path: Path):
+    try:
+        if not path.exists():
+            return {}
+        return json.loads(path.read_text())
+    except Exception:
+        return {}
+
+
+def _atomic_write_json_file(path: Path, payload):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, indent=2, sort_keys=False) + "\n")
+    tmp.replace(path)
+
+
+def _task_idx(task):
+    task_id = str(task.get("task_id", "") or "")
+    parts = task_id.split(":")
+    if len(parts) >= 3:
+        try:
+            return int(parts[-2])
+        except Exception:
+            return 999999
+    return 999999
+
+
 @app.route("/api/agent-control/status")
 @verify_api_key
 def agent_control_status():
@@ -4167,6 +4299,189 @@ def agent_control_portfolio():
 def agent_control_force_scan():
     """Queue an immediate market scan. Not yet implemented."""
     return jsonify({"status": "scan_queued"})
+
+
+@app.route("/api/agent-control/venues/universe")
+@verify_api_key
+def agent_control_venues_universe():
+    """Return venue universe snapshot (optionally include top venues)."""
+    universe = _load_json_file(VENUE_UNIVERSE_FILE)
+    if not universe:
+        return jsonify({
+            "ok": False,
+            "error": "venue_universe_not_found",
+            "path": str(VENUE_UNIVERSE_FILE),
+        }), 404
+
+    include_venues = str(request.args.get("include_venues", "0")).strip().lower() in {"1", "true", "yes"}
+    limit = max(1, min(500, int(request.args.get("limit", 50) or 50)))
+    payload = {
+        "ok": True,
+        "path": str(VENUE_UNIVERSE_FILE),
+        "generated_at": universe.get("generated_at"),
+        "target_count": int(universe.get("target_count", 0) or 0),
+        "actual_count": int(universe.get("actual_count", 0) or 0),
+        "kind_counts": dict(universe.get("kind_counts", {}) or {}),
+        "sources": dict(universe.get("sources", {}) or {}),
+    }
+    if include_venues:
+        venues = list(universe.get("venues") or [])
+        payload["venues"] = venues[:limit]
+    return jsonify(payload)
+
+
+@app.route("/api/agent-control/venues/queue")
+@verify_api_key
+def agent_control_venues_queue():
+    """Return onboarding queue with optional status filter."""
+    queue = _load_json_file(VENUE_ONBOARDING_QUEUE_FILE)
+    if not queue:
+        return jsonify({
+            "ok": False,
+            "error": "venue_queue_not_found",
+            "path": str(VENUE_ONBOARDING_QUEUE_FILE),
+        }), 404
+
+    status_filter = str(request.args.get("status", "")).strip().lower()
+    limit = max(1, min(1000, int(request.args.get("limit", 100) or 100)))
+    include_items = str(request.args.get("include_items", "1")).strip().lower() in {"1", "true", "yes"}
+
+    items = list(queue.get("items") or [])
+    if status_filter:
+        items = [i for i in items if str(i.get("status", "")).strip().lower() == status_filter]
+    items.sort(key=lambda row: (int(row.get("rank", 999999) or 999999), _task_idx(row)))
+
+    response = {
+        "ok": True,
+        "path": str(VENUE_ONBOARDING_QUEUE_FILE),
+        "updated_at": queue.get("updated_at") or queue.get("generated_at"),
+        "queue_size": int(queue.get("queue_size", len(list(queue.get("items") or []))) or 0),
+        "manual_action_items": int(queue.get("manual_action_items", 0) or 0),
+        "active_batch_size": int(queue.get("active_batch_size", 0) or 0),
+        "coverage_total_venues": int(queue.get("coverage_total_venues", 0) or 0),
+        "worker": dict(queue.get("worker", {}) or {}),
+        "status_filter": status_filter or None,
+        "filtered_count": len(items),
+    }
+    if include_items:
+        response["items"] = items[:limit]
+    return jsonify(response)
+
+
+@app.route("/api/agent-control/venues/process", methods=["POST"])
+@verify_api_key
+@require_write
+def agent_control_venues_process():
+    """Run one onboarding worker cycle for pending_auto tasks."""
+    data = request.get_json(silent=True) or {}
+    max_tasks = max(1, min(250, int(data.get("max_tasks", 24) or 24)))
+    network_smoke = data.get("network_smoke")
+    if network_smoke is None:
+        network_smoke = True
+    else:
+        network_smoke = bool(network_smoke)
+
+    try:
+        import sys as _sys
+        _agents = str(BASE_DIR / "agents")
+        if _agents not in _sys.path:
+            _sys.path.insert(0, _agents)
+        from venue_onboarding_worker import run_once as _run_venue_onboarding_once
+
+        result = _run_venue_onboarding_once(
+            max_tasks=max_tasks,
+            queue_path=VENUE_ONBOARDING_QUEUE_FILE,
+            status_path=VENUE_ONBOARDING_STATUS_FILE,
+            db_path=Path(DB_PATH),
+            network_smoke=network_smoke,
+        )
+        return jsonify({
+            "ok": True,
+            "result": result,
+            "queue_path": str(VENUE_ONBOARDING_QUEUE_FILE),
+            "status_path": str(VENUE_ONBOARDING_STATUS_FILE),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/agent-control/venues/approve", methods=["POST"])
+@verify_api_key
+@require_write
+def agent_control_venues_approve():
+    """Approve or reject human-gated onboarding tasks."""
+    data = request.get_json(silent=True) or {}
+    task_ids = data.get("task_ids") or []
+    action = str(data.get("action", "approve")).strip().lower()
+    note = str(data.get("note", "")).strip()
+
+    if not isinstance(task_ids, list) or not task_ids:
+        return jsonify({"error": "task_ids list required"}), 400
+    task_ids = [str(t).strip() for t in task_ids if str(t).strip()]
+    if not task_ids:
+        return jsonify({"error": "No valid task_ids"}), 400
+    if action not in {"approve", "reject"}:
+        return jsonify({"error": "action must be 'approve' or 'reject'"}), 400
+
+    queue = _load_json_file(VENUE_ONBOARDING_QUEUE_FILE)
+    items = list(queue.get("items") or [])
+    if not items:
+        return jsonify({"error": "venue queue not available"}), 404
+
+    updated = []
+    target_status = "approved_human" if action == "approve" else "rejected_human"
+    for item in items:
+        task_id = str(item.get("task_id", "")).strip()
+        if task_id not in task_ids:
+            continue
+        current_status = str(item.get("status", "")).strip().lower()
+        if current_status not in {"pending_human", "blocked_human", "pending_auto"}:
+            continue
+        item["status"] = target_status
+        item["human_action_at"] = datetime.now(timezone.utc).isoformat()
+        if note:
+            item["human_note"] = note
+        item["owner"] = "scott"
+        item["requires_human_action"] = False if action == "approve" else True
+        updated.append(task_id)
+
+    queue["updated_at"] = datetime.now(timezone.utc).isoformat()
+    queue["manual_action_items"] = sum(
+        1 for i in items if str(i.get("status", "")).strip().lower() == "pending_human"
+    )
+    _atomic_write_json_file(VENUE_ONBOARDING_QUEUE_FILE, queue)
+
+    return jsonify({
+        "ok": True,
+        "action": action,
+        "target_status": target_status,
+        "updated_count": len(updated),
+        "updated_task_ids": updated,
+    })
+
+
+@app.route("/api/agent-control/venues/status")
+@verify_api_key
+def agent_control_venues_status():
+    """Return combined universe + onboarding worker status."""
+    universe = _load_json_file(VENUE_UNIVERSE_STATUS_FILE)
+    worker = _load_json_file(VENUE_ONBOARDING_STATUS_FILE)
+    queue = _load_json_file(VENUE_ONBOARDING_QUEUE_FILE)
+    return jsonify({
+        "ok": True,
+        "paths": {
+            "universe_status": str(VENUE_UNIVERSE_STATUS_FILE),
+            "onboarding_status": str(VENUE_ONBOARDING_STATUS_FILE),
+            "queue": str(VENUE_ONBOARDING_QUEUE_FILE),
+        },
+        "universe": universe,
+        "onboarding": worker,
+        "queue_summary": {
+            "queue_size": int(queue.get("queue_size", 0) or 0),
+            "manual_action_items": int(queue.get("manual_action_items", 0) or 0),
+            "updated_at": queue.get("updated_at") or queue.get("generated_at"),
+        },
+    })
 
 
 # ---------------------------------------------------------------------------

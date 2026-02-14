@@ -91,10 +91,34 @@ BACKTEST_AUTO_EXIT_MAX_HOLD_CANDLES = int(os.environ.get("BACKTEST_AUTO_EXIT_MAX
 # Strict capital protection: no realized-loss trades are allowed to pass COLD.
 STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("0", "false", "no")
 ADAPTIVE_COLD_GATING = os.environ.get("ADAPTIVE_COLD_GATING", "1").lower() not in ("0", "false", "no")
+
+# Optional high-confidence sparse-window relaxation when evidence is limited.
+# Defaults stay strict unless explicitly enabled by env in deployments.
+COLD_TO_WARM_SPARSE_MIN_TRADES = int(os.environ.get("COLD_TO_WARM_SPARSE_MIN_TRADES", "4"))
+COLD_TO_WARM_SPARSE_MIN_WIN_RATE = float(
+    os.environ.get("COLD_TO_WARM_SPARSE_MIN_WIN_RATE", "0.95")
+)
+COLD_TO_WARM_SPARSE_MIN_RETURN_PCT = float(
+    os.environ.get("COLD_TO_WARM_SPARSE_MIN_RETURN_PCT", "0.45")
+)
+COLD_TO_WARM_SPARSE_MAX_DRAWDOWN_PCT = float(
+    os.environ.get("COLD_TO_WARM_SPARSE_MAX_DRAWDOWN_PCT", "1.75")
+)
+
 WALKFORWARD_REQUIRED = os.environ.get("WALKFORWARD_REQUIRED", "1").lower() not in ("0", "false", "no")
 WALKFORWARD_MIN_TOTAL_CANDLES = int(os.environ.get("WALKFORWARD_MIN_TOTAL_CANDLES", "60"))
 WALKFORWARD_MIN_OOS_TRADES = int(os.environ.get("WALKFORWARD_MIN_OOS_TRADES", "1"))
 WALKFORWARD_MIN_OOS_RETURN_PCT = float(os.environ.get("WALKFORWARD_MIN_OOS_RETURN_PCT", "0.05"))
+WALKFORWARD_SPARSE_MAX_OOS_CANDLES = int(os.environ.get("WALKFORWARD_SPARSE_MAX_OOS_CANDLES", "72"))
+WALKFORWARD_SPARSE_OOS_MIN_RETURN_PCT = float(
+    os.environ.get("WALKFORWARD_SPARSE_OOS_MIN_RETURN_PCT", "0.00")
+)
+WALKFORWARD_SPARSE_OOS_MIN_WIN_RATE = float(
+    os.environ.get("WALKFORWARD_SPARSE_OOS_MIN_WIN_RATE", "0.75")
+)
+WALKFORWARD_SPARSE_OOS_MAX_DRAWDOWN_PCT = float(
+    os.environ.get("WALKFORWARD_SPARSE_OOS_MAX_DRAWDOWN_PCT", "2.00")
+)
 WALKFORWARD_RET_FRACTION = float(os.environ.get("WALKFORWARD_RET_FRACTION", "0.40"))
 WALKFORWARD_DD_MULT = float(os.environ.get("WALKFORWARD_DD_MULT", "1.5"))
 WALKFORWARD_RETENTION_RATIO = float(os.environ.get("WALKFORWARD_RETENTION_RATIO", "0.30"))
@@ -2530,6 +2554,18 @@ class StrategyValidator:
             win_rate = float(results.get("win_rate", 0.0) or 0.0)
             losses = int(results.get("losses", 0) or 0)
             drawdown_pct = float(results.get("max_drawdown_pct", 0.0) or 0.0)
+            if (
+                total_return_pct >= COLD_TO_WARM_SPARSE_MIN_RETURN_PCT
+                and win_rate >= COLD_TO_WARM_SPARSE_MIN_WIN_RATE
+                and losses == 0
+                and drawdown_pct <= COLD_TO_WARM_SPARSE_MAX_DRAWDOWN_PCT
+            ):
+                criteria["min_trades"] = max(2, COLD_TO_WARM_SPARSE_MIN_TRADES)
+                criteria["min_win_rate"] = max(float(criteria["min_win_rate"]), 0.75)
+                criteria["min_return_pct"] = max(
+                    float(criteria["min_return_pct"]),
+                    COLD_TO_WARM_SPARSE_MIN_RETURN_PCT,
+                )
             # Sparse high-quality window: allow lower trade count only when edge is strong
             # and strict loss controls remain intact.
             if (
@@ -2613,14 +2649,25 @@ class StrategyValidator:
                 walkforward_oos_trades = oos_trades
                 walkforward_oos_candles = oos_candles
                 ins_ret = float(ins.get("total_return_pct", 0.0) or 0.0)
+                sparse_backtest_signal = (
+                    float(results.get("win_rate", 0.0) or 0.0) >= WALKFORWARD_SPARSE_OOS_MIN_WIN_RATE
+                    and float(results.get("total_return_pct", 0.0) or 0.0)
+                    >= max(WALKFORWARD_SPARSE_OOS_MIN_RETURN_PCT, criteria["min_return_pct"])
+                    and int(results.get("losses", 0) or 0) == 0
+                    and float(results.get("max_drawdown_pct", 0.0) or 0.0)
+                    <= WALKFORWARD_SPARSE_OOS_MAX_DRAWDOWN_PCT
+                )
 
                 min_oos_return = max(
                     WALKFORWARD_MIN_OOS_RETURN_PCT,
                     criteria["min_return_pct"] * WALKFORWARD_RET_FRACTION,
                 )
 
-                sparse_oos_window = oos_trades == 0 and oos_candles < 48
-                walkforward_sparse_evidence = sparse_oos_window
+                sparse_oos_window = oos_trades == 0 and oos_candles <= WALKFORWARD_SPARSE_MAX_OOS_CANDLES
+                walkforward_sparse_evidence = bool(sparse_oos_window and sparse_backtest_signal)
+                if sparse_oos_window and not sparse_backtest_signal:
+                    passed = False
+                    reasons.append("walkforward sparse oos window lacks strong in-sample evidence")
                 if not sparse_oos_window and oos_trades < WALKFORWARD_MIN_OOS_TRADES:
                     passed = False
                     reasons.append(f"walkforward oos trades {oos_trades} < {WALKFORWARD_MIN_OOS_TRADES}")
@@ -2645,7 +2692,7 @@ class StrategyValidator:
                 if STRICT_PROFIT_ONLY and oos_losses > 0:
                     passed = False
                     reasons.append(f"walkforward strict mode: {oos_losses} oos losing trades")
-                if ins_ret >= 0.30 and oos_ret < ins_ret * WALKFORWARD_RETENTION_RATIO:
+                if not sparse_oos_window and ins_ret >= 0.30 and oos_ret < ins_ret * WALKFORWARD_RETENTION_RATIO:
                     passed = False
                     reasons.append(
                         f"walkforward retention {oos_ret:.2f}% < "

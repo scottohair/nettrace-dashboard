@@ -599,8 +599,16 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
         probe_green = bool(probe_rows) and all(bool(r.get("ok")) for r in probe_rows)
 
     egress_blocked = False if LOCAL_TEST_MODE else (
-        any(_is_egress_error_text(r.get("error", "")) for r in dns_rows)
-        or any(_is_egress_error_text(r.get("error", "")) for r in probe_rows)
+        any(
+            (not bool(r.get("ok")))
+            and _is_egress_error_text(r.get("error", ""))
+            for r in dns_rows
+        )
+        or any(
+            (not bool(r.get("ok")))
+            and _is_egress_error_text(r.get("error", ""))
+            for r in probe_rows
+        )
     )
 
     reconcile_payload = _load_json(RECON_STATUS_PATH, {})

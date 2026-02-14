@@ -51,11 +51,108 @@ logger = logging.getLogger("fly_agent_runner")
 
 # Signal push config
 NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
-INTERNAL_SECRET = os.environ.get("SECRET_KEY", "")  # shared secret for internal auth
+# Prefer dedicated internal signal secret; fall back to legacy shared secret.
+INTERNAL_SECRET = (
+    os.environ.get("INTERNAL_SIGNAL_SECRET", "")
+    or os.environ.get("SECRET_KEY", "")
+)
 FLY_URL = os.environ.get("APP_URL", "https://nettrace-dashboard.fly.dev")
 DB_PATH = os.environ.get("DB_PATH", str(Path(__file__).resolve().parent.parent / "traceroute.db"))
 PRIMARY_REGION = os.environ.get("PRIMARY_REGION", "ewr")
 SCOUT_INTERVAL = int(os.environ.get("CRYPTO_SCAN_INTERVAL", "120"))
+STATUS_INTERVAL_SECONDS = max(5, int(os.environ.get("AGENT_STATUS_INTERVAL_SECONDS", "5") or 5))
+TRADE_FIX_INTERVAL_SECONDS = max(
+    5, int(os.environ.get("AGENT_TRADE_FIX_INTERVAL_SECONDS", "15") or 15)
+)
+PORTFOLIO_REFRESH_INTERVAL_SECONDS = max(
+    5, int(os.environ.get("AGENT_PORTFOLIO_REFRESH_SECONDS", "20") or 20)
+)
+TRADE_FIX_ENABLED = os.environ.get("AGENT_TRADE_FIX_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+VENUE_UNIVERSE_ENABLED = os.environ.get("AGENT_VENUE_UNIVERSE_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+VENUE_UNIVERSE_REFRESH_SECONDS = max(
+    60, int(os.environ.get("AGENT_VENUE_UNIVERSE_REFRESH_SECONDS", "1800") or 1800)
+)
+VENUE_UNIVERSE_TARGET = max(100, int(os.environ.get("AGENT_VENUE_UNIVERSE_TARGET", "1000") or 1000))
+VENUE_UNIVERSE_ACTIVE_BATCH = max(
+    10, int(os.environ.get("AGENT_VENUE_UNIVERSE_ACTIVE_BATCH", "120") or 120)
+)
+VENUE_UNIVERSE_OPERATOR_EMAIL = str(os.environ.get("AGENT_VENUE_UNIVERSE_OPERATOR_EMAIL", "") or "")
+VENUE_ONBOARDING_ENABLED = os.environ.get("AGENT_VENUE_ONBOARDING_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+VENUE_ONBOARDING_INTERVAL_SECONDS = max(
+    10, int(os.environ.get("AGENT_VENUE_ONBOARDING_INTERVAL_SECONDS", "30") or 30)
+)
+VENUE_ONBOARDING_MAX_TASKS = max(
+    1, int(os.environ.get("AGENT_VENUE_ONBOARDING_MAX_TASKS", "16") or 16)
+)
+TRADE_FIX_MAX_ORDERS = max(10, int(os.environ.get("AGENT_TRADE_FIX_MAX_ORDERS", "120") or 120))
+TRADE_FIX_LOOKBACK_HOURS = max(1, int(os.environ.get("AGENT_TRADE_FIX_LOOKBACK_HOURS", "96") or 96))
+TRADE_FIX_RECONCILE_STATUSES = tuple(
+    s.strip().lower()
+    for s in str(
+        os.environ.get(
+            "AGENT_TRADE_FIX_RECONCILE_STATUSES",
+            "pending,placed,open,accepted,ack_ok",
+        )
+    ).split(",")
+    if s.strip()
+)
+TRADE_FIX_STALE_PENDING_SECONDS = max(
+    60, int(os.environ.get("AGENT_TRADE_FIX_STALE_PENDING_SECONDS", "1800") or 1800)
+)
+TRADER_DB_PATH = Path(__file__).resolve().parent / "trader.db"
+_PERSISTENT_DIR = Path("/data") if Path("/data").is_dir() else Path(__file__).resolve().parent
+STATUS_FILE = Path(
+    os.environ.get(
+        "AGENT_RUNNER_STATUS_FILE",
+        str(_PERSISTENT_DIR / "fly_agent_runner_status.json"),
+    )
+)
+VENUE_UNIVERSE_PATH = Path(
+    os.environ.get("AGENT_VENUE_UNIVERSE_PATH", str(_PERSISTENT_DIR / "venue_universe.json"))
+)
+VENUE_ONBOARDING_QUEUE_PATH = Path(
+    os.environ.get("AGENT_VENUE_ONBOARDING_QUEUE_PATH", str(_PERSISTENT_DIR / "venue_onboarding_queue.json"))
+)
+VENUE_UNIVERSE_STATUS_PATH = Path(
+    os.environ.get("AGENT_VENUE_UNIVERSE_STATUS_PATH", str(_PERSISTENT_DIR / "venue_universe_status.json"))
+)
+VENUE_CLAUDE_BRIEF_PATH = Path(
+    os.environ.get(
+        "AGENT_VENUE_CLAUDE_BRIEF_PATH",
+        str(_PERSISTENT_DIR / "claude_staging" / "venue_universe_brief.md"),
+    )
+)
+VENUE_ONBOARDING_WORKER_STATUS_PATH = Path(
+    os.environ.get(
+        "AGENT_VENUE_ONBOARDING_WORKER_STATUS_PATH",
+        str(_PERSISTENT_DIR / "venue_onboarding_worker_status.json"),
+    )
+)
+VENUE_ONBOARDING_EVENTS_PATH = Path(
+    os.environ.get(
+        "AGENT_VENUE_ONBOARDING_EVENTS_PATH",
+        str(_PERSISTENT_DIR / "venue_onboarding_events.jsonl"),
+    )
+)
+_SELL_COMPLETED_STATUSES = {"filled", "closed", "executed", "settled"}
+_PENDING_STATUSES = {"pending", "placed", "open", "accepted", "ack_ok"}
+
+try:
+    from reconcile_agent_trades import reconcile_close_first as _reconcile_close_first
+except Exception:
+    _reconcile_close_first = None
 
 
 class FlyAgentRunner:
@@ -70,6 +167,66 @@ class FlyAgentRunner:
         self.goals = GoalValidator()
         self._started_at = None
         self._lock = threading.RLock()
+        self._control_thread = None
+        self._tools = None
+        self._status_interval_seconds = int(STATUS_INTERVAL_SECONDS)
+        self._trade_fix_interval_seconds = int(TRADE_FIX_INTERVAL_SECONDS)
+        self._portfolio_refresh_interval_seconds = int(PORTFOLIO_REFRESH_INTERVAL_SECONDS)
+        self._trade_fix_enabled = bool(TRADE_FIX_ENABLED)
+        self._venue_universe_enabled = bool(VENUE_UNIVERSE_ENABLED and self.is_primary)
+        self._venue_onboarding_enabled = bool(VENUE_ONBOARDING_ENABLED and self.is_primary)
+        self._last_status_at = 0.0
+        self._last_trade_fix_at = 0.0
+        self._last_portfolio_refresh_at = 0.0
+        self._last_venue_universe_at = 0.0
+        self._last_venue_onboarding_at = 0.0
+        self._cached_portfolio = {
+            "total_usd": 0.0,
+            "available_cash": 0.0,
+            "held_in_orders": 0.0,
+            "holdings": {},
+            "error": "not_collected",
+        }
+        self._last_trade_fix = {
+            "ok": False,
+            "reason": "not_started",
+            "updated_at": "",
+            "reconcile": {},
+            "close_reconciliation": {},
+            "trade_metrics": {},
+        }
+        self._last_venue_universe = {
+            "ok": False,
+            "reason": "not_started",
+            "updated_at": "",
+            "actual_count": 0,
+            "manual_actions": 0,
+            "active_batch_size": int(VENUE_UNIVERSE_ACTIVE_BATCH),
+            "target_count": int(VENUE_UNIVERSE_TARGET),
+        }
+        self._last_venue_onboarding = {
+            "ok": False,
+            "reason": "not_started",
+            "updated_at": "",
+            "processed": 0,
+            "completed": 0,
+            "blocked_human": 0,
+            "deferred": 0,
+            "remaining_pending_auto": 0,
+            "remaining_pending_human": 0,
+        }
+        self._last_status_payload = {
+            "region": self.region,
+            "is_primary": self.is_primary,
+            "running": False,
+            "uptime_seconds": 0,
+            "agents": {},
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "trade_fix": dict(self._last_trade_fix),
+            "venue_universe": dict(self._last_venue_universe),
+            "venue_onboarding": dict(self._last_venue_onboarding),
+            "portfolio": dict(self._cached_portfolio),
+        }
 
         logger.info("FlyAgentRunner init: region=%s, is_primary=%s",
                      self.region, self.is_primary)
@@ -102,6 +259,12 @@ class FlyAgentRunner:
             else:
                 self._start_scout_agent()
 
+            self._start_control_loop()
+            payload = self._build_status_payload()
+            self._persist_status(payload)
+            self._last_status_payload = payload
+            self._last_status_at = time.time()
+
             agent_names = list(self.agents.keys())
             logger.info("Started %d agent(s) in region %s: %s",
                         len(agent_names), self.region, agent_names)
@@ -121,11 +284,93 @@ class FlyAgentRunner:
             if thread.is_alive():
                 logger.warning("Agent thread still alive after stop timeout: %s", name)
 
+        control_thread = self._control_thread
+        if control_thread is not None:
+            control_thread.join(timeout=4)
+            if control_thread.is_alive():
+                logger.warning("Control thread still alive after stop timeout")
+
         with self._lock:
             self.agents.clear()
             self.assistants.clear()
             self._started_at = None
+            self._control_thread = None
+            payload = self._build_status_payload()
+            self._last_status_payload = payload
+            self._last_status_at = time.time()
+        self._persist_status(payload)
         logger.info("Agent runner stopped")
+
+    def _start_control_loop(self):
+        with self._lock:
+            existing = self._control_thread
+            if existing is not None and existing.is_alive():
+                return
+            t = threading.Thread(
+                target=self._control_loop,
+                name="agent-control-loop",
+                daemon=True,
+            )
+            t.start()
+            self._control_thread = t
+
+    def _control_loop(self):
+        while self.running:
+            now = time.time()
+            try:
+                # Emit heartbeat first so status updates remain on 5s cadence
+                # even when downstream trade-fix/network calls are slow.
+                if (now - self._last_status_at) >= float(self._status_interval_seconds):
+                    payload = self._build_status_payload()
+                    self._persist_status(payload)
+                    with self._lock:
+                        self._last_status_payload = payload
+                        self._last_status_at = now
+                    logger.info(
+                        "heartbeat region=%s agents=%d pending=%s closes=%s pnl24h=%s",
+                        self.region,
+                        len(payload.get("agents", {}) or {}),
+                        ((payload.get("trade_fix", {}) or {}).get("trade_metrics", {}) or {}).get("pending_orders"),
+                        ((payload.get("trade_fix", {}) or {}).get("close_reconciliation", {}) or {}).get("completions"),
+                        ((payload.get("trade_fix", {}) or {}).get("trade_metrics", {}) or {}).get("realized_pnl_24h"),
+                    )
+
+                if (
+                    self._trade_fix_enabled
+                    and self.is_primary
+                    and (now - self._last_trade_fix_at) >= float(self._trade_fix_interval_seconds)
+                ):
+                    trade_fix = self._run_trade_fixes()
+                    with self._lock:
+                        self._last_trade_fix = trade_fix
+                        self._last_trade_fix_at = now
+
+                if (now - self._last_portfolio_refresh_at) >= float(self._portfolio_refresh_interval_seconds):
+                    portfolio = self._collect_portfolio_snapshot()
+                    with self._lock:
+                        self._cached_portfolio = portfolio
+                        self._last_portfolio_refresh_at = now
+
+                if (
+                    self._venue_universe_enabled
+                    and (now - self._last_venue_universe_at) >= float(VENUE_UNIVERSE_REFRESH_SECONDS)
+                ):
+                    venue_universe = self._refresh_venue_universe()
+                    with self._lock:
+                        self._last_venue_universe = venue_universe
+                        self._last_venue_universe_at = now
+
+                if (
+                    self._venue_onboarding_enabled
+                    and (now - self._last_venue_onboarding_at) >= float(VENUE_ONBOARDING_INTERVAL_SECONDS)
+                ):
+                    venue_onboarding = self._run_venue_onboarding()
+                    with self._lock:
+                        self._last_venue_onboarding = venue_onboarding
+                        self._last_venue_onboarding_at = now
+            except Exception as e:
+                logger.warning("control loop tick failed: %s", e)
+            self._interruptible_sleep(1)
 
     def _start_primary_agents(self):
         """Start the full trading stack on the primary region (ewr)."""
@@ -425,20 +670,260 @@ class FlyAgentRunner:
         while self.running and time.time() < end:
             time.sleep(min(5, end - time.time()))
 
-    # ──────────────────────────────────────────────────────────────────────
-    # Status
-    # ──────────────────────────────────────────────────────────────────────
+    def _get_tools(self):
+        if self._tools is not None:
+            return self._tools
+        try:
+            from agent_tools import AgentTools
+            self._tools = AgentTools()
+            return self._tools
+        except Exception as e:
+            logger.warning("AgentTools unavailable for trade-fix loop: %s", e)
+            return None
 
-    def status(self):
-        """Return current runner status."""
+    @staticmethod
+    def _close_reconciliation_payload(summary):
+        attempts = int(summary.get("close_attempts", 0) or 0)
+        completions = int(summary.get("close_completions", 0) or 0)
+        failures = int(summary.get("close_failures", 0) or 0)
+        completion_rate = (float(completions) / float(attempts)) if attempts > 0 else 1.0
+        return {
+            "attempts": attempts,
+            "completions": completions,
+            "failures": failures,
+            "completion_rate": round(float(completion_rate), 6),
+            "gate_passed": bool(summary.get("close_gate_passed", False)),
+            "gate_reason": str(summary.get("close_gate_reason", "unknown")),
+            "failure_reasons": dict(summary.get("close_failure_reasons", {}) or {}),
+        }
+
+    def _collect_trade_metrics(self, tools):
+        metrics = {
+            "total_trades": 0,
+            "pending_orders": 0,
+            "stale_pending_orders": 0,
+            "sell_closes_24h": 0,
+            "realized_pnl_24h": 0.0,
+        }
+        try:
+            db = tools.db
+            row = db.execute("SELECT COUNT(*) AS n FROM agent_trades").fetchone()
+            metrics["total_trades"] = int((row["n"] if row else 0) or 0)
+
+            pending_marks = ",".join("?" for _ in _PENDING_STATUSES)
+            row = db.execute(
+                f"""
+                SELECT COUNT(*) AS n
+                FROM agent_trades
+                WHERE LOWER(COALESCE(status, '')) IN ({pending_marks})
+                """,
+                tuple(sorted(_PENDING_STATUSES)),
+            ).fetchone()
+            metrics["pending_orders"] = int((row["n"] if row else 0) or 0)
+
+            row = db.execute(
+                f"""
+                SELECT COUNT(*) AS n
+                FROM agent_trades
+                WHERE LOWER(COALESCE(status, '')) IN ({pending_marks})
+                  AND created_at < datetime('now', ?)
+                """,
+                tuple(sorted(_PENDING_STATUSES)) + (f"-{int(TRADE_FIX_STALE_PENDING_SECONDS)} seconds",),
+            ).fetchone()
+            metrics["stale_pending_orders"] = int((row["n"] if row else 0) or 0)
+
+            close_marks = ",".join("?" for _ in _SELL_COMPLETED_STATUSES)
+            row = db.execute(
+                f"""
+                SELECT COUNT(*) AS n
+                FROM agent_trades
+                WHERE UPPER(COALESCE(side, ''))='SELL'
+                  AND LOWER(COALESCE(status, '')) IN ({close_marks})
+                  AND created_at >= datetime('now', '-24 hours')
+                """,
+                tuple(sorted(_SELL_COMPLETED_STATUSES)),
+            ).fetchone()
+            metrics["sell_closes_24h"] = int((row["n"] if row else 0) or 0)
+
+            row = db.execute(
+                """
+                SELECT COALESCE(SUM(pnl), 0) AS pnl
+                FROM agent_trades
+                WHERE UPPER(COALESCE(side, ''))='SELL'
+                  AND pnl IS NOT NULL
+                  AND created_at >= datetime('now', '-24 hours')
+                """
+            ).fetchone()
+            metrics["realized_pnl_24h"] = round(float((row["pnl"] if row else 0.0) or 0.0), 8)
+        except Exception as e:
+            metrics["error"] = str(e)
+        return metrics
+
+    def _collect_portfolio_snapshot(self):
+        tools = self._get_tools()
+        if tools is None:
+            return {"error": "tools_unavailable"}
+        try:
+            snap = tools.get_portfolio()
+            if not isinstance(snap, dict):
+                return {"error": "portfolio_invalid"}
+            return {
+                "total_usd": float(snap.get("total_usd", 0.0) or 0.0),
+                "available_cash": float(snap.get("available_cash", 0.0) or 0.0),
+                "held_in_orders": float(snap.get("held_in_orders", 0.0) or 0.0),
+                "holdings": dict(snap.get("holdings", {}) or {}),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def _run_trade_fixes(self):
+        payload = {
+            "ok": False,
+            "reason": "unknown",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "reconcile": {},
+            "close_reconciliation": {},
+            "trade_metrics": {},
+        }
+        if not self.is_primary:
+            payload["ok"] = True
+            payload["reason"] = "non_primary_region"
+            return payload
+        tools = self._get_tools()
+        if tools is None:
+            payload["reason"] = "tools_unavailable"
+            return payload
+
+        try:
+            reconcile = tools.reconcile_agent_trades(
+                max_orders=int(TRADE_FIX_MAX_ORDERS),
+                lookback_hours=int(TRADE_FIX_LOOKBACK_HOURS),
+                reconcile_statuses=TRADE_FIX_RECONCILE_STATUSES,
+            )
+            payload["reconcile"] = reconcile if isinstance(reconcile, dict) else {}
+        except Exception as e:
+            payload["reconcile_error"] = str(e)
+
+        if _reconcile_close_first is not None:
+            try:
+                close_summary = _reconcile_close_first(
+                    tools,
+                    max_orders=int(TRADE_FIX_MAX_ORDERS),
+                    lookback_hours=int(TRADE_FIX_LOOKBACK_HOURS),
+                    reconcile_statuses=TRADE_FIX_RECONCILE_STATUSES,
+                )
+                if isinstance(close_summary, dict):
+                    payload["close_reconciliation"] = self._close_reconciliation_payload(close_summary)
+            except Exception as e:
+                payload["close_reconcile_error"] = str(e)
+
+        payload["trade_metrics"] = self._collect_trade_metrics(tools)
+        payload["ok"] = True
+        payload["reason"] = "trade_fix_cycle_complete"
+        return payload
+
+    def _refresh_venue_universe(self):
+        payload = {
+            "ok": False,
+            "reason": "venue_universe_refresh_failed",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "actual_count": 0,
+            "manual_actions": 0,
+            "active_batch_size": int(VENUE_UNIVERSE_ACTIVE_BATCH),
+            "target_count": int(VENUE_UNIVERSE_TARGET),
+        }
+        try:
+            from venue_universe_manager import run as run_venue_universe
+
+            result = run_venue_universe(
+                target_count=int(VENUE_UNIVERSE_TARGET),
+                active_batch_size=int(VENUE_UNIVERSE_ACTIVE_BATCH),
+                operator_email=str(VENUE_UNIVERSE_OPERATOR_EMAIL),
+                universe_path=VENUE_UNIVERSE_PATH,
+                queue_path=VENUE_ONBOARDING_QUEUE_PATH,
+                status_path=VENUE_UNIVERSE_STATUS_PATH,
+                claude_brief_path=VENUE_CLAUDE_BRIEF_PATH,
+            )
+            payload.update(
+                {
+                    "ok": bool(result.get("ok", False)),
+                    "reason": "venue_universe_refresh_complete",
+                    "actual_count": int(result.get("actual_count", 0) or 0),
+                    "manual_actions": int(result.get("manual_actions", 0) or 0),
+                    "active_batch_size": int(
+                        result.get("active_batch_size", VENUE_UNIVERSE_ACTIVE_BATCH)
+                        or VENUE_UNIVERSE_ACTIVE_BATCH
+                    ),
+                    "target_count": int(result.get("target_count", VENUE_UNIVERSE_TARGET) or VENUE_UNIVERSE_TARGET),
+                    "paths": {
+                        "universe_path": str(result.get("universe_path", "")),
+                        "queue_path": str(result.get("queue_path", "")),
+                        "status_path": str(result.get("status_path", "")),
+                        "claude_brief_path": str(result.get("claude_brief_path", "")),
+                    },
+                }
+            )
+        except Exception as e:
+            payload["error"] = str(e)
+            logger.warning("venue universe refresh failed: %s", e)
+        return payload
+
+    def _run_venue_onboarding(self):
+        payload = {
+            "ok": False,
+            "reason": "venue_onboarding_failed",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "processed": 0,
+            "completed": 0,
+            "blocked_human": 0,
+            "deferred": 0,
+            "remaining_pending_auto": 0,
+            "remaining_pending_human": 0,
+        }
+        try:
+            from venue_onboarding_worker import run_once as run_onboarding_once
+
+            result = run_onboarding_once(
+                max_tasks=int(VENUE_ONBOARDING_MAX_TASKS),
+                queue_path=VENUE_ONBOARDING_QUEUE_PATH,
+                status_path=VENUE_ONBOARDING_WORKER_STATUS_PATH,
+                events_path=VENUE_ONBOARDING_EVENTS_PATH,
+                db_path=Path(DB_PATH),
+            )
+            if isinstance(result, dict):
+                payload.update(result)
+                payload["reason"] = str(result.get("reason", "processed") or "processed")
+                payload["ok"] = bool(result.get("ok", False))
+        except Exception as e:
+            payload["error"] = str(e)
+            logger.warning("venue onboarding cycle failed: %s", e)
+        return payload
+
+    def _build_status_payload(self):
         with self._lock:
             agents = list(self.agents.items())
             assistants = dict(self.assistants)
+            trade_fix = dict(self._last_trade_fix) if isinstance(self._last_trade_fix, dict) else {}
+            venue_universe = (
+                dict(self._last_venue_universe)
+                if isinstance(self._last_venue_universe, dict)
+                else {}
+            )
+            venue_onboarding = (
+                dict(self._last_venue_onboarding)
+                if isinstance(self._last_venue_onboarding, dict)
+                else {}
+            )
+            portfolio = dict(self._cached_portfolio) if isinstance(self._cached_portfolio, dict) else {}
+            started_at = self._started_at
+            running = bool(self.running)
+            control_thread_alive = bool(self._control_thread and self._control_thread.is_alive())
+
         return {
             "region": self.region,
             "is_primary": self.is_primary,
-            "running": self.running,
-            "uptime_seconds": int(time.time() - self._started_at) if self._started_at else 0,
+            "running": running,
+            "uptime_seconds": int(time.time() - started_at) if started_at else 0,
             "agents": {
                 name: {
                     "alive": thread.is_alive(),
@@ -446,8 +931,76 @@ class FlyAgentRunner:
                 }
                 for name, thread in agents
             },
+            "control": {
+                "status_interval_seconds": int(self._status_interval_seconds),
+                "trade_fix_interval_seconds": int(self._trade_fix_interval_seconds),
+                "portfolio_refresh_interval_seconds": int(self._portfolio_refresh_interval_seconds),
+                "trade_fix_enabled": bool(self._trade_fix_enabled and self.is_primary),
+                "venue_universe_enabled": bool(self._venue_universe_enabled and self.is_primary),
+                "venue_onboarding_enabled": bool(self._venue_onboarding_enabled and self.is_primary),
+                "control_thread_alive": control_thread_alive,
+                "last_trade_fix_age_seconds": round(max(0.0, time.time() - float(self._last_trade_fix_at)), 3)
+                if self._last_trade_fix_at > 0
+                else None,
+                "last_venue_universe_age_seconds": round(
+                    max(0.0, time.time() - float(self._last_venue_universe_at)),
+                    3,
+                )
+                if self._last_venue_universe_at > 0
+                else None,
+                "last_venue_onboarding_age_seconds": round(
+                    max(0.0, time.time() - float(self._last_venue_onboarding_at)),
+                    3,
+                )
+                if self._last_venue_onboarding_at > 0
+                else None,
+                "last_status_age_seconds": round(max(0.0, time.time() - float(self._last_status_at)), 3)
+                if self._last_status_at > 0
+                else None,
+            },
+            "trade_fix": trade_fix,
+            "venue_universe": venue_universe,
+            "venue_onboarding": venue_onboarding,
+            "portfolio": portfolio,
+            "status_file": str(STATUS_FILE),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
+
+    def _persist_status(self, payload):
+        try:
+            STATUS_FILE.parent.mkdir(parents=True, exist_ok=True)
+            STATUS_FILE.write_text(json.dumps(payload, indent=2))
+        except Exception as e:
+            logger.warning("Failed to persist fly runner status: %s", e)
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Status
+    # ──────────────────────────────────────────────────────────────────────
+
+    def status(self):
+        """Return current runner status."""
+        with self._lock:
+            payload = (
+                dict(self._last_status_payload)
+                if isinstance(self._last_status_payload, dict)
+                else {}
+            )
+        if not payload:
+            payload = self._build_status_payload()
+        else:
+            # Always refresh liveness and timestamp on request.
+            agents = payload.get("agents", {})
+            if isinstance(agents, dict):
+                with self._lock:
+                    for name, thread in self.agents.items():
+                        if name not in agents:
+                            agents[name] = {}
+                        agents[name]["alive"] = bool(thread.is_alive())
+                        if name in self.assistants:
+                            agents[name]["metrics"] = self.assistants[name].get_metrics()
+            payload["running"] = bool(self.running)
+            payload["timestamp"] = datetime.now(timezone.utc).isoformat()
+        return payload
 
 
 # ---------------------------------------------------------------------------

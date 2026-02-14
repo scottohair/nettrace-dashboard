@@ -23,6 +23,7 @@ import time
 import urllib.request
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+import threading
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -82,12 +83,14 @@ except Exception:
 
 TRADER_DB = str(Path(__file__).parent / "trader.db")
 SIGNAL_API = "https://nettrace-dashboard.fly.dev/api/v1/signals"
+FLY_HEARTBEAT_URL = "https://nettrace-dashboard.fly.dev/api/trading-heartbeat"
 NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 
 # Risk parameters — ALL dynamic from risk_controller, these are only absolute floors
 MIN_TRADE_USD = 1.00       # Coinbase min is ~$1
 SIGNAL_MIN_CONFIDENCE = 0.70
 CHECK_INTERVAL = 120       # Check every 2 minutes
+HEARTBEAT_INTERVAL = 5     # Heartbeat every 5 seconds
 POSITION_HOLD_SECONDS = 300  # Hold for 5 minutes then re-evaluate
 
 # Dynamic risk controller — NO hardcoded limits
@@ -739,6 +742,60 @@ class LiveTrader:
         print(f"  Daily P&L: ${self.daily_pnl:+.2f}")
         print("=" * 60 + "\n")
 
+    def _send_heartbeat(self):
+        """Send lightweight heartbeat to Fly server every 5 seconds (background thread)."""
+        logger.info("Heartbeat thread started (every %ds)", HEARTBEAT_INTERVAL)
+        while getattr(self, '_heartbeat_running', True):
+            try:
+                total, holdings = self.get_portfolio_value()
+                if total <= 0:
+                    time.sleep(HEARTBEAT_INTERVAL)
+                    continue
+
+                # Get latest trade (if any)
+                latest_trade = None
+                try:
+                    row = self.db.execute(
+                        "SELECT pair, side, price, total_usd, status, created_at "
+                        "FROM live_trades ORDER BY id DESC LIMIT 1"
+                    ).fetchone()
+                    if row:
+                        latest_trade = dict(row)
+                except Exception:
+                    pass
+
+                # Build compact holdings summary (top assets only)
+                holdings_summary = {}
+                for cur, data in sorted(holdings.items(), key=lambda x: -x[1]["usd_value"])[:10]:
+                    holdings_summary[cur] = {
+                        "amount": data["amount"],
+                        "usd_value": data["usd_value"],
+                    }
+
+                payload = json.dumps({
+                    "portfolio_value": total,
+                    "daily_pnl": self.daily_pnl,
+                    "holdings": holdings_summary,
+                    "latest_trade": latest_trade,
+                    "trades_today": self.trades_today,
+                }).encode()
+
+                req = urllib.request.Request(
+                    FLY_HEARTBEAT_URL,
+                    data=payload,
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {NETTRACE_API_KEY}",
+                        "User-Agent": "NetTrace-Trader/1.0",
+                    },
+                    method="POST",
+                )
+                urllib.request.urlopen(req, timeout=2)
+            except Exception:
+                pass  # Heartbeat failures are silent — non-critical
+
+            time.sleep(HEARTBEAT_INTERVAL)
+
     def run(self):
         """Main trading loop."""
         total, holdings = self.get_portfolio_value()
@@ -747,6 +804,11 @@ class LiveTrader:
 
         # Push initial snapshot to Fly dashboard
         self._push_to_fly(total, holdings)
+
+        # Start heartbeat background thread (5-second real-time updates)
+        self._heartbeat_running = True
+        heartbeat_thread = threading.Thread(target=self._send_heartbeat, daemon=True)
+        heartbeat_thread.start()
 
         cycle = 0
         while True:
@@ -768,6 +830,7 @@ class LiveTrader:
 
             except KeyboardInterrupt:
                 logger.info("Shutting down...")
+                self._heartbeat_running = False
                 self.print_status()
                 break
             except Exception as e:

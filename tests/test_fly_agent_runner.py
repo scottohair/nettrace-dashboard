@@ -19,6 +19,10 @@ class TestFlyAgentRunner(unittest.TestCase):
 
             runner = fly_agent_runner.FlyAgentRunner()
             runner._get_agent_run_fn = lambda name: lambda: None
+            runner._trade_fix_enabled = False
+            runner._venue_universe_enabled = False
+            runner._venue_onboarding_enabled = False
+            runner._portfolio_refresh_interval_seconds = 3600
 
             runner.start()
             try:
@@ -38,6 +42,10 @@ class TestFlyAgentRunner(unittest.TestCase):
         """stop() is idempotent when already stopped."""
         mock_region.return_value = "ewr"
         runner = fly_agent_runner.FlyAgentRunner()
+        runner._trade_fix_enabled = False
+        runner._venue_universe_enabled = False
+        runner._venue_onboarding_enabled = False
+        runner._portfolio_refresh_interval_seconds = 3600
         self.assertFalse(runner.running)
         runner.stop()
         self.assertFalse(runner.running)
@@ -49,6 +57,10 @@ class TestFlyAgentRunner(unittest.TestCase):
         mock_region.return_value = "ewr"
         runner = fly_agent_runner.FlyAgentRunner()
         runner.is_primary = True
+        runner._trade_fix_enabled = False
+        runner._venue_universe_enabled = False
+        runner._venue_onboarding_enabled = False
+        runner._portfolio_refresh_interval_seconds = 3600
 
         with patch.object(runner, "_start_primary_agents") as start_agents:
             runner.start()

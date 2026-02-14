@@ -815,6 +815,8 @@ let portfolioChart = null;
 let socket = null;
 let wsConnected = false;
 let lastPrices = {};
+let lastHeartbeat = 0;         // Timestamp of last WS trading_update
+let refreshDataIntervalId = null;  // So we can switch polling speed
 
 const SERVERS = [
   {region:'EWR',location:'Newark, NJ',status:'active'},
@@ -849,28 +851,60 @@ function toggleTheme(){
 (function(){const t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t)})();
 
 // ── WebSocket ──
+function setPollingRate(ms){
+  if(refreshDataIntervalId) clearInterval(refreshDataIntervalId);
+  refreshDataIntervalId=setInterval(refreshData,ms);
+}
 function connectWS(){
   try{
     socket=io({transports:["websocket","polling"]});
     socket.on("connect",()=>{
       wsConnected=true;
-      document.getElementById("wsStatus").textContent="WS: live";
+      document.getElementById("wsStatus").textContent="LIVE";
       document.getElementById("wsStatus").className="ws-status connected";
+      // WS is primary — slow down HTTP polling to 60s fallback
+      setPollingRate(60000);
     });
     socket.on("disconnect",()=>{
       wsConnected=false;
       document.getElementById("wsStatus").textContent="WS: offline";
       document.getElementById("wsStatus").className="ws-status disconnected";
+      // WS down — increase HTTP polling to 15s as fallback
+      setPollingRate(15000);
     });
-    // Live trading updates from agents
+    // Live trading updates from agents (every 5 seconds via heartbeat)
     socket.on("trading_update",d=>{
+      lastHeartbeat=Date.now();
       if(d.portfolio_value) document.getElementById("portfolioValue").textContent="$"+d.portfolio_value.toFixed(2);
       if(d.daily_pnl!==undefined){
         const el=document.getElementById("dailyPnl");
-        el.textContent=(d.daily_pnl>=0?"+":"")+d.daily_pnl.toFixed(2);
+        el.textContent=(d.daily_pnl>=0?"+":"")+"$"+d.daily_pnl.toFixed(2);
         el.className="big "+(d.daily_pnl>=0?"green":"red");
       }
+      if(d.trades_today!==undefined) document.getElementById("tradesToday").textContent=d.trades_today;
+      if(d.trades_total!==undefined) document.getElementById("tradesTotal").textContent="total: "+d.trades_total;
+      // Update holdings table from heartbeat data
+      if(d.holdings && Object.keys(d.holdings).length>0){
+        const entries=Object.entries(d.holdings).sort((a,b)=>(b[1].usd_value||0)-(a[1].usd_value||0));
+        const total=entries.reduce((s,[,v])=>s+(v.usd_value||0),0);
+        const body=document.getElementById("holdingsBody");
+        if(body && entries.length){
+          body.innerHTML=entries.map(([cur,v])=>{
+            const pct=total>0?((v.usd_value/total)*100).toFixed(1):"0";
+            const amt=v.amount<0.001?v.amount.toExponential(3):v.amount.toFixed(6);
+            return`<tr><td><strong>${cur}</strong></td><td>${amt}</td><td class="pnl-pos">$${(v.usd_value||0).toFixed(2)}</td><td>${pct}%</td></tr>`;
+          }).join("");
+        }
+      }
+      // Show latest trade toast
+      if(d.latest_trade && d.latest_trade.pair){
+        const t=d.latest_trade;
+        showToast(`Trade: ${t.side} ${t.pair} @ $${(t.price||0).toFixed(2)}`,"success");
+      }
       if(d.trade) showToast(`Trade: ${d.trade.side} ${d.trade.pair} @ $${d.trade.price}`,"success");
+      // Update status line with live timestamp
+      const src=d.source==="heartbeat"?"heartbeat":"snapshot";
+      document.getElementById("lastUpdate").textContent="LIVE ("+src+") | "+new Date().toLocaleTimeString();
     });
     socket.on("price_update",d=>{
       if(d.prices) updateTicker(d.prices);
@@ -1662,7 +1696,7 @@ loadOrgs();
 loadLeaderboard();
 
 // Refresh intervals
-setInterval(refreshData,15000);       // Trading data every 15s
+refreshDataIntervalId=setInterval(refreshData,60000); // Trading data every 60s (WS is primary, this is fallback)
 setInterval(fetchTicker,10000);       // Prices every 10s
 setInterval(refreshAssetPools,30000); // Asset pools every 30s
 setInterval(fetchRegimes,300000);     // Regime every 5m

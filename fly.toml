@@ -14,6 +14,24 @@ primary_region = "ewr"
   CRYPTO_SCAN_INTERVAL = "120"
   # Autonomous agent runner: starts trading agents on every Fly machine
   ENABLE_AGENTS = "1"
+  # 5s production heartbeat + trade-fix cadence
+  AGENT_STATUS_INTERVAL_SECONDS = "5"
+  AGENT_TRADE_FIX_ENABLED = "1"
+  AGENT_TRADE_FIX_INTERVAL_SECONDS = "5"
+  AGENT_PORTFOLIO_REFRESH_SECONDS = "20"
+  AGENT_TRADE_FIX_MAX_ORDERS = "120"
+  AGENT_TRADE_FIX_LOOKBACK_HOURS = "96"
+  AGENT_TRADE_FIX_STALE_PENDING_SECONDS = "1800"
+  AGENT_RUNNER_STATUS_FILE = "/data/fly_agent_runner_status.json"
+  # Venue universe expansion (DEX + CEX) for clawd.bot onboarding pipeline
+  AGENT_VENUE_UNIVERSE_ENABLED = "1"
+  AGENT_VENUE_UNIVERSE_REFRESH_SECONDS = "1800"
+  AGENT_VENUE_UNIVERSE_TARGET = "1000"
+  AGENT_VENUE_UNIVERSE_ACTIVE_BATCH = "120"
+  AGENT_VENUE_UNIVERSE_OPERATOR_EMAIL = "ohairscott@gmail.com"
+  AGENT_VENUE_ONBOARDING_ENABLED = "1"
+  AGENT_VENUE_ONBOARDING_INTERVAL_SECONDS = "30"
+  AGENT_VENUE_ONBOARDING_MAX_TASKS = "16"
 
 [http_service]
   internal_port = 8080
