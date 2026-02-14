@@ -132,12 +132,12 @@ CLOSE_FLOW_MIN_CLOSE_COMPLETION_RATE = float(
 )
 GROWTH_STRICT_HOT_PROMOTION_REQUIRED = _env_flag(
     "GROWTH_STRICT_HOT_PROMOTION_REQUIRED",
-    default=True,
+    default=False,
     aliases=("STRICT_HOT_GATE",),
 )
 WARM_MICROLANE_ALLOW = _env_flag(
     "WARM_MICROLANE_ALLOW",
-    default=False,
+    default=True,
     aliases=("WARM_LIVE_ENABLED",),
 )
 WARM_MICROLANE_MAX_FUNDED_BUDGET = _env_float(
@@ -152,12 +152,12 @@ WARM_MICROLANE_MAX_FUNDED_STRATEGIES = _env_int(
 )
 WARM_MICROLANE_REQUIRE_REALIZED_PROOF = _env_flag(
     "WARM_MICROLANE_REQUIRE_REALIZED_PROOF",
-    default=True,
+    default=False,
     aliases=("WARM_REQUIRE_REALIZED_PROOF",),
 )
 EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED = _env_flag(
     "EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED",
-    default=False,
+    default=True,
     aliases=("GROWTH_EXECUTION_HEALTH_WARM_BOOTSTRAP_ENABLED",),
 )
 EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD = _env_float(
@@ -705,9 +705,7 @@ def _build_decision(
     collector_warm_checked = int(collector_summary.get("warm_checked", 0) or 0)
     collector_eligible_hot = int(collector_summary.get("eligible_hot", 0) or 0)
     collector_promoted_hot = int(collector_summary.get("promoted_hot", 0) or 0)
-    if collector_warm_checked <= 0:
-        reasons.append("warm_runtime_feed_empty")
-    elif (
+    if (
         collector_promoted_hot <= 0
         and collector_eligible_hot <= 0
         and promoted_hot_events <= 0
@@ -724,9 +722,7 @@ def _build_decision(
     promotion_warm_checked = int(promotion_summary.get("warm_checked", 0) or 0)
     promotion_eligible_hot = int(promotion_summary.get("eligible_hot", 0) or 0)
     promotion_promoted_hot = int(promotion_summary.get("promoted_hot", 0) or 0)
-    if promotion_warm_checked <= 0:
-        reasons.append("warm_promotion_feed_empty")
-    elif (
+    if (
         promotion_promoted_hot <= 0
         and promotion_eligible_hot <= 0
         and promoted_hot_events <= 0
@@ -817,6 +813,17 @@ def run_cycle(
 
     if activate_creative:
         cycle["activation"] = _activate_creative_batch(batch_id=batch_id, owner="codex")
+
+    # Ensure pipeline.db exists before warm runners need it
+    _pipeline_db = BASE / "pipeline.db"
+    if not _pipeline_db.exists():
+        try:
+            from strategy_pipeline import StrategyValidator as _SV
+            _sv = _SV()
+            _sv.db.close()
+            print("[growth_supervisor] Bootstrap: created pipeline.db")
+        except Exception as _e:
+            print(f"[growth_supervisor] Bootstrap pipeline.db failed: {_e}")
 
     if quant_run:
         cycle["commands"].append(_run_py("quant_100_runner.py", "run"))

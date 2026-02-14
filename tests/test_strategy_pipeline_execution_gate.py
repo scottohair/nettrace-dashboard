@@ -151,7 +151,7 @@ def test_realized_close_required_gate_blocks_hot_promotion(monkeypatch, tmp_path
             "pair": _pair,
             "strategy_name": strategy_name,
             "passed": False,
-            "reason": "closed_trades 0 < 10",
+            "reason": "closed_trades 0 < 5",
         },
     )
 
@@ -166,5 +166,5 @@ def test_realized_close_required_gate_blocks_hot_promotion(monkeypatch, tmp_path
     }
     promoted, msg = validator.check_warm_promotion(strategy.name, pair, paper_metrics)
     assert promoted is False
-    assert "realized_close_gate_failed:closed_trades 0 < 10" in msg
+    assert "realized_close_gate_failed:closed_trades 0 < 5" in msg
     validator.db.close()

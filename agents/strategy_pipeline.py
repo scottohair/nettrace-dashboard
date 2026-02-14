@@ -230,6 +230,13 @@ PROBABILISTIC_CONFORMAL_PENALTY_SCALE = float(
 )
 LOCAL_FALLBACK_MIN_CANDLES = int(os.environ.get("LOCAL_FALLBACK_MIN_CANDLES", "160"))
 LOCAL_FALLBACK_EXPAND_MULT = float(os.environ.get("LOCAL_FALLBACK_EXPAND_MULT", "4.0"))
+PIPELINE_DATA_MODE = os.environ.get("PIPELINE_DATA_MODE", "candle").lower()
+PIPELINE_NON_CANDLE_MIN_BARS = int(os.environ.get("PIPELINE_NON_CANDLE_MIN_BARS", "24"))
+PIPELINE_NON_CANDLE_STRICT_MODE = os.environ.get("PIPELINE_NON_CANDLE_STRICT_MODE", "0").lower() not in (
+    "0",
+    "false",
+    "no",
+)
 REALIZED_ESCALATION_GATE_ENABLED = os.environ.get(
     "REALIZED_ESCALATION_GATE_ENABLED", "1"
 ).lower() not in ("0", "false", "no")
@@ -301,6 +308,13 @@ def _clamp(value, lo, hi):
     return max(lo, min(hi, value))
 
 
+def _normalize_pipeline_data_mode():
+    mode = str(PIPELINE_DATA_MODE or "candle").lower().strip()
+    if mode in {"candle", "non_candle", "hybrid"}:
+        return mode
+    return "candle"
+
+
 class HistoricalPrices:
     """Fetch and cache historical price data for backtesting."""
 
@@ -320,6 +334,140 @@ class HistoricalPrices:
     def get_cache_meta(self, pair, granularity_seconds, hours):
         cache_key = f"{pair}_{granularity_seconds}_{hours}"
         return dict(self.cache_meta.get(cache_key, {}))
+
+    def get_non_candle_rows(self, pair, hours=48, granularity_seconds=300):
+        """Build non-candle strategy rows from local exchange/trade feeds.
+
+        Data is intentionally derived from local event streams so model behavior
+        can evolve with microstructure and venue-implied flow signals.
+        """
+        granularity_seconds = int(granularity_seconds or 300)
+        cache_key = f"{pair}_non_candle_{granularity_seconds}_{hours}"
+        if cache_key in self.cache:
+            return self.cache[cache_key]
+
+        points = []
+        points.extend(self._load_exchange_points(pair, hours))
+        points.extend(self._load_sniper_points(pair, hours))
+        points.extend(self._load_latency_arb_points(pair, hours))
+        points.extend(self._load_trader_points(pair, hours))
+        points.extend(self._load_candle_aggregator_points(pair, granularity_seconds, hours))
+
+        if not points:
+            self.cache[cache_key] = []
+            self.cache_meta[cache_key] = {
+                "pair": pair,
+                "granularity_seconds": int(granularity_seconds),
+                "hours": int(hours),
+                "source": "non_candle_local_empty",
+                "candles": 0,
+                "notes": ["no_local_points"],
+            }
+            return []
+
+        rows = self._rows_from_points(points, granularity_seconds=granularity_seconds)
+        source = "non_candle_local"
+        self.cache[cache_key] = rows
+        self.cache_meta[cache_key] = {
+            "pair": pair,
+            "granularity_seconds": int(granularity_seconds),
+            "hours": int(hours),
+            "source": source,
+            "candles": len(rows),
+            "notes": ["local_events_to_rows"],
+        }
+        return rows
+
+    @staticmethod
+    def _rows_from_points(points, granularity_seconds=300, feature_window=20):
+        if not points:
+            return []
+
+        granularity_seconds = max(1, int(granularity_seconds))
+        ordered = sorted(points, key=lambda x: int(x[0]))
+        rows = []
+        for idx, (ts, px, vol) in enumerate(ordered):
+            try:
+                ts_i = int(ts)
+                price = float(px)
+                volume = max(0.0, float(vol or 0.0))
+            except Exception:
+                continue
+            if ts_i <= 0 or price <= 0:
+                continue
+
+            prev_price = None
+            prev_ts = ts_i
+            if idx > 0:
+                prev_ts = int(ordered[idx - 1][0] or ts_i)
+                try:
+                    prev_price = float(ordered[idx - 1][1])
+                except Exception:
+                    prev_price = None
+
+            if prev_price is None or prev_price <= 0:
+                ret_1 = 0.0
+            else:
+                ret_1 = (price - prev_price) / prev_price
+            window_start = max(0, idx - feature_window + 1)
+            window = []
+            for p in ordered[window_start:idx + 1]:
+                if not p:
+                    continue
+                try:
+                    pv = float(p[1])
+                except Exception:
+                    continue
+                if pv > 0:
+                    window.append(pv)
+            if len(window) >= 2:
+                window_low = min(window)
+                window_high = max(window)
+                base_8 = window[-min(len(window), 8)] if window else price
+                base_20 = window[-min(len(window), 20)] if window else price
+                momentum_8 = (price - base_8) / base_8 if base_8 > 0 else 0.0
+                momentum_20 = (price - base_20) / base_20 if base_20 > 0 else 0.0
+                abs_returns = [abs((window[i] - window[i - 1]) / window[i - 1]) for i in range(1, len(window)) if window[i - 1] > 0]
+                micro_volatility = float(statistics.pstdev(abs_returns)) if len(abs_returns) > 1 else 0.0
+                spread_proxy = (window_high - window_low) / window[0] if window[0] > 0 else 0.0
+            else:
+                window_low = price
+                window_high = price
+                momentum_8 = 0.0
+                momentum_20 = 0.0
+                micro_volatility = 0.0
+                spread_proxy = 0.0
+
+            gap_seconds = max(1, ts_i - int(prev_ts))
+            rate_per_hour = volume / max(1.0, gap_seconds / 3600.0)
+            momentum_8 = float(momentum_8)
+            momentum_20 = float(momentum_20)
+            micro_flow = (gap_seconds / max(1.0, granularity_seconds)) * (0.5 + abs(ret_1) * 10.0)
+
+            rows.append(
+                {
+                    "time": ts_i,
+                    "open": price,
+                    "high": max(window_high, price),
+                    "low": min(window_low, price),
+                    "close": price,
+                    "volume": volume,
+                    "return_1": round(ret_1, 6),
+                    "return_abs": round(abs(ret_1), 6),
+                    "momentum_8": round(momentum_8, 6),
+                    "momentum_20": round(momentum_20, 6),
+                    "micro_flow": round(micro_flow, 6),
+                    "micro_volatility": round(micro_volatility, 6),
+                    "spread_proxy": round(spread_proxy, 6),
+                    "rate_per_hour": round(rate_per_hour, 6),
+                    "gap_seconds": gap_seconds,
+                    "source": "non_candle_local",
+                }
+            )
+            if int(rows[-1]["time"]) % granularity_seconds != 0:
+                rows[-1]["bucket_time"] = (ts_i // granularity_seconds) * granularity_seconds
+
+        return rows
 
     def _get_candles(self, pair, granularity_seconds, hours):
         cache_key = f"{pair}_{granularity_seconds}_{hours}"
@@ -1135,6 +1283,85 @@ class AccumulateAndHoldStrategy:
                         "reason": f"profit_take ({gain*100:.1f}%)",
                         "price": price,
                     })
+
+        return signals
+
+
+class NonCandleMicrostructureStrategy:
+    """Non-candle mode strategy using microstructure-derived row features."""
+
+    name = "non_candle_microstructure"
+
+    def __init__(self, momentum_threshold=0.0015, volatility_cap=0.06, flow_threshold=0.0008):
+        self.momentum_threshold = momentum_threshold
+        self.volatility_cap = volatility_cap
+        self.flow_threshold = flow_threshold
+
+    def generate_signals(self, candles):
+        signals = []
+        if not candles:
+            return signals
+
+        closes = [float(c.get("close", 0.0) or 0.0) for c in candles]
+        for i in range(1, len(candles)):
+            row = candles[i]
+            prev_row = candles[i - 1]
+            if not closes[i] or not closes[i - 1]:
+                continue
+
+            price = float(row.get("close", 0.0) or 0.0)
+            prev_price = float(prev_row.get("close", 0.0) or 0.0)
+            momentum_8 = float(row.get("momentum_8", 0.0) or 0.0)
+            momentum_20 = float(row.get("momentum_20", 0.0) or 0.0)
+            micro_flow = float(row.get("micro_flow", 0.0) or 0.0)
+            micro_volatility = float(row.get("micro_volatility", 0.0) or 0.0)
+            spread_proxy = float(row.get("spread_proxy", 0.0) or 0.0)
+
+            trend = (price - prev_price) / prev_price if prev_price else 0.0
+            confidence = 0.5
+
+            if trend > self.momentum_threshold and momentum_8 > 0 and micro_flow > self.flow_threshold:
+                confidence = min(0.95, 0.58 + trend * 40 + momentum_20 * 35 + micro_flow * 6)
+                signals.append(
+                    {
+                        "time": row.get("time", 0),
+                        "side": "BUY",
+                        "confidence": round(confidence, 3),
+                        "reason": f"non_candle_buy_momentum_m8={momentum_8:.4f}_flow={micro_flow:.4f}",
+                        "price": price,
+                        "spread_proxy": round(spread_proxy, 6),
+                    }
+                )
+                continue
+
+            if trend < -self.momentum_threshold and momentum_8 < 0 and micro_flow > self.flow_threshold:
+                confidence = min(0.95, 0.58 + abs(trend) * 40 + abs(momentum_20) * 35 + micro_flow * 6)
+                signals.append(
+                    {
+                        "time": row.get("time", 0),
+                        "side": "SELL",
+                        "confidence": round(confidence, 3),
+                        "reason": f"non_candle_sell_pullback_m8={momentum_8:.4f}_flow={micro_flow:.4f}",
+                        "price": price,
+                        "spread_proxy": round(spread_proxy, 6),
+                    }
+                )
+                continue
+
+            if spread_proxy > self.volatility_cap:
+                confidence = min(0.85, 0.55 + spread_proxy * 8 + micro_volatility * 4)
+                side = "SELL" if micro_volatility > 0 else "BUY"
+                reason = f"spread_guard_{spread_proxy:.4f}_vol={micro_volatility:.4f}"
+                signals.append(
+                    {
+                        "time": row.get("time", 0),
+                        "side": side,
+                        "confidence": round(confidence, 3),
+                        "reason": reason,
+                        "price": price,
+                        "spread_proxy": round(spread_proxy, 6),
+                    }
+                )
 
         return signals
 
@@ -3851,6 +4078,14 @@ def run_full_pipeline(pairs=None, granularity="5min"):
     """
     if pairs is None:
         pairs = ["BTC-USD", "ETH-USD", "SOL-USD"]
+    data_mode = _normalize_pipeline_data_mode()
+
+    if data_mode == "non_candle":
+        data_mode_description = "non-candle feed"
+    elif data_mode == "hybrid":
+        data_mode_description = "hybrid (non-candle preferred)"
+    else:
+        data_mode_description = "candle feed"
 
     all_strategies = [
         MeanReversionStrategy(window=20, num_std=2.0),
@@ -3861,20 +4096,37 @@ def run_full_pipeline(pairs=None, granularity="5min"):
         MultiTimeframeStrategy(rsi_period=14, bb_window=20, bb_std=2.0),
         AccumulateAndHoldStrategy(dca_interval=12, dip_threshold=0.02),
     ]
+    non_candle_strategies = [
+        NonCandleMicrostructureStrategy(),
+    ]
+
+    if data_mode == "non_candle":
+        all_strategies = non_candle_strategies
+    elif data_mode == "hybrid":
+        all_strategies = all_strategies + non_candle_strategies
 
     # Strategy selections per regime
     regime_strategies = {
         MarketRegimeDetector.REGIME_UPTREND: [
             "momentum", "rsi", "vwap", "multi_timeframe", "dip_buyer",
+            "non_candle_microstructure",
         ],
         MarketRegimeDetector.REGIME_DOWNTREND: [],  # skip entirely
         MarketRegimeDetector.REGIME_RANGING: [
             "mean_reversion", "rsi", "vwap", "multi_timeframe",
+            "non_candle_microstructure",
         ],
         MarketRegimeDetector.REGIME_VOLATILE: [
-            "dip_buyer", "accumulate_hold",
+            "dip_buyer", "accumulate_hold", "non_candle_microstructure",
         ],
     }
+    if data_mode == "non_candle":
+        regime_strategies = {
+            MarketRegimeDetector.REGIME_UPTREND: ["non_candle_microstructure"],
+            MarketRegimeDetector.REGIME_DOWNTREND: ["non_candle_microstructure"],
+            MarketRegimeDetector.REGIME_RANGING: ["non_candle_microstructure"],
+            MarketRegimeDetector.REGIME_VOLATILE: ["non_candle_microstructure"],
+        }
 
     prices = HistoricalPrices()
     backtester = Backtester(initial_capital=100.0)
@@ -3884,18 +4136,80 @@ def run_full_pipeline(pairs=None, granularity="5min"):
     results_summary = []
 
     for pair in pairs:
+        logger.info("Pipeline data mode for %s: %s", pair, data_mode_description)
         logger.info("Fetching historical data for %s...", pair)
+        data_source = {}
 
         if granularity == "5min":
-            candles = prices.get_5min_candles(pair, hours=48)  # 2 days of 5-min
+            granularity_seconds = 300
+            candle_hours = 48  # 2 days of 5-min
         else:
-            candles = prices.get_candles(pair, hours=168)  # 7 days hourly
+            granularity_seconds = 3600
+            candle_hours = 168  # 7 days hourly
 
-        if len(candles) < 30:
-            logger.warning("Not enough data for %s (%d candles)", pair, len(candles))
+        if data_mode == "non_candle":
+            candles = prices.get_non_candle_rows(
+                pair, hours=candle_hours, granularity_seconds=granularity_seconds
+            )
+            data_source = {
+                "mode": "non_candle_local",
+                "source": "non_candle_local",
+                "candles": len(candles),
+            }
+            if len(candles) < PIPELINE_NON_CANDLE_MIN_BARS:
+                if PIPELINE_NON_CANDLE_STRICT_MODE:
+                    logger.warning(
+                        "Insufficient non-candle rows for %s (%d rows < %d required)",
+                        pair,
+                        len(candles),
+                        PIPELINE_NON_CANDLE_MIN_BARS,
+                    )
+                    continue
+                logger.info(
+                    "Falling back to candle data for %s: non-candle rows=%d < %d",
+                    pair,
+                    len(candles),
+                    PIPELINE_NON_CANDLE_MIN_BARS,
+                )
+                if granularity == "5min":
+                    candles = prices.get_5min_candles(pair, hours=candle_hours)
+                else:
+                    candles = prices.get_candles(pair, hours=candle_hours)
+                data_source = prices.get_cache_meta(pair, str(granularity_seconds), candle_hours)
+        elif data_mode == "hybrid":
+            non_candle_rows = prices.get_non_candle_rows(
+                pair, hours=candle_hours, granularity_seconds=granularity_seconds
+            )
+            if len(non_candle_rows) >= PIPELINE_NON_CANDLE_MIN_BARS:
+                candles = non_candle_rows
+                data_source = {
+                    "mode": "non_candle_local",
+                    "source": "non_candle_local",
+                    "candles": len(candles),
+                }
+            else:
+                data_source = prices.get_cache_meta(pair, str(granularity_seconds), candle_hours)
+                if granularity == "5min":
+                    candles = prices.get_5min_candles(pair, hours=candle_hours)
+                else:
+                    candles = prices.get_candles(pair, hours=candle_hours)
+        else:
+            if granularity == "5min":
+                candles = prices.get_5min_candles(pair, hours=candle_hours)
+            else:
+                candles = prices.get_candles(pair, hours=candle_hours)
+            data_source = prices.get_cache_meta(pair, str(granularity_seconds), candle_hours)
+
+        if data_mode == "non_candle":
+            min_rows = max(3, PIPELINE_NON_CANDLE_MIN_BARS)
+        else:
+            min_rows = 30
+        if len(candles) < min_rows:
+            logger.warning("Not enough data for %s (%d rows)", pair, len(candles))
             continue
 
-        logger.info("Got %d candles for %s", len(candles), pair)
+        logger.info("Got %d rows for %s", len(candles), pair)
+        logger.info("Rows source for %s: %s", pair, data_source)
 
         # --- Detect market regime FIRST ---
         regime_result = regime_detector.detect(candles)
