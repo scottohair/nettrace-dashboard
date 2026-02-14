@@ -60,6 +60,15 @@ _load_dotenv_file(ENV_PATH, override=False)
 _load_dotenv_file(WARM_OVERRIDE_PATH, override=False)
 
 GROWTH_MAX_PAIR_SHARE_CAP = float(os.environ.get("GROWTH_MAX_PAIR_SHARE_CAP", "0.70"))
+GROWTH_SUPERVISOR_RUNTIME_HOURS = max(
+    1, int(os.environ.get("GROWTH_SUPERVISOR_RUNTIME_HOURS", "168"))
+)
+GROWTH_SUPERVISOR_RUNTIME_GRANULARITY = str(
+    os.environ.get("GROWTH_SUPERVISOR_RUNTIME_GRANULARITY", "5min")
+).strip() or "5min"
+GROWTH_SUBPROCESS_TIMEOUT_SECONDS = max(
+    5, int(os.environ.get("GROWTH_SUBPROCESS_TIMEOUT_SECONDS", "900"))
+)
 
 
 def _env_flag(name, default=False, aliases=()):
@@ -129,6 +138,40 @@ CLOSE_FLOW_MIN_CLOSE_ATTEMPTS = int(
 )
 CLOSE_FLOW_MIN_CLOSE_COMPLETION_RATE = float(
     os.environ.get("CLOSE_FLOW_MIN_CLOSE_COMPLETION_RATE", "0.40")
+)
+CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_AUTONOMY = _env_flag(
+    "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_AUTONOMY",
+    default=False,
+)
+CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_ATTEMPTS = _env_int(
+    "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_ATTEMPTS",
+    8,
+    aliases=("CLOSE_FLOW_SAFE_TERMINAL_MAX_ATTEMPTS",),
+)
+CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_COMPLETIONS = _env_int(
+    "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_COMPLETIONS",
+    0,
+    aliases=("CLOSE_FLOW_SAFE_TERMINAL_MAX_COMPLETIONS",),
+)
+CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_AUTONOMY = _env_flag(
+    "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_AUTONOMY",
+    default=False,
+)
+CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_ATTEMPTS = _env_int(
+    "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_ATTEMPTS",
+    2,
+)
+CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_COMPLETIONS = _env_int(
+    "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_COMPLETIONS",
+    0,
+)
+CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_REQUIRE_NO_RECENT_BUYS = _env_flag(
+    "CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_REQUIRE_NO_RECENT_BUYS",
+    default=True,
+)
+CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_REQUIRE_NO_RECENT_BUYS = _env_flag(
+    "CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_REQUIRE_NO_RECENT_BUYS",
+    default=True,
 )
 GROWTH_STRICT_HOT_PROMOTION_REQUIRED = _env_flag(
     "GROWTH_STRICT_HOT_PROMOTION_REQUIRED",
@@ -256,7 +299,23 @@ def _append_log(event):
 
 def _run_py(script_name, *args):
     cmd = [sys.executable, str(BASE / script_name), *list(args)]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=GROWTH_SUBPROCESS_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as exc:
+        return {
+            "cmd": cmd,
+            "returncode": 124,
+            "stdout_tail": "\n".join((exc.stdout or "").strip().splitlines()[-20:]),
+            "stderr_tail": (
+                f"command timed out after {GROWTH_SUBPROCESS_TIMEOUT_SECONDS}s"
+            ),
+            "timed_out": True,
+        }
     return {
         "cmd": cmd,
         "returncode": int(proc.returncode),
@@ -559,6 +618,68 @@ def _is_safe_exec_health_block_for_autonomy(exec_reason):
     return False
 
 
+def _is_close_flow_gate_safe_for_autonomy(close_flow_gate):
+    gate = close_flow_gate if isinstance(close_flow_gate, dict) else {}
+    if not CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_AUTONOMY:
+        return False, "terminal_cancelled_autonomy_disabled"
+    reason = str(gate.get("reason", "") or "").strip()
+    if not reason.startswith("reconcile_close_gate_failed:"):
+        return False, "close_flow_gate_reason_not_reconcile_failed"
+    if "terminal_cancelled" not in reason:
+        return False, "close_flow_gate_reason_not_terminal_cancelled"
+    attempts = int(gate.get("sell_close_attempts", 0) or 0)
+    completions = int(gate.get("sell_close_completions", 0) or 0)
+    buys = int(gate.get("buy_fills", 0) or 0)
+    if completions > CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_COMPLETIONS:
+        return (
+            False,
+            f"terminal_cancelled_completions_exceeds_limit:{completions}>{CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_COMPLETIONS}",
+        )
+    if attempts > CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_ATTEMPTS:
+        return (
+            False,
+            f"terminal_cancelled_attempts_exceeds_limit:{attempts}>{CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_MAX_ATTEMPTS}",
+        )
+    if CLOSE_FLOW_SAFE_TERMINAL_CANCELLED_REQUIRE_NO_RECENT_BUYS and buys > 0:
+        return False, "recent_buys_present"
+    return True, "terminal_cancelled_autonomy_override"
+
+
+def _is_reconcile_not_completed_pending_safe_for_autonomy(close_flow_gate):
+    gate = close_flow_gate if isinstance(close_flow_gate, dict) else {}
+    if not CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_AUTONOMY:
+        return False, "not_completed_pending_autonomy_disabled"
+
+    reason = str(gate.get("reason", "") or "").strip()
+    if not reason.startswith("reconcile_close_gate_failed:"):
+        return False, "close_flow_gate_reason_not_reconcile_failed"
+    if "not_completed_pending" not in reason:
+        return False, "close_flow_gate_reason_not_not_completed_pending"
+    if "not_completed_pending" in reason and "terminal_cancelled" in reason:
+        return True, "mixed_reconcile_failure_safe"
+
+    attempts = int(gate.get("sell_close_attempts", 0) or 0)
+    completions = int(gate.get("sell_close_completions", 0) or 0)
+    buys = int(gate.get("buy_fills", 0) or 0)
+
+    if completions > CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_COMPLETIONS:
+        return (
+            False,
+            f"not_completed_pending_completions_exceeds_limit:{completions}>{CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_COMPLETIONS}",
+        )
+    if attempts > CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_ATTEMPTS:
+        return (
+            False,
+            f"not_completed_pending_attempts_exceeds_limit:{attempts}>{CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_MAX_ATTEMPTS}",
+        )
+    if (
+        CLOSE_FLOW_SAFE_NOT_COMPLETED_PENDING_REQUIRE_NO_RECENT_BUYS
+        and buys > 0
+    ):
+        return False, "recent_buys_present"
+    return True, "not_completed_pending_autonomy_override"
+
+
 def _safe_warm_autonomy_override(
     reasons,
     total_funded_budget,
@@ -566,6 +687,7 @@ def _safe_warm_autonomy_override(
     exec_health_bootstrap_active,
     realized_bootstrap_active,
     hot_evidence_bootstrap_active,
+    close_flow_gate=None,
 ):
     if not AUTONOMY_SAFE_WARM_OVERRIDE:
         return False, []
@@ -589,6 +711,18 @@ def _safe_warm_autonomy_override(
     blockers = []
     for reason in normalized:
         if reason in allowed:
+            continue
+        if reason.startswith("close_flow_gate_failed:"):
+            close_flow_safe, _close_reason = _is_close_flow_gate_safe_for_autonomy(
+                close_flow_gate=close_flow_gate
+            )
+            if not close_flow_safe:
+                close_flow_safe, _close_reason = _is_reconcile_not_completed_pending_safe_for_autonomy(
+                    close_flow_gate=close_flow_gate
+                )
+            if close_flow_safe:
+                continue
+            blockers.append(reason)
             continue
         if reason.startswith("execution_health_not_green"):
             if exec_reason and _is_safe_exec_health_block_for_autonomy(exec_reason):
@@ -755,8 +889,6 @@ def _build_decision(
     elif exec_health and not exec_green:
         warnings.append(f"execution_health_not_green:{exec_reason}")
     close_flow_gate = _evaluate_close_flow_gate(trade_flow_metrics)
-    if close_flow_gate.get("enabled", False) and not close_flow_gate.get("passed", False):
-        reasons.append(f"close_flow_gate_failed:{close_flow_gate.get('reason', 'unknown')}")
 
     collector_summary = warm_collector.get("summary", {}) if isinstance(warm_collector, dict) else {}
     promotion_summary = warm_promotion.get("summary", {}) if isinstance(warm_promotion, dict) else {}
@@ -768,6 +900,11 @@ def _build_decision(
         warm_promotion_summary=promotion_summary,
     )
     hot_evidence_bootstrap_warning = ""
+    if close_flow_gate.get("enabled", False) and not close_flow_gate.get("passed", False):
+        if hot_evidence_bootstrap:
+            warnings.append(f"close_flow_gate_bootstrap_override:{close_flow_gate.get('reason', 'unknown')}")
+        else:
+            reasons.append(f"close_flow_gate_failed:{close_flow_gate.get('reason', 'unknown')}")
     if hot_evidence_bootstrap:
         hot_evidence_bootstrap_warning = (
             "hot_evidence_bootstrap:"
@@ -868,6 +1005,7 @@ def _build_decision(
             exec_health_bootstrap_active=bool(exec_health_bootstrap_active),
             realized_bootstrap_active=bool(realized_bootstrap_override),
             hot_evidence_bootstrap_active=bool(hot_evidence_bootstrap),
+            close_flow_gate=close_flow_gate,
         )
         if autonomy_active:
             reasons = []
@@ -963,6 +1101,8 @@ def run_cycle(
     batch_id="BATCH-CREATIVE-20",
     quant_run=True,
     collector_interval_seconds=300,
+    warm_hours=None,
+    warm_granularity=None,
 ):
     cycle = {
         "generated_at": _now_iso(),
@@ -989,19 +1129,32 @@ def run_cycle(
     if quant_run:
         cycle["commands"].append(_run_py("quant_100_runner.py", "run"))
 
+    hours = max(1, int(warm_hours if warm_hours is not None else GROWTH_SUPERVISOR_RUNTIME_HOURS))
+    granularity = str(
+        warm_granularity or GROWTH_SUPERVISOR_RUNTIME_GRANULARITY
+    ).strip() or "5min"
     cycle["commands"].append(
         _run_py(
             "warm_runtime_collector.py",
             "--hours",
-            "168",
+            str(int(hours)),
             "--granularity",
-            "5min",
+            granularity,
             "--interval-seconds",
             str(int(collector_interval_seconds)),
             "--promote",
         )
     )
-    cycle["commands"].append(_run_py("warm_promotion_runner.py", "--hours", "168", "--granularity", "5min", "--promote"))
+    cycle["commands"].append(
+        _run_py(
+            "warm_promotion_runner.py",
+            "--hours",
+            str(int(hours)),
+            "--granularity",
+            granularity,
+            "--promote",
+        )
+    )
     cycle["commands"].append(_run_py("rebalance_funded_budgets.py", "--db", str(BASE / "pipeline.db"), "--commit"))
     cycle["commands"].append(
         _run_py(
