@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Quant 100 Runner — generate and validate 100 market expansion experiments.
+"""Quant idea runner for scalable strategy discovery and promotion.
 
 What this does:
-  1. Builds exactly 100 strategy experiments (parameterized variants).
+  1. Builds N strategy experiments (parameterized variants).
   2. Tags each with target markets + server regions (latency-aware deployment hints).
   3. Backtests each against historical data.
-  4. Pushes profitable, risk-compliant variants into Strategy Pipeline (COLD->WARM).
-  5. Produces budget recommendations for promoted candidates.
+  4. Applies gain-first gating before pipeline promotion (COLD->WARM).
+  5. Produces ranked idea lists + budget recommendations for promoted candidates.
 
 Outputs:
   - agents/quant_100_plan.json
   - agents/quant_100_results.json
+  - agents/quant_idea_ranking.json
 """
 
 import itertools
@@ -49,7 +50,9 @@ logger = logging.getLogger("quant_100")
 BASE_DIR = Path(__file__).parent
 PLAN_FILE = BASE_DIR / "quant_100_plan.json"
 RESULTS_FILE = BASE_DIR / "quant_100_results.json"
+RANKING_FILE = BASE_DIR / "quant_idea_ranking.json"
 BATCH_CONFIG_FILE = BASE_DIR / "growth_batch_config.json"
+IDEA_COUNT = int(os.environ.get("QUANT100_IDEA_COUNT", os.environ.get("QUANT_IDEA_COUNT", "1000")))
 MIN_CANDLES_REQUIRED = int(os.environ.get("QUANT100_MIN_CANDLES", "30"))
 REJECT_ON_DATA_GAP = os.environ.get("QUANT100_REJECT_ON_DATA_GAP", "1").lower() not in (
     "0", "false", "no"
@@ -57,6 +60,9 @@ REJECT_ON_DATA_GAP = os.environ.get("QUANT100_REJECT_ON_DATA_GAP", "1").lower() 
 WALKFORWARD_SPLIT_RATIO = float(os.environ.get("QUANT100_WALKFORWARD_SPLIT_RATIO", "0.55"))
 WALKFORWARD_MIN_TOTAL_CANDLES = int(os.environ.get("QUANT100_WALKFORWARD_MIN_TOTAL_CANDLES", "60"))
 WALKFORWARD_MIN_OOS_CANDLES = int(os.environ.get("QUANT100_WALKFORWARD_MIN_OOS_CANDLES", "24"))
+WALKFORWARD_RANDOM_SPLITS = int(os.environ.get("QUANT100_WALKFORWARD_RANDOM_SPLITS", "4"))
+WALKFORWARD_SPLIT_JITTER_PCT = float(os.environ.get("QUANT100_WALKFORWARD_SPLIT_JITTER_PCT", "0.08"))
+WALKFORWARD_EMBARGO_CANDLES = int(os.environ.get("QUANT100_WALKFORWARD_EMBARGO_CANDLES", "2"))
 BACKTEST_HOURS = int(os.environ.get("QUANT100_BACKTEST_HOURS", "168"))
 BACKTEST_GRANULARITY = os.environ.get("QUANT100_GRANULARITY", "5min").lower()
 MARKET_PREFILTER_MIN_CANDLES = int(
@@ -74,6 +80,41 @@ RETUNE_LOW_ACTIVITY = os.environ.get("QUANT100_RETUNE_LOW_ACTIVITY", "1").lower(
     "0", "false", "no"
 )
 RETUNE_MIN_TRADES = int(os.environ.get("QUANT100_RETUNE_MIN_TRADES", "2"))
+RETUNE_TARGET_TRADES = int(os.environ.get("QUANT100_RETUNE_TARGET_TRADES", "6"))
+GAIN_GATE_ENABLED = os.environ.get("QUANT100_GAIN_GATE_ENABLED", "1").lower() not in (
+    "0", "false", "no"
+)
+GAIN_GATE_REQUIRE_WALKFORWARD = os.environ.get(
+    "QUANT100_GAIN_GATE_REQUIRE_WALKFORWARD", "1"
+).lower() not in ("0", "false", "no")
+GAIN_GATE_MIN_TRADES = int(os.environ.get("QUANT100_GAIN_GATE_MIN_TRADES", "2"))
+GAIN_GATE_MIN_RETURN_PCT = float(os.environ.get("QUANT100_GAIN_GATE_MIN_RETURN_PCT", "0.05"))
+GAIN_GATE_MIN_OOS_RETURN_PCT = float(os.environ.get("QUANT100_GAIN_GATE_MIN_OOS_RETURN_PCT", "0.02"))
+GAIN_GATE_MAX_DRAWDOWN_PCT = float(os.environ.get("QUANT100_GAIN_GATE_MAX_DRAWDOWN_PCT", "3.0"))
+GAIN_GATE_MIN_SHARPE = float(os.environ.get("QUANT100_GAIN_GATE_MIN_SHARPE", "0.0"))
+TOP_RANKED_IDEAS = int(os.environ.get("QUANT100_TOP_RANKED_IDEAS", "100"))
+QUANT100_EXECUTION_SHORTFALL_PENALTY_PER_BPS = float(
+    os.environ.get("QUANT100_EXECUTION_SHORTFALL_PENALTY_PER_BPS", "0.02")
+)
+QUANT100_MAX_EXECUTION_SHORTFALL_BPS = float(
+    os.environ.get("QUANT100_MAX_EXECUTION_SHORTFALL_BPS", "30.0")
+)
+QUANT100_WFO_RETURN_STD_PENALTY_PER_PCT = float(
+    os.environ.get("QUANT100_WFO_RETURN_STD_PENALTY_PER_PCT", "0.50")
+)
+QUANT100_MIN_WFO_OOS_TRADES_FOR_GAIN = int(
+    os.environ.get("QUANT100_MIN_WFO_OOS_TRADES_FOR_GAIN", "8")
+)
+QUANT100_MIN_WFO_OOS_TRADE_CANDLES_PER_TRADE = int(
+    os.environ.get("QUANT100_MIN_WFO_OOS_TRADE_CANDLES_PER_TRADE", "25")
+)
+QUANT100_MIN_WFO_OOS_TRADE_FLOOR = int(
+    os.environ.get("QUANT100_MIN_WFO_OOS_TRADE_FLOOR", "2")
+)
+QUANT100_MIN_OOS_TRADES_PENALTY_PER_TRADE = float(
+    os.environ.get("QUANT100_MIN_OOS_TRADES_PENALTY_PER_TRADE", "0.45")
+)
+ACTIONABLE_QUEUE_FILE = BASE_DIR / "quant_actionable_queue.json"
 
 # Use the same server topology already used by the platform.
 SERVER_REGIONS = [
@@ -182,8 +223,8 @@ def _load_batch_config():
     return {}
 
 
-def _strategy_specs(count_overrides=None):
-    """Return per-strategy parameter grids and target counts (sum=100)."""
+def _strategy_specs(count_overrides=None, target_total=100):
+    """Return per-strategy parameter grids and target counts (sum=target_total)."""
     specs = [
         {
             "base_name": "mean_reversion",
@@ -252,35 +293,53 @@ def _strategy_specs(count_overrides=None):
         },
     ]
     overrides = count_overrides or {}
+    disabled_bases = set()
     if overrides:
         for spec in specs:
             base = spec["base_name"]
             if base in overrides:
                 try:
-                    spec["count"] = max(1, int(overrides[base]))
+                    value = int(overrides[base])
+                    if value <= 0:
+                        spec["count"] = 0
+                        disabled_bases.add(base)
+                    else:
+                        spec["count"] = value
                 except Exception:
                     pass
+    target_total = max(1, int(target_total or 1))
     total = sum(int(spec.get("count", 0) or 0) for spec in specs)
-    if total != 100 and total > 0:
-        factor = 100.0 / float(total)
+    if total != target_total and total > 0:
+        factor = float(target_total) / float(total)
         for spec in specs:
-            spec["count"] = max(1, int(round(spec["count"] * factor)))
-        # Fix any rounding drift to exactly 100.
-        while sum(s["count"] for s in specs) > 100:
+            if spec["base_name"] in disabled_bases:
+                spec["count"] = 0
+            else:
+                spec["count"] = max(1, int(round(spec["count"] * factor)))
+        # Fix any rounding drift to exactly target_total.
+        while sum(s["count"] for s in specs) > target_total:
             for spec in sorted(specs, key=lambda s: s["count"], reverse=True):
-                if sum(s["count"] for s in specs) <= 100:
+                if sum(s["count"] for s in specs) <= target_total:
                     break
+                if spec["base_name"] in disabled_bases:
+                    continue
                 if spec["count"] > 1:
                     spec["count"] -= 1
-        while sum(s["count"] for s in specs) < 100:
+        while sum(s["count"] for s in specs) < target_total:
             for spec in sorted(specs, key=lambda s: s["count"]):
-                if sum(s["count"] for s in specs) >= 100:
+                if sum(s["count"] for s in specs) >= target_total:
                     break
+                if spec["base_name"] in disabled_bases:
+                    continue
                 spec["count"] += 1
+        if sum(s["count"] for s in specs) < target_total:
+            fallback = next((s for s in specs if s["base_name"] not in disabled_bases), None)
+            if fallback is not None:
+                fallback["count"] += target_total - sum(s["count"] for s in specs)
     return specs
 
 
-def _derive_adaptive_strategy_overrides():
+def _derive_adaptive_strategy_overrides(target_total=100):
     if not ADAPTIVE_STRATEGY_SPLIT or not RESULTS_FILE.exists():
         return {}
 
@@ -293,7 +352,8 @@ def _derive_adaptive_strategy_overrides():
     if not isinstance(rows, list) or not rows:
         return {}
 
-    bases = [spec["base_name"] for spec in _strategy_specs()]
+    target_total = max(1, int(target_total or 1))
+    bases = [spec["base_name"] for spec in _strategy_specs(target_total=target_total)]
     stats = {
         base: {"total": 0, "promoted": 0, "positive": 0, "strict_positive": 0}
         for base in bases
@@ -330,8 +390,8 @@ def _derive_adaptive_strategy_overrides():
         return {}
 
     min_per = max(1, int(ADAPTIVE_MIN_PER_STRATEGY))
-    if min_per * len(bases) > 100:
-        min_per = max(1, 100 // max(1, len(bases)))
+    if min_per * len(bases) > target_total:
+        min_per = max(1, target_total // max(1, len(bases)))
 
     weights = {}
     for base in bases:
@@ -347,16 +407,16 @@ def _derive_adaptive_strategy_overrides():
         )
 
     counts = {base: min_per for base in bases}
-    remaining = max(0, 100 - sum(counts.values()))
+    remaining = max(0, target_total - sum(counts.values()))
     total_weight = sum(max(1e-6, weights[base]) for base in bases)
     for base in bases:
         share = (max(1e-6, weights[base]) / total_weight) * remaining
         counts[base] += int(share)
 
-    while sum(counts.values()) < 100:
+    while sum(counts.values()) < target_total:
         base = max(bases, key=lambda b: (weights[b], -counts[b]))
         counts[base] += 1
-    while sum(counts.values()) > 100:
+    while sum(counts.values()) > target_total:
         base = min(
             (b for b in bases if counts[b] > min_per),
             key=lambda b: (weights[b], counts[b]),
@@ -376,6 +436,103 @@ def _grid_combinations(grid):
         yield {k: v for k, v in zip(keys, values)}
 
 
+def _sanitize_params(base_name, params):
+    p = dict(params or {})
+    if base_name == "mean_reversion":
+        p["window"] = max(8, int(p.get("window", 20)))
+        p["num_std"] = round(max(0.8, float(p.get("num_std", 2.0))), 6)
+    elif base_name == "momentum":
+        short_window = max(2, int(p.get("short_window", 5)))
+        long_window = max(short_window + 4, int(p.get("long_window", 20)))
+        p["short_window"] = short_window
+        p["long_window"] = long_window
+        p["volume_mult"] = round(max(1.0, float(p.get("volume_mult", 1.5))), 6)
+    elif base_name == "rsi":
+        period = max(6, int(p.get("period", 14)))
+        oversold = max(5, min(45, int(p.get("oversold", 30))))
+        overbought = max(55, min(95, int(p.get("overbought", 70))))
+        if overbought <= oversold + 10:
+            overbought = min(95, oversold + 15)
+        p["period"] = period
+        p["oversold"] = oversold
+        p["overbought"] = overbought
+    elif base_name == "vwap":
+        p["deviation_pct"] = round(max(0.0005, float(p.get("deviation_pct", 0.005))), 6)
+    elif base_name == "dip_buyer":
+        p["dip_threshold"] = round(max(0.004, float(p.get("dip_threshold", 0.015))), 6)
+        p["recovery_target"] = round(max(0.006, float(p.get("recovery_target", 0.020))), 6)
+        p["lookback"] = max(2, int(p.get("lookback", 4)))
+    elif base_name == "multi_timeframe":
+        p["rsi_period"] = max(6, int(p.get("rsi_period", 14)))
+        p["bb_window"] = max(10, int(p.get("bb_window", 20)))
+        p["bb_std"] = round(max(1.1, float(p.get("bb_std", 2.0))), 6)
+    elif base_name == "accumulate_hold":
+        p["dca_interval"] = max(1, int(p.get("dca_interval", 12)))
+        p["dip_threshold"] = round(max(0.004, float(p.get("dip_threshold", 0.020))), 6)
+        p["profit_target"] = round(max(0.004, float(p.get("profit_target", 0.020))), 6)
+    return p
+
+
+def _expand_param_variants(base_name, grid, target_count):
+    target_count = max(1, int(target_count or 1))
+    bases = [_sanitize_params(base_name, combo) for combo in _grid_combinations(grid)]
+    if not bases:
+        return []
+
+    out = []
+    seen = set()
+
+    def _add(candidate):
+        key = tuple(sorted(candidate.items()))
+        if key in seen:
+            return False
+        seen.add(key)
+        out.append(candidate)
+        return True
+
+    for base in bases:
+        _add(base)
+        if len(out) >= target_count:
+            return out[:target_count]
+
+    cycle = 1
+    max_cycles = max(96, int((target_count / max(1, len(bases))) * 6))
+    while len(out) < target_count and cycle <= max_cycles:
+        for base_idx, base in enumerate(bases):
+            candidate = {}
+            for k, v in base.items():
+                if isinstance(v, bool):
+                    candidate[k] = v
+                    continue
+                if isinstance(v, int):
+                    span = max(6, min(120, int(abs(v) * 2.2) + 6))
+                    delta_seed = (cycle * 13) + (base_idx * 7) + len(k)
+                    delta = (delta_seed % (span * 2 + 1)) - span
+                    if delta == 0:
+                        delta = 1 if (delta_seed % 2 == 0) else -1
+                    candidate[k] = max(1, v + delta)
+                    continue
+                if isinstance(v, float):
+                    pct_seed = (cycle * 17) + (base_idx * 5) + len(k)
+                    pct = ((pct_seed % 121) - 60) * 0.01
+                    candidate[k] = max(1e-6, round(v * (1.0 + pct), 6))
+                    continue
+                candidate[k] = v
+
+            candidate = _sanitize_params(base_name, candidate)
+            _add(candidate)
+            if len(out) >= target_count:
+                break
+        cycle += 1
+
+    if len(out) < target_count:
+        idx = 0
+        while len(out) < target_count:
+            out.append(dict(bases[idx % len(bases)]))
+            idx += 1
+    return out[:target_count]
+
+
 def _normalize_tag(value):
     raw = str(value or "").strip().lower()
     if not raw:
@@ -393,8 +550,19 @@ def _resolve_run_tag(batch_config):
     return _normalize_tag(batch_config.get("active_batch_id"))
 
 
-def build_100_experiments(priority_pairs=None, market_universe=None, strategy_count_overrides=None, run_tag=""):
-    """Build exactly 100 experiments with region + market assignments."""
+def _idea_id_width(count):
+    return max(3, len(str(max(1, int(count or 1)))))
+
+
+def build_experiments(
+    count=IDEA_COUNT,
+    priority_pairs=None,
+    market_universe=None,
+    strategy_count_overrides=None,
+    run_tag="",
+):
+    """Build exactly `count` experiments with region + market assignments."""
+    count = max(1, int(count or 1))
     priority_pairs = [str(p).upper() for p in (priority_pairs or []) if p]
     market_base = market_universe or MARKET_UNIVERSE
 
@@ -412,20 +580,34 @@ def build_100_experiments(priority_pairs=None, market_universe=None, strategy_co
 
     experiments = []
     idx = 1
+    width = _idea_id_width(count)
+    name_suffix = f"q{count}"
+    id_prefix = f"Q{count}"
     market_idx = 0
     region_idx = 0
 
-    for spec in _strategy_specs(count_overrides=strategy_count_overrides):
-        combos = list(_grid_combinations(spec["grid"]))
+    for spec in _strategy_specs(
+        count_overrides=strategy_count_overrides,
+        target_total=count,
+    ):
+        combos = _expand_param_variants(
+            spec["base_name"],
+            spec["grid"],
+            target_count=spec["count"],
+        )
         if not combos:
             continue
         for i in range(spec["count"]):
             params = combos[i % len(combos)]
             market = market_universe[market_idx % len(market_universe)]
             region = SERVER_REGIONS[region_idx % len(SERVER_REGIONS)]
-            strategy_name_core = f"{spec['base_name']}_q100_{idx:03d}"
+            strategy_name_core = f"{spec['base_name']}_{name_suffix}_{idx:0{width}d}"
             strategy_name = strategy_name_core if not run_tag else f"{strategy_name_core}_{run_tag}"
-            exp_id = f"Q100-{idx:03d}" if not run_tag else f"Q100-{run_tag}-{idx:03d}"
+            exp_id = (
+                f"{id_prefix}-{idx:0{width}d}"
+                if not run_tag
+                else f"{id_prefix}-{run_tag}-{idx:0{width}d}"
+            )
 
             exp = {
                 "id": exp_id,
@@ -446,10 +628,21 @@ def build_100_experiments(priority_pairs=None, market_universe=None, strategy_co
             market_idx += 1
             region_idx += 1
 
-    experiments = experiments[:100]
-    if len(experiments) != 100:
-        raise RuntimeError(f"Expected exactly 100 experiments, built {len(experiments)}")
+    experiments = experiments[:count]
+    if len(experiments) != count:
+        raise RuntimeError(f"Expected exactly {count} experiments, built {len(experiments)}")
     return experiments
+
+
+def build_100_experiments(priority_pairs=None, market_universe=None, strategy_count_overrides=None, run_tag=""):
+    """Backwards-compatible wrapper for callers that still require exactly 100 ideas."""
+    return build_experiments(
+        count=100,
+        priority_pairs=priority_pairs,
+        market_universe=market_universe,
+        strategy_count_overrides=strategy_count_overrides,
+        run_tag=run_tag,
+    )
 
 
 def _recommend_budget(result):
@@ -498,10 +691,168 @@ def _walkforward_split_index(candle_count):
     if candle_count < WALKFORWARD_MIN_TOTAL_CANDLES:
         return None
     split = int(candle_count * WALKFORWARD_SPLIT_RATIO)
-    split = max(30, min(split, candle_count - WALKFORWARD_MIN_OOS_CANDLES))
-    if split <= 0 or candle_count - split < WALKFORWARD_MIN_OOS_CANDLES:
+    split = max(30, min(split, candle_count - WALKFORWARD_MIN_OOS_CANDLES - max(0, WALKFORWARD_EMBARGO_CANDLES)))
+    if split <= 0 or candle_count - (split + max(0, WALKFORWARD_EMBARGO_CANDLES)) < WALKFORWARD_MIN_OOS_CANDLES:
         return None
     return split
+
+
+def _walkforward_candidate_splits(candle_count, seed_material=""):
+    base = _walkforward_split_index(candle_count)
+    if base is None:
+        return []
+    min_split = 30
+    max_split = candle_count - WALKFORWARD_MIN_OOS_CANDLES - max(0, WALKFORWARD_EMBARGO_CANDLES)
+    if max_split < min_split:
+        return [base]
+
+    jitter = max(1, int(candle_count * max(0.0, WALKFORWARD_SPLIT_JITTER_PCT)))
+    seed_text = str(seed_material or f"candles:{candle_count}")
+    seed = sum((idx + 1) * ord(ch) for idx, ch in enumerate(seed_text)) % (2 ** 32)
+    rng = random.Random(seed)
+
+    candidates = {base}
+    fixed_offsets = (-jitter, -(jitter // 2), (jitter // 2), jitter)
+    for off in fixed_offsets:
+        split = max(min_split, min(max_split, base + off))
+        candidates.add(split)
+    for _ in range(max(0, int(WALKFORWARD_RANDOM_SPLITS))):
+        off = rng.randint(-jitter, jitter)
+        split = max(min_split, min(max_split, base + off))
+        candidates.add(split)
+    return sorted(candidates)
+
+
+def _walkforward_leakage_diagnostics(candles_is, candles_oos, split_idx, oos_start_idx):
+    is_times = [int(c.get("time", 0) or 0) for c in (candles_is or [])]
+    oos_times = [int(c.get("time", 0) or 0) for c in (candles_oos or [])]
+    is_set = set(is_times)
+    oos_set = set(oos_times)
+    overlap_count = len(is_set.intersection(oos_set))
+    duplicate_count_is = max(0, len(is_times) - len(is_set))
+    duplicate_count_oos = max(0, len(oos_times) - len(oos_set))
+    non_monotonic_is = sum(1 for i in range(1, len(is_times)) if is_times[i] < is_times[i - 1])
+    non_monotonic_oos = sum(1 for i in range(1, len(oos_times)) if oos_times[i] < oos_times[i - 1])
+
+    boundary_gap_seconds = 0
+    if is_times and oos_times:
+        boundary_gap_seconds = int(min(oos_times) - max(is_times))
+
+    passed = (
+        overlap_count == 0
+        and duplicate_count_is == 0
+        and duplicate_count_oos == 0
+        and non_monotonic_is == 0
+        and non_monotonic_oos == 0
+        and boundary_gap_seconds >= 0
+    )
+    return {
+        "passed": bool(passed),
+        "split_index": int(split_idx),
+        "oos_start_index": int(oos_start_idx),
+        "embargo_candles": int(max(0, WALKFORWARD_EMBARGO_CANDLES)),
+        "overlap_count": int(overlap_count),
+        "duplicate_count_in_sample": int(duplicate_count_is),
+        "duplicate_count_out_of_sample": int(duplicate_count_oos),
+        "non_monotonic_in_sample": int(non_monotonic_is),
+        "non_monotonic_out_of_sample": int(non_monotonic_oos),
+        "boundary_gap_seconds": int(boundary_gap_seconds),
+    }
+
+
+def _build_walkforward(backtester, exp, params, candles, pair):
+    walkforward = {
+        "enabled": True,
+        "available": False,
+        "reason": "insufficient_candles_for_walkforward",
+    }
+    split_candidates = _walkforward_candidate_splits(
+        len(candles),
+        seed_material=f"{exp.get('strategy_name', '')}|{pair}|{len(candles)}",
+    )
+    if not split_candidates:
+        return walkforward
+
+    windows = []
+    for split_idx in split_candidates:
+        oos_start_idx = split_idx + max(0, WALKFORWARD_EMBARGO_CANDLES)
+        candles_is = candles[:split_idx]
+        candles_oos = candles[oos_start_idx:]
+        if len(candles_oos) < WALKFORWARD_MIN_OOS_CANDLES or len(candles_is) < 30:
+            continue
+
+        strat_is = _instantiate_strategy(exp["strategy_base"], params)
+        strat_is.name = exp["strategy_name"]
+        strat_oos = _instantiate_strategy(exp["strategy_base"], params)
+        strat_oos.name = exp["strategy_name"]
+
+        bt_is = backtester.run(strat_is, candles_is, pair)
+        bt_oos = backtester.run(strat_oos, candles_oos, pair)
+        leakage = _walkforward_leakage_diagnostics(candles_is, candles_oos, split_idx, oos_start_idx)
+        windows.append(
+            {
+                "split_index": int(split_idx),
+                "oos_start_index": int(oos_start_idx),
+                "in_sample_candles": len(candles_is),
+                "out_of_sample_candles": len(candles_oos),
+                "in_sample": _compact_bt(bt_is),
+                "out_of_sample": _compact_bt(bt_oos),
+                "leakage": leakage,
+            }
+        )
+
+    if not windows:
+        walkforward["reason"] = "walkforward_windows_not_viable"
+        walkforward["split_candidates"] = split_candidates
+        return walkforward
+
+    valid = [w for w in windows if bool((w.get("leakage") or {}).get("passed", False))]
+    selection_pool = valid or windows
+    ranked = sorted(
+        selection_pool,
+        key=lambda w: float(
+            ((w.get("out_of_sample") or {}).get("total_return_pct", 0.0) or 0.0)
+        ),
+    )
+    selected = ranked[len(ranked) // 2]
+
+    oos_returns = [
+        float(((w.get("out_of_sample") or {}).get("total_return_pct", 0.0) or 0.0))
+        for w in selection_pool
+    ]
+    oos_returns_sorted = sorted(oos_returns)
+    oos_median = oos_returns_sorted[len(oos_returns_sorted) // 2] if oos_returns_sorted else 0.0
+    oos_mean = statistics.mean(oos_returns) if oos_returns else 0.0
+    oos_std = statistics.pstdev(oos_returns) if len(oos_returns) > 1 else 0.0
+    leakage_summary = {
+        "valid_windows": int(len(valid)),
+        "total_windows": int(len(windows)),
+        "any_overlap_detected": any(int((w.get("leakage") or {}).get("overlap_count", 0) or 0) > 0 for w in windows),
+        "total_overlap_count": int(sum(int((w.get("leakage") or {}).get("overlap_count", 0) or 0) for w in windows)),
+    }
+    walkforward = {
+        "enabled": True,
+        "available": True,
+        "selection_method": "median_oos_return",
+        "split_index": int(selected.get("split_index", 0) or 0),
+        "oos_start_index": int(selected.get("oos_start_index", 0) or 0),
+        "in_sample_candles": int(selected.get("in_sample_candles", 0) or 0),
+        "out_of_sample_candles": int(selected.get("out_of_sample_candles", 0) or 0),
+        "in_sample": selected.get("in_sample", {}),
+        "out_of_sample": selected.get("out_of_sample", {}),
+        "split_candidates": [int(x) for x in split_candidates],
+        "windows_tested": int(len(windows)),
+        "leakage_diagnostics": selected.get("leakage", {}),
+        "leakage_summary": leakage_summary,
+        "oos_return_distribution_pct": {
+            "median": round(float(oos_median), 6),
+            "mean": round(float(oos_mean), 6),
+            "stdev": round(float(oos_std), 6),
+            "min": round(float(min(oos_returns) if oos_returns else 0.0), 6),
+            "max": round(float(max(oos_returns) if oos_returns else 0.0), 6),
+        },
+    }
+    return walkforward
 
 
 def _compact_bt(bt):
@@ -517,13 +868,150 @@ def _compact_bt(bt):
     }
 
 
-def _score_backtest(bt):
+def _score_backtest(bt, target_trades=0):
+    trades = int(bt.get("total_trades", 0) or 0)
+    target_trades = max(0, int(target_trades or 0))
     return (
         float(bt.get("total_return_pct", 0.0) or 0.0)
         + float(bt.get("win_rate", 0.0) or 0.0) * 10.0
-        + min(12, int(bt.get("total_trades", 0) or 0)) * 0.10
+        + min(16, trades) * 0.10
         - float(bt.get("max_drawdown_pct", 0.0) or 0.0) * 0.35
+        + (0.75 if target_trades and trades >= target_trades else 0.0)
+        - (0.25 * max(0, target_trades - trades) if target_trades else 0.0)
     )
+
+
+def _extract_execution_shortfall_bps(backtest_payload):
+    bt = backtest_payload or {}
+    execution_summary = bt.get("execution_intelligence")
+    if isinstance(execution_summary, dict):
+        return float(execution_summary.get("shortfall_bps", 0.0) or 0.0)
+    return 0.0
+
+
+def _score_gain_potential(metrics, walkforward):
+    metrics = metrics or {}
+    walkforward = walkforward or {}
+    ret = float(metrics.get("return_pct", 0.0) or 0.0)
+    win = float(metrics.get("win_rate", 0.0) or 0.0)
+    trades = int(metrics.get("trades", 0) or 0)
+    dd = float(metrics.get("drawdown_pct", 0.0) or 0.0)
+    sharpe = float(metrics.get("sharpe", 0.0) or 0.0)
+    losses = int(metrics.get("losses", 0) or 0)
+    oos_ret = float(
+        ((walkforward.get("out_of_sample") or {}).get("total_return_pct", 0.0) or 0.0)
+    )
+    oos_trades = int(
+        ((walkforward.get("out_of_sample") or {}).get("total_trades", 0) or 0)
+    )
+    wf_oos_stdev = float(
+        ((walkforward.get("oos_return_distribution_pct") or {}).get("stdev", 0.0) or 0.0)
+    )
+    wf_available = bool(walkforward.get("available", False))
+    execution_shortfall_bps = float(metrics.get("execution_shortfall_bps", 0.0) or 0.0)
+    min_oos_trades = _effective_wfo_oos_trade_floor(walkforward)
+    oos_trade_deficit = max(0, min_oos_trades - oos_trades)
+
+    score = 0.0
+    score += ret * 3.00
+    score += oos_ret * 4.00 if wf_available else -0.50
+    score += sharpe * 0.80
+    score += (win - 0.50) * 16.0
+    score += min(25, trades) * 0.08
+    score += min(10, oos_trades) * 0.05
+    score -= dd * 1.20
+    score -= max(0, losses - 1) * 0.35
+    score -= min(3.0, max(0.0, execution_shortfall_bps) * QUANT100_EXECUTION_SHORTFALL_PENALTY_PER_BPS)
+    score -= min(4.0, max(0.0, wf_oos_stdev) * QUANT100_WFO_RETURN_STD_PENALTY_PER_PCT)
+    score -= min(4.0, oos_trade_deficit * QUANT100_MIN_OOS_TRADES_PENALTY_PER_TRADE)
+    return round(float(score), 6)
+
+
+def _effective_wfo_oos_trade_floor(walkforward):
+    base_min = max(0, int(QUANT100_MIN_WFO_OOS_TRADES_FOR_GAIN))
+    if base_min <= 0:
+        return 0
+    if base_min <= 1:
+        return base_min
+    if not isinstance(walkforward, dict):
+        return base_min
+
+    oos = walkforward.get("out_of_sample") if isinstance(walkforward, dict) else {}
+    oos_candles = int(
+        ((walkforward or {}).get("out_of_sample_candles", 0) or 0)
+        or ((oos or {}).get("candle_count", 0) or 0)
+    )
+    if oos_candles <= 0:
+        return base_min
+
+    candles_per_trade = max(1, int(QUANT100_MIN_WFO_OOS_TRADE_CANDLES_PER_TRADE))
+    min_floor = max(1, int(QUANT100_MIN_WFO_OOS_TRADE_FLOOR))
+    min_floor = max(2, min(base_min, min_floor))
+    scaled_floor = max(1, oos_candles // candles_per_trade)
+    return max(min_floor, min(base_min, scaled_floor))
+
+
+def _extract_walkforward_oos_shortfall_bps(walkforward):
+    return float(
+        ((walkforward or {}).get("out_of_sample") or {}).get("execution_shortfall_bps", 0.0)
+        or 0.0
+    )
+
+
+def _gain_gate(bt, walkforward):
+    if not GAIN_GATE_ENABLED:
+        return True, []
+
+    bt = bt or {}
+    walkforward = walkforward or {}
+    reasons = []
+
+    total_trades = int(bt.get("total_trades", 0) or 0)
+    ret = float(bt.get("total_return_pct", 0.0) or 0.0)
+    dd = float(bt.get("max_drawdown_pct", 0.0) or 0.0)
+    sharpe = float(bt.get("sharpe_ratio", 0.0) or 0.0)
+    execution_shortfall_bps = float(
+        (bt.get("execution_intelligence") or {}).get("shortfall_bps", 0.0) or 0.0
+    )
+
+    if total_trades < GAIN_GATE_MIN_TRADES:
+        reasons.append(f"trades {total_trades} < {GAIN_GATE_MIN_TRADES}")
+    if ret < GAIN_GATE_MIN_RETURN_PCT:
+        reasons.append(f"return {ret:.2f}% < {GAIN_GATE_MIN_RETURN_PCT:.2f}%")
+    if dd > GAIN_GATE_MAX_DRAWDOWN_PCT:
+        reasons.append(f"drawdown {dd:.2f}% > {GAIN_GATE_MAX_DRAWDOWN_PCT:.2f}%")
+    if sharpe < GAIN_GATE_MIN_SHARPE:
+        reasons.append(f"sharpe {sharpe:.2f} < {GAIN_GATE_MIN_SHARPE:.2f}")
+
+    wf_available = bool(walkforward.get("available", False))
+    oos = walkforward.get("out_of_sample") if isinstance(walkforward, dict) else {}
+    oos_ret = float(((oos or {}).get("total_return_pct", 0.0) or 0.0))
+    if GAIN_GATE_REQUIRE_WALKFORWARD and not wf_available:
+        reasons.append("walkforward unavailable")
+    if wf_available and oos_ret < GAIN_GATE_MIN_OOS_RETURN_PCT:
+        reasons.append(
+            f"walkforward_oos_return {oos_ret:.2f}% < {GAIN_GATE_MIN_OOS_RETURN_PCT:.2f}%"
+        )
+    oos_trades = int((oos or {}).get("total_trades", 0) or 0)
+    max_shortfall_bps = max(0.0, QUANT100_MAX_EXECUTION_SHORTFALL_BPS)
+    oos_shortfall_bps = _extract_walkforward_oos_shortfall_bps(walkforward)
+    if max_shortfall_bps > 0.0:
+        if execution_shortfall_bps > max_shortfall_bps:
+            reasons.append(
+                f"execution_shortfall_bps {execution_shortfall_bps:.2f} > {max_shortfall_bps:.2f}"
+            )
+        if oos_shortfall_bps > max_shortfall_bps:
+            reasons.append(
+                f"walkforward_oos_shortfall_bps {oos_shortfall_bps:.2f} > "
+                f"{max_shortfall_bps:.2f}"
+            )
+    min_oos_trades = _effective_wfo_oos_trade_floor(walkforward)
+    if wf_available and min_oos_trades > 0 and oos_trades < min_oos_trades:
+        reasons.append(
+            f"walkforward_oos_trades {oos_trades} < {min_oos_trades}"
+        )
+
+    return len(reasons) == 0, reasons
 
 
 def _retune_candidates(base_name, params):
@@ -532,12 +1020,20 @@ def _retune_candidates(base_name, params):
     if base_name == "mean_reversion":
         out.append({**p, "num_std": max(1.1, float(p.get("num_std", 2.0)) - 0.3)})
         out.append({**p, "window": max(8, int(p.get("window", 20)) - 4)})
+        out.append({**p, "num_std": max(0.8, float(p.get("num_std", 2.0)) - 0.6)})
+        out.append({**p, "window": max(6, int(p.get("window", 20)) - 8)})
     elif base_name == "momentum":
         out.append({**p, "volume_mult": max(1.0, float(p.get("volume_mult", 1.5)) - 0.2)})
         out.append({
             **p,
             "short_window": max(2, int(p.get("short_window", 5)) - 1),
             "long_window": max(8, int(p.get("long_window", 20)) - 4),
+        })
+        out.append({
+            **p,
+            "short_window": max(2, int(p.get("short_window", 5)) - 2),
+            "long_window": max(6, int(p.get("long_window", 20)) - 6),
+            "volume_mult": max(1.0, float(p.get("volume_mult", 1.5)) - 0.4),
         })
     elif base_name == "rsi":
         out.append({
@@ -546,8 +1042,15 @@ def _retune_candidates(base_name, params):
             "overbought": max(55, int(p.get("overbought", 70)) - 5),
         })
         out.append({**p, "period": max(7, int(p.get("period", 14)) - 3)})
+        out.append({
+            **p,
+            "oversold": min(48, int(p.get("oversold", 30)) + 10),
+            "overbought": max(52, int(p.get("overbought", 70)) - 10),
+            "period": max(6, int(p.get("period", 14)) - 5),
+        })
     elif base_name == "vwap":
         out.append({**p, "deviation_pct": max(0.0015, float(p.get("deviation_pct", 0.005)) * 0.75)})
+        out.append({**p, "deviation_pct": max(0.0008, float(p.get("deviation_pct", 0.005)) * 0.50)})
     elif base_name == "dip_buyer":
         out.append({
             **p,
@@ -555,11 +1058,23 @@ def _retune_candidates(base_name, params):
             "recovery_target": max(0.008, float(p.get("recovery_target", 0.02)) * 0.85),
         })
         out.append({**p, "lookback": max(2, int(p.get("lookback", 4)) - 1)})
+        out.append({
+            **p,
+            "dip_threshold": max(0.004, float(p.get("dip_threshold", 0.015)) * 0.50),
+            "recovery_target": max(0.006, float(p.get("recovery_target", 0.02)) * 0.70),
+            "lookback": max(2, int(p.get("lookback", 4)) - 2),
+        })
     elif base_name == "multi_timeframe":
         out.append({
             **p,
             "bb_std": max(1.4, float(p.get("bb_std", 2.0)) - 0.25),
             "rsi_period": max(8, int(p.get("rsi_period", 14)) - 2),
+        })
+        out.append({
+            **p,
+            "bb_std": max(1.1, float(p.get("bb_std", 2.0)) - 0.50),
+            "rsi_period": max(6, int(p.get("rsi_period", 14)) - 4),
+            "bb_window": max(10, int(p.get("bb_window", 20)) - 4),
         })
     elif base_name == "accumulate_hold":
         out.append({
@@ -567,6 +1082,12 @@ def _retune_candidates(base_name, params):
             "dca_interval": max(3, int(p.get("dca_interval", 12)) // 2),
             "profit_target": max(0.010, float(p.get("profit_target", 0.02)) * 0.80),
             "dip_threshold": max(0.010, float(p.get("dip_threshold", 0.02)) * 0.80),
+        })
+        out.append({
+            **p,
+            "dca_interval": max(1, int(p.get("dca_interval", 12)) // 3),
+            "profit_target": max(0.006, float(p.get("profit_target", 0.02)) * 0.60),
+            "dip_threshold": max(0.006, float(p.get("dip_threshold", 0.02)) * 0.60),
         })
 
     unique = []
@@ -577,27 +1098,145 @@ def _retune_candidates(base_name, params):
             continue
         seen.add(key)
         unique.append(item)
-    return unique[:4]
+    return unique[:8]
+
+
+def _activity_boost_candidates(base_name, params):
+    """Generate aggressive-but-valid variants that target higher signal/trade activity."""
+    p = dict(params or {})
+    out = []
+    if base_name == "mean_reversion":
+        for window in (6, 8, 10, 12):
+            for num_std in (0.9, 1.1, 1.3):
+                out.append({"window": window, "num_std": num_std})
+    elif base_name == "momentum":
+        for short_window, long_window in ((2, 8), (3, 10), (4, 12), (5, 14)):
+            for volume_mult in (1.0, 1.1, 1.2):
+                out.append(
+                    {
+                        "short_window": short_window,
+                        "long_window": long_window,
+                        "volume_mult": volume_mult,
+                    }
+                )
+    elif base_name == "rsi":
+        for period in (6, 8, 10):
+            for oversold, overbought in ((38, 62), (40, 60), (42, 58), (45, 55)):
+                out.append(
+                    {
+                        "period": period,
+                        "oversold": oversold,
+                        "overbought": overbought,
+                    }
+                )
+    elif base_name == "vwap":
+        for deviation_pct in (0.0010, 0.0015, 0.0020, 0.0025):
+            out.append({"deviation_pct": deviation_pct})
+    elif base_name == "dip_buyer":
+        for dip_threshold, recovery_target, lookback in (
+            (0.004, 0.006, 2),
+            (0.006, 0.008, 2),
+            (0.008, 0.010, 3),
+            (0.010, 0.012, 3),
+        ):
+            out.append(
+                {
+                    "dip_threshold": dip_threshold,
+                    "recovery_target": recovery_target,
+                    "lookback": lookback,
+                }
+            )
+    elif base_name == "multi_timeframe":
+        for rsi_period, bb_window, bb_std in (
+            (6, 10, 1.1),
+            (7, 12, 1.2),
+            (8, 14, 1.4),
+            (10, 16, 1.5),
+        ):
+            out.append(
+                {
+                    "rsi_period": rsi_period,
+                    "bb_window": bb_window,
+                    "bb_std": bb_std,
+                }
+            )
+    elif base_name == "accumulate_hold":
+        for dca_interval, dip_threshold, profit_target in (
+            (1, 0.006, 0.008),
+            (2, 0.008, 0.010),
+            (3, 0.010, 0.012),
+            (4, 0.012, 0.014),
+        ):
+            out.append(
+                {
+                    "dca_interval": dca_interval,
+                    "dip_threshold": dip_threshold,
+                    "profit_target": profit_target,
+                }
+            )
+    else:
+        out.append(dict(p))
+
+    unique = []
+    seen = set()
+    for item in out:
+        candidate = _sanitize_params(base_name, item)
+        key = tuple(sorted(candidate.items()))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(candidate)
+    return unique[:16]
 
 
 def _maybe_retune_strategy(exp, candles, backtester, baseline_bt):
-    if not RETUNE_LOW_ACTIVITY or int(baseline_bt.get("total_trades", 0) or 0) >= RETUNE_MIN_TRADES:
+    target_trades = max(int(RETUNE_MIN_TRADES), int(RETUNE_TARGET_TRADES))
+    baseline_trades = int(baseline_bt.get("total_trades", 0) or 0)
+    if not RETUNE_LOW_ACTIVITY or baseline_trades >= target_trades:
         return None
 
     best_bt = baseline_bt
     best_params = dict(exp["params"])
-    best_score = _score_backtest(baseline_bt)
+    best_score = _score_backtest(baseline_bt, target_trades=target_trades)
+    best_rank = (
+        int(baseline_trades >= target_trades),
+        int(baseline_trades >= int(RETUNE_MIN_TRADES)),
+        int(baseline_trades),
+        float(best_score),
+    )
     improved = False
 
-    for candidate in _retune_candidates(exp["strategy_base"], exp["params"]):
+    candidates = list(_retune_candidates(exp["strategy_base"], exp["params"]))
+    if baseline_trades < max(int(RETUNE_MIN_TRADES), target_trades):
+        candidates.extend(_activity_boost_candidates(exp["strategy_base"], exp["params"]))
+
+    deduped = []
+    seen = set()
+    for candidate in candidates:
+        normalized = _sanitize_params(exp["strategy_base"], candidate)
+        key = tuple(sorted(normalized.items()))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(normalized)
+
+    for candidate in deduped:
         candidate_strategy = _instantiate_strategy(exp["strategy_base"], candidate)
         candidate_strategy.name = exp["strategy_name"]
         candidate_bt = backtester.run(candidate_strategy, candles, exp["pair"])
-        candidate_score = _score_backtest(candidate_bt)
-        if candidate_score > best_score and int(candidate_bt.get("total_trades", 0) or 0) >= int(best_bt.get("total_trades", 0) or 0):
+        candidate_trades = int(candidate_bt.get("total_trades", 0) or 0)
+        candidate_score = _score_backtest(candidate_bt, target_trades=target_trades)
+        candidate_rank = (
+            int(candidate_trades >= target_trades),
+            int(candidate_trades >= int(RETUNE_MIN_TRADES)),
+            int(candidate_trades),
+            float(candidate_score),
+        )
+        if candidate_rank > best_rank:
             best_bt = candidate_bt
             best_params = candidate
             best_score = candidate_score
+            best_rank = candidate_rank
             improved = True
 
     if not improved:
@@ -676,11 +1315,12 @@ def run_experiments(experiments, hours=BACKTEST_HOURS, granularity=BACKTEST_GRAN
                     "return_pct": 0.0,
                     "win_rate": 0.0,
                     "trades": 0,
-                    "losses": 0,
-                    "drawdown_pct": 0.0,
-                    "sharpe": 0.0,
-                    "final_open_position_blocked": False,
-                },
+                "losses": 0,
+                "drawdown_pct": 0.0,
+                "sharpe": 0.0,
+                "final_open_position_blocked": False,
+                "execution_shortfall_bps": 0.0,
+            },
                 "budget": {
                     "starter_budget_usd": 0.0,
                     "tier": budget_profile.get("risk_tier", "blocked"),
@@ -689,7 +1329,13 @@ def run_experiments(experiments, hours=BACKTEST_HOURS, granularity=BACKTEST_GRAN
                 "data_quality_reject": True,
                 "validator_passed": bool(passed),
                 "walkforward": fallback_bt["walkforward"],
+                "gain_gate": {
+                    "enabled": bool(GAIN_GATE_ENABLED),
+                    "passed": False,
+                    "reasons": [f"insufficient_candles {len(candles)} < {MIN_CANDLES_REQUIRED}"],
+                },
             })
+            rec["expected_gain_score"] = _score_gain_potential(rec["metrics"], rec["walkforward"])
             results.append(rec)
             logger.warning("%s %s %s (%s)", exp["id"], pair, status, rec["reason"])
             continue
@@ -703,36 +1349,27 @@ def run_experiments(experiments, hours=BACKTEST_HOURS, granularity=BACKTEST_GRAN
             validator.update_strategy_params(strategy.name, pair, retuned_params)
 
         params_for_walkforward = retuned_params or exp["params"]
-        split_idx = _walkforward_split_index(len(candles))
-        walkforward = {
-            "enabled": True,
-            "available": False,
-            "reason": "insufficient_candles_for_walkforward",
-        }
-        if split_idx is not None:
-            candles_is = candles[:split_idx]
-            candles_oos = candles[split_idx:]
-            bt_is = backtester.run(_instantiate_strategy(exp["strategy_base"], params_for_walkforward), candles_is, pair)
-            bt_oos = backtester.run(_instantiate_strategy(exp["strategy_base"], params_for_walkforward), candles_oos, pair)
-            walkforward = {
-                "enabled": True,
-                "available": True,
-                "split_index": split_idx,
-                "in_sample_candles": len(candles_is),
-                "out_of_sample_candles": len(candles_oos),
-                "in_sample": _compact_bt(bt_is),
-                "out_of_sample": _compact_bt(bt_oos),
-            }
+        walkforward = _build_walkforward(backtester, exp, params_for_walkforward, candles, pair)
+        gain_gate_passed, gain_gate_reasons = _gain_gate(bt, walkforward)
 
         bt_for_gate = dict(bt)
         bt_for_gate["walkforward"] = walkforward
-        passed, gate_msg = validator.submit_backtest(strategy.name, pair, bt_for_gate)
+        validator_passed, gate_msg = validator.submit_backtest(strategy.name, pair, bt_for_gate)
+        passed = bool(validator_passed and gain_gate_passed)
+        if not gain_gate_passed:
+            gate_prefix = f"gain_gate_failed: {', '.join(gain_gate_reasons)}"
+            gate_msg = gate_prefix if not gate_msg else f"{gate_msg}; {gate_prefix}"
+
         budget_profile = validator.get_budget_profile(strategy.name, pair)
         post_stage_row = validator.db.execute(
             "SELECT stage FROM strategy_registry WHERE name=? AND pair=?",
             (exp["strategy_name"], pair),
         ).fetchone()
         post_stage = str(post_stage_row["stage"] if post_stage_row and post_stage_row["stage"] else prior_stage).upper()
+        if validator_passed and not gain_gate_passed and post_stage in {"WARM", "HOT"}:
+            validator.demote_strategy(strategy.name, pair, reason="gain_gate_failed")
+            budget_profile = validator.get_budget_profile(strategy.name, pair)
+            post_stage = "COLD"
 
         if passed:
             budget = {
@@ -772,13 +1409,21 @@ def run_experiments(experiments, hours=BACKTEST_HOURS, granularity=BACKTEST_GRAN
                 "drawdown_pct": bt["max_drawdown_pct"],
                 "sharpe": bt["sharpe_ratio"],
                 "final_open_position_blocked": bt.get("final_open_position_blocked", False),
+                "execution_shortfall_bps": _extract_execution_shortfall_bps(bt),
             },
             "walkforward": walkforward,
             "budget": budget,
             "risk_profile": budget_profile,
             "prior_stage": prior_stage,
             "post_stage": post_stage,
+            "validator_passed": bool(validator_passed),
+            "gain_gate": {
+                "enabled": bool(GAIN_GATE_ENABLED),
+                "passed": bool(gain_gate_passed),
+                "reasons": gain_gate_reasons,
+            },
         })
+        rec["expected_gain_score"] = _score_gain_potential(rec["metrics"], rec["walkforward"])
         results.append(rec)
 
         logger.info(
@@ -797,6 +1442,59 @@ def run_experiments(experiments, hours=BACKTEST_HOURS, granularity=BACKTEST_GRAN
     return results
 
 
+def _ranked_ideas(results):
+    rows = []
+    for row in results:
+        metrics = row.get("metrics", {}) if isinstance(row.get("metrics"), dict) else {}
+        walkforward = row.get("walkforward", {}) if isinstance(row.get("walkforward"), dict) else {}
+        gain_gate = row.get("gain_gate", {}) if isinstance(row.get("gain_gate"), dict) else {}
+        reasons = []
+        if row.get("reason"):
+            reasons.append(str(row.get("reason")))
+        if row.get("gate_message"):
+            reasons.append(str(row.get("gate_message")))
+        for item in gain_gate.get("reasons", []) if isinstance(gain_gate.get("reasons"), list) else []:
+            reasons.append(str(item))
+
+        rows.append(
+            {
+                "id": row.get("id"),
+                "strategy_name": row.get("strategy_name"),
+                "strategy_base": row.get("strategy_base"),
+                "pair": row.get("pair"),
+                "target_region": row.get("target_region"),
+                "status": row.get("status"),
+                "expected_gain_score": float(
+                    row.get("expected_gain_score", _score_gain_potential(metrics, walkforward)) or 0.0
+                ),
+                "return_pct": float(metrics.get("return_pct", 0.0) or 0.0),
+                "walkforward_oos_return_pct": float(
+                    ((walkforward.get("out_of_sample") or {}).get("total_return_pct", 0.0) or 0.0)
+                ),
+                "drawdown_pct": float(metrics.get("drawdown_pct", 0.0) or 0.0),
+                "sharpe": float(metrics.get("sharpe", 0.0) or 0.0),
+                "win_rate": float(metrics.get("win_rate", 0.0) or 0.0),
+                "trades": int(metrics.get("trades", 0) or 0),
+                "execution_shortfall_bps": float(
+                    metrics.get("execution_shortfall_bps", 0.0) or 0.0
+                ),
+                "walkforward_oos_return_stdev_pct": float(
+                    ((walkforward.get("oos_return_distribution_pct") or {}).get("stdev", 0.0) or 0.0)
+                ),
+                "walkforward_oos_trades": int(
+                    ((walkforward.get("out_of_sample") or {}).get("total_trades", 0) or 0)
+                ),
+                "gain_gate_passed": bool(gain_gate.get("passed", False)),
+                "implementable": bool(
+                    row.get("status") in {"promoted_warm", "retained_warm_passed", "retained_hot_passed"}
+                ),
+                "blockers": reasons[:8],
+            }
+        )
+    rows.sort(key=lambda r: r["expected_gain_score"], reverse=True)
+    return rows
+
+
 def summarize(results):
     promoted = [r for r in results if r.get("status") == "promoted_warm"]
     rejected = [r for r in results if r.get("status") == "rejected_cold"]
@@ -812,20 +1510,21 @@ def summarize(results):
         r for r in wf_available
         if (r.get("walkforward", {}).get("out_of_sample", {}).get("total_return_pct", 0) or 0) > 0
     ]
+    gain_gate_passed = [
+        r for r in results if bool((r.get("gain_gate") or {}).get("passed", False))
+    ]
     rejection_reasons = {}
     for r in rejected:
         reason = r.get("reason") or r.get("gate_message") or "unknown"
         rejection_reasons[reason] = rejection_reasons.get(reason, 0) + 1
 
-    top = sorted(
-        promoted,
-        key=lambda r: (
-            r["metrics"]["sharpe"],
-            r["metrics"]["return_pct"],
-            -r["metrics"]["drawdown_pct"],
-        ),
-        reverse=True,
-    )[:20]
+    ranked = _ranked_ideas(results)
+    top_ranked = ranked[: min(20, len(ranked))]
+    top = [r for r in ranked if r.get("implementable")][: min(20, len(ranked))]
+    if not top:
+        top = top_ranked
+    top_actionable = [r for r in ranked if r.get("implementable")][: min(TOP_RANKED_IDEAS, len(ranked))]
+    top_blocked = [r for r in ranked if not r.get("implementable")][: min(TOP_RANKED_IDEAS, len(ranked))]
 
     budgets = [r["budget"]["starter_budget_usd"] for r in promoted if r.get("budget")]
     avg_budget = round(statistics.mean(budgets), 2) if budgets else 0.0
@@ -850,12 +1549,17 @@ def summarize(results):
         "retuned_low_activity": retuned,
         "walkforward_available": len(wf_available),
         "walkforward_positive_oos": len(wf_positive_oos),
+        "gain_gate_passed": len(gain_gate_passed),
+        "implementable_count": len([r for r in ranked if r.get("implementable")]),
         "rejection_reasons_top": sorted(
             rejection_reasons.items(),
             key=lambda kv: kv[1],
             reverse=True,
         )[:15],
         "top_candidates": top,
+        "top_ranked": top_ranked,
+        "top_actionable": top_actionable,
+        "top_blocked": top_blocked,
     }
 
 
@@ -863,8 +1567,55 @@ def save_json(path, payload):
     path.write_text(json.dumps(payload, indent=2))
 
 
+def _build_actionable_queue(results, summary, max_items=100):
+    top = summary.get("top_actionable", []) if isinstance(summary, dict) else []
+    if not isinstance(top, list):
+        top = []
+
+    by_id = {str(r.get("id")): r for r in (results or []) if isinstance(r, dict)}
+    queue = []
+    for rank, row in enumerate(top[: max(1, int(max_items or 1))], start=1):
+        if not isinstance(row, dict):
+            continue
+        rec = by_id.get(str(row.get("id")), {})
+        budget = rec.get("budget", {}) if isinstance(rec.get("budget"), dict) else {}
+        queue.append(
+            {
+                "rank": int(rank),
+                "id": row.get("id"),
+                "strategy_name": row.get("strategy_name"),
+                "strategy_base": row.get("strategy_base"),
+                "pair": row.get("pair"),
+                "target_region": row.get("target_region"),
+                "expected_gain_score": float(row.get("expected_gain_score", 0.0) or 0.0),
+                "return_pct": float(row.get("return_pct", 0.0) or 0.0),
+                "walkforward_oos_return_pct": float(
+                    row.get("walkforward_oos_return_pct", 0.0) or 0.0
+                ),
+                "trades": int(row.get("trades", 0) or 0),
+                "execution_shortfall_bps": float(
+                    row.get("execution_shortfall_bps", 0.0) or 0.0
+                ),
+                "status": str(row.get("status", "")),
+                "budget": {
+                    "starter_budget_usd": float(
+                        budget.get("starter_budget_usd", 0.0) or 0.0
+                    ),
+                    "max_budget_usd": float(budget.get("max_budget_usd", 0.0) or 0.0),
+                    "tier": str(budget.get("tier", "none")),
+                },
+            }
+        )
+    return queue
+
+
 def main():
     cmd = sys.argv[1] if len(sys.argv) > 1 else "run"
+    idea_count = IDEA_COUNT
+    if cmd in {"run100", "plan100"}:
+        idea_count = 100
+    elif cmd in {"run1000", "plan1000"}:
+        idea_count = 1000
 
     if cmd == "status":
         if not RESULTS_FILE.exists():
@@ -873,9 +1624,12 @@ def main():
         payload = json.loads(RESULTS_FILE.read_text())
         summary = payload.get("summary", {})
         print(f"Total: {summary.get('total', 0)}")
+        print(f"Idea count configured: {payload.get('config', {}).get('idea_count', IDEA_COUNT)}")
         print(f"Promoted WARM: {summary.get('promoted_warm', 0)}")
         print(f"Rejected COLD: {summary.get('rejected_cold', 0)}")
         print(f"No data: {summary.get('no_data', 0)}")
+        print(f"Gain gate passed: {summary.get('gain_gate_passed', 0)}")
+        print(f"Implementable ideas: {summary.get('implementable_count', 0)}")
         print(f"Retained WARM: {summary.get('retained_warm', 0)}")
         print(f"Retained HOT: {summary.get('retained_hot', 0)}")
         print(f"Avg budget: ${summary.get('avg_starter_budget_usd', 0):.2f}")
@@ -905,10 +1659,13 @@ def main():
             if isinstance(v, (int, float))
         }
     if not strategy_count_overrides:
-        adaptive_strategy_overrides = _derive_adaptive_strategy_overrides()
+        adaptive_strategy_overrides = _derive_adaptive_strategy_overrides(
+            target_total=idea_count
+        )
         strategy_count_overrides = dict(adaptive_strategy_overrides)
 
-    experiments = build_100_experiments(
+    experiments = build_experiments(
+        count=idea_count,
         priority_pairs=merged_priority_pairs,
         market_universe=market_universe,
         strategy_count_overrides=strategy_count_overrides,
@@ -917,12 +1674,25 @@ def main():
     save_json(PLAN_FILE, {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "config": {
+            "idea_count": idea_count,
             "hours": BACKTEST_HOURS,
             "granularity": BACKTEST_GRANULARITY,
             "min_candles_required": MIN_CANDLES_REQUIRED,
             "market_prefilter_min_candles": MARKET_PREFILTER_MIN_CANDLES,
             "retune_low_activity": RETUNE_LOW_ACTIVITY,
             "retune_min_trades": RETUNE_MIN_TRADES,
+            "gain_gate_enabled": GAIN_GATE_ENABLED,
+            "gain_gate_require_walkforward": GAIN_GATE_REQUIRE_WALKFORWARD,
+            "gain_gate_min_trades": GAIN_GATE_MIN_TRADES,
+            "gain_gate_min_return_pct": GAIN_GATE_MIN_RETURN_PCT,
+            "gain_gate_min_oos_return_pct": GAIN_GATE_MIN_OOS_RETURN_PCT,
+            "gain_gate_max_drawdown_pct": GAIN_GATE_MAX_DRAWDOWN_PCT,
+            "gain_gate_min_sharpe": GAIN_GATE_MIN_SHARPE,
+            "wfo_return_std_penalty_per_pct": QUANT100_WFO_RETURN_STD_PENALTY_PER_PCT,
+            "min_wfo_oos_trades_for_gain": QUANT100_MIN_WFO_OOS_TRADES_FOR_GAIN,
+            "wfo_oos_trade_candles_per_trade": QUANT100_MIN_WFO_OOS_TRADE_CANDLES_PER_TRADE,
+            "wfo_oos_trade_floor": QUANT100_MIN_WFO_OOS_TRADE_FLOOR,
+            "min_oos_trades_penalty_per_trade": QUANT100_MIN_OOS_TRADES_PENALTY_PER_TRADE,
             "batch_config_active": bool(batch_config.get("active")),
             "batch_config_id": batch_config.get("active_batch_id"),
             "run_tag": run_tag,
@@ -939,7 +1709,7 @@ def main():
     })
     logger.info("Wrote plan: %s (%d experiments)", PLAN_FILE, len(experiments))
 
-    if cmd == "plan":
+    if cmd in {"plan", "plan100", "plan1000"}:
         print(f"Generated plan only: {PLAN_FILE}")
         return
 
@@ -955,12 +1725,25 @@ def main():
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "config": {
+            "idea_count": idea_count,
             "hours": BACKTEST_HOURS,
             "granularity": BACKTEST_GRANULARITY,
             "min_candles_required": MIN_CANDLES_REQUIRED,
             "market_prefilter_min_candles": MARKET_PREFILTER_MIN_CANDLES,
             "retune_low_activity": RETUNE_LOW_ACTIVITY,
             "retune_min_trades": RETUNE_MIN_TRADES,
+            "gain_gate_enabled": GAIN_GATE_ENABLED,
+            "gain_gate_require_walkforward": GAIN_GATE_REQUIRE_WALKFORWARD,
+            "gain_gate_min_trades": GAIN_GATE_MIN_TRADES,
+            "gain_gate_min_return_pct": GAIN_GATE_MIN_RETURN_PCT,
+            "gain_gate_min_oos_return_pct": GAIN_GATE_MIN_OOS_RETURN_PCT,
+            "gain_gate_max_drawdown_pct": GAIN_GATE_MAX_DRAWDOWN_PCT,
+            "gain_gate_min_sharpe": GAIN_GATE_MIN_SHARPE,
+            "wfo_return_std_penalty_per_pct": QUANT100_WFO_RETURN_STD_PENALTY_PER_PCT,
+            "min_wfo_oos_trades_for_gain": QUANT100_MIN_WFO_OOS_TRADES_FOR_GAIN,
+            "wfo_oos_trade_candles_per_trade": QUANT100_MIN_WFO_OOS_TRADE_CANDLES_PER_TRADE,
+            "wfo_oos_trade_floor": QUANT100_MIN_WFO_OOS_TRADE_FLOOR,
+            "min_oos_trades_penalty_per_trade": QUANT100_MIN_OOS_TRADES_PENALTY_PER_TRADE,
             "batch_config_active": bool(batch_config.get("active")),
             "batch_config_id": batch_config.get("active_batch_id"),
             "run_tag": run_tag,
@@ -976,13 +1759,43 @@ def main():
         "results": results,
     }
     save_json(RESULTS_FILE, payload)
+    save_json(
+        RANKING_FILE,
+        {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "idea_count": len(results),
+            "top_n": TOP_RANKED_IDEAS,
+            "ranked_ideas": _ranked_ideas(results),
+            "top_actionable": summary.get("top_actionable", []),
+            "top_blocked": summary.get("top_blocked", []),
+        },
+    )
+    save_json(
+        ACTIONABLE_QUEUE_FILE,
+        {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "source_results_file": str(RESULTS_FILE),
+            "idea_count": len(results),
+            "queue_size": min(TOP_RANKED_IDEAS, len(summary.get("top_actionable", []) or [])),
+            "queue": _build_actionable_queue(
+                results,
+                summary,
+                max_items=TOP_RANKED_IDEAS,
+            ),
+        },
+    )
     logger.info("Wrote results: %s", RESULTS_FILE)
+    logger.info("Wrote ranking: %s", RANKING_FILE)
+    logger.info("Wrote actionable queue: %s", ACTIONABLE_QUEUE_FILE)
 
-    print("\n=== QUANT 100 SUMMARY ===")
+    print("\n=== QUANT IDEA SUMMARY ===")
     print(f"Total experiments: {summary['total']}")
+    print(f"Idea count configured: {idea_count}")
     print(f"Promoted to WARM: {summary['promoted_warm']}")
     print(f"Rejected in COLD: {summary['rejected_cold']}")
     print(f"No data: {summary['no_data']}")
+    print(f"Gain gate passed: {summary.get('gain_gate_passed', 0)}")
+    print(f"Implementable ideas: {summary.get('implementable_count', 0)}")
     print(f"Retained WARM: {summary.get('retained_warm', 0)}")
     print(f"Retained HOT: {summary.get('retained_hot', 0)}")
     print(f"Avg starter budget: ${summary['avg_starter_budget_usd']:.2f}")

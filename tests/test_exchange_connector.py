@@ -156,6 +156,24 @@ class TestCircuitBreaker(unittest.TestCase):
         self.assertGreaterEqual(CoinbaseTrader._consecutive_failures, 3)
         self.assertGreater(CoinbaseTrader._circuit_open_until, time.time())
 
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    @patch("time.sleep")
+    def test_egress_failure_opens_egress_blocked_circuit(self, mock_sleep, mock_jwt):
+        from exchange_connector import CoinbaseTrader
+        import urllib.error
+
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        err = urllib.error.URLError(OSError(1, "Operation not permitted"))
+
+        with patch("urllib.request.urlopen", side_effect=err):
+            result = trader._request_with_retry("GET", "/test", max_retries=3)
+
+        self.assertIn("Operation not permitted", str(result.get("error", "")))
+        self.assertEqual(CoinbaseTrader._circuit_open_reason, "egress_blocked")
+        self.assertGreater(CoinbaseTrader._circuit_open_until, time.time() + 30)
+        # Should not exponential-backoff loop on hard egress failures.
+        self.assertEqual(mock_sleep.call_count, 0)
+
     def test_circuit_blocks_calls_when_open(self):
         """When circuit is open, calls should be immediately rejected."""
         from exchange_connector import CoinbaseTrader
@@ -286,6 +304,24 @@ class TestDnsFailoverProfile(unittest.TestCase):
             ["198.51.100.20", "198.51.100.21", "203.0.113.9", "192.0.2.10", "192.0.2.50"],
         )
 
+    def test_resolve_dns_candidates_uses_public_resolver_when_system_empty(self):
+        from exchange_connector import CoinbaseTrader
+        import exchange_connector as ec
+
+        with patch.object(ec, "COINBASE_DNS_FAILOVER_ENABLED", True), \
+             patch.object(ec, "COINBASE_DNS_FAILOVER_PROFILE", "system_then_fallback"), \
+             patch.object(ec, "COINBASE_DNS_PUBLIC_RESOLVER_ENABLED", True), \
+             patch.object(ec, "COINBASE_DNS_PUBLIC_RESOLVERS", ("1.1.1.1",)), \
+             patch.object(ec, "COINBASE_DNS_PUBLIC_RESOLVER_TIMEOUT_SECONDS", 0.1), \
+             patch.object(ec, "COINBASE_DNS_PUBLIC_RESOLVER_MAX_IPS", 4), \
+             patch.object(ec, "COINBASE_DNS_FAILOVER_HOST_MAP", {}), \
+             patch.object(ec, "COINBASE_DNS_FALLBACK_IPS", ()), \
+             patch("socket.getaddrinfo", side_effect=socket.gaierror(8, "name or service not known")), \
+             patch.object(ec, "_resolve_public_dns_ips", return_value=["198.51.100.44", "198.51.100.45"]):
+            candidates = CoinbaseTrader._resolve_dns_candidates("api.coinbase.com")
+
+        self.assertEqual(candidates[:2], ["198.51.100.44", "198.51.100.45"])
+
 
 class TestPriceFeed(unittest.TestCase):
     """Test PriceFeed caching and fallback."""
@@ -352,6 +388,184 @@ class TestPartialFillTracking(unittest.TestCase):
         self.assertIsNotNone(fill)
         self.assertAlmostEqual(fill["filled_size"], 0.0005)
         self.assertEqual(fill["status"], "FILLED")
+
+
+class TestInputValidation(unittest.TestCase):
+    """Test strict input handling on order APIs."""
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_place_order_rejects_invalid_product(self, mock_jwt):
+        from exchange_connector import CoinbaseTrader
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        res = trader.place_order(None, "BUY", 100)
+        self.assertEqual(res["error_response"]["error"], "INVALID_PRODUCT_ID")
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_place_order_rejects_invalid_side(self, mock_jwt):
+        from exchange_connector import CoinbaseTrader
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        res = trader.place_order("BTC-USD", "HODL", 100)
+        self.assertEqual(res["error_response"]["error"], "INVALID_SIDE")
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_place_order_rejects_invalid_order_type(self, mock_jwt):
+        from exchange_connector import CoinbaseTrader
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        res = trader.place_order("BTC-USD", "BUY", 100, order_type="post_only")
+        self.assertEqual(res["error_response"]["error"], "INVALID_ORDER_TYPE")
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_place_order_rejects_nonfinite_size(self, mock_jwt):
+        from exchange_connector import CoinbaseTrader
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        res = trader.place_order("BTC-USD", "BUY", float("nan"), order_type="market")
+        self.assertEqual(res["error_response"]["error"], "INVALID_SIZE")
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_place_limit_order_rejects_invalid_price(self, mock_jwt):
+        from exchange_connector import CoinbaseTrader
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        res = trader.place_limit_order("BTC-USD", "BUY", 0.001, -10.0)
+        self.assertEqual(res["error_response"]["error"], "INVALID_PRICE")
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_place_order_normalizes_inputs(self, mock_jwt):
+        from exchange_connector import CoinbaseTrader, STRICT_PROFIT_ONLY
+        if not STRICT_PROFIT_ONLY:
+            self.skipTest("Strict profit gate disabled")
+
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        with patch("exchange_connector._is_trading_locked", return_value=(False, "", "")), \
+             patch.object(
+            trader,
+            "_no_loss_gate",
+            return_value={"approved": True},
+        ), patch.object(
+            trader,
+            "_request",
+            return_value={"success_response": {"order_id": "oid"}},
+        ) as mock_request:
+            response = trader.place_order("btc/usd", "buy", 100)
+
+        self.assertEqual(response["success_response"]["order_id"], "oid")
+        args = mock_request.call_args.args
+        payload = args[2] if len(args) >= 3 else mock_request.call_args[1]["body"]
+        self.assertEqual(payload["product_id"], "BTC-USD")
+        self.assertEqual(payload["side"], "BUY")
+        self.assertIn("quote_size", payload["order_configuration"]["market_market_ioc"])
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_place_limit_order_normalizes_inputs(self, mock_jwt):
+        from exchange_connector import CoinbaseTrader, STRICT_PROFIT_ONLY
+        if not STRICT_PROFIT_ONLY:
+            self.skipTest("Strict profit gate disabled")
+
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        with patch("exchange_connector._is_trading_locked", return_value=(False, "", "")), \
+             patch.object(
+            trader,
+            "get_product",
+            return_value={"quote_increment": "0.01", "base_increment": "0.0001"},
+        ), patch.object(
+            trader,
+            "_no_loss_gate",
+            return_value={"approved": True},
+        ), patch.object(
+            trader,
+            "_request",
+            return_value={"success_response": {"order_id": "oid"}},
+        ) as mock_request:
+            response = trader.place_limit_order("btc/usd", "buy", 1.2345, 27500.9876)
+
+        self.assertEqual(response["success_response"]["order_id"], "oid")
+        args = mock_request.call_args.args
+        payload = args[2] if len(args) >= 3 else mock_request.call_args[1]["body"]
+        self.assertEqual(payload["product_id"], "BTC-USD")
+        self.assertEqual(payload["side"], "BUY")
+        self.assertEqual(payload["order_configuration"]["limit_limit_gtc"]["post_only"], True)
+
+
+class TestOrderNotionalGuards(unittest.TestCase):
+    """Test hard notional caps on order execution."""
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_market_buy_is_blocked_by_absolute_notional_cap(self, mock_jwt):
+        import exchange_connector as ec
+        from exchange_connector import CoinbaseTrader
+
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        with patch.object(ec, "COINBASE_MAX_TRADE_NOTIONAL_USD", 10.0), \
+             patch("exchange_connector._is_trading_locked", return_value=(False, "", "")), \
+             patch.object(ec.CoinbaseTrader, "_request") as mock_request:
+            result = trader.place_order("BTC-USD", "BUY", 25.0, order_type="market")
+
+        self.assertEqual(result["error_response"]["error"], "ORDER_NOTIONAL_CAP")
+        self.assertEqual(result["error_response"]["details"]["max_notional_usd"], 10.0)
+        mock_request.assert_not_called()
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_market_buy_is_blocked_by_portfolio_pct_cap(self, mock_jwt):
+        import exchange_connector as ec
+        from exchange_connector import CoinbaseTrader
+
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        with patch.object(ec, "COINBASE_MAX_TRADE_NOTIONAL_USD", 0.0), \
+             patch.object(ec, "COINBASE_MAX_TRADE_NOTIONAL_PCT_OF_PORTFOLIO", 0.10), \
+             patch.object(ec, "_portfolio_value_estimate_from_status", return_value=100.0), \
+             patch("exchange_connector._is_trading_locked", return_value=(False, "", "")), \
+             patch.object(ec.CoinbaseTrader, "_no_loss_gate", return_value={"approved": True}), \
+             patch.object(ec.CoinbaseTrader, "_request", return_value={"success_response": {"order_id": "oid"}}) as mock_request:
+            result = trader.place_order("BTC-USD", "BUY", 20.0, order_type="market")
+
+        self.assertEqual(result["error_response"]["error"], "ORDER_NOTIONAL_CAP")
+        mock_request.assert_not_called()
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_market_buy_passes_when_under_notional_cap(self, mock_jwt):
+        import exchange_connector as ec
+        from exchange_connector import CoinbaseTrader
+
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        with patch.object(ec, "COINBASE_MAX_TRADE_NOTIONAL_USD", 50.0), \
+             patch("exchange_connector._is_trading_locked", return_value=(False, "", "")), \
+             patch.object(ec.CoinbaseTrader, "_no_loss_gate", return_value={"approved": True}), \
+             patch.object(ec.CoinbaseTrader, "_request", return_value={"success_response": {"order_id": "oid"}}) as mock_request:
+            result = trader.place_order("BTC-USD", "BUY", 20.0, order_type="market")
+
+        self.assertEqual(result["success_response"]["order_id"], "oid")
+        mock_request.assert_called_once()
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_limit_buy_is_blocked_by_notional_cap(self, mock_jwt):
+        import exchange_connector as ec
+        from exchange_connector import CoinbaseTrader
+
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        with patch.object(ec, "COINBASE_MAX_TRADE_NOTIONAL_USD", 10.0), \
+             patch("exchange_connector._is_trading_locked", return_value=(False, "", "")), \
+             patch.object(ec.CoinbaseTrader, "_request") as mock_request:
+            result = trader.place_limit_order("BTC-USD", "BUY", 2.0, 6.0, post_only=True)
+
+        self.assertEqual(result["error_response"]["error"], "ORDER_NOTIONAL_CAP")
+        mock_request.assert_not_called()
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    def test_market_buy_pct_notional_uses_fallback_portfolio(self, mock_jwt):
+        import exchange_connector as ec
+        from exchange_connector import CoinbaseTrader
+
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+        with patch.object(ec, "COINBASE_MAX_TRADE_NOTIONAL_USD", 0.0), \
+             patch.object(ec, "COINBASE_MAX_TRADE_NOTIONAL_PCT_OF_PORTFOLIO", 0.10), \
+             patch.object(ec, "COINBASE_PORTFOLIO_VALUE_ESTIMATE_FALLBACK_USD", 100.0), \
+             patch.object(ec, "_read_json_file", return_value=None), \
+             patch.object(ec, "_is_trading_locked", return_value=(False, "", "")), \
+             patch.object(ec.CoinbaseTrader, "_request") as mock_request:
+            result = trader.place_order("BTC-USD", "BUY", 20.0, order_type="market")
+
+        self.assertEqual(result["error_response"]["error"], "ORDER_NOTIONAL_CAP")
+        self.assertEqual(result["error_response"]["details"]["max_notional_usd"], 10.0)
+        mock_request.assert_not_called()
 
 
 if __name__ == "__main__":

@@ -46,6 +46,7 @@ BACKTEST_HOURS = int(os.environ.get("QUANT100_BACKTEST_HOURS", "72"))
 GRANULARITY = os.environ.get("QUANT100_GRANULARITY", "5min")
 CLAUDE_TEAM_COLLAB_ENABLED = os.environ.get("CLAUDE_TEAM_COLLAB_ENABLED", "1").lower() not in ("0", "false", "no")
 CLAUDE_TEAM_STATE_FILE = BASE_DIR / "claude_team_state.json"
+TASK_ID_RE = re.compile(r"\b(AF-\d{3}|WIN-\d{4})\b", re.IGNORECASE)
 CLAUDE_TEAM_TOPICS = {
     "realized_pnl": ("realized", "close", "pnl", "profit"),
     "budget": ("budget", "escalat", "de_escalat", "allocation"),
@@ -97,6 +98,12 @@ class ClaudeQuantAgent:
         return re.findall(r"\b[A-Z]{2,6}-USD\b", str(text).upper())
 
     @staticmethod
+    def _extract_task_ids(text):
+        if not text:
+            return []
+        return [str(x).upper() for x in TASK_ID_RE.findall(str(text))]
+
+    @staticmethod
     def _normalize_priority_pairs(*pair_groups, limit=10):
         ordered = []
         for group in pair_groups:
@@ -106,6 +113,20 @@ class ClaudeQuantAgent:
                     continue
                 if p not in ordered:
                     ordered.append(p)
+                if len(ordered) >= limit:
+                    return ordered
+        return ordered[:limit]
+
+    @staticmethod
+    def _normalize_task_ids(*task_groups, limit=40):
+        ordered = []
+        for group in task_groups:
+            for t in group or []:
+                task_id = str(t).upper().strip()
+                if not TASK_ID_RE.fullmatch(task_id):
+                    continue
+                if task_id not in ordered:
+                    ordered.append(task_id)
                 if len(ordered) >= limit:
                     return ordered
         return ordered[:limit]
@@ -216,14 +237,15 @@ class ClaudeQuantAgent:
 
     def _consume_duplex_directives(self):
         if claude_duplex is None:
-            return [], [], []
+            return [], [], [], []
         msgs = claude_duplex.read_to_claude(since_id=self.last_to_claude_id, limit=200)
         if not msgs:
-            return [], [], []
+            return [], [], [], []
 
         self.last_to_claude_id = max(int(m.get("id", 0)) for m in msgs)
         pairs = []
         trace_ids = []
+        task_ids = []
         for m in msgs:
             meta = m.get("meta", {}) if isinstance(m.get("meta"), dict) else {}
             trace_id = str(m.get("trace_id") or meta.get("trace_id") or "").strip()
@@ -236,7 +258,18 @@ class ClaudeQuantAgent:
             for p in self._extract_pairs(m.get("message", "")):
                 if p not in pairs:
                     pairs.append(p)
-        return msgs, pairs, trace_ids
+            inferred_task_ids = []
+            inferred_task_ids.extend(self._extract_task_ids(m.get("message", "")))
+            for key in ("task_id", "work_item_id"):
+                val = str(meta.get(key, "")).upper().strip()
+                if val:
+                    inferred_task_ids.append(val)
+            for key in ("task_ids", "work_item_ids"):
+                vals = meta.get(key, [])
+                if isinstance(vals, list):
+                    inferred_task_ids.extend([str(v).upper().strip() for v in vals])
+            task_ids = self._normalize_task_ids(task_ids, inferred_task_ids, limit=60)
+        return msgs, pairs, trace_ids, task_ids
 
     def run_once(self):
         self.cycles += 1
@@ -247,6 +280,7 @@ class ClaudeQuantAgent:
         priority_pairs = []
         consumed_msgs = []
         directive_trace_ids = []
+        directive_task_ids = []
         mcp_lesson = {}
         bundle_id = ""
         bundle_hash = ""
@@ -266,7 +300,7 @@ class ClaudeQuantAgent:
                 mcp_lesson = bundle.get("mcp_curriculum", {}) if isinstance(bundle, dict) else {}
             except Exception:
                 pass
-        consumed_msgs, duplex_pairs, directive_trace_ids = self._consume_duplex_directives()
+        consumed_msgs, duplex_pairs, directive_trace_ids, directive_task_ids = self._consume_duplex_directives()
         priority_pairs = self._normalize_priority_pairs(priority_pairs, duplex_pairs, limit=10)
         directive_digest = self._directive_digest(consumed_msgs)
 
@@ -296,6 +330,7 @@ class ClaudeQuantAgent:
             "mcp_lesson_title": mcp_lesson.get("title", ""),
             "directive_digest": directive_digest,
             "directive_trace_ids": directive_trace_ids,
+            "directive_task_ids": directive_task_ids,
             "bundle_id": bundle_id,
             "bundle_hash": bundle_hash,
             "bundle_sequence": bundle_sequence,
@@ -305,6 +340,7 @@ class ClaudeQuantAgent:
             "bundle_hash": bundle_hash,
             "bundle_sequence": bundle_sequence,
             "directive_trace_ids": directive_trace_ids,
+            "directive_task_ids": directive_task_ids,
             "consumed_message_ids": [int(m.get("id", 0)) for m in consumed_msgs],
         }
         self._write_status("idle", summary=summary, ingest=ingest, consumed=consumed, decision_trace=decision_trace)
@@ -320,6 +356,22 @@ class ClaudeQuantAgent:
                     meta={
                         "reply_to_id": self.last_to_claude_id,
                         "priority_pairs": priority_pairs,
+                        "directive_trace_ids": directive_trace_ids,
+                        "task_ids": directive_task_ids,
+                        "ingest_bundle_id": bundle_id,
+                        "ingest_bundle_sequence": bundle_sequence,
+                    },
+                )
+            if directive_task_ids:
+                claude_duplex.send_from_claude(
+                    f"Acknowledged work items: {', '.join(directive_task_ids[:12])}",
+                    msg_type="work_ack",
+                    priority="high",
+                    source="claude_quant",
+                    meta={
+                        "reply_to_id": self.last_to_claude_id,
+                        "task_ids": directive_task_ids,
+                        "work_item_ids": directive_task_ids,
                         "directive_trace_ids": directive_trace_ids,
                         "ingest_bundle_id": bundle_id,
                         "ingest_bundle_sequence": bundle_sequence,

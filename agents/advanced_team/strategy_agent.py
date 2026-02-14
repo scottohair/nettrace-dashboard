@@ -129,6 +129,7 @@ class StrategyAgent:
             "size_multiplier": float(algo.get("size_multiplier", 1.0)) * float(quant.get("size_multiplier", 1.0)),
             "pair_bias": pair_bias,
             "blocked_pairs": blocked,
+            "disabled_families": [f for f in (algo.get("disabled_signal_families", []) or []) if f],
         }
 
     def _score_price_momentum(self, memo, pair):
@@ -302,6 +303,7 @@ class StrategyAgent:
         opt = self._get_optimization_context()
         min_conf = self._clamp(opt["min_confidence"], 0.50, 0.80)
         size_mult = self._clamp(opt["size_multiplier"], 0.6, 1.2)
+        disabled_families = set(opt.get("disabled_families", []))
 
         for research_pair, trade_pair in TRADEABLE_PAIRS.items():
             if research_pair in opt["blocked_pairs"] or trade_pair in opt["blocked_pairs"]:
@@ -312,34 +314,58 @@ class StrategyAgent:
             reasons = []
 
             # 1. Price momentum
-            score, direction, reason = self._score_price_momentum(memo, research_pair)
-            scores.append(("price_momentum", score, direction))
-            reasons.append(f"[momentum] {reason}")
+            if "price_momentum" not in disabled_families:
+                score, direction, reason = self._score_price_momentum(memo, research_pair)
+                scores.append(("price_momentum", score, direction))
+                reasons.append(f"[momentum] {reason}")
+            else:
+                reasons.append("[momentum] DISABLED by optimizer guidance")
 
             # 2. Volatility regime
-            score, direction, reason = self._score_volatility_regime(memo, research_pair)
-            scores.append(("volatility_regime", score, direction))
-            reasons.append(f"[volatility] {reason}")
+            if "volatility_regime" not in disabled_families:
+                score, direction, reason = self._score_volatility_regime(memo, research_pair)
+                scores.append(("volatility_regime", score, direction))
+                reasons.append(f"[volatility] {reason}")
+            else:
+                reasons.append("[volatility] DISABLED by optimizer guidance")
 
             # 3. Fear & Greed (same for all pairs)
-            score, direction, reason = self._score_fear_greed(memo)
-            scores.append(("fear_greed", score, direction))
-            reasons.append(f"[fear_greed] {reason}")
+            if "fear_greed" not in disabled_families:
+                score, direction, reason = self._score_fear_greed(memo)
+                scores.append(("fear_greed", score, direction))
+                reasons.append(f"[fear_greed] {reason}")
+            else:
+                reasons.append("[fear_greed] DISABLED by optimizer guidance")
 
             # 4. NetTrace latency signals
-            score, direction, reason = self._score_nettrace_signals(memo, research_pair)
-            scores.append(("nettrace_latency", score, direction))
-            reasons.append(f"[nettrace] {reason}")
+            if "nettrace_latency" not in disabled_families:
+                score, direction, reason = self._score_nettrace_signals(memo, research_pair)
+                scores.append(("nettrace_latency", score, direction))
+                reasons.append(f"[nettrace] {reason}")
+            else:
+                reasons.append("[nettrace] DISABLED by optimizer guidance")
 
             # 5. Cross-exchange spread
-            score, direction, reason = self._score_cross_exchange(memo, research_pair)
-            scores.append(("cross_exchange_spread", score, direction))
-            reasons.append(f"[spread] {reason}")
+            if "cross_exchange_spread" not in disabled_families:
+                score, direction, reason = self._score_cross_exchange(memo, research_pair)
+                scores.append(("cross_exchange_spread", score, direction))
+                reasons.append(f"[spread] {reason}")
+            else:
+                reasons.append("[spread] DISABLED by optimizer guidance")
 
             # 6. Volume trend
-            score, direction, reason = self._score_volume(memo, research_pair)
-            scores.append(("volume_trend", score, direction))
-            reasons.append(f"[volume] {reason}")
+            if "volume_trend" not in disabled_families:
+                score, direction, reason = self._score_volume(memo, research_pair)
+                scores.append(("volume_trend", score, direction))
+                reasons.append(f"[volume] {reason}")
+            else:
+                reasons.append("[volume] DISABLED by optimizer guidance")
+
+            if not scores:
+                logger.info(
+                    "Skipping %s due to all signal families disabled", trade_pair
+                )
+                continue
 
             # Compute weighted composite confidence
             composite = 0.0

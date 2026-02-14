@@ -1,6 +1,7 @@
 """API key authentication and rate limiting for NetTrace."""
 
 import hashlib
+import os
 import secrets
 import sqlite3
 import time
@@ -16,6 +17,11 @@ TIER_CONFIG = {
     "enterprise_pro":  {"rate_limit_daily": 9999999, "history_days": 365, "routes": True,  "compare": True,  "export": True,  "ws_stream": True,  "dedicated_scanning": True,  "sla": True},
     "government":      {"rate_limit_daily": 9999999, "history_days": 730, "routes": True,  "compare": True,  "export": True,  "ws_stream": True,  "dedicated_scanning": True,  "sla": True},
 }
+
+ALLOW_QUERY_API_KEY_AUTH = (
+    str(os.environ.get("ALLOW_QUERY_API_KEY_AUTH", "0")).strip().lower()
+    not in {"0", "false", "no", ""}
+)
 
 
 def generate_api_key():
@@ -35,22 +41,24 @@ def verify_api_key(f):
     """Decorator: extract and verify API key from request, attach tier info to g."""
     @wraps(f)
     def decorated(*args, **kwargs):
-        # Check Authorization header first, then query param
+        # Check Authorization header first, then X-Api-Key, then optional query param.
         auth_header = request.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
             raw_key = auth_header[7:].strip()
         else:
-            raw_key = request.args.get("api_key", "").strip()
+            raw_key = (request.headers.get("X-Api-Key") or "").strip()
+            if not raw_key and ALLOW_QUERY_API_KEY_AUTH:
+                raw_key = request.args.get("api_key", "").strip()
 
         if not raw_key:
-            return jsonify({"error": "API key required. Pass via Authorization: Bearer <key> header or ?api_key= param.",
+            return jsonify({"error": "API key required. Pass via Authorization: Bearer <key> or X-Api-Key header.",
                             "docs": "/api/v1/"}), 401
 
         key_hash = hash_api_key(raw_key)
         db = _get_db()
         row = db.execute(
             "SELECT id, user_id, tier, rate_limit_daily, is_active, "
-            "COALESCE(read_only, 0) as read_only FROM api_keys WHERE key_hash = ?",
+            "COALESCE(read_only, 0) as read_only, org_id FROM api_keys WHERE key_hash = ?",
             (key_hash,)
         ).fetchone()
 
@@ -103,6 +111,12 @@ def verify_api_key(f):
         g.api_read_only = bool(row["read_only"])
         g.tier_config = TIER_CONFIG.get(row["tier"], TIER_CONFIG["free"])
 
+        # Multi-tenant: resolve org_id from API key
+        try:
+            g.api_org_id = row["org_id"]
+        except (IndexError, KeyError):
+            g.api_org_id = None
+
         # Read-only keys: block all write operations (POST/PUT/DELETE)
         # except explicitly allowlisted read-safe POST endpoints
         if g.api_read_only and request.method in ("POST", "PUT", "DELETE"):
@@ -147,15 +161,70 @@ def require_write(f):
     return decorated
 
 
-def create_api_key(user_id, name, tier="free", read_only=False):
+def require_org_access(*roles):
+    """Decorator: verify API key's org matches the requested resource slug.
+
+    Usage: @require_org_access("owner", "admin") on a route with <slug> param.
+    If no roles specified, any org member role is accepted.
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            slug = kwargs.get("slug")
+            if not slug:
+                return jsonify({"error": "Missing org slug"}), 400
+
+            db = _get_db()
+            org = db.execute(
+                "SELECT id, tier, is_active FROM organizations WHERE slug = ?", (slug,)
+            ).fetchone()
+            if not org:
+                return jsonify({"error": "Organization not found"}), 404
+            if not org["is_active"]:
+                return jsonify({"error": "Organization is deactivated"}), 403
+
+            org_id = org["id"]
+
+            # Check API key belongs to this org
+            if getattr(g, "api_org_id", None) != org_id:
+                # Fall back: check if the user is a member of this org
+                membership = db.execute(
+                    "SELECT role FROM org_members WHERE org_id = ? AND user_id = ?",
+                    (org_id, g.api_user_id)
+                ).fetchone()
+                if not membership:
+                    return jsonify({"error": "Access denied to this organization"}), 403
+                member_role = membership["role"]
+            else:
+                membership = db.execute(
+                    "SELECT role FROM org_members WHERE org_id = ? AND user_id = ?",
+                    (org_id, g.api_user_id)
+                ).fetchone()
+                member_role = membership["role"] if membership else "member"
+
+            if roles and member_role not in roles:
+                return jsonify({
+                    "error": f"Requires role: {', '.join(roles)}",
+                    "your_role": member_role
+                }), 403
+
+            g.org_id = org_id
+            g.org_tier = org["tier"]
+            g.org_role = member_role
+            return f(*args, **kwargs)
+        return decorated
+    return decorator
+
+
+def create_api_key(user_id, name, tier="free", read_only=False, org_id=None):
     """Create an API key. Returns (raw_key, key_id) — raw_key shown only once."""
     raw, key_hash, key_prefix = generate_api_key()
     rate_limit = TIER_CONFIG.get(tier, TIER_CONFIG["free"])["rate_limit_daily"]
     db = _get_db()
     cur = db.execute(
-        "INSERT INTO api_keys (user_id, key_hash, key_prefix, name, tier, rate_limit_daily, read_only) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (user_id, key_hash, key_prefix, name, tier, rate_limit, 1 if read_only else 0)
+        "INSERT INTO api_keys (user_id, key_hash, key_prefix, name, tier, rate_limit_daily, read_only, org_id) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (user_id, key_hash, key_prefix, name, tier, rate_limit, 1 if read_only else 0, org_id)
     )
     db.commit()
     return raw, cur.lastrowid

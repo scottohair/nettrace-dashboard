@@ -72,6 +72,18 @@ ORCH_INTEGRATION_GUARD_INTERVAL_SECONDS = int(os.environ.get("ORCH_INTEGRATION_G
 ORCH_INTEGRATION_GUARD_FAIL_OPEN = os.environ.get("ORCH_INTEGRATION_GUARD_FAIL_OPEN", "0").lower() in ("1", "true", "yes")
 ORCH_GUARDED_GROWTH_AGENTS = os.environ.get("ORCH_GUARDED_GROWTH_AGENTS", "flywheel_controller")
 ORCH_GUARD_ALWAYS_ALLOW = os.environ.get("ORCH_GUARD_ALWAYS_ALLOW", "")
+ORCH_STARTUP_PREFLIGHT_ENABLED = os.environ.get("ORCH_STARTUP_PREFLIGHT_ENABLED", "1").lower() not in ("0", "false", "no")
+ORCH_STARTUP_PREFLIGHT_FAIL_OPEN = os.environ.get("ORCH_STARTUP_PREFLIGHT_FAIL_OPEN", "0").lower() in ("1", "true", "yes")
+ORCH_STARTUP_PREFLIGHT_REQUIRE_GREEN = os.environ.get("ORCH_STARTUP_PREFLIGHT_REQUIRE_GREEN", "1").lower() not in ("0", "false", "no")
+ORCH_STARTUP_PREFLIGHT_REFRESH = os.environ.get("ORCH_STARTUP_PREFLIGHT_REFRESH", "1").lower() not in ("0", "false", "no")
+ORCH_STARTUP_PREFLIGHT_MAX_AGE_SECONDS = int(os.environ.get("ORCH_STARTUP_PREFLIGHT_MAX_AGE_SECONDS", "240"))
+ORCH_STARTUP_PREFLIGHT_IGNORE_REASONS = tuple(
+    reason.strip().lower()
+    for reason in str(
+        os.environ.get("ORCH_STARTUP_PREFLIGHT_IGNORE_REASONS", "")
+    ).split(",")
+    if reason.strip()
+)
 DNS_FAILOVER_RUNTIME_DEFAULTS = {
     "COINBASE_DNS_FAILOVER_ENABLED": "1",
     "COINBASE_DNS_FAILOVER_PROFILE": "system_then_fallback",
@@ -96,6 +108,15 @@ DNS_FAILOVER_RUNTIME_DEFAULTS = {
     "EXEC_HEALTH_PUBLIC_DNS_RESOLVERS": "1.1.1.1,8.8.8.8,9.9.9.9",
     "EXEC_HEALTH_PUBLIC_DNS_TIMEOUT_SECONDS": "1.2",
     "EXEC_HEALTH_PUBLIC_DNS_MAX_IPS": "8",
+    "EXEC_HEALTH_CANDLE_FEED_GATE_ENABLED": "1",
+    "EXEC_HEALTH_CANDLE_FEED_MIN_POINTS": "1000",
+    "EXEC_HEALTH_CANDLE_FEED_MIN_PAIR_COUNT": "6",
+    "EXEC_HEALTH_CANDLE_FEED_MIN_TIMEFRAME_COUNT": "2",
+    "EXEC_HEALTH_CANDLE_FEED_MAX_AGE_SECONDS": "360",
+    "EXEC_HEALTH_CANDLE_FEED_REQUIRE_TARGET_ACHIEVED": "1",
+    "CANDLE_GRAPHQL_TARGET_POINTS": "1000",
+    "CANDLE_GRAPHQL_SINCE_HOURS": "48",
+    "CANDLE_AGG_AGENT_INTERVAL_SECONDS": "20",
 }
 
 # Risk limits — NEVER violate
@@ -112,6 +133,8 @@ WALLET_CHAINS = ["ethereum", "base", "arbitrum", "polygon"]
 PENDING_BRIDGES_FILE = str(BASE_DIR / "pending_bridges.json")
 INTEGRATION_GUARD_SCRIPT = BASE_DIR.parent / "tools" / "safe_integration" / "integration_guard.py"
 INTEGRATION_GUARD_STATUS_FILE = BASE_DIR / "integration_guard_status.json"
+EXECUTION_HEALTH_STATUS_FILE = BASE_DIR / "execution_health_status.json"
+STARTUP_PREFLIGHT_STATUS_FILE = BASE_DIR / "orchestrator_startup_preflight.json"
 
 # Drawdown sanity check — if portfolio drops more than this in one check, verify before HARDSTOP
 MAX_SANE_SINGLE_DROP_PCT = 0.40  # 40% drop in 5 minutes is suspicious, verify first
@@ -235,6 +258,14 @@ AGENT_CONFIGS = [
         "enabled": True,
         "critical": False,
         "description": "Multi-exchange correlation scanner (CME, ICE, NYMEX, LSE, etc.)",
+    },
+    {
+        "name": "candle_aggregator",
+        "script": "candle_aggregator_agent.py",
+        "args": [],
+        "enabled": True,
+        "critical": True,
+        "description": "Continuously aggregates homogeneous multi-market candles and maintains 1000+ live data points for quant consumers.",
     },
     {
         "name": "advanced_team",
@@ -418,6 +449,12 @@ class OrchestratorV2:
             "guarded_agents": sorted(self.guarded_growth_agents),
             "always_allow_agents": sorted(self.guard_always_allow_agents),
         }
+        self.startup_preflight = {
+            "enabled": bool(ORCH_STARTUP_PREFLIGHT_ENABLED),
+            "passed": True,
+            "reason": "startup_not_evaluated",
+            "checked_at": "",
+        }
 
     def _get_starting_capital(self):
         """Get starting capital from DB history (no more hardcoding)."""
@@ -491,6 +528,166 @@ class OrchestratorV2:
             INTEGRATION_GUARD_STATUS_FILE.write_text(json.dumps(report, indent=2))
         except Exception as e:
             logger.debug("Failed writing integration guard status: %s", e)
+
+    @staticmethod
+    def _load_json_file(path, default=None):
+        if default is None:
+            default = {}
+        p = Path(path)
+        if not p.exists():
+            return default
+        try:
+            data = json.loads(p.read_text())
+            return data if isinstance(data, dict) else default
+        except Exception:
+            return default
+
+    @staticmethod
+    def _iso_age_seconds(ts_text):
+        text = str(ts_text or "").strip()
+        if not text:
+            return None
+        try:
+            dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return max(0.0, (datetime.now(timezone.utc) - dt).total_seconds())
+        except Exception:
+            return None
+
+    def _persist_startup_preflight(self, report):
+        try:
+            STARTUP_PREFLIGHT_STATUS_FILE.write_text(json.dumps(report, indent=2))
+        except Exception as e:
+            logger.debug("Failed writing startup preflight status: %s", e)
+
+    def _fetch_execution_health_payload(self, refresh=True):
+        payload = {}
+        if refresh and ORCH_STARTUP_PREFLIGHT_REFRESH:
+            try:
+                import execution_health  # type: ignore
+
+                payload = execution_health.evaluate_execution_health(
+                    refresh=True,
+                    probe_http=None,
+                    write_status=True,
+                    status_path=EXECUTION_HEALTH_STATUS_FILE,
+                )
+            except Exception as e:
+                logger.warning("Startup preflight: execution_health refresh failed: %s", e)
+        if not isinstance(payload, dict) or not payload:
+            payload = self._load_json_file(EXECUTION_HEALTH_STATUS_FILE, {})
+        return payload if isinstance(payload, dict) else {}
+
+    @staticmethod
+    def _normalize_ignore_reason(reason):
+        return str(reason or "").strip().lower()
+
+    @staticmethod
+    def _is_ignorable_failure(reason, ignore_reasons):
+        normalized = OrchestratorV2._normalize_ignore_reason(reason)
+        if not normalized:
+            return False
+        for allowed in ignore_reasons:
+            if normalized == allowed:
+                return True
+            if normalized.startswith(f"{allowed}:"):
+                return True
+        return False
+
+    @staticmethod
+    def _can_ignore_startup_preflight_failures(payload_reasons, fail_reason):
+        ignore = ORCH_STARTUP_PREFLIGHT_IGNORE_REASONS
+        if not ignore:
+            return False
+
+        observed = [x for x in (payload_reasons or []) if str(x).strip()]
+        if not observed and fail_reason:
+            observed = [fail_reason]
+
+        if not observed:
+            return False
+
+        return all(
+            OrchestratorV2._is_ignorable_failure(reason, ignore)
+            for reason in observed
+        )
+
+    def run_startup_preflight(self, force_refresh=True):
+        report = {
+            "enabled": bool(ORCH_STARTUP_PREFLIGHT_ENABLED),
+            "fail_open": bool(ORCH_STARTUP_PREFLIGHT_FAIL_OPEN),
+            "require_green": bool(ORCH_STARTUP_PREFLIGHT_REQUIRE_GREEN),
+            "max_age_seconds": int(max(30, int(ORCH_STARTUP_PREFLIGHT_MAX_AGE_SECONDS))),
+            "checked_at": datetime.now(timezone.utc).isoformat(),
+            "status_available": False,
+            "green": False,
+            "passed": True,
+            "reason": "startup_preflight_disabled",
+            "updated_at": "",
+            "age_seconds": None,
+            "egress_blocked": False,
+            "payload_reason": "",
+            "payload_reasons": [],
+        }
+        if not ORCH_STARTUP_PREFLIGHT_ENABLED:
+            self.startup_preflight = report
+            self._persist_startup_preflight(report)
+            return report
+
+        payload = self._fetch_execution_health_payload(refresh=bool(force_refresh))
+        if not payload:
+            report["passed"] = False
+            report["reason"] = "execution_health_status_missing"
+        else:
+            updated_at = str(payload.get("updated_at", "") or "")
+            age = self._iso_age_seconds(updated_at)
+            green = bool(payload.get("green", False))
+            payload_reason = str(payload.get("reason", "") or "")
+            payload_reasons = payload.get("reasons", [])
+            if not isinstance(payload_reasons, list):
+                payload_reasons = []
+
+            report.update(
+                {
+                    "status_available": True,
+                    "green": green,
+                    "updated_at": updated_at,
+                    "age_seconds": None if age is None else round(float(age), 3),
+                    "egress_blocked": bool(payload.get("egress_blocked", False)),
+                    "payload_reason": payload_reason,
+                    "payload_reasons": [str(x) for x in payload_reasons[:8]],
+                }
+            )
+
+            max_age = int(max(30, int(ORCH_STARTUP_PREFLIGHT_MAX_AGE_SECONDS)))
+            if age is None:
+                report["passed"] = False
+                report["reason"] = "execution_health_updated_at_missing"
+            elif age > float(max_age):
+                report["passed"] = False
+                report["reason"] = f"execution_health_stale:{int(age)}s>{max_age}s"
+            elif ORCH_STARTUP_PREFLIGHT_REQUIRE_GREEN and not green:
+                fail_reason = payload_reason or "unknown"
+                if self._can_ignore_startup_preflight_failures(payload_reasons, fail_reason):
+                    report["passed"] = True
+                    report["reason"] = "execution_health_warnings_ignored"
+                    report["ignore_reasons"] = [str(x) for x in payload_reasons[:8]]
+                else:
+                    report["passed"] = False
+                    report["reason"] = f"execution_health_not_green:{fail_reason}"
+            else:
+                report["passed"] = True
+                report["reason"] = "execution_health_green"
+
+        if (not report["passed"]) and ORCH_STARTUP_PREFLIGHT_FAIL_OPEN:
+            report["pass_override_reason"] = report["reason"]
+            report["passed"] = True
+            report["reason"] = "startup_preflight_fail_open"
+
+        self.startup_preflight = report
+        self._persist_startup_preflight(report)
+        return report
 
     def run_integration_guard(self, force=False):
         if not self.guard_enabled:
@@ -808,6 +1005,8 @@ class OrchestratorV2:
 
     def start_agent(self, config):
         """Start a single agent as a subprocess."""
+        if not self.running:
+            return False
         name = config["name"]
         script = os.path.join(AGENTS_DIR, config["script"])
         guard_block_reason = self._guard_block_reason(name)
@@ -879,6 +1078,9 @@ class OrchestratorV2:
         self._reconcile_stray_processes()
         started = 0
         for config in AGENT_CONFIGS:
+            if not self.running:
+                logger.info("Startup interrupted; stopping agent launch sequence")
+                break
             if config["enabled"]:
                 if self.start_agent(config):
                     started += 1
@@ -1326,11 +1528,36 @@ class OrchestratorV2:
         signal.signal(signal.SIGINT, handle_shutdown)
 
         try:
-            # Start all agents
-            self.start_all()
+            try:
+                startup_gate = self.run_startup_preflight(force_refresh=True)
+                if not bool(startup_gate.get("passed", False)):
+                    reason = str(startup_gate.get("reason", "startup_preflight_blocked"))
+                    logger.error("Startup preflight BLOCKED: %s", reason)
+                    self._log_risk_event(
+                        "startup_preflight_blocked",
+                        f"Startup blocked by execution-health preflight: {reason}",
+                        "startup_aborted",
+                    )
+                    try:
+                        from trading_guard import set_trading_lock
 
-            # Initial portfolio check
-            self.check_portfolio()
+                        set_trading_lock(
+                            reason=f"Startup preflight blocked: {reason}",
+                            source="orchestrator_v2",
+                            metadata={"event": "STARTUP_PREFLIGHT_BLOCK", "preflight": startup_gate},
+                        )
+                    except Exception:
+                        pass
+                    self.running = False
+                else:
+                    # Start all agents
+                    self.start_all()
+
+                    # Initial portfolio check
+                    self.check_portfolio()
+            except Exception as e:
+                logger.error("Orchestrator startup failed: %s", e, exc_info=True)
+                self.running = False
 
             last_portfolio_check = time.time()
             cycle = 0
@@ -1443,6 +1670,20 @@ def read_status():
                 )
                 if isinstance(failures, list) and failures:
                     print(f"  Guard blockers: {', '.join(str(x) for x in failures[:6])}")
+        except Exception:
+            pass
+
+    if STARTUP_PREFLIGHT_STATUS_FILE.exists():
+        try:
+            preflight = json.loads(STARTUP_PREFLIGHT_STATUS_FILE.read_text())
+            if isinstance(preflight, dict):
+                passed = bool(preflight.get("passed", False))
+                checked = str(preflight.get("checked_at", "") or "n/a")
+                reason = str(preflight.get("reason", "") or "unknown")
+                print(
+                    f"\n  Startup preflight: {'PASSED' if passed else 'BLOCKED'} "
+                    f"(checked: {checked}) reason={reason}"
+                )
         except Exception:
             pass
 

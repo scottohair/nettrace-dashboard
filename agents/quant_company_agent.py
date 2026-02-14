@@ -48,6 +48,9 @@ DEPLOYMENT_OPT_STATUS = BASE / "deployment_optimizer_status.json"
 DEPLOYMENT_OPT_PLAN = BASE / "deployment_optimizer_plan.json"
 ORCHESTRATOR_DB = BASE / "orchestrator.db"
 TRADER_DB = BASE / "trader.db"
+EXIT_MANAGER_DB = BASE / "exit_manager.db"
+EXECUTION_HEALTH_HISTORY = BASE / "execution_health_history.jsonl"
+RECONCILE_STATUS_FILE = BASE / "reconcile_agent_trades_status.json"
 
 WIN_OBJECTIVE_TEXT = (
     "WIN = maximize mathematically validated, risk-governed realized gains "
@@ -97,6 +100,31 @@ REALIZED_MIN_NET_PNL_USD = float(os.environ.get("QUANT_COMPANY_REALIZED_MIN_NET_
 EXECUTION_HEALTH_ESCALATION_GATE = os.environ.get(
     "EXECUTION_HEALTH_ESCALATION_GATE", "1"
 ).lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_GREEN_STREAK_REQUIRED = int(
+    os.environ.get("EXECUTION_HEALTH_GREEN_STREAK_REQUIRED", "2")
+)
+EXECUTION_HEALTH_MIN_GREEN_RATIO = float(
+    os.environ.get("EXECUTION_HEALTH_MIN_GREEN_RATIO", "0.60")
+)
+EXECUTION_HEALTH_RATIO_WINDOW = int(
+    os.environ.get("EXECUTION_HEALTH_RATIO_WINDOW", "10")
+)
+TRADE_FLOW_LOOKBACK_HOURS = int(os.environ.get("QUANT_COMPANY_TRADE_FLOW_LOOKBACK_HOURS", "6"))
+TRADE_FLOW_MAX_BUY_SELL_RATIO = float(
+    os.environ.get("QUANT_COMPANY_TRADE_FLOW_MAX_BUY_SELL_RATIO", "2.50")
+)
+TRADE_FLOW_MIN_CLOSE_COMPLETION_RATE = float(
+    os.environ.get("QUANT_COMPANY_TRADE_FLOW_MIN_CLOSE_COMPLETION_RATE", "0.40")
+)
+TRADE_FLOW_MIN_CLOSE_ATTEMPTS = int(
+    os.environ.get("QUANT_COMPANY_TRADE_FLOW_MIN_CLOSE_ATTEMPTS", "2")
+)
+BUDGET_ESCALATE_MAX_FACTOR = float(os.environ.get("QUANT_COMPANY_BUDGET_ESCALATE_MAX_FACTOR", "1.15"))
+BUDGET_DEESCALATE_MIN_FACTOR = float(os.environ.get("QUANT_COMPANY_BUDGET_DEESCALATE_MIN_FACTOR", "0.75"))
+BUDGET_ESCALATE_COOLDOWN_SECONDS = int(
+    os.environ.get("QUANT_COMPANY_BUDGET_ESCALATE_COOLDOWN_SECONDS", "900")
+)
+COMPLETED_TRADE_STATUSES = ("filled", "closed", "executed", "partial_filled", "partially_filled", "settled")
 
 try:
     from execution_health import evaluate_execution_health
@@ -161,50 +189,29 @@ def _latest_portfolio_metrics():
         return {"daily_pnl_usd": 0.0, "total_value_usd": 0.0, "drawdown_pct": 0.0}
 
 
-def _realized_close_evidence():
-    """Aggregate realized close performance from trader ledger for escalation gates."""
-    if not TRADER_DB.exists():
-        return {
-            "passed": False,
-            "reason": "trader_db_missing",
-            "lookback_hours": int(REALIZED_LOOKBACK_HOURS),
-            "window_hours": int(REALIZED_WINDOW_HOURS),
-            "positive_windows": 0,
-            "required_positive_windows": int(REALIZED_MIN_POSITIVE_WINDOWS),
-            "total_closes": 0,
-            "total_net_pnl_usd": 0.0,
-            "windows": [],
-        }
+def _empty_realized_evidence(reason):
+    return {
+        "source": "none",
+        "passed": False,
+        "reason": str(reason or "unknown"),
+        "lookback_hours": int(REALIZED_LOOKBACK_HOURS),
+        "window_hours": int(REALIZED_WINDOW_HOURS),
+        "positive_windows": 0,
+        "required_positive_windows": int(REALIZED_MIN_POSITIVE_WINDOWS),
+        "total_closes": 0,
+        "total_net_pnl_usd": 0.0,
+        "windows": [],
+    }
 
-    try:
-        conn = sqlite3.connect(str(TRADER_DB))
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            """
-            SELECT
-                CAST((strftime('%s', created_at) / (? * 3600)) AS INTEGER) AS bucket_id,
-                COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
-                SUM(COALESCE(pnl, 0)) AS net_pnl
-            FROM agent_trades
-            WHERE side='SELL'
-              AND LOWER(COALESCE(status, '')) IN ('filled', 'closed', 'executed', 'partial_filled', 'partially_filled', 'settled')
-              AND created_at >= datetime('now', ?)
-            GROUP BY bucket_id
-            ORDER BY bucket_id DESC
-            """,
-            (max(1, int(REALIZED_WINDOW_HOURS)), f"-{max(1, int(REALIZED_LOOKBACK_HOURS))} hours"),
-        ).fetchall()
-        conn.close()
-    except Exception:
-        rows = []
 
+def _finalize_realized_evidence(source, rows):
     windows = []
     total_closes = 0
     total_pnl = 0.0
     positive_windows = 0
-    for r in rows:
-        closes = int(r["closes"] or 0)
-        net_pnl = float(r["net_pnl"] or 0.0)
+    for row in rows:
+        closes = int(row.get("closes", 0) or 0)
+        net_pnl = float(row.get("net_pnl", 0.0) or 0.0)
         total_closes += closes
         total_pnl += net_pnl
         is_positive = closes >= REALIZED_MIN_CLOSES_PER_WINDOW and net_pnl > 0
@@ -212,7 +219,7 @@ def _realized_close_evidence():
             positive_windows += 1
         windows.append(
             {
-                "bucket_id": int(r["bucket_id"] or 0),
+                "bucket_id": int(row.get("bucket_id", 0) or 0),
                 "closes": closes,
                 "net_pnl_usd": round(net_pnl, 6),
                 "positive_window": bool(is_positive),
@@ -234,6 +241,7 @@ def _realized_close_evidence():
             reason = "insufficient_positive_realized_windows"
 
     return {
+        "source": str(source),
         "passed": bool(passed),
         "reason": reason,
         "lookback_hours": int(REALIZED_LOOKBACK_HOURS),
@@ -244,6 +252,158 @@ def _realized_close_evidence():
         "total_net_pnl_usd": round(float(total_pnl), 6),
         "windows": windows[:24],
     }
+
+
+def _query_trader_realized_rows():
+    if not TRADER_DB.exists():
+        return []
+    try:
+        conn = sqlite3.connect(str(TRADER_DB))
+        conn.row_factory = sqlite3.Row
+        columns = {
+            row["name"] for row in conn.execute("PRAGMA table_info(agent_trades)").fetchall()
+        }
+        has_created_at = "created_at" in columns
+        has_agent = "agent" in columns
+        has_order_id = "order_id" in columns
+        has_status = "status" in columns
+
+        where_clauses = [
+            "side='SELL'",
+        ]
+        params = [max(1, int(REALIZED_WINDOW_HOURS))]
+
+        if has_status:
+            where_clauses.append(
+                "LOWER(COALESCE(status, '')) IN ('filled', 'closed', 'executed', 'partial_filled', 'partially_filled', 'settled')"
+            )
+        else:
+            where_clauses.append("pnl IS NOT NULL")
+
+        if has_agent:
+            where_clauses.append("LOWER(COALESCE(agent, '')) NOT LIKE '%test%'")
+        if has_order_id:
+            where_clauses.append(
+                """
+                (
+                    order_id IS NULL
+                    OR (
+                        LOWER(COALESCE(order_id, '')) NOT LIKE 'test%'
+                        AND LOWER(COALESCE(order_id, '')) NOT LIKE 'sim%'
+                        AND LOWER(COALESCE(order_id, '')) NOT LIKE 'paper%'
+                    )
+                )
+                """
+            )
+        if has_created_at:
+            where_clauses.append("created_at >= datetime('now', ?)")
+            params.append(f"-{max(1, int(REALIZED_LOOKBACK_HOURS))} hours")
+
+        bucket_expr = (
+            "CAST((strftime('%s', created_at) / (? * 3600)) AS INTEGER)"
+            if has_created_at else
+            "CAST((strftime('%s', 'now') / (? * 3600)) AS INTEGER)"
+        )
+
+        query = f"""
+            SELECT
+                {bucket_expr} AS bucket_id,
+                COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
+                SUM(COALESCE(pnl, 0)) AS net_pnl
+            FROM agent_trades
+            WHERE {' AND '.join(where_clauses)}
+            GROUP BY bucket_id
+            ORDER BY bucket_id DESC
+            """
+        rows = conn.execute(query, params).fetchall()
+    except Exception:
+        rows = []
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+    return [
+        {
+            "bucket_id": int(r["bucket_id"] or 0),
+            "closes": int(r["closes"] or 0),
+            "net_pnl": float(r["net_pnl"] or 0.0),
+        }
+        for r in rows
+    ]
+
+
+def _query_exit_manager_realized_rows():
+    if not EXIT_MANAGER_DB.exists():
+        return []
+    try:
+        conn = sqlite3.connect(str(EXIT_MANAGER_DB))
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT
+                CAST((strftime('%s', created_at) / (? * 3600)) AS INTEGER) AS bucket_id,
+                COUNT(*) AS closes,
+                SUM(COALESCE(pnl_usd, 0)) AS net_pnl
+            FROM exit_events
+            WHERE created_at >= datetime('now', ?)
+            GROUP BY bucket_id
+            ORDER BY bucket_id DESC
+            """,
+            (max(1, int(REALIZED_WINDOW_HOURS)), f"-{max(1, int(REALIZED_LOOKBACK_HOURS))} hours"),
+        ).fetchall()
+    except Exception:
+        rows = []
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+    return [
+        {
+            "bucket_id": int(r["bucket_id"] or 0),
+            "closes": int(r["closes"] or 0),
+            "net_pnl": float(r["net_pnl"] or 0.0),
+        }
+        for r in rows
+    ]
+
+
+def _realized_close_evidence():
+    """Aggregate realized close performance with robust source fallback."""
+    trader_rows = _query_trader_realized_rows()
+    trader_evidence = _finalize_realized_evidence("trader_db.agent_trades", trader_rows)
+    if trader_evidence.get("passed", False):
+        return trader_evidence
+
+    exit_rows = _query_exit_manager_realized_rows()
+    if not exit_rows and not trader_rows:
+        return _empty_realized_evidence("insufficient_realized_closes")
+
+    exit_evidence = _finalize_realized_evidence("exit_manager.db.exit_events", exit_rows)
+    ranked = sorted(
+        [trader_evidence, exit_evidence],
+        key=lambda x: (
+            bool(x.get("passed", False)),
+            int(x.get("positive_windows", 0) or 0),
+            float(x.get("total_net_pnl_usd", 0.0) or 0.0),
+            int(x.get("total_closes", 0) or 0),
+        ),
+        reverse=True,
+    )
+    best = dict(ranked[0]) if ranked else dict(trader_evidence)
+    best["source_candidates"] = [
+        {
+            "source": e.get("source", ""),
+            "passed": bool(e.get("passed", False)),
+            "reason": str(e.get("reason", "")),
+            "positive_windows": int(e.get("positive_windows", 0) or 0),
+            "total_net_pnl_usd": float(e.get("total_net_pnl_usd", 0.0) or 0.0),
+            "total_closes": int(e.get("total_closes", 0) or 0),
+        }
+        for e in [trader_evidence, exit_evidence]
+    ]
+    return best
 
 
 def _target_tracker(metrics):
@@ -268,12 +428,145 @@ def _target_tracker(metrics):
     }
 
 
+def _read_execution_health_history(limit=64):
+    path = Path(EXECUTION_HEALTH_HISTORY)
+    if not path.exists():
+        return []
+    rows = []
+    try:
+        lines = path.read_text().splitlines()[-max(1, int(limit)) :]
+    except Exception:
+        return []
+    for line in lines:
+        line = str(line or "").strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+            if isinstance(row, dict):
+                rows.append(row)
+        except Exception:
+            continue
+    return rows
+
+
+def _trade_flow_metrics(lookback_hours=TRADE_FLOW_LOOKBACK_HOURS):
+    metrics = {
+        "lookback_hours": int(max(1, int(lookback_hours))),
+        "buy_fills": 0,
+        "sell_fills": 0,
+        "sell_close_events": 0,
+        "sell_close_attempts": 0,
+        "sell_close_completions": 0,
+        "sell_close_completion_rate": 1.0,
+        "buy_sell_ratio": 0.0,
+        "close_balance_ok": True,
+        "close_balance_reason": "balanced_close_flow",
+    }
+    if not TRADER_DB.exists():
+        # Continue; reconcile/exit-manager files can still provide close evidence.
+        pass
+    try:
+        if TRADER_DB.exists():
+            conn = sqlite3.connect(str(TRADER_DB))
+            conn.row_factory = sqlite3.Row
+            statuses = ",".join("'" + s + "'" for s in COMPLETED_TRADE_STATUSES)
+            rows = conn.execute(
+                f"""
+                SELECT UPPER(COALESCE(side, '')) AS side, COUNT(*) AS n
+                FROM agent_trades
+                WHERE created_at >= datetime('now', ?)
+                  AND LOWER(COALESCE(status, '')) IN ({statuses})
+                GROUP BY UPPER(COALESCE(side, ''))
+                """,
+                (f"-{metrics['lookback_hours']} hours",),
+            ).fetchall()
+            conn.close()
+            for row in rows:
+                side = str(row["side"] or "").upper()
+                n = int(row["n"] or 0)
+                if side == "BUY":
+                    metrics["buy_fills"] = n
+                elif side == "SELL":
+                    metrics["sell_fills"] = n
+    except Exception:
+        pass
+
+    # Use exit manager close events as supplemental SELL-close evidence.
+    if EXIT_MANAGER_DB.exists():
+        try:
+            econ = sqlite3.connect(str(EXIT_MANAGER_DB))
+            cur = econ.cursor()
+            sell_close_events = cur.execute(
+                "SELECT COUNT(*) FROM exit_events WHERE created_at >= datetime('now', ?)",
+                (f"-{metrics['lookback_hours']} hours",),
+            ).fetchone()[0]
+            econ.close()
+            metrics["sell_close_events"] = int(sell_close_events or 0)
+        except Exception:
+            pass
+
+    reconcile = _load_json(RECONCILE_STATUS_FILE, {})
+    if isinstance(reconcile, dict) and reconcile:
+        close = reconcile.get("close_reconciliation", {})
+        summary = reconcile.get("summary", {})
+        if not isinstance(close, dict):
+            close = {}
+        if not isinstance(summary, dict):
+            summary = {}
+        attempts = int(close.get("attempts", summary.get("close_attempts", 0)) or 0)
+        completions = int(close.get("completions", summary.get("close_completions", 0)) or 0)
+        if attempts > 0:
+            metrics["sell_close_attempts"] = attempts
+            metrics["sell_close_completions"] = completions
+            metrics["sell_close_completion_rate"] = round(
+                float(completions) / float(max(1, attempts)),
+                6,
+            )
+
+    sells_effective = max(
+        int(metrics.get("sell_fills", 0) or 0),
+        int(metrics.get("sell_close_events", 0) or 0),
+    )
+    buys = int(metrics.get("buy_fills", 0) or 0)
+    ratio = float(buys) / float(max(1, sells_effective))
+    metrics["buy_sell_ratio"] = round(ratio, 4)
+    max_ratio = float(TRADE_FLOW_MAX_BUY_SELL_RATIO)
+    min_attempts = max(1, int(TRADE_FLOW_MIN_CLOSE_ATTEMPTS))
+    min_close_rate = max(0.0, min(1.0, float(TRADE_FLOW_MIN_CLOSE_COMPLETION_RATE)))
+    attempts = int(metrics.get("sell_close_attempts", 0) or 0)
+    completions = int(metrics.get("sell_close_completions", 0) or 0)
+    completion_rate = float(metrics.get("sell_close_completion_rate", 1.0) or 0.0)
+
+    close_balance_ok = True
+    close_reason = "balanced_close_flow"
+    if buys >= 4 and sells_effective <= 0:
+        close_balance_ok = False
+        close_reason = "insufficient_sell_close_completions"
+    elif ratio > max_ratio:
+        close_balance_ok = False
+        close_reason = f"buy_sell_imbalance:{ratio:.2f}>{max_ratio:.2f}"
+    elif attempts >= min_attempts and completion_rate < min_close_rate:
+        close_balance_ok = False
+        close_reason = (
+            f"close_completion_rate_low:{completion_rate:.3f}<{min_close_rate:.3f}"
+            f" attempts={attempts} completions={completions}"
+        )
+
+    metrics["close_balance_ok"] = bool(close_balance_ok)
+    metrics["close_balance_reason"] = close_reason
+    return metrics
+
+
 def _execution_health_gate_status():
     payload = {
         "enabled": bool(EXECUTION_HEALTH_ESCALATION_GATE),
         "green": True,
         "reason": "gate_disabled",
         "updated_at": "",
+        "green_streak": 0,
+        "recent_green_ratio": 0.0,
+        "recent_samples": 0,
     }
     if not EXECUTION_HEALTH_ESCALATION_GATE:
         return payload
@@ -282,7 +575,7 @@ def _execution_health_gate_status():
         payload["reason"] = "execution_health_module_unavailable"
         return payload
     try:
-        health = evaluate_execution_health(refresh=False, probe_http=None, write_status=True)
+        health = evaluate_execution_health(refresh=True, probe_http=False, write_status=True)
     except Exception as e:
         payload["green"] = False
         payload["reason"] = f"execution_health_check_failed:{e}"
@@ -294,16 +587,35 @@ def _execution_health_gate_status():
     payload["green"] = bool(health.get("green", False))
     payload["reason"] = str(health.get("reason", "unknown"))
     payload["updated_at"] = str(health.get("updated_at", ""))
+    history = _read_execution_health_history(limit=max(10, int(EXECUTION_HEALTH_RATIO_WINDOW) * 2))
+    recent = history[-max(1, int(EXECUTION_HEALTH_RATIO_WINDOW)) :]
+    greens = [bool(r.get("green", False)) for r in recent]
+    streak = 0
+    for flag in reversed(greens):
+        if not flag:
+            break
+        streak += 1
+    payload["green_streak"] = int(streak)
+    payload["recent_samples"] = int(len(greens))
+    payload["recent_green_ratio"] = round(float(sum(1 for g in greens if g)) / float(max(1, len(greens))), 4)
     return payload
 
 
-def _budget_escalator(progress, metrics, target, realized, execution_health=None):
+def _budget_escalator(progress, metrics, target, realized, execution_health=None, trade_flow=None, prev_status=None):
     pnl = float(metrics.get("daily_pnl_usd", 0.0) or 0.0)
     dd = float(metrics.get("drawdown_pct", 0.0) or 0.0)
     go_live = bool(progress.get("go_live", False))
     alpha = float(progress.get("alpha_score", 0.0) or 0.0)
     realized_passed = bool((realized or {}).get("passed", False))
     execution_green = bool((execution_health or {}).get("green", False))
+    health_streak = int((execution_health or {}).get("green_streak", 0) or 0)
+    health_ratio = float((execution_health or {}).get("recent_green_ratio", 0.0) or 0.0)
+    required_streak = max(1, int(EXECUTION_HEALTH_GREEN_STREAK_REQUIRED))
+    required_ratio = max(0.0, min(1.0, float(EXECUTION_HEALTH_MIN_GREEN_RATIO)))
+    flow = trade_flow if isinstance(trade_flow, dict) else {}
+    buy_sell_ratio = float(flow.get("buy_sell_ratio", 0.0) or 0.0)
+    close_balance_ok = bool(flow.get("close_balance_ok", True))
+    close_balance_reason = str(flow.get("close_balance_reason", "") or "").strip()
 
     action = "hold"
     factor = 1.0
@@ -317,10 +629,29 @@ def _budget_escalator(progress, metrics, target, realized, execution_health=None
         action = "de_escalate"
         factor = 0.88
         reason = f"realized_gate_failed:{(realized or {}).get('reason', 'unknown')}"
-    elif EXECUTION_HEALTH_ESCALATION_GATE and not execution_green:
+    elif EXECUTION_HEALTH_ESCALATION_GATE and (
+        (not execution_green)
+        or (health_streak < required_streak)
+        or (health_ratio < required_ratio)
+    ):
         action = "de_escalate"
         factor = 0.90
-        reason = f"execution_health_gate_failed:{(execution_health or {}).get('reason', 'unknown')}"
+        if not execution_green:
+            reason = f"execution_health_gate_failed:{(execution_health or {}).get('reason', 'unknown')}"
+        elif health_streak < required_streak:
+            reason = f"execution_health_streak_low:{health_streak}<{required_streak}"
+        else:
+            reason = f"execution_health_ratio_low:{health_ratio:.3f}<{required_ratio:.3f}"
+    elif not close_balance_ok:
+        action = "de_escalate"
+        factor = 0.90
+        reason = close_balance_reason or (
+            f"buy_sell_imbalance:{buy_sell_ratio:.2f}>{float(TRADE_FLOW_MAX_BUY_SELL_RATIO):.2f}"
+        )
+    elif float((realized or {}).get("windows", [{}])[0].get("net_pnl_usd", 0.0) or 0.0) <= 0.0:
+        action = "de_escalate"
+        factor = 0.92
+        reason = "recent_realized_window_non_positive"
     elif go_live and alpha >= 0.70 and pnl >= 0:
         action = "escalate"
         gap_ratio = _clamp(float(target.get("achievement_pct_to_next", 0.0) or 0.0), 0.0, 1.5)
@@ -330,6 +661,29 @@ def _budget_escalator(progress, metrics, target, realized, execution_health=None
         action = "de_escalate"
         factor = 0.90
         reason = "alpha_below_floor"
+
+    # Step-size controls.
+    if action == "escalate":
+        factor = max(1.01, min(float(factor), float(BUDGET_ESCALATE_MAX_FACTOR)))
+    elif action == "de_escalate":
+        factor = max(float(BUDGET_DEESCALATE_MIN_FACTOR), min(float(factor), 0.99))
+
+    # Escalation cooldown to avoid thrash.
+    prev = prev_status if isinstance(prev_status, dict) else {}
+    prev_action = str(prev.get("budget_escalator_action", "") or "").strip().lower()
+    prev_updated = str(prev.get("updated_at", "") or "").strip()
+    if action == "escalate" and prev_action == "escalate" and prev_updated:
+        try:
+            dt_prev = datetime.fromisoformat(prev_updated.replace("Z", "+00:00"))
+            if dt_prev.tzinfo is None:
+                dt_prev = dt_prev.replace(tzinfo=timezone.utc)
+            since = (datetime.now(timezone.utc) - dt_prev).total_seconds()
+            if since < float(max(60, int(BUDGET_ESCALATE_COOLDOWN_SECONDS))):
+                action = "hold"
+                factor = 1.0
+                reason = f"escalation_cooldown_active:{int(since)}s"
+        except Exception:
+            pass
 
     return {
         "action": action,
@@ -341,6 +695,14 @@ def _budget_escalator(progress, metrics, target, realized, execution_health=None
             "max_daily_drawdown_pct_for_escalation": 8.0,
             "requires_go_live": True,
             "requires_execution_health_green": bool(EXECUTION_HEALTH_ESCALATION_GATE),
+            "required_execution_health_green_streak": int(required_streak),
+            "required_execution_health_green_ratio": float(required_ratio),
+            "max_buy_sell_ratio": float(TRADE_FLOW_MAX_BUY_SELL_RATIO),
+            "min_close_completion_rate": float(TRADE_FLOW_MIN_CLOSE_COMPLETION_RATE),
+            "min_close_attempts": int(TRADE_FLOW_MIN_CLOSE_ATTEMPTS),
+            "escalation_max_factor": float(BUDGET_ESCALATE_MAX_FACTOR),
+            "deescalation_min_factor": float(BUDGET_DEESCALATE_MIN_FACTOR),
+            "escalation_cooldown_seconds": int(BUDGET_ESCALATE_COOLDOWN_SECONDS),
         },
         "realized_evidence": {
             "passed": bool(realized_passed),
@@ -349,12 +711,16 @@ def _budget_escalator(progress, metrics, target, realized, execution_health=None
             "required_positive_windows": int((realized or {}).get("required_positive_windows", REALIZED_MIN_POSITIVE_WINDOWS) or REALIZED_MIN_POSITIVE_WINDOWS),
             "total_net_pnl_usd": float((realized or {}).get("total_net_pnl_usd", 0.0) or 0.0),
             "total_closes": int((realized or {}).get("total_closes", 0) or 0),
+            "recent_window_net_pnl_usd": float((realized or {}).get("windows", [{}])[0].get("net_pnl_usd", 0.0) or 0.0),
         },
         "execution_health": {
             "green": bool(execution_green),
             "reason": str((execution_health or {}).get("reason", "")),
             "updated_at": str((execution_health or {}).get("updated_at", "")),
+            "green_streak": int(health_streak),
+            "recent_green_ratio": float(health_ratio),
         },
+        "trade_flow": flow,
     }
 
 
@@ -444,7 +810,9 @@ def _build_market_strategy(mcp, quant):
 
     q_top = []
     q_summary = quant.get("summary", {}) if isinstance(quant, dict) else {}
-    for row in (q_summary.get("top_candidates", []) or [])[:12]:
+    q_actionable = (q_summary.get("top_actionable", []) or [])
+    q_rank_source = q_actionable if isinstance(q_actionable, list) and q_actionable else (q_summary.get("top_candidates", []) or [])
+    for row in q_rank_source[:12]:
         if not isinstance(row, dict):
             continue
         q_top.append(
@@ -615,7 +983,7 @@ def _build_gtm_strategy(progress, market, migration):
     }
 
 
-def _profit_task_queue(progress, metrics, realized, deploy, market, targets, execution_health=None):
+def _profit_task_queue(progress, metrics, realized, deploy, market, targets, execution_health=None, trade_flow=None):
     tasks = []
     pnl = float(metrics.get("daily_pnl_usd", 0.0) or 0.0)
     req_rate = float(targets.get("required_hourly_run_rate_usd", 0.0) or 0.0)
@@ -625,6 +993,13 @@ def _profit_task_queue(progress, metrics, realized, deploy, market, targets, exe
     ranked_pairs = market.get("ranked_pairs", []) if isinstance(market, dict) else []
     exec_green = bool((execution_health or {}).get("green", False))
     exec_reason = str((execution_health or {}).get("reason", "unknown"))
+    flow = trade_flow if isinstance(trade_flow, dict) else {}
+    buy_sell_ratio = float(flow.get("buy_sell_ratio", 0.0) or 0.0)
+    buy_fills = int(flow.get("buy_fills", 0) or 0)
+    sell_fills = int(flow.get("sell_fills", 0) or 0)
+    sell_close_events = int(flow.get("sell_close_events", 0) or 0)
+    close_balance_ok = bool(flow.get("close_balance_ok", True))
+    close_balance_reason = str(flow.get("close_balance_reason", "") or "").strip()
 
     if pnl <= 0:
         tasks.append("Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.")
@@ -638,6 +1013,18 @@ def _profit_task_queue(progress, metrics, realized, deploy, market, targets, exe
             tasks.append(str(action))
     if EXECUTION_HEALTH_ESCALATION_GATE and not exec_green:
         tasks.append(f"Execution-health gate failed ({exec_reason}); block budget escalations until DNS/API/reconcile checks are green.")
+    if not close_balance_ok:
+        tasks.append(
+            "Close-flow gate failed"
+            + (f" ({close_balance_reason})" if close_balance_reason else "")
+            + "; prioritize SELL-close completion before any budget escalation."
+        )
+    elif buy_fills >= 4 and max(sell_fills, sell_close_events) <= 0:
+        tasks.append("Close-completion deficit: convert BUY-heavy flow into SELL-close evidence before new budget escalation.")
+    elif buy_sell_ratio > float(TRADE_FLOW_MAX_BUY_SELL_RATIO):
+        tasks.append(
+            f"Trade-flow imbalance: buy/sell ratio {buy_sell_ratio:.2f} > {float(TRADE_FLOW_MAX_BUY_SELL_RATIO):.2f}; increase exit throughput."
+        )
     if req_rate > 0:
         tasks.append(f"Current run-rate gap: need ${req_rate:,.2f}/hour to hit next daily target ${float(targets.get('next_target_usd', 0.0) or 0.0):,.2f}.")
     if top_regions:
@@ -746,6 +1133,7 @@ class QuantCompanyAgent:
 
     def run_cycle(self):
         self.cycle += 1
+        prev_status = _load_json(STATUS_PATH, {})
 
         growth = _load_json(GROWTH_REPORT, {})
         quant = _load_json(QUANT_RESULTS, {})
@@ -759,13 +1147,22 @@ class QuantCompanyAgent:
         metrics = _latest_portfolio_metrics()
         realized = _realized_close_evidence()
         execution_health = _execution_health_gate_status()
+        trade_flow = _trade_flow_metrics()
 
         progress = _score_progress(growth, quant, mcp, treasury, hub, deploy)
         market = _build_market_strategy(mcp, quant)
         migration = _build_migration_strategy(hub, treasury, fly, deploy)
         gtm = _build_gtm_strategy(progress, market, migration)
         targets = _target_tracker(metrics)
-        escalator = _budget_escalator(progress, metrics, targets, realized, execution_health=execution_health)
+        escalator = _budget_escalator(
+            progress,
+            metrics,
+            targets,
+            realized,
+            execution_health=execution_health,
+            trade_flow=trade_flow,
+            prev_status=prev_status,
+        )
         profit_tasks = _profit_task_queue(
             progress,
             metrics,
@@ -774,6 +1171,7 @@ class QuantCompanyAgent:
             market,
             targets,
             execution_health=execution_health,
+            trade_flow=trade_flow,
         )
 
         plan = {
@@ -789,6 +1187,7 @@ class QuantCompanyAgent:
             "profit_target_tracker": targets,
             "budget_escalator": escalator,
             "execution_health": execution_health,
+            "trade_flow_metrics": trade_flow,
             "migration_strategy": migration,
             "market_strategy": market,
             "go_to_market_strategy": gtm,
@@ -828,8 +1227,24 @@ class QuantCompanyAgent:
             "budget_escalator_action": escalator.get("action", "hold"),
             "realized_gate_passed": bool(realized.get("passed", False)),
             "realized_gate_reason": str(realized.get("reason", "")),
+            "realized_positive_windows": int(realized.get("positive_windows", 0) or 0),
+            "realized_required_windows": int(realized.get("required_positive_windows", REALIZED_MIN_POSITIVE_WINDOWS) or REALIZED_MIN_POSITIVE_WINDOWS),
+            "realized_total_closes": int(realized.get("total_closes", 0) or 0),
+            "realized_total_net_pnl_usd": float(realized.get("total_net_pnl_usd", 0.0) or 0.0),
+            "realized_source": str(realized.get("source", "")),
             "execution_health_green": bool(execution_health.get("green", False)),
             "execution_health_reason": str(execution_health.get("reason", "")),
+            "execution_health_green_streak": int(execution_health.get("green_streak", 0) or 0),
+            "execution_health_recent_green_ratio": float(execution_health.get("recent_green_ratio", 0.0) or 0.0),
+            "buy_sell_ratio": float(trade_flow.get("buy_sell_ratio", 0.0) or 0.0),
+            "close_balance_ok": bool(trade_flow.get("close_balance_ok", True)),
+            "close_balance_reason": str(trade_flow.get("close_balance_reason", "")),
+            "buy_fills_lookback": int(trade_flow.get("buy_fills", 0) or 0),
+            "sell_fills_lookback": int(trade_flow.get("sell_fills", 0) or 0),
+            "sell_close_events_lookback": int(trade_flow.get("sell_close_events", 0) or 0),
+            "sell_close_attempts_lookback": int(trade_flow.get("sell_close_attempts", 0) or 0),
+            "sell_close_completions_lookback": int(trade_flow.get("sell_close_completions", 0) or 0),
+            "sell_close_completion_rate_lookback": float(trade_flow.get("sell_close_completion_rate", 1.0) or 0.0),
             "blockers": progress.get("blockers", []),
             "profit_task_queue": profit_tasks[:10],
             "files": {

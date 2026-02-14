@@ -74,10 +74,19 @@ WARM_MIN_EVIDENCE_WINDOWS = int(os.environ.get("WARM_MIN_EVIDENCE_WINDOWS", "2")
 WARM_SPARSE_MAX_WINDOW_CANDLES = int(os.environ.get("WARM_SPARSE_MAX_WINDOW_CANDLES", "168"))
 WARM_MATURE_EVIDENCE_WINDOWS = int(os.environ.get("WARM_MATURE_EVIDENCE_WINDOWS", "4"))
 WARM_MATURE_EVIDENCE_MIN_CANDLES = int(os.environ.get("WARM_MATURE_EVIDENCE_MIN_CANDLES", "72"))
+WARM_WALKFORWARD_LEAKAGE_ENFORCE = os.environ.get("WARM_WALKFORWARD_LEAKAGE_ENFORCE", "1").lower() not in ("0", "false", "no")
 
 # Fee assumptions
 COINBASE_FEE = 0.006  # 0.6% taker fee
 SLIPPAGE = 0.001      # 0.1% slippage assumption
+BACKTEST_AUTO_EXIT_ENABLED = os.environ.get("BACKTEST_AUTO_EXIT_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+BACKTEST_AUTO_EXIT_MIN_NET_PCT = float(os.environ.get("BACKTEST_AUTO_EXIT_MIN_NET_PCT", "0.08"))
+BACKTEST_AUTO_EXIT_MIN_HOLD_CANDLES = int(os.environ.get("BACKTEST_AUTO_EXIT_MIN_HOLD_CANDLES", "2"))
+BACKTEST_AUTO_EXIT_MAX_HOLD_CANDLES = int(os.environ.get("BACKTEST_AUTO_EXIT_MAX_HOLD_CANDLES", "18"))
 
 # Strict capital protection: no realized-loss trades are allowed to pass COLD.
 STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("0", "false", "no")
@@ -99,6 +108,60 @@ MONTE_CARLO_MIN_PATH_TRADES = int(os.environ.get("MONTE_CARLO_MIN_PATH_TRADES", 
 MONTE_CARLO_MIN_P50_RETURN_PCT = float(os.environ.get("MONTE_CARLO_MIN_P50_RETURN_PCT", "0.03"))
 MONTE_CARLO_MIN_P05_RETURN_PCT = float(os.environ.get("MONTE_CARLO_MIN_P05_RETURN_PCT", "-0.10"))
 MONTE_CARLO_MAX_P95_DRAWDOWN_PCT = float(os.environ.get("MONTE_CARLO_MAX_P95_DRAWDOWN_PCT", "3.50"))
+MONTE_CARLO_MIN_MAX_P95_DRAWDOWN_PCT = float(
+    os.environ.get("MONTE_CARLO_MIN_MAX_P95_DRAWDOWN_PCT", "0.50")
+)
+MONTE_CARLO_REGIME_CONDITIONING_ENABLED = os.environ.get(
+    "MONTE_CARLO_REGIME_CONDITIONING_ENABLED", "1"
+).lower() not in ("0", "false", "no")
+MONTE_CARLO_STRESSED_P50_BONUS_PCT = float(
+    os.environ.get("MONTE_CARLO_STRESSED_P50_BONUS_PCT", "0.03")
+)
+MONTE_CARLO_STRESSED_P05_BONUS_PCT = float(
+    os.environ.get("MONTE_CARLO_STRESSED_P05_BONUS_PCT", "0.02")
+)
+MONTE_CARLO_STRESSED_DRAWDOWN_MULT = float(
+    os.environ.get("MONTE_CARLO_STRESSED_DRAWDOWN_MULT", "0.90")
+)
+MONTE_CARLO_FRAGILE_P50_BONUS_PCT = float(
+    os.environ.get("MONTE_CARLO_FRAGILE_P50_BONUS_PCT", "0.05")
+)
+MONTE_CARLO_FRAGILE_P05_BONUS_PCT = float(
+    os.environ.get("MONTE_CARLO_FRAGILE_P05_BONUS_PCT", "0.04")
+)
+MONTE_CARLO_FRAGILE_DRAWDOWN_MULT = float(
+    os.environ.get("MONTE_CARLO_FRAGILE_DRAWDOWN_MULT", "0.82")
+)
+MONTE_CARLO_TREND_P50_RELAX_PCT = float(
+    os.environ.get("MONTE_CARLO_TREND_P50_RELAX_PCT", "-0.01")
+)
+MONTE_CARLO_TREND_P05_RELAX_PCT = float(
+    os.environ.get("MONTE_CARLO_TREND_P05_RELAX_PCT", "-0.02")
+)
+MONTE_CARLO_TREND_DRAWDOWN_MULT = float(
+    os.environ.get("MONTE_CARLO_TREND_DRAWDOWN_MULT", "1.05")
+)
+MONTE_CARLO_DRAWDOWN_TAIL_PENALTY_ENABLED = os.environ.get(
+    "MONTE_CARLO_DRAWDOWN_TAIL_PENALTY_ENABLED", "1"
+).lower() not in ("0", "false", "no")
+MONTE_CARLO_DRAWDOWN_TAIL_PENALTY_SCALE = float(
+    os.environ.get("MONTE_CARLO_DRAWDOWN_TAIL_PENALTY_SCALE", "0.35")
+)
+MONTE_CARLO_TAIL_PENALTY_REGIME_MULT_STRESSED = float(
+    os.environ.get("MONTE_CARLO_TAIL_PENALTY_REGIME_MULT_STRESSED", "1.25")
+)
+MONTE_CARLO_TAIL_PENALTY_REGIME_MULT_TREND = float(
+    os.environ.get("MONTE_CARLO_TAIL_PENALTY_REGIME_MULT_TREND", "0.85")
+)
+MONTE_CARLO_TAIL_PENALTY_REGIME_MULT_FRAGILE = float(
+    os.environ.get("MONTE_CARLO_TAIL_PENALTY_REGIME_MULT_FRAGILE", "1.10")
+)
+MONTE_CARLO_VAR95_PENALTY_WEIGHT = float(
+    os.environ.get("MONTE_CARLO_VAR95_PENALTY_WEIGHT", "0.55")
+)
+MONTE_CARLO_ES97_5_PENALTY_WEIGHT = float(
+    os.environ.get("MONTE_CARLO_ES97_5_PENALTY_WEIGHT", "0.45")
+)
 GROWTH_START_BUDGET_PCT = float(os.environ.get("GROWTH_START_BUDGET_PCT", "0.012"))
 GROWTH_START_BUDGET_MIN_USD = float(os.environ.get("GROWTH_START_BUDGET_MIN_USD", "1.00"))
 GROWTH_START_BUDGET_MAX_USD = float(os.environ.get("GROWTH_START_BUDGET_MAX_USD", "8.00"))
@@ -127,6 +190,8 @@ PROBABILISTIC_CONFORMAL_BAND_FLOOR_PCT = float(
 PROBABILISTIC_CONFORMAL_PENALTY_SCALE = float(
     os.environ.get("PROBABILISTIC_CONFORMAL_PENALTY_SCALE", "0.15")
 )
+LOCAL_FALLBACK_MIN_CANDLES = int(os.environ.get("LOCAL_FALLBACK_MIN_CANDLES", "160"))
+LOCAL_FALLBACK_EXPAND_MULT = float(os.environ.get("LOCAL_FALLBACK_EXPAND_MULT", "4.0"))
 REALIZED_ESCALATION_GATE_ENABLED = os.environ.get(
     "REALIZED_ESCALATION_GATE_ENABLED", "1"
 ).lower() not in ("0", "false", "no")
@@ -270,10 +335,25 @@ class HistoricalPrices:
         points.extend(self._load_exchange_points(pair, hours))
         points.extend(self._load_sniper_points(pair, hours))
         points.extend(self._load_latency_arb_points(pair, hours))
+        points.extend(self._load_trader_points(pair, hours))
+        points.extend(self._load_candle_aggregator_points(pair, granularity_seconds, hours))
 
         if not points:
             return []
-        return self._points_to_candles(points, int(granularity_seconds))
+        candles = self._points_to_candles(points, int(granularity_seconds))
+        min_candles = max(0, int(LOCAL_FALLBACK_MIN_CANDLES or 0))
+        expand_mult = max(1.0, float(LOCAL_FALLBACK_EXPAND_MULT or 1.0))
+        if min_candles > 0 and len(candles) < min_candles and expand_mult > 1.0:
+            expanded_hours = int(max(hours + 1, round(hours * expand_mult)))
+            expanded_points = []
+            expanded_points.extend(self._load_exchange_points(pair, expanded_hours))
+            expanded_points.extend(self._load_sniper_points(pair, expanded_hours))
+            expanded_points.extend(self._load_latency_arb_points(pair, expanded_hours))
+            expanded_points.extend(self._load_trader_points(pair, expanded_hours))
+            expanded = self._points_to_candles(expanded_points, int(granularity_seconds))
+            if len(expanded) > len(candles):
+                candles = expanded
+        return candles
 
     def _load_exchange_points(self, pair, hours):
         db_path = self.base_dir / "exchange_scanner.db"
@@ -391,6 +471,121 @@ class HistoricalPrices:
                 continue
             points.append((epoch, px, volume))
         return points
+
+    def _load_candle_aggregator_points(self, pair, granularity_seconds, hours):
+        db_path = self.base_dir / "candle_aggregator.db"
+        if not db_path.exists():
+            return []
+
+        variants = self._pair_variants(pair)
+        placeholders = ",".join("?" for _ in variants)
+        tf = "5m" if str(granularity_seconds) == "300" else "1h"
+        lookback_seconds = max(1, int(hours)) * 3600
+
+        sql = f"""
+            SELECT start_ts, close, COALESCE(volume, 0.0)
+            FROM aggregated_candles
+            WHERE pair IN ({placeholders})
+              AND timeframe=?
+              AND start_ts >= CAST(strftime('%s', 'now') AS INTEGER) - ?
+            ORDER BY start_ts ASC
+        """
+        rows = []
+        try:
+            conn = sqlite3.connect(str(db_path))
+            if not self._table_exists(conn, "aggregated_candles"):
+                conn.close()
+                return []
+            rows = conn.execute(sql, tuple(variants) + (tf, lookback_seconds)).fetchall()
+            conn.close()
+        except Exception as e:
+            logger.debug("Local candle aggregator load failed for %s: %s", pair, e)
+            return []
+
+        points = []
+        for ts, px, vol in rows:
+            try:
+                epoch = int(ts)
+                price = float(px)
+                volume = max(0.0, float(vol or 0.0))
+            except Exception:
+                continue
+            if epoch <= 0 or price <= 0:
+                continue
+            points.append((epoch, price, volume))
+        return points
+
+    def _load_trader_points(self, pair, hours):
+        db_path = self.base_dir / "trader.db"
+        if not db_path.exists():
+            return []
+
+        variants = self._pair_variants(pair)
+        placeholders = ",".join("?" for _ in variants)
+        lookback = f"-{max(1, int(hours))} hours"
+        candidate_queries = [
+            (
+                "live_trades",
+                "created_at",
+                "price",
+                "COALESCE(total_usd, quantity, 1.0)",
+                "status",
+            ),
+            (
+                "agent_trades",
+                "created_at",
+                "price",
+                "COALESCE(total_usd, quantity, 1.0)",
+                "status",
+            ),
+        ]
+
+        points = []
+        try:
+            conn = sqlite3.connect(str(db_path))
+            for table, ts_col, price_col, vol_expr, status_col in candidate_queries:
+                if not self._table_exists(conn, table):
+                    continue
+                sql = f"""
+                    SELECT {ts_col}, {price_col}, {vol_expr}
+                    FROM {table}
+                    WHERE pair IN ({placeholders})
+                      AND {ts_col} >= datetime('now', ?)
+                      AND (
+                        {status_col} IS NULL
+                        OR lower(COALESCE({status_col}, '')) NOT IN (
+                          'pending','placed','open','accepted','ack_ok',
+                          'failed','blocked','canceled','cancelled','expired'
+                        )
+                      )
+                    ORDER BY {ts_col} ASC
+                """
+                rows = conn.execute(sql, tuple(variants) + (lookback,)).fetchall()
+                for ts, price, vol in rows:
+                    epoch = self._to_epoch(ts)
+                    if epoch is None:
+                        continue
+                    try:
+                        px = float(price)
+                        volume = max(0.0, float(vol or 0.0))
+                    except Exception:
+                        continue
+                    if px <= 0:
+                        continue
+                    points.append((epoch, px, volume))
+            conn.close()
+        except Exception as e:
+            logger.debug("Local trader feed load failed for %s: %s", pair, e)
+            return []
+        return points
+
+    @staticmethod
+    def _table_exists(conn, table_name):
+        row = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (table_name,),
+        ).fetchone()
+        return bool(row)
 
     @staticmethod
     def _pair_variants(pair):
@@ -996,15 +1191,19 @@ class Backtester:
     def run(self, strategy, candles, pair="BTC-USD"):
         """Run backtest. Returns performance metrics."""
         signals = strategy.generate_signals(candles)
-        time_to_index = {
-            int(c.get("time", 0) or 0): idx
-            for idx, c in enumerate(candles)
-            if int(c.get("time", 0) or 0) > 0
-        }
+        signals_by_time = {}
+        for sig in signals:
+            sig_time = int(sig.get("time", 0) or 0)
+            if sig_time <= 0:
+                continue
+            bucket = signals_by_time.setdefault(sig_time, [])
+            if isinstance(bucket, list):
+                bucket.append(sig)
 
         capital = self.initial_capital
         position = 0.0  # amount of base asset held
         entry_price = 0.0
+        entry_index = None
         trades = []
         equity_curve = [capital]
         peak_equity = capital
@@ -1020,90 +1219,171 @@ class Backtester:
             "mode_counts": {"maker": 0, "hybrid": 0, "taker": 0},
         }
 
-        for sig in signals:
-            price = sig["price"]
-            side = sig["side"]
-            confidence = sig["confidence"]
-            sig_time = int(sig.get("time", 0) or 0)
-            idx = time_to_index.get(sig_time, len(candles) - 1 if candles else 0)
-            exec_plan = self.execution.plan(candles, idx, side=side, confidence=confidence)
+        def _record_execution(exec_plan, exec_price, ref_price, notional_usd):
+            mode = str(exec_plan.get("mode", "hybrid"))
+            shortfall_bps = (abs(exec_price - ref_price) / max(1e-9, ref_price)) * 10000.0
+            execution_stats["total_notional_usd"] += float(notional_usd)
+            execution_stats["shortfall_bps_x_notional"] += shortfall_bps * float(notional_usd)
+            execution_stats["toxicity_sum"] += float(exec_plan.get("toxicity_score", 0.0) or 0.0)
+            execution_stats["queue_sum"] += float(exec_plan.get("queue_score", 0.0) or 0.0)
+            execution_stats["dark_ratio_sum"] += float(exec_plan.get("dark_ratio", 0.0) or 0.0)
+            execution_stats["order_count"] += 1
+            execution_stats["mode_counts"][mode] = execution_stats["mode_counts"].get(mode, 0) + 1
+            return mode
+
+        def _close_position(
+            idx,
+            timestamp,
+            ref_price,
+            confidence=0.5,
+            reason="sell_signal",
+            exit_source="signal",
+            plan=None,
+        ):
+            nonlocal capital, position, entry_price, entry_index
+            if position <= 0 or ref_price <= 0:
+                return False
+            exec_plan = plan or self.execution.plan(candles, idx, side="SELL", confidence=confidence)
             slip_mult = float(exec_plan.get("slippage_mult", 1.0) or 1.0)
             fee_mult = float(exec_plan.get("fee_mult", 1.0) or 1.0)
-            mode = str(exec_plan.get("mode", "hybrid"))
-
-            # Queue/toxicity-aware execution adjustments.
-            if side == "BUY":
-                exec_price = price * (1 + self.slippage * slip_mult)
-            else:
-                exec_price = price * (1 - self.slippage * slip_mult)
+            exec_price = ref_price * (1 - self.slippage * slip_mult)
             fee = self.fee_rate * fee_mult
+            gross_value = position * exec_price
+            net_value = gross_value * (1 - fee)
+            cost_basis = position * entry_price
+            if net_value <= cost_basis:
+                return False
 
-            if side == "BUY" and position == 0 and capital > 1.0:
-                # Size based on confidence
-                trade_pct = min(0.5, confidence * 0.4)
-                trade_usd = capital * trade_pct
-                position = trade_usd / exec_price * (1 - fee)
-                entry_price = exec_price
-                capital -= trade_usd
-                shortfall_bps = (abs(exec_price - price) / max(1e-9, price)) * 10000.0
-                execution_stats["total_notional_usd"] += trade_usd
-                execution_stats["shortfall_bps_x_notional"] += shortfall_bps * trade_usd
-                execution_stats["toxicity_sum"] += float(exec_plan.get("toxicity_score", 0.0) or 0.0)
-                execution_stats["queue_sum"] += float(exec_plan.get("queue_score", 0.0) or 0.0)
-                execution_stats["dark_ratio_sum"] += float(exec_plan.get("dark_ratio", 0.0) or 0.0)
-                execution_stats["order_count"] += 1
-                execution_stats["mode_counts"][mode] = execution_stats["mode_counts"].get(mode, 0) + 1
-                trades.append({
-                    "time": sig["time"],
-                    "side": "BUY",
+            pnl = net_value - cost_basis
+            mode = _record_execution(exec_plan, exec_price, ref_price, net_value)
+            hold_candles = int(max(0, idx - int(entry_index or 0))) if entry_index is not None else 0
+            trades.append(
+                {
+                    "time": timestamp,
+                    "side": "SELL",
                     "price": exec_price,
                     "amount": position,
-                    "usd": trade_usd,
-                    "reason": sig["reason"],
+                    "usd": net_value,
+                    "pnl": round(pnl, 4),
+                    "reason": reason,
                     "confidence": confidence,
+                    "exit_source": exit_source,
+                    "hold_candles": hold_candles,
                     "execution_mode": mode,
                     "execution_toxicity": round(float(exec_plan.get("toxicity_score", 0.0) or 0.0), 4),
                     "execution_queue_score": round(float(exec_plan.get("queue_score", 0.0) or 0.0), 4),
                     "execution_dark_ratio": round(float(exec_plan.get("dark_ratio", 0.0) or 0.0), 4),
-                })
+                }
+            )
+            capital += net_value
+            position = 0.0
+            entry_price = 0.0
+            entry_index = None
+            return True
 
-            elif side == "SELL" and position > 0:
-                # Only sell at profit (Rule #1: NEVER LOSE MONEY)
-                gross_value = position * exec_price
-                net_value = gross_value * (1 - fee)
-                cost_basis = position * entry_price
+        for idx, candle in enumerate(candles):
+            timestamp = int(candle.get("time", 0) or 0)
+            close_price = float(candle.get("close", 0.0) or 0.0)
+            high_price = float(candle.get("high", close_price) or close_price)
+            if high_price <= 0:
+                high_price = close_price
 
-                if net_value > cost_basis:  # Profitable trade
-                    pnl = net_value - cost_basis
-                    capital += net_value
-                    shortfall_bps = (abs(exec_price - price) / max(1e-9, price)) * 10000.0
-                    execution_stats["total_notional_usd"] += net_value
-                    execution_stats["shortfall_bps_x_notional"] += shortfall_bps * net_value
-                    execution_stats["toxicity_sum"] += float(exec_plan.get("toxicity_score", 0.0) or 0.0)
-                    execution_stats["queue_sum"] += float(exec_plan.get("queue_score", 0.0) or 0.0)
-                    execution_stats["dark_ratio_sum"] += float(exec_plan.get("dark_ratio", 0.0) or 0.0)
-                    execution_stats["order_count"] += 1
-                    execution_stats["mode_counts"][mode] = execution_stats["mode_counts"].get(mode, 0) + 1
-                    trades.append({
-                        "time": sig["time"],
-                        "side": "SELL",
-                        "price": exec_price,
-                        "amount": position,
-                        "usd": net_value,
-                        "pnl": round(pnl, 4),
-                        "reason": sig["reason"],
-                        "confidence": confidence,
-                        "execution_mode": mode,
-                        "execution_toxicity": round(float(exec_plan.get("toxicity_score", 0.0) or 0.0), 4),
-                        "execution_queue_score": round(float(exec_plan.get("queue_score", 0.0) or 0.0), 4),
-                        "execution_dark_ratio": round(float(exec_plan.get("dark_ratio", 0.0) or 0.0), 4),
-                    })
-                    position = 0
-                    entry_price = 0
+            for sig in signals_by_time.get(timestamp, []):
+                side = str(sig.get("side", "")).upper()
+                confidence = float(sig.get("confidence", 0.5) or 0.5)
+                signal_price = float(sig.get("price", close_price) or close_price)
+                signal_price = signal_price if signal_price > 0 else close_price
+                if signal_price <= 0:
+                    continue
 
-            # Track equity
-            if position > 0:
-                curr_equity = capital + position * price
+                if side == "BUY" and position == 0 and capital > 1.0:
+                    exec_plan = self.execution.plan(candles, idx, side="BUY", confidence=confidence)
+                    slip_mult = float(exec_plan.get("slippage_mult", 1.0) or 1.0)
+                    fee_mult = float(exec_plan.get("fee_mult", 1.0) or 1.0)
+                    exec_price = signal_price * (1 + self.slippage * slip_mult)
+                    fee = self.fee_rate * fee_mult
+
+                    trade_pct = min(0.5, max(0.0, confidence) * 0.4)
+                    trade_usd = capital * trade_pct
+                    if trade_usd <= 0:
+                        continue
+                    position = trade_usd / max(1e-9, exec_price) * (1 - fee)
+                    entry_price = exec_price
+                    entry_index = idx
+                    capital -= trade_usd
+                    mode = _record_execution(exec_plan, exec_price, signal_price, trade_usd)
+                    trades.append(
+                        {
+                            "time": timestamp,
+                            "side": "BUY",
+                            "price": exec_price,
+                            "amount": position,
+                            "usd": trade_usd,
+                            "reason": str(sig.get("reason", "buy_signal")),
+                            "confidence": confidence,
+                            "execution_mode": mode,
+                            "execution_toxicity": round(float(exec_plan.get("toxicity_score", 0.0) or 0.0), 4),
+                            "execution_queue_score": round(float(exec_plan.get("queue_score", 0.0) or 0.0), 4),
+                            "execution_dark_ratio": round(float(exec_plan.get("dark_ratio", 0.0) or 0.0), 4),
+                        }
+                    )
+                elif side == "SELL" and position > 0:
+                    _close_position(
+                        idx=idx,
+                        timestamp=timestamp,
+                        ref_price=signal_price,
+                        confidence=confidence,
+                        reason=str(sig.get("reason", "sell_signal")),
+                        exit_source="signal",
+                    )
+
+            # Deterministic profit-only auto-exit:
+            # 1) close if intrabar high reaches configured net-profit target
+            # 2) close stale positions once hold-time is long enough and close is still profitable.
+            if (
+                BACKTEST_AUTO_EXIT_ENABLED
+                and position > 0
+                and entry_index is not None
+                and close_price > 0
+            ):
+                hold_candles = max(0, idx - int(entry_index))
+                min_hold = max(0, int(BACKTEST_AUTO_EXIT_MIN_HOLD_CANDLES))
+                if hold_candles >= min_hold:
+                    auto_plan = self.execution.plan(candles, idx, side="SELL", confidence=0.55)
+                    slip_mult = float(auto_plan.get("slippage_mult", 1.0) or 1.0)
+                    fee_mult = float(auto_plan.get("fee_mult", 1.0) or 1.0)
+                    fee = self.fee_rate * fee_mult
+                    cost_basis = position * entry_price
+                    min_target_mult = 1.0 + max(0.0, BACKTEST_AUTO_EXIT_MIN_NET_PCT) / 100.0
+                    high_exec_price = high_price * (1 - self.slippage * slip_mult)
+                    close_exec_price = close_price * (1 - self.slippage * slip_mult)
+                    high_net = position * high_exec_price * (1 - fee)
+                    close_net = position * close_exec_price * (1 - fee)
+                    hit_take_profit = high_net >= (cost_basis * min_target_mult)
+                    stale_hold = max(min_hold, int(BACKTEST_AUTO_EXIT_MAX_HOLD_CANDLES))
+                    stale_profitable = (
+                        BACKTEST_AUTO_EXIT_MAX_HOLD_CANDLES > 0
+                        and hold_candles >= stale_hold
+                        and close_net > cost_basis
+                    )
+                    if hit_take_profit or stale_profitable:
+                        _close_position(
+                            idx=idx,
+                            timestamp=timestamp,
+                            ref_price=(high_price if hit_take_profit else close_price),
+                            confidence=0.55,
+                            reason=(
+                                f"auto_take_profit_{BACKTEST_AUTO_EXIT_MIN_NET_PCT:.3f}pct"
+                                if hit_take_profit
+                                else f"auto_stale_profitable_exit_{hold_candles}c"
+                            ),
+                            exit_source="auto",
+                            plan=auto_plan,
+                        )
+
+            # Track equity per candle
+            if position > 0 and close_price > 0:
+                curr_equity = capital + position * close_price
             else:
                 curr_equity = capital
             equity_curve.append(curr_equity)
@@ -1111,47 +1391,34 @@ class Backtester:
 
         # Close any remaining position at last price
         if position > 0 and len(candles) > 0:
-            final_price = candles[-1]["close"]
-            final_plan = self.execution.plan(candles, len(candles) - 1, side="SELL", confidence=0.5)
-            final_exec_price = final_price * (1 - self.slippage * float(final_plan.get("slippage_mult", 1.0) or 1.0))
-            final_fee = self.fee_rate * float(final_plan.get("fee_mult", 1.0) or 1.0)
-            final_value = position * final_exec_price * (1 - final_fee)
-            cost_basis = position * entry_price
-            final_unrealized_pnl = final_value - cost_basis
+            final_price = float(candles[-1]["close"])
+            final_time = int(candles[-1].get("time", 0) or 0)
+            final_closed = _close_position(
+                idx=max(0, len(candles) - 1),
+                timestamp=final_time,
+                ref_price=final_price,
+                confidence=0.5,
+                reason="finalize_profitable_position",
+                exit_source="final",
+            )
+            if not final_closed:
+                final_plan = self.execution.plan(
+                    candles, len(candles) - 1, side="SELL", confidence=0.5
+                )
+                final_exec_price = final_price * (
+                    1 - self.slippage * float(final_plan.get("slippage_mult", 1.0) or 1.0)
+                )
+                final_fee = self.fee_rate * float(final_plan.get("fee_mult", 1.0) or 1.0)
+                final_value = position * final_exec_price * (1 - final_fee)
+                cost_basis = position * entry_price
+                final_unrealized_pnl = final_value - cost_basis
 
-            # Profit-only policy: never force a losing close at end of sample.
-            if final_value > cost_basis:
-                pnl = final_value - cost_basis
-                capital += final_value
-                shortfall_bps = (abs(final_exec_price - final_price) / max(1e-9, final_price)) * 10000.0
-                execution_stats["total_notional_usd"] += final_value
-                execution_stats["shortfall_bps_x_notional"] += shortfall_bps * final_value
-                execution_stats["toxicity_sum"] += float(final_plan.get("toxicity_score", 0.0) or 0.0)
-                execution_stats["queue_sum"] += float(final_plan.get("queue_score", 0.0) or 0.0)
-                execution_stats["dark_ratio_sum"] += float(final_plan.get("dark_ratio", 0.0) or 0.0)
-                execution_stats["order_count"] += 1
-                mode = str(final_plan.get("mode", "hybrid"))
-                execution_stats["mode_counts"][mode] = execution_stats["mode_counts"].get(mode, 0) + 1
-                trades.append({
-                    "time": candles[-1]["time"],
-                    "side": "SELL",
-                    "price": final_exec_price,
-                    "amount": position,
-                    "usd": final_value,
-                    "pnl": round(pnl, 4),
-                    "reason": "finalize_profitable_position",
-                    "confidence": 0.5,
-                    "execution_mode": mode,
-                    "execution_toxicity": round(float(final_plan.get("toxicity_score", 0.0) or 0.0), 4),
-                    "execution_queue_score": round(float(final_plan.get("queue_score", 0.0) or 0.0), 4),
-                    "execution_dark_ratio": round(float(final_plan.get("dark_ratio", 0.0) or 0.0), 4),
-                })
-                position = 0
-            else:
                 # Keep mark-to-market equity for reporting, but flag as blocked close.
                 final_open_position_blocked = True
                 capital += final_value
-                position = 0
+                position = 0.0
+                entry_price = 0.0
+                entry_index = None
 
         # Compute metrics
         total_return = (capital - self.initial_capital) / self.initial_capital
@@ -1502,7 +1769,7 @@ class GrowthModeController:
         observed_trades = len(base_returns)
         candle_count = int(results.get("candle_count", 0) or 0)
         min_trades_required = MONTE_CARLO_MIN_TRADES
-        if candle_count < 96:
+        if candle_count < 132:
             min_trades_required = max(1, MONTE_CARLO_MIN_TRADES - 1)
         report["required_min_trades"] = min_trades_required
         if observed_trades < min_trades_required:
@@ -1552,26 +1819,108 @@ class GrowthModeController:
         probabilistic = self._probabilistic_assessment(results, base_returns, p05_ret, p50_ret, p95_dd)
         report["probabilistic"] = probabilistic
 
-        min_p50 = max(MONTE_CARLO_MIN_P50_RETURN_PCT, criteria["min_return_pct"] * 0.25)
-        max_p95_dd = min(MONTE_CARLO_MAX_P95_DRAWDOWN_PCT, criteria["max_drawdown_pct"] * 1.10)
+        regime_gate = self._regime_conditioned_monte_carlo_thresholds(criteria, probabilistic)
+        min_p50 = float(regime_gate.get("min_p50_return_pct", MONTE_CARLO_MIN_P50_RETURN_PCT) or MONTE_CARLO_MIN_P50_RETURN_PCT)
+        min_p05 = float(regime_gate.get("min_p05_return_pct", MONTE_CARLO_MIN_P05_RETURN_PCT) or MONTE_CARLO_MIN_P05_RETURN_PCT)
+        max_p95_dd = float(
+            regime_gate.get("effective_max_p95_drawdown_pct", MONTE_CARLO_MAX_P95_DRAWDOWN_PCT)
+            or MONTE_CARLO_MAX_P95_DRAWDOWN_PCT
+        )
+        regime_name = str(regime_gate.get("regime", "calm") or "calm")
         if p50_ret < min_p50:
-            report["reasons"].append(f"monte_carlo p50 {p50_ret:.2f}% < {min_p50:.2f}%")
-        if p05_ret < MONTE_CARLO_MIN_P05_RETURN_PCT:
             report["reasons"].append(
-                f"monte_carlo p05 {p05_ret:.2f}% < {MONTE_CARLO_MIN_P05_RETURN_PCT:.2f}%"
+                f"monte_carlo regime({regime_name}) p50 {p50_ret:.2f}% < {min_p50:.2f}%"
+            )
+        if p05_ret < min_p05:
+            report["reasons"].append(
+                f"monte_carlo regime({regime_name}) p05 {p05_ret:.2f}% < {min_p05:.2f}%"
             )
         if p95_dd > max_p95_dd:
-            report["reasons"].append(f"monte_carlo p95_dd {p95_dd:.2f}% > {max_p95_dd:.2f}%")
-        calibrated_p05 = float(probabilistic.get("calibrated_p05_return_pct", p05_ret) or p05_ret)
-        if calibrated_p05 < MONTE_CARLO_MIN_P05_RETURN_PCT:
             report["reasons"].append(
-                f"probabilistic calibrated_p05 {calibrated_p05:.2f}% < {MONTE_CARLO_MIN_P05_RETURN_PCT:.2f}%"
+                f"monte_carlo regime({regime_name}) p95_dd {p95_dd:.2f}% > {max_p95_dd:.2f}%"
+            )
+            if regime_gate.get("tail_penalty_pct", 0) > 0:
+                report["reasons"].append(
+                    f"monte_carlo regime({regime_name}) tail_penalty {regime_gate['tail_penalty_pct']:.2f}pp "
+                    f"multiplier={regime_gate['tail_penalty_regime_multiplier']:.2f}"
+                )
+        calibrated_p05 = float(probabilistic.get("calibrated_p05_return_pct", p05_ret) or p05_ret)
+        if calibrated_p05 < min_p05:
+            report["reasons"].append(
+                f"probabilistic calibrated_p05 {calibrated_p05:.2f}% < {min_p05:.2f}%"
             )
         if not probabilistic.get("passed", True):
             report["reasons"].extend(probabilistic.get("reasons", []))
 
+        report["regime_gate"] = regime_gate
         report["passed"] = not report["reasons"]
         return report
+
+    def _regime_conditioned_monte_carlo_thresholds(self, criteria, probabilistic):
+        regime = str((probabilistic or {}).get("regime", "calm") or "calm").lower()
+        min_p50 = max(MONTE_CARLO_MIN_P50_RETURN_PCT, float(criteria["min_return_pct"]) * 0.25)
+        min_p05 = MONTE_CARLO_MIN_P05_RETURN_PCT
+        base_max_p95_dd = min(MONTE_CARLO_MAX_P95_DRAWDOWN_PCT, float(criteria["max_drawdown_pct"]) * 1.10)
+        max_p95_dd = float(base_max_p95_dd)
+        regime_penalty_multiplier = 1.0
+
+        if MONTE_CARLO_REGIME_CONDITIONING_ENABLED:
+            if regime == "stressed":
+                min_p50 += MONTE_CARLO_STRESSED_P50_BONUS_PCT
+                min_p05 += MONTE_CARLO_STRESSED_P05_BONUS_PCT
+                max_p95_dd *= MONTE_CARLO_STRESSED_DRAWDOWN_MULT
+                regime_penalty_multiplier = max(
+                    0.01, MONTE_CARLO_TAIL_PENALTY_REGIME_MULT_STRESSED
+                )
+            elif regime == "fragile":
+                min_p50 += MONTE_CARLO_FRAGILE_P50_BONUS_PCT
+                min_p05 += MONTE_CARLO_FRAGILE_P05_BONUS_PCT
+                max_p95_dd *= MONTE_CARLO_FRAGILE_DRAWDOWN_MULT
+                regime_penalty_multiplier = max(
+                    0.01, MONTE_CARLO_TAIL_PENALTY_REGIME_MULT_FRAGILE
+                )
+            elif regime == "trend":
+                min_p50 += MONTE_CARLO_TREND_P50_RELAX_PCT
+                min_p05 += MONTE_CARLO_TREND_P05_RELAX_PCT
+                max_p95_dd *= MONTE_CARLO_TREND_DRAWDOWN_MULT
+                regime_penalty_multiplier = max(
+                    0.01, MONTE_CARLO_TAIL_PENALTY_REGIME_MULT_TREND
+                )
+
+        var95_loss = float((probabilistic or {}).get("var95_loss_pct", 0.0) or 0.0)
+        es97_5_loss = float((probabilistic or {}).get("es97_5_loss_pct", 0.0) or 0.0)
+        tail_penalty = 0.0
+        if MONTE_CARLO_DRAWDOWN_TAIL_PENALTY_ENABLED:
+            var95_excess = max(0.0, var95_loss - (GROWTH_MAX_VAR95_LOSS_PCT * 0.75))
+            es97_5_excess = max(0.0, es97_5_loss - (GROWTH_MAX_ES97_5_LOSS_PCT * 0.75))
+            weighted_excess = (
+                var95_excess * MONTE_CARLO_VAR95_PENALTY_WEIGHT
+                + es97_5_excess * MONTE_CARLO_ES97_5_PENALTY_WEIGHT
+            )
+            tail_penalty = max(
+                0.0,
+                weighted_excess * MONTE_CARLO_DRAWDOWN_TAIL_PENALTY_SCALE * regime_penalty_multiplier,
+            )
+            max_p95_dd -= tail_penalty
+
+        max_p95_dd = _clamp(
+            max_p95_dd,
+            MONTE_CARLO_MIN_MAX_P95_DRAWDOWN_PCT,
+            MONTE_CARLO_MAX_P95_DRAWDOWN_PCT,
+        )
+        return {
+            "enabled": bool(MONTE_CARLO_REGIME_CONDITIONING_ENABLED),
+            "regime": regime,
+            "min_p50_return_pct": round(float(min_p50), 4),
+            "min_p05_return_pct": round(float(min_p05), 4),
+            "base_max_p95_drawdown_pct": round(float(base_max_p95_dd), 4),
+            "effective_max_p95_drawdown_pct": round(float(max_p95_dd), 4),
+            "tail_penalty_pct": round(float(tail_penalty), 4),
+            "tail_penalty_enabled": bool(MONTE_CARLO_DRAWDOWN_TAIL_PENALTY_ENABLED),
+            "tail_penalty_regime_multiplier": round(float(regime_penalty_multiplier), 4),
+            "var95_loss_pct": round(float(var95_loss), 4),
+            "es97_5_loss_pct": round(float(es97_5_loss), 4),
+        }
 
     def build_risk_profile(self, results, criteria, monte_carlo):
         ret = float(results.get("total_return_pct", 0.0) or 0.0)
@@ -2062,6 +2411,98 @@ class StrategyValidator:
         evidence["reason"] = "passed"
         return evidence
 
+    def _strategy_backtest_results(self, strategy_name, pair):
+        """Return stored backtest results for a strategy, if available."""
+        row = self.db.execute(
+            "SELECT backtest_results_json FROM strategy_registry WHERE name=? AND pair=?",
+            (strategy_name, pair),
+        ).fetchone()
+        if not row:
+            return {}
+        raw = row["backtest_results_json"]
+        if not raw:
+            return {}
+        try:
+            parsed = json.loads(raw)
+        except Exception:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+
+    def _walkforward_leakage_gate(self, backtest_results):
+        """Ensure walk-forward windows remain chronologically non-overlapping and monotonic."""
+        report = {
+            "enabled": bool(WARM_WALKFORWARD_LEAKAGE_ENFORCE),
+            "passed": True,
+            "reasons": [],
+            "details": {},
+        }
+
+        if not WARM_WALKFORWARD_LEAKAGE_ENFORCE:
+            return report
+
+        if not isinstance(backtest_results, dict) or not backtest_results:
+            report["passed"] = False
+            report["reasons"].append("backtest_results_missing")
+            return report
+
+        walkforward = backtest_results.get("walkforward", {})
+        if not isinstance(walkforward, dict):
+            report["passed"] = False
+            report["reasons"].append("walkforward_payload_missing_or_invalid")
+            return report
+
+        if not bool(walkforward.get("available")):
+            report["details"]["available"] = False
+            report["details"]["reason"] = str(walkforward.get("reason", "unavailable"))
+            return report
+
+        leakage = walkforward.get("leakage_diagnostics", {})
+        if not isinstance(leakage, dict):
+            leakage = walkforward.get("leakage_summary", {})
+
+        report["details"] = {
+            "available": True,
+            "walkforward_reason": str(walkforward.get("reason", "")),
+            "selection_method": str(walkforward.get("selection_method", "")),
+            "leakage_diagnostics_present": bool(isinstance(walkforward.get("leakage_diagnostics", None), dict)),
+            "windows_tested": int(walkforward.get("windows_tested", 0) or 0),
+        }
+
+        if not isinstance(leakage, dict):
+            return report
+
+        report["details"]["leakage"] = leakage
+        overlap = int(leakage.get("overlap_count", 0) or 0)
+        duplicate_is = int(leakage.get("duplicate_count_in_sample", 0) or 0)
+        duplicate_oos = int(leakage.get("duplicate_count_out_of_sample", 0) or 0)
+        non_monotonic_is = int(leakage.get("non_monotonic_in_sample", 0) or 0)
+        non_monotonic_oos = int(leakage.get("non_monotonic_out_of_sample", 0) or 0)
+        boundary_gap = int(leakage.get("boundary_gap_seconds", 0) or 0)
+
+        if not bool(leakage.get("passed", True)):
+            report["passed"] = False
+            report["reasons"].append("walkforward leakage_diagnostics_failed")
+        if overlap > 0:
+            report["passed"] = False
+            report["reasons"].append(f"walkforward_leakage_overlap_count={overlap}")
+        if duplicate_is > 0:
+            report["passed"] = False
+            report["reasons"].append(f"walkforward_leakage_duplicate_is={duplicate_is}")
+        if duplicate_oos > 0:
+            report["passed"] = False
+            report["reasons"].append(f"walkforward_leakage_duplicate_oos={duplicate_oos}")
+        if non_monotonic_is > 0:
+            report["passed"] = False
+            report["reasons"].append(f"walkforward_leakage_non_monotonic_is={non_monotonic_is}")
+        if non_monotonic_oos > 0:
+            report["passed"] = False
+            report["reasons"].append(f"walkforward_leakage_non_monotonic_oos={non_monotonic_oos}")
+        if boundary_gap < 0:
+            report["passed"] = False
+            report["reasons"].append(f"walkforward_leakage_boundary_gap={boundary_gap}")
+
+        return report
+
     def _cold_criteria(self, results):
         """Adaptive COLD gating for shorter lookback windows."""
         criteria = dict(COLD_TO_WARM)
@@ -2077,10 +2518,29 @@ class StrategyValidator:
             criteria["min_trades"] = 2
             criteria["min_win_rate"] = 0.55
             criteria["min_return_pct"] = 0.05
+        elif candle_count < 132:
+            criteria["min_trades"] = 4
+            criteria["min_win_rate"] = 0.56
+            criteria["min_return_pct"] = 0.12
         elif candle_count < 192:
             criteria["min_trades"] = 6
             criteria["min_win_rate"] = 0.58
             criteria["min_return_pct"] = 0.25
+            total_return_pct = float(results.get("total_return_pct", 0.0) or 0.0)
+            win_rate = float(results.get("win_rate", 0.0) or 0.0)
+            losses = int(results.get("losses", 0) or 0)
+            drawdown_pct = float(results.get("max_drawdown_pct", 0.0) or 0.0)
+            # Sparse high-quality window: allow lower trade count only when edge is strong
+            # and strict loss controls remain intact.
+            if (
+                total_return_pct >= 1.0
+                and win_rate >= 0.85
+                and losses == 0
+                and drawdown_pct <= min(float(criteria["max_drawdown_pct"]), 2.0)
+            ):
+                criteria["min_trades"] = 2
+                criteria["min_win_rate"] = max(float(criteria["min_win_rate"]), 0.65)
+                criteria["min_return_pct"] = max(float(criteria["min_return_pct"]), 0.75)
         return criteria
 
     def submit_backtest(self, strategy_name, pair, results):
@@ -2191,11 +2651,18 @@ class StrategyValidator:
                         f"walkforward retention {oos_ret:.2f}% < "
                         f"{ins_ret * WALKFORWARD_RETENTION_RATIO:.2f}% ({WALKFORWARD_RETENTION_RATIO:.0%} of IS)"
                     )
+            leakage_gate = self._walkforward_leakage_gate(results)
+            if not leakage_gate.get("passed", False):
+                passed = False
+                reasons.extend(
+                    [f"walkforward_leakage_gate_failed:{reason}" for reason in leakage_gate.get("reasons", [])]
+                )
 
         growth_details = {
             "enabled": GROWTH_MODE_ENABLED,
             "monte_carlo": {},
             "risk_governor": {},
+            "walkforward_leakage": leakage_gate if require_walkforward else self._walkforward_leakage_gate(results),
         }
         if GROWTH_MODE_ENABLED:
             monte_carlo = self.growth.evaluate_monte_carlo(strategy_name, pair, results, criteria)
@@ -2587,6 +3054,13 @@ class StrategyValidator:
         passed = bool(assessment.get("passed", False))
         reasons = list(assessment.get("reasons", []))
         criteria = dict(assessment.get("criteria", {}))
+        backtest_results = self._strategy_backtest_results(strategy_name, pair)
+        leakage_gate = self._walkforward_leakage_gate(backtest_results)
+        if not leakage_gate.get("passed", False):
+            passed = False
+            reasons.extend(
+                [f"walkforward_leakage_gate_failed:{reason}" for reason in leakage_gate.get("reasons", [])]
+            )
 
         budget_profile = self.get_budget_profile(strategy_name, pair)
         realized_evidence = self._pair_realized_close_evidence(pair)
@@ -2683,6 +3157,7 @@ class StrategyValidator:
                     "budget_update": budget_update,
                     "criteria": criteria,
                     "warm_gate_assessment": assessment,
+                    "walkforward_leakage_gate": leakage_gate,
                     "realized_close_evidence": realized_evidence,
                 },
             )
@@ -2699,6 +3174,7 @@ class StrategyValidator:
                     "criteria": criteria,
                     "reasons": reasons,
                     "warm_gate_assessment": assessment,
+                    "walkforward_leakage_gate": leakage_gate,
                     "realized_close_evidence": realized_evidence,
                 },
             )

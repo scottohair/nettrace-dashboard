@@ -10,6 +10,7 @@ Runs strict, repeatable cycles:
 """
 
 import argparse
+import fcntl
 import importlib.util
 import json
 import logging
@@ -45,6 +46,9 @@ QUANT_RESULTS_FILE = BASE / "quant_100_results.json"
 RESERVE_STATUS_FILE = BASE / "reserve_targets_status.json"
 TRADER_DB = BASE / "trader.db"
 RECONCILE_STATUS_FILE = BASE / "reconcile_agent_trades_status.json"
+AUTONOMOUS_WORK_STATUS_FILE = BASE / "autonomous_work_status.json"
+EXIT_MANAGER_STATUS_FILE = BASE / "exit_manager_status.json"
+FLYWHEEL_LOCK_FILE = BASE / "flywheel.lock"
 
 DEFAULT_INTERVAL_SECONDS = int(os.environ.get("FLYWHEEL_INTERVAL_SECONDS", "240"))
 DEFAULT_COLLECTOR_INTERVAL_SECONDS = int(os.environ.get("FLYWHEEL_COLLECTOR_INTERVAL_SECONDS", "300"))
@@ -62,6 +66,27 @@ RECONCILE_AGENT_TRADES_MAX_ORDERS = int(os.environ.get("FLYWHEEL_RECONCILE_AGENT
 RECONCILE_AGENT_TRADES_LOOKBACK_HOURS = int(os.environ.get("FLYWHEEL_RECONCILE_AGENT_TRADES_LOOKBACK_HOURS", "96"))
 CLOSE_FIRST_RECONCILE_GROWTH_GATE_ENABLED = (
     os.environ.get("FLYWHEEL_CLOSE_FIRST_RECONCILE_GROWTH_GATE_ENABLED", "1").lower() not in {"0", "false", "no"}
+)
+AUTONOMOUS_WORK_ENABLED = (
+    os.environ.get("FLYWHEEL_AUTONOMOUS_WORK_ENABLED", "1").lower() not in {"0", "false", "no"}
+)
+EXIT_MANAGER_HEALTH_GATE_ENABLED = (
+    os.environ.get("FLYWHEEL_EXIT_MANAGER_HEALTH_GATE_ENABLED", "1").lower() not in {"0", "false", "no"}
+)
+EXIT_MANAGER_MAX_STALE_SECONDS = int(
+    os.environ.get("FLYWHEEL_EXIT_MANAGER_MAX_STALE_SECONDS", "300")
+)
+EXIT_MANAGER_REQUIRE_RUNNING = (
+    os.environ.get("FLYWHEEL_EXIT_MANAGER_REQUIRE_RUNNING", "1").lower() not in {"0", "false", "no"}
+)
+EXIT_MANAGER_IDLE_STALE_GRACE_SECONDS = int(
+    os.environ.get("FLYWHEEL_EXIT_MANAGER_IDLE_STALE_GRACE_SECONDS", "1800")
+)
+EXIT_MANAGER_IDLE_MAX_CONSECUTIVE_API_FAILURES = int(
+    os.environ.get("FLYWHEEL_EXIT_MANAGER_IDLE_MAX_CONSECUTIVE_API_FAILURES", "6")
+)
+FLYWHEEL_SINGLETON_ENFORCE = (
+    os.environ.get("FLYWHEEL_SINGLETON_ENFORCE", "1").lower() not in {"0", "false", "no"}
 )
 
 WIN_OBJECTIVE_TEXT = (
@@ -139,6 +164,19 @@ def _load_json(path, default):
         return default
 
 
+def _iso_age_seconds(ts_text):
+    text = str(ts_text or "").strip()
+    if not text:
+        return None
+    try:
+        dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return max(0.0, (datetime.now(timezone.utc) - dt).total_seconds())
+    except Exception:
+        return None
+
+
 class FlywheelController:
     def __init__(
         self,
@@ -160,6 +198,7 @@ class FlywheelController:
         self.running = True
         self.cycle = 0
         self.last_from_claude_id = 0
+        self._lock_fh = None
         self._load_runtime_state()
 
     def _load_runtime_state(self):
@@ -268,6 +307,81 @@ class FlywheelController:
         if rc and rc != 0:
             gate["passed"] = False
             gate["reason"] = f"reconcile_command_failed_rc_{rc}"
+        return gate
+
+    def _read_exit_manager_gate(self):
+        gate = {
+            "enabled": bool(EXIT_MANAGER_HEALTH_GATE_ENABLED),
+            "status_available": False,
+            "passed": True,
+            "reason": "gate_disabled",
+            "running": False,
+            "updated_at": "",
+            "age_seconds": None,
+            "max_stale_seconds": int(max(30, int(EXIT_MANAGER_MAX_STALE_SECONDS))),
+            "require_running": bool(EXIT_MANAGER_REQUIRE_RUNNING),
+            "idle_stale_grace_seconds": int(max(30, int(EXIT_MANAGER_IDLE_STALE_GRACE_SECONDS))),
+            "idle_max_consecutive_api_failures": int(max(0, int(EXIT_MANAGER_IDLE_MAX_CONSECUTIVE_API_FAILURES))),
+            "idle_stale_grace_applied": False,
+            "active_positions": 0,
+            "consecutive_api_failures": 0,
+        }
+        if not EXIT_MANAGER_HEALTH_GATE_ENABLED:
+            return gate
+
+        payload = _load_json(EXIT_MANAGER_STATUS_FILE, {})
+        if not isinstance(payload, dict) or not payload:
+            gate["passed"] = False
+            gate["reason"] = "exit_manager_status_missing"
+            return gate
+
+        running = bool(payload.get("running", False))
+        updated_at = str(payload.get("updated_at", ""))
+        age = _iso_age_seconds(updated_at)
+        max_stale = int(max(30, int(EXIT_MANAGER_MAX_STALE_SECONDS)))
+        idle_stale_grace = int(max(max_stale, int(EXIT_MANAGER_IDLE_STALE_GRACE_SECONDS)))
+        idle_api_failure_cap = int(max(0, int(EXIT_MANAGER_IDLE_MAX_CONSECUTIVE_API_FAILURES)))
+        active_positions = int(payload.get("active_positions", 0) or 0)
+        consecutive_api_failures = int(payload.get("consecutive_api_failures", 0) or 0)
+
+        gate.update(
+            {
+                "status_available": True,
+                "running": running,
+                "updated_at": updated_at,
+                "age_seconds": None if age is None else round(float(age), 3),
+                "active_positions": active_positions,
+                "consecutive_api_failures": consecutive_api_failures,
+            }
+        )
+
+        has_open_positions = active_positions > 0
+        excessive_idle_api_failures = consecutive_api_failures > idle_api_failure_cap
+
+        if EXIT_MANAGER_REQUIRE_RUNNING and not running and has_open_positions:
+            gate["passed"] = False
+            gate["reason"] = "exit_manager_not_running"
+            return gate
+        if age is None:
+            gate["passed"] = False
+            gate["reason"] = "exit_manager_updated_at_missing"
+            return gate
+        if age > float(max_stale):
+            if (not has_open_positions) and (age <= float(idle_stale_grace)) and (not excessive_idle_api_failures):
+                gate["passed"] = True
+                gate["idle_stale_grace_applied"] = True
+                gate["reason"] = f"exit_manager_idle_stale_grace:{int(age)}s<={idle_stale_grace}s"
+                return gate
+            gate["passed"] = False
+            gate["reason"] = f"exit_manager_status_stale:{int(age)}s>{max_stale}s"
+            return gate
+
+        if EXIT_MANAGER_REQUIRE_RUNNING and not running and not has_open_positions:
+            gate["passed"] = True
+            gate["reason"] = "exit_manager_not_running_idle_no_positions"
+            return gate
+
+        gate["reason"] = "exit_manager_healthy"
         return gate
 
     def _sync_trading_lock(self, decision):
@@ -667,6 +781,43 @@ class FlywheelController:
         with CYCLE_LOG.open("a") as f:
             f.write(json.dumps(payload) + "\n")
 
+    def _acquire_singleton_lock(self):
+        if not FLYWHEEL_SINGLETON_ENFORCE:
+            return True
+        try:
+            FLYWHEEL_LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+            fh = open(FLYWHEEL_LOCK_FILE, "a+")
+            try:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError:
+                fh.seek(0)
+                holder = fh.read().strip()
+                logger.error("Another flywheel instance appears active (lock holder: %s)", holder or "unknown")
+                fh.close()
+                return False
+            fh.seek(0)
+            fh.truncate()
+            fh.write(json.dumps({"pid": os.getpid(), "started_at": _utc_now()}))
+            fh.flush()
+            self._lock_fh = fh
+            return True
+        except Exception as e:
+            logger.error("Failed acquiring flywheel singleton lock: %s", e)
+            return False
+
+    def _release_singleton_lock(self):
+        if self._lock_fh is None:
+            return
+        try:
+            fcntl.flock(self._lock_fh.fileno(), fcntl.LOCK_UN)
+        except Exception:
+            pass
+        try:
+            self._lock_fh.close()
+        except Exception:
+            pass
+        self._lock_fh = None
+
     def run_cycle(self, force_quant=False):
         self.cycle += 1
         cycle_started = time.time()
@@ -690,6 +841,7 @@ class FlywheelController:
             and reconcile_close_gate.get("enabled", False)
             and not reconcile_close_gate.get("passed", False)
         )
+        exit_manager_gate = self._read_exit_manager_gate()
 
         supervisor_args = ["--collector-interval-seconds", str(self.collector_interval_seconds)]
         if quant_run:
@@ -731,6 +883,8 @@ class FlywheelController:
         if bench_run:
             commands.append(self._run_py("bench_fast_exec.py"))
         commands.append(self._run_py("claude_stager_agent.py", "--once"))
+        if AUTONOMOUS_WORK_ENABLED:
+            commands.append(self._run_py("autonomous_work_manager.py", "--once"))
         if self.enable_win_tasks:
             win_exec_top = WIN_TASKS_EXECUTE_TOP if self.cycle % 3 == 1 else 0
             commands.append(
@@ -777,6 +931,15 @@ class FlywheelController:
                     f"growth_supervisor_failed_rc_{supervisor_cmd['returncode']}"
                 ],
             }
+
+        if exit_manager_gate.get("enabled", False) and not exit_manager_gate.get("passed", False):
+            reasons = decision.get("reasons", []) if isinstance(decision.get("reasons"), list) else []
+            reasons = list(reasons)
+            reasons.append(f"exit_manager_gate_failed:{exit_manager_gate.get('reason', 'unknown')}")
+            decision["reasons"] = sorted(set(str(r) for r in reasons if str(r).strip()))
+            decision["go_live"] = False
+            decision["decision"] = "NO_GO"
+
         lock_state = self._sync_trading_lock(decision)
         portfolio = self._get_portfolio_snapshot()
         reserve_snapshot = self._reserve_targets_snapshot(portfolio)
@@ -793,6 +956,7 @@ class FlywheelController:
             "cycle_elapsed_seconds": round(time.time() - cycle_started, 3),
             "growth_decision": decision,
             "reconcile_close_gate": reconcile_close_gate,
+            "exit_manager_gate": exit_manager_gate,
             "trading_lock": lock_state,
             "portfolio": {
                 "total_usd": round(float(portfolio.get("total_usd", 0.0) or 0.0), 2),
@@ -822,6 +986,15 @@ class FlywheelController:
                 "state_snapshot": win_status.get("state_snapshot", {}),
                 "updated_at": win_status.get("updated_at", ""),
             }
+        autonomous_status = _load_json(AUTONOMOUS_WORK_STATUS_FILE, {})
+        if isinstance(autonomous_status, dict) and autonomous_status:
+            payload["autonomous_work"] = {
+                "queue_size": int(autonomous_status.get("queue_size", 0) or 0),
+                "counts": autonomous_status.get("counts", {}),
+                "dispatch": autonomous_status.get("dispatch", {}),
+                "feedback": autonomous_status.get("feedback", {}),
+                "updated_at": autonomous_status.get("updated_at", ""),
+            }
         claude_msg = self._maybe_send_claude_update(payload)
         if claude_msg:
             payload["claude_update"] = {"id": claude_msg.get("id"), "timestamp": claude_msg.get("timestamp")}
@@ -840,6 +1013,10 @@ class FlywheelController:
         return payload
 
     def run_forever(self):
+        if not self._acquire_singleton_lock():
+            logger.error("flywheel singleton lock acquisition failed; exiting")
+            return
+
         def _stop(signum, _frame):
             logger.info("received signal %d; stopping flywheel...", signum)
             self.running = False
@@ -855,16 +1032,19 @@ class FlywheelController:
             self.enable_claude_updates,
             self.enable_claude_team_loop,
         )
-        while self.running:
-            try:
-                self.run_cycle(force_quant=False)
-            except Exception as e:
-                logger.error("flywheel cycle failed: %s", e, exc_info=True)
-            for _ in range(self.interval_seconds):
-                if not self.running:
-                    break
-                time.sleep(1)
-        logger.info("flywheel stopped")
+        try:
+            while self.running:
+                try:
+                    self.run_cycle(force_quant=False)
+                except Exception as e:
+                    logger.error("flywheel cycle failed: %s", e, exc_info=True)
+                for _ in range(self.interval_seconds):
+                    if not self.running:
+                        break
+                    time.sleep(1)
+            logger.info("flywheel stopped")
+        finally:
+            self._release_singleton_lock()
 
 
 def print_status():

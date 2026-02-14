@@ -28,6 +28,13 @@ from threading import Lock
 
 logger = logging.getLogger("risk_controller")
 
+
+def _env_float(name, default):
+    try:
+        return float(os.environ.get(name, str(default)))
+    except Exception:
+        return float(default)
+
 # Load .env
 _env_path = Path(__file__).parent / ".env"
 if _env_path.exists():
@@ -39,6 +46,18 @@ if _env_path.exists():
 
 DB_PATH = Path(__file__).parent / "risk_controller.db"
 CACHE_TTL = 5  # seconds — reduced from 30s to catch flash crashes faster
+BOOK_CACHE_TTL = int(os.environ.get("RISK_CONTROLLER_BOOK_CACHE_TTL_SECONDS", "45"))
+LIQ_DEPTH_ENABLED = os.environ.get("RISK_CONTROLLER_LIQ_DEPTH_ENABLED", "1").lower() not in (
+    "0", "false", "no"
+)
+LIQ_DEPTH_LEVELS = int(os.environ.get("RISK_CONTROLLER_LIQ_DEPTH_LEVELS", "5"))
+LIQ_DEPTH_MIN_CAP_MULTIPLE = float(os.environ.get("RISK_CONTROLLER_LIQ_DEPTH_MIN_CAP_MULTIPLE", "3.0"))
+LIQ_DEPTH_MIN_CAP_USD = float(os.environ.get("RISK_CONTROLLER_LIQ_DEPTH_MIN_CAP_USD", "1.0"))
+LIQ_DEPTH_FAIL_BLOCK = os.environ.get(
+    "RISK_CONTROLLER_LIQ_DEPTH_FAIL_BLOCK", "0"
+).lower() not in ("0", "false", "no", "")
+FALLBACK_PORTFOLIO_USD = _env_float("RISK_CONTROLLER_FALLBACK_PORTFOLIO_USD", 1.0)
+SAFE_MIN_PORTFOLIO_USD = max(1.0, FALLBACK_PORTFOLIO_USD)
 
 
 class MarketState:
@@ -47,6 +66,7 @@ class MarketState:
     def __init__(self):
         self._price_cache = {}  # pair -> (price, timestamp)
         self._candle_cache = {}  # pair -> (candles, timestamp)
+        self._book_cache = {}  # pair -> (depth, timestamp, side)
 
     def get_price(self, pair, urgent=False):
         """Get spot price with caching. Pass urgent=True to bypass cache."""
@@ -136,6 +156,56 @@ class MarketState:
 
         # Clamp to [-1, 1]
         return max(-1.0, min(1.0, combined * 20))  # amplify small moves
+
+    def compute_book_depth_usd(self, pair, side="BUY"):
+        """Approximate available notional depth from top levels of the order book.
+
+        Returns:
+            float: estimated notional depth in USD, or 0.0 if unavailable/invalid.
+        """
+        if not LIQ_DEPTH_ENABLED:
+            return 0.0
+
+        if side not in {"BUY", "SELL"}:
+            return 0.0
+        side = str(side).strip().upper()
+        book_pair = str(pair or "").strip().replace("-USDC", "-USD")
+        if not book_pair:
+            return 0.0
+
+        now = time.time()
+        cache_key = f"{book_pair}:{side}"
+        cached = self._book_cache.get(cache_key)
+        if cached:
+            depth_usd, updated_at = cached[:2]
+            if isinstance(updated_at, (int, float)) and now - updated_at <= max(1, BOOK_CACHE_TTL):
+                return float(depth_usd or 0.0)
+
+        url = f"https://api.exchange.coinbase.com/products/{book_pair}/book?level=2"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "RiskController/1.0"})
+            with urllib.request.urlopen(req, timeout=4.0) as resp:
+                payload = json.loads(resp.read())
+            rows = payload.get("asks" if side == "BUY" else "bids", [])
+            if not isinstance(rows, list) or not rows:
+                return 0.0
+            levels = max(1, int(LIQ_DEPTH_LEVELS))
+            depth_usd = 0.0
+            for row in rows[:levels]:
+                if not isinstance(row, (list, tuple)) or len(row) < 2:
+                    continue
+                try:
+                    px = float(row[0])
+                    qty = float(row[1])
+                except (TypeError, ValueError):
+                    continue
+                if px <= 0 or qty <= 0 or not math.isfinite(px) or not math.isfinite(qty):
+                    continue
+                depth_usd += px * qty
+            self._book_cache[cache_key] = (float(depth_usd), now, side)
+            return float(depth_usd)
+        except Exception:
+            return 0.0
 
     def compute_momentum(self, pair):
         """Short-term price momentum (last 5 candles).
@@ -427,13 +497,14 @@ class RiskController:
 
         return max(0.10, min(0.30, base))
 
-    def kelly_fraction(self, win_rate, avg_win, avg_loss):
+    def kelly_fraction(self, win_rate, avg_win, avg_loss, downside_std=0.0):
         """Kelly Criterion optimal bet fraction.
 
         f* = (p * b - q) / b
         where p = win_rate, q = 1-p, b = avg_win/avg_loss
 
-        We use fractional Kelly (25%) for safety.
+        We use fractional Kelly (25%) for safety and optionally apply a
+        downside-semi-variance cap (high downside noise reduces size).
         """
         if avg_loss == 0 or win_rate <= 0:
             return 0
@@ -442,8 +513,13 @@ class RiskController:
         q = 1.0 - win_rate
         kelly = (win_rate * b - q) / b
 
+        try:
+            downside_scale = 1.0 / (1.0 + max(0.0, float(downside_std)))
+        except Exception:
+            downside_scale = 1.0
+
         # Fractional Kelly: 25% of optimal
-        return max(0, min(0.25, kelly * 0.25))
+        return max(0, min(0.25, kelly * 0.25 * downside_scale))
 
     # ==========================================
     # TRADE APPROVAL SYSTEM
@@ -474,6 +550,21 @@ class RiskController:
             if not math.isfinite(size_usd) or size_usd <= 0:
                 return False, f"INVALID_SIZE:{size_usd}", 0
 
+            # Compute market-dependent checks outside the transaction lock to keep
+            # cross-process approval fast and reduce lock hold time.
+            vol = self.market.compute_volatility(pair)
+            trend = self.market.compute_trend(pair) if direction == "BUY" else 0.0
+            depth_usd = 0.0
+            if direction == "BUY":
+                try:
+                    raw_depth = self.market.compute_book_depth_usd(pair, side=direction)
+                    if isinstance(raw_depth, (int, float)) and math.isfinite(raw_depth):
+                        depth_usd = float(raw_depth)
+                    else:
+                        depth_usd = 0.0
+                except (TypeError, ValueError, OverflowError):
+                    depth_usd = 0.0
+
             cur = self._db.cursor()
             cur.execute("BEGIN IMMEDIATE")  # acquire DB write lock atomically
 
@@ -488,11 +579,9 @@ class RiskController:
                 return False, f"HARDSTOP: Daily loss ${self._daily_loss:.2f} >= ${max_loss:.2f}", 0
 
             # 2. Volatility check
-            vol = self.market.compute_volatility(pair)
 
             # 3. Trend check (BUY only — selling is always allowed)
             if direction == "BUY":
-                trend = self.market.compute_trend(pair)
                 if trend < -0.5:
                     self._db.rollback()
                     self._log_event("trend_block", agent_name, pair,
@@ -505,6 +594,54 @@ class RiskController:
                 max_size = self.max_trade_usd(portfolio_value, vol,
                                                self.market.compute_trend(pair))
                 adjusted = min(size_usd, max_size)
+                # Respect configurable reserve so buys cannot consume all liquid capital.
+                max_affordable = max(0.0, portfolio_value - reserve)
+                if max_affordable < 1.00:
+                    self._db.rollback()
+                    return False, f"No room for BUY after reserve: portfolio=${portfolio_value:.2f} reserve=${reserve:.2f}", 0
+                adjusted = min(adjusted, max_affordable)
+
+                # Remove stale allocations before calculating concentration/usage.
+                cur.execute(
+                    "UPDATE pending_allocations SET status='expired', resolved_at=CURRENT_TIMESTAMP "
+                    "WHERE status='pending' AND created_at < datetime('now', '-2 minutes')")
+                pair_cap = portfolio_value * self.max_position_pct(portfolio_value, vol)
+                pair_pending_row = cur.execute(
+                    "SELECT COALESCE(SUM(size_usd), 0) FROM pending_allocations "
+                    "WHERE status='pending' AND pair=?",
+                    (pair,)
+                ).fetchone()
+                pair_pending = float(pair_pending_row[0] if pair_pending_row else 0.0)
+                pair_cap_remaining = pair_cap - pair_pending
+                if pair_cap_remaining < 1.00:
+                    self._db.rollback()
+                    return False, (
+                        f"Pair cap reached ({pair_cap_remaining:.2f} remaining) for {pair}"
+                        if pair_cap_remaining >= 0 else
+                        f"Pair cap exceeded for {pair}: pending={pair_pending:.2f} cap={pair_cap:.2f}"
+                    ), 0
+                if adjusted > pair_cap_remaining:
+                    adjusted = pair_cap_remaining
+
+                # 4b. Liquidity guard from public order book depth.
+                if LIQ_DEPTH_ENABLED:
+                    if not depth_usd:
+                        if LIQ_DEPTH_FAIL_BLOCK:
+                            self._db.rollback()
+                            return False, f"BLOCKED: liquidity depth unavailable for {pair}", 0
+                    else:
+                        liquidity_cap = max(
+                            LIQ_DEPTH_MIN_CAP_USD,
+                            float(depth_usd) / max(1.0, LIQ_DEPTH_MIN_CAP_MULTIPLE),
+                        )
+                        if liquidity_cap < LIQ_DEPTH_MIN_CAP_USD:
+                            self._db.rollback()
+                            return False, f"BLOCKED: insufficient {pair} depth ${liquidity_cap:.2f}", 0
+                        if liquidity_cap < adjusted:
+                            adjusted = round(min(adjusted, liquidity_cap), 2)
+                        if adjusted < 1.00:
+                            self._db.rollback()
+                            return False, f"Trade too small after liquidity guard (${adjusted:.2f})", 0
                 if adjusted < 1.00:
                     self._db.rollback()
                     return False, f"Trade too small after adjustments (${adjusted:.2f})", 0
@@ -512,10 +649,7 @@ class RiskController:
                 adjusted = size_usd  # sells aren't limited by same rules
 
             # 5. Check total pending allocations across ALL agents (cross-process safe)
-            # Clean up stale pending allocations older than 2 minutes (prevents bloat from agent storms)
-            cur.execute(
-                "UPDATE pending_allocations SET status='expired', resolved_at=CURRENT_TIMESTAMP "
-                "WHERE status='pending' AND created_at < datetime('now', '-2 minutes')")
+            # Stale rows are already expired above to prevent process-dead accumulation.
             row = cur.execute(
                 "SELECT COALESCE(SUM(size_usd), 0) FROM pending_allocations WHERE status='pending'"
             ).fetchone()
@@ -542,7 +676,7 @@ class RiskController:
                 "approved_size, status, reason, volatility, trend, portfolio_value) "
                 "VALUES (?, ?, ?, ?, ?, ?, 'approved', 'APPROVED', ?, ?, ?)",
                 (trade_id, agent_name, pair, direction, size_usd, adjusted,
-                 vol, self.market.compute_trend(pair) if direction == "BUY" else 0,
+                 vol, trend if direction == "BUY" else 0,
                  portfolio_value))
             # Only count BUYs toward daily trade limit — sells must never be capped
             if direction == "BUY":
@@ -626,9 +760,9 @@ class RiskController:
                         price = self.market.get_price(f"{cur}-USDC")
                         if price:
                             total += bal * price
-                portfolio_value = max(1.0, total)
+                portfolio_value = max(SAFE_MIN_PORTFOLIO_USD, total)
             except Exception:
-                portfolio_value = 100.0  # safe fallback
+                portfolio_value = SAFE_MIN_PORTFOLIO_USD
 
         return self.approve_trade(agent_name, pair, direction, size_usd, portfolio_value)
 
@@ -679,6 +813,22 @@ class RiskController:
         vol = self.market.compute_volatility(pair) if pair else 0.02
         trend = self.market.compute_trend(pair) if pair else 0.0
         momentum = self.market.compute_momentum(pair) if pair else 0.0
+        book_depth_usd = 0.0
+        if pair and LIQ_DEPTH_ENABLED:
+            try:
+                raw_depth = self.market.compute_book_depth_usd(pair, side="BUY")
+                if isinstance(raw_depth, (int, float)) and math.isfinite(raw_depth):
+                    book_depth_usd = float(raw_depth)
+                else:
+                    book_depth_usd = 0.0
+            except (TypeError, ValueError, OverflowError):
+                book_depth_usd = 0.0
+        liquidity_cap = 0.0
+        if book_depth_usd and LIQ_DEPTH_ENABLED:
+            liquidity_cap = max(
+                LIQ_DEPTH_MIN_CAP_USD,
+                float(book_depth_usd) / max(1.0, LIQ_DEPTH_MIN_CAP_MULTIPLE),
+            )
 
         params = {
             "portfolio_value": portfolio_value,
@@ -689,6 +839,12 @@ class RiskController:
             "max_daily_loss": self.max_daily_loss(portfolio_value),
             "min_reserve": self.min_reserve(portfolio_value, vol),
             "max_position_pct": self.max_position_pct(portfolio_value, vol),
+            "liquidity_depth_usd": round(float(book_depth_usd or 0.0), 2),
+            "liquidity_cap_usd": round(float(liquidity_cap or 0.0), 2),
+            "max_pair_position_usd": round(
+                portfolio_value * self.max_position_pct(portfolio_value, vol),
+                2,
+            ),
             "daily_loss_so_far": round(self._daily_loss, 2),
             "trades_today": self._trade_count_today,
             "can_buy": trend > -0.5,

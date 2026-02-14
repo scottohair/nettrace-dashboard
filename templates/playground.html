@@ -84,6 +84,70 @@ h2{font-size:20px;color:#fff;margin-bottom:8px}
       <span class="method">GET</span><span class="path">/api/v1/compare</span><span class="tier pro">pro+</span>
       <div class="desc">Head-to-head latency comparison between exchanges</div>
     </div>
+
+    <!-- Organizations API -->
+    <h3 style="color:#a855f7;font-size:11px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid #1e3a5f33;padding-top:12px">Organizations API</h3>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs')">
+      <span class="method">GET</span><span class="path">/api/v1/orgs</span><span class="tier free">free</span>
+      <div class="desc">List your organizations</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs')">
+      <span class="method" style="color:#fbbf24">POST</span><span class="path">/api/v1/orgs</span><span class="tier pro">pro+</span>
+      <div class="desc">Create a new organization</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/portfolio')">
+      <span class="method">GET</span><span class="path">/api/v1/orgs/{slug}/portfolio</span><span class="tier free">free</span>
+      <div class="desc">Organization portfolio overview</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/risk-policy')">
+      <span class="method">GET</span><span class="path">/api/v1/orgs/{slug}/risk-policy</span><span class="tier free">free</span>
+      <div class="desc">Get risk policy for org</div>
+    </div>
+
+    <!-- Agent Marketplace API -->
+    <h3 style="color:#fbbf24;font-size:11px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid #1e3a5f33;padding-top:12px">Agent Marketplace API</h3>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/marketplace/leaderboard')">
+      <span class="method">GET</span><span class="path">/api/v1/marketplace/leaderboard</span><span class="tier free">free</span>
+      <div class="desc">Agent rankings across all organizations</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/agents')">
+      <span class="method">GET</span><span class="path">/api/v1/orgs/{slug}/agents</span><span class="tier free">free</span>
+      <div class="desc">List registered agents for an organization</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/agents')">
+      <span class="method" style="color:#fbbf24">POST</span><span class="path">/api/v1/orgs/{slug}/agents</span><span class="tier pro">pro+</span>
+      <div class="desc">Register a new agent</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/proposals')">
+      <span class="method">GET</span><span class="path">/api/v1/orgs/{slug}/proposals</span><span class="tier free">free</span>
+      <div class="desc">List trade proposals</div>
+    </div>
+
+    <!-- MCP Server -->
+    <h3 style="color:#a855f7;font-size:11px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid #1e3a5f33;padding-top:12px">MCP Server (Agent Protocol)</h3>
+    <div class="endpoint" onclick="tryEndpoint('/mcp/v1/')">
+      <span class="method">GET</span><span class="path">/mcp/v1/</span><span class="tier free">open</span>
+      <div class="desc">MCP server info — capabilities and available tools</div>
+    </div>
+    <div class="endpoint">
+      <span class="method" style="color:#fbbf24">POST</span><span class="path">/mcp/v1/message</span><span class="tier pro">pro+</span>
+      <div class="desc">JSON-RPC 2.0 tool calls — 11 tools (market.signals, trade.propose, agent.register, ...)</div>
+    </div>
+
+    <!-- Fees & Billing -->
+    <h3 style="color:#00ff88;font-size:11px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid #1e3a5f33;padding-top:12px">Fees &amp; Billing</h3>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/aum')">
+      <span class="method">GET</span><span class="path">/api/v1/orgs/{slug}/aum</span><span class="tier free">free</span>
+      <div class="desc">AUM snapshots + high water mark history</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/fees')">
+      <span class="method">GET</span><span class="path">/api/v1/orgs/{slug}/fees</span><span class="tier free">free</span>
+      <div class="desc">Invoice history</div>
+    </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/fees/preview')">
+      <span class="method" style="color:#fbbf24">POST</span><span class="path">/api/v1/orgs/{slug}/fees/preview</span><span class="tier pro">pro+</span>
+      <div class="desc">Preview next fee calculation (subscription + performance + management)</div>
+    </div>
   </div>
   <div class="try-box">
     <h3>Live Request</h3>
@@ -98,9 +162,10 @@ h2{font-size:20px;color:#fff;margin-bottom:8px}
     <h3>Ready for Production?</h3>
     <p>Get an API key and start integrating financial network intelligence into your stack.</p>
     <div class="pricing-row">
-      <div class="price-card"><div class="tier-name">Free</div><div class="price">$0<small>/mo</small></div><div class="feat">100 calls/day, 24h history</div></div>
-      <div class="price-card"><div class="tier-name">Pro</div><div class="price">$249<small>/mo</small></div><div class="feat">10k calls/day, routes, signals</div></div>
-      <div class="price-card"><div class="tier-name">Enterprise</div><div class="price">$2,499<small>/mo</small></div><div class="feat">Unlimited, export, WebSocket</div></div>
+      <div class="price-card"><div class="tier-name">Free</div><div class="price">$0<small>/mo</small></div><div class="feat">100 calls/day &middot; 1 agent &middot; Paper only</div></div>
+      <div class="price-card"><div class="tier-name">Pro</div><div class="price">$249<small>/mo</small></div><div class="feat">10K calls/day &middot; 3 agents &middot; 5% perf fee</div></div>
+      <div class="price-card"><div class="tier-name">Enterprise</div><div class="price">$2,499<small>/mo</small></div><div class="feat">Unlimited &middot; 10 agents &middot; 10% perf fee &middot; MCP</div></div>
+      <div class="price-card"><div class="tier-name" style="color:#f59e0b">Enterprise Pro</div><div class="price" style="color:#f59e0b">$50K<small>/mo</small></div><div class="feat">Everything &middot; Unlimited agents &middot; 20% perf fee</div></div>
     </div>
     <br>
     <a href="/">Sign Up Free</a>

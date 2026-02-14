@@ -40,6 +40,8 @@ logger = logging.getLogger("algorithm_optimizer_agent")
 
 TUNING_FILE = str(Path(__file__).parent / "algorithm_tuning.json")
 MIN_PAIR_TRADES = 3
+MIN_SIGNAL_FAMILY_TRADES = 4
+SIGNAL_FAMILY_DISABLE_AVG_PNL = -0.04
 
 BASE_WEIGHTS = {
     "price_momentum": 0.20,
@@ -144,9 +146,29 @@ class AlgorithmOptimizerAgent:
 
         return round(self._clamp(mult, 0.60, 1.20), 4)
 
-    def _derive_weight_overrides(self, strategy_msgs):
+    @staticmethod
+    def _derive_disabled_families(learning):
+        """List families with sustained negative per-sample PnL."""
+        disabled = []
+        details = {}
+        family_perf = learning.get("signal_family_performance", {})
+
+        for family, stats in family_perf.items():
+            sample_count = int(stats.get("sample_count", 0) or 0)
+            avg_pnl = float(stats.get("avg_pnl_usd", 0.0) or 0.0)
+            if sample_count >= MIN_SIGNAL_FAMILY_TRADES and avg_pnl <= SIGNAL_FAMILY_DISABLE_AVG_PNL:
+                disabled.append(family)
+                details[family] = {
+                    "sample_count": sample_count,
+                    "avg_pnl_usd": avg_pnl,
+                }
+
+        return sorted(set(disabled)), details
+
+    def _derive_weight_overrides(self, strategy_msgs, learning=None):
         """Slightly rebalance factor weights from recent proposal scores."""
         factor_values = {k: [] for k in BASE_WEIGHTS}
+        learning = learning or {}
 
         for msg in strategy_msgs:
             payload = msg.get("payload", {})
@@ -170,6 +192,19 @@ class AlgorithmOptimizerAgent:
             elif avg_score <= 0.45:
                 adjusted[factor] -= 0.03
 
+        # Down-weight factors with negative signal-family PnL evidence.
+        for factor, stats in learning.get("signal_family_performance", {}).items():
+            if factor not in adjusted:
+                continue
+            sample_count = int(stats.get("sample_count", 0) or 0)
+            avg_pnl = float(stats.get("avg_pnl_usd", 0.0) or 0.0)
+            if sample_count < MIN_SIGNAL_FAMILY_TRADES:
+                continue
+            if avg_pnl <= SIGNAL_FAMILY_DISABLE_AVG_PNL * 1.2:
+                adjusted[factor] = self._clamp(adjusted[factor] - 0.06, 0.05, 0.35)
+            elif avg_pnl < 0:
+                adjusted[factor] = self._clamp(adjusted[factor] - 0.02, 0.05, 0.35)
+
         # Normalize to sum=1.0 and keep bounded for stability.
         for factor in adjusted:
             adjusted[factor] = self._clamp(adjusted[factor], 0.05, 0.35)
@@ -188,12 +223,22 @@ class AlgorithmOptimizerAgent:
         pair_bias, bias_notes = self._compute_pair_bias(learning)
         min_confidence = self._derive_min_confidence(learning, research)
         size_multiplier = self._derive_size_multiplier(learning)
-        weight_overrides = self._derive_weight_overrides(strategy_msgs)
+        disabled_families, disable_details = self._derive_disabled_families(learning)
+        weight_overrides = self._derive_weight_overrides(
+            strategy_msgs, learning=learning
+        )
 
         recommendations = []
         recommendations.extend(bias_notes[:4])
         recommendations.append(f"Global min confidence -> {min_confidence:.2f}")
         recommendations.append(f"Global size multiplier -> {size_multiplier:.2f}x")
+        for family in disabled_families:
+            details = disable_details.get(family, {})
+            recommendations.append(
+                "Disable weak alpha family "
+                f"{family} (samples={details.get('sample_count', 0)}, "
+                f"avg_pnl={details.get('avg_pnl_usd', 0.0):+.3f})"
+            )
 
         tuning = {
             "cycle": cycle,
@@ -202,6 +247,7 @@ class AlgorithmOptimizerAgent:
             "size_multiplier": size_multiplier,
             "pair_bias": pair_bias,
             "factor_weight_overrides": weight_overrides,
+            "disabled_signal_families": disabled_families,
             "blocked_pairs": [],
             "recommendations": recommendations,
             "source": self.NAME,

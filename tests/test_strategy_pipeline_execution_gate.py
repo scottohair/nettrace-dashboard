@@ -16,6 +16,7 @@ def test_execution_health_gate_blocks_budget_increase_on_hot_promotion(monkeypat
     monkeypatch.setattr(sp, "GROWTH_MODE_ENABLED", True)
     monkeypatch.setattr(sp, "REALIZED_ESCALATION_GATE_ENABLED", False)
     monkeypatch.setattr(sp, "EXECUTION_HEALTH_ESCALATION_GATE", True)
+    monkeypatch.setattr(sp, "WARM_WALKFORWARD_LEAKAGE_ENFORCE", False)
 
     validator = sp.StrategyValidator()
     strategy = sp.MomentumStrategy()

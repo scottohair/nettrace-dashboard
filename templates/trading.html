@@ -206,6 +206,84 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
 @media(max-width:1200px){.grid-4,.grid-5{grid-template-columns:repeat(2,1fr)}.grid-3,.grid-23{grid-template-columns:1fr}}
 @media(max-width:1200px){.claude-grid{grid-template-columns:1fr}.ami-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){.grid-4,.grid-5,.grid-2{grid-template-columns:1fr}.ticker-bar{display:none}}
+/* Org context bar */
+.org-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px}
+.org-bar .org-name{color:var(--blue);font-weight:700;font-size:13px}
+.org-bar .org-controls{display:flex;align-items:center;gap:8px}
+.tier-badge{padding:2px 8px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.tier-free{color:var(--muted);border:1px solid var(--muted)44}
+.tier-pro{color:var(--blue);border:1px solid var(--blue)44;background:var(--blue)11}
+.tier-enterprise{color:var(--purple);border:1px solid var(--purple)44;background:var(--purple)11}
+.tier-enterprise_pro{color:var(--gold);border:1px solid var(--gold)44;background:var(--gold)11}
+.tier-government{color:var(--red);border:1px solid var(--red)44;background:var(--red)11}
+.role-badge{padding:2px 6px;border-radius:3px;font-size:8px;color:var(--muted);border:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
+.org-select{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:10px;font-family:inherit;cursor:pointer}
+/* Risk policy */
+.risk-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.risk-presets{display:flex;gap:4px}
+.risk-presets button{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:4px;font-size:10px;font-family:inherit;cursor:pointer;transition:all .2s}
+.risk-presets button:hover{border-color:var(--blue);color:var(--blue)}
+.risk-presets button.active{border-color:var(--green);color:var(--green);background:var(--green)11}
+.risk-values{display:flex;gap:12px;font-size:10px;color:var(--muted)}
+.risk-values span{color:var(--text)}
+/* Agent marketplace */
+.marketplace-section{margin-top:12px}
+.marketplace-tabs{display:flex;gap:4px;margin-bottom:10px}
+.marketplace-tabs button{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:4px 4px 0 0;font-size:10px;font-family:inherit;cursor:pointer;transition:all .2s}
+.marketplace-tabs button.active{border-color:var(--blue);color:var(--blue);border-bottom-color:var(--bg2);background:var(--bg2)}
+.agent-status-pending{color:var(--gold)}
+.agent-status-approved{color:var(--blue)}
+.agent-status-active{color:var(--green)}
+.agent-status-suspended{color:var(--red)}
+.agent-status-fired{color:var(--muted);text-decoration:line-through}
+.action-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:2px 6px;border-radius:3px;font-size:8px;font-family:inherit;cursor:pointer;transition:all .2s}
+.action-btn:hover{border-color:var(--blue);color:var(--blue)}
+.action-btn.approve:hover{border-color:var(--green);color:var(--green)}
+.action-btn.reject:hover{border-color:var(--red);color:var(--red)}
+.action-btn.fire:hover{border-color:var(--red);color:var(--red);background:var(--red)11}
+/* Proposals */
+.proposal-pending{color:var(--gold)}
+.proposal-approved{color:var(--green)}
+.proposal-rejected{color:var(--red)}
+.proposal-executed{color:var(--blue)}
+.proposal-expired{color:var(--muted)}
+/* Leaderboard */
+.leaderboard-card{border:1px solid var(--gold)33}
+.leaderboard-card h3{color:var(--gold)}
+.rank-badge{display:inline-block;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font-size:9px;font-weight:700}
+.rank-1{background:var(--gold)33;color:var(--gold)}
+.rank-2{background:#c0c0c033;color:#c0c0c0}
+.rank-3{background:#cd7f3233;color:#cd7f32}
+/* Fees & billing */
+.fee-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.fee-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px}
+.fee-card h4{font-size:9px;text-transform:uppercase;color:var(--muted);letter-spacing:1px;margin-bottom:6px}
+.fee-card .fee-value{font-size:18px;font-weight:700;color:var(--green)}
+.fee-card .fee-sub{font-size:9px;color:var(--muted);margin-top:4px}
+.invoice-status-draft{color:var(--muted)}
+.invoice-status-sent{color:var(--gold)}
+.invoice-status-paid{color:var(--green)}
+.invoice-status-void{color:var(--red)}
+/* MCP info */
+.mcp-card{border:1px solid var(--purple)33;background:linear-gradient(135deg,var(--bg2),var(--purple)05)}
+.mcp-card h3{color:var(--purple)}
+.mcp-url{font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;margin:4px 0}
+.mcp-url code{color:var(--blue);word-break:break-all}
+.mcp-url .copy-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:2px 6px;border-radius:3px;font-size:8px;font-family:inherit;cursor:pointer}
+.mcp-url .copy-btn:hover{color:var(--blue);border-color:var(--blue)}
+.mcp-tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.mcp-tool{font-size:8px;padding:2px 6px;border:1px solid var(--purple)33;border-radius:3px;color:var(--purple)}
+/* Register form */
+.register-form{display:none;margin-top:8px;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px}
+.register-form.show{display:block}
+.register-form input,.register-form select,.register-form textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:4px;font-size:10px;font-family:inherit;margin:4px 0}
+.register-form label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.collapsible-header{cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.collapsible-header::after{content:'>';font-size:10px;color:var(--muted);transition:transform .2s}
+.collapsible-header.expanded::after{transform:rotate(90deg)}
+.collapsible-body{display:none}
+.collapsible-body.show{display:block}
+@media(max-width:1200px){.fee-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -217,6 +295,7 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     <a href="/">Network</a>
     <a href="/status">Status</a>
     <a href="/trading" class="active">Trading</a>
+    <a href="#marketplace">Marketplace</a>
     <a href="/playground">API</a>
   </div>
   <div class="header-controls">
@@ -234,6 +313,18 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
   <div class="ticker-item"><span class="symbol">XRP</span><span class="price" id="tickXRP">--</span><span class="change" id="tickXRPc">--</span></div>
   <div class="ticker-item"><span class="symbol">AVAX</span><span class="price" id="tickAVAX">--</span><span class="change" id="tickAVAXc">--</span></div>
   <div class="ticker-item"><span class="symbol">LINK</span><span class="price" id="tickLINK">--</span><span class="change" id="tickLINKc">--</span></div>
+</div>
+
+<!-- Org Context Bar -->
+<div class="org-bar" id="orgBar" style="display:none">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="org-name" id="orgName">--</span>
+    <span class="tier-badge" id="orgTierBadge">--</span>
+    <span class="role-badge" id="orgRoleBadge">--</span>
+  </div>
+  <div class="org-controls">
+    <select class="org-select" id="orgSelect" onchange="switchOrg(this.value)"></select>
+  </div>
 </div>
 
 <div class="container">
@@ -279,7 +370,29 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     <div class="card">
       <h3>Active Agents</h3>
       <div class="big gold" id="agentCount">12</div>
-      <div class="sub">trading + optimization + Claude staging + quant + AmiCoin simulation</div>
+      <div class="sub" id="agentCountSub">trading + optimization + Claude staging + quant + AmiCoin simulation</div>
+    </div>
+  </div>
+
+  <!-- Risk Policy -->
+  <div class="card" style="margin-bottom:12px" id="riskPolicySection">
+    <div class="collapsible-header" onclick="this.classList.toggle('expanded');this.nextElementSibling.classList.toggle('show')">
+      <h3>Risk Policy</h3>
+    </div>
+    <div class="collapsible-body">
+      <div class="risk-bar">
+        <div class="risk-presets" id="riskPresets">
+          <button onclick="setRiskPreset('conservative')">Conservative</button>
+          <button onclick="setRiskPreset('moderate')">Moderate</button>
+          <button onclick="setRiskPreset('aggressive')">Aggressive</button>
+        </div>
+        <div class="risk-values">
+          Max Daily Loss: <span id="riskMaxDailyLoss">3%</span> |
+          Max Position: <span id="riskMaxPosition">5%</span> |
+          Min Confidence: <span id="riskMinConfidence">70%</span> |
+          Min Signals: <span id="riskMinSignals">2</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -387,6 +500,122 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     <div id="claudeFeed">
       <div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">Waiting for optimizer cycles...</div>
     </div>
+  </div>
+
+  <!-- Agent Marketplace -->
+  <div class="section-header" id="marketplace">Agent Marketplace</div>
+  <div class="marketplace-section">
+    <div class="marketplace-tabs">
+      <button class="active" onclick="showMarketplaceTab('agents',this)">Registered Agents</button>
+      <button onclick="showMarketplaceTab('proposals',this)">Trade Proposals</button>
+      <button onclick="showMarketplaceTab('register',this)">Register Agent</button>
+    </div>
+
+    <!-- Agents Tab -->
+    <div class="card" id="tab-agents">
+      <table>
+        <thead><tr><th>Agent</th><th>Type</th><th>Stage</th><th>Status</th><th>Trades</th><th>Win%</th><th>PnL</th><th>Sharpe</th><th>Actions</th></tr></thead>
+        <tbody id="marketplaceAgentsBody">
+          <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px">No marketplace agents registered yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Proposals Tab -->
+    <div class="card" id="tab-proposals" style="display:none">
+      <table>
+        <thead><tr><th>Time</th><th>Agent</th><th>Pair</th><th>Dir</th><th>Confidence</th><th>Size</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="proposalsBody">
+          <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:16px">No trade proposals yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Register Tab -->
+    <div class="card" id="tab-register" style="display:none">
+      <div class="register-form show">
+        <label>Agent Name</label>
+        <input type="text" id="regAgentName" placeholder="e.g. My Alpha Bot">
+        <label>Strategy Description</label>
+        <textarea id="regAgentDesc" rows="2" placeholder="Describe the agent's strategy..."></textarea>
+        <label>Agent Type</label>
+        <select id="regAgentType">
+          <option value="signal">Signal Generator</option>
+          <option value="execution">Execution Agent</option>
+          <option value="risk">Risk Manager</option>
+          <option value="data">Data Provider</option>
+        </select>
+        <button class="action-btn" style="margin-top:8px;padding:6px 16px;font-size:11px" onclick="registerAgent()">Register Agent</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marketplace Leaderboard -->
+  <div class="section-header">Marketplace Leaderboard</div>
+  <div class="card leaderboard-card" style="margin-bottom:12px">
+    <table>
+      <thead><tr><th>Rank</th><th>Agent</th><th>Type</th><th>Stage</th><th>Org</th><th>Trades</th><th>Win%</th><th>PnL</th><th>Sharpe</th><th>Drawdown</th></tr></thead>
+      <tbody id="leaderboardBody">
+        <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:16px">Loading leaderboard...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Fees & Billing -->
+  <div class="section-header">Fees &amp; Billing</div>
+  <div class="fee-grid" style="margin-bottom:12px">
+    <div class="fee-card">
+      <h4>Current AUM</h4>
+      <div class="fee-value" id="feeAum">$--</div>
+      <div class="fee-sub">High Water Mark: <span id="feeHwm">$--</span></div>
+      <div class="fee-sub">Gains Above HWM: <span id="feeGains" style="color:var(--green)">$--</span></div>
+    </div>
+    <div class="fee-card">
+      <h4>Fee Preview (MTD)</h4>
+      <div class="fee-value" id="feeTotalMtd">$--</div>
+      <div class="fee-sub">Subscription: <span id="feeSub">$--</span></div>
+      <div class="fee-sub">Performance: <span id="feePerf">$--</span> | Management: <span id="feeMgmt">$--</span></div>
+    </div>
+    <div class="fee-card">
+      <h4>Tier</h4>
+      <div class="fee-value" style="font-size:14px" id="feeTier">--</div>
+      <div class="fee-sub" id="feeTierDesc">--</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="collapsible-header" onclick="this.classList.toggle('expanded');this.nextElementSibling.classList.toggle('show')">
+      <h3>Invoice History</h3>
+    </div>
+    <div class="collapsible-body">
+      <table>
+        <thead><tr><th>Period</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="invoicesBody">
+          <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px">No invoices yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MCP Connection Info -->
+  <div class="section-header">MCP Server (Agent Protocol)</div>
+  <div class="card mcp-card" style="margin-bottom:12px">
+    <div class="mcp-url"><code>POST https://nettrace-dashboard.fly.dev/mcp/v1/message</code><button class="copy-btn" onclick="copyToClipboard('https://nettrace-dashboard.fly.dev/mcp/v1/message')">Copy</button></div>
+    <div class="mcp-url"><code>GET https://nettrace-dashboard.fly.dev/mcp/v1/sse</code><button class="copy-btn" onclick="copyToClipboard('https://nettrace-dashboard.fly.dev/mcp/v1/sse')">Copy</button></div>
+    <div class="mcp-url"><code>Auth: Bearer &lt;org-api-key&gt;</code><button class="copy-btn" onclick="copyToClipboard('')" id="mcpKeyCopyBtn">Copy Key</button></div>
+    <div class="mcp-tools">
+      <span class="mcp-tool">market.signals</span>
+      <span class="mcp-tool">market.latency</span>
+      <span class="mcp-tool">market.prices</span>
+      <span class="mcp-tool">portfolio.status</span>
+      <span class="mcp-tool">portfolio.history</span>
+      <span class="mcp-tool">trade.propose</span>
+      <span class="mcp-tool">trade.proposals</span>
+      <span class="mcp-tool">trade.cancel</span>
+      <span class="mcp-tool">agent.register</span>
+      <span class="mcp-tool">agent.status</span>
+      <span class="mcp-tool">agent.heartbeat</span>
+    </div>
+    <div style="margin-top:8px;font-size:9px;color:var(--muted)">JSON-RPC 2.0 over HTTP. <a href="/playground" style="color:var(--purple)">View full docs in API Playground</a></div>
   </div>
 
   <!-- AmiCoin Network -->
@@ -517,6 +746,7 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
         <a href="/status" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Status</a>
         <a href="/trading" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Trading</a>
         <a href="/playground" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">API Playground</a>
+        <a href="#marketplace" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Marketplace</a>
       </div>
       <div>
         <div style="font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Wallets</div>
@@ -538,9 +768,10 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
         <div style="padding:2px 0">Local: M3 Air + M1 Max + M2 Ultra</div>
         <div style="padding:2px 0">C Engine: 80ns/signal</div>
         <div style="padding:2px 0">Path Router: 37 nodes, 75 edges</div>
+        <div style="padding:2px 0">MCP Server: 11 tools</div>
       </div>
     </div>
-    <div style="text-align:center;padding-top:8px;border-top:1px solid var(--border)33">NetTrace Quant Platform v2.0 | Running 24/7</div>
+    <div style="text-align:center;padding-top:8px;border-top:1px solid var(--border)33">NetTrace Quant Platform v3.0 — B2B/D2C Platform | Running 24/7</div>
   </footer>
 </div>
 
@@ -1134,6 +1365,287 @@ async function loadCredentials(){
   }catch(e){}
 }
 
+// ── Org Context ──
+let currentOrgSlug = null;
+const userOrgs = JSON.parse('{{ user_orgs|default("[]")|e }}');
+
+function loadOrgs(){
+  const bar = document.getElementById("orgBar");
+  const sel = document.getElementById("orgSelect");
+  if(!userOrgs||userOrgs.length===0){bar.style.display="none";return}
+  bar.style.display="flex";
+  sel.innerHTML=userOrgs.map(o=>`<option value="${o.slug}">${o.name}</option>`).join("");
+  switchOrg(userOrgs[0].slug);
+}
+
+function switchOrg(slug){
+  currentOrgSlug=slug;
+  const org=userOrgs.find(o=>o.slug===slug);
+  if(!org)return;
+  document.getElementById("orgName").textContent=org.name;
+  document.getElementById("orgTierBadge").textContent=org.tier.replace("_"," ");
+  document.getElementById("orgTierBadge").className="tier-badge tier-"+org.tier;
+  document.getElementById("orgRoleBadge").textContent=org.role;
+  // Reload org-scoped data
+  loadAgents();loadProposals();loadRiskPolicy();loadAum();loadFeePreview();loadInvoices();
+}
+
+// ── Agent Marketplace ──
+function showMarketplaceTab(tab,btn){
+  document.querySelectorAll(".marketplace-tabs button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  ["agents","proposals","register"].forEach(t=>{
+    document.getElementById("tab-"+t).style.display=t===tab?"block":"none";
+  });
+}
+
+async function loadAgents(){
+  if(!currentOrgSlug)return;
+  try{
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/agents`);
+    const d=await r.json();
+    const body=document.getElementById("marketplaceAgentsBody");
+    if(d.agents&&d.agents.length>0){
+      body.innerHTML=d.agents.map(a=>{
+        const stage=a.pipeline_stage||"COLD";
+        const stageCls=stage==="HOT"?"b-hot":stage==="WARM"?"b-warm":"b-cold";
+        const statusCls="agent-status-"+(a.status||"pending");
+        const actions=(a.status==="pending"?`<button class="action-btn approve" onclick="updateAgentStatus(${a.id},'approved')">Approve</button> `:"")+
+          (a.status==="active"||a.status==="approved"?`<button class="action-btn reject" onclick="updateAgentStatus(${a.id},'suspended')">Suspend</button> `:"")+
+          (a.status!=="fired"?`<button class="action-btn fire" onclick="updateAgentStatus(${a.id},'fired')">Fire</button>`:"");
+        return `<tr>
+          <td>${a.agent_name}</td>
+          <td>${a.agent_type||"--"}</td>
+          <td><span class="badge ${stageCls}">${stage}</span></td>
+          <td><span class="${statusCls}">${a.status}</span></td>
+          <td>${a.total_trades||0}</td>
+          <td>${a.win_rate?a.win_rate.toFixed(1)+"%":"--"}</td>
+          <td class="${(a.total_pnl||0)>=0?"pnl-pos":"pnl-neg"}">$${(a.total_pnl||0).toFixed(2)}</td>
+          <td>${a.sharpe_ratio?a.sharpe_ratio.toFixed(2):"--"}</td>
+          <td>${actions}</td>
+        </tr>`;
+      }).join("");
+      // Update KPI count
+      const active=d.agents.filter(a=>a.status==="active"||a.status==="approved").length;
+      const total=11+active; // 11 internal + marketplace active
+      document.getElementById("agentCount").textContent=total;
+      const stages=d.agents.reduce((acc,a)=>{acc[a.pipeline_stage||"COLD"]=(acc[a.pipeline_stage||"COLD"]||0)+1;return acc},{});
+      document.getElementById("agentCountSub").textContent=
+        `11 internal + ${active} marketplace (${stages.COLD||0}C/${stages.WARM||0}W/${stages.HOT||0}H)`;
+    }else{
+      body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px">No marketplace agents registered yet</td></tr>';
+    }
+  }catch(e){console.log("loadAgents error:",e)}
+}
+
+async function registerAgent(){
+  if(!currentOrgSlug)return showToast("No org selected","error");
+  const name=document.getElementById("regAgentName").value.trim();
+  const desc=document.getElementById("regAgentDesc").value.trim();
+  const type=document.getElementById("regAgentType").value;
+  if(!name){showToast("Agent name is required","error");return}
+  try{
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/agents`,{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({agent_name:name,strategy_description:desc,agent_type:type})
+    });
+    const d=await r.json();
+    if(d.error){showToast(d.error,"error");return}
+    showToast(`Agent "${name}" registered`,"success");
+    document.getElementById("regAgentName").value="";
+    document.getElementById("regAgentDesc").value="";
+    loadAgents();
+    showMarketplaceTab("agents",document.querySelector(".marketplace-tabs button"));
+  }catch(e){showToast("Registration failed: "+e.message,"error")}
+}
+
+async function updateAgentStatus(agentId,status){
+  if(!currentOrgSlug)return;
+  try{
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/agents/${agentId}/status`,{
+      method:"PUT",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({status})
+    });
+    const d=await r.json();
+    if(d.error){showToast(d.error,"error");return}
+    showToast(`Agent ${status}`,"success");
+    loadAgents();
+  }catch(e){showToast("Status update failed","error")}
+}
+
+// ── Trade Proposals ──
+async function loadProposals(){
+  if(!currentOrgSlug)return;
+  try{
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/proposals?limit=20`);
+    const d=await r.json();
+    const body=document.getElementById("proposalsBody");
+    if(d.proposals&&d.proposals.length>0){
+      body.innerHTML=d.proposals.map(p=>{
+        const statusCls="proposal-"+(p.status||"pending");
+        const actions=p.status==="pending"?
+          `<button class="action-btn approve" onclick="reviewProposal(${p.id},'approve')">Approve</button> `+
+          `<button class="action-btn reject" onclick="reviewProposal(${p.id},'reject')">Reject</button>`:"";
+        const time=p.created_at?new Date(p.created_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"--";
+        return `<tr>
+          <td>${time}</td>
+          <td>${p.agent_name||"Agent #"+p.agent_id}</td>
+          <td>${p.pair||"--"}</td>
+          <td><span class="badge ${p.direction==="BUY"?"b-buy":"b-sell"}">${p.direction||"--"}</span></td>
+          <td>${p.confidence?(p.confidence*100).toFixed(0)+"%":"--"}</td>
+          <td>$${(p.size_usd||0).toFixed(2)}</td>
+          <td><span class="${statusCls}">${p.status}</span></td>
+          <td>${actions}</td>
+        </tr>`;
+      }).join("");
+    }else{
+      body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:16px">No trade proposals yet</td></tr>';
+    }
+  }catch(e){console.log("loadProposals error:",e)}
+}
+
+async function reviewProposal(proposalId,action){
+  if(!currentOrgSlug)return;
+  const reason=action==="reject"?prompt("Rejection reason (optional):",""):"";
+  try{
+    const payload={action};
+    if(reason)payload.reason=reason;
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/proposals/${proposalId}/review`,{
+      method:"PUT",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+    const d=await r.json();
+    if(d.error){showToast(d.error,"error");return}
+    showToast(`Proposal ${action}d`,"success");
+    loadProposals();
+  }catch(e){showToast("Review failed","error")}
+}
+
+// ── Risk Policy ──
+async function loadRiskPolicy(){
+  if(!currentOrgSlug)return;
+  try{
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/risk-policy`);
+    const d=await r.json();
+    if(d.policy){
+      const p=d.policy;
+      document.getElementById("riskMaxDailyLoss").textContent=(p.max_daily_loss_pct||3)+"%";
+      document.getElementById("riskMaxPosition").textContent=(p.max_position_pct||5)+"%";
+      document.getElementById("riskMinConfidence").textContent=(p.min_confidence_pct||70)+"%";
+      document.getElementById("riskMinSignals").textContent=p.min_signals||2;
+      // Highlight active preset
+      document.querySelectorAll(".risk-presets button").forEach(btn=>{
+        btn.classList.toggle("active",btn.textContent.toLowerCase()===p.risk_profile);
+      });
+    }
+  }catch(e){console.log("loadRiskPolicy error:",e)}
+}
+
+async function setRiskPreset(profile){
+  if(!currentOrgSlug)return;
+  try{
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/risk-policy`,{
+      method:"PUT",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({risk_profile:profile})
+    });
+    const d=await r.json();
+    if(d.error){showToast(d.error,"error");return}
+    showToast(`Risk profile: ${profile}`,"success");
+    loadRiskPolicy();
+  }catch(e){showToast("Risk update failed","error")}
+}
+
+// ── Fees & Billing ──
+async function loadAum(){
+  if(!currentOrgSlug)return;
+  try{
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/aum?days=30`);
+    const d=await r.json();
+    if(d.snapshots&&d.snapshots.length>0){
+      const latest=d.snapshots[d.snapshots.length-1];
+      document.getElementById("feeAum").textContent="$"+(latest.aum||0).toFixed(2);
+      document.getElementById("feeHwm").textContent="$"+(latest.hwm||0).toFixed(2);
+      document.getElementById("feeGains").textContent="$"+(latest.gains||0).toFixed(2);
+    }
+  }catch(e){console.log("loadAum error:",e)}
+}
+
+async function loadFeePreview(){
+  if(!currentOrgSlug)return;
+  try{
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/fees/preview`,{method:"POST"});
+    const d=await r.json();
+    if(d.total_to_date!==undefined){
+      document.getElementById("feeTotalMtd").textContent="$"+d.total_to_date.toFixed(2);
+      document.getElementById("feeSub").textContent="$"+(d.subscription||0);
+      document.getElementById("feePerf").textContent="$"+(d.performance_fee_to_date||0).toFixed(2);
+      document.getElementById("feeMgmt").textContent="$"+(d.management_fee_to_date||0).toFixed(2);
+      document.getElementById("feeTier").textContent=(d.tier||"--").replace("_"," ");
+      const tierDescs={free:"Paper trading only",pro:"3 agents, 5% perf fee",enterprise:"10 agents, 10% perf fee",enterprise_pro:"Unlimited, 20% perf fee, 2% mgmt"};
+      document.getElementById("feeTierDesc").textContent=tierDescs[d.tier]||"";
+    }
+  }catch(e){console.log("loadFeePreview error:",e)}
+}
+
+async function loadInvoices(){
+  if(!currentOrgSlug)return;
+  try{
+    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/fees?limit=6`);
+    const d=await r.json();
+    const body=document.getElementById("invoicesBody");
+    if(d.invoices&&d.invoices.length>0){
+      body.innerHTML=d.invoices.map(inv=>{
+        const statusCls="invoice-status-"+(inv.status||"draft");
+        return `<tr>
+          <td>${inv.period_start?inv.period_start.substring(0,10):"--"} — ${inv.period_end?inv.period_end.substring(0,10):"--"}</td>
+          <td>${inv.type||"combined"}</td>
+          <td>$${(inv.amount_usd||0).toFixed(2)}</td>
+          <td><span class="${statusCls}">${inv.status}</span></td>
+          <td>${inv.created_at?new Date(inv.created_at).toLocaleDateString():""}</td>
+        </tr>`;
+      }).join("");
+    }else{
+      body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px">No invoices yet</td></tr>';
+    }
+  }catch(e){console.log("loadInvoices error:",e)}
+}
+
+// ── Marketplace Leaderboard ──
+async function loadLeaderboard(){
+  try{
+    const r=await fetch("/api/v1/marketplace/leaderboard?limit=20");
+    const d=await r.json();
+    const body=document.getElementById("leaderboardBody");
+    if(d.leaderboard&&d.leaderboard.length>0){
+      body.innerHTML=d.leaderboard.map((a,i)=>{
+        const rank=i+1;
+        const rankCls=rank<=3?"rank-"+rank:"";
+        const stage=a.pipeline_stage||"COLD";
+        const stageCls=stage==="HOT"?"b-hot":stage==="WARM"?"b-warm":"b-cold";
+        return `<tr>
+          <td><span class="rank-badge ${rankCls}">${rank}</span></td>
+          <td>${a.agent_name}</td>
+          <td>${a.agent_type||"--"}</td>
+          <td><span class="badge ${stageCls}">${stage}</span></td>
+          <td>${a.org_name||"--"}</td>
+          <td>${a.total_trades||0}</td>
+          <td>${a.win_rate?a.win_rate.toFixed(1)+"%":"--"}</td>
+          <td class="${(a.total_pnl||0)>=0?"pnl-pos":"pnl-neg"}">$${(a.total_pnl||0).toFixed(2)}</td>
+          <td>${a.sharpe_ratio?a.sharpe_ratio.toFixed(2):"--"}</td>
+          <td>${a.max_drawdown?a.max_drawdown.toFixed(1)+"%":"--"}</td>
+        </tr>`;
+      }).join("");
+    }else{
+      body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:16px">No agents on leaderboard yet</td></tr>';
+    }
+  }catch(e){console.log("loadLeaderboard error:",e)}
+}
+
+// ── Clipboard ──
+function copyToClipboard(text){
+  navigator.clipboard.writeText(text).then(()=>showToast("Copied!","success",2000)).catch(()=>{});
+}
+
 // ── Init ──
 initChart();
 renderServers();
@@ -1145,7 +1657,9 @@ fetchOpportunities();
 fetchVenueComparison();
 fetchTreasury();
 loadCredentials();
-refreshAssetPools();  // Load asset pools on page load
+refreshAssetPools();
+loadOrgs();
+loadLeaderboard();
 
 // Refresh intervals
 setInterval(refreshData,15000);       // Trading data every 15s
@@ -1155,6 +1669,9 @@ setInterval(fetchRegimes,300000);     // Regime every 5m
 setInterval(fetchOpportunities,60000);// Opportunities every 1m
 setInterval(fetchVenueComparison,30000); // Venues every 30s
 setInterval(fetchTreasury,60000);     // Treasury every 1m
+setInterval(loadProposals,15000);     // Proposals every 15s
+setInterval(loadAgents,30000);        // Agents every 30s
+setInterval(loadLeaderboard,60000);   // Leaderboard every 1m
 </script>
 </body>
 </html>

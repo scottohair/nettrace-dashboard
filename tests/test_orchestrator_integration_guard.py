@@ -4,6 +4,7 @@
 import os
 import sys
 from pathlib import Path
+from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "agents"))
 
@@ -14,6 +15,7 @@ def _make_orchestrator(monkeypatch, tmp_path):
     monkeypatch.setattr(orch, "ORCH_DB", str(tmp_path / "orchestrator.db"))
     monkeypatch.setattr(orch, "PENDING_BRIDGES_FILE", str(tmp_path / "pending_bridges.json"))
     monkeypatch.setattr(orch, "INTEGRATION_GUARD_STATUS_FILE", tmp_path / "integration_guard_status.json")
+    monkeypatch.setattr(orch, "STARTUP_PREFLIGHT_STATUS_FILE", tmp_path / "orchestrator_startup_preflight.json")
     monkeypatch.setattr(orch.OrchestratorV2, "_get_starting_capital", lambda self: 100.0)
     return orch.OrchestratorV2()
 
@@ -91,3 +93,114 @@ def test_run_integration_guard_uses_runner_and_persists_status(monkeypatch, tmp_
     assert report["required_failures"] == []
     assert "checked_at" in report
     assert status_path.exists()
+
+
+def test_startup_preflight_passes_when_execution_health_green(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_FAIL_OPEN", False)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_REQUIRE_GREEN", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_MAX_AGE_SECONDS", 300)
+    now_iso = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_fetch_execution_health_payload",
+        lambda refresh=True: {"updated_at": now_iso, "green": True, "reason": "passed", "reasons": []},
+    )
+
+    report = instance.run_startup_preflight(force_refresh=True)
+    assert report["passed"] is True
+    assert report["reason"] == "execution_health_green"
+    assert report["status_available"] is True
+    assert (tmp_path / "orchestrator_startup_preflight.json").exists()
+
+
+def test_startup_preflight_blocks_when_execution_health_not_green(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_FAIL_OPEN", False)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_REQUIRE_GREEN", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_MAX_AGE_SECONDS", 300)
+    now_iso = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_fetch_execution_health_payload",
+        lambda refresh=True: {"updated_at": now_iso, "green": False, "reason": "egress_blocked", "reasons": ["egress_blocked"]},
+    )
+
+    report = instance.run_startup_preflight(force_refresh=True)
+    assert report["passed"] is False
+    assert "execution_health_not_green:egress_blocked" in report["reason"]
+
+
+def test_startup_preflight_overrides_with_ignorable_reasons(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_FAIL_OPEN", False)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_REQUIRE_GREEN", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_MAX_AGE_SECONDS", 300)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_IGNORE_REASONS", ("egress_blocked", "api_probe_failed", "telemetry_success_rate_low"))
+    now_iso = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_fetch_execution_health_payload",
+        lambda refresh=True: {
+            "updated_at": now_iso,
+            "green": False,
+            "reason": "egress_blocked",
+            "reasons": [
+                "egress_blocked",
+                "api_probe_failed",
+                "telemetry_success_rate_low:0.10<0.55",
+            ],
+        },
+    )
+
+    report = instance.run_startup_preflight(force_refresh=True)
+    assert report["passed"] is True
+    assert report["reason"] == "execution_health_warnings_ignored"
+    assert "egress_blocked" in report["ignore_reasons"]
+    assert "api_probe_failed" in report["ignore_reasons"]
+
+
+def test_startup_preflight_still_blocks_mixed_with_unignored_reasons(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_FAIL_OPEN", False)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_REQUIRE_GREEN", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_MAX_AGE_SECONDS", 300)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_IGNORE_REASONS", ("egress_blocked", "api_probe_failed"))
+    now_iso = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_fetch_execution_health_payload",
+        lambda refresh=True: {
+            "updated_at": now_iso,
+            "green": False,
+            "reason": "reconcile_status_stale",
+            "reasons": ["egress_blocked", "reconcile_status_stale"],
+        },
+    )
+
+    report = instance.run_startup_preflight(force_refresh=True)
+    assert report["passed"] is False
+    assert report["reason"] == "execution_health_not_green:reconcile_status_stale"
+
+
+def test_startup_preflight_fail_open_overrides_block(monkeypatch, tmp_path):
+    instance = _make_orchestrator(monkeypatch, tmp_path)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_ENABLED", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_FAIL_OPEN", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_REQUIRE_GREEN", True)
+    monkeypatch.setattr(orch, "ORCH_STARTUP_PREFLIGHT_MAX_AGE_SECONDS", 300)
+    now_iso = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(
+        instance,
+        "_fetch_execution_health_payload",
+        lambda refresh=True: {"updated_at": now_iso, "green": False, "reason": "egress_blocked", "reasons": ["egress_blocked"]},
+    )
+
+    report = instance.run_startup_preflight(force_refresh=True)
+    assert report["passed"] is True
+    assert report["reason"] == "startup_preflight_fail_open"
+    assert report["pass_override_reason"].startswith("execution_health_not_green:")

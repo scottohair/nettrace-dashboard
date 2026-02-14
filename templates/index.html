@@ -186,6 +186,7 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
     <div id="auth-error" class="error hidden"></div>
     <input id="auth-user" placeholder="Username" autocomplete="username"/>
     <input id="auth-pass" type="password" placeholder="Password" autocomplete="current-password"/>
+    <input id="auth-org-name" placeholder="Organization Name (optional)" autocomplete="organization" class="hidden" style="margin-top:6px"/>
     <button id="auth-submit" class="btn btn-primary" onclick="submitAuth()">Sign In</button>
     <div class="switch">
       <span id="auth-switch-text">No account? </span>
@@ -231,6 +232,7 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
     <a href="/" style="color:#00d4ff;text-decoration:none;font-size:11px;padding:4px 8px;border:1px solid #00d4ff44;border-radius:4px">Network</a>
     <a href="/status" style="color:#5a6c7d;text-decoration:none;font-size:11px;padding:4px 8px;border:1px solid transparent;border-radius:4px">Status</a>
     <a href="/trading" id="nav-trading" style="color:#5a6c7d;text-decoration:none;font-size:11px;padding:4px 8px;border:1px solid transparent;border-radius:4px;display:none">Trading</a>
+    <a href="/trading#marketplace" style="color:#5a6c7d;text-decoration:none;font-size:11px;padding:4px 8px;border:1px solid transparent;border-radius:4px">Marketplace</a>
     <a href="/playground" style="color:#5a6c7d;text-decoration:none;font-size:11px;padding:4px 8px;border:1px solid transparent;border-radius:4px">API</a>
   </div>
   <div class="header-right">
@@ -270,6 +272,8 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
             <li>30-day latency history</li>
             <li>Route change alerts</li>
             <li>100+ financial targets monitored</li>
+            <li>3 agent slots &middot; 5% perf fee above HWM</li>
+            <li>10K signals/day</li>
           </ul>
         {% if stripe_live %}
           <div id="apple-pay-btn" style="margin-bottom:6px;min-height:44px"></div>
@@ -292,6 +296,8 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
             <li>Real-time WebSocket stream</li>
             <li>Bulk CSV/JSON export</li>
             <li>Route change detection</li>
+            <li>10 agent slots &middot; 10% perf fee above HWM</li>
+            <li>Unlimited signals &middot; MCP access</li>
           </ul>
         {% if stripe_live %}
           <button class="btn" onclick="subscribeTier('enterprise')" style="width:100%;padding:8px;font-size:12px;border-color:#a855f7;color:#a855f7;background:#a855f711">Subscribe Enterprise</button>
@@ -310,6 +316,8 @@ body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;c
             <li>365-day deep history</li>
             <li>Custom target lists & scan intervals</li>
             <li>SLA guarantee</li>
+            <li>Unlimited agents &middot; 20% perf fee &middot; 2% mgmt fee</li>
+            <li>Full managed trading &middot; Real-time signals</li>
           </ul>
         {% if stripe_live %}
           <button class="btn" onclick="subscribeTier('enterprise_pro')" style="width:100%;padding:8px;font-size:12px;border-color:#f59e0b;color:#f59e0b;background:#f59e0b11">Subscribe Enterprise Pro</button>
@@ -442,12 +450,17 @@ function toggleAuthMode(e){
   document.getElementById("auth-submit").textContent=authMode==="login"?"Sign In":"Register";
   document.getElementById("auth-switch-text").textContent=authMode==="login"?"No account? ":"Have an account? ";
   document.getElementById("auth-switch").textContent=authMode==="login"?"Register":"Sign In";
+  const orgField=document.getElementById("auth-org-name");
+  if(authMode==="register")orgField.classList.remove("hidden");else orgField.classList.add("hidden");
 }
 async function submitAuth(){
   const u=document.getElementById("auth-user").value.trim(), p=document.getElementById("auth-pass").value;
+  const orgName=document.getElementById("auth-org-name").value.trim();
   const errEl=document.getElementById("auth-error");
   try{
-    const res=await fetch(authMode==="login"?"/api/login":"/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})});
+    const payload={username:u,password:p};
+    if(authMode==="register"&&orgName)payload.org_name=orgName;
+    const res=await fetch(authMode==="login"?"/api/login":"/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
     const data=await res.json();
     if(!res.ok){errEl.textContent=data.error;errEl.classList.remove("hidden");return}
     currentUser=data.username; isSubscribed=data.subscribed;

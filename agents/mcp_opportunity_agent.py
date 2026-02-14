@@ -222,7 +222,10 @@ class MCPOpportunityAgent:
     def _collect_quant_bias(self):
         quant = _load_json(QUANT_RESULTS_PATH, {})
         summary = quant.get("summary", {}) if isinstance(quant, dict) else {}
-        top = summary.get("top_candidates", []) if isinstance(summary, dict) else []
+        if isinstance(summary, dict):
+            top = summary.get("top_actionable", []) or summary.get("top_candidates", [])
+        else:
+            top = []
         out = []
         if not isinstance(top, list):
             return out

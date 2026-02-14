@@ -23,12 +23,16 @@ back to KPI tracker and agent_goals for evolutionary management.
 import json
 import logging
 import os
+import sqlite3
 import sys
+import statistics
 import time
+import math
+from collections import defaultdict
+from threading import Thread, Event, Lock
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from threading import Thread, Event
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -47,6 +51,65 @@ BUY_THROTTLE_ON_SELL_GAP = os.environ.get("STRIKE_BUY_THROTTLE_ON_SELL_GAP", "1"
 EXECUTION_HEALTH_GATE = os.environ.get("STRIKE_EXECUTION_HEALTH_GATE", "1").lower() not in ("0", "false", "no")
 EXECUTION_HEALTH_BUY_ONLY = os.environ.get("STRIKE_EXECUTION_HEALTH_BUY_ONLY", "1").lower() not in ("0", "false", "no")
 EXECUTION_HEALTH_CACHE_SECONDS = int(os.environ.get("STRIKE_EXECUTION_HEALTH_CACHE_SECONDS", "45") or 45)
+CLOSE_FIRST_MODE_ENABLED = os.environ.get("STRIKE_CLOSE_FIRST_MODE_ENABLED", "1").lower() not in ("0", "false", "no")
+CLOSE_FIRST_POSITION_LOOKBACK_HOURS = int(os.environ.get("STRIKE_CLOSE_FIRST_LOOKBACK_HOURS", "96") or 96)
+CLOSE_FIRST_MIN_OPEN_NOTIONAL_USD = float(os.environ.get("STRIKE_CLOSE_FIRST_MIN_OPEN_NOTIONAL_USD", "2.0") or 2.0)
+STRIKE_DB_BUSY_TIMEOUT_MS = int(os.environ.get("STRIKE_DB_BUSY_TIMEOUT_MS", "5000") or 5000)
+TRADER_DB_PATH = Path(__file__).parent / "trader.db"
+CANDLE_AGG_DB_PATH = Path(__file__).parent / "candle_aggregator.db"
+CANDLE_FEED_PATH = Path(__file__).parent / "candle_feed_latest.json"
+STRIKE_CANDLE_FALLBACK_ENABLED = os.environ.get("STRIKE_CANDLE_FALLBACK_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+STRIKE_CANDLE_REMOTE_MIN_ROWS = int(os.environ.get("STRIKE_CANDLE_REMOTE_MIN_ROWS", "8") or 8)
+STRIKE_DYNAMIC_PAIR_SELECTION = os.environ.get("STRIKE_DYNAMIC_PAIR_SELECTION", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+STRIKE_DYNAMIC_PAIRS_REFRESH_SECONDS = int(
+    os.environ.get("STRIKE_DYNAMIC_PAIRS_REFRESH_SECONDS", "90") or 90
+)
+STRIKE_DYNAMIC_PAIRS_LIMIT_HF = int(os.environ.get("STRIKE_DYNAMIC_PAIRS_LIMIT_HF", "8") or 8)
+STRIKE_DYNAMIC_PAIRS_LIMIT_LF = int(os.environ.get("STRIKE_DYNAMIC_PAIRS_LIMIT_LF", "10") or 10)
+STRIKE_DYNAMIC_PAIR_MIN_POINTS = int(os.environ.get("STRIKE_DYNAMIC_PAIR_MIN_POINTS", "8") or 8)
+STRIKE_DYNAMIC_PAIR_LOOKBACK = int(os.environ.get("STRIKE_DYNAMIC_PAIR_LOOKBACK", "20") or 20)
+STRIKE_DYNAMIC_PAIR_LOOKBACK_HOURS = int(os.environ.get("STRIKE_DYNAMIC_PAIR_LOOKBACK_HOURS", "72") or 72)
+STRIKE_DYNAMIC_INCLUDE_USDC = os.environ.get("STRIKE_DYNAMIC_INCLUDE_USDC", "0").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+COMPLETED_TRADE_STATUSES = (
+    "filled",
+    "closed",
+    "executed",
+    "partial_filled",
+    "partially_filled",
+    "settled",
+)
+ARBITRAGE_BASIS_HISTORY_LIMIT = int(
+    os.environ.get("STRIKE_ARBITRAGE_BASIS_HISTORY_LIMIT", "24") or 24
+)
+ARBITRAGE_BASIS_MIN_HISTORY = int(
+    os.environ.get("STRIKE_ARBITRAGE_BASIS_MIN_HISTORY", "3") or 3
+)
+ARBITRAGE_BASIS_Z_REQUIRED = float(
+    os.environ.get("STRIKE_ARBITRAGE_BASIS_Z_REQUIRED", "1.05") or 1.05
+)
+ARBITRAGE_BASIS_STRESS_Z = float(
+    os.environ.get("STRIKE_ARBITRAGE_BASIS_STRESS_Z", "1.90") or 1.90
+)
+ARBITRAGE_MIN_SPREAD_THRESHOLD = float(
+    os.environ.get("STRIKE_ARBITRAGE_MIN_SPREAD_THRESHOLD", "0.008") or 0.008
+)
+ARBITRAGE_BOOTSTRAP_MIN_SPREAD = float(
+    os.environ.get("STRIKE_ARBITRAGE_BOOTSTRAP_MIN_SPREAD", "0.012") or 0.012
+)
+_ARBITRAGE_BASIS_HISTORY = defaultdict(list)
+_ARBITRAGE_BASIS_LOCK = Lock()
 
 # Core imports
 try:
@@ -79,6 +142,80 @@ except Exception:
 _EXECUTION_HEALTH_CACHE = {"ts": 0.0, "payload": {"green": False, "reason": "uninitialized"}}
 
 
+def _safe_float(value, fallback=0.0):
+    try:
+        v = float(value)
+    except Exception:
+        return float(fallback)
+    return v if math.isfinite(v) else float(fallback)
+
+
+def _reset_arbitrage_basis_state():
+    """Reset in-memory arbitrage spread history."""
+    with _ARBITRAGE_BASIS_LOCK:
+        _ARBITRAGE_BASIS_HISTORY.clear()
+
+
+def _classify_arbitrage_basis(pair, spread):
+    """Classify cross-venue spread regime for arbitrage decisions."""
+    spread_f = _safe_float(spread, 0.0)
+    spread_abs = abs(spread_f)
+    pair_key = str(pair or "").upper()
+
+    with _ARBITRAGE_BASIS_LOCK:
+        history = _ARBITRAGE_BASIS_HISTORY[pair_key]
+        history.append(spread_f)
+        limit = max(1, int(ARBITRAGE_BASIS_HISTORY_LIMIT))
+        if len(history) > limit:
+            del history[:-limit]
+        samples = list(history)
+
+    sample_count = len(samples)
+    z_score = 0.0
+    mean_spread = 0.0
+    stdev_spread = 0.0
+
+    if sample_count > 1:
+        mean_spread = statistics.mean(samples)
+        stdev_spread = statistics.pstdev(samples)
+        stdev_spread = max(1e-9, _safe_float(stdev_spread, 0.0))
+        z_score = (spread_f - mean_spread) / stdev_spread
+
+    if sample_count < ARBITRAGE_BASIS_MIN_HISTORY:
+        if spread_abs >= ARBITRAGE_BOOTSTRAP_MIN_SPREAD:
+            regime = (
+                "bootstrap_coinbase_premium" if spread_f > 0 else "bootstrap_coinbase_discount"
+            )
+            confidence_boost = 0.02
+        else:
+            regime = "neutral"
+            confidence_boost = 0.0
+    else:
+        if abs(z_score) >= ARBITRAGE_BASIS_STRESS_Z:
+            regime = (
+                "stressed_coinbase_premium" if spread_f > 0 else "stressed_coinbase_discount"
+            )
+            confidence_boost = 0.10
+        elif abs(z_score) >= ARBITRAGE_BASIS_Z_REQUIRED:
+            regime = "normal_coinbase_premium" if spread_f > 0 else "normal_coinbase_discount"
+            confidence_boost = 0.05
+        else:
+            regime = "neutral"
+            confidence_boost = 0.0
+
+    return {
+        "pair": pair_key,
+        "spread": spread_f,
+        "spread_abs": spread_abs,
+        "sample_count": sample_count,
+        "regime": regime,
+        "basis_z_score": round(float(z_score), 4),
+        "mean_spread": round(float(mean_spread), 10),
+        "stdev_spread": round(float(stdev_spread), 10),
+        "confidence_boost": confidence_boost,
+    }
+
+
 def _fetch_price(pair):
     """Get spot price from Coinbase."""
     try:
@@ -88,20 +225,338 @@ def _fetch_price(pair):
         resp = urllib.request.urlopen(req, timeout=5)
         return float(json.loads(resp.read())["data"]["amount"])
     except Exception:
-        return None
+        return _latest_local_close(pair)
 
 
 def _fetch_candles(pair, granularity=60, limit=30):
     """Get recent 1-min candles."""
+    remote = []
     try:
         dp = pair.replace("-USDC", "-USD")
         url = f"https://api.exchange.coinbase.com/products/{dp}/candles?granularity={granularity}"
         req = urllib.request.Request(url, headers={"User-Agent": "StrikeTeam/1.0"})
         resp = urllib.request.urlopen(req, timeout=5)
         candles = json.loads(resp.read())
-        return candles[:limit]  # [time, low, high, open, close, volume]
+        if isinstance(candles, list):
+            remote = candles[:limit]  # [time, low, high, open, close, volume]
+    except Exception:
+        remote = []
+    if len(remote) >= max(1, int(STRIKE_CANDLE_REMOTE_MIN_ROWS)) and not STRIKE_CANDLE_FALLBACK_ENABLED:
+        return remote[:limit]
+    if len(remote) >= max(1, int(limit)):
+        return remote[:limit]
+
+    local = _load_aggregated_candles(pair, granularity=granularity, limit=limit)
+    if not local:
+        return remote[:limit]
+    if not remote:
+        return local[:limit]
+
+    # Merge by timestamp, preferring remote rows when both sources have same candle.
+    merged = {}
+    for row in local:
+        try:
+            merged[int(row[0])] = row
+        except Exception:
+            continue
+    for row in remote:
+        try:
+            merged[int(row[0])] = row
+        except Exception:
+            continue
+    out = [merged[k] for k in sorted(merged.keys(), reverse=True)]
+    return out[:limit]
+
+
+def _normalize_pair(pair):
+    p = str(pair or "").strip().upper().replace("_", "-")
+    if not p:
+        return ""
+    if "-" not in p:
+        p = f"{p}-USD"
+    return p
+
+
+def _pair_variants(pair):
+    p = _normalize_pair(pair)
+    out = {p}
+    if p.endswith("-USD"):
+        out.add(p.replace("-USD", "-USDC"))
+    elif p.endswith("-USDC"):
+        out.add(p.replace("-USDC", "-USD"))
+    return [x for x in sorted(out) if x]
+
+
+def _canonical_dynamic_pair(pair):
+    p = _normalize_pair(pair)
+    if not p:
+        return ""
+    if not STRIKE_DYNAMIC_INCLUDE_USDC and p.endswith("-USDC"):
+        return p.replace("-USDC", "-USD")
+    return p
+
+
+def _granularity_to_timeframe(granularity):
+    g = int(granularity or 60)
+    if g <= 60:
+        return "1m"
+    if g <= 300:
+        return "5m"
+    if g <= 900:
+        return "15m"
+    return "1h"
+
+
+def _open_candle_db():
+    conn = sqlite3.connect(str(CANDLE_AGG_DB_PATH), timeout=max(1.0, float(STRIKE_DB_BUSY_TIMEOUT_MS) / 1000.0))
+    conn.row_factory = sqlite3.Row
+    conn.execute(f"PRAGMA busy_timeout={int(max(1000, STRIKE_DB_BUSY_TIMEOUT_MS))}")
+    conn.execute("PRAGMA journal_mode=WAL")
+    return conn
+
+
+def _table_exists(conn, name):
+    row = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+        (str(name),),
+    ).fetchone()
+    return bool(row)
+
+
+def _load_aggregated_candles(pair, granularity=60, limit=30):
+    if not STRIKE_CANDLE_FALLBACK_ENABLED:
+        return []
+    if not CANDLE_AGG_DB_PATH.exists():
+        return []
+    pair_list = _pair_variants(pair)
+    if not pair_list:
+        return []
+    timeframe = _granularity_to_timeframe(granularity)
+    placeholders = ",".join("?" for _ in pair_list)
+    conn = None
+    try:
+        conn = _open_candle_db()
+        if not _table_exists(conn, "aggregated_candles"):
+            return []
+        rows = conn.execute(
+            f"""
+            SELECT start_ts, low, high, open, close, volume
+            FROM aggregated_candles
+            WHERE pair IN ({placeholders})
+              AND timeframe=?
+            ORDER BY start_ts DESC
+            LIMIT ?
+            """,
+            tuple(pair_list) + (timeframe, int(max(1, limit))),
+        ).fetchall()
+        out = []
+        for r in rows:
+            try:
+                out.append(
+                    [
+                        int(r["start_ts"]),
+                        float(r["low"]),
+                        float(r["high"]),
+                        float(r["open"]),
+                        float(r["close"]),
+                        max(0.0, float(r["volume"] or 0.0)),
+                    ]
+                )
+            except Exception:
+                continue
+        return out
     except Exception:
         return []
+    finally:
+        try:
+            if conn is not None:
+                conn.close()
+        except Exception:
+            pass
+
+
+def _latest_local_close(pair):
+    candles = _load_aggregated_candles(pair, granularity=300, limit=1)
+    if candles:
+        try:
+            return float(candles[0][4])
+        except Exception:
+            return None
+    return None
+
+
+_PAIR_UNIVERSE_CACHE = {"ts": 0.0, "hf": [], "lf": [], "source": "none"}
+
+
+def _score_pair_window(candles):
+    if not candles or len(candles) < 4:
+        return None
+    closes = []
+    opens = []
+    highs = []
+    lows = []
+    vols = []
+    for c in candles:
+        try:
+            opens.append(float(c[3]))
+            highs.append(float(c[2]))
+            lows.append(float(c[1]))
+            closes.append(float(c[4]))
+            vols.append(max(0.0, float(c[5] or 0.0)))
+        except Exception:
+            continue
+    if len(closes) < 4:
+        return None
+    first_open = opens[0] if opens[0] > 0 else closes[0]
+    momentum = ((closes[-1] - first_open) / first_open) if first_open > 0 else 0.0
+    returns = []
+    for i in range(1, len(closes)):
+        prev = closes[i - 1]
+        if prev > 0:
+            returns.append((closes[i] - prev) / prev)
+    if not returns:
+        return None
+    volatility = statistics.pstdev(returns) if len(returns) > 1 else abs(returns[-1])
+    ranges = []
+    for i in range(len(opens)):
+        o = opens[i]
+        if o > 0:
+            ranges.append((highs[i] - lows[i]) / o)
+    range_pct = statistics.fmean(ranges) if ranges else 0.0
+    if len(vols) >= 6:
+        recent = statistics.fmean(vols[-3:])
+        baseline = statistics.fmean(vols[:-3])
+    else:
+        recent = statistics.fmean(vols)
+        baseline = recent
+    volume_ratio = (recent / baseline) if baseline > 0 else (1.0 if recent > 0 else 0.0)
+    score = (
+        (abs(momentum) * 0.48)
+        + (volatility * 0.30)
+        + (range_pct * 0.14)
+        + (max(0.0, min(3.0, volume_ratio - 1.0)) * 0.08)
+    )
+    return {
+        "score": float(max(0.0, score)),
+        "momentum": float(momentum),
+        "volatility": float(volatility),
+        "volume_ratio": float(volume_ratio),
+    }
+
+
+def _pairs_from_feed(team_type, limit):
+    if not CANDLE_FEED_PATH.exists():
+        return [], "feed_missing"
+    try:
+        payload = json.loads(CANDLE_FEED_PATH.read_text())
+    except Exception:
+        return [], "feed_parse_error"
+    points = payload.get("points", []) if isinstance(payload, dict) else []
+    if not isinstance(points, list) or not points:
+        return [], "feed_points_empty"
+    preferred_tfs = {"1m", "5m"} if str(team_type).upper() == "HF" else {"5m", "15m", "1h"}
+    grouped = {}
+    for row in points:
+        if not isinstance(row, dict):
+            continue
+        tf = str(row.get("timeframe", "")).lower()
+        if tf not in preferred_tfs:
+            continue
+        pair = _normalize_pair(row.get("pair"))
+        if not pair:
+            continue
+        try:
+            item = [
+                int(row.get("start_ts")),
+                float(row.get("low")),
+                float(row.get("high")),
+                float(row.get("open")),
+                float(row.get("close")),
+                max(0.0, float(row.get("volume", 0.0) or 0.0)),
+            ]
+        except Exception:
+            continue
+        bucket = grouped.setdefault(pair, [])
+        bucket.append(item)
+    ranked = []
+    lookback = max(6, int(STRIKE_DYNAMIC_PAIR_LOOKBACK))
+    min_points = max(4, int(STRIKE_DYNAMIC_PAIR_MIN_POINTS))
+    for pair, rows in grouped.items():
+        rows.sort(key=lambda x: x[0])
+        window = rows[-lookback:]
+        if len(window) < min_points:
+            continue
+        scored = _score_pair_window(window)
+        if not scored:
+            continue
+        ranked.append((pair, scored["score"]))
+    ranked.sort(key=lambda x: x[1], reverse=True)
+    return [p for p, _ in ranked[:limit]], "candle_feed"
+
+
+def _pairs_from_aggregator_db(team_type, limit):
+    if not CANDLE_AGG_DB_PATH.exists():
+        return [], "agg_db_missing"
+    conn = None
+    preferred_tfs = ("1m", "5m") if str(team_type).upper() == "HF" else ("5m", "15m", "1h")
+    placeholders = ",".join("?" for _ in preferred_tfs)
+    cutoff = int(time.time()) - max(1, int(STRIKE_DYNAMIC_PAIR_LOOKBACK_HOURS)) * 3600
+    try:
+        conn = _open_candle_db()
+        if not _table_exists(conn, "aggregated_candles"):
+            return [], "agg_table_missing"
+        rows = conn.execute(
+            f"""
+            SELECT pair, COUNT(*) AS n, AVG(volume) AS avg_vol, MAX(start_ts) AS latest_ts
+            FROM aggregated_candles
+            WHERE timeframe IN ({placeholders})
+              AND start_ts >= ?
+            GROUP BY pair
+            ORDER BY n DESC, avg_vol DESC, latest_ts DESC
+            LIMIT ?
+            """,
+            tuple(preferred_tfs) + (cutoff, int(max(1, limit))),
+        ).fetchall()
+        pairs = [_normalize_pair(r["pair"]) for r in rows if _normalize_pair(r["pair"])]
+        return pairs[:limit], "agg_db"
+    except Exception:
+        return [], "agg_db_query_error"
+    finally:
+        try:
+            if conn is not None:
+                conn.close()
+        except Exception:
+            pass
+
+
+def _dynamic_pair_universe(team_type, defaults):
+    if not STRIKE_DYNAMIC_PAIR_SELECTION:
+        return list(defaults), "dynamic_disabled"
+    now = time.time()
+    ttl = max(10, int(STRIKE_DYNAMIC_PAIRS_REFRESH_SECONDS))
+    key = "hf" if str(team_type).upper() == "HF" else "lf"
+    cached = _PAIR_UNIVERSE_CACHE.get(key, [])
+    if cached and (now - float(_PAIR_UNIVERSE_CACHE.get("ts", 0.0))) <= ttl:
+        return list(cached), str(_PAIR_UNIVERSE_CACHE.get("source", "cache"))
+
+    limit = max(2, int(STRIKE_DYNAMIC_PAIRS_LIMIT_HF if key == "hf" else STRIKE_DYNAMIC_PAIRS_LIMIT_LF))
+    dynamic_pairs, source = _pairs_from_feed(team_type, limit=limit)
+    if not dynamic_pairs:
+        dynamic_pairs, source = _pairs_from_aggregator_db(team_type, limit=limit)
+
+    out = []
+    seen = set()
+    for pair in list(defaults) + list(dynamic_pairs):
+        p = _canonical_dynamic_pair(pair)
+        if not p or p in seen:
+            continue
+        seen.add(p)
+        out.append(p)
+    out = out[:limit]
+    _PAIR_UNIVERSE_CACHE["ts"] = now
+    _PAIR_UNIVERSE_CACHE[key] = list(out)
+    _PAIR_UNIVERSE_CACHE["source"] = source
+    return out, source
 
 
 def _execution_health_status(force_refresh=False):
@@ -127,6 +582,37 @@ def _execution_health_status(force_refresh=False):
     return payload
 
 
+def _open_trader_db():
+    conn = sqlite3.connect(str(TRADER_DB_PATH), timeout=max(1.0, float(STRIKE_DB_BUSY_TIMEOUT_MS) / 1000.0))
+    conn.row_factory = sqlite3.Row
+    conn.execute(f"PRAGMA busy_timeout={int(max(1000, STRIKE_DB_BUSY_TIMEOUT_MS))}")
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    return conn
+
+
+def _ensure_trade_ledger_schema(conn):
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS agent_trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            agent TEXT NOT NULL,
+            pair TEXT NOT NULL,
+            side TEXT NOT NULL,
+            price REAL,
+            quantity REAL,
+            total_usd REAL,
+            order_type TEXT DEFAULT 'market',
+            order_id TEXT,
+            status TEXT DEFAULT 'pending',
+            pnl REAL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    conn.commit()
+
+
 class StrikeTeam:
     """Base class for all strike teams."""
 
@@ -147,6 +633,12 @@ class StrikeTeam:
         self.sell_completed = 0
         self.sell_failed = 0
         self._sell_close_recent = []
+        self.close_first_forced = 0
+        self.close_first_forced_blocked = 0
+        self.sell_no_inventory_blocked = 0
+        self.pairs_active = list(self.pairs)
+        self.pairs_refresh_count = 0
+        self.pairs_source = "static"
 
     def _sell_completion_rate(self):
         if not self._sell_close_recent:
@@ -174,6 +666,185 @@ class StrikeTeam:
             return False
         return self._sell_completion_rate() < float(SELL_CLOSE_TARGET_RATE)
 
+    def _trade_status_marks(self):
+        return ",".join("?" for _ in COMPLETED_TRADE_STATUSES)
+
+    def _estimate_realized_pnl(self, conn, side, pair, qty, gross):
+        if str(side or "").upper() != "SELL":
+            return 0.0
+        qty_f = float(qty or 0.0)
+        gross_f = float(gross or 0.0)
+        if qty_f <= 0.0 or gross_f <= 0.0:
+            return None
+        try:
+            row = conn.execute(
+                f"""
+                SELECT
+                    COALESCE(SUM(quantity), 0) AS buy_qty,
+                    COALESCE(SUM(total_usd), 0) AS buy_usd
+                FROM agent_trades
+                WHERE agent=?
+                  AND pair=?
+                  AND side='BUY'
+                  AND LOWER(COALESCE(status, '')) IN ({self._trade_status_marks()})
+                """,
+                (f"strike_{self.name}", pair, *COMPLETED_TRADE_STATUSES),
+            ).fetchone()
+            buy_qty = float((row["buy_qty"] if row else 0.0) or 0.0)
+            buy_usd = float((row["buy_usd"] if row else 0.0) or 0.0)
+            if buy_qty <= 0.0:
+                return None
+            avg_buy = buy_usd / buy_qty
+            fee_usd = gross_f * max(0.0, float(TAKER_FEE_RATE))
+            return round(gross_f - (qty_f * avg_buy) - fee_usd, 8)
+        except Exception:
+            return None
+
+    def _record_trade_ledger(self, pair, side, price, quantity, total_usd, order_id=None, status="pending"):
+        if not TRADER_DB_PATH.exists():
+            try:
+                TRADER_DB_PATH.touch()
+            except Exception:
+                return
+        conn = None
+        try:
+            conn = _open_trader_db()
+            _ensure_trade_ledger_schema(conn)
+            pnl = self._estimate_realized_pnl(conn, side, pair, quantity, total_usd)
+            conn.execute(
+                """
+                INSERT INTO agent_trades
+                    (agent, pair, side, price, quantity, total_usd, order_type, order_id, status, pnl)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    f"strike_{self.name}",
+                    str(pair),
+                    str(side).upper(),
+                    float(price or 0.0),
+                    float(quantity or 0.0),
+                    float(total_usd or 0.0),
+                    "market",
+                    str(order_id or ""),
+                    str(status or "pending").lower(),
+                    pnl,
+                ),
+            )
+            conn.commit()
+        except Exception as e:
+            logger.debug("STRIKE %s: trade ledger insert failed: %s", self.name, e)
+        finally:
+            try:
+                if conn is not None:
+                    conn.close()
+            except Exception:
+                pass
+
+    def _position_snapshot(self, pair, lookback_hours=CLOSE_FIRST_POSITION_LOOKBACK_HOURS):
+        snap = {
+            "pair": str(pair),
+            "lookback_hours": int(max(1, int(lookback_hours))),
+            "base_qty": 0.0,
+            "buy_usd": 0.0,
+            "sell_usd": 0.0,
+            "net_usd": 0.0,
+            "source": "empty",
+        }
+        if not TRADER_DB_PATH.exists():
+            return snap
+        conn = None
+        try:
+            conn = _open_trader_db()
+            _ensure_trade_ledger_schema(conn)
+            rows = conn.execute(
+                f"""
+                SELECT side, price, quantity, total_usd
+                FROM agent_trades
+                WHERE agent=?
+                  AND pair=?
+                  AND created_at >= datetime('now', ?)
+                  AND LOWER(COALESCE(status, '')) IN ({self._trade_status_marks()})
+                """,
+                (
+                    f"strike_{self.name}",
+                    str(pair),
+                    f"-{int(max(1, int(lookback_hours)))} hours",
+                    *COMPLETED_TRADE_STATUSES,
+                ),
+            ).fetchall()
+            qty = 0.0
+            buy_usd = 0.0
+            sell_usd = 0.0
+            for row in rows:
+                side = str(row["side"] or "").upper()
+                px = float(row["price"] or 0.0)
+                q = float(row["quantity"] or 0.0)
+                usd = float(row["total_usd"] or 0.0)
+                if q <= 0.0 and px > 0.0 and usd > 0.0:
+                    q = usd / px
+                if side == "BUY":
+                    qty += q
+                    buy_usd += usd
+                elif side == "SELL":
+                    qty -= q
+                    sell_usd += usd
+            snap["base_qty"] = round(max(0.0, qty), 10)
+            snap["buy_usd"] = round(float(buy_usd), 6)
+            snap["sell_usd"] = round(float(sell_usd), 6)
+            snap["net_usd"] = round(float(buy_usd - sell_usd), 6)
+            snap["source"] = "trader_db.agent_trades"
+            return snap
+        except Exception as e:
+            snap["source"] = f"error:{e}"
+            return snap
+        finally:
+            try:
+                if conn is not None:
+                    conn.close()
+            except Exception:
+                pass
+
+    def _close_first_plan(self, pair, analysis):
+        if not CLOSE_FIRST_MODE_ENABLED:
+            return {"active": False, "reason": "close_first_disabled"}
+        payload = analysis if isinstance(analysis, dict) else {}
+        direction = str(payload.get("direction", "BUY") or "BUY").upper()
+        if direction != "BUY":
+            return {"active": False, "reason": "non_buy_direction"}
+        try:
+            entry_price = float(payload.get("entry_price", 0.0) or 0.0)
+        except Exception:
+            entry_price = 0.0
+        if entry_price <= 0.0:
+            return {"active": False, "reason": "invalid_entry_price"}
+
+        pos = self._position_snapshot(pair)
+        open_qty = float(pos.get("base_qty", 0.0) or 0.0)
+        if open_qty <= 0.0:
+            return {"active": False, "reason": "no_open_position", "position": pos}
+
+        open_notional = open_qty * entry_price
+        if open_notional < float(CLOSE_FIRST_MIN_OPEN_NOTIONAL_USD):
+            return {
+                "active": False,
+                "reason": f"open_notional_below_floor:{open_notional:.4f}",
+                "position": pos,
+            }
+
+        throttle = bool(self._buy_throttle_active())
+        low_completion = self._sell_completion_rate() < float(SELL_CLOSE_TARGET_RATE)
+        if not (throttle or low_completion):
+            return {"active": False, "reason": "close_rate_ok", "position": pos}
+
+        return {
+            "active": True,
+            "reason": "close_first_enforced",
+            "position": pos,
+            "sell_qty": open_qty,
+            "sell_size_usd": max(1.0, open_notional),
+            "trigger": "buy_throttle" if throttle else "sell_completion_rate_low",
+        }
+
     def scout(self, pair):
         """Find opportunities. Override in subclass.
         Returns: {"signal": True/False, "direction": "BUY"/"SELL",
@@ -193,15 +864,42 @@ class StrikeTeam:
         if not analysis.get("approved"):
             return None
 
-        direction = analysis.get("direction", "BUY")
-        size_usd = analysis.get("size_usd", 0)
-        price = analysis.get("entry_price", 0)
+        direction = str(analysis.get("direction", "BUY") or "BUY").upper()
+        size_usd = float(analysis.get("size_usd", 0) or 0.0)
+        price = float(analysis.get("entry_price", 0) or 0.0)
 
         if size_usd < 1.0 or price <= 0:
             return None
+        base_amount = size_usd / price
+
+        if direction == "SELL":
+            pos = self._position_snapshot(pair)
+            open_qty = float(pos.get("base_qty", 0.0) or 0.0)
+            if open_qty <= 0.0:
+                self.sell_no_inventory_blocked += 1
+                logger.info(
+                    "STRIKE %s: blocked SELL %s — no tracked inventory (source=%s)",
+                    self.name,
+                    pair,
+                    pos.get("source", "unknown"),
+                )
+                return None
+            base_amount = min(float(base_amount), float(open_qty))
+            size_usd = base_amount * price
+            if size_usd < 1.0 or base_amount <= 0.0:
+                self.sell_no_inventory_blocked += 1
+                logger.info(
+                    "STRIKE %s: blocked SELL %s — effective close size below floor ($%.4f, qty=%.8f)",
+                    self.name,
+                    pair,
+                    size_usd,
+                    base_amount,
+                )
+                return None
+
         if EXECUTION_HEALTH_GATE:
             require_gate = True
-            if EXECUTION_HEALTH_BUY_ONLY and str(direction).upper() != "BUY":
+            if EXECUTION_HEALTH_BUY_ONLY and direction != "BUY":
                 require_gate = False
             if require_gate:
                 exec_health = _execution_health_status()
@@ -215,7 +913,7 @@ class StrikeTeam:
                         str(exec_health.get("reason", "unknown")),
                     )
                     return None
-        if str(direction).upper() == "BUY" and self._buy_throttle_active():
+        if direction == "BUY" and self._buy_throttle_active():
             self.buy_throttled += 1
             logger.info(
                 "STRIKE %s: BUY throttled on %s (sell_close_rate=%.2f%% target=%.2f%% obs=%d)",
@@ -300,17 +998,45 @@ class StrikeTeam:
                 elif result.get("order_id"):
                     order_id = result.get("order_id")
 
-            if str(direction).upper() == "SELL":
-                filled = False
-                if order_id:
-                    try:
-                        fill = trader.get_order_fill(order_id, max_wait=2, poll_interval=0.4)
-                    except Exception:
-                        fill = None
-                    status_u = str((fill or {}).get("status", "")).upper()
-                    filled_sz = float((fill or {}).get("filled_size", 0.0) or 0.0)
-                    filled = status_u == "FILLED" or filled_sz > 0.0
+            # Persist order ACK so reconciliation can track full trade lifecycle.
+            if order_id:
+                self._record_trade_ledger(
+                    pair=pair,
+                    side=direction,
+                    price=price,
+                    quantity=base_amount,
+                    total_usd=size_usd,
+                    order_id=order_id,
+                    status="ack_ok",
+                )
+
+            fill = None
+            if order_id:
+                try:
+                    fill = trader.get_order_fill(order_id, max_wait=2, poll_interval=0.4)
+                except Exception:
+                    fill = None
+
+            status_u = str((fill or {}).get("status", "")).upper()
+            filled_sz = float((fill or {}).get("filled_size", 0.0) or 0.0)
+            filled_px = float((fill or {}).get("average_filled_price", 0.0) or 0.0)
+            filled = status_u in {"FILLED", "PARTIAL_FILLED", "PARTIALLY_FILLED"} or filled_sz > 0.0
+            if direction == "SELL":
                 self._record_sell_completion(filled)
+
+            if order_id and filled:
+                qty = float(filled_sz) if filled_sz > 0 else float(base_amount)
+                px = float(filled_px) if filled_px > 0 else float(price)
+                usd = qty * px
+                self._record_trade_ledger(
+                    pair=pair,
+                    side=direction,
+                    price=px,
+                    quantity=qty,
+                    total_usd=usd,
+                    order_id=order_id,
+                    status="filled",
+                )
 
             if result and "success_response" in result:
                 self.trades_executed += 1
@@ -393,6 +1119,23 @@ class StrikeTeam:
         ok, _reason = self.validate_profitable_exit(pair, entry_price, direction, analysis=analysis)
         return bool(ok)
 
+    def _scan_pairs(self):
+        pairs, source = _dynamic_pair_universe(self.team_type, self.pairs)
+        if not pairs:
+            pairs = list(self.pairs)
+            source = "static_fallback"
+        if pairs != self.pairs_active or str(source) != str(self.pairs_source):
+            self.pairs_active = list(pairs)
+            self.pairs_refresh_count += 1
+            self.pairs_source = str(source)
+            logger.info(
+                "STRIKE %s: pair universe refresh source=%s pairs=%s",
+                self.name,
+                self.pairs_source,
+                self.pairs_active,
+            )
+        return list(self.pairs_active)
+
     def run(self, interval=60):
         """Main loop: scout → analyze → exit-validate → execute.
 
@@ -400,11 +1143,17 @@ class StrikeTeam:
         """
         self.running = True
         interval = max(int(MIN_SCAN_INTERVAL_SECONDS), int(interval))
-        logger.info("Strike team '%s' starting (type=%s, pairs=%s, interval=%ds)",
-                     self.name, self.team_type, self.pairs, interval)
+        logger.info(
+            "Strike team '%s' starting (type=%s, static_pairs=%s, interval=%ds, dynamic_pairs=%s)",
+            self.name,
+            self.team_type,
+            self.pairs,
+            interval,
+            STRIKE_DYNAMIC_PAIR_SELECTION,
+        )
 
         while self.running and not self._stop.is_set():
-            for pair in self.pairs:
+            for pair in self._scan_pairs():
                 try:
                     self.scan_count += 1
 
@@ -421,6 +1170,25 @@ class StrikeTeam:
                     # Analyze
                     analysis = self.analyze(pair, scout_result)
                     if not analysis.get("approved"):
+                        continue
+
+                    close_first = self._close_first_plan(pair, analysis)
+                    if close_first.get("active"):
+                        self.close_first_forced += 1
+                        forced_sell = dict(analysis)
+                        forced_sell["direction"] = "SELL"
+                        forced_sell["size_usd"] = float(close_first.get("sell_size_usd", analysis.get("size_usd", 0.0)) or 0.0)
+                        logger.info(
+                            "STRIKE %s: close-first SELL enforced on %s (trigger=%s, open_qty=%.8f, open_notional=$%.2f)",
+                            self.name,
+                            pair,
+                            str(close_first.get("trigger", "unknown")),
+                            float(((close_first.get("position", {}) or {}).get("base_qty", 0.0) or 0.0)),
+                            float(close_first.get("sell_size_usd", 0.0) or 0.0),
+                        )
+                        out = self.execute(pair, forced_sell)
+                        if out is None:
+                            self.close_first_forced_blocked += 1
                         continue
 
                     # Exit path validation: ONLY buy if profitable exit exists
@@ -465,6 +1233,12 @@ class StrikeTeam:
             "sell_completed": int(self.sell_completed),
             "sell_failed": int(self.sell_failed),
             "sell_close_completion_rate": round(self._sell_completion_rate(), 4),
+            "close_first_forced": int(self.close_first_forced),
+            "close_first_forced_blocked": int(self.close_first_forced_blocked),
+            "sell_no_inventory_blocked": int(self.sell_no_inventory_blocked),
+            "pairs_source": str(self.pairs_source),
+            "pairs_refresh_count": int(self.pairs_refresh_count),
+            "active_pairs": list(self.pairs_active),
         }
 
 
@@ -567,15 +1341,30 @@ class ArbitrageStrike(StrikeTeam):
 
             if cg_price and cg_price > 0:
                 spread = (cb_price - cg_price) / cg_price
-                # Need > 0.8% spread to cover 2x maker fees
-                if abs(spread) > 0.008:
+                basis = _classify_arbitrage_basis(pair, spread)
+                if abs(spread) >= ARBITRAGE_MIN_SPREAD_THRESHOLD and basis["regime"] != "neutral":
+                    if basis["regime"].startswith("normal_"):
+                        confidence = min(
+                            0.95, 0.70 + abs(spread) * 5 + basis["confidence_boost"]
+                        )
+                    elif basis["regime"].startswith("stressed_"):
+                        confidence = min(
+                            0.95, 0.74 + abs(spread) * 5 + basis["confidence_boost"]
+                        )
+                    else:
+                        confidence = min(
+                            0.95, 0.65 + abs(spread) * 4 + basis["confidence_boost"]
+                        )
                     direction = "SELL" if spread > 0 else "BUY"
-                    confidence = min(0.95, 0.70 + abs(spread) * 5)
                     return {
                         "signal": True,
                         "direction": direction,
                         "confidence": confidence,
-                        "reason": f"arb spread={spread:.4f} cb={cb_price:.2f} mkt={cg_price:.2f}",
+                        "reason": (
+                            f"arb spread={spread:.4f} cb={cb_price:.2f} mkt={cg_price:.2f} "
+                            f"regime={basis['regime']} z={basis['basis_z_score']}"
+                        ),
+                        "basis": basis,
                     }
         except Exception:
             pass
@@ -590,11 +1379,23 @@ class ArbitrageStrike(StrikeTeam):
         return {
             "approved": scout_result.get("confidence", 0) >= 0.75,
             "direction": scout_result.get("direction", "BUY"),
-            "size_usd": 3.0,
+            "size_usd": round(
+                3.0
+                * {
+                    "stressed_coinbase_premium": 1.10,
+                    "stressed_coinbase_discount": 1.10,
+                    "normal_coinbase_premium": 1.05,
+                    "normal_coinbase_discount": 1.05,
+                    "bootstrap_coinbase_premium": 0.85,
+                    "bootstrap_coinbase_discount": 0.85,
+                }.get((scout_result.get("basis") or {}).get("regime", "neutral"), 1.0),
+                3,
+            ),
             "entry_price": price,
             "confidence": scout_result.get("confidence", 0),
             "confirming_signals": 2,
-            "regime": "neutral",
+            "regime": (scout_result.get("basis") or {}).get("regime", "neutral"),
+            "basis": scout_result.get("basis"),
         }
 
 

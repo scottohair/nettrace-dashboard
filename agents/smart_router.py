@@ -35,6 +35,14 @@ except Exception:
         def _venue_health_snapshot(*_args, **_kwargs):
             return {}
 
+try:
+    from route_account_registry import RouteAccountRegistry
+except Exception:
+    try:
+        from agents.route_account_registry import RouteAccountRegistry  # type: ignore
+    except Exception:
+        RouteAccountRegistry = None
+
 # Gas price estimates (in USD) per chain — updated periodically
 DEFAULT_GAS_COSTS_USD = {
     "ethereum": 5.00,   # ~$5 for a swap on mainnet
@@ -55,16 +63,28 @@ def _fetch_json(url, timeout=10):
 class SmartRouter:
     """Routes orders to the best venue (CEX vs DEX)."""
 
-    def __init__(self, coinbase_tools=None, dex_connector=None):
+    def __init__(self, coinbase_tools=None, dex_connector=None, route_registry=None, strategy_tags=None):
         """
         Args:
             coinbase_tools: AgentTools instance (for Coinbase quotes)
             dex_connector: DEXConnector instance (for DEX quotes)
+            route_registry: Optional RouteAccountRegistry instance
+            strategy_tags: Optional list of strategy labels used for route/account selection
         """
         self._coinbase = coinbase_tools
         self._dex = dex_connector
         self._price_cache = {}
         self._cache_time = 0
+        self._strategy_tags = [str(x).strip().lower() for x in (strategy_tags or []) if str(x).strip()]
+        if route_registry is not None:
+            self._route_registry = route_registry
+        elif RouteAccountRegistry is not None:
+            try:
+                self._route_registry = RouteAccountRegistry()
+            except Exception:
+                self._route_registry = None
+        else:
+            self._route_registry = None
 
     @staticmethod
     def _latency_penalty_pct(venue_key, amount_usd):
@@ -145,6 +165,37 @@ class SmartRouter:
         if not venues:
             return {"error": "No venues available", "pair": pair}
 
+        route_plan = {}
+        if self._route_registry is not None:
+            try:
+                route_plan = self._route_registry.plan(
+                    pair=pair,
+                    side=side,
+                    strategy_tags=self._strategy_tags,
+                )
+            except Exception as e:
+                logger.warning("Route registry plan failed for %s %s: %s", pair, side, e)
+                route_plan = {}
+        allowed_venues = route_plan.get("allowed_venues", []) if isinstance(route_plan, dict) else []
+        if isinstance(allowed_venues, list) and allowed_venues:
+            allowed_set = {str(v).strip().lower() for v in allowed_venues if str(v).strip()}
+            filtered = [v for v in venues if str(v.get("venue", "")).strip().lower() in allowed_set]
+            if filtered:
+                venues = filtered
+            else:
+                return {
+                    "error": "No venues match route policy",
+                    "pair": pair,
+                    "allowed_venues": sorted(allowed_set),
+                    "available_venues": sorted(
+                        {
+                            str(v.get("venue", "")).strip().lower()
+                            for v in venues
+                            if str(v.get("venue", "")).strip()
+                        }
+                    ),
+                }
+
         # Sort by total_cost_pct (lowest cost wins)
         for v in venues:
             venue_key = str(v.get("venue", ""))
@@ -168,6 +219,19 @@ class SmartRouter:
             )
         else:
             best["savings_vs_coinbase"] = 0
+
+        if isinstance(route_plan, dict) and route_plan:
+            best["route_policy"] = {
+                "allowed_venues": list(route_plan.get("allowed_venues", [])),
+                "route_count": int(route_plan.get("route_count", 0) or 0),
+                "account_count": int(route_plan.get("account_count", 0) or 0),
+            }
+            accounts_by_venue = route_plan.get("accounts_by_venue", {})
+            if isinstance(accounts_by_venue, dict):
+                venue_accounts = accounts_by_venue.get(best.get("venue"), [])
+                if isinstance(venue_accounts, list) and venue_accounts:
+                    best["selected_account"] = str(venue_accounts[0])
+                    best["candidate_accounts"] = [str(x) for x in venue_accounts[:5]]
 
         best["all_venues"] = venues
         return best

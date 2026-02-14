@@ -34,6 +34,19 @@ from pathlib import Path
 
 logger = logging.getLogger("wallet_connector")
 
+
+def _env_flag(name, default="0"):
+    return str(os.environ.get(name, default)).strip().lower() not in ("0", "false", "no", "")
+
+
+APP_ENV = str(
+    os.environ.get("APP_ENV")
+    or os.environ.get("FLASK_ENV")
+    or os.environ.get("ENV")
+    or "production"
+).strip().lower()
+IS_PRODUCTION = APP_ENV in {"prod", "production"}
+
 # Multi-RPC endpoints per chain (fallback order)
 CHAIN_CONFIG = {
     "ethereum": {
@@ -190,9 +203,18 @@ def load_encrypted_key(env_var="WALLET_PRIVATE_KEY_ENC", password=None):
     If WALLET_PRIVATE_KEY_ENC is set, decrypt with AES-256-GCM.
     Password defaults to the app SECRET_KEY.
     """
-    # Try unencrypted first (dev mode)
+    allow_raw_key = _env_flag("ALLOW_RAW_WALLET_PRIVATE_KEY", "0")
+    allow_legacy_xor = _env_flag("ALLOW_LEGACY_XOR_CREDENTIAL_DECRYPT", "0")
+
+    # Try unencrypted first (dev mode only, unless explicitly allowed).
     raw_key = os.environ.get("WALLET_PRIVATE_KEY", "")
     if raw_key:
+        if IS_PRODUCTION and not allow_raw_key:
+            logger.error(
+                "WALLET_PRIVATE_KEY is set but blocked by policy in production. "
+                "Use WALLET_PRIVATE_KEY_ENC + CREDENTIAL_ENCRYPTION_KEY."
+            )
+            return None
         return raw_key
 
     encrypted = os.environ.get(env_var, "")
@@ -200,33 +222,47 @@ def load_encrypted_key(env_var="WALLET_PRIVATE_KEY_ENC", password=None):
         return None
 
     if password is None:
-        password = os.environ.get("SECRET_KEY", "")
+        password = (
+            os.environ.get("CREDENTIAL_ENCRYPTION_KEY", "")
+            or os.environ.get("SECRET_KEY", "")
+        )
     if not password:
-        logger.error("No password for key decryption (set SECRET_KEY)")
+        logger.error("No password for key decryption (set CREDENTIAL_ENCRYPTION_KEY or SECRET_KEY)")
         return None
 
     try:
         import base64
         import hashlib
-        raw = base64.b64decode(encrypted)
+        payload = encrypted[3:] if encrypted.startswith("v2:") else encrypted
+        raw = base64.b64decode(payload)
         salt = raw[:16]
         key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100_000, dklen=32)
-        try:
-            from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-            nonce = raw[16:28]
-            ciphertext = raw[28:]
-            aesgcm = AESGCM(key)
-            return aesgcm.decrypt(nonce, ciphertext, None).decode()
-        except ImportError:
-            import hmac as _hmac
-            mac = raw[16:32]
-            enc_data = raw[32:]
-            expected = _hmac.new(key, enc_data, hashlib.sha256).digest()[:16]
-            if not _hmac.compare_digest(mac, expected):
-                raise ValueError("Decryption failed: invalid key or corrupted data")
-            decrypted = bytes(a ^ b for a, b in zip(enc_data, (key * ((len(enc_data) // 32) + 1))[:len(enc_data)]))
-            return decrypted.decode()
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+        nonce = raw[16:28]
+        ciphertext = raw[28:]
+        aesgcm = AESGCM(key)
+        return aesgcm.decrypt(nonce, ciphertext, None).decode()
     except Exception as e:
+        if allow_legacy_xor:
+            try:
+                import base64
+                import hashlib
+                import hmac as _hmac
+                payload = encrypted[3:] if encrypted.startswith("v2:") else encrypted
+                raw = base64.b64decode(payload)
+                salt = raw[:16]
+                key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100_000, dklen=32)
+                mac = raw[16:32]
+                enc_data = raw[32:]
+                expected = _hmac.new(key, enc_data, hashlib.sha256).digest()[:16]
+                if not _hmac.compare_digest(mac, expected):
+                    raise ValueError("Decryption failed: invalid key or corrupted data")
+                decrypted = bytes(
+                    a ^ b for a, b in zip(enc_data, (key * ((len(enc_data) // 32) + 1))[:len(enc_data)])
+                )
+                return decrypted.decode()
+            except Exception:
+                pass
         logger.error("Failed to decrypt wallet key: %s", e)
         return None
 

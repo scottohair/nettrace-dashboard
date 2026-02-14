@@ -24,6 +24,34 @@ FLY_APP = os.environ.get("FLY_APP", "nettrace-dashboard")
 LOCAL_MAX_SCANS = int(os.environ.get("LOCAL_MAX_SCANS", "3"))
 RECONNECT_DELAY = 5  # seconds
 
+
+def _env_flag(name: str, default: str = "0") -> bool:
+    return str(os.environ.get(name, default)).strip().lower() not in {"0", "false", "no", ""}
+
+
+def _parse_exec_allowlist(raw: str) -> tuple[str, ...]:
+    prefixes = []
+    for part in str(raw or "").split(","):
+        token = part.strip()
+        if token:
+            prefixes.append(token)
+    return tuple(prefixes)
+
+
+MCP_ENABLE_REMOTE_EXEC = _env_flag("MCP_ENABLE_REMOTE_EXEC", "0")
+MCP_ENABLE_FLY_MUTATIONS = _env_flag("MCP_ENABLE_FLY_MUTATIONS", "0")
+MCP_EXEC_ALLOWLIST = _parse_exec_allowlist(os.environ.get("MCP_EXEC_ALLOWLIST", ""))
+
+
+def _exec_command_allowed(command: str) -> bool:
+    command = str(command or "").strip()
+    if not command or not MCP_EXEC_ALLOWLIST:
+        return False
+    for prefix in MCP_EXEC_ALLOWLIST:
+        if command == prefix or command.startswith(prefix + " "):
+            return True
+    return False
+
 # ---------------------------------------------------------------------------
 # State
 # ---------------------------------------------------------------------------
@@ -47,6 +75,8 @@ def _ws_url():
 def ws_connect():
     """Establish WebSocket connection to Fly agent."""
     global ws_connection, ws_connected
+    if not MCP_AGENT_SECRET:
+        raise RuntimeError("MCP_AGENT_SECRET is required for remote agent connection")
     try:
         ws = websocket.WebSocket()
         ws.settimeout(10)
@@ -262,7 +292,7 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="scale",
-            description="Scale Fly machines up or down.",
+            description="Scale Fly machines up or down (disabled unless MCP_ENABLE_FLY_MUTATIONS=1).",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -273,7 +303,7 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="deploy",
-            description="Trigger fly deploy for the app.",
+            description="Trigger fly deploy for the app (disabled unless MCP_ENABLE_FLY_MUTATIONS=1).",
             inputSchema={"type": "object", "properties": {}},
         ),
         Tool(
@@ -288,7 +318,7 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="exec",
-            description="Run a command on the Fly VM via the agent.",
+            description="Run a command on the Fly VM via the agent (disabled unless MCP_ENABLE_REMOTE_EXEC=1 + allowlist).",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -379,6 +409,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
     # ------ scale ------
     elif name == "scale":
+        if not MCP_ENABLE_FLY_MUTATIONS:
+            return [TextContent(type="text", text="Scale is disabled. Set MCP_ENABLE_FLY_MUTATIONS=1.")]
         count = arguments["count"]
         result = await asyncio.to_thread(fly_cmd, ["scale", "count", str(count)])
         output = result["stdout"] or result["stderr"]
@@ -386,6 +418,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
     # ------ deploy ------
     elif name == "deploy":
+        if not MCP_ENABLE_FLY_MUTATIONS:
+            return [TextContent(type="text", text="Deploy is disabled. Set MCP_ENABLE_FLY_MUTATIONS=1.")]
         result = await asyncio.to_thread(fly_cmd, ["deploy"], timeout=300)
         output = result["stdout"] or result["stderr"]
         return [TextContent(type="text", text=output)]
@@ -400,6 +434,10 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     # ------ exec ------
     elif name == "exec":
         command = arguments["command"]
+        if not MCP_ENABLE_REMOTE_EXEC:
+            return [TextContent(type="text", text="Remote exec disabled. Set MCP_ENABLE_REMOTE_EXEC=1.")]
+        if not _exec_command_allowed(command):
+            return [TextContent(type="text", text="Command rejected by MCP_EXEC_ALLOWLIST policy.")]
         try:
             data = ws_send_command("exec", {"command": command}, timeout=30)
             return [TextContent(type="text", text=json.dumps(data, indent=2))]

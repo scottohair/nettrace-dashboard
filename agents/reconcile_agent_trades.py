@@ -198,6 +198,62 @@ def _reconcile_rows(tools, rows, summary, limit):
     return processed
 
 
+def _backfill_close_metrics_from_recent_terminal_sells(tools, summary, lookback_hours):
+    if int(summary.get("close_attempts", 0) or 0) > 0:
+        return
+    try:
+        rows = tools.db.execute(
+            """
+            SELECT LOWER(COALESCE(status, '')) AS status, COUNT(*) AS n
+            FROM agent_trades
+            WHERE UPPER(COALESCE(side, ''))='SELL'
+              AND created_at >= datetime('now', ?)
+              AND LOWER(COALESCE(status, '')) IN
+                  ('filled', 'closed', 'executed', 'settled',
+                   'partial_filled', 'partially_filled',
+                   'cancelled', 'failed', 'expired')
+            GROUP BY LOWER(COALESCE(status, ''))
+            """,
+            (f"-{max(1, int(lookback_hours))} hours",),
+        ).fetchall()
+    except Exception:
+        rows = []
+
+    if not rows:
+        return
+
+    attempts = 0
+    completions = 0
+    failures = 0
+    reasons = summary.get("close_failure_reasons")
+    if not isinstance(reasons, dict):
+        reasons = {}
+        summary["close_failure_reasons"] = reasons
+
+    for row in rows:
+        status = str(row["status"] or "").strip().lower()
+        n = int(row["n"] or 0)
+        if n <= 0:
+            continue
+        attempts += n
+        if status in SELL_CLOSE_COMPLETED_STATUSES:
+            completions += n
+            continue
+        failures += n
+        if status in {"partial_filled", "partially_filled"}:
+            key = "partial_fill_only"
+        elif status in {"cancelled", "failed", "expired"}:
+            key = f"terminal_{status}"
+        else:
+            key = f"not_completed_{status or 'unknown'}"
+        reasons[key] = int(reasons.get(key, 0) or 0) + n
+
+    if attempts > 0:
+        summary["close_attempts"] = int(attempts)
+        summary["close_completions"] = int(completions)
+        summary["close_failures"] = int(failures)
+
+
 def _finalize_close_gate(summary):
     attempts = int(summary.get("close_attempts", 0) or 0)
     completions = int(summary.get("close_completions", 0) or 0)
@@ -257,6 +313,7 @@ def reconcile_close_first(
         )
         _reconcile_rows(tools, other_rows, summary, remaining)
 
+    _backfill_close_metrics_from_recent_terminal_sells(tools, summary, lookback_hours=lookback)
     _finalize_close_gate(summary)
     return summary
 

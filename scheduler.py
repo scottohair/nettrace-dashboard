@@ -470,6 +470,12 @@ class ContinuousScanner:
                 "Cleanup complete (day=%s): metrics=%d, snapshots=%d, routes=%d, usage=%d rows deleted",
                 today_utc, r1.rowcount, r2.rowcount, r3.rowcount, r4.rowcount
             )
+            # Daily AUM snapshots for all active orgs
+            self._run_daily_aum_snapshots(db)
+
+            # Monthly fee generation (1st of month)
+            self._run_monthly_fee_generation(db, today_utc)
+
         except Exception as e:
             try:
                 db.rollback()
@@ -478,3 +484,63 @@ class ContinuousScanner:
             logger.error("Cleanup error: %s", e)
         finally:
             db.close()
+
+    def _run_daily_aum_snapshots(self, db):
+        """Take daily AUM snapshots for all active organizations."""
+        try:
+            from agents.fee_engine import FeeEngine
+            engine = FeeEngine(db_path=DB_PATH)
+            orgs = db.execute(
+                "SELECT id FROM organizations WHERE is_active = 1"
+            ).fetchall()
+            for org in orgs:
+                try:
+                    engine.snapshot_aum(org["id"])
+                except Exception as e:
+                    logger.error("AUM snapshot error org=%d: %s", org["id"], e)
+            if orgs:
+                logger.info("AUM snapshots taken for %d orgs", len(orgs))
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.error("AUM snapshot batch error: %s", e)
+
+    def _run_monthly_fee_generation(self, db, today_utc):
+        """Generate monthly fee invoices on the 1st of each month."""
+        try:
+            # Only run on 1st of month
+            if not today_utc.endswith("-01"):
+                return
+
+            from agents.fee_engine import FeeEngine
+            engine = FeeEngine(db_path=DB_PATH)
+
+            # Check if already generated this month
+            marker = db.execute(
+                "SELECT value FROM scheduler_metadata WHERE key = 'last_fee_gen_month'"
+            ).fetchone()
+            current_month = today_utc[:7]  # YYYY-MM
+            if marker and marker["value"] == current_month:
+                return
+
+            orgs = db.execute(
+                "SELECT id, tier FROM organizations WHERE is_active = 1 AND tier != 'free'"
+            ).fetchall()
+            for org in orgs:
+                try:
+                    result = engine.generate_monthly_invoice(org["id"])
+                    logger.info("Fee invoice generated for org %d: %s", org["id"], result)
+                except Exception as e:
+                    logger.error("Fee generation error org=%d: %s", org["id"], e)
+
+            db.execute(
+                "INSERT OR REPLACE INTO scheduler_metadata (key, value, updated_at) "
+                "VALUES ('last_fee_gen_month', ?, CURRENT_TIMESTAMP)",
+                (current_month,)
+            )
+            db.commit()
+            logger.info("Monthly fee generation complete for %d orgs", len(orgs))
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.error("Monthly fee generation error: %s", e)

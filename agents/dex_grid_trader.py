@@ -67,8 +67,12 @@ WALLET_ADDRESS = os.environ.get("WALLET_ADDRESS", "")
 WALLET_KEY_ENC = os.environ.get("WALLET_PRIVATE_KEY_ENC", "")
 # SECRET_KEY is on Fly.io — for local dev, set it or use the raw key directly
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
+CREDENTIAL_ENCRYPTION_KEY = os.environ.get("CREDENTIAL_ENCRYPTION_KEY", "")
 # Fallback: raw private key for local development (never stored in git)
 WALLET_PRIVATE_KEY_RAW = os.environ.get("WALLET_PRIVATE_KEY", "")
+ALLOW_RAW_WALLET_PRIVATE_KEY = str(os.environ.get("ALLOW_RAW_WALLET_PRIVATE_KEY", "0")).lower() not in ("0", "false", "no")
+APP_ENV = str(os.environ.get("APP_ENV") or os.environ.get("FLASK_ENV") or os.environ.get("ENV") or "production").lower()
+IS_PRODUCTION = APP_ENV in {"prod", "production"}
 
 # Grid configuration
 DEFAULT_CONFIG = {
@@ -91,17 +95,20 @@ def _decrypt_private_key():
     """Decrypt the wallet private key from WALLET_PRIVATE_KEY_ENC."""
     # Fallback: raw key for local development
     if WALLET_PRIVATE_KEY_RAW:
+        if IS_PRODUCTION and not ALLOW_RAW_WALLET_PRIVATE_KEY:
+            raise ValueError("Raw wallet private key is blocked in production; use encrypted key material")
         return WALLET_PRIVATE_KEY_RAW
 
-    if not WALLET_KEY_ENC or not SECRET_KEY:
+    decrypt_password = CREDENTIAL_ENCRYPTION_KEY or SECRET_KEY
+    if not WALLET_KEY_ENC or not decrypt_password:
         raise ValueError(
-            "Set SECRET_KEY env var (from Fly secrets) or WALLET_PRIVATE_KEY for local dev"
+            "Set CREDENTIAL_ENCRYPTION_KEY (preferred) or SECRET_KEY env var (or use local dev raw key override)"
         )
 
     # Import decrypt from app
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from app import decrypt_credential
-    return decrypt_credential(WALLET_KEY_ENC, SECRET_KEY)
+    return decrypt_credential(WALLET_KEY_ENC, decrypt_password)
 
 
 def _get_eth_price():

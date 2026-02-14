@@ -46,6 +46,11 @@ PERF_FILE = str(Path(__file__).parent / "performance.json")
 RISK_FREE_RATE_DAILY = 0.05 / 365
 
 
+MIN_SIGNAL_FAMILY_TRADES = 4
+MIN_SIGNAL_FAMILY_DISABLE_AVG_PNL = -0.04
+ESTIMATED_PNL_REFERENCE_CONFIDENCE = 0.65
+
+
 class LearningAgent:
     """Reviews trade outcomes and generates performance insights."""
 
@@ -72,6 +77,7 @@ class LearningAgent:
             "daily_returns": [],
             "pair_stats": {},
             "strategy_stats": {},
+            "signal_family_stats": {},
             "total_pnl": 0.0,
             "peak_portfolio": 0.0,
             "max_drawdown_pct": 0.0,
@@ -85,6 +91,101 @@ class LearningAgent:
                 json.dump(self.performance, f, indent=2)
         except Exception as e:
             logger.warning("Performance save failed: %s", e)
+
+    @staticmethod
+    def _safe_float(value, default=0.0):
+        try:
+            parsed = float(value)
+            if math.isfinite(parsed):
+                return parsed
+        except Exception:
+            pass
+        return default
+
+    def _signal_family_contributions(self, trade):
+        """Return per-family attribution weights for signal-breakdown based scoring.
+
+        Uses factor score magnitude so stronger factors receive more attribution.
+        """
+        scores = trade.get("score_breakdown", {})
+        if not isinstance(scores, dict) or not scores:
+            return {}
+
+        valid = {}
+        for family, raw_score in scores.items():
+            score = self._safe_float(raw_score, 0.0)
+            if score > 0:
+                valid[str(family)] = score
+
+        total = sum(valid.values())
+        if total <= 0:
+            return {}
+
+        return {family: score / total for family, score in valid.items()}
+
+    def _resolve_trade_pnl(self, trade):
+        """Resolve realized or estimated PnL for one trade record."""
+        for key in ("pnl_usd", "pnl", "trade_pnl_usd"):
+            if key in trade:
+                value = self._safe_float(trade.get(key), None)
+                if value is not None:
+                    return value, True
+
+        execution = trade.get("execution") or {}
+        for key in ("pnl_usd", "pnl"):
+            if key in execution:
+                value = self._safe_float(execution.get(key), None)
+                if value is not None:
+                    return value, True
+
+        # Fallback proxy PnL when only pre-trade signal quality is available.
+        size_usd = self._safe_float(trade.get("size_usd"), 0.0)
+        confidence = self._safe_float(trade.get("confidence"), 0.5)
+        estimated = size_usd * (confidence - ESTIMATED_PNL_REFERENCE_CONFIDENCE)
+        return estimated, False
+
+    def _update_signal_family_stats(self, trade_result):
+        """Track PnL by signal-family with de-identified attribution."""
+        trade = trade_result.get("trade", {})
+        family_contrib = self._signal_family_contributions(trade)
+        if not family_contrib:
+            return
+
+        pnl, realized = self._resolve_trade_pnl(trade)
+        confidence = self._safe_float(trade.get("confidence"), 0.0)
+
+        if "signal_family_stats" not in self.performance:
+            self.performance["signal_family_stats"] = {}
+
+        for family, weight in family_contrib.items():
+            stat = self.performance["signal_family_stats"].setdefault(
+                family,
+                {
+                    "sample_count": 0,
+                    "realized_samples": 0,
+                    "estimated_samples": 0,
+                    "win_count": 0,
+                    "loss_count": 0,
+                    "total_pnl_usd": 0.0,
+                    "confidence_weight_sum": 0.0,
+                    "last_trade": "",
+                },
+            )
+
+            attributed_pnl = pnl * weight
+            stat["sample_count"] += 1
+            stat["total_pnl_usd"] += attributed_pnl
+            stat["confidence_weight_sum"] += confidence * weight
+            if realized:
+                stat["realized_samples"] += 1
+            else:
+                stat["estimated_samples"] += 1
+
+            if pnl > 0:
+                stat["win_count"] += 1
+            elif pnl < 0:
+                stat["loss_count"] += 1
+            stat["last_trade"] = datetime.now(timezone.utc).isoformat()
 
     def _get_current_portfolio(self):
         """Get current portfolio value."""
@@ -205,6 +306,8 @@ class LearningAgent:
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "pair_performance": {},
             "strategy_performance": {},
+            "signal_family_performance": {},
+            "signal_family_recommendations": [],
             "sharpe_ratio": self._calculate_sharpe(),
             "max_drawdown_pct": self.performance.get("max_drawdown_pct", 0),
             "total_trades": sum(
@@ -249,6 +352,38 @@ class LearningAgent:
                 "win_rate": round(win_rate, 4),
                 "total_pnl": round(stats.get("total_pnl", 0), 2),
             }
+
+        # Per-signal-family performance.
+        for family, stats in self.performance.get("signal_family_stats", {}).items():
+            sample_count = stats.get("sample_count", 0)
+            if sample_count <= 0:
+                continue
+            avg_pnl = self._safe_float(stats.get("total_pnl_usd"), 0.0) / sample_count
+            win_rate = stats.get("win_count", 0) / sample_count
+            realized_rate = (
+                self._safe_float(stats.get("realized_samples"), 0.0) / sample_count
+            )
+            confidence_avg = (
+                self._safe_float(stats.get("confidence_weight_sum"), 0.0) / sample_count
+            )
+
+            family_entry = {
+                "sample_count": sample_count,
+                "win_rate": round(win_rate, 4),
+                "avg_pnl_usd": round(avg_pnl, 4),
+                "realized_ratio": round(realized_rate, 4),
+                "avg_confidence": round(confidence_avg, 4),
+                "last_trade": stats.get("last_trade", ""),
+            }
+            insights["signal_family_performance"][family] = family_entry
+
+            if sample_count >= MIN_SIGNAL_FAMILY_TRADES and avg_pnl < MIN_SIGNAL_FAMILY_DISABLE_AVG_PNL:
+                insights["signal_family_recommendations"].append(
+                    f"DISABLE_FAMILY: {family} avg_pnl={avg_pnl:.3f} on {sample_count} samples"
+                )
+                insights["signal_family_recommendations"].append(
+                    f"DEPRIORITIZE_FAMILY: {family} low PnL evidence"
+                )
 
         # Overall health
         sharpe = insights["sharpe_ratio"]
@@ -302,11 +437,11 @@ class LearningAgent:
                     trade = result.get("trade", {})
                     pair = trade.get("pair", "")
                     strategy = trade.get("strategy_type", "unknown")
-
                     if pair:
                         self._update_pair_stats(pair, result)
                     if strategy:
                         self._update_strategy_stats(strategy, result)
+                    self._update_signal_family_stats(result)
 
                     # Record trade
                     self.performance["trades"].append({

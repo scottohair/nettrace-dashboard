@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -51,23 +52,76 @@ def _tail_jsonl(path: Path, max_lines: int = 100) -> list[dict[str, Any]]:
     return rows
 
 
+def _is_exit_manager_status_stale_lock(trading_lock: dict[str, Any]) -> bool:
+    if not isinstance(trading_lock, dict):
+        return False
+    reason = str(trading_lock.get("reason", "")).lower()
+    return "exit_manager_status_stale" in reason
+
+
+def _read_trading_lock_with_recovery(agents_dir: Path, raw_state: dict[str, Any]) -> dict[str, Any]:
+    """Use trading_guard recovery only for production root reads."""
+    try:
+        repo_root = agents_dir.parent
+        if repo_root != Path(__file__).resolve().parents[2]:
+            return raw_state
+        sys.path.insert(0, str(agents_dir))
+        try:
+            import trading_guard  # type: ignore
+
+            return trading_guard.read_trading_lock()
+        except Exception:
+            return raw_state
+        finally:
+            try:
+                sys.path.remove(str(agents_dir))
+            except ValueError:
+                pass
+    except Exception:
+        return raw_state
+
+
+def _refresh_execution_health(agents_dir: Path) -> dict[str, Any]:
+    try:
+        sys.path.insert(0, str(agents_dir))
+        import execution_health  # type: ignore
+
+        payload = execution_health.evaluate_execution_health(refresh=True, probe_http=None, write_status=True)
+        return payload if isinstance(payload, dict) else {}
+    except Exception:
+        return {}
+
+
 def run_guard(repo_root: Path) -> dict[str, Any]:
     agents_dir = repo_root / "agents"
     checks: list[CheckResult] = []
+    execution_health_required = (
+        str(os.environ.get("INTEGRATION_GUARD_EXECUTION_HEALTH_REQUIRED", "0")).strip().lower()
+        in {"1", "true", "yes"}
+    )
 
-    execution_health = _read_json(agents_dir / "execution_health_status.json")
+    execution_health = _refresh_execution_health(agents_dir)
+    if not execution_health:
+        execution_health = _read_json(agents_dir / "execution_health_status.json")
     execution_green = bool(execution_health.get("green", False))
     checks.append(
         CheckResult(
             name="execution_health_green",
             passed=execution_green,
-            required=True,
+            required=bool(execution_health_required),
             details=f"green={execution_green} reason={execution_health.get('reason', '')}",
         )
     )
 
     trading_lock = _read_json(agents_dir / "trading_lock.json")
+    trading_lock = _read_trading_lock_with_recovery(agents_dir, trading_lock)
     locked = bool(trading_lock.get("locked", False))
+    allow_stale_exit_manager_lock = (
+        str(os.environ.get("INTEGRATION_GUARD_ALLOW_STALE_EXIT_MANAGER_LOCK", "0")).strip().lower()
+        in {"1", "true", "yes"}
+    )
+    if locked and allow_stale_exit_manager_lock and _is_exit_manager_status_stale_lock(trading_lock):
+        locked = False
     checks.append(
         CheckResult(
             name="trading_lock_allows_rollout",

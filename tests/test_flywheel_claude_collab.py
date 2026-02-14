@@ -2,6 +2,7 @@
 """Tests for flywheel Claude Opus/Sonnet collaboration loop."""
 
 import json
+from datetime import datetime, timedelta, timezone
 
 import agents.flywheel_controller as fc
 
@@ -152,3 +153,205 @@ def test_flywheel_blocks_growth_when_close_reconcile_gate_fails(monkeypatch, tmp
     assert growth_cmd["skipped"] is True
     assert "growth_supervisor.py" not in invoked_scripts
     assert "reconcile_agent_trades.py" in invoked_scripts
+
+
+def test_flywheel_blocks_growth_when_exit_manager_status_stale(monkeypatch, tmp_path):
+    stale_exit_status = tmp_path / "exit_manager_status.json"
+    stale_exit_status.write_text(
+        json.dumps(
+            {
+                "updated_at": "2020-01-01T00:00:00+00:00",
+                "running": True,
+                "active_positions": 1,
+                "consecutive_api_failures": 0,
+            }
+        )
+    )
+
+    monkeypatch.setattr(fc, "claude_duplex", None)
+    monkeypatch.setattr(fc, "STATUS_FILE", tmp_path / "flywheel_status.json")
+    monkeypatch.setattr(fc, "CYCLE_LOG", tmp_path / "flywheel_cycles.jsonl")
+    monkeypatch.setattr(fc, "RESERVE_STATUS_FILE", tmp_path / "reserve_targets_status.json")
+    monkeypatch.setattr(fc, "EXIT_MANAGER_STATUS_FILE", stale_exit_status)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_HEALTH_GATE_ENABLED", True)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_MAX_STALE_SECONDS", 60)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_REQUIRE_RUNNING", True)
+    monkeypatch.setattr(fc, "RECONCILE_AGENT_TRADES_ENABLED", False)
+
+    controller = fc.FlywheelController(enable_claude_updates=False, enable_win_tasks=False)
+
+    monkeypatch.setattr(
+        controller,
+        "_run_py",
+        lambda script_name, *args, **kwargs: {
+            "cmd": [script_name, *list(args)],
+            "returncode": 0,
+            "elapsed_seconds": 0.001,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "env_overrides": dict(kwargs.get("env_overrides") or {}),
+        },
+    )
+    monkeypatch.setattr(controller, "_read_growth_decision", lambda: {"decision": "GO", "go_live": True, "reasons": []})
+    monkeypatch.setattr(controller, "_sync_trading_lock", lambda _decision: {"locked": True, "reason": "test", "source": "test"})
+    monkeypatch.setattr(
+        controller,
+        "_get_portfolio_snapshot",
+        lambda: {"total_usd": 0.0, "available_cash": 0.0, "held_in_orders": 0.0, "holdings": {}, "source": "test"},
+    )
+    monkeypatch.setattr(controller, "_reserve_targets_snapshot", lambda _portfolio: {"updated_at": "t", "portfolio_total_usd": 0.0, "targets": []})
+    monkeypatch.setattr(controller, "_daily_realized_pnl", lambda: 0.0)
+    monkeypatch.setattr(controller, "_target_progress", lambda _pnl: [])
+    monkeypatch.setattr(controller, "_metal_runtime_snapshot", lambda: {})
+    monkeypatch.setattr(controller, "_quant_blockers", lambda: [])
+    monkeypatch.setattr(
+        controller,
+        "_run_claude_collaboration",
+        lambda _payload: {"enabled": False, "team_loop_enabled": False, "sent": {"sent_count": 0}, "received": {"received_count_total": 0}},
+    )
+
+    payload = controller.run_cycle(force_quant=False)
+    assert payload["exit_manager_gate"]["passed"] is False
+    assert "exit_manager_status_stale" in str(payload["exit_manager_gate"]["reason"])
+    assert payload["growth_decision"]["go_live"] is False
+    assert any("exit_manager_gate_failed:" in r for r in payload["growth_decision"]["reasons"])
+
+
+def test_flywheel_allows_idle_stale_exit_manager_without_open_positions(monkeypatch, tmp_path):
+    stale_exit_status = tmp_path / "exit_manager_status.json"
+    stale_exit_status.write_text(
+        json.dumps(
+            {
+                "updated_at": (datetime.now(timezone.utc) - timedelta(seconds=120)).isoformat(),
+                "running": False,
+                "active_positions": 0,
+                "consecutive_api_failures": 2,
+            }
+        )
+    )
+
+    monkeypatch.setattr(fc, "claude_duplex", None)
+    monkeypatch.setattr(fc, "STATUS_FILE", tmp_path / "flywheel_status.json")
+    monkeypatch.setattr(fc, "CYCLE_LOG", tmp_path / "flywheel_cycles.jsonl")
+    monkeypatch.setattr(fc, "RESERVE_STATUS_FILE", tmp_path / "reserve_targets_status.json")
+    monkeypatch.setattr(fc, "EXIT_MANAGER_STATUS_FILE", stale_exit_status)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_HEALTH_GATE_ENABLED", True)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_MAX_STALE_SECONDS", 60)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_REQUIRE_RUNNING", True)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_IDLE_STALE_GRACE_SECONDS", 600)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_IDLE_MAX_CONSECUTIVE_API_FAILURES", 6)
+    monkeypatch.setattr(fc, "RECONCILE_AGENT_TRADES_ENABLED", False)
+
+    controller = fc.FlywheelController(enable_claude_updates=False, enable_win_tasks=False)
+
+    monkeypatch.setattr(
+        controller,
+        "_run_py",
+        lambda script_name, *args, **kwargs: {
+            "cmd": [script_name, *list(args)],
+            "returncode": 0,
+            "elapsed_seconds": 0.001,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "env_overrides": dict(kwargs.get("env_overrides") or {}),
+        },
+    )
+    monkeypatch.setattr(controller, "_read_growth_decision", lambda: {"decision": "GO", "go_live": True, "reasons": []})
+    monkeypatch.setattr(controller, "_sync_trading_lock", lambda _decision: {"locked": False, "reason": "", "source": "test"})
+    monkeypatch.setattr(
+        controller,
+        "_get_portfolio_snapshot",
+        lambda: {"total_usd": 0.0, "available_cash": 0.0, "held_in_orders": 0.0, "holdings": {}, "source": "test"},
+    )
+    monkeypatch.setattr(controller, "_reserve_targets_snapshot", lambda _portfolio: {"updated_at": "t", "portfolio_total_usd": 0.0, "targets": []})
+    monkeypatch.setattr(controller, "_daily_realized_pnl", lambda: 0.0)
+    monkeypatch.setattr(controller, "_target_progress", lambda _pnl: [])
+    monkeypatch.setattr(controller, "_metal_runtime_snapshot", lambda: {})
+    monkeypatch.setattr(controller, "_quant_blockers", lambda: [])
+    monkeypatch.setattr(
+        controller,
+        "_run_claude_collaboration",
+        lambda _payload: {"enabled": False, "team_loop_enabled": False, "sent": {"sent_count": 0}, "received": {"received_count_total": 0}},
+    )
+
+    payload = controller.run_cycle(force_quant=False)
+    assert payload["exit_manager_gate"]["passed"] is True
+    assert payload["exit_manager_gate"]["idle_stale_grace_applied"] is True
+    assert "exit_manager_idle_stale_grace" in str(payload["exit_manager_gate"]["reason"])
+    assert payload["growth_decision"]["go_live"] is True
+    assert all("exit_manager_gate_failed:" not in str(r) for r in payload["growth_decision"].get("reasons", []))
+
+
+def test_flywheel_blocks_idle_stale_exit_manager_when_failures_excessive(monkeypatch, tmp_path):
+    stale_exit_status = tmp_path / "exit_manager_status.json"
+    stale_exit_status.write_text(
+        json.dumps(
+            {
+                "updated_at": (datetime.now(timezone.utc) - timedelta(seconds=120)).isoformat(),
+                "running": False,
+                "active_positions": 0,
+                "consecutive_api_failures": 8,
+            }
+        )
+    )
+
+    monkeypatch.setattr(fc, "claude_duplex", None)
+    monkeypatch.setattr(fc, "STATUS_FILE", tmp_path / "flywheel_status.json")
+    monkeypatch.setattr(fc, "CYCLE_LOG", tmp_path / "flywheel_cycles.jsonl")
+    monkeypatch.setattr(fc, "RESERVE_STATUS_FILE", tmp_path / "reserve_targets_status.json")
+    monkeypatch.setattr(fc, "EXIT_MANAGER_STATUS_FILE", stale_exit_status)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_HEALTH_GATE_ENABLED", True)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_MAX_STALE_SECONDS", 60)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_REQUIRE_RUNNING", True)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_IDLE_STALE_GRACE_SECONDS", 600)
+    monkeypatch.setattr(fc, "EXIT_MANAGER_IDLE_MAX_CONSECUTIVE_API_FAILURES", 3)
+    monkeypatch.setattr(fc, "RECONCILE_AGENT_TRADES_ENABLED", False)
+
+    controller = fc.FlywheelController(enable_claude_updates=False, enable_win_tasks=False)
+
+    monkeypatch.setattr(
+        controller,
+        "_run_py",
+        lambda script_name, *args, **kwargs: {
+            "cmd": [script_name, *list(args)],
+            "returncode": 0,
+            "elapsed_seconds": 0.001,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "env_overrides": dict(kwargs.get("env_overrides") or {}),
+        },
+    )
+    monkeypatch.setattr(controller, "_read_growth_decision", lambda: {"decision": "GO", "go_live": True, "reasons": []})
+    monkeypatch.setattr(controller, "_sync_trading_lock", lambda _decision: {"locked": True, "reason": "test", "source": "test"})
+    monkeypatch.setattr(
+        controller,
+        "_get_portfolio_snapshot",
+        lambda: {"total_usd": 0.0, "available_cash": 0.0, "held_in_orders": 0.0, "holdings": {}, "source": "test"},
+    )
+    monkeypatch.setattr(controller, "_reserve_targets_snapshot", lambda _portfolio: {"updated_at": "t", "portfolio_total_usd": 0.0, "targets": []})
+    monkeypatch.setattr(controller, "_daily_realized_pnl", lambda: 0.0)
+    monkeypatch.setattr(controller, "_target_progress", lambda _pnl: [])
+    monkeypatch.setattr(controller, "_metal_runtime_snapshot", lambda: {})
+    monkeypatch.setattr(controller, "_quant_blockers", lambda: [])
+    monkeypatch.setattr(
+        controller,
+        "_run_claude_collaboration",
+        lambda _payload: {"enabled": False, "team_loop_enabled": False, "sent": {"sent_count": 0}, "received": {"received_count_total": 0}},
+    )
+
+    payload = controller.run_cycle(force_quant=False)
+    assert payload["exit_manager_gate"]["passed"] is False
+    assert "exit_manager_status_stale" in str(payload["exit_manager_gate"]["reason"])
+    assert payload["growth_decision"]["go_live"] is False
+    assert any("exit_manager_gate_failed:" in str(r) for r in payload["growth_decision"].get("reasons", []))
+
+
+def test_flywheel_run_forever_exits_when_singleton_lock_unavailable(monkeypatch):
+    controller = fc.FlywheelController(enable_claude_updates=False, enable_win_tasks=False)
+    calls = []
+
+    monkeypatch.setattr(controller, "_acquire_singleton_lock", lambda: False)
+    monkeypatch.setattr(controller, "run_cycle", lambda force_quant=False: calls.append(force_quant))
+
+    controller.run_forever()
+    assert calls == []

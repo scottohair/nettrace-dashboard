@@ -9,6 +9,7 @@ import sqlite3
 import secrets
 import time
 import urllib.request
+import urllib.parse
 import threading
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -19,7 +20,7 @@ import hmac
 
 import stripe
 from flask import (
-    Flask, render_template, request, jsonify, redirect, url_for, g
+    Flask, render_template, request, jsonify, redirect, url_for, g, session
 )
 from flask_login import (
     LoginManager, UserMixin, login_user, logout_user,
@@ -32,9 +33,83 @@ BASE_DIR = Path(__file__).parent
 DB_PATH = os.environ.get("DB_PATH", str(BASE_DIR / "traceroute.db"))
 DEMO_RESULTS = BASE_DIR / "results.json"
 
+
+def _env_flag(name: str, default: str = "0") -> bool:
+    return str(os.environ.get(name, default)).strip().lower() not in {"0", "false", "no", ""}
+
+
+def _parse_origin_list(raw: str) -> set[str]:
+    origins: set[str] = set()
+    for part in str(raw or "").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        parsed = urllib.parse.urlparse(part)
+        if parsed.scheme and parsed.netloc:
+            origins.add(f"{parsed.scheme.lower()}://{parsed.netloc.lower()}")
+    return origins
+
+
+def _normalize_request_origin(origin_or_referrer: str) -> str:
+    parsed = urllib.parse.urlparse(str(origin_or_referrer or "").strip())
+    if parsed.scheme and parsed.netloc:
+        return f"{parsed.scheme.lower()}://{parsed.netloc.lower()}"
+    return ""
+
+
 app = Flask(__name__, template_folder=str(BASE_DIR / "templates"),
             static_folder=str(BASE_DIR / "static"))
-app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
+_secret_from_env = str(os.environ.get("SECRET_KEY", "")).strip()
+app.secret_key = _secret_from_env or secrets.token_hex(32)
+MISSING_PERSISTENT_SECRET_KEY = not bool(_secret_from_env)
+
+APP_ENV = str(
+    os.environ.get("APP_ENV")
+    or os.environ.get("FLASK_ENV")
+    or os.environ.get("ENV")
+    or "production"
+).strip().lower()
+IS_PRODUCTION = APP_ENV in {"prod", "production"}
+
+# Session and request hardening (SOC2-style baseline controls).
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
+app.config["SESSION_COOKIE_SECURE"] = _env_flag("SESSION_COOKIE_SECURE", "1" if IS_PRODUCTION else "0")
+app.config["REMEMBER_COOKIE_HTTPONLY"] = True
+app.config["REMEMBER_COOKIE_SAMESITE"] = app.config["SESSION_COOKIE_SAMESITE"]
+app.config["REMEMBER_COOKIE_SECURE"] = app.config["SESSION_COOKIE_SECURE"]
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
+    hours=max(1, int(os.environ.get("SESSION_MAX_AGE_HOURS", "12")))
+)
+app.config["MAX_CONTENT_LENGTH"] = int(os.environ.get("MAX_CONTENT_LENGTH_BYTES", str(4 * 1024 * 1024)))
+
+TRUSTED_ORIGINS = set()
+TRUSTED_ORIGINS.add(_normalize_request_origin(os.environ.get("APP_URL", "http://localhost:12034")))
+TRUSTED_ORIGINS.update(_parse_origin_list(os.environ.get("TRUSTED_ORIGINS", "")))
+TRUSTED_ORIGINS.discard("")
+
+# API key in query params leaks into logs/referrers. Keep off by default.
+ALLOW_QUERY_API_KEY_AUTH = _env_flag("ALLOW_QUERY_API_KEY_AUTH", "0")
+
+# Login brute-force controls.
+LOGIN_MAX_ATTEMPTS = max(1, int(os.environ.get("LOGIN_MAX_ATTEMPTS", "8")))
+LOGIN_WINDOW_SECONDS = max(60, int(os.environ.get("LOGIN_WINDOW_SECONDS", "900")))
+LOGIN_BACKOFF_MS = max(0, int(os.environ.get("LOGIN_BACKOFF_MS", "300")))
+MFA_CHALLENGE_TTL_SECONDS = max(60, int(os.environ.get("MFA_CHALLENGE_TTL_SECONDS", "300")))
+MFA_MAX_VERIFY_ATTEMPTS = max(1, int(os.environ.get("MFA_MAX_VERIFY_ATTEMPTS", "5")))
+MFA_TOTP_WINDOW_STEPS = max(0, int(os.environ.get("MFA_TOTP_WINDOW_STEPS", "1")))
+MFA_ISSUER = str(os.environ.get("MFA_ISSUER", "NetTrace")).strip() or "NetTrace"
+REQUIRE_MFA_FOR_SENSITIVE = _env_flag("REQUIRE_MFA_FOR_SENSITIVE", "1" if IS_PRODUCTION else "0")
+REQUIRE_MFA_FOR_USERNAMES = {
+    x.strip().lower()
+    for x in str(os.environ.get("REQUIRE_MFA_FOR_USERNAMES", "scott")).split(",")
+    if x.strip()
+}
+
+# Key management controls.
+CREDENTIAL_KEY_ENV = "CREDENTIAL_ENCRYPTION_KEY"
+CREDENTIAL_KEY_FALLBACKS_ENV = "CREDENTIAL_ENCRYPTION_KEY_FALLBACKS"
+ALLOW_LEGACY_XOR_CREDENTIAL_DECRYPT = _env_flag("ALLOW_LEGACY_XOR_CREDENTIAL_DECRYPT", "0")
 
 socketio = SocketIO(app, async_mode="gevent", cors_allowed_origins="*")
 
@@ -118,6 +193,55 @@ def close_db(exc):
         db.close()
 
 
+def _request_uses_api_key_auth() -> bool:
+    auth_header = str(request.headers.get("Authorization", "")).strip()
+    if auth_header.startswith("Bearer "):
+        return True
+    if request.headers.get("X-Api-Key"):
+        return True
+    if ALLOW_QUERY_API_KEY_AUTH and request.args.get("api_key"):
+        return True
+    return False
+
+
+@app.before_request
+def csrf_origin_guard():
+    """Block cross-site state-changing requests for cookie-authenticated sessions."""
+    if request.method not in {"POST", "PUT", "PATCH", "DELETE"}:
+        return None
+
+    # External system callbacks are exempt.
+    if request.path in {"/api/coinbase-webhook", "/api/stripe-webhook"}:
+        return None
+
+    # API key/bearer-auth requests are not cookie-authenticated.
+    if _request_uses_api_key_auth():
+        return None
+
+    has_session_cookie = bool(request.cookies.get(app.config.get("SESSION_COOKIE_NAME", "session")))
+    if not (current_user.is_authenticated or has_session_cookie):
+        return None
+
+    origin_header = request.headers.get("Origin") or request.headers.get("Referer")
+    normalized = _normalize_request_origin(origin_header or "")
+    if not normalized:
+        return jsonify({"error": "Missing Origin/Referer for state-changing request"}), 403
+    if normalized not in TRUSTED_ORIGINS:
+        return jsonify({"error": "Cross-site request blocked", "origin": normalized}), 403
+    return None
+
+
+@app.after_request
+def apply_security_headers(response):
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    if IS_PRODUCTION and _env_flag("ENABLE_HSTS", "1"):
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    return response
+
+
 def init_db():
     db = sqlite3.connect(DB_PATH)
     db.executescript("""
@@ -127,6 +251,10 @@ def init_db():
             password_hash TEXT NOT NULL,
             stripe_customer_id TEXT,
             subscription_status TEXT DEFAULT 'none',
+            mfa_enabled INTEGER DEFAULT 0,
+            mfa_secret_enc TEXT,
+            mfa_secret_pending_enc TEXT,
+            mfa_enrolled_at TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         CREATE TABLE IF NOT EXISTS scans (
@@ -247,7 +375,16 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
+        CREATE TABLE IF NOT EXISTS user_credentials_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            exchange TEXT NOT NULL,
+            credential_data TEXT NOT NULL,
+            rotated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
         CREATE INDEX IF NOT EXISTS idx_user_credentials_user ON user_credentials(user_id);
+        CREATE INDEX IF NOT EXISTS idx_user_credentials_hist_user ON user_credentials_history(user_id, exchange, rotated_at);
 
         -- Stripe Treasury accounts
         CREATE TABLE IF NOT EXISTS treasury_accounts (
@@ -344,7 +481,194 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_ast_user_time ON asset_state_transitions(user_id, created_at);
         CREATE INDEX IF NOT EXISTS idx_ast_asset ON asset_state_transitions(asset, venue);
+
+        -- Login brute-force protection and forensic trail
+        CREATE TABLE IF NOT EXISTS auth_login_attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            ip_address TEXT NOT NULL,
+            success INTEGER NOT NULL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_auth_login_attempts_actor
+            ON auth_login_attempts(username, ip_address, created_at);
+
+        CREATE TABLE IF NOT EXISTS auth_mfa_challenges (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            challenge_hash TEXT NOT NULL UNIQUE,
+            user_id INTEGER NOT NULL,
+            username TEXT NOT NULL,
+            ip_address TEXT NOT NULL,
+            attempts INTEGER NOT NULL DEFAULT 0,
+            expires_at TIMESTAMP NOT NULL,
+            consumed_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_auth_mfa_challenges_lookup
+            ON auth_mfa_challenges(challenge_hash, expires_at, consumed_at);
+        CREATE INDEX IF NOT EXISTS idx_auth_mfa_challenges_user
+            ON auth_mfa_challenges(user_id, created_at);
+
+        CREATE TABLE IF NOT EXISTS security_audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_type TEXT NOT NULL,
+            user_id INTEGER,
+            username TEXT,
+            ip_address TEXT,
+            request_path TEXT,
+            details_json TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_security_audit_event_time
+            ON security_audit_log(event_type, created_at);
+        CREATE INDEX IF NOT EXISTS idx_security_audit_user_time
+            ON security_audit_log(user_id, created_at);
+
+        -- Multi-tenant: Organizations
+        CREATE TABLE IF NOT EXISTS organizations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            owner_user_id INTEGER NOT NULL,
+            tier TEXT DEFAULT 'free',
+            stripe_customer_id TEXT,
+            subscription_status TEXT DEFAULT 'none',
+            settings_json TEXT DEFAULT '{}',
+            is_active INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (owner_user_id) REFERENCES users(id)
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_organizations_slug ON organizations(slug);
+
+        CREATE TABLE IF NOT EXISTS org_members (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            org_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            role TEXT DEFAULT 'member',
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (org_id) REFERENCES organizations(id),
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            UNIQUE(org_id, user_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_org_members_user ON org_members(user_id);
+
+        CREATE TABLE IF NOT EXISTS org_risk_policies (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            org_id INTEGER NOT NULL UNIQUE,
+            risk_profile TEXT DEFAULT 'moderate',
+            max_daily_loss_pct REAL DEFAULT 3.0,
+            max_position_pct REAL DEFAULT 5.0,
+            max_trade_usd REAL DEFAULT 1000.0,
+            min_confidence REAL DEFAULT 0.70,
+            min_confirming_signals INTEGER DEFAULT 2,
+            allowed_pairs_json TEXT DEFAULT '[]',
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (org_id) REFERENCES organizations(id)
+        );
+
+        -- Agent Marketplace: registrations and trade proposals
+        CREATE TABLE IF NOT EXISTS agent_registrations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            org_id INTEGER NOT NULL,
+            agent_name TEXT NOT NULL,
+            agent_type TEXT DEFAULT 'internal',
+            api_key_id INTEGER,
+            status TEXT DEFAULT 'pending',
+            strategy_description TEXT,
+            pipeline_stage TEXT DEFAULT 'COLD',
+            capital_allocation_usd REAL DEFAULT 0.0,
+            trades_total INTEGER DEFAULT 0,
+            wins INTEGER DEFAULT 0,
+            losses INTEGER DEFAULT 0,
+            total_pnl REAL DEFAULT 0.0,
+            sharpe_ratio REAL DEFAULT 0.0,
+            max_drawdown REAL DEFAULT 0.0,
+            last_active TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (org_id) REFERENCES organizations(id),
+            FOREIGN KEY (api_key_id) REFERENCES api_keys(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_agent_registrations_org ON agent_registrations(org_id, status);
+
+        CREATE TABLE IF NOT EXISTS trade_proposals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            org_id INTEGER NOT NULL,
+            agent_id INTEGER NOT NULL,
+            pair TEXT NOT NULL,
+            direction TEXT NOT NULL,
+            confidence REAL NOT NULL,
+            proposed_size_usd REAL,
+            entry_price REAL,
+            stop_loss REAL,
+            take_profit REAL,
+            signals_json TEXT,
+            rationale TEXT,
+            status TEXT DEFAULT 'pending',
+            rejection_reason TEXT,
+            executed_order_id TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at TIMESTAMP,
+            FOREIGN KEY (org_id) REFERENCES organizations(id),
+            FOREIGN KEY (agent_id) REFERENCES agent_registrations(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_trade_proposals_org ON trade_proposals(org_id, status);
+        CREATE INDEX IF NOT EXISTS idx_trade_proposals_agent ON trade_proposals(agent_id, status);
+
+        -- Fee Engine: AUM snapshots and invoices
+        CREATE TABLE IF NOT EXISTS org_aum_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            org_id INTEGER NOT NULL,
+            total_aum_usd REAL DEFAULT 0.0,
+            high_water_mark_usd REAL DEFAULT 0.0,
+            gains_above_hwm REAL DEFAULT 0.0,
+            recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (org_id) REFERENCES organizations(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_org_aum_org_time ON org_aum_snapshots(org_id, recorded_at);
+
+        CREATE TABLE IF NOT EXISTS fee_invoices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            org_id INTEGER NOT NULL,
+            invoice_type TEXT NOT NULL,
+            period_start TIMESTAMP,
+            period_end TIMESTAMP,
+            amount_usd REAL DEFAULT 0.0,
+            calculation_json TEXT,
+            stripe_invoice_id TEXT,
+            status TEXT DEFAULT 'draft',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            paid_at TIMESTAMP,
+            FOREIGN KEY (org_id) REFERENCES organizations(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_fee_invoices_org ON fee_invoices(org_id, status);
     """)
+
+    # Keep one active credential row per user/exchange, preserve previous rows in history.
+    try:
+        db.execute("""
+            INSERT INTO user_credentials_history (user_id, exchange, credential_data, rotated_at)
+            SELECT user_id, exchange, credential_data, created_at
+            FROM user_credentials
+            WHERE id NOT IN (
+                SELECT MAX(id) FROM user_credentials GROUP BY user_id, exchange
+            )
+        """)
+        db.execute("""
+            DELETE FROM user_credentials
+            WHERE id NOT IN (
+                SELECT MAX(id) FROM user_credentials GROUP BY user_id, exchange
+            )
+        """)
+        db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_user_credentials_user_exchange "
+            "ON user_credentials(user_id, exchange)"
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+
     # Migration: add columns if missing
     migrations = [
         "ALTER TABLE users ADD COLUMN stripe_customer_id TEXT",
@@ -352,8 +676,19 @@ def init_db():
         "ALTER TABLE users ADD COLUMN subscription_expires_at TIMESTAMP",
         "ALTER TABLE users ADD COLUMN payment_method TEXT DEFAULT 'none'",
         "ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'free'",
+        "ALTER TABLE users ADD COLUMN mfa_enabled INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN mfa_secret_enc TEXT",
+        "ALTER TABLE users ADD COLUMN mfa_secret_pending_enc TEXT",
+        "ALTER TABLE users ADD COLUMN mfa_enrolled_at TIMESTAMP",
         "ALTER TABLE trading_snapshots ADD COLUMN user_id INTEGER DEFAULT 1",
         "CREATE INDEX IF NOT EXISTS idx_trading_snapshots_user ON trading_snapshots(user_id, recorded_at)",
+        # Multi-tenant: add org_id to existing tables
+        "ALTER TABLE api_keys ADD COLUMN org_id INTEGER REFERENCES organizations(id)",
+        "ALTER TABLE trading_snapshots ADD COLUMN org_id INTEGER REFERENCES organizations(id)",
+        "ALTER TABLE user_credentials ADD COLUMN org_id INTEGER REFERENCES organizations(id)",
+        "ALTER TABLE asset_pool ADD COLUMN org_id INTEGER REFERENCES organizations(id)",
+        "CREATE INDEX IF NOT EXISTS idx_api_keys_org ON api_keys(org_id)",
+        "CREATE INDEX IF NOT EXISTS idx_trading_snapshots_org ON trading_snapshots(org_id, recorded_at)",
     ]
     for sql in migrations:
         try:
@@ -361,6 +696,28 @@ def init_db():
         except sqlite3.OperationalError:
             pass
     db.commit()
+
+    # Bootstrap Scott's org (org_id=1) — idempotent
+    try:
+        existing = db.execute("SELECT id FROM organizations WHERE id = 1").fetchone()
+        if not existing:
+            db.execute(
+                "INSERT INTO organizations (id, name, slug, owner_user_id, tier, subscription_status, is_active) "
+                "VALUES (1, 'NetTrace Primary', 'nettrace-primary', 2, 'enterprise_pro', 'active', 1)"
+            )
+            db.execute("INSERT OR IGNORE INTO org_members (org_id, user_id, role) VALUES (1, 2, 'owner')")
+            db.execute(
+                "INSERT OR IGNORE INTO org_risk_policies (org_id, risk_profile, max_daily_loss_pct, "
+                "max_position_pct, max_trade_usd, min_confidence, min_confirming_signals) "
+                "VALUES (1, 'aggressive', 5.0, 10.0, 10000.0, 0.70, 2)"
+            )
+            db.execute("UPDATE api_keys SET org_id = 1 WHERE user_id = 2 AND org_id IS NULL")
+            db.execute("UPDATE trading_snapshots SET org_id = 1 WHERE org_id IS NULL")
+            db.execute("UPDATE asset_pool SET org_id = 1 WHERE org_id IS NULL")
+            db.commit()
+    except Exception:
+        db.rollback()
+
     db.close()
 
 
@@ -583,6 +940,211 @@ def execute_scan(scan_id, host, user_id, sid=None):
 # Auth routes
 # ---------------------------------------------------------------------------
 
+_PASSWORD_COMPLEXITY_RE = re.compile(
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$"
+)
+
+
+def _validate_password_strength(password: str) -> str | None:
+    min_len = max(8, int(os.environ.get("PASSWORD_MIN_LENGTH", "12")))
+    if len(password) < min_len:
+        return f"Password must be at least {min_len} characters"
+    if not _PASSWORD_COMPLEXITY_RE.match(password):
+        return "Password must include upper, lower, number, and symbol"
+    return None
+
+
+def _client_ip() -> str:
+    forwarded = str(request.headers.get("X-Forwarded-For", "")).split(",")[0].strip()
+    return forwarded or str(request.remote_addr or "unknown")
+
+
+def _is_login_throttled(db, username: str, ip_address: str) -> tuple[bool, int]:
+    now_ts = int(time.time())
+    cutoff = now_ts - LOGIN_WINDOW_SECONDS
+    row = db.execute(
+        """
+        SELECT COUNT(*) AS failures
+        FROM auth_login_attempts
+        WHERE username = ? AND ip_address = ? AND success = 0
+          AND created_at > datetime(?, 'unixepoch')
+        """,
+        (username, ip_address, cutoff),
+    ).fetchone()
+    failures = int(row["failures"] if row else 0)
+    if failures < LOGIN_MAX_ATTEMPTS:
+        return False, 0
+    return True, LOGIN_WINDOW_SECONDS
+
+
+def _record_login_attempt(db, username: str, ip_address: str, success: bool) -> None:
+    db.execute(
+        "INSERT INTO auth_login_attempts (username, ip_address, success) VALUES (?, ?, ?)",
+        (username, ip_address, 1 if success else 0),
+    )
+    # Keep table bounded.
+    db.execute("DELETE FROM auth_login_attempts WHERE created_at < datetime('now', '-30 days')")
+    db.commit()
+
+
+def _record_security_audit(
+    event_type: str,
+    *,
+    user_id: int | None = None,
+    username: str | None = None,
+    ip_address: str | None = None,
+    request_path: str | None = None,
+    details: dict | None = None,
+) -> None:
+    payload = json.dumps(details or {}, separators=(",", ":"))
+    ip = ip_address or _client_ip()
+    path = request_path or request.path
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.execute(
+            """
+            INSERT INTO security_audit_log
+                (event_type, user_id, username, ip_address, request_path, details_json)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (event_type, user_id, username, ip, path, payload),
+        )
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
+
+def _is_mfa_enforced_for_username(username: str | None) -> bool:
+    if not REQUIRE_MFA_FOR_SENSITIVE:
+        return False
+    if not REQUIRE_MFA_FOR_USERNAMES:
+        return True
+    return str(username or "").strip().lower() in REQUIRE_MFA_FOR_USERNAMES
+
+
+def require_mfa_for_sensitive(f):
+    from functools import wraps
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return jsonify({"error": "Login required"}), 401
+        username = current_user.username or ""
+        if not _is_mfa_enforced_for_username(username):
+            return f(*args, **kwargs)
+
+        db = get_db()
+        row = db.execute("SELECT mfa_enabled FROM users WHERE id = ?", (current_user.id,)).fetchone()
+        mfa_enabled = bool(row["mfa_enabled"]) if row and "mfa_enabled" in row.keys() else False
+        if not mfa_enabled:
+            _record_security_audit(
+                "mfa_required_block",
+                user_id=int(current_user.id),
+                username=username,
+                details={"reason": "mfa_not_enabled_for_sensitive_route"},
+            )
+            return jsonify({
+                "error": "MFA required for sensitive actions",
+                "action_required": "enable_mfa",
+                "setup_endpoint": "/api/mfa/setup",
+            }), 403
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+def _generate_totp_secret() -> str:
+    return base64.b32encode(secrets.token_bytes(20)).decode().rstrip("=")
+
+
+def _b32_decode_secret(secret: str) -> bytes:
+    normalized = str(secret or "").strip().replace(" ", "").upper()
+    padding = "=" * ((8 - (len(normalized) % 8)) % 8)
+    return base64.b32decode(normalized + padding, casefold=True)
+
+
+def _totp_code(secret: str, counter: int, digits: int = 6) -> str:
+    key = _b32_decode_secret(secret)
+    msg = int(counter).to_bytes(8, "big")
+    digest = hmac.new(key, msg, hashlib.sha1).digest()
+    offset = digest[-1] & 0x0F
+    dbc = int.from_bytes(digest[offset:offset + 4], "big") & 0x7FFFFFFF
+    return str(dbc % (10 ** digits)).zfill(digits)
+
+
+def _verify_totp(secret: str, code: str, window: int = MFA_TOTP_WINDOW_STEPS) -> bool:
+    candidate = str(code or "").strip()
+    if not re.fullmatch(r"\d{6}", candidate):
+        return False
+    step = int(time.time() // 30)
+    for delta in range(-window, window + 1):
+        expected = _totp_code(secret, step + delta)
+        if hmac.compare_digest(candidate, expected):
+            return True
+    return False
+
+
+def _issue_mfa_challenge(db, user_id: int, username: str, ip_address: str) -> tuple[str, int]:
+    token = "mfa_" + secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    expires_sec = MFA_CHALLENGE_TTL_SECONDS
+    db.execute(
+        """
+        INSERT INTO auth_mfa_challenges
+            (challenge_hash, user_id, username, ip_address, expires_at)
+        VALUES (?, ?, ?, ?, datetime('now', ?))
+        """,
+        (token_hash, user_id, username, ip_address, f"+{expires_sec} seconds"),
+    )
+    db.execute(
+        "DELETE FROM auth_mfa_challenges WHERE expires_at < datetime('now', '-1 day')"
+    )
+    db.commit()
+    return token, expires_sec
+
+
+def _lookup_active_mfa_challenge(db, token: str):
+    token_hash = hashlib.sha256(str(token or "").encode()).hexdigest()
+    return db.execute(
+        """
+        SELECT id, user_id, username, ip_address, attempts, expires_at
+        FROM auth_mfa_challenges
+        WHERE challenge_hash = ?
+          AND consumed_at IS NULL
+          AND expires_at > datetime('now')
+        LIMIT 1
+        """,
+        (token_hash,),
+    ).fetchone()
+
+
+def _mark_mfa_challenge_failed(db, challenge_id: int) -> None:
+    db.execute(
+        "UPDATE auth_mfa_challenges SET attempts = attempts + 1 WHERE id = ?",
+        (challenge_id,),
+    )
+    db.commit()
+
+
+def _mark_mfa_challenge_consumed(db, challenge_id: int) -> None:
+    db.execute(
+        "UPDATE auth_mfa_challenges SET consumed_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (challenge_id,),
+    )
+    db.commit()
+
+
+def _decrypt_user_mfa_secret(row) -> str | None:
+    enc = str(row["mfa_secret_enc"] or "").strip() if row and "mfa_secret_enc" in row.keys() else ""
+    if not enc:
+        return None
+    try:
+        return decrypt_credential(enc)
+    except Exception:
+        return None
+
+
 @app.route("/")
 def index():
     # Enterprise/Pro users go straight to trading dashboard
@@ -604,16 +1166,17 @@ def index():
 
 @app.route("/api/register", methods=["POST"])
 def register():
-    data = request.get_json()
-    username = data.get("username", "").strip().lower()
-    password = data.get("password", "")
+    data = request.get_json() or {}
+    username = str(data.get("username", "")).strip().lower()
+    password = str(data.get("password", ""))
 
     if not username or len(username) < 3 or len(username) > 30:
         return jsonify({"error": "Username must be 3-30 characters"}), 400
     if not re.match(r'^[a-z0-9_]+$', username):
         return jsonify({"error": "Username: lowercase letters, numbers, underscores only"}), 400
-    if len(password) < 6:
-        return jsonify({"error": "Password must be at least 6 characters"}), 400
+    password_error = _validate_password_strength(password)
+    if password_error:
+        return jsonify({"error": password_error}), 400
 
     db = get_db()
     if db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone():
@@ -624,29 +1187,184 @@ def register():
                      (username, pw_hash))
     db.commit()
     user = User(cur.lastrowid, username)
-    login_user(user)
+    _record_security_audit(
+        "user_registered",
+        user_id=int(cur.lastrowid),
+        username=username,
+    )
+    session.clear()
+    login_user(user, fresh=True)
+    session.permanent = True
     return jsonify({"ok": True, "username": username, "subscribed": False})
 
 
 @app.route("/api/login", methods=["POST"])
 def login():
-    data = request.get_json()
-    username = data.get("username", "").strip().lower()
-    password = data.get("password", "")
+    data = request.get_json() or {}
+    username = str(data.get("username", "")).strip().lower()
+    password = str(data.get("password", ""))
 
     db = get_db()
+    ip_address = _client_ip()
+    throttled, retry_after = _is_login_throttled(db, username, ip_address)
+    if throttled:
+        _record_security_audit(
+            "login_throttled",
+            username=username,
+            ip_address=ip_address,
+            details={"retry_after_seconds": retry_after},
+        )
+        return jsonify({
+            "error": "Too many failed login attempts",
+            "retry_after_seconds": retry_after,
+        }), 429
+
     row = db.execute("SELECT * FROM users WHERE username=?", (username,)).fetchone()
     if not row or not check_password_hash(row["password_hash"], password):
+        _record_login_attempt(db, username, ip_address, success=False)
+        _record_security_audit(
+            "login_failed",
+            username=username,
+            ip_address=ip_address,
+            details={"reason": "invalid_credentials"},
+        )
+        if LOGIN_BACKOFF_MS:
+            time.sleep(LOGIN_BACKOFF_MS / 1000.0)
         return jsonify({"error": "Invalid credentials"}), 401
 
+    mfa_enabled = bool(row["mfa_enabled"]) if "mfa_enabled" in row.keys() else False
+    if mfa_enabled:
+        token, expires_sec = _issue_mfa_challenge(db, int(row["id"]), username, ip_address)
+        _record_security_audit(
+            "login_mfa_challenge_issued",
+            user_id=int(row["id"]),
+            username=username,
+            ip_address=ip_address,
+            details={"expires_in_seconds": expires_sec},
+        )
+        return jsonify({
+            "ok": True,
+            "mfa_required": True,
+            "challenge_token": token,
+            "expires_in_seconds": expires_sec,
+            "method": "totp",
+        })
+
+    _record_login_attempt(db, username, ip_address, success=True)
+    _record_security_audit(
+        "login_success",
+        user_id=int(row["id"]),
+        username=username,
+        ip_address=ip_address,
+        details={"mfa": False},
+    )
+    session.clear()
     user = User(row["id"], row["username"],
                 row["subscription_status"] or "none",
                 row["stripe_customer_id"],
                 row["payment_method"] if "payment_method" in row.keys() else "none",
                 row["subscription_expires_at"] if "subscription_expires_at" in row.keys() else None,
                 row["created_at"] if "created_at" in row.keys() else None)
-    login_user(user)
+    login_user(user, fresh=True)
+    session.permanent = True
     return jsonify({"ok": True, "username": username, "subscribed": user.is_subscribed})
+
+
+@app.route("/api/login/mfa", methods=["POST"])
+def login_mfa():
+    data = request.get_json() or {}
+    token = str(data.get("challenge_token", "")).strip()
+    code = str(data.get("code", "")).strip()
+    if not token or not code:
+        return jsonify({"error": "challenge_token and code are required"}), 400
+
+    db = get_db()
+    ip_address = _client_ip()
+    challenge = _lookup_active_mfa_challenge(db, token)
+    if not challenge:
+        _record_security_audit(
+            "login_mfa_failed",
+            ip_address=ip_address,
+            details={"reason": "invalid_or_expired_challenge"},
+        )
+        return jsonify({"error": "Invalid or expired MFA challenge"}), 401
+    if int(challenge["attempts"] or 0) >= MFA_MAX_VERIFY_ATTEMPTS:
+        _record_security_audit(
+            "login_mfa_failed",
+            user_id=int(challenge["user_id"]),
+            username=str(challenge["username"]),
+            ip_address=ip_address,
+            details={"reason": "challenge_locked"},
+        )
+        return jsonify({"error": "MFA challenge locked; start login again"}), 401
+
+    if str(challenge["ip_address"] or "") != ip_address:
+        _mark_mfa_challenge_failed(db, int(challenge["id"]))
+        _record_login_attempt(db, str(challenge["username"]), ip_address, success=False)
+        _record_security_audit(
+            "login_mfa_failed",
+            user_id=int(challenge["user_id"]),
+            username=str(challenge["username"]),
+            ip_address=ip_address,
+            details={"reason": "challenge_ip_mismatch"},
+        )
+        return jsonify({"error": "MFA challenge IP mismatch"}), 401
+
+    user_row = db.execute("SELECT * FROM users WHERE id = ?", (challenge["user_id"],)).fetchone()
+    if not user_row:
+        _mark_mfa_challenge_failed(db, int(challenge["id"]))
+        _record_security_audit(
+            "login_mfa_failed",
+            user_id=int(challenge["user_id"]),
+            username=str(challenge["username"]),
+            ip_address=ip_address,
+            details={"reason": "user_missing"},
+        )
+        return jsonify({"error": "User not found"}), 401
+
+    secret = _decrypt_user_mfa_secret(user_row)
+    if not secret:
+        _mark_mfa_challenge_failed(db, int(challenge["id"]))
+        _record_login_attempt(db, str(user_row["username"]), ip_address, success=False)
+        _record_security_audit(
+            "login_mfa_failed",
+            user_id=int(user_row["id"]),
+            username=str(user_row["username"]),
+            ip_address=ip_address,
+            details={"reason": "mfa_secret_unavailable"},
+        )
+        return jsonify({"error": "MFA secret unavailable; contact support"}), 503
+    if not _verify_totp(secret, code):
+        _mark_mfa_challenge_failed(db, int(challenge["id"]))
+        _record_login_attempt(db, str(user_row["username"]), ip_address, success=False)
+        _record_security_audit(
+            "login_mfa_failed",
+            user_id=int(user_row["id"]),
+            username=str(user_row["username"]),
+            ip_address=ip_address,
+            details={"reason": "invalid_totp"},
+        )
+        return jsonify({"error": "Invalid MFA code"}), 401
+
+    _mark_mfa_challenge_consumed(db, int(challenge["id"]))
+    _record_login_attempt(db, str(user_row["username"]), ip_address, success=True)
+    _record_security_audit(
+        "login_success",
+        user_id=int(user_row["id"]),
+        username=str(user_row["username"]),
+        ip_address=ip_address,
+        details={"mfa": True},
+    )
+    session.clear()
+    user = User(user_row["id"], user_row["username"],
+                user_row["subscription_status"] or "none",
+                user_row["stripe_customer_id"],
+                user_row["payment_method"] if "payment_method" in user_row.keys() else "none",
+                user_row["subscription_expires_at"] if "subscription_expires_at" in user_row.keys() else None,
+                user_row["created_at"] if "created_at" in user_row.keys() else None)
+    login_user(user, fresh=True)
+    session.permanent = True
+    return jsonify({"ok": True, "username": user.username, "subscribed": user.is_subscribed})
 
 
 @app.route("/api/logout", methods=["POST"])
@@ -681,11 +1399,188 @@ def me():
             "subscription_status": user.subscription_status,
             "payment_method": user.payment_method,
             "tier": user_tier,
+            "mfa_enabled": bool(row["mfa_enabled"]) if row and "mfa_enabled" in row.keys() else False,
+            "mfa_required_for_sensitive": _is_mfa_enforced_for_username(user.username),
             "created_at": user.created_at,
             "subscription_expires_at": expires if pm == "crypto" else None,
             "has_stripe_billing": bool(cust_id),
         })
     return jsonify({"authenticated": False})
+
+
+@app.route("/api/mfa/status")
+@login_required
+def mfa_status():
+    db = get_db()
+    row = db.execute(
+        "SELECT mfa_enabled, mfa_enrolled_at FROM users WHERE id = ?",
+        (current_user.id,),
+    ).fetchone()
+    return jsonify({
+        "enabled": bool(row["mfa_enabled"]) if row else False,
+        "enrolled_at": row["mfa_enrolled_at"] if row else None,
+        "required_for_sensitive": _is_mfa_enforced_for_username(current_user.username),
+    })
+
+
+@app.route("/api/mfa/setup", methods=["POST"])
+@login_required
+def mfa_setup():
+    data = request.get_json() or {}
+    password = str(data.get("password", ""))
+
+    db = get_db()
+    row = db.execute("SELECT username, password_hash FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    if not row or not check_password_hash(row["password_hash"], password):
+        return jsonify({"error": "Invalid password"}), 401
+
+    secret = _generate_totp_secret()
+    try:
+        enc_secret = encrypt_credential(secret)
+    except Exception as e:
+        return jsonify({"error": f"MFA setup unavailable: {e}"}), 503
+
+    db.execute(
+        "UPDATE users SET mfa_secret_pending_enc = ? WHERE id = ?",
+        (enc_secret, current_user.id),
+    )
+    db.commit()
+    _record_security_audit(
+        "mfa_setup_started",
+        user_id=int(current_user.id),
+        username=current_user.username,
+    )
+    label = f"{MFA_ISSUER}:{current_user.username}"
+    otp_uri = (
+        f"otpauth://totp/{urllib.parse.quote(label)}"
+        f"?secret={secret}&issuer={urllib.parse.quote(MFA_ISSUER)}&algorithm=SHA1&digits=6&period=30"
+    )
+    return jsonify({
+        "ok": True,
+        "issuer": MFA_ISSUER,
+        "secret": secret,
+        "otpauth_uri": otp_uri,
+        "message": "Add this to your authenticator app, then call /api/mfa/enable with a 6-digit code.",
+    })
+
+
+@app.route("/api/mfa/enable", methods=["POST"])
+@login_required
+def mfa_enable():
+    data = request.get_json() or {}
+    code = str(data.get("code", "")).strip()
+    if not code:
+        return jsonify({"error": "code required"}), 400
+
+    db = get_db()
+    row = db.execute(
+        "SELECT mfa_secret_pending_enc FROM users WHERE id = ?",
+        (current_user.id,),
+    ).fetchone()
+    pending_enc = str(row["mfa_secret_pending_enc"] or "") if row else ""
+    if not pending_enc:
+        return jsonify({"error": "No pending MFA setup; call /api/mfa/setup first"}), 400
+    try:
+        pending_secret = decrypt_credential(pending_enc)
+    except Exception:
+        return jsonify({"error": "Pending MFA secret invalid; restart setup"}), 400
+    if not _verify_totp(pending_secret, code):
+        return jsonify({"error": "Invalid MFA code"}), 401
+
+    final_enc = encrypt_credential(pending_secret)
+    db.execute(
+        """
+        UPDATE users
+        SET mfa_enabled = 1,
+            mfa_secret_enc = ?,
+            mfa_secret_pending_enc = NULL,
+            mfa_enrolled_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (final_enc, current_user.id),
+    )
+    db.commit()
+    _record_security_audit(
+        "mfa_enabled",
+        user_id=int(current_user.id),
+        username=current_user.username,
+    )
+    return jsonify({"ok": True, "enabled": True})
+
+
+@app.route("/api/mfa/disable", methods=["POST"])
+@login_required
+def mfa_disable():
+    data = request.get_json() or {}
+    password = str(data.get("password", ""))
+    code = str(data.get("code", "")).strip()
+    if not password or not code:
+        return jsonify({"error": "password and code required"}), 400
+
+    db = get_db()
+    row = db.execute(
+        "SELECT password_hash, mfa_secret_enc FROM users WHERE id = ?",
+        (current_user.id,),
+    ).fetchone()
+    if not row or not check_password_hash(row["password_hash"], password):
+        return jsonify({"error": "Invalid password"}), 401
+    secret = _decrypt_user_mfa_secret(row)
+    if not secret or not _verify_totp(secret, code):
+        return jsonify({"error": "Invalid MFA code"}), 401
+
+    db.execute(
+        """
+        UPDATE users
+        SET mfa_enabled = 0,
+            mfa_secret_enc = NULL,
+            mfa_secret_pending_enc = NULL
+        WHERE id = ?
+        """,
+        (current_user.id,),
+    )
+    db.commit()
+    _record_security_audit(
+        "mfa_disabled",
+        user_id=int(current_user.id),
+        username=current_user.username,
+    )
+    return jsonify({"ok": True, "enabled": False})
+
+
+@app.route("/api/security/audit")
+@login_required
+@require_mfa_for_sensitive
+def security_audit_feed():
+    """Read recent security audit events for current user."""
+    limit = min(500, max(1, int(request.args.get("limit", 100) or 100)))
+    db = get_db()
+    rows = db.execute(
+        """
+        SELECT id, event_type, user_id, username, ip_address, request_path, details_json, created_at
+        FROM security_audit_log
+        WHERE user_id = ? OR (user_id IS NULL AND username = ?)
+        ORDER BY id DESC
+        LIMIT ?
+        """,
+        (current_user.id, current_user.username, limit),
+    ).fetchall()
+    events = []
+    for r in rows:
+        try:
+            details = json.loads(r["details_json"] or "{}")
+        except Exception:
+            details = {}
+        events.append({
+            "id": r["id"],
+            "event_type": r["event_type"],
+            "user_id": r["user_id"],
+            "username": r["username"],
+            "ip_address": r["ip_address"],
+            "request_path": r["request_path"],
+            "details": details,
+            "created_at": r["created_at"],
+        })
+    return jsonify({"events": events, "count": len(events)})
 
 
 # ---------------------------------------------------------------------------
@@ -993,7 +1888,7 @@ class AgentNamespace(Namespace):
                 emit("message", {"status": "error", "error": "Agent secret not configured"})
                 disconnect()
                 return
-            if data.get("secret") != MCP_AGENT_SECRET:
+            if not hmac.compare_digest(str(data.get("secret", "")), str(MCP_AGENT_SECRET)):
                 emit("message", {"status": "error", "error": "Invalid secret"})
                 disconnect()
                 return
@@ -1077,6 +1972,14 @@ from api_v1 import api_v1
 app.register_blueprint(api_v1)
 from signals_api import signals_api
 app.register_blueprint(signals_api)
+from candle_graphql_api import candle_graphql_api
+app.register_blueprint(candle_graphql_api)
+from api_orgs import api_orgs
+app.register_blueprint(api_orgs)
+from api_agents import api_agents
+app.register_blueprint(api_agents)
+from mcp_marketplace import mcp_bp
+app.register_blueprint(mcp_bp)
 
 
 # ---------------------------------------------------------------------------
@@ -1103,6 +2006,7 @@ def list_api_keys():
 
 @app.route("/api/keys", methods=["POST"])
 @login_required
+@require_mfa_for_sensitive
 def create_api_key():
     db = get_db()
 
@@ -1133,6 +2037,12 @@ def create_api_key():
         (current_user.id, key_hash, key_prefix, key_name, user_tier, rate_limit)
     )
     db.commit()
+    _record_security_audit(
+        "api_key_created",
+        user_id=int(current_user.id),
+        username=current_user.username,
+        details={"prefix": key_prefix, "tier": user_tier, "name": key_name},
+    )
 
     return jsonify({
         "ok": True,
@@ -1147,6 +2057,7 @@ def create_api_key():
 
 @app.route("/api/keys/<int:key_id>", methods=["DELETE"])
 @login_required
+@require_mfa_for_sensitive
 def delete_api_key(key_id):
     db = get_db()
     row = db.execute("SELECT id FROM api_keys WHERE id = ? AND user_id = ?",
@@ -1156,6 +2067,12 @@ def delete_api_key(key_id):
 
     db.execute("UPDATE api_keys SET is_active = 0 WHERE id = ?", (key_id,))
     db.commit()
+    _record_security_audit(
+        "api_key_deactivated",
+        user_id=int(current_user.id),
+        username=current_user.username,
+        details={"key_id": int(key_id)},
+    )
     return jsonify({"ok": True})
 
 
@@ -1495,7 +2412,19 @@ def trading_dashboard():
     user_tier = row["tier"] if row and "tier" in row.keys() else "free"
     if user_tier not in ("enterprise", "enterprise_pro", "government") and not current_user.is_subscribed:
         return redirect(url_for("index"))
-    return render_template("trading.html")
+    # Pass user's orgs to template for org context bar
+    user_orgs = []
+    try:
+        orgs = db.execute(
+            "SELECT o.id, o.slug, o.name, o.tier, m.role FROM organizations o "
+            "JOIN org_members m ON o.id = m.org_id WHERE m.user_id = ?",
+            (current_user.id,)
+        ).fetchall()
+        user_orgs = [{"id": o["id"], "slug": o["slug"], "name": o["name"],
+                      "tier": o["tier"], "role": o["role"]} for o in orgs]
+    except Exception:
+        pass
+    return render_template("trading.html", user_orgs=json.dumps(user_orgs))
 
 
 @app.route("/api/trading-data")
@@ -1510,17 +2439,36 @@ def trading_data():
 
     user_id = current_user.id
 
-    # Latest snapshot (filtered by user)
-    snap = db.execute(
-        "SELECT * FROM trading_snapshots WHERE user_id = ? ORDER BY id DESC LIMIT 1",
-        (user_id,)
-    ).fetchone()
+    # Org-aware filtering: if org_slug provided, filter by org_id
+    org_slug = request.args.get("org_slug")
+    org_id = None
+    if org_slug:
+        org_row = db.execute(
+            "SELECT o.id FROM organizations o JOIN org_members m ON o.id = m.org_id "
+            "WHERE o.slug = ? AND m.user_id = ?", (org_slug, user_id)
+        ).fetchone()
+        if org_row:
+            org_id = org_row["id"]
 
-    # All snapshots for chart (last 24h, filtered by user)
-    snapshots = db.execute(
-        "SELECT total_value_usd, daily_pnl, trades_today, recorded_at FROM trading_snapshots WHERE user_id = ? AND recorded_at >= datetime('now', '-24 hours') ORDER BY recorded_at ASC",
-        (user_id,)
-    ).fetchall()
+    # Latest snapshot (filtered by user or org)
+    if org_id:
+        snap = db.execute(
+            "SELECT * FROM trading_snapshots WHERE org_id = ? ORDER BY id DESC LIMIT 1",
+            (org_id,)
+        ).fetchone()
+        snapshots = db.execute(
+            "SELECT total_value_usd, daily_pnl, trades_today, recorded_at FROM trading_snapshots WHERE org_id = ? AND recorded_at >= datetime('now', '-24 hours') ORDER BY recorded_at ASC",
+            (org_id,)
+        ).fetchall()
+    else:
+        snap = db.execute(
+            "SELECT * FROM trading_snapshots WHERE user_id = ? ORDER BY id DESC LIMIT 1",
+            (user_id,)
+        ).fetchone()
+        snapshots = db.execute(
+            "SELECT total_value_usd, daily_pnl, trades_today, recorded_at FROM trading_snapshots WHERE user_id = ? AND recorded_at >= datetime('now', '-24 hours') ORDER BY recorded_at ASC",
+            (user_id,)
+        ).fetchall()
 
     # Recent signals
     signals = db.execute(
@@ -2032,14 +2980,16 @@ def claude_duplex_post():
 @app.route("/api/trading-snapshot", methods=["POST"])
 def receive_trading_snapshot():
     """Receive portfolio snapshot from local live trader."""
-    # Auth via API key — accept Authorization: Bearer, X-Api-Key header, or query param
+    # Auth via API key — Bearer/X-Api-Key headers; query param only when explicitly enabled.
     auth_header = request.headers.get("Authorization", "")
     if auth_header.startswith("Bearer "):
         api_key = auth_header[7:].strip()
     else:
-        api_key = request.headers.get("X-Api-Key") or request.args.get("api_key") or ""
+        api_key = request.headers.get("X-Api-Key") or ""
+        if not api_key and ALLOW_QUERY_API_KEY_AUTH:
+            api_key = request.args.get("api_key") or ""
     expected_key = os.environ.get("NETTRACE_API_KEY", "")
-    if not api_key or not expected_key or api_key != expected_key:
+    if not api_key or not expected_key or not hmac.compare_digest(str(api_key), str(expected_key)):
         return jsonify({"error": "Unauthorized"}), 401
 
     # Route all writes to the primary region (ewr) where the persistent DB lives
@@ -2059,13 +3009,15 @@ def receive_trading_snapshot():
 
     # Accept user_id in payload (default: 1 for Scott's agents)
     user_id = data.get("user_id", 1)
+    # Accept org_id in payload (default: 1 for Scott's org)
+    org_id = data.get("org_id", 1)
 
     db = get_db()
     db.execute(
         """INSERT INTO trading_snapshots
-           (user_id, total_value_usd, daily_pnl, trades_today, trades_total, holdings_json, trades_json)
-           VALUES (?, ?, ?, ?, ?, ?, ?)""",
-        (user_id,
+           (user_id, org_id, total_value_usd, daily_pnl, trades_today, trades_total, holdings_json, trades_json)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+        (user_id, org_id,
          data.get("total_value_usd", 0),
          data.get("daily_pnl", 0),
          data.get("trades_today", 0),
@@ -2086,49 +3038,111 @@ def _derive_key(password: str, salt: bytes) -> bytes:
     return hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100_000, dklen=32)
 
 
-def encrypt_credential(plaintext: str, password: str) -> str:
-    """Encrypt plaintext with AES-256-GCM. Returns base64(salt + nonce + tag + ciphertext)."""
-    import os as _os
-    try:
-        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-    except ImportError:
-        # Fallback: XOR with PBKDF2 key (not ideal but works without cryptography lib)
-        salt = _os.urandom(16)
-        key = _derive_key(password, salt)
-        data = plaintext.encode()
-        encrypted = bytes(a ^ b for a, b in zip(data, (key * ((len(data) // 32) + 1))[:len(data)]))
-        mac = hmac.new(key, encrypted, hashlib.sha256).digest()[:16]
-        return base64.b64encode(salt + mac + encrypted).decode()
+def _credential_key_candidates(preferred_password: str | None = None) -> list[str]:
+    candidates: list[str] = []
+    if preferred_password:
+        candidates.append(str(preferred_password))
+    primary = str(os.environ.get(CREDENTIAL_KEY_ENV, "")).strip()
+    if primary:
+        candidates.append(primary)
+    secret_key = str(os.environ.get("SECRET_KEY", "")).strip()
+    if secret_key:
+        candidates.append(secret_key)
+    for part in str(os.environ.get(CREDENTIAL_KEY_FALLBACKS_ENV, "")).split(","):
+        key = part.strip()
+        if key:
+            candidates.append(key)
+    # Preserve order, drop duplicates.
+    unique: list[str] = []
+    seen = set()
+    for item in candidates:
+        if item in seen:
+            continue
+        seen.add(item)
+        unique.append(item)
+    return unique
 
-    salt = _os.urandom(16)
-    key = _derive_key(password, salt)
-    nonce = _os.urandom(12)
-    aesgcm = AESGCM(key)
-    ciphertext = aesgcm.encrypt(nonce, plaintext.encode(), None)
-    return base64.b64encode(salt + nonce + ciphertext).decode()
+
+def encrypt_credential(plaintext: str, password: str | None = None) -> str:
+    """Encrypt credential data using AES-256-GCM and a managed key chain."""
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+    key_candidates = _credential_key_candidates(password)
+    if not key_candidates:
+        raise ValueError(
+            "Credential encryption key not configured. Set CREDENTIAL_ENCRYPTION_KEY (preferred) or SECRET_KEY."
+        )
+    salt = os.urandom(16)
+    nonce = os.urandom(12)
+    key = _derive_key(key_candidates[0], salt)
+    ciphertext = AESGCM(key).encrypt(nonce, plaintext.encode(), None)
+    return "v2:" + base64.b64encode(salt + nonce + ciphertext).decode()
 
 
-def decrypt_credential(encrypted_b64: str, password: str) -> str:
-    """Decrypt AES-256-GCM encrypted credential."""
-    raw = base64.b64decode(encrypted_b64)
-    salt = raw[:16]
-    key = _derive_key(password, salt)
+def _try_decrypt_aes_payload(raw_payload: bytes, key_candidates: list[str]) -> str | None:
+    if len(raw_payload) < 29:
+        return None
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    salt = raw_payload[:16]
+    nonce = raw_payload[16:28]
+    ciphertext = raw_payload[28:]
+    for candidate in key_candidates:
+        key = _derive_key(candidate, salt)
+        try:
+            return AESGCM(key).decrypt(nonce, ciphertext, None).decode()
+        except Exception:
+            continue
+    return None
 
-    try:
-        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-        nonce = raw[16:28]
-        ciphertext = raw[28:]
-        aesgcm = AESGCM(key)
-        return aesgcm.decrypt(nonce, ciphertext, None).decode()
-    except ImportError:
-        # Fallback: XOR decrypt
-        mac = raw[16:32]
-        encrypted = raw[32:]
+
+def _try_decrypt_legacy_xor(raw_payload: bytes, key_candidates: list[str]) -> str | None:
+    if len(raw_payload) < 33 or not ALLOW_LEGACY_XOR_CREDENTIAL_DECRYPT:
+        return None
+    salt = raw_payload[:16]
+    mac = raw_payload[16:32]
+    encrypted = raw_payload[32:]
+    for candidate in key_candidates:
+        key = _derive_key(candidate, salt)
         expected_mac = hmac.new(key, encrypted, hashlib.sha256).digest()[:16]
         if not hmac.compare_digest(mac, expected_mac):
-            raise ValueError("Decryption failed: invalid password or corrupted data")
-        decrypted = bytes(a ^ b for a, b in zip(encrypted, (key * ((len(encrypted) // 32) + 1))[:len(encrypted)]))
-        return decrypted.decode()
+            continue
+        try:
+            decrypted = bytes(
+                a ^ b for a, b in zip(
+                    encrypted,
+                    (key * ((len(encrypted) // 32) + 1))[:len(encrypted)]
+                )
+            )
+            return decrypted.decode()
+        except Exception:
+            continue
+    return None
+
+
+def decrypt_credential(encrypted_b64: str, password: str | None = None) -> str:
+    """Decrypt credential data with support for key rotation and legacy payloads."""
+    if not encrypted_b64:
+        raise ValueError("No credential payload")
+    raw_text = encrypted_b64
+    version = "legacy"
+    if encrypted_b64.startswith("v2:"):
+        version = "v2"
+        raw_text = encrypted_b64[3:]
+    raw_payload = base64.b64decode(raw_text)
+    key_candidates = _credential_key_candidates(password)
+    if not key_candidates:
+        raise ValueError("No key candidates available for credential decryption")
+
+    plaintext = _try_decrypt_aes_payload(raw_payload, key_candidates)
+    if plaintext is not None:
+        return plaintext
+    if version == "v2":
+        raise ValueError("Credential decryption failed with configured key set")
+
+    legacy = _try_decrypt_legacy_xor(raw_payload, key_candidates)
+    if legacy is not None:
+        return legacy
+    raise ValueError("Credential decryption failed")
 
 
 # ---------------------------------------------------------------------------
@@ -2152,13 +3166,14 @@ def list_credentials():
 
 @app.route("/api/credentials", methods=["POST"])
 @login_required
+@require_mfa_for_sensitive
 def store_credential():
     """Store encrypted exchange credentials for current user."""
-    data = request.get_json()
+    data = request.get_json() or {}
     if not data:
         return jsonify({"error": "No data"}), 400
 
-    exchange = data.get("exchange", "").strip().lower()
+    exchange = str(data.get("exchange", "")).strip().lower()
     if exchange not in ("coinbase", "metamask", "wallet"):
         return jsonify({"error": "Unsupported exchange. Use: coinbase, metamask, wallet"}), 400
 
@@ -2166,33 +3181,70 @@ def store_credential():
         k: v for k, v in data.items() if k not in ("exchange",)
     })
 
-    # Encrypt with the app secret key (server-side encryption at rest)
-    encrypted = encrypt_credential(credential_json, app.secret_key)
+    try:
+        encrypted = encrypt_credential(credential_json)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 503
 
     db = get_db()
-    # Upsert: replace existing credential for same user + exchange
-    db.execute(
-        "DELETE FROM user_credentials WHERE user_id = ? AND exchange = ?",
-        (current_user.id, exchange)
+    try:
+        existing = db.execute(
+            "SELECT id, credential_data FROM user_credentials WHERE user_id = ? AND exchange = ?",
+            (current_user.id, exchange),
+        ).fetchone()
+        if existing:
+            db.execute(
+                "INSERT INTO user_credentials_history (user_id, exchange, credential_data) VALUES (?, ?, ?)",
+                (current_user.id, exchange, existing["credential_data"]),
+            )
+            db.execute(
+                "UPDATE user_credentials SET credential_data = ?, created_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (encrypted, existing["id"]),
+            )
+        else:
+            db.execute(
+                "INSERT INTO user_credentials (user_id, exchange, credential_data) VALUES (?, ?, ?)",
+                (current_user.id, exchange, encrypted),
+            )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    _record_security_audit(
+        "credential_stored",
+        user_id=int(current_user.id),
+        username=current_user.username,
+        details={"exchange": exchange},
     )
-    db.execute(
-        "INSERT INTO user_credentials (user_id, exchange, credential_data) VALUES (?, ?, ?)",
-        (current_user.id, exchange, encrypted)
-    )
-    db.commit()
     return jsonify({"ok": True, "exchange": exchange})
 
 
 @app.route("/api/credentials/<int:cred_id>", methods=["DELETE"])
 @login_required
+@require_mfa_for_sensitive
 def delete_credential(cred_id):
     """Delete a stored credential (only own credentials)."""
     db = get_db()
-    db.execute(
-        "DELETE FROM user_credentials WHERE id = ? AND user_id = ?",
-        (cred_id, current_user.id)
-    )
-    db.commit()
+    row = db.execute(
+        "SELECT exchange, credential_data FROM user_credentials WHERE id = ? AND user_id = ?",
+        (cred_id, current_user.id),
+    ).fetchone()
+    if row:
+        db.execute(
+            "INSERT INTO user_credentials_history (user_id, exchange, credential_data) VALUES (?, ?, ?)",
+            (current_user.id, row["exchange"], row["credential_data"]),
+        )
+        db.execute(
+            "DELETE FROM user_credentials WHERE id = ? AND user_id = ?",
+            (cred_id, current_user.id),
+        )
+        db.commit()
+        _record_security_audit(
+            "credential_deleted",
+            user_id=int(current_user.id),
+            username=current_user.username,
+            details={"credential_id": int(cred_id), "exchange": str(row["exchange"])},
+        )
     return jsonify({"ok": True})
 
 
@@ -2491,14 +3543,16 @@ def record_asset_transition():
       {asset, venue, from_state, to_state, amount, value_usd, cost_usd,
        duration_seconds, trigger, tx_hash, metadata}
     """
-    # Auth via API key — accept Authorization: Bearer, X-Api-Key header, or query param
+    # Auth via API key — Bearer/X-Api-Key headers; query param only when explicitly enabled.
     auth_header = request.headers.get("Authorization", "")
     if auth_header.startswith("Bearer "):
         api_key = auth_header[7:].strip()
     else:
-        api_key = request.headers.get("X-Api-Key") or request.args.get("api_key") or ""
+        api_key = request.headers.get("X-Api-Key") or ""
+        if not api_key and ALLOW_QUERY_API_KEY_AUTH:
+            api_key = request.args.get("api_key") or ""
     expected_key = os.environ.get("NETTRACE_API_KEY", "")
-    if not api_key or not expected_key or api_key != expected_key:
+    if not api_key or not expected_key or not hmac.compare_digest(str(api_key), str(expected_key)):
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json()
@@ -2657,6 +3711,7 @@ def list_wallet_accounts():
 
 @app.route("/api/wallet-accounts/init", methods=["POST"])
 @login_required
+@require_mfa_for_sensitive
 def init_wallet_accounts():
     """Initialize all sub-accounts for the current user (idempotent)."""
     db = get_db()
@@ -2666,11 +3721,17 @@ def init_wallet_accounts():
             (current_user.id, acct_type)
         )
     db.commit()
+    _record_security_audit(
+        "wallet_accounts_initialized",
+        user_id=int(current_user.id),
+        username=current_user.username,
+    )
     return jsonify({"ok": True, "accounts": list(WALLET_ACCOUNTS.keys())})
 
 
 @app.route("/api/wallet-accounts/transfer", methods=["POST"])
 @login_required
+@require_mfa_for_sensitive
 @require_primary_region
 def transfer_between_accounts():
     """Move money between sub-accounts (checking <-> savings, etc.)."""
@@ -2709,6 +3770,12 @@ def transfer_between_accounts():
         (current_user.id, from_acct, to_acct, amount)
     )
     db.commit()
+    _record_security_audit(
+        "wallet_transfer",
+        user_id=int(current_user.id),
+        username=current_user.username,
+        details={"from": from_acct, "to": to_acct, "amount": float(amount)},
+    )
 
     return jsonify({
         "ok": True,
@@ -2720,6 +3787,7 @@ def transfer_between_accounts():
 
 @app.route("/api/wallet-accounts/deposit", methods=["POST"])
 @login_required
+@require_mfa_for_sensitive
 @require_primary_region
 def deposit_to_account():
     """Record a deposit into a specific sub-account (from on-chain or external)."""
@@ -2743,6 +3811,12 @@ def deposit_to_account():
         (amount, current_user.id, account)
     )
     db.commit()
+    _record_security_audit(
+        "wallet_deposit_recorded",
+        user_id=int(current_user.id),
+        username=current_user.username,
+        details={"account": account, "amount": float(amount)},
+    )
 
     return jsonify({"ok": True, "account": account, "deposited": amount})
 
@@ -2796,6 +3870,7 @@ def treasury_balance():
 
 @app.route("/api/treasury/create", methods=["POST"])
 @login_required
+@require_mfa_for_sensitive
 def treasury_create():
     """Create a Stripe Treasury financial account."""
     if not stripe.api_key:
@@ -2840,6 +3915,12 @@ def treasury_create():
             (current_user.id, fa.id, fa.status)
         )
         db.commit()
+        _record_security_audit(
+            "treasury_account_created",
+            user_id=int(current_user.id),
+            username=current_user.username,
+            details={"stripe_fa_id": str(fa.id), "status": str(fa.status)},
+        )
 
         return jsonify({
             "ok": True,
@@ -2854,6 +3935,7 @@ def treasury_create():
 
 @app.route("/api/treasury/deploy", methods=["POST"])
 @login_required
+@require_mfa_for_sensitive
 @require_primary_region
 def treasury_deploy():
     """Deploy capital from treasury to an exchange or wallet."""
@@ -2887,6 +3969,12 @@ def treasury_deploy():
         (amount_cents, current_user.id, acct["stripe_fa_id"])
     )
     db.commit()
+    _record_security_audit(
+        "treasury_deploy_recorded",
+        user_id=int(current_user.id),
+        username=current_user.username,
+        details={"amount_usd": float(amount_usd), "destination": destination},
+    )
 
     return jsonify({
         "ok": True,
@@ -2902,6 +3990,7 @@ def treasury_deploy():
 
 @app.route("/api/fc/link", methods=["POST"])
 @login_required
+@require_mfa_for_sensitive
 def fc_link():
     """Start a Stripe Financial Connections Link session."""
     if not stripe.api_key:
@@ -2925,6 +4014,12 @@ def fc_link():
         session = stripe.financial_connections.Session.create(
             account_holder={"type": "customer", "customer": customer_id},
             permissions=["balances", "transactions"],
+        )
+        _record_security_audit(
+            "financial_connections_link_started",
+            user_id=int(current_user.id),
+            username=current_user.username,
+            details={"session_id": str(session.id)},
         )
 
         return jsonify({
@@ -3118,9 +4213,259 @@ if os.environ.get("ENABLE_AGENTS", "0") == "1":
     except Exception as _agent_err:
         logging.getLogger("app").error("Failed to start agent runner: %s", _agent_err)
 
+# ---------------------------------------------------------------------------
+# D2C Self-Service Platform API
+# ---------------------------------------------------------------------------
+
+from api_orgs import RISK_PRESETS
+
+@app.route("/api/v1/signup", methods=["POST"])
+def platform_signup():
+    """Create user + org + choose tier in one step (D2C onboarding)."""
+    data = request.get_json() or {}
+    username = str(data.get("username", "")).strip().lower()
+    password = str(data.get("password", ""))
+    org_name = str(data.get("org_name", "")).strip()
+    tier = data.get("tier", "free")
+
+    if not username or len(username) < 3 or len(username) > 30:
+        return jsonify({"error": "Username must be 3-30 characters"}), 400
+    if not re.match(r'^[a-z0-9_]+$', username):
+        return jsonify({"error": "Username: lowercase letters, numbers, underscores only"}), 400
+    password_error = _validate_password_strength(password)
+    if password_error:
+        return jsonify({"error": password_error}), 400
+    if tier not in ("free", "pro", "enterprise", "enterprise_pro"):
+        return jsonify({"error": "Invalid tier"}), 400
+
+    if not org_name:
+        org_name = f"{username}'s Trading"
+    slug = re.sub(r'[^a-z0-9\-]', '-', org_name.lower().strip())[:50].strip('-')
+    if len(slug) < 3:
+        slug = f"{username}-org"
+
+    db = get_db()
+    if db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone():
+        return jsonify({"error": "Username already taken"}), 409
+    if db.execute("SELECT id FROM organizations WHERE slug=?", (slug,)).fetchone():
+        slug = f"{slug}-{secrets.token_hex(3)}"
+
+    # Create user
+    pw_hash = generate_password_hash(password)
+    cur = db.execute("INSERT INTO users (username, password_hash, tier) VALUES (?, ?, ?)",
+                     (username, pw_hash, tier))
+    user_id = cur.lastrowid
+
+    # Create org
+    cur2 = db.execute(
+        "INSERT INTO organizations (name, slug, owner_user_id, tier) VALUES (?, ?, ?, ?)",
+        (org_name, slug, user_id, tier)
+    )
+    org_id = cur2.lastrowid
+
+    # Owner membership + default risk policy
+    db.execute("INSERT INTO org_members (org_id, user_id, role) VALUES (?, ?, 'owner')",
+               (org_id, user_id))
+    db.execute("INSERT INTO org_risk_policies (org_id) VALUES (?)", (org_id,))
+
+    db.commit()
+
+    user = User(user_id, username)
+    session.clear()
+    login_user(user, fresh=True)
+    session.permanent = True
+
+    return jsonify({
+        "ok": True,
+        "user_id": user_id,
+        "username": username,
+        "org_id": org_id,
+        "org_slug": slug,
+        "tier": tier,
+        "next_step": "POST /api/v1/onboard to connect your exchange",
+    }), 201
+
+
+@app.route("/api/v1/onboard", methods=["POST"])
+@login_required
+def platform_onboard():
+    """Connect exchange API keys and set risk preferences."""
+    data = request.get_json() or {}
+    db = get_db()
+
+    # Find user's org
+    membership = db.execute(
+        "SELECT org_id FROM org_members WHERE user_id = ? AND role = 'owner' LIMIT 1",
+        (current_user.id,)
+    ).fetchone()
+    if not membership:
+        return jsonify({"error": "No organization found. Sign up first."}), 404
+    org_id = membership["org_id"]
+
+    result = {"org_id": org_id, "steps_completed": []}
+
+    # Step 1: Set risk preferences
+    risk_profile = data.get("risk_profile")
+    if risk_profile and risk_profile in RISK_PRESETS:
+        preset = RISK_PRESETS[risk_profile]
+        db.execute(
+            "UPDATE org_risk_policies SET risk_profile = ?, max_daily_loss_pct = ?, "
+            "max_position_pct = ?, max_trade_usd = ?, min_confidence = ?, "
+            "min_confirming_signals = ?, updated_at = CURRENT_TIMESTAMP WHERE org_id = ?",
+            (risk_profile, preset["max_daily_loss_pct"], preset["max_position_pct"],
+             preset["max_trade_usd"], preset["min_confidence"],
+             preset["min_confirming_signals"], org_id)
+        )
+        result["steps_completed"].append("risk_profile")
+        result["risk_profile"] = risk_profile
+
+    # Step 2: Store exchange credentials (if provided)
+    exchange = data.get("exchange")
+    credential_data = data.get("credential_data")
+    if exchange and credential_data:
+        db.execute(
+            "INSERT OR REPLACE INTO user_credentials (user_id, exchange, credential_data, org_id) "
+            "VALUES (?, ?, ?, ?)",
+            (current_user.id, exchange.lower(), json.dumps(credential_data), org_id)
+        )
+        result["steps_completed"].append("exchange_connected")
+        result["exchange"] = exchange
+
+    # Step 3: Set allowed trading pairs (if provided)
+    allowed_pairs = data.get("allowed_pairs")
+    if allowed_pairs:
+        db.execute(
+            "UPDATE org_risk_policies SET allowed_pairs_json = ? WHERE org_id = ?",
+            (json.dumps(allowed_pairs), org_id)
+        )
+        result["steps_completed"].append("trading_pairs")
+
+    db.commit()
+
+    result["status"] = "onboarding_complete" if len(result["steps_completed"]) >= 2 else "partial"
+    return jsonify(result)
+
+
+@app.route("/api/v1/dashboard")
+@login_required
+def platform_dashboard():
+    """Unified dashboard data: portfolio, P&L, agents, org info."""
+    db = get_db()
+
+    # Find user's org
+    membership = db.execute(
+        "SELECT org_id, role FROM org_members WHERE user_id = ? LIMIT 1",
+        (current_user.id,)
+    ).fetchone()
+
+    if not membership:
+        return jsonify({"error": "No organization. Sign up first."}), 404
+
+    org_id = membership["org_id"]
+    org = db.execute("SELECT * FROM organizations WHERE id = ?", (org_id,)).fetchone()
+
+    # Portfolio
+    snap = db.execute(
+        "SELECT * FROM trading_snapshots WHERE org_id = ? ORDER BY recorded_at DESC LIMIT 1",
+        (org_id,)
+    ).fetchone()
+
+    # Agents
+    agents = db.execute(
+        "SELECT id, agent_name, status, pipeline_stage, total_pnl, sharpe_ratio "
+        "FROM agent_registrations WHERE org_id = ? AND status != 'fired' "
+        "ORDER BY total_pnl DESC",
+        (org_id,)
+    ).fetchall()
+
+    # Recent proposals
+    proposals = db.execute(
+        "SELECT pair, direction, confidence, status, created_at "
+        "FROM trade_proposals WHERE org_id = ? "
+        "ORDER BY created_at DESC LIMIT 10",
+        (org_id,)
+    ).fetchall()
+
+    # Risk policy
+    risk = db.execute(
+        "SELECT * FROM org_risk_policies WHERE org_id = ?", (org_id,)
+    ).fetchone()
+
+    return jsonify({
+        "org": {
+            "name": org["name"], "slug": org["slug"],
+            "tier": org["tier"], "role": membership["role"],
+        },
+        "portfolio": {
+            "total_value_usd": snap["total_value_usd"] if snap else 0,
+            "daily_pnl": snap["daily_pnl"] if snap else 0,
+            "trades_today": snap["trades_today"] if snap else 0,
+            "holdings": json.loads(snap["holdings_json"] or "{}") if snap else {},
+            "last_updated": snap["recorded_at"] if snap else None,
+        } if snap else None,
+        "agents": [{
+            "id": a["id"], "name": a["agent_name"], "status": a["status"],
+            "stage": a["pipeline_stage"], "pnl": a["total_pnl"],
+            "sharpe": a["sharpe_ratio"],
+        } for a in agents],
+        "recent_proposals": [{
+            "pair": p["pair"], "direction": p["direction"],
+            "confidence": p["confidence"], "status": p["status"],
+            "created_at": p["created_at"],
+        } for p in proposals],
+        "risk_policy": {
+            "profile": risk["risk_profile"],
+            "max_daily_loss_pct": risk["max_daily_loss_pct"],
+            "max_position_pct": risk["max_position_pct"],
+            "max_trade_usd": risk["max_trade_usd"],
+        } if risk else None,
+    })
+
+
+@app.route("/api/v1/risk-preferences", methods=["PUT"])
+@login_required
+def update_risk_preferences():
+    """Update risk profile for the user's organization."""
+    data = request.get_json() or {}
+    db = get_db()
+
+    membership = db.execute(
+        "SELECT org_id, role FROM org_members WHERE user_id = ? AND role IN ('owner', 'admin') LIMIT 1",
+        (current_user.id,)
+    ).fetchone()
+    if not membership:
+        return jsonify({"error": "Not authorized"}), 403
+
+    org_id = membership["org_id"]
+    profile = data.get("risk_profile")
+
+    if profile not in RISK_PRESETS:
+        return jsonify({
+            "error": f"Invalid risk_profile. Choose from: {', '.join(RISK_PRESETS)}",
+            "presets": {k: v for k, v in RISK_PRESETS.items()},
+        }), 400
+
+    preset = RISK_PRESETS[profile]
+    db.execute(
+        "UPDATE org_risk_policies SET risk_profile = ?, max_daily_loss_pct = ?, "
+        "max_position_pct = ?, max_trade_usd = ?, min_confidence = ?, "
+        "min_confirming_signals = ?, updated_at = CURRENT_TIMESTAMP WHERE org_id = ?",
+        (profile, preset["max_daily_loss_pct"], preset["max_position_pct"],
+         preset["max_trade_usd"], preset["min_confidence"],
+         preset["min_confirming_signals"], org_id)
+    )
+    db.commit()
+
+    return jsonify({"status": "updated", "risk_profile": profile, "settings": preset})
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 12034))
     print(f">>> NetTrace running at http://localhost:{port}")
     if not stripe.api_key:
         print(">>> WARNING: STRIPE_SECRET_KEY not set - payments disabled")
+    if IS_PRODUCTION and MISSING_PERSISTENT_SECRET_KEY:
+        print(">>> WARNING: SECRET_KEY not set - session and credential security degraded")
+    if not (os.environ.get(CREDENTIAL_KEY_ENV) or os.environ.get("SECRET_KEY")):
+        print(">>> WARNING: CREDENTIAL_ENCRYPTION_KEY not set - credential storage endpoints will fail closed")
     socketio.run(app, host="0.0.0.0", port=port, debug=False)

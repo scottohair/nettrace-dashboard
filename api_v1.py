@@ -16,6 +16,25 @@ api_v1 = Blueprint("api_v1", __name__, url_prefix="/api/v1")
 DB_PATH = os.environ.get("DB_PATH", str(Path(__file__).parent / "traceroute.db"))
 
 
+def _parse_cors_origins(raw: str) -> set[str]:
+    origins: set[str] = set()
+    for part in str(raw or "").split(","):
+        val = part.strip()
+        if not val:
+            continue
+        origins.add(val.rstrip("/"))
+    return origins
+
+
+_default_cors_origins = {
+    "https://nettrace-dashboard.fly.dev",
+    "http://localhost:12034",
+    "http://127.0.0.1:12034",
+}
+_configured_origins = _parse_cors_origins(os.environ.get("NETTRACE_API_CORS_ORIGINS", ""))
+API_V1_CORS_ORIGINS = _configured_origins or _default_cors_origins
+
+
 def get_db():
     if "db" not in g:
         g.db = sqlite3.connect(DB_PATH)
@@ -52,9 +71,12 @@ def parse_int_query_param(name, default, max_value=None):
 
 @api_v1.after_request
 def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
-    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    origin = (request.headers.get("Origin") or "").rstrip("/")
+    if origin and origin in API_V1_CORS_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Vary"] = "Origin"
+    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Api-Key"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
 
@@ -75,8 +97,13 @@ def api_docs():
             "GET /api/v1/export/<host>?format=csv|json": "Bulk export (Enterprise)",
             "GET /api/v1/signals": "Recent quant signals (Pro+)",
             "GET /api/v1/signals/summary": "Aggregated quant signal stats (Pro+)",
+            "GET /api/v1/candles": "Aggregated normalized candles for consumers (Pro+)",
+            "GET /api/v1/candles/summary": "Candle aggregation health + target coverage (Pro+)",
+            "GET /api/v1/candles/opportunities": "Ranked opportunity pairs from normalized candles (Pro+)",
+            "POST /api/v1/candles/refresh": "Force refresh market candle aggregation (Pro+)",
+            "POST /api/v1/graphql": "GraphQL endpoint for candlePoints/candleSummary/candleOpportunities/refreshCandles (Pro+)",
         },
-        "auth": "Pass API key via Authorization: Bearer <key> header or ?api_key= query param",
+        "auth": "Pass API key via Authorization: Bearer <key> or X-Api-Key header (query param disabled by default)",
         "tiers": {
             "free": "$0/mo — 100 API calls/day, 24h history, demo data",
             "pro": "$249/mo — 10k calls/day, 30d history, routes, alerts",

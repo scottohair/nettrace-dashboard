@@ -98,6 +98,11 @@ class TestDynamicScaling(unittest.TestCase):
         k = self.rc.kelly_fraction(0.30, 1.0, 1.0)
         self.assertEqual(k, 0)
 
+        # Downside semi-variance should tighten the cap in volatile loss tails.
+        k_clean = self.rc.kelly_fraction(0.60, 2.0, 1.0, downside_std=0.0)
+        k_volatile = self.rc.kelly_fraction(0.60, 2.0, 1.0, downside_std=1.0)
+        self.assertGreater(k_clean, k_volatile)
+
 
 class TestTradeApproval(unittest.TestCase):
     """Test the central trade approval system."""
@@ -112,6 +117,8 @@ class TestTradeApproval(unittest.TestCase):
         self.rc = risk_controller.RiskController()
         self.rc.market.compute_volatility = MagicMock(return_value=0.02)
         self.rc.market.compute_trend = MagicMock(return_value=0.1)
+        self.rc.market.compute_book_depth_usd = MagicMock(return_value=0.0)
+        self.rc.market.compute_book_depth_usd = MagicMock(return_value=0.0)
 
     def tearDown(self):
         os.unlink(self._tmp.name)
@@ -153,10 +160,11 @@ class TestTradeApproval(unittest.TestCase):
 
     def test_rate_limiting(self):
         """Should stop approving after too many trades."""
-        for i in range(200):
-            approved, reason, _ = self.rc.approve_trade(f"agent_{i}", "BTC-USDC", "BUY", 1.0, 290)
-            if not approved and "Trade limit" in reason:
-                return  # test passes — rate limit kicked in
+        with patch.object(self.rc, "max_position_pct", return_value=1.0):
+            for i in range(200):
+                approved, reason, _ = self.rc.approve_trade(f"agent_{i}", "BTC-USDC", "BUY", 1.0, 290)
+                if not approved and "Trade limit" in reason:
+                    return  # test passes — rate limit kicked in
         self.fail("Rate limiting never triggered after 200 trades")
 
     def test_pending_allocation_tracking(self):
@@ -177,6 +185,57 @@ class TestTradeApproval(unittest.TestCase):
             "SELECT status FROM pending_allocations WHERE agent='agent_a' ORDER BY id DESC LIMIT 1"
         ).fetchone()
         self.assertEqual(row[0], "resolved")
+
+    def test_pair_level_position_cap_prevents_overconcentration(self):
+        """A pair should not exceed concentration cap when multiple BUYs are queued."""
+        with patch.object(self.rc, "max_trade_usd", return_value=200.0), \
+             patch.object(self.rc, "max_position_pct", return_value=0.10), \
+             patch.object(self.rc, "market") as mocked_market:
+            mocked_market.compute_volatility.return_value = 0.0
+            mocked_market.compute_trend.return_value = 0.0
+
+            approved1, reason1, size1 = self.rc.approve_trade(
+                "agent_a", "BTC-USDC", "BUY", 20.0, 290
+            )
+            approved2, reason2, size2 = self.rc.approve_trade(
+                "agent_a", "BTC-USDC", "BUY", 20.0, 290
+            )
+
+        self.assertTrue(approved1, f"First approval blocked: {reason1}")
+        self.assertTrue(approved2, f"Second approval blocked: {reason2}")
+        self.assertEqual(size1, 20.0)
+        self.assertEqual(size2, 9.0)
+
+    def test_approve_buy_is_capped_by_orderbook_liquidity(self):
+        """Shallow orderbook depth should cap approved size."""
+        self.rc.market.compute_book_depth_usd.return_value = 12.0
+
+        with patch.object(self.rc, "max_trade_usd", return_value=200.0), \
+             patch.object(self.rc, "max_position_pct", return_value=1.0):
+            approved, reason, size = self.rc.approve_trade(
+                "agent_liq", "BTC-USDC", "BUY", 20.0, 1000
+            )
+
+        self.assertTrue(approved, f"Liquidity cap unexpectedly blocked trade: {reason}")
+        # Default multiplier is 3.0, so 12 / 3 => 4 USD depth cap.
+        self.assertAlmostEqual(size, 4.0)
+
+    def test_approve_buy_blocks_when_liquidity_guard_missing_and_block_mode_enabled(self):
+        """With strict liquidity-mode enabled and no depth sample, buys should be blocked."""
+        import risk_controller
+        original = risk_controller.LIQ_DEPTH_FAIL_BLOCK
+        risk_controller.LIQ_DEPTH_FAIL_BLOCK = True
+        self.rc.market.compute_book_depth_usd.return_value = 0.0
+
+        try:
+            approved, reason, size = self.rc.approve_trade(
+                "agent_liq", "BTC-USDC", "BUY", 5.0, 1000
+            )
+        finally:
+            risk_controller.LIQ_DEPTH_FAIL_BLOCK = original
+
+        self.assertFalse(approved)
+        self.assertIn("liquidity depth unavailable", reason)
 
 
 class TestRequestTrade(unittest.TestCase):
@@ -200,6 +259,25 @@ class TestRequestTrade(unittest.TestCase):
         approved, reason, size = self.rc.request_trade("sniper", "BTC-USDC", "BUY", 5.0, 290)
         self.assertTrue(approved, f"Should approve: {reason}")
 
+    def test_request_trade_uses_safe_fallback_when_portfolio_unknown(self):
+        """If account hydration fails, request_trade should use safe fallback."""
+        import risk_controller as rc
+        original_fallback = rc.SAFE_MIN_PORTFOLIO_USD
+        rc.SAFE_MIN_PORTFOLIO_USD = 100.0
+
+        try:
+            class _FailingTrader:
+                def _request(self, *_args, **_kwargs):
+                    raise RuntimeError("api unavailable")
+
+            with patch("exchange_connector.CoinbaseTrader", _FailingTrader):
+                approved, reason, size = self.rc.request_trade("sniper", "BTC-USDC", "BUY", 10.0, None)
+                self.assertTrue(approved, f"request_trade should not fail closed: {reason}")
+                self.assertLessEqual(size, 10.0)
+                self.assertGreater(size, 0.0)
+        finally:
+            rc.SAFE_MIN_PORTFOLIO_USD = original_fallback
+
 
 class TestGetRiskParams(unittest.TestCase):
     """Test get_risk_params returns all expected keys."""
@@ -214,6 +292,7 @@ class TestGetRiskParams(unittest.TestCase):
         self.rc.market.compute_volatility = MagicMock(return_value=0.02)
         self.rc.market.compute_trend = MagicMock(return_value=0.1)
         self.rc.market.compute_momentum = MagicMock(return_value=0.05)
+        self.rc.market.compute_book_depth_usd = MagicMock(return_value=0.0)
 
     def tearDown(self):
         os.unlink(self._tmp.name)
@@ -223,7 +302,8 @@ class TestGetRiskParams(unittest.TestCase):
         expected_keys = [
             "portfolio_value", "volatility", "trend", "momentum",
             "max_trade_usd", "max_daily_loss", "min_reserve",
-            "max_position_pct", "daily_loss_so_far", "trades_today",
+            "max_position_pct", "liquidity_depth_usd", "liquidity_cap_usd",
+            "max_pair_position_usd", "daily_loss_so_far", "trades_today",
             "can_buy", "regime",
         ]
         for key in expected_keys:

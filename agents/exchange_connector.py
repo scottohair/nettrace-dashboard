@@ -49,6 +49,37 @@ except Exception:
             return {}
 
 try:
+    from public_dns_resolver import (
+        parse_resolver_list as _parse_public_dns_resolvers,
+        resolve_host_via_public_dns as _resolve_public_dns_ips,
+    )
+except Exception:
+    try:
+        from agents.public_dns_resolver import (  # type: ignore
+            parse_resolver_list as _parse_public_dns_resolvers,
+            resolve_host_via_public_dns as _resolve_public_dns_ips,
+        )
+    except Exception:
+        def _parse_public_dns_resolvers(value, default=None):
+            raw = str(value or "").split(",")
+            out = []
+            seen = set()
+            for item in raw:
+                ip = str(item or "").strip()
+                if not ip or ip in seen:
+                    continue
+                seen.add(ip)
+                out.append(ip)
+            if out:
+                return tuple(out)
+            if default is None:
+                return ()
+            return tuple(str(x).strip() for x in default if str(x).strip())
+
+        def _resolve_public_dns_ips(*_args, **_kwargs):
+            return []
+
+try:
     from no_loss_policy import (
         evaluate_trade as _evaluate_no_loss_trade,
         log_decision as _log_no_loss_decision,
@@ -95,6 +126,24 @@ def _env_int(name, default):
         return int(os.environ.get(name, str(default)))
     except Exception:
         return int(default)
+
+
+def _env_float(name, default):
+    try:
+        return float(os.environ.get(name, str(default)))
+    except Exception:
+        return float(default)
+
+
+COINBASE_MAX_TRADE_NOTIONAL_USD = _env_float("COINBASE_MAX_TRADE_NOTIONAL_USD", "0.0")
+COINBASE_MAX_TRADE_NOTIONAL_PCT_OF_PORTFOLIO = _env_float(
+    "COINBASE_MAX_TRADE_NOTIONAL_PCT_OF_PORTFOLIO",
+    "0.0",
+)
+COINBASE_PORTFOLIO_VALUE_ESTIMATE_FALLBACK_USD = _env_float(
+    "COINBASE_PORTFOLIO_VALUE_ESTIMATE_FALLBACK_USD",
+    "0.0",
+)
 
 
 def _env_json_dict(name):
@@ -154,6 +203,67 @@ def _iso_age_seconds(ts_text):
         return None
 
 
+def _read_json_file(path):
+    try:
+        return json.loads(Path(path).read_text())
+    except Exception:
+        return None
+
+
+def _to_positive_or_zero(value):
+    try:
+        parsed = float(value)
+    except Exception:
+        return 0.0
+    if not math.isfinite(parsed) or parsed < 0:
+        return 0.0
+    return parsed
+
+
+def _to_fraction(value):
+    value_f = _to_positive_or_zero(value)
+    if value_f <= 0:
+        return 0.0
+    # Accept "5" as 5% and "0.05" as 5%.
+    return value_f / 100.0 if value_f > 1.0 else value_f
+
+
+def _portfolio_value_estimate_from_status():
+    env_value = (
+        _to_positive_or_zero(os.environ.get("PORTFOLIO_VALUE_USD"))
+        or _to_positive_or_zero(os.environ.get("PORTFOLIO_TOTAL_USD"))
+        or _to_positive_or_zero(os.environ.get("TREASURY_PORTFOLIO_USD"))
+    )
+    if env_value > 0:
+        return env_value
+
+    candidates = (
+        Path(__file__).parent / "treasury_registry_status.json",
+        Path(__file__).parent / "treasury_registry.json",
+        Path("treasury_registry_status.json"),
+        Path("treasury_registry.json"),
+    )
+    for path in candidates:
+        payload = _read_json_file(path)
+        if not isinstance(payload, dict):
+            continue
+
+        direct = _to_positive_or_zero(payload.get("portfolio_total_usd"))
+        if direct > 0:
+            return direct
+
+        portfolio = payload.get("portfolio")
+        if isinstance(portfolio, dict):
+            nested = _to_positive_or_zero(portfolio.get("total_usd"))
+            if nested > 0:
+                return nested
+
+    fallback = COINBASE_PORTFOLIO_VALUE_ESTIMATE_FALLBACK_USD
+    if fallback > 0:
+        return fallback
+    return 0.0
+
+
 COINBASE_DNS_FAILOVER_ENABLED = _env_flag("COINBASE_DNS_FAILOVER_ENABLED", "1")
 COINBASE_DNS_FAILOVER_PROFILE = str(
     os.environ.get("COINBASE_DNS_FAILOVER_PROFILE", "system_then_fallback")
@@ -162,6 +272,15 @@ COINBASE_DNS_FAILOVER_HOST_MAP = _parse_failover_host_map(
     _env_json_dict("COINBASE_DNS_FAILOVER_HOST_MAP_JSON")
 )
 COINBASE_DNS_FALLBACK_IPS = _parse_ip_list(os.environ.get("COINBASE_DNS_FALLBACK_IPS", ""))
+COINBASE_DNS_PUBLIC_RESOLVER_ENABLED = _env_flag("COINBASE_DNS_PUBLIC_RESOLVER_ENABLED", "1")
+COINBASE_DNS_PUBLIC_RESOLVERS = _parse_public_dns_resolvers(
+    os.environ.get("COINBASE_DNS_PUBLIC_RESOLVERS", "1.1.1.1,8.8.8.8,9.9.9.9"),
+    ("1.1.1.1", "8.8.8.8", "9.9.9.9"),
+)
+COINBASE_DNS_PUBLIC_RESOLVER_TIMEOUT_SECONDS = _env_float(
+    "COINBASE_DNS_PUBLIC_RESOLVER_TIMEOUT_SECONDS", 1.2
+)
+COINBASE_DNS_PUBLIC_RESOLVER_MAX_IPS = _env_int("COINBASE_DNS_PUBLIC_RESOLVER_MAX_IPS", 8)
 COINBASE_DNS_CACHE_TTL_SECONDS = _env_int("COINBASE_DNS_CACHE_TTL_SECONDS", 900)
 COINBASE_DNS_FAILOVER_MAX_CANDIDATES = _env_int("COINBASE_DNS_FAILOVER_MAX_CANDIDATES", 8)
 COINBASE_DNS_DEGRADED_TTL_SECONDS = _env_int("COINBASE_DNS_DEGRADED_TTL_SECONDS", 180)
@@ -562,6 +681,57 @@ class CoinbaseTrader:
             raise ValueError(f"{field_name} must be a positive finite number: {value!r}")
         return parsed
 
+    @classmethod
+    def _notional_caps(cls):
+        pct = _to_fraction(COINBASE_MAX_TRADE_NOTIONAL_PCT_OF_PORTFOLIO)
+        abs_cap = COINBASE_MAX_TRADE_NOTIONAL_USD
+        return abs_cap, pct
+
+    @classmethod
+    def _max_notional_usd(cls, side):
+        if side != "BUY":
+            return None
+
+        abs_cap, pct_cap = cls._notional_caps()
+        cap_candidates = []
+        if abs_cap > 0:
+            cap_candidates.append(float(abs_cap))
+
+        if pct_cap > 0:
+            portfolio_value = _portfolio_value_estimate_from_status()
+            if portfolio_value > 0:
+                cap_candidates.append(portfolio_value * pct_cap)
+
+        if not cap_candidates:
+            return None
+        return min(cap_candidates)
+
+    @classmethod
+    def _evaluate_notional_gate(cls, side, product_id, request_notional_usd):
+        if side != "BUY":
+            return True, None
+
+        request_notional = _to_positive_or_zero(request_notional_usd)
+        max_notional = cls._max_notional_usd(side)
+        if max_notional is None:
+            return True, None
+        if request_notional <= max_notional:
+            return True, None
+
+        reason = (
+            f"Notional gate: ${request_notional:.2f} exceeds max allowed "
+            f"${max_notional:.2f} for {product_id}"
+        )
+        details = {
+            "side": side,
+            "product_id": product_id,
+            "requested_notional_usd": request_notional,
+            "max_notional_usd": max_notional,
+            "max_notional_abs_cap": COINBASE_MAX_TRADE_NOTIONAL_USD,
+            "max_notional_pct_cap": COINBASE_MAX_TRADE_NOTIONAL_PCT_OF_PORTFOLIO,
+            "portfolio_value_estimate": _portfolio_value_estimate_from_status(),
+        }
+        return False, {"error": "ORDER_NOTIONAL_CAP", "message": reason, "details": details}
     @staticmethod
     def _is_dns_failure(exc):
         if isinstance(exc, socket.gaierror):
@@ -578,6 +748,19 @@ class CoinbaseTrader:
             "dns",
         )
         return any(n in text for n in dns_needles)
+
+    @staticmethod
+    def _is_egress_failure(exc):
+        text = str(exc).lower()
+        egress_needles = (
+            "operation not permitted",
+            "network is unreachable",
+            "permission denied",
+            "errno 1",
+            "errno 101",
+            "errno 13",
+        )
+        return any(n in text for n in egress_needles)
 
     @classmethod
     def _dns_failover_mode(cls):
@@ -672,8 +855,11 @@ class CoinbaseTrader:
         return False, str(status.get("reason", "execution_health_unhealthy")) or "execution_health_unhealthy"
 
     @classmethod
-    def _open_circuit(cls, reason):
-        open_seconds = max(5, int(COINBASE_CIRCUIT_OPEN_SECONDS))
+    def _open_circuit(cls, reason, open_seconds_override=None):
+        if open_seconds_override is None:
+            open_seconds = max(5, int(COINBASE_CIRCUIT_OPEN_SECONDS))
+        else:
+            open_seconds = max(5, int(open_seconds_override))
         cls._circuit_open_until = time.time() + open_seconds
         cls._circuit_opened_at = time.time()
         cls._circuit_open_reason = str(reason or "request_failures")
@@ -765,6 +951,23 @@ class CoinbaseTrader:
             system_candidates = []
         system_candidates = cls._stable_system_ips(system_candidates)
 
+        public_dns_candidates = []
+        if (
+            COINBASE_DNS_PUBLIC_RESOLVER_ENABLED
+            and COINBASE_DNS_PUBLIC_RESOLVERS
+            and not system_candidates
+        ):
+            try:
+                public_dns_candidates = _resolve_public_dns_ips(
+                    host=host_s,
+                    resolvers=COINBASE_DNS_PUBLIC_RESOLVERS,
+                    timeout_seconds=float(COINBASE_DNS_PUBLIC_RESOLVER_TIMEOUT_SECONDS),
+                    max_ips=max(1, int(COINBASE_DNS_PUBLIC_RESOLVER_MAX_IPS)),
+                    include_ipv6=False,
+                )
+            except Exception:
+                public_dns_candidates = []
+
         profile_candidates = cls._profile_ips_for_host(host_s)
         fallback_candidates = list(COINBASE_DNS_FALLBACK_IPS)
 
@@ -778,19 +981,23 @@ class CoinbaseTrader:
             candidates = []
             if mode == "system_only":
                 candidates.extend(system_candidates)
+                candidates.extend(public_dns_candidates)
                 candidates.extend(cached_candidates)
             elif mode == "fallback_only":
                 candidates.extend(profile_candidates)
                 candidates.extend(fallback_candidates)
                 candidates.extend(cached_candidates)
+                candidates.extend(public_dns_candidates)
             elif mode == "fallback_then_system":
                 candidates.extend(profile_candidates)
                 candidates.extend(fallback_candidates)
                 candidates.extend(cached_candidates)
                 candidates.extend(system_candidates)
+                candidates.extend(public_dns_candidates)
             else:
                 # Default: system DNS first, deterministic fallback second.
                 candidates.extend(system_candidates)
+                candidates.extend(public_dns_candidates)
                 candidates.extend(cached_candidates)
                 candidates.extend(profile_candidates)
                 candidates.extend(fallback_candidates)
@@ -874,6 +1081,7 @@ class CoinbaseTrader:
 
         last_error = None
         saw_dns_issue = False
+        saw_egress_issue = False
         retries = max(1, int(max_retries))
         for attempt in range(retries):
             # Rebuild JWT for each attempt (they have short expiry)
@@ -913,6 +1121,9 @@ class CoinbaseTrader:
                     )
                     if result is not None:
                         return result
+                    if dns_preflight_error and self._is_egress_failure(dns_preflight_error):
+                        saw_egress_issue = True
+                        raise RuntimeError(f"egress_blocked:{dns_preflight_error}")
                     if mode == "fallback_only":
                         saw_dns_issue = True
                         raise RuntimeError(
@@ -980,6 +1191,8 @@ class CoinbaseTrader:
 
             except Exception as e:
                 dns_fallback_error = ""
+                if self._is_egress_failure(e):
+                    saw_egress_issue = True
                 if self._is_dns_failure(e):
                     saw_dns_issue = True
                     CoinbaseTrader._mark_dns_degraded(e)
@@ -993,6 +1206,8 @@ class CoinbaseTrader:
                     )
                     if result is not None:
                         return result
+                    if dns_fallback_error and self._is_egress_failure(dns_fallback_error):
+                        saw_egress_issue = True
 
                 dt_ms = (time.perf_counter() - t0) * 1000.0
                 last_error = {"error": str(e)}
@@ -1009,10 +1224,14 @@ class CoinbaseTrader:
                     context={
                         "attempt": attempt + 1,
                         "dns_failure": bool(self._is_dns_failure(e)),
+                        "egress_failure": bool(self._is_egress_failure(e)),
                         "dns_fallback_attempted": bool(dns_fallback_error),
                         "dns_degraded_active": bool(CoinbaseTrader._dns_degraded_active()),
                     },
                 )
+                if saw_egress_issue:
+                    logger.error("Coinbase request hit egress failure; skipping remaining retries: %s", e)
+                    break
                 backoff = 0.5 * (2 ** attempt)
                 logger.warning("Coinbase request failed (attempt %d/%d) — retrying in %.1fs: %s",
                                attempt + 1, retries, backoff, e)
@@ -1020,13 +1239,25 @@ class CoinbaseTrader:
 
         # All retries exhausted — update circuit breaker
         CoinbaseTrader._consecutive_failures += 1
-        if CoinbaseTrader._consecutive_failures >= max(1, int(COINBASE_CIRCUIT_FAIL_THRESHOLD)):
-            open_reason = "dns_unhealthy" if saw_dns_issue else "request_failures"
-            CoinbaseTrader._open_circuit(reason=open_reason)
+        should_open = saw_egress_issue or (
+            CoinbaseTrader._consecutive_failures >= max(1, int(COINBASE_CIRCUIT_FAIL_THRESHOLD))
+        )
+        if should_open:
+            if saw_egress_issue:
+                open_reason = "egress_blocked"
+                open_seconds = max(120, int(COINBASE_CIRCUIT_OPEN_SECONDS) * 4)
+                CoinbaseTrader._open_circuit(reason=open_reason, open_seconds_override=open_seconds)
+            else:
+                open_reason = "dns_unhealthy" if saw_dns_issue else "request_failures"
+                CoinbaseTrader._open_circuit(reason=open_reason)
             logger.error(
                 "Circuit breaker OPEN — %d consecutive failures, pausing for %ds (reason=%s)",
                 CoinbaseTrader._consecutive_failures,
-                max(5, int(COINBASE_CIRCUIT_OPEN_SECONDS)),
+                (
+                    max(120, int(COINBASE_CIRCUIT_OPEN_SECONDS) * 4)
+                    if open_reason == "egress_blocked"
+                    else max(5, int(COINBASE_CIRCUIT_OPEN_SECONDS))
+                ),
                 open_reason,
             )
 
@@ -1241,6 +1472,26 @@ class CoinbaseTrader:
                 details={"reason": msg},
             )
             return {"error_response": {"error": "TRADING_LOCKED", "message": msg}}
+
+        if side_u == "BUY":
+            request_notional = size
+            notional_ok, notional_reject = self._evaluate_notional_gate(
+                side_u,
+                product_id,
+                request_notional,
+            )
+            if not notional_ok:
+                msg = notional_reject["message"]
+                logger.error("Order blocked: %s", msg)
+                _record_order_lifecycle(
+                    "coinbase",
+                    pair=product_id,
+                    side=side_u,
+                    status="blocked_notional_cap",
+                    requested_usd=request_notional,
+                    details=notional_reject,
+                )
+                return {"error_response": notional_reject}
 
         if side_u == "BUY" and STRICT_PROFIT_ONLY:
             no_loss = self._no_loss_gate(
@@ -1462,6 +1713,27 @@ class CoinbaseTrader:
         base_size = self._truncate_to_increment(base_size, base_incr)
         if base_size <= 0:
             return {"error_response": {"error": "SIZE_TOO_SMALL", "message": "Amount too small"}}
+
+        # Approximate notional first to avoid extra product lookup/API calls for oversized buys.
+        if side_u == "BUY":
+            precheck_notional = base_size * limit_price
+            precheck_ok, precheck_reject = self._evaluate_notional_gate(
+                side_u,
+                product_id,
+                precheck_notional,
+            )
+            if not precheck_ok:
+                msg = precheck_reject["message"]
+                logger.error("Limit order blocked: %s", msg)
+                _record_order_lifecycle(
+                    "coinbase",
+                    pair=product_id,
+                    side=side_u,
+                    status="blocked_notional_cap",
+                    requested_usd=precheck_notional,
+                    details=precheck_reject,
+                )
+                return {"error_response": precheck_reject}
 
         # Get quote increment for price precision
         info = self.get_product(product_id)

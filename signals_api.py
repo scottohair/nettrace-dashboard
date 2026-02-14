@@ -1,6 +1,7 @@
 """Signals API Blueprint for NetTrace quant signals."""
 
 import json
+import hmac
 import os
 import sqlite3
 from pathlib import Path
@@ -13,6 +14,24 @@ signals_api = Blueprint("signals_api", __name__, url_prefix="/api/v1")
 
 DB_PATH = os.environ.get("DB_PATH", str(Path(__file__).parent / "traceroute.db"))
 PRO_PLUS_TIERS = ("pro", "enterprise", "enterprise_pro", "government")
+
+
+def _parse_cors_origins(raw: str) -> set[str]:
+    out: set[str] = set()
+    for part in str(raw or "").split(","):
+        token = part.strip()
+        if token:
+            out.add(token.rstrip("/"))
+    return out
+
+
+_default_cors_origins = {
+    "https://nettrace-dashboard.fly.dev",
+    "http://localhost:12034",
+    "http://127.0.0.1:12034",
+}
+_configured_cors_origins = _parse_cors_origins(os.environ.get("NETTRACE_API_CORS_ORIGINS", ""))
+SIGNALS_CORS_ORIGINS = _configured_cors_origins or _default_cors_origins
 
 
 def get_db():
@@ -62,8 +81,11 @@ def parse_int_param(value, default, minimum=None, maximum=None):
 
 @signals_api.after_request
 def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+    origin = (request.headers.get("Origin") or "").rstrip("/")
+    if origin and origin in SIGNALS_CORS_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Vary"] = "Origin"
+    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Api-Key, X-Internal-Secret"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
@@ -347,20 +369,23 @@ VALID_SIGNAL_TYPES = {
 VALID_DIRECTIONS = {"BUY", "SELL", "CAUTION", "INFO"}
 
 # Internal auth for cross-region signal push (scouts -> primary)
-_INTERNAL_SECRET = os.environ.get("SECRET_KEY", "")
+_INTERNAL_SECRET = (
+    os.environ.get("INTERNAL_SIGNAL_SECRET", "")
+    or os.environ.get("SECRET_KEY", "")
+)
 
 
 def _verify_internal_or_api_key(f):
     """Allow either API key auth OR internal secret auth for signal push.
 
-    Scout regions authenticate with X-Internal-Secret header (shared SECRET_KEY).
+    Scout regions authenticate with X-Internal-Secret header (shared INTERNAL_SIGNAL_SECRET).
     External clients use the normal API key auth.
     """
     from functools import wraps
     @wraps(f)
     def decorated(*args, **kwargs):
         internal_secret = request.headers.get("X-Internal-Secret", "")
-        if internal_secret and _INTERNAL_SECRET and internal_secret == _INTERNAL_SECRET:
+        if internal_secret and _INTERNAL_SECRET and hmac.compare_digest(str(internal_secret), str(_INTERNAL_SECRET)):
             # Internal auth — set minimal g attributes for compatibility
             g.api_tier = "internal"
             g.api_usage_today = 0
@@ -383,7 +408,7 @@ def push_signal():
     land in the primary DB (SQLite is per-machine, not shared).
 
     Auth: Either API key (Authorization: Bearer ...) or internal secret
-    (X-Internal-Secret header matching SECRET_KEY env var).
+    (X-Internal-Secret header matching INTERNAL_SIGNAL_SECRET env var).
 
     Body (JSON):
         signal_type: str (required)

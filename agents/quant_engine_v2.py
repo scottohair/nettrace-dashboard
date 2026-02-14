@@ -62,6 +62,7 @@ AGENTS_DIR = Path(__file__).parent
 ENGINE_DB = str(AGENTS_DIR / "quant_v2.db")
 TRACEROUTE_DB = str(AGENTS_DIR.parent / "traceroute.db")
 LOG_FILE = str(AGENTS_DIR / "quant_engine.log")
+CANDLE_AGG_DB = str(AGENTS_DIR / "candle_aggregator.db")
 
 # ---------------------------------------------------------------------------
 # Logging — dual handler: file + stderr
@@ -251,6 +252,10 @@ class MarketData:
             candles = cls._yahoo_candles(symbol, granularity_seconds, limit)
             if candles:
                 source = "yahoo"
+        if not candles:
+            candles = cls._local_aggregated_candles(symbol, granularity_seconds, limit)
+            if candles:
+                source = "candle_aggregator"
 
         cleaned, quality = cls._sanitize_candles(candles, granularity_seconds)
         quality.update({
@@ -474,6 +479,59 @@ class MarketData:
             return candles[-limit:]
         except (KeyError, TypeError, IndexError):
             return []
+
+    @classmethod
+    def _local_aggregated_candles(cls, symbol: str, gran_sec: int, limit: int) -> List[dict]:
+        db_path = Path(CANDLE_AGG_DB)
+        if not db_path.exists():
+            return []
+
+        pair = symbol if "-" in symbol else f"{symbol}-USD"
+        pair = pair.upper()
+        pair_variants = {pair}
+        if pair.endswith("-USD"):
+            pair_variants.add(pair.replace("-USD", "-USDC"))
+        if pair.endswith("-USDC"):
+            pair_variants.add(pair.replace("-USDC", "-USD"))
+
+        tf_map = {
+            60: "1m",
+            300: "5m",
+            900: "15m",
+            3600: "1h",
+        }
+        tf = tf_map.get(min(tf_map.keys(), key=lambda g: abs(g - int(gran_sec))), "5m")
+        placeholders = ",".join("?" for _ in pair_variants)
+        sql = f"""
+            SELECT start_ts, open, high, low, close, volume
+            FROM aggregated_candles
+            WHERE pair IN ({placeholders})
+              AND timeframe=?
+            ORDER BY start_ts DESC
+            LIMIT ?
+        """
+        try:
+            conn = sqlite3.connect(str(db_path))
+            rows = conn.execute(sql, tuple(pair_variants) + (tf, max(1, int(limit)))).fetchall()
+            conn.close()
+        except Exception:
+            return []
+        candles = []
+        for ts, o, h, l, c, v in reversed(rows):
+            try:
+                candles.append(
+                    {
+                        "start": int(ts),
+                        "open": float(o),
+                        "high": float(h),
+                        "low": float(l),
+                        "close": float(c),
+                        "volume": float(v or 0.0),
+                    }
+                )
+            except Exception:
+                continue
+        return candles
 
 
 # ============================================================================

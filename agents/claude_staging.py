@@ -169,7 +169,7 @@ def _snapshot_strategy_stage(priority_cfg=None):
 
     quant100 = _read_json(QUANT100_RESULTS_FILE, {})
     q100_summary = quant100.get("summary", {})
-    top_candidates = q100_summary.get("top_candidates", []) or []
+    top_candidates = q100_summary.get("top_actionable", []) or q100_summary.get("top_candidates", []) or []
     top_pairs = []
     for c in top_candidates[:30]:
         pair = c.get("pair")
