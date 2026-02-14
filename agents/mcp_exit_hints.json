@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T06:46:40.230398+00:00",
+  "updated_at": "2026-02-14T10:19:24.877902+00:00",
   "source": "mcp_opportunity_agent",
   "global": {
     "vol_scale": 1.0,
@@ -8,5 +8,27 @@
     "force_eval_hours_mult": 1.0,
     "tp_bias_pct": 0.0
   },
-  "pairs": {}
+  "pairs": {
+    "BTC-USDC": {
+      "vol_scale": 1.0,
+      "stop_scale": 1.1,
+      "dead_money_hours_mult": 1.15,
+      "force_eval_hours_mult": 1.125,
+      "tp_bias_pct": 0.0125
+    },
+    "SOL-USDC": {
+      "vol_scale": 1.0,
+      "stop_scale": 1.0808176,
+      "dead_money_hours_mult": 1.1212264,
+      "force_eval_hours_mult": 1.101022,
+      "tp_bias_pct": 0.010102199999999999
+    },
+    "ETH-USDC": {
+      "vol_scale": 1.0,
+      "stop_scale": 1.0646112,
+      "dead_money_hours_mult": 1.0969168,
+      "force_eval_hours_mult": 1.080764,
+      "tp_bias_pct": 0.0080764
+    }
+  }
 }

@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-02-14T06:47:28.035796+00:00",
+  "updated_at": "2026-02-14T10:18:49.973506+00:00",
   "agent": "autonomous_work_manager",
   "duplex_available": true,
   "queue_size": 85,
   "queue_target_size": 80,
   "max_outstanding": 12,
   "dispatch_per_cycle": 4,
-  "last_from_claude_id": 730,
+  "last_from_claude_id": 996,
   "counts": {
     "queued": 71,
     "dispatched": 0,
@@ -36,7 +36,7 @@
     "claimed": 0,
     "completed": 0,
     "completion_waiting_verification": 0,
-    "last_from_claude_id": 730
+    "last_from_claude_id": 996
   },
   "dispatch": {
     "available": true,

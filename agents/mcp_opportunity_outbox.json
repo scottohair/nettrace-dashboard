@@ -1,11 +1,106 @@
 {
-  "updated_at": "2026-02-14T06:46:40.231123+00:00",
-  "cycle": 79,
+  "updated_at": "2026-02-14T10:19:24.878433+00:00",
+  "cycle": 164,
   "go_live": true,
-  "opportunity_count": 0,
-  "top_opportunities": [],
+  "opportunity_count": 12,
+  "top_opportunities": [
+    {
+      "source": "quant_bias",
+      "symbol": "BTC-USDC",
+      "action": "BUY",
+      "expected_edge_pct": 7.469685,
+      "confidence": 0.92,
+      "latency_ms": 140.0,
+      "details": {
+        "id": "Q100-061",
+        "strategy_name": "dip_buyer_q100_061",
+        "strategy_base": "dip_buyer",
+        "pair": "BTC-USD",
+        "target_region": "sin",
+        "status": "retained_hot_passed",
+        "expected_gain_score": 125.22286,
+        "return_pct": 16.5993,
+        "walkforward_oos_return_pct": 16.6982,
+        "drawdown_pct": 0.4732,
+        "sharpe": 0.975,
+        "win_rate": 1.0,
+        "trades": 4,
+        "gain_gate_passed": true,
+        "implementable": true,
+        "blockers": [
+          "Retained HOT (refresh passed)"
+        ]
+      },
+      "score": 0.886433
+    },
+    {
+      "source": "quant_bias",
+      "symbol": "BTC-USDC",
+      "action": "BUY",
+      "expected_edge_pct": 7.469685,
+      "confidence": 0.92,
+      "latency_ms": 140.0,
+      "details": {
+        "id": "Q100-071",
+        "strategy_name": "dip_buyer_q100_071",
+        "strategy_base": "dip_buyer",
+        "pair": "BTC-USD",
+        "target_region": "ewr",
+        "status": "retained_hot_passed",
+        "expected_gain_score": 125.22286,
+        "return_pct": 16.5993,
+        "walkforward_oos_return_pct": 16.6982,
+        "drawdown_pct": 0.4732,
+        "sharpe": 0.975,
+        "win_rate": 1.0,
+        "trades": 4,
+        "gain_gate_passed": true,
+        "implementable": true,
+        "blockers": [
+          "Retained HOT (refresh passed)"
+        ]
+      },
+      "score": 0.886433
+    },
+    {
+      "source": "quant_bias",
+      "symbol": "BTC-USDC",
+      "action": "BUY",
+      "expected_edge_pct": 6.539175,
+      "confidence": 0.92,
+      "latency_ms": 140.0,
+      "details": {
+        "id": "Q100-031",
+        "strategy_name": "momentum_q100_031",
+        "strategy_base": "momentum",
+        "pair": "BTC-USD",
+        "target_region": "lhr",
+        "status": "retained_hot_passed",
+        "expected_gain_score": 107.59286,
+        "return_pct": 14.5315,
+        "walkforward_oos_return_pct": 13.746,
+        "drawdown_pct": 0.3261,
+        "sharpe": 1.0321,
+        "win_rate": 1.0,
+        "trades": 6,
+        "gain_gate_passed": true,
+        "implementable": true,
+        "blockers": [
+          "Retained HOT (refresh passed)"
+        ]
+      },
+      "score": 0.886433
+    }
+  ],
   "dashboard_latency_ms": {
     "median": 0.0,
     "samples": 0
+  },
+  "claude_duplex_delivery": {
+    "sent": true,
+    "channel": "to_claude",
+    "message_id": 1212,
+    "trace_id": "59050c30b7f4d80dea0726b8",
+    "status": "queued"
   }
 }

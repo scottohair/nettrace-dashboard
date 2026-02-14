@@ -1,1 +1,350 @@
-[]
+[
+  {
+    "source": "quant_bias",
+    "symbol": "BTC-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 7.469685,
+    "confidence": 0.92,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-061",
+      "strategy_name": "dip_buyer_q100_061",
+      "strategy_base": "dip_buyer",
+      "pair": "BTC-USD",
+      "target_region": "sin",
+      "status": "retained_hot_passed",
+      "expected_gain_score": 125.22286,
+      "return_pct": 16.5993,
+      "walkforward_oos_return_pct": 16.6982,
+      "drawdown_pct": 0.4732,
+      "sharpe": 0.975,
+      "win_rate": 1.0,
+      "trades": 4,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained HOT (refresh passed)"
+      ]
+    },
+    "score": 0.886433
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "BTC-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 7.469685,
+    "confidence": 0.92,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-071",
+      "strategy_name": "dip_buyer_q100_071",
+      "strategy_base": "dip_buyer",
+      "pair": "BTC-USD",
+      "target_region": "ewr",
+      "status": "retained_hot_passed",
+      "expected_gain_score": 125.22286,
+      "return_pct": 16.5993,
+      "walkforward_oos_return_pct": 16.6982,
+      "drawdown_pct": 0.4732,
+      "sharpe": 0.975,
+      "win_rate": 1.0,
+      "trades": 4,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained HOT (refresh passed)"
+      ]
+    },
+    "score": 0.886433
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "BTC-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 6.539175,
+    "confidence": 0.92,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-031",
+      "strategy_name": "momentum_q100_031",
+      "strategy_base": "momentum",
+      "pair": "BTC-USD",
+      "target_region": "lhr",
+      "status": "retained_hot_passed",
+      "expected_gain_score": 107.59286,
+      "return_pct": 14.5315,
+      "walkforward_oos_return_pct": 13.746,
+      "drawdown_pct": 0.3261,
+      "sharpe": 1.0321,
+      "win_rate": 1.0,
+      "trades": 6,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained HOT (refresh passed)"
+      ]
+    },
+    "score": 0.886433
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "SOL-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 0.88533,
+    "confidence": 0.92,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-083",
+      "strategy_name": "multi_timeframe_q100_083",
+      "strategy_base": "multi_timeframe",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "status": "retained_hot_passed",
+      "expected_gain_score": 22.81292,
+      "return_pct": 1.9674,
+      "walkforward_oos_return_pct": 2.0494,
+      "drawdown_pct": 0.3484,
+      "sharpe": 0.889,
+      "win_rate": 1.0,
+      "trades": 4,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained HOT (refresh passed)"
+      ]
+    },
+    "score": 0.750076
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "SOL-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 0.855135,
+    "confidence": 0.92,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-003",
+      "strategy_name": "mean_reversion_q100_003",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "status": "retained_warm_passed",
+      "expected_gain_score": 22.84718,
+      "return_pct": 1.9003,
+      "walkforward_oos_return_pct": 2.1848,
+      "drawdown_pct": 0.6603,
+      "sharpe": 0.7743,
+      "win_rate": 1.0,
+      "trades": 6,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained WARM (refresh passed)"
+      ]
+    },
+    "score": 0.736992
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "SOL-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 0.7992,
+    "confidence": 0.92,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-043",
+      "strategy_name": "rsi_q100_043",
+      "strategy_base": "rsi",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "status": "retained_warm_passed",
+      "expected_gain_score": 20.72116,
+      "return_pct": 1.776,
+      "walkforward_oos_return_pct": 1.7806,
+      "drawdown_pct": 0.6479,
+      "sharpe": 0.7853,
+      "win_rate": 1.0,
+      "trades": 4,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained WARM (refresh passed)"
+      ]
+    },
+    "score": 0.712753
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "SOL-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 0.70164,
+    "confidence": 0.92,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-023",
+      "strategy_name": "momentum_q100_023",
+      "strategy_base": "momentum",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "status": "retained_hot_passed",
+      "expected_gain_score": 20.29696,
+      "return_pct": 1.5592,
+      "walkforward_oos_return_pct": 1.8319,
+      "drawdown_pct": 0.7062,
+      "sharpe": 0.699,
+      "win_rate": 1.0,
+      "trades": 6,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained HOT (refresh passed)"
+      ]
+    },
+    "score": 0.670477
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "SOL-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 0.70164,
+    "confidence": 0.92,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-033",
+      "strategy_name": "momentum_q100_033",
+      "strategy_base": "momentum",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "status": "retained_hot_passed",
+      "expected_gain_score": 20.17976,
+      "return_pct": 1.5592,
+      "walkforward_oos_return_pct": 1.8026,
+      "drawdown_pct": 0.7062,
+      "sharpe": 0.699,
+      "win_rate": 1.0,
+      "trades": 6,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained HOT (refresh passed)"
+      ]
+    },
+    "score": 0.670477
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "SOL-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 0.638325,
+    "confidence": 0.92,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-013",
+      "strategy_name": "mean_reversion_q100_013",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "status": "retained_hot_passed",
+      "expected_gain_score": 19.27294,
+      "return_pct": 1.4185,
+      "walkforward_oos_return_pct": 1.654,
+      "drawdown_pct": 0.6242,
+      "sharpe": 0.7131,
+      "win_rate": 1.0,
+      "trades": 6,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained HOT (refresh passed)"
+      ]
+    },
+    "score": 0.643041
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "ETH-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 0.58806,
+    "confidence": 0.9156,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-042",
+      "strategy_name": "rsi_q100_042",
+      "strategy_base": "rsi",
+      "pair": "ETH-USD",
+      "target_region": "bom",
+      "status": "retained_warm_passed",
+      "expected_gain_score": 18.0692,
+      "return_pct": 1.3068,
+      "walkforward_oos_return_pct": 1.3267,
+      "drawdown_pct": 0.2348,
+      "sharpe": 0.8797,
+      "win_rate": 1.0,
+      "trades": 4,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained WARM (refresh passed)"
+      ]
+    },
+    "score": 0.619367
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "ETH-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 0.439605,
+    "confidence": 0.805633,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-062",
+      "strategy_name": "dip_buyer_q100_062",
+      "strategy_base": "dip_buyer",
+      "pair": "ETH-USD",
+      "target_region": "nrt",
+      "status": "retained_hot_passed",
+      "expected_gain_score": 16.1925,
+      "return_pct": 0.9769,
+      "walkforward_oos_return_pct": 1.1684,
+      "drawdown_pct": 0.4755,
+      "sharpe": 0.7235,
+      "win_rate": 1.0,
+      "trades": 6,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained HOT (refresh passed)"
+      ]
+    },
+    "score": 0.507751
+  },
+  {
+    "source": "quant_bias",
+    "symbol": "ETH-USDC",
+    "action": "BUY",
+    "expected_edge_pct": 0.439605,
+    "confidence": 0.805633,
+    "latency_ms": 140.0,
+    "details": {
+      "id": "Q100-072",
+      "strategy_name": "dip_buyer_q100_072",
+      "strategy_base": "dip_buyer",
+      "pair": "ETH-USD",
+      "target_region": "ord",
+      "status": "retained_hot_passed",
+      "expected_gain_score": 16.1925,
+      "return_pct": 0.9769,
+      "walkforward_oos_return_pct": 1.1684,
+      "drawdown_pct": 0.4755,
+      "sharpe": 0.7235,
+      "win_rate": 1.0,
+      "trades": 6,
+      "gain_gate_passed": true,
+      "implementable": true,
+      "blockers": [
+        "Retained HOT (refresh passed)"
+      ]
+    },
+    "score": 0.507751
+  }
+]

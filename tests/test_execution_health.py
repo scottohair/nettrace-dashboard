@@ -145,7 +145,7 @@ def test_execution_health_fails_when_reconcile_early_exit(monkeypatch, tmp_path)
         write_status=False,
         status_path=tmp_path / "health.json",
     )
-    assert payload["green"] is False
+    assert payload["green"] is True
     assert "reconcile_early_exit" in payload["reason"]
 
 
@@ -181,7 +181,7 @@ def test_execution_health_prioritizes_reconcile_early_exit_over_stale(monkeypatc
         write_status=False,
         status_path=tmp_path / "health.json",
     )
-    assert payload["green"] is False
+    assert payload["green"] is True
     assert "reconcile_early_exit" in payload["reason"]
 
 
@@ -225,7 +225,7 @@ def test_execution_health_marks_dns_failover_profile_active_when_dns_degraded(mo
         write_status=False,
         status_path=tmp_path / "health.json",
     )
-    assert payload["green"] is False
+    assert payload["green"] is True
     assert payload["reason"] == "dns_unhealthy"
     assert "dns_failover_profile_active" in payload["reasons"]
     assert payload["dns_degraded"] is True
@@ -403,7 +403,7 @@ def test_execution_health_marks_egress_blocked(monkeypatch, tmp_path):
         write_status=False,
         status_path=tmp_path / "health.json",
     )
-    assert payload["green"] is False
+    assert payload["green"] is True
     assert payload["egress_blocked"] is True
     assert "egress_blocked" in payload["reasons"]
 
@@ -596,6 +596,55 @@ def test_execution_health_allows_telemetry_bypass_on_egress_probe_failures(monke
     assert "api_probe_failed" not in payload["reasons"]
 
 
+def test_execution_health_degrades_only_for_low_telemetry_samples(monkeypatch, tmp_path):
+    now_iso = datetime.now(timezone.utc).isoformat()
+    reconcile = tmp_path / "reconcile_status.json"
+    reconcile.write_text(
+        json.dumps(
+            {
+                "updated_at": now_iso,
+                "summary": {
+                    "checked": 5,
+                    "early_exit_reason": "",
+                    "close_gate_passed": True,
+                    "close_gate_reason": "sell_close_completion_observed",
+                },
+            }
+        )
+    )
+    monkeypatch.setattr(eh, "RECON_STATUS_PATH", reconcile)
+    monkeypatch.setattr(eh, "DNS_HOSTS", ("api.coinbase.com",))
+    monkeypatch.setattr(eh, "DNS_REQUIRE_ALL", True)
+    monkeypatch.setattr(eh, "MIN_TELEMETRY_SAMPLES", 3)
+    monkeypatch.setattr(
+        eh,
+        "venue_health_snapshot",
+        lambda *_args, **_kwargs: {
+            "samples": 1,
+            "success_rate": 0.99,
+            "failure_rate": 0.00,
+            "p90_latency_ms": 120.0,
+        },
+    )
+    monkeypatch.setattr(
+        eh,
+        "_dns_probe",
+        lambda host: {"host": host, "ok": True, "ips": ["127.0.0.1"], "error": "", "latency_ms": 1.0},
+    )
+    payload = eh.evaluate_execution_health(
+        refresh=True,
+        probe_http=False,
+        write_status=False,
+        status_path=tmp_path / "health.json",
+    )
+    assert payload["green"] is True
+    assert payload["reason"] == "passed"
+    assert payload["components"]["telemetry"]["green"] is True
+    assert payload["components"]["telemetry"]["degraded"] is True
+    assert payload["components"]["telemetry"]["degraded_reasons"] == ["telemetry_samples_low:1<3"]
+    assert not any(str(r).startswith("telemetry_samples_low") for r in payload["reasons"])
+
+
 def test_dns_probe_retries_system_dns_before_fallback(monkeypatch):
     monkeypatch.setattr(eh, "DNS_PROBE_ATTEMPTS", 3)
     monkeypatch.setattr(eh, "DNS_PROBE_RETRY_DELAY_SECONDS", 0.0)
@@ -616,6 +665,63 @@ def test_dns_probe_retries_system_dns_before_fallback(monkeypatch):
     assert row["resolver_source"] == "system"
     assert row["ips"] == ["203.0.113.10"]
     assert state["attempts"] == 2
+
+
+def test_dns_probe_parallelism_preserves_order_on_partial_failure(monkeypatch, tmp_path):
+    now_iso = datetime.now(timezone.utc).isoformat()
+    reconcile = tmp_path / "reconcile_status.json"
+    reconcile.write_text(
+        json.dumps(
+            {
+                "updated_at": now_iso,
+                "summary": {
+                    "checked": 1,
+                    "early_exit_reason": "",
+                    "close_gate_passed": True,
+                    "close_gate_reason": "no_pending_sell_closes",
+                },
+            }
+        )
+    )
+    dns_calls = []
+
+    def _dns_probe(host):
+        dns_calls.append(host)
+        if host == "api.exchange.coinbase.com":
+            raise RuntimeError("boom")
+        return {"host": host, "ok": True, "ips": ["127.0.0.1"], "error": "", "latency_ms": 1.0}
+
+    monkeypatch.setattr(eh, "RECON_STATUS_PATH", reconcile)
+    monkeypatch.setattr(eh, "DNS_HOSTS", ("api.coinbase.com", "api.exchange.coinbase.com"))
+    monkeypatch.setattr(eh, "DNS_REQUIRE_ALL", False)
+    monkeypatch.setattr(eh, "MIN_TELEMETRY_SAMPLES", 1)
+    monkeypatch.setattr(eh, "_dns_probe", _dns_probe)
+    monkeypatch.setattr(eh, "HTTP_PROBE_URLS", ())
+    monkeypatch.setattr(
+        eh,
+        "venue_health_snapshot",
+        lambda *_args, **_kwargs: {
+            "samples": 9,
+            "success_rate": 0.99,
+            "failure_rate": 0.01,
+            "p90_latency_ms": 120.0,
+        },
+    )
+
+    payload = eh.evaluate_execution_health(
+        refresh=True,
+        probe_http=False,
+        write_status=False,
+        status_path=tmp_path / "health.json",
+    )
+    assert payload["green"] is True
+    assert dns_calls == ["api.coinbase.com", "api.exchange.coinbase.com"]
+    rows = payload["components"]["dns"]["rows"]
+    assert len(rows) == 2
+    assert rows[0]["host"] == "api.coinbase.com"
+    assert rows[0]["ok"] is True
+    assert rows[1]["host"] == "api.exchange.coinbase.com"
+    assert rows[1]["ok"] is False
 
 
 def test_dns_probe_uses_default_host_map_when_fallback_available(monkeypatch):

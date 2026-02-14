@@ -51,6 +51,23 @@ CLOSE_FLOW_MIN_CLOSE_ATTEMPTS = int(
 CLOSE_FLOW_MIN_CLOSE_COMPLETION_RATE = float(
     os.environ.get("CLOSE_FLOW_MIN_CLOSE_COMPLETION_RATE", "0.40")
 )
+GROWTH_STRICT_HOT_PROMOTION_REQUIRED = os.environ.get(
+    "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", "1"
+).lower() not in ("0", "false", "no")
+WARM_MICROLANE_ALLOW = os.environ.get("WARM_MICROLANE_ALLOW", "0").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+WARM_MICROLANE_MAX_FUNDED_BUDGET = float(
+    os.environ.get("WARM_MICROLANE_MAX_FUNDED_BUDGET", "2.0")
+)
+WARM_MICROLANE_MAX_FUNDED_STRATEGIES = int(
+    os.environ.get("WARM_MICROLANE_MAX_FUNDED_STRATEGIES", "2")
+)
+WARM_MICROLANE_REQUIRE_REALIZED_PROOF = os.environ.get(
+    "WARM_MICROLANE_REQUIRE_REALIZED_PROOF", "1"
+).lower() not in ("0", "false", "no")
 EXECUTION_HEALTH_GO_LIVE_REQUIRED = os.environ.get(
     "EXECUTION_HEALTH_GO_LIVE_REQUIRED", "1"
 ).lower() not in ("0", "false", "no")
@@ -282,6 +299,37 @@ def _evaluate_close_flow_gate(trade_flow):
     return gate
 
 
+def _hot_evidence_bootstrap_allowed(
+    pipe,
+    realized_gate_passed,
+    realized_bootstrap_override=False,
+    warm_runtime_summary=None,
+    warm_promotion_summary=None,
+):
+    if GROWTH_STRICT_HOT_PROMOTION_REQUIRED:
+        return False
+    if not WARM_MICROLANE_ALLOW:
+        return False
+
+    total_funded_budget = float(pipe.get("total_funded_budget", 0.0) or 0.0)
+    funded_strategy_count = int(pipe.get("funded_strategy_count", 0) or 0)
+    if funded_strategy_count <= 0:
+        return False
+    if total_funded_budget > WARM_MICROLANE_MAX_FUNDED_BUDGET:
+        return False
+    if funded_strategy_count > WARM_MICROLANE_MAX_FUNDED_STRATEGIES:
+        return False
+
+    if WARM_MICROLANE_REQUIRE_REALIZED_PROOF and not (
+        bool(realized_gate_passed) or bool(realized_bootstrap_override)
+    ):
+        return False
+
+    runtime_promoted_hot = int((warm_runtime_summary or {}).get("promoted_hot", 0) or 0)
+    promo_promoted_hot = int((warm_promotion_summary or {}).get("promoted_hot", 0) or 0)
+    return runtime_promoted_hot <= 0 and promo_promoted_hot <= 0
+
+
 def _activate_creative_batch(batch_id, owner="codex"):
     payload = _load_json(REGISTRY_PATH, {})
     items = payload.get("items", []) if isinstance(payload, dict) else []
@@ -390,10 +438,31 @@ def _build_decision(
     if close_flow_gate.get("enabled", False) and not close_flow_gate.get("passed", False):
         reasons.append(f"close_flow_gate_failed:{close_flow_gate.get('reason', 'unknown')}")
 
+    collector_summary = warm_collector.get("summary", {}) if isinstance(warm_collector, dict) else {}
+    promotion_summary = warm_promotion.get("summary", {}) if isinstance(warm_promotion, dict) else {}
+    hot_evidence_bootstrap = _hot_evidence_bootstrap_allowed(
+        pipe,
+        realized_gate_passed=bool(realized_gate_passed),
+        realized_bootstrap_override=bool(realized_bootstrap_override),
+        warm_runtime_summary=collector_summary,
+        warm_promotion_summary=promotion_summary,
+    )
+    hot_evidence_bootstrap_warning = ""
+    if hot_evidence_bootstrap:
+        hot_evidence_bootstrap_warning = (
+            "hot_evidence_bootstrap:"
+            f"funded_budget={total_funded_budget:.4f}:"
+            f"funded_strategies={funded_strategy_count}:"
+            f"max_budget={WARM_MICROLANE_MAX_FUNDED_BUDGET:.2f}:"
+            f"max_strategies={WARM_MICROLANE_MAX_FUNDED_STRATEGIES}"
+        )
+        warnings.append(hot_evidence_bootstrap_warning)
+
     if int(summary.get("critical_failures", 0) or 0) > 0:
         reasons.append("critical_audit_failures_present")
     if int(pipe.get("promoted_hot_events", 0) or 0) <= 0:
-        reasons.append("no_hot_promotions")
+        if not hot_evidence_bootstrap:
+            reasons.append("no_hot_promotions")
     if int(pipe.get("killed_events", 0) or 0) > 0:
         reasons.append("killed_events_detected")
     enforce_concentration_cap = total_funded_budget >= 5.0 and funded_strategy_count >= 3
@@ -416,13 +485,13 @@ def _build_decision(
         else:
             warnings.append("insufficient_funded_oos_evidence_bootstrap")
 
-    collector_summary = warm_collector.get("summary", {}) if isinstance(warm_collector, dict) else {}
     if int(collector_summary.get("promoted_hot", 0) or 0) <= 0 and int(pipe.get("promoted_hot_events", 0) or 0) <= 0:
-        reasons.append("warm_runtime_not_hot_eligible")
+        if not hot_evidence_bootstrap:
+            reasons.append("warm_runtime_not_hot_eligible")
 
-    promotion_summary = warm_promotion.get("summary", {}) if isinstance(warm_promotion, dict) else {}
     if int(promotion_summary.get("promoted_hot", 0) or 0) <= 0 and int(pipe.get("promoted_hot_events", 0) or 0) <= 0:
-        reasons.append("warm_promotion_runner_no_hot")
+        if not hot_evidence_bootstrap:
+            reasons.append("warm_promotion_runner_no_hot")
 
     go_live = len(reasons) == 0
     decision = "GO" if go_live else "NO_GO"
@@ -446,6 +515,16 @@ def _build_decision(
                 "enabled": bool(STRICT_REALIZED_BOOTSTRAP_ALLOW),
                 "max_funded_budget": float(STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET),
                 "max_funded_strategies": int(STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_STRATEGIES),
+            },
+        },
+        "hot_evidence_bootstrap": {
+            "strict_required": bool(GROWTH_STRICT_HOT_PROMOTION_REQUIRED),
+            "enabled": bool(WARM_MICROLANE_ALLOW),
+            "active": bool(hot_evidence_bootstrap),
+            "warning": hot_evidence_bootstrap_warning,
+            "limits": {
+                "max_funded_budget": float(WARM_MICROLANE_MAX_FUNDED_BUDGET),
+                "max_funded_strategies": int(WARM_MICROLANE_MAX_FUNDED_STRATEGIES),
             },
         },
         "execution_health_gate": {

@@ -252,3 +252,63 @@ def test_execution_health_gate_blocks_go_when_not_green(monkeypatch):
 
     assert decision["go_live"] is False
     assert "execution_health_not_green:dns_unhealthy" in decision["reasons"]
+
+
+def _no_promoted_warm():
+    return {"summary": {"promoted_hot": 0}}
+
+
+def test_hot_evidence_bootstrap_guard_keeps_no_go_in_strict_mode(monkeypatch):
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_MAX_FUNDED_STRATEGIES", 2)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", False)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", False)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.0
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    decision = gs._build_decision(
+        audit,
+        _no_promoted_warm(),
+        _no_promoted_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={},
+    )
+
+    assert decision["go_live"] is False
+    assert "no_hot_promotions" in decision["reasons"]
+    assert "warm_runtime_not_hot_eligible" in decision["reasons"]
+    assert "warm_promotion_runner_no_hot" in decision["reasons"]
+    assert decision["hot_evidence_bootstrap"]["active"] is False
+
+
+def test_hot_evidence_bootstrap_allows_go_when_enabled_for_micro_budget(monkeypatch):
+    monkeypatch.setattr(gs, "GROWTH_STRICT_HOT_PROMOTION_REQUIRED", False)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", True)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_MAX_FUNDED_BUDGET", 2.0)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_MAX_FUNDED_STRATEGIES", 2)
+    monkeypatch.setattr(gs, "WARM_MICROLANE_REQUIRE_REALIZED_PROOF", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", False)
+    monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", False)
+
+    audit = _base_audit()
+    audit["metrics"]["pipeline"]["promoted_hot_events"] = 0
+    audit["metrics"]["pipeline"]["total_funded_budget"] = 1.0
+    audit["metrics"]["pipeline"]["funded_strategy_count"] = 1
+    decision = gs._build_decision(
+        audit,
+        _no_promoted_warm(),
+        _no_promoted_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={"green": True, "reason": "ok"},
+    )
+
+    assert decision["go_live"] is True
+    assert "no_hot_promotions" not in decision["reasons"]
+    assert "warm_runtime_not_hot_eligible" not in decision["reasons"]
+    assert "warm_promotion_runner_no_hot" not in decision["reasons"]
+    assert decision["hot_evidence_bootstrap"]["active"] is True
+    assert any("hot_evidence_bootstrap" in w for w in decision["warnings"])

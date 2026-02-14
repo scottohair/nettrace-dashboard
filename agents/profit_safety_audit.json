@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-14T05:01:59.734888+00:00",
+  "generated_at": "2026-02-14T10:19:36.181061+00:00",
   "overall_pass": true,
   "checks": [
     {
@@ -54,14 +54,14 @@
   "metrics": {
     "quant": {
       "promoted_warm": 0,
-      "rejected_cold": 906,
+      "rejected_cold": 81,
       "no_data": 0,
       "funded_promoted": 0,
       "funded_with_oos_trades": 0
     },
     "pipeline": {
       "stage_counts": {
-        "COLD": 7377,
+        "COLD": 7407,
         "HOT": 3084,
         "WARM": 23
       },

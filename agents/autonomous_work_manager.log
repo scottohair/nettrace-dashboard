@@ -13498,3 +13498,1126 @@
 2026-02-14 01:47:58,571 [autonomous_work] INFO STRIKE base: running in execution_health_degraded mode for BUY BTC-USD
 2026-02-14 01:47:58,571 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD before execution (exit validation: explicit_target_below_required:100.50000000<=101.45000000)
 2026-02-14 01:47:58,572 [autonomous_work] INFO STRIKE base: blocked SELL BTC-USD — no tracked inventory (source=test)
+2026-02-14 01:48:24,469 [autonomous_work] INFO ResearchAgent cycle 1 starting
+2026-02-14 01:48:24,470 [autonomous_work] INFO ResearchAgent published memo (msg_id=1) with 1 price pairs, 0 signals, fear_greed=50
+2026-02-14 01:48:24,472 [autonomous_work] INFO Skipping BTC-USDC due to all signal families disabled
+2026-02-14 01:48:24,475 [autonomous_work] WARNING Circuit breaker OPEN — skipping API call (retry in 29s, reason=unknown)
+2026-02-14 01:48:24,476 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 01:48:24,477 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 01:48:24,477 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 01:48:24,478 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 01:48:24,478 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 01:48:24,479 [autonomous_work] ERROR Circuit breaker OPEN — 3 consecutive failures, pausing for 30s (reason=request_failures)
+2026-02-14 01:48:24,479 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 01:48:24,480 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-14 01:48:24,480 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 01:48:24,482 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_green)
+2026-02-14 01:48:24,482 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 01:48:24,483 [autonomous_work] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-14 01:48:24,484 [autonomous_work] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 1] Operation not permitted>
+2026-02-14 01:48:24,485 [autonomous_work] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 01:48:24,485 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 01:48:24,486 [autonomous_work] INFO Placing LIMIT buy: BTC-USD 1.2345 @ $27500.98 (post_only=True)
+2026-02-14 01:48:24,487 [autonomous_work] ERROR Limit order blocked: limit_price must be a positive finite number: -10.0
+2026-02-14 01:48:24,488 [autonomous_work] INFO Placing buy order: BTC-USD 100.0 @ market
+2026-02-14 01:48:24,489 [autonomous_work] ERROR Order blocked: Invalid order_type 'post_only'. Supported values: market
+2026-02-14 01:48:24,490 [autonomous_work] ERROR Order blocked: Invalid product_id: ''
+2026-02-14 01:48:24,490 [autonomous_work] ERROR Order blocked: Invalid side: 'HODL'
+2026-02-14 01:48:24,491 [autonomous_work] ERROR Order blocked: size must be a positive finite number: nan
+2026-02-14 01:48:24,492 [autonomous_work] ERROR Limit order blocked: Notional gate: $12.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:48:24,493 [autonomous_work] ERROR Order blocked: Notional gate: $25.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:48:24,494 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:48:24,496 [autonomous_work] INFO Placing BUY order: BTC-USD 20.0 @ market
+2026-02-14 01:48:24,497 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:48:24,518 [autonomous_work] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=1
+2026-02-14 01:48:24,519 [autonomous_work] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=203.0.113.10 trigger=dns_exception
+2026-02-14 01:48:24,520 [autonomous_work] ERROR Coinbase API error 400: Bad Request
+2026-02-14 01:48:24,521 [autonomous_work] WARNING Coinbase API 500 (attempt 1/1) — retrying in 0.5s: Server Error
+2026-02-14 01:48:24,522 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'Server Error', 'status': 500}
+2026-02-14 01:48:24,523 [autonomous_work] WARNING Coinbase API 500 (attempt 1/3) — retrying in 0.5s: Server Error
+2026-02-14 01:48:24,536 [autonomous_work] WARNING Trade queue file was corrupt; reinitializing /var/folders/b3/6p274r7s3t39lyv82xjd_c1c0000gn/T/tmp1c2sp4q9/trade_queue.json
+2026-02-14 01:48:24,537 [autonomous_work] WARNING Skipping invalid trade record for queue write
+2026-02-14 01:48:24,538 [autonomous_work] INFO ExecutionAgent cycle 7 starting (mode=queue)
+2026-02-14 01:48:24,611 [autonomous_work] INFO EXIT EXECUTING: TAKE_PROFIT_TP1 BTC-USDC | amount=0.00030000 | value=$30.30 | reason=test | route=coinbase
+2026-02-14 01:48:24,611 [autonomous_work] INFO EXIT FILLED: BTC-USDC | order=test123 | PnL=$0.3000 (1.00%) | held 0.0h
+2026-02-14 01:48:24,613 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 01:48:24,613 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 01:48:24,613 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 01:48:24,614 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 01:48:24,614 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 01:48:24,614 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 01:48:24,614 [autonomous_work] INFO ================================================
+2026-02-14 01:48:24,615 [autonomous_work] INFO Primary region ewr: starting 2 agents from manifest
+2026-02-14 01:48:24,615 [autonomous_work] INFO Agent 'capital_allocator' starting (attempt 1)
+2026-02-14 01:48:24,615 [autonomous_work] INFO Agent 'capital_allocator' exited normally
+2026-02-14 01:48:24,615 [autonomous_work] INFO Assistant created for agent 'capital_allocator' in region 'local'
+2026-02-14 01:48:24,616 [autonomous_work] INFO Started agent thread: capital_allocator (tid=6119239680)
+2026-02-14 01:48:24,616 [autonomous_work] INFO Agent 'sniper' starting (attempt 1)
+2026-02-14 01:48:24,616 [autonomous_work] INFO Assistant created for agent 'sniper' in region 'local'
+2026-02-14 01:48:24,616 [autonomous_work] INFO Agent 'sniper' exited normally
+2026-02-14 01:48:24,617 [autonomous_work] INFO Started agent thread: sniper (tid=6119239680)
+2026-02-14 01:48:24,617 [autonomous_work] INFO Started 2 agent(s) in region ewr: ['capital_allocator', 'sniper']
+2026-02-14 01:48:24,618 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 01:48:24,618 [autonomous_work] INFO heartbeat region=ewr agents=2 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 01:48:24,642 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:25,153 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:26,168 [autonomous_work] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:26,169 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-14 01:48:26,169 [autonomous_work] INFO Agent runner stopped
+2026-02-14 01:48:26,170 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 01:48:26,170 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 01:48:26,170 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 01:48:26,171 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 01:48:26,171 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 01:48:26,171 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 01:48:26,172 [autonomous_work] INFO ================================================
+2026-02-14 01:48:26,172 [autonomous_work] INFO Started 0 agent(s) in region ewr: []
+2026-02-14 01:48:26,172 [autonomous_work] WARNING Agent runner already running
+2026-02-14 01:48:26,173 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 01:48:26,173 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 01:48:26,174 [autonomous_work] INFO heartbeat region=ewr agents=0 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 01:48:26,176 [autonomous_work] INFO EXECUTING: BUY BTC-USD | $100.00 @ $30000.00 | signal=test conf=0.90
+2026-02-14 01:48:26,177 [autonomous_work] INFO ORDER FILLED: BTC-USD | order_id=order-xyz | route=market_ioc_fallback
+2026-02-14 01:48:26,181 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:26,187 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,191 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,194 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,197 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,203 [autonomous_work] INFO TRADE 3f9aa2ae-a04: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:26,206 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,213 [autonomous_work] INFO TRADE d3405670-b17: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:26,215 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,216 [autonomous_work] INFO TRADE 4a891594-e34: APPROVED test_agent BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:26,218 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,221 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,222 [autonomous_work] INFO TRADE 50f608e1-99b: APPROVED agent_liq BUY BTC-USDC $4.00 (vol=0.020)
+2026-02-14 01:48:26,224 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,225 [autonomous_work] INFO TRADE 1dbfaf76-7ec: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:26,228 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,233 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,240 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,241 [autonomous_work] INFO TRADE 22781f17-e09: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:26,246 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,247 [autonomous_work] INFO TRADE 05855ef7-548: APPROVED agent_a BUY BTC-USDC $20.00 (vol=0.000)
+2026-02-14 01:48:26,247 [autonomous_work] INFO TRADE 73bbe022-594: APPROVED agent_a BUY BTC-USDC $9.00 (vol=0.000)
+2026-02-14 01:48:26,254 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,256 [autonomous_work] INFO TRADE c3c8bbe2-2c3: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 01:48:26,259 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,260 [autonomous_work] INFO TRADE 26879340-157: APPROVED agent_0 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,261 [autonomous_work] INFO TRADE 469ee208-7d6: APPROVED agent_1 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,261 [autonomous_work] INFO TRADE 7eaa4b66-0ae: APPROVED agent_2 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,262 [autonomous_work] INFO TRADE 70ed9168-9d7: APPROVED agent_3 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,262 [autonomous_work] INFO TRADE f2f15d14-e36: APPROVED agent_4 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,262 [autonomous_work] INFO TRADE 1282cc85-c4b: APPROVED agent_5 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,263 [autonomous_work] INFO TRADE 135bcefd-ab2: APPROVED agent_6 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,263 [autonomous_work] INFO TRADE 251a7be4-60c: APPROVED agent_7 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,263 [autonomous_work] INFO TRADE 5b376a97-86e: APPROVED agent_8 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,264 [autonomous_work] INFO TRADE 3d4aa74d-2ec: APPROVED agent_9 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,264 [autonomous_work] INFO TRADE 5b0dd7ff-45c: APPROVED agent_10 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,264 [autonomous_work] INFO TRADE 0bdee473-071: APPROVED agent_11 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,265 [autonomous_work] INFO TRADE 247f2f06-63d: APPROVED agent_12 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,265 [autonomous_work] INFO TRADE 3f93d8d2-3ad: APPROVED agent_13 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,265 [autonomous_work] INFO TRADE e4ee0567-16b: APPROVED agent_14 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,266 [autonomous_work] INFO TRADE 139ab2b1-339: APPROVED agent_15 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,266 [autonomous_work] INFO TRADE b14427dc-185: APPROVED agent_16 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,267 [autonomous_work] INFO TRADE 206d32e6-1ca: APPROVED agent_17 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,267 [autonomous_work] INFO TRADE c07bdb6c-2dd: APPROVED agent_18 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,268 [autonomous_work] INFO TRADE 05242848-a01: APPROVED agent_19 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,268 [autonomous_work] INFO TRADE 0a4984d5-afe: APPROVED agent_20 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,268 [autonomous_work] INFO TRADE 6f543c21-70e: APPROVED agent_21 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,269 [autonomous_work] INFO TRADE e0ddd92b-f27: APPROVED agent_22 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,269 [autonomous_work] INFO TRADE eaa9c099-ed8: APPROVED agent_23 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,269 [autonomous_work] INFO TRADE 4ed011e5-157: APPROVED agent_24 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,270 [autonomous_work] INFO TRADE 19fc61a6-1fa: APPROVED agent_25 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,270 [autonomous_work] INFO TRADE dcede88c-617: APPROVED agent_26 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,270 [autonomous_work] INFO TRADE 887a0691-41a: APPROVED agent_27 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,271 [autonomous_work] INFO TRADE 722439d7-665: APPROVED agent_28 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,271 [autonomous_work] INFO TRADE d623e288-b51: APPROVED agent_29 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,272 [autonomous_work] INFO TRADE 26c05a2a-80b: APPROVED agent_30 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,272 [autonomous_work] INFO TRADE d11d359e-de4: APPROVED agent_31 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,272 [autonomous_work] INFO TRADE a49ea873-4a5: APPROVED agent_32 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,273 [autonomous_work] INFO TRADE 35e0de0d-7ce: APPROVED agent_33 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,273 [autonomous_work] INFO TRADE 013b7bc6-2fb: APPROVED agent_34 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,273 [autonomous_work] INFO TRADE d7b01add-ddb: APPROVED agent_35 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,274 [autonomous_work] INFO TRADE 562b63e2-858: APPROVED agent_36 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,274 [autonomous_work] INFO TRADE b5f67732-c24: APPROVED agent_37 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,275 [autonomous_work] INFO TRADE aef9a626-8bb: APPROVED agent_38 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,275 [autonomous_work] INFO TRADE b1d52151-575: APPROVED agent_39 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,275 [autonomous_work] INFO TRADE dc3951ea-d2e: APPROVED agent_40 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,276 [autonomous_work] INFO TRADE 29d7ddab-74f: APPROVED agent_41 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,276 [autonomous_work] INFO TRADE 2732c3e3-e2e: APPROVED agent_42 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,276 [autonomous_work] INFO TRADE b2b6cfcb-c74: APPROVED agent_43 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,277 [autonomous_work] INFO TRADE db82e4ac-f72: APPROVED agent_44 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,277 [autonomous_work] INFO TRADE 9c95e4bf-776: APPROVED agent_45 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,277 [autonomous_work] INFO TRADE 7f134b1e-733: APPROVED agent_46 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,278 [autonomous_work] INFO TRADE 2913219e-0cd: APPROVED agent_47 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,278 [autonomous_work] INFO TRADE 35eee2bb-578: APPROVED agent_48 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,278 [autonomous_work] INFO TRADE c00092e2-633: APPROVED agent_49 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,279 [autonomous_work] INFO TRADE a143334c-805: APPROVED agent_50 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,280 [autonomous_work] INFO TRADE 3cb922f4-347: APPROVED agent_51 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,280 [autonomous_work] INFO TRADE 818d8587-7f3: APPROVED agent_52 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,280 [autonomous_work] INFO TRADE 8868dd0c-90d: APPROVED agent_53 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,281 [autonomous_work] INFO TRADE 798aa41c-b32: APPROVED agent_54 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,281 [autonomous_work] INFO TRADE c965f7a8-d49: APPROVED agent_55 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,281 [autonomous_work] INFO TRADE c8ff3562-b52: APPROVED agent_56 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,282 [autonomous_work] INFO TRADE 5ee6d93f-6f9: APPROVED agent_57 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,282 [autonomous_work] INFO TRADE fcc3a184-8d8: APPROVED agent_58 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,282 [autonomous_work] INFO TRADE d42ce8ff-567: APPROVED agent_59 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,283 [autonomous_work] INFO TRADE 7045e820-42c: APPROVED agent_60 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,283 [autonomous_work] INFO TRADE b5327d7c-26e: APPROVED agent_61 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,283 [autonomous_work] INFO TRADE 4579a043-cb7: APPROVED agent_62 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,284 [autonomous_work] INFO TRADE 3735b38a-86c: APPROVED agent_63 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,284 [autonomous_work] INFO TRADE 127d18d7-747: APPROVED agent_64 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,285 [autonomous_work] INFO TRADE ac6a4585-388: APPROVED agent_65 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,285 [autonomous_work] INFO TRADE b332dde7-775: APPROVED agent_66 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,285 [autonomous_work] INFO TRADE 52b15b79-001: APPROVED agent_67 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,286 [autonomous_work] INFO TRADE 5fbac13e-069: APPROVED agent_68 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,286 [autonomous_work] INFO TRADE 07673e23-487: APPROVED agent_69 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,286 [autonomous_work] INFO TRADE efaf51d0-e0f: APPROVED agent_70 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,288 [autonomous_work] INFO TRADE 28700b29-8df: APPROVED agent_71 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,288 [autonomous_work] INFO TRADE 522421d1-7cd: APPROVED agent_72 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,288 [autonomous_work] INFO TRADE 036e90d5-2b0: APPROVED agent_73 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,289 [autonomous_work] INFO TRADE 0df183dc-897: APPROVED agent_74 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,289 [autonomous_work] INFO TRADE 58177f62-35e: APPROVED agent_75 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,290 [autonomous_work] INFO TRADE c53090a9-7c2: APPROVED agent_76 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,290 [autonomous_work] INFO TRADE 630f95a3-1bd: APPROVED agent_77 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,290 [autonomous_work] INFO TRADE 95ba90d6-9dc: APPROVED agent_78 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,291 [autonomous_work] INFO TRADE a0415caf-8f5: APPROVED agent_79 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,291 [autonomous_work] INFO TRADE dd8842a7-0b2: APPROVED agent_80 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,291 [autonomous_work] INFO TRADE fb2e99f3-c82: APPROVED agent_81 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,292 [autonomous_work] INFO TRADE 69618137-359: APPROVED agent_82 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,292 [autonomous_work] INFO TRADE 18f99c5a-ab0: APPROVED agent_83 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,293 [autonomous_work] INFO TRADE 4dc1f376-782: APPROVED agent_84 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,293 [autonomous_work] INFO TRADE aa88095d-923: APPROVED agent_85 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,293 [autonomous_work] INFO TRADE adbaae97-009: APPROVED agent_86 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,294 [autonomous_work] INFO TRADE 6c95076a-b69: APPROVED agent_87 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,294 [autonomous_work] INFO TRADE 2c352c5f-8d9: APPROVED agent_88 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,294 [autonomous_work] INFO TRADE f3773faa-6f0: APPROVED agent_89 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,295 [autonomous_work] INFO TRADE 8640819b-947: APPROVED agent_90 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,295 [autonomous_work] INFO TRADE 3f00abe5-4f1: APPROVED agent_91 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,295 [autonomous_work] INFO TRADE ac4a6b05-d8a: APPROVED agent_92 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,296 [autonomous_work] INFO TRADE d296c43e-de0: APPROVED agent_93 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,296 [autonomous_work] INFO TRADE 8d35667c-be3: APPROVED agent_94 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,296 [autonomous_work] INFO TRADE 24ff91f2-8d3: APPROVED agent_95 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,297 [autonomous_work] INFO TRADE cc69d34d-494: APPROVED agent_96 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,297 [autonomous_work] INFO TRADE 42ef05de-13b: APPROVED agent_97 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:26,301 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:26,302 [autonomous_work] INFO TRADE 977c982d-d2d: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 01:48:26,697 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:27,100 [autonomous_work] INFO STRIKE base: BUY throttled on BTC-USD (sell_close_rate=25.00% target=75.00% obs=4)
+2026-02-14 01:48:27,102 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD due to execution health gate (dns_unhealthy)
+2026-02-14 01:48:27,271 [autonomous_work] INFO STRIKE base: running in execution_health_degraded mode for BUY BTC-USD
+2026-02-14 01:48:27,271 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD before execution (exit validation: explicit_target_below_required:100.50000000<=101.45000000)
+2026-02-14 01:48:27,271 [autonomous_work] INFO STRIKE base: blocked SELL BTC-USD — no tracked inventory (source=test)
+2026-02-14 01:48:51,875 [autonomous_work] INFO ResearchAgent cycle 1 starting
+2026-02-14 01:48:51,876 [autonomous_work] INFO ResearchAgent published memo (msg_id=1) with 1 price pairs, 0 signals, fear_greed=50
+2026-02-14 01:48:51,878 [autonomous_work] INFO Skipping BTC-USDC due to all signal families disabled
+2026-02-14 01:48:51,882 [autonomous_work] WARNING Circuit breaker OPEN — skipping API call (retry in 29s, reason=unknown)
+2026-02-14 01:48:51,883 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 01:48:51,883 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 01:48:51,885 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 01:48:51,885 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 01:48:51,886 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 01:48:51,886 [autonomous_work] ERROR Circuit breaker OPEN — 3 consecutive failures, pausing for 30s (reason=request_failures)
+2026-02-14 01:48:51,886 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 01:48:51,887 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-14 01:48:51,887 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 01:48:51,889 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_green)
+2026-02-14 01:48:51,889 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 01:48:51,891 [autonomous_work] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-14 01:48:51,891 [autonomous_work] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 1] Operation not permitted>
+2026-02-14 01:48:51,892 [autonomous_work] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 01:48:51,892 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 01:48:51,893 [autonomous_work] INFO Placing LIMIT buy: BTC-USD 1.2345 @ $27500.98 (post_only=True)
+2026-02-14 01:48:51,894 [autonomous_work] ERROR Limit order blocked: limit_price must be a positive finite number: -10.0
+2026-02-14 01:48:51,895 [autonomous_work] INFO Placing buy order: BTC-USD 100.0 @ market
+2026-02-14 01:48:51,896 [autonomous_work] ERROR Order blocked: Invalid order_type 'post_only'. Supported values: market
+2026-02-14 01:48:51,896 [autonomous_work] ERROR Order blocked: Invalid product_id: ''
+2026-02-14 01:48:51,897 [autonomous_work] ERROR Order blocked: Invalid side: 'HODL'
+2026-02-14 01:48:51,898 [autonomous_work] ERROR Order blocked: size must be a positive finite number: nan
+2026-02-14 01:48:51,899 [autonomous_work] ERROR Limit order blocked: Notional gate: $12.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:48:51,900 [autonomous_work] ERROR Order blocked: Notional gate: $25.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:48:51,901 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:48:51,902 [autonomous_work] INFO Placing BUY order: BTC-USD 20.0 @ market
+2026-02-14 01:48:51,903 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:48:51,922 [autonomous_work] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=1
+2026-02-14 01:48:51,923 [autonomous_work] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=203.0.113.10 trigger=dns_exception
+2026-02-14 01:48:51,924 [autonomous_work] ERROR Coinbase API error 400: Bad Request
+2026-02-14 01:48:51,926 [autonomous_work] WARNING Coinbase API 500 (attempt 1/1) — retrying in 0.5s: Server Error
+2026-02-14 01:48:51,926 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'Server Error', 'status': 500}
+2026-02-14 01:48:51,928 [autonomous_work] WARNING Coinbase API 500 (attempt 1/3) — retrying in 0.5s: Server Error
+2026-02-14 01:48:51,937 [autonomous_work] WARNING Trade queue file was corrupt; reinitializing /var/folders/b3/6p274r7s3t39lyv82xjd_c1c0000gn/T/tmpetcg2y1y/trade_queue.json
+2026-02-14 01:48:51,937 [autonomous_work] WARNING Skipping invalid trade record for queue write
+2026-02-14 01:48:51,938 [autonomous_work] INFO ExecutionAgent cycle 7 starting (mode=queue)
+2026-02-14 01:48:52,005 [autonomous_work] INFO EXIT EXECUTING: TAKE_PROFIT_TP1 BTC-USDC | amount=0.00030000 | value=$30.30 | reason=test | route=coinbase
+2026-02-14 01:48:52,006 [autonomous_work] INFO EXIT FILLED: BTC-USDC | order=test123 | PnL=$0.3000 (1.00%) | held 0.0h
+2026-02-14 01:48:52,008 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 01:48:52,009 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 01:48:52,009 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 01:48:52,009 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 01:48:52,009 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 01:48:52,010 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 01:48:52,010 [autonomous_work] INFO ================================================
+2026-02-14 01:48:52,010 [autonomous_work] INFO Primary region ewr: starting 2 agents from manifest
+2026-02-14 01:48:52,010 [autonomous_work] INFO Agent 'capital_allocator' starting (attempt 1)
+2026-02-14 01:48:52,011 [autonomous_work] INFO Assistant created for agent 'capital_allocator' in region 'local'
+2026-02-14 01:48:52,011 [autonomous_work] INFO Agent 'capital_allocator' exited normally
+2026-02-14 01:48:52,011 [autonomous_work] INFO Started agent thread: capital_allocator (tid=6177533952)
+2026-02-14 01:48:52,012 [autonomous_work] INFO Agent 'sniper' starting (attempt 1)
+2026-02-14 01:48:52,012 [autonomous_work] INFO Assistant created for agent 'sniper' in region 'local'
+2026-02-14 01:48:52,012 [autonomous_work] INFO Agent 'sniper' exited normally
+2026-02-14 01:48:52,012 [autonomous_work] INFO Started agent thread: sniper (tid=6177533952)
+2026-02-14 01:48:52,013 [autonomous_work] INFO Started 2 agent(s) in region ewr: ['capital_allocator', 'sniper']
+2026-02-14 01:48:52,013 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 01:48:52,013 [autonomous_work] INFO heartbeat region=ewr agents=2 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 01:48:52,041 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:52,556 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:53,572 [autonomous_work] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:53,573 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-14 01:48:53,574 [autonomous_work] INFO Agent runner stopped
+2026-02-14 01:48:53,575 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 01:48:53,575 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 01:48:53,576 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 01:48:53,576 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 01:48:53,576 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 01:48:53,577 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 01:48:53,577 [autonomous_work] INFO ================================================
+2026-02-14 01:48:53,578 [autonomous_work] INFO Started 0 agent(s) in region ewr: []
+2026-02-14 01:48:53,578 [autonomous_work] WARNING Agent runner already running
+2026-02-14 01:48:53,579 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 01:48:53,579 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 01:48:53,580 [autonomous_work] INFO heartbeat region=ewr agents=0 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 01:48:53,583 [autonomous_work] INFO EXECUTING: BUY BTC-USD | $100.00 @ $30000.00 | signal=test conf=0.90
+2026-02-14 01:48:53,583 [autonomous_work] INFO ORDER FILLED: BTC-USD | order_id=order-xyz | route=market_ioc_fallback
+2026-02-14 01:48:53,588 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:53,597 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,601 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,606 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,609 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,615 [autonomous_work] INFO TRADE 5f4b587d-435: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:53,619 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,624 [autonomous_work] INFO TRADE cb364786-c7a: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:53,627 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,628 [autonomous_work] INFO TRADE bbd50708-890: APPROVED test_agent BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:53,630 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,634 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,635 [autonomous_work] INFO TRADE 9c3abdd9-5b8: APPROVED agent_liq BUY BTC-USDC $4.00 (vol=0.020)
+2026-02-14 01:48:53,637 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,638 [autonomous_work] INFO TRADE 24bffebe-57c: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:53,641 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,643 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,646 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,647 [autonomous_work] INFO TRADE ae2d9160-d0e: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:48:53,650 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,652 [autonomous_work] INFO TRADE cf3e5bf0-70f: APPROVED agent_a BUY BTC-USDC $20.00 (vol=0.000)
+2026-02-14 01:48:53,652 [autonomous_work] INFO TRADE fb672f0e-18b: APPROVED agent_a BUY BTC-USDC $9.00 (vol=0.000)
+2026-02-14 01:48:53,655 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,657 [autonomous_work] INFO TRADE 599c6aae-882: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 01:48:53,660 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,661 [autonomous_work] INFO TRADE e46bc532-449: APPROVED agent_0 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,661 [autonomous_work] INFO TRADE d4e994e1-b91: APPROVED agent_1 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,662 [autonomous_work] INFO TRADE b3a22edb-b0f: APPROVED agent_2 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,662 [autonomous_work] INFO TRADE d3a69bce-92c: APPROVED agent_3 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,663 [autonomous_work] INFO TRADE 55b24808-abc: APPROVED agent_4 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,663 [autonomous_work] INFO TRADE 2734720d-982: APPROVED agent_5 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,663 [autonomous_work] INFO TRADE 6519ef14-fa4: APPROVED agent_6 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,664 [autonomous_work] INFO TRADE bfe45192-a02: APPROVED agent_7 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,664 [autonomous_work] INFO TRADE 9f86d045-723: APPROVED agent_8 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,664 [autonomous_work] INFO TRADE 0038a8aa-f03: APPROVED agent_9 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,665 [autonomous_work] INFO TRADE 05ce282a-5e6: APPROVED agent_10 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,665 [autonomous_work] INFO TRADE 7983276e-41d: APPROVED agent_11 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,666 [autonomous_work] INFO TRADE 6493c20b-948: APPROVED agent_12 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,666 [autonomous_work] INFO TRADE 8d4d85f3-ba2: APPROVED agent_13 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,666 [autonomous_work] INFO TRADE 596135da-339: APPROVED agent_14 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,667 [autonomous_work] INFO TRADE 33808146-b97: APPROVED agent_15 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,667 [autonomous_work] INFO TRADE f79104e0-e6b: APPROVED agent_16 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,667 [autonomous_work] INFO TRADE 0941dc3d-d8a: APPROVED agent_17 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,668 [autonomous_work] INFO TRADE 6c8f4060-5dc: APPROVED agent_18 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,668 [autonomous_work] INFO TRADE de81bb3b-129: APPROVED agent_19 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,668 [autonomous_work] INFO TRADE 809b8e83-11c: APPROVED agent_20 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,669 [autonomous_work] INFO TRADE 6d817e65-d3b: APPROVED agent_21 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,669 [autonomous_work] INFO TRADE 37339126-6fd: APPROVED agent_22 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,669 [autonomous_work] INFO TRADE 0e26091b-6b8: APPROVED agent_23 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,670 [autonomous_work] INFO TRADE bba1fde4-c05: APPROVED agent_24 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,670 [autonomous_work] INFO TRADE a6170d0d-b55: APPROVED agent_25 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,671 [autonomous_work] INFO TRADE 6c142e72-7b1: APPROVED agent_26 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,671 [autonomous_work] INFO TRADE 9cf8a97d-6f1: APPROVED agent_27 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,671 [autonomous_work] INFO TRADE beedbf90-e79: APPROVED agent_28 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,672 [autonomous_work] INFO TRADE c973a503-bb5: APPROVED agent_29 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,673 [autonomous_work] INFO TRADE fb45172d-dce: APPROVED agent_30 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,673 [autonomous_work] INFO TRADE 0d31d37a-cd6: APPROVED agent_31 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,673 [autonomous_work] INFO TRADE 49e73450-458: APPROVED agent_32 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,674 [autonomous_work] INFO TRADE 2707fd14-5a1: APPROVED agent_33 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,674 [autonomous_work] INFO TRADE df8c696e-1f9: APPROVED agent_34 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,675 [autonomous_work] INFO TRADE 9680ea43-026: APPROVED agent_35 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,675 [autonomous_work] INFO TRADE 07d835d0-84d: APPROVED agent_36 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,675 [autonomous_work] INFO TRADE 3275a618-a4f: APPROVED agent_37 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,676 [autonomous_work] INFO TRADE e7131d14-7d3: APPROVED agent_38 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,676 [autonomous_work] INFO TRADE e505a385-88b: APPROVED agent_39 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,676 [autonomous_work] INFO TRADE fe20a95a-893: APPROVED agent_40 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,677 [autonomous_work] INFO TRADE b395cc27-2d4: APPROVED agent_41 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,677 [autonomous_work] INFO TRADE 5789548d-835: APPROVED agent_42 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,677 [autonomous_work] INFO TRADE 148d720d-6af: APPROVED agent_43 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,678 [autonomous_work] INFO TRADE 9e441f2b-da5: APPROVED agent_44 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,678 [autonomous_work] INFO TRADE 5ebe87cb-e3e: APPROVED agent_45 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,678 [autonomous_work] INFO TRADE fb035252-cee: APPROVED agent_46 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,679 [autonomous_work] INFO TRADE b0d910bb-894: APPROVED agent_47 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,679 [autonomous_work] INFO TRADE 27f16ad9-4ae: APPROVED agent_48 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,679 [autonomous_work] INFO TRADE d2171eb2-510: APPROVED agent_49 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,680 [autonomous_work] INFO TRADE a4151e70-e89: APPROVED agent_50 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,680 [autonomous_work] INFO TRADE c811806b-7da: APPROVED agent_51 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,681 [autonomous_work] INFO TRADE fbcba4bc-672: APPROVED agent_52 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,681 [autonomous_work] INFO TRADE 2b099d95-e0c: APPROVED agent_53 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,681 [autonomous_work] INFO TRADE cff35fce-069: APPROVED agent_54 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,682 [autonomous_work] INFO TRADE 966f3dc5-443: APPROVED agent_55 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,682 [autonomous_work] INFO TRADE de9b6855-117: APPROVED agent_56 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,682 [autonomous_work] INFO TRADE a9e8e775-a7f: APPROVED agent_57 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,683 [autonomous_work] INFO TRADE 6ee45ba9-011: APPROVED agent_58 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,683 [autonomous_work] INFO TRADE d4ac05fd-6d6: APPROVED agent_59 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,684 [autonomous_work] INFO TRADE e84a278c-df0: APPROVED agent_60 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,684 [autonomous_work] INFO TRADE b03f45e3-3c4: APPROVED agent_61 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,685 [autonomous_work] INFO TRADE 6ca80a65-8da: APPROVED agent_62 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,685 [autonomous_work] INFO TRADE 8195f9d7-5aa: APPROVED agent_63 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,685 [autonomous_work] INFO TRADE 4164508d-906: APPROVED agent_64 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,686 [autonomous_work] INFO TRADE 2644e632-26a: APPROVED agent_65 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,686 [autonomous_work] INFO TRADE 5632346e-4bd: APPROVED agent_66 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,686 [autonomous_work] INFO TRADE 3425784e-c9d: APPROVED agent_67 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,687 [autonomous_work] INFO TRADE 25f82014-130: APPROVED agent_68 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,687 [autonomous_work] INFO TRADE 8033fb15-6b2: APPROVED agent_69 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,687 [autonomous_work] INFO TRADE 19cfae5c-dcd: APPROVED agent_70 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,688 [autonomous_work] INFO TRADE eea67157-b50: APPROVED agent_71 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,688 [autonomous_work] INFO TRADE b0c1da10-04e: APPROVED agent_72 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,689 [autonomous_work] INFO TRADE 2262c504-fef: APPROVED agent_73 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,689 [autonomous_work] INFO TRADE 8593edb9-f3d: APPROVED agent_74 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,689 [autonomous_work] INFO TRADE 5ee2dea7-970: APPROVED agent_75 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,690 [autonomous_work] INFO TRADE af033d11-9ef: APPROVED agent_76 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,690 [autonomous_work] INFO TRADE 49c78c35-9fd: APPROVED agent_77 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,690 [autonomous_work] INFO TRADE d4650fdf-f00: APPROVED agent_78 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,691 [autonomous_work] INFO TRADE 900afe79-a57: APPROVED agent_79 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,691 [autonomous_work] INFO TRADE 1a98eb27-b55: APPROVED agent_80 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,691 [autonomous_work] INFO TRADE 7b83882c-61e: APPROVED agent_81 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,692 [autonomous_work] INFO TRADE 43a2f097-705: APPROVED agent_82 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,692 [autonomous_work] INFO TRADE 766418e6-ee4: APPROVED agent_83 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,693 [autonomous_work] INFO TRADE 5a087b0e-137: APPROVED agent_84 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,693 [autonomous_work] INFO TRADE 27d41ca4-5a3: APPROVED agent_85 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,693 [autonomous_work] INFO TRADE bb56b504-bf7: APPROVED agent_86 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,694 [autonomous_work] INFO TRADE fafc1987-142: APPROVED agent_87 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,694 [autonomous_work] INFO TRADE 74ebd26a-072: APPROVED agent_88 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,695 [autonomous_work] INFO TRADE 2dfe241b-008: APPROVED agent_89 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,695 [autonomous_work] INFO TRADE 91ac57fe-fc9: APPROVED agent_90 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,695 [autonomous_work] INFO TRADE 8c93f815-ec3: APPROVED agent_91 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,696 [autonomous_work] INFO TRADE 2e94f64c-6e4: APPROVED agent_92 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,696 [autonomous_work] INFO TRADE c4e881f6-457: APPROVED agent_93 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,696 [autonomous_work] INFO TRADE 68763c70-f7d: APPROVED agent_94 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,697 [autonomous_work] INFO TRADE 1ea000a5-8e7: APPROVED agent_95 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,697 [autonomous_work] INFO TRADE 169cb97a-7db: APPROVED agent_96 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,697 [autonomous_work] INFO TRADE 81f48ad7-24c: APPROVED agent_97 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:48:53,701 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:48:53,702 [autonomous_work] INFO TRADE c9193ecf-a2f: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 01:48:54,102 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:48:54,495 [autonomous_work] INFO STRIKE base: BUY throttled on BTC-USD (sell_close_rate=25.00% target=75.00% obs=4)
+2026-02-14 01:48:54,497 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD due to execution health gate (dns_unhealthy)
+2026-02-14 01:48:54,671 [autonomous_work] INFO STRIKE base: running in execution_health_degraded mode for BUY BTC-USD
+2026-02-14 01:48:54,672 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD before execution (exit validation: explicit_target_below_required:100.50000000<=101.45000000)
+2026-02-14 01:48:54,673 [autonomous_work] INFO STRIKE base: blocked SELL BTC-USD — no tracked inventory (source=test)
+2026-02-14 01:49:23,506 [autonomous_work] INFO ResearchAgent cycle 1 starting
+2026-02-14 01:49:23,507 [autonomous_work] INFO ResearchAgent published memo (msg_id=1) with 1 price pairs, 0 signals, fear_greed=50
+2026-02-14 01:49:23,509 [autonomous_work] INFO Skipping BTC-USDC due to all signal families disabled
+2026-02-14 01:49:23,512 [autonomous_work] WARNING Circuit breaker OPEN — skipping API call (retry in 29s, reason=unknown)
+2026-02-14 01:49:23,513 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 01:49:23,514 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 01:49:23,515 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 01:49:23,515 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 01:49:23,515 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 01:49:23,516 [autonomous_work] ERROR Circuit breaker OPEN — 3 consecutive failures, pausing for 30s (reason=request_failures)
+2026-02-14 01:49:23,516 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 01:49:23,517 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-14 01:49:23,517 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 01:49:23,518 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_green)
+2026-02-14 01:49:23,519 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 01:49:23,520 [autonomous_work] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-14 01:49:23,521 [autonomous_work] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 1] Operation not permitted>
+2026-02-14 01:49:23,521 [autonomous_work] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 01:49:23,521 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 01:49:23,522 [autonomous_work] INFO Placing LIMIT buy: BTC-USD 1.2345 @ $27500.98 (post_only=True)
+2026-02-14 01:49:23,524 [autonomous_work] ERROR Limit order blocked: limit_price must be a positive finite number: -10.0
+2026-02-14 01:49:23,525 [autonomous_work] INFO Placing buy order: BTC-USD 100.0 @ market
+2026-02-14 01:49:23,526 [autonomous_work] ERROR Order blocked: Invalid order_type 'post_only'. Supported values: market
+2026-02-14 01:49:23,527 [autonomous_work] ERROR Order blocked: Invalid product_id: ''
+2026-02-14 01:49:23,527 [autonomous_work] ERROR Order blocked: Invalid side: 'HODL'
+2026-02-14 01:49:23,528 [autonomous_work] ERROR Order blocked: size must be a positive finite number: nan
+2026-02-14 01:49:23,529 [autonomous_work] ERROR Limit order blocked: Notional gate: $12.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:49:23,530 [autonomous_work] ERROR Order blocked: Notional gate: $25.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:49:23,532 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:49:23,533 [autonomous_work] INFO Placing BUY order: BTC-USD 20.0 @ market
+2026-02-14 01:49:23,534 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 01:49:23,555 [autonomous_work] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=1
+2026-02-14 01:49:23,556 [autonomous_work] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=203.0.113.10 trigger=dns_exception
+2026-02-14 01:49:23,558 [autonomous_work] ERROR Coinbase API error 400: Bad Request
+2026-02-14 01:49:23,559 [autonomous_work] WARNING Coinbase API 500 (attempt 1/1) — retrying in 0.5s: Server Error
+2026-02-14 01:49:23,559 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'Server Error', 'status': 500}
+2026-02-14 01:49:23,561 [autonomous_work] WARNING Coinbase API 500 (attempt 1/3) — retrying in 0.5s: Server Error
+2026-02-14 01:49:23,571 [autonomous_work] WARNING Trade queue file was corrupt; reinitializing /var/folders/b3/6p274r7s3t39lyv82xjd_c1c0000gn/T/tmpbs45wd7x/trade_queue.json
+2026-02-14 01:49:23,572 [autonomous_work] WARNING Skipping invalid trade record for queue write
+2026-02-14 01:49:23,572 [autonomous_work] INFO ExecutionAgent cycle 7 starting (mode=queue)
+2026-02-14 01:49:23,640 [autonomous_work] INFO EXIT EXECUTING: TAKE_PROFIT_TP1 BTC-USDC | amount=0.00030000 | value=$30.30 | reason=test | route=coinbase
+2026-02-14 01:49:23,641 [autonomous_work] INFO EXIT FILLED: BTC-USDC | order=test123 | PnL=$0.3000 (1.00%) | held 0.0h
+2026-02-14 01:49:23,644 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 01:49:23,644 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 01:49:23,644 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 01:49:23,645 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 01:49:23,645 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 01:49:23,645 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 01:49:23,645 [autonomous_work] INFO ================================================
+2026-02-14 01:49:23,645 [autonomous_work] INFO Primary region ewr: starting 2 agents from manifest
+2026-02-14 01:49:23,646 [autonomous_work] INFO Agent 'capital_allocator' starting (attempt 1)
+2026-02-14 01:49:23,646 [autonomous_work] INFO Assistant created for agent 'capital_allocator' in region 'local'
+2026-02-14 01:49:23,646 [autonomous_work] INFO Agent 'capital_allocator' exited normally
+2026-02-14 01:49:23,646 [autonomous_work] INFO Started agent thread: capital_allocator (tid=6114062336)
+2026-02-14 01:49:23,647 [autonomous_work] INFO Agent 'sniper' starting (attempt 1)
+2026-02-14 01:49:23,647 [autonomous_work] INFO Assistant created for agent 'sniper' in region 'local'
+2026-02-14 01:49:23,647 [autonomous_work] INFO Agent 'sniper' exited normally
+2026-02-14 01:49:23,647 [autonomous_work] INFO Started agent thread: sniper (tid=6114062336)
+2026-02-14 01:49:23,648 [autonomous_work] INFO Started 2 agent(s) in region ewr: ['capital_allocator', 'sniper']
+2026-02-14 01:49:23,648 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 01:49:23,649 [autonomous_work] INFO heartbeat region=ewr agents=2 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 01:49:23,673 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:49:24,185 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:49:25,198 [autonomous_work] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:49:25,199 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-14 01:49:25,200 [autonomous_work] INFO Agent runner stopped
+2026-02-14 01:49:25,201 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 01:49:25,201 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 01:49:25,201 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 01:49:25,202 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 01:49:25,202 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 01:49:25,202 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 01:49:25,202 [autonomous_work] INFO ================================================
+2026-02-14 01:49:25,203 [autonomous_work] INFO Started 0 agent(s) in region ewr: []
+2026-02-14 01:49:25,203 [autonomous_work] WARNING Agent runner already running
+2026-02-14 01:49:25,204 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 01:49:25,204 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 01:49:25,205 [autonomous_work] INFO heartbeat region=ewr agents=0 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 01:49:25,208 [autonomous_work] INFO EXECUTING: BUY BTC-USD | $100.00 @ $30000.00 | signal=test conf=0.90
+2026-02-14 01:49:25,208 [autonomous_work] INFO ORDER FILLED: BTC-USD | order_id=order-xyz | route=market_ioc_fallback
+2026-02-14 01:49:25,213 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:49:25,218 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,222 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,226 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,229 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,235 [autonomous_work] INFO TRADE 784f3cbd-8c8: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:49:25,238 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,244 [autonomous_work] INFO TRADE 406c9ae1-f8e: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:49:25,246 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,247 [autonomous_work] INFO TRADE eccfe0c0-7b2: APPROVED test_agent BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:49:25,249 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,253 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,254 [autonomous_work] INFO TRADE 5c7f58ae-32c: APPROVED agent_liq BUY BTC-USDC $4.00 (vol=0.020)
+2026-02-14 01:49:25,257 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,258 [autonomous_work] INFO TRADE e5398b32-260: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:49:25,260 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,262 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,266 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,267 [autonomous_work] INFO TRADE fe0106bf-fd8: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 01:49:25,270 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,272 [autonomous_work] INFO TRADE 6fbe00d1-ddd: APPROVED agent_a BUY BTC-USDC $20.00 (vol=0.000)
+2026-02-14 01:49:25,272 [autonomous_work] INFO TRADE 982380bd-77c: APPROVED agent_a BUY BTC-USDC $9.00 (vol=0.000)
+2026-02-14 01:49:25,275 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,277 [autonomous_work] INFO TRADE 11792f3c-4bc: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 01:49:25,280 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,281 [autonomous_work] INFO TRADE f793a9e9-b01: APPROVED agent_0 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,281 [autonomous_work] INFO TRADE 2f6f9398-e8c: APPROVED agent_1 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,281 [autonomous_work] INFO TRADE b471bce0-e99: APPROVED agent_2 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,282 [autonomous_work] INFO TRADE 4971f54a-a90: APPROVED agent_3 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,282 [autonomous_work] INFO TRADE e36c4df4-f56: APPROVED agent_4 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,282 [autonomous_work] INFO TRADE 6bbae61b-2c3: APPROVED agent_5 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,283 [autonomous_work] INFO TRADE e797997d-a04: APPROVED agent_6 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,283 [autonomous_work] INFO TRADE bc102d64-5b1: APPROVED agent_7 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,284 [autonomous_work] INFO TRADE 886d7f5f-757: APPROVED agent_8 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,284 [autonomous_work] INFO TRADE 5b02a803-4c5: APPROVED agent_9 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,284 [autonomous_work] INFO TRADE 31b6c591-3b2: APPROVED agent_10 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,285 [autonomous_work] INFO TRADE 04e77433-1b8: APPROVED agent_11 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,285 [autonomous_work] INFO TRADE 95b8e09b-df5: APPROVED agent_12 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,285 [autonomous_work] INFO TRADE 6806e556-920: APPROVED agent_13 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,286 [autonomous_work] INFO TRADE 37405347-a10: APPROVED agent_14 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,287 [autonomous_work] INFO TRADE 24e3edd2-674: APPROVED agent_15 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,287 [autonomous_work] INFO TRADE 918ecb88-96f: APPROVED agent_16 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,287 [autonomous_work] INFO TRADE 3f576128-d43: APPROVED agent_17 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,288 [autonomous_work] INFO TRADE 06dc7e84-e60: APPROVED agent_18 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,288 [autonomous_work] INFO TRADE 6afc1a24-11a: APPROVED agent_19 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,289 [autonomous_work] INFO TRADE e8985a63-657: APPROVED agent_20 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,289 [autonomous_work] INFO TRADE 40909d55-1f4: APPROVED agent_21 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,289 [autonomous_work] INFO TRADE 0ecc3df7-ad8: APPROVED agent_22 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,290 [autonomous_work] INFO TRADE 75f55da9-113: APPROVED agent_23 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,290 [autonomous_work] INFO TRADE def27d09-11f: APPROVED agent_24 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,293 [autonomous_work] INFO TRADE df299de8-2f2: APPROVED agent_25 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,293 [autonomous_work] INFO TRADE 33ce5041-279: APPROVED agent_26 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,293 [autonomous_work] INFO TRADE 7d8bfa50-e58: APPROVED agent_27 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,294 [autonomous_work] INFO TRADE 75777689-b5e: APPROVED agent_28 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,294 [autonomous_work] INFO TRADE 8d56620a-68e: APPROVED agent_29 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,294 [autonomous_work] INFO TRADE 9cc51f0c-858: APPROVED agent_30 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,295 [autonomous_work] INFO TRADE 97d6258d-5d5: APPROVED agent_31 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,295 [autonomous_work] INFO TRADE e77b71b6-549: APPROVED agent_32 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,295 [autonomous_work] INFO TRADE 7698d732-9c7: APPROVED agent_33 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,296 [autonomous_work] INFO TRADE fbd596f6-fe3: APPROVED agent_34 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,296 [autonomous_work] INFO TRADE ce208ad3-2f2: APPROVED agent_35 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,297 [autonomous_work] INFO TRADE b9f55b76-59c: APPROVED agent_36 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,297 [autonomous_work] INFO TRADE 29c661f0-9a9: APPROVED agent_37 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,297 [autonomous_work] INFO TRADE 8b331dd1-be7: APPROVED agent_38 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,298 [autonomous_work] INFO TRADE d1e5c30a-918: APPROVED agent_39 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,298 [autonomous_work] INFO TRADE 6df8ca19-f8f: APPROVED agent_40 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,298 [autonomous_work] INFO TRADE d7f07cf7-87e: APPROVED agent_41 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,299 [autonomous_work] INFO TRADE 5369ac9a-8e8: APPROVED agent_42 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,299 [autonomous_work] INFO TRADE 79436484-6aa: APPROVED agent_43 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,299 [autonomous_work] INFO TRADE 0121f0b0-58a: APPROVED agent_44 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,300 [autonomous_work] INFO TRADE fa8088e8-fcc: APPROVED agent_45 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,300 [autonomous_work] INFO TRADE 03e4a362-29b: APPROVED agent_46 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,300 [autonomous_work] INFO TRADE cf362a23-8df: APPROVED agent_47 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,301 [autonomous_work] INFO TRADE 40bf7c3c-bdb: APPROVED agent_48 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,301 [autonomous_work] INFO TRADE 10c4dc49-767: APPROVED agent_49 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,302 [autonomous_work] INFO TRADE 1deacaa5-f04: APPROVED agent_50 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,302 [autonomous_work] INFO TRADE c2cc8efc-4fa: APPROVED agent_51 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,302 [autonomous_work] INFO TRADE e6822e4e-a67: APPROVED agent_52 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,303 [autonomous_work] INFO TRADE 0d41bb8b-233: APPROVED agent_53 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,303 [autonomous_work] INFO TRADE 58f9ae5e-7c6: APPROVED agent_54 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,303 [autonomous_work] INFO TRADE b8f59c06-9bc: APPROVED agent_55 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,304 [autonomous_work] INFO TRADE a167313b-250: APPROVED agent_56 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,304 [autonomous_work] INFO TRADE bbd31cc8-6e4: APPROVED agent_57 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,304 [autonomous_work] INFO TRADE cfab8c9c-736: APPROVED agent_58 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,305 [autonomous_work] INFO TRADE 1d581c75-e59: APPROVED agent_59 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,305 [autonomous_work] INFO TRADE 4ea26bf1-7c0: APPROVED agent_60 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,305 [autonomous_work] INFO TRADE ccacdd4e-460: APPROVED agent_61 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,306 [autonomous_work] INFO TRADE e6d2574f-828: APPROVED agent_62 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,306 [autonomous_work] INFO TRADE cfa02413-440: APPROVED agent_63 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,307 [autonomous_work] INFO TRADE d7d227ab-692: APPROVED agent_64 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,307 [autonomous_work] INFO TRADE 84a57fca-aac: APPROVED agent_65 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,307 [autonomous_work] INFO TRADE c0a44026-22f: APPROVED agent_66 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,308 [autonomous_work] INFO TRADE e25cd5c0-d15: APPROVED agent_67 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,308 [autonomous_work] INFO TRADE 8afc0b5d-7d4: APPROVED agent_68 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,309 [autonomous_work] INFO TRADE 91904d13-de2: APPROVED agent_69 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,309 [autonomous_work] INFO TRADE fc4fea94-f94: APPROVED agent_70 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,309 [autonomous_work] INFO TRADE 4ba5bfda-284: APPROVED agent_71 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,310 [autonomous_work] INFO TRADE 8ec75ee1-830: APPROVED agent_72 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,310 [autonomous_work] INFO TRADE e021fcee-5c6: APPROVED agent_73 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,310 [autonomous_work] INFO TRADE 7cccfaf3-df5: APPROVED agent_74 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,311 [autonomous_work] INFO TRADE ba8cd28e-835: APPROVED agent_75 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,311 [autonomous_work] INFO TRADE a1505340-6f4: APPROVED agent_76 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,312 [autonomous_work] INFO TRADE aa32f469-10c: APPROVED agent_77 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,312 [autonomous_work] INFO TRADE be32ed9c-2bf: APPROVED agent_78 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,312 [autonomous_work] INFO TRADE 0d64e1df-080: APPROVED agent_79 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,313 [autonomous_work] INFO TRADE 8b03140d-2cf: APPROVED agent_80 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,313 [autonomous_work] INFO TRADE 9cb0192b-ee1: APPROVED agent_81 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,313 [autonomous_work] INFO TRADE a1493e34-0a3: APPROVED agent_82 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,314 [autonomous_work] INFO TRADE 4e7124f8-8aa: APPROVED agent_83 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,314 [autonomous_work] INFO TRADE 3ae2f0bb-544: APPROVED agent_84 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,314 [autonomous_work] INFO TRADE 2e2df834-5f4: APPROVED agent_85 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,315 [autonomous_work] INFO TRADE a7ff41d7-07c: APPROVED agent_86 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,315 [autonomous_work] INFO TRADE 6b34ca58-77c: APPROVED agent_87 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,315 [autonomous_work] INFO TRADE dfbb58a7-8b8: APPROVED agent_88 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,316 [autonomous_work] INFO TRADE 207bb0a0-ea3: APPROVED agent_89 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,316 [autonomous_work] INFO TRADE e85a1d9a-40a: APPROVED agent_90 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,316 [autonomous_work] INFO TRADE 3b38ab02-c0f: APPROVED agent_91 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,317 [autonomous_work] INFO TRADE e3835e73-503: APPROVED agent_92 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,317 [autonomous_work] INFO TRADE 5811871c-538: APPROVED agent_93 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,318 [autonomous_work] INFO TRADE 089ea16d-5c7: APPROVED agent_94 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,318 [autonomous_work] INFO TRADE 64aac088-f1c: APPROVED agent_95 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,318 [autonomous_work] INFO TRADE 318b09c3-e67: APPROVED agent_96 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,319 [autonomous_work] INFO TRADE 3d7492d7-bec: APPROVED agent_97 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 01:49:25,322 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 01:49:25,323 [autonomous_work] INFO TRADE a0bb14a7-345: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 01:49:25,726 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:49:26,118 [autonomous_work] INFO STRIKE base: BUY throttled on BTC-USD (sell_close_rate=25.00% target=75.00% obs=4)
+2026-02-14 01:49:26,120 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD due to execution health gate (dns_unhealthy)
+2026-02-14 01:49:26,290 [autonomous_work] INFO STRIKE base: running in execution_health_degraded mode for BUY BTC-USD
+2026-02-14 01:49:26,291 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD before execution (exit validation: explicit_target_below_required:100.50000000<=101.45000000)
+2026-02-14 01:49:26,291 [autonomous_work] INFO STRIKE base: blocked SELL BTC-USD — no tracked inventory (source=test)
+2026-02-14 01:50:28,753 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 01:53:29,641 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 01:56:30,803 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 01:59:31,976 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:02:33,209 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:05:34,428 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:08:35,591 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:11:36,775 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:14:37,959 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:17:39,141 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:20:40,266 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:23:41,490 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:26:42,606 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:29:43,772 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:32:44,976 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:35:46,180 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:38:47,375 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:41:48,598 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:44:49,715 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:47:50,873 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:50:52,065 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:53:53,328 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:56:54,572 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 02:59:55,812 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:02:56,943 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:05:58,135 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:08:59,335 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:12:00,469 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:15:01,660 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:18:02,803 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:21:04,031 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:24:05,294 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:27:06,566 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:30:07,849 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:33:08,969 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:36:10,212 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:39:11,416 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:42:12,682 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:45:13,834 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:48:15,114 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:51:16,235 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:54:17,426 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 03:57:18,641 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:00:19,831 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:03:20,995 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:06:22,185 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:09:23,336 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:12:24,583 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:15:25,783 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:18:26,997 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:21:28,206 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:24:29,317 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:27:30,522 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:30:31,685 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:33:32,894 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:36:34,104 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:39:35,226 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:42:36,418 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:45:37,607 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:48:38,800 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:51:39,967 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:54:41,129 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 04:57:42,359 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:00:43,502 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:03:44,693 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:06:45,915 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:09:47,121 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:12:48,318 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:15:22,832 [autonomous_work] INFO ResearchAgent cycle 1 starting
+2026-02-14 05:15:22,832 [autonomous_work] INFO ResearchAgent published memo (msg_id=1) with 1 price pairs, 0 signals, fear_greed=50
+2026-02-14 05:15:22,834 [autonomous_work] INFO Skipping BTC-USDC due to all signal families disabled
+2026-02-14 05:15:22,837 [autonomous_work] WARNING Circuit breaker OPEN — skipping API call (retry in 29s, reason=unknown)
+2026-02-14 05:15:22,838 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 05:15:22,839 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 05:15:22,840 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 05:15:22,840 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 05:15:22,841 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 05:15:22,841 [autonomous_work] ERROR Circuit breaker OPEN — 3 consecutive failures, pausing for 30s (reason=request_failures)
+2026-02-14 05:15:22,841 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 05:15:22,842 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-14 05:15:22,842 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 05:15:22,844 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_green)
+2026-02-14 05:15:22,844 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 05:15:22,846 [autonomous_work] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-14 05:15:22,847 [autonomous_work] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:15:22,847 [autonomous_work] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:15:22,847 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:15:22,848 [autonomous_work] INFO Placing LIMIT buy: BTC-USD 1.2345 @ $27500.98 (post_only=True)
+2026-02-14 05:15:22,849 [autonomous_work] ERROR Limit order blocked: limit_price must be a positive finite number: -10.0
+2026-02-14 05:15:22,850 [autonomous_work] INFO Placing buy order: BTC-USD 100.0 @ market
+2026-02-14 05:15:22,851 [autonomous_work] ERROR Order blocked: Invalid order_type 'post_only'. Supported values: market
+2026-02-14 05:15:22,852 [autonomous_work] ERROR Order blocked: Invalid product_id: ''
+2026-02-14 05:15:22,852 [autonomous_work] ERROR Order blocked: Invalid side: 'HODL'
+2026-02-14 05:15:22,853 [autonomous_work] ERROR Order blocked: size must be a positive finite number: nan
+2026-02-14 05:15:22,854 [autonomous_work] ERROR Limit order blocked: Notional gate: $12.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 05:15:22,855 [autonomous_work] ERROR Order blocked: Notional gate: $25.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 05:15:22,856 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 05:15:22,858 [autonomous_work] INFO Placing BUY order: BTC-USD 20.0 @ market
+2026-02-14 05:15:22,859 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 05:15:22,882 [autonomous_work] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=1
+2026-02-14 05:15:22,883 [autonomous_work] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=203.0.113.10 trigger=dns_exception
+2026-02-14 05:15:22,885 [autonomous_work] ERROR Coinbase API error 400: Bad Request
+2026-02-14 05:15:22,886 [autonomous_work] WARNING Coinbase API 500 (attempt 1/1) — retrying in 0.5s: Server Error
+2026-02-14 05:15:22,886 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'Server Error', 'status': 500}
+2026-02-14 05:15:22,888 [autonomous_work] WARNING Coinbase API 500 (attempt 1/3) — retrying in 0.5s: Server Error
+2026-02-14 05:15:22,897 [autonomous_work] WARNING Trade queue file was corrupt; reinitializing /var/folders/b3/6p274r7s3t39lyv82xjd_c1c0000gn/T/tmp9v440f_o/trade_queue.json
+2026-02-14 05:15:22,898 [autonomous_work] WARNING Skipping invalid trade record for queue write
+2026-02-14 05:15:22,898 [autonomous_work] INFO ExecutionAgent cycle 7 starting (mode=queue)
+2026-02-14 05:15:22,969 [autonomous_work] INFO EXIT EXECUTING: TAKE_PROFIT_TP1 BTC-USDC | amount=0.00030000 | value=$30.30 | reason=test | route=coinbase
+2026-02-14 05:15:22,970 [autonomous_work] INFO EXIT FILLED: BTC-USDC | order=test123 | PnL=$0.3000 (1.00%) | held 0.0h
+2026-02-14 05:15:22,971 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 05:15:22,972 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 05:15:22,972 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 05:15:22,972 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 05:15:22,972 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 05:15:22,973 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 05:15:22,973 [autonomous_work] INFO ================================================
+2026-02-14 05:15:22,973 [autonomous_work] INFO Primary region ewr: starting 2 agents from manifest
+2026-02-14 05:15:22,973 [autonomous_work] INFO Agent 'capital_allocator' starting (attempt 1)
+2026-02-14 05:15:22,974 [autonomous_work] INFO Assistant created for agent 'capital_allocator' in region 'local'
+2026-02-14 05:15:22,974 [autonomous_work] INFO Agent 'capital_allocator' exited normally
+2026-02-14 05:15:22,974 [autonomous_work] INFO Started agent thread: capital_allocator (tid=6148698112)
+2026-02-14 05:15:22,975 [autonomous_work] INFO Agent 'sniper' starting (attempt 1)
+2026-02-14 05:15:22,975 [autonomous_work] INFO Assistant created for agent 'sniper' in region 'local'
+2026-02-14 05:15:22,975 [autonomous_work] INFO Agent 'sniper' exited normally
+2026-02-14 05:15:22,975 [autonomous_work] INFO Started agent thread: sniper (tid=6148698112)
+2026-02-14 05:15:22,976 [autonomous_work] INFO Started 2 agent(s) in region ewr: ['capital_allocator', 'sniper']
+2026-02-14 05:15:22,977 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 05:15:22,977 [autonomous_work] INFO heartbeat region=ewr agents=2 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 05:15:23,026 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:23,541 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:24,559 [autonomous_work] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:24,560 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-14 05:15:24,561 [autonomous_work] INFO Agent runner stopped
+2026-02-14 05:15:24,562 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 05:15:24,562 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 05:15:24,563 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 05:15:24,563 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 05:15:24,563 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 05:15:24,564 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 05:15:24,564 [autonomous_work] INFO ================================================
+2026-02-14 05:15:24,565 [autonomous_work] INFO Started 0 agent(s) in region ewr: []
+2026-02-14 05:15:24,565 [autonomous_work] WARNING Agent runner already running
+2026-02-14 05:15:24,566 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 05:15:24,566 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 05:15:24,567 [autonomous_work] INFO heartbeat region=ewr agents=0 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 05:15:24,570 [autonomous_work] INFO EXECUTING: BUY BTC-USD | $100.00 @ $30000.00 | signal=test conf=0.90
+2026-02-14 05:15:24,571 [autonomous_work] INFO ORDER FILLED: BTC-USD | order_id=order-xyz | route=market_ioc_fallback
+2026-02-14 05:15:24,576 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:24,584 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,589 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,593 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,597 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,604 [autonomous_work] INFO TRADE 624d9c59-ef0: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:24,607 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,613 [autonomous_work] INFO TRADE 33b33de7-877: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:24,616 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,617 [autonomous_work] INFO TRADE d229a1f3-8ab: APPROVED test_agent BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:24,619 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,622 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,623 [autonomous_work] INFO TRADE 4817dd23-1e8: APPROVED agent_liq BUY BTC-USDC $4.00 (vol=0.020)
+2026-02-14 05:15:24,626 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,627 [autonomous_work] INFO TRADE b9184c8f-5a4: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:24,631 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,635 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,639 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,639 [autonomous_work] INFO TRADE 16c0bdf8-e87: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:24,642 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,643 [autonomous_work] INFO TRADE 865826ce-42b: APPROVED agent_a BUY BTC-USDC $20.00 (vol=0.000)
+2026-02-14 05:15:24,643 [autonomous_work] INFO TRADE 0206489e-539: APPROVED agent_a BUY BTC-USDC $9.00 (vol=0.000)
+2026-02-14 05:15:24,646 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,648 [autonomous_work] INFO TRADE 887a851d-523: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 05:15:24,651 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,652 [autonomous_work] INFO TRADE 91a8ebbf-716: APPROVED agent_0 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,652 [autonomous_work] INFO TRADE 7b819dea-ecb: APPROVED agent_1 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,653 [autonomous_work] INFO TRADE 50835820-1f5: APPROVED agent_2 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,653 [autonomous_work] INFO TRADE 8829f9dd-d62: APPROVED agent_3 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,653 [autonomous_work] INFO TRADE 5d048401-ef2: APPROVED agent_4 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,654 [autonomous_work] INFO TRADE 1fdc8c1c-c0d: APPROVED agent_5 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,654 [autonomous_work] INFO TRADE e4c65e64-96d: APPROVED agent_6 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,655 [autonomous_work] INFO TRADE 2eba3cbb-63e: APPROVED agent_7 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,655 [autonomous_work] INFO TRADE 40a421ca-12d: APPROVED agent_8 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,655 [autonomous_work] INFO TRADE 65481fe0-c4a: APPROVED agent_9 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,656 [autonomous_work] INFO TRADE 27835b7b-940: APPROVED agent_10 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,656 [autonomous_work] INFO TRADE b196be3f-bce: APPROVED agent_11 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,656 [autonomous_work] INFO TRADE a3ce7815-58a: APPROVED agent_12 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,657 [autonomous_work] INFO TRADE 74cc6415-c6f: APPROVED agent_13 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,657 [autonomous_work] INFO TRADE f610622d-dc5: APPROVED agent_14 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,657 [autonomous_work] INFO TRADE 12701e34-4fb: APPROVED agent_15 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,658 [autonomous_work] INFO TRADE 07bc1ac1-220: APPROVED agent_16 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,658 [autonomous_work] INFO TRADE d3a3cc55-f5c: APPROVED agent_17 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,658 [autonomous_work] INFO TRADE 09a2d525-8c5: APPROVED agent_18 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,659 [autonomous_work] INFO TRADE ed111e73-eaf: APPROVED agent_19 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,659 [autonomous_work] INFO TRADE 6c7af320-c6e: APPROVED agent_20 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,659 [autonomous_work] INFO TRADE e95935fd-18c: APPROVED agent_21 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,660 [autonomous_work] INFO TRADE 4477f502-422: APPROVED agent_22 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,660 [autonomous_work] INFO TRADE c0e015fb-7a8: APPROVED agent_23 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,660 [autonomous_work] INFO TRADE 590cc00e-f63: APPROVED agent_24 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,661 [autonomous_work] INFO TRADE 02a14500-244: APPROVED agent_25 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,661 [autonomous_work] INFO TRADE bf5631e2-da8: APPROVED agent_26 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,661 [autonomous_work] INFO TRADE e2ca15bf-475: APPROVED agent_27 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,662 [autonomous_work] INFO TRADE 82898df6-620: APPROVED agent_28 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,662 [autonomous_work] INFO TRADE e19489ac-1e9: APPROVED agent_29 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,662 [autonomous_work] INFO TRADE 75e18989-a90: APPROVED agent_30 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,663 [autonomous_work] INFO TRADE 940de0c1-175: APPROVED agent_31 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,663 [autonomous_work] INFO TRADE 3e71dd2e-aa6: APPROVED agent_32 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,663 [autonomous_work] INFO TRADE adfa05a9-94e: APPROVED agent_33 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,664 [autonomous_work] INFO TRADE 15adb874-08a: APPROVED agent_34 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,664 [autonomous_work] INFO TRADE 319496a8-301: APPROVED agent_35 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,664 [autonomous_work] INFO TRADE 3210759b-c57: APPROVED agent_36 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,665 [autonomous_work] INFO TRADE 019ec411-69e: APPROVED agent_37 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,665 [autonomous_work] INFO TRADE d1d8ef09-cbd: APPROVED agent_38 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,665 [autonomous_work] INFO TRADE dd3b1094-c6b: APPROVED agent_39 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,666 [autonomous_work] INFO TRADE 891c4259-283: APPROVED agent_40 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,666 [autonomous_work] INFO TRADE 868d18ac-a12: APPROVED agent_41 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,667 [autonomous_work] INFO TRADE 857e133f-21b: APPROVED agent_42 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,667 [autonomous_work] INFO TRADE b04daf49-afe: APPROVED agent_43 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,667 [autonomous_work] INFO TRADE 8b668613-8aa: APPROVED agent_44 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,668 [autonomous_work] INFO TRADE 716a9cad-5d0: APPROVED agent_45 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,668 [autonomous_work] INFO TRADE dfd1813e-2b7: APPROVED agent_46 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,668 [autonomous_work] INFO TRADE 8e7d95f1-96d: APPROVED agent_47 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,669 [autonomous_work] INFO TRADE 46ba9bd6-319: APPROVED agent_48 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,669 [autonomous_work] INFO TRADE 4dcac525-6c9: APPROVED agent_49 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,669 [autonomous_work] INFO TRADE 8d057e8a-e5f: APPROVED agent_50 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,670 [autonomous_work] INFO TRADE 998e8bb1-bd2: APPROVED agent_51 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,670 [autonomous_work] INFO TRADE 735f3fc3-917: APPROVED agent_52 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,670 [autonomous_work] INFO TRADE c34b7f8e-02e: APPROVED agent_53 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,671 [autonomous_work] INFO TRADE 9b5c6b88-c96: APPROVED agent_54 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,671 [autonomous_work] INFO TRADE 22fc6472-d41: APPROVED agent_55 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,671 [autonomous_work] INFO TRADE cb15244f-075: APPROVED agent_56 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,672 [autonomous_work] INFO TRADE 461a79e4-a35: APPROVED agent_57 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,672 [autonomous_work] INFO TRADE 397d09c4-3d5: APPROVED agent_58 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,673 [autonomous_work] INFO TRADE d3e05ff0-961: APPROVED agent_59 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,673 [autonomous_work] INFO TRADE 3f4f032c-94e: APPROVED agent_60 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,673 [autonomous_work] INFO TRADE 8465aa49-344: APPROVED agent_61 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,674 [autonomous_work] INFO TRADE a59da287-02e: APPROVED agent_62 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,674 [autonomous_work] INFO TRADE 3ef0c170-8c1: APPROVED agent_63 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,674 [autonomous_work] INFO TRADE d7dff796-58c: APPROVED agent_64 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,675 [autonomous_work] INFO TRADE fda3b7ab-8ee: APPROVED agent_65 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,675 [autonomous_work] INFO TRADE 17e6d94a-94d: APPROVED agent_66 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,675 [autonomous_work] INFO TRADE 9a8fbe02-1ca: APPROVED agent_67 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,676 [autonomous_work] INFO TRADE b04e6aca-208: APPROVED agent_68 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,676 [autonomous_work] INFO TRADE fb0b1758-fdd: APPROVED agent_69 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,676 [autonomous_work] INFO TRADE 4611aa20-f84: APPROVED agent_70 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,677 [autonomous_work] INFO TRADE 8cafd146-1fa: APPROVED agent_71 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,677 [autonomous_work] INFO TRADE 9c71a388-9f8: APPROVED agent_72 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,678 [autonomous_work] INFO TRADE 9aa3b474-4eb: APPROVED agent_73 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,678 [autonomous_work] INFO TRADE 15f0bf33-51e: APPROVED agent_74 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,678 [autonomous_work] INFO TRADE b1232d62-cf0: APPROVED agent_75 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,679 [autonomous_work] INFO TRADE 197cc7bf-324: APPROVED agent_76 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,679 [autonomous_work] INFO TRADE 03227895-faa: APPROVED agent_77 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,679 [autonomous_work] INFO TRADE 32069107-ef8: APPROVED agent_78 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,680 [autonomous_work] INFO TRADE 1c1dfc65-6be: APPROVED agent_79 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,680 [autonomous_work] INFO TRADE 199e6042-5e9: APPROVED agent_80 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,680 [autonomous_work] INFO TRADE bed8a505-02f: APPROVED agent_81 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,681 [autonomous_work] INFO TRADE 122b40e4-c84: APPROVED agent_82 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,681 [autonomous_work] INFO TRADE 67264628-e7d: APPROVED agent_83 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,682 [autonomous_work] INFO TRADE 86be2712-055: APPROVED agent_84 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,682 [autonomous_work] INFO TRADE b79f3bd1-d0d: APPROVED agent_85 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,682 [autonomous_work] INFO TRADE e03b9e22-5ad: APPROVED agent_86 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,683 [autonomous_work] INFO TRADE c2ddbd29-464: APPROVED agent_87 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,683 [autonomous_work] INFO TRADE 6905ff21-5d3: APPROVED agent_88 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,683 [autonomous_work] INFO TRADE 6c859b84-80a: APPROVED agent_89 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,684 [autonomous_work] INFO TRADE cbb5f5de-e7e: APPROVED agent_90 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,684 [autonomous_work] INFO TRADE 9877d232-a76: APPROVED agent_91 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,684 [autonomous_work] INFO TRADE 4a38c620-0e1: APPROVED agent_92 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,685 [autonomous_work] INFO TRADE d1012160-526: APPROVED agent_93 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,685 [autonomous_work] INFO TRADE b6b7fcd2-b9a: APPROVED agent_94 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,686 [autonomous_work] INFO TRADE 787437b8-639: APPROVED agent_95 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,686 [autonomous_work] INFO TRADE e54c48a0-ebe: APPROVED agent_96 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,686 [autonomous_work] INFO TRADE 3b1b3348-99e: APPROVED agent_97 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:24,691 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:24,693 [autonomous_work] INFO TRADE a7918948-8a4: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 05:15:25,092 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:25,515 [autonomous_work] INFO STRIKE base: BUY throttled on BTC-USD (sell_close_rate=25.00% target=75.00% obs=4)
+2026-02-14 05:15:25,516 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD due to execution health gate (dns_unhealthy)
+2026-02-14 05:15:25,694 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD due to hard execution health condition (telemetry_samples_low:0<3)
+2026-02-14 05:15:25,695 [autonomous_work] INFO STRIKE base: blocked SELL BTC-USD — no tracked inventory (source=test)
+2026-02-14 05:15:33,797 [autonomous_work] INFO ResearchAgent cycle 1 starting
+2026-02-14 05:15:33,798 [autonomous_work] INFO ResearchAgent published memo (msg_id=1) with 1 price pairs, 0 signals, fear_greed=50
+2026-02-14 05:15:33,800 [autonomous_work] INFO Skipping BTC-USDC due to all signal families disabled
+2026-02-14 05:15:33,803 [autonomous_work] WARNING Circuit breaker OPEN — skipping API call (retry in 29s, reason=unknown)
+2026-02-14 05:15:33,804 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 05:15:33,804 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 05:15:33,805 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 05:15:33,805 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 05:15:33,806 [autonomous_work] WARNING Coinbase request failed (attempt 1/1) — retrying in 0.5s: API down
+2026-02-14 05:15:33,806 [autonomous_work] ERROR Circuit breaker OPEN — 3 consecutive failures, pausing for 30s (reason=request_failures)
+2026-02-14 05:15:33,807 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'API down'}
+2026-02-14 05:15:33,807 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-14 05:15:33,808 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 05:15:33,809 [autonomous_work] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_green)
+2026-02-14 05:15:33,809 [autonomous_work] INFO Circuit breaker CLOSED — api_recovered
+2026-02-14 05:15:33,810 [autonomous_work] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-14 05:15:33,811 [autonomous_work] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:15:33,812 [autonomous_work] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:15:33,812 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:15:33,813 [autonomous_work] INFO Placing LIMIT buy: BTC-USD 1.2345 @ $27500.98 (post_only=True)
+2026-02-14 05:15:33,814 [autonomous_work] ERROR Limit order blocked: limit_price must be a positive finite number: -10.0
+2026-02-14 05:15:33,815 [autonomous_work] INFO Placing buy order: BTC-USD 100.0 @ market
+2026-02-14 05:15:33,817 [autonomous_work] ERROR Order blocked: Invalid order_type 'post_only'. Supported values: market
+2026-02-14 05:15:33,818 [autonomous_work] ERROR Order blocked: Invalid product_id: ''
+2026-02-14 05:15:33,818 [autonomous_work] ERROR Order blocked: Invalid side: 'HODL'
+2026-02-14 05:15:33,819 [autonomous_work] ERROR Order blocked: size must be a positive finite number: nan
+2026-02-14 05:15:33,821 [autonomous_work] ERROR Limit order blocked: Notional gate: $12.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 05:15:33,822 [autonomous_work] ERROR Order blocked: Notional gate: $25.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 05:15:33,823 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 05:15:33,824 [autonomous_work] INFO Placing BUY order: BTC-USD 20.0 @ market
+2026-02-14 05:15:33,825 [autonomous_work] ERROR Order blocked: Notional gate: $20.00 exceeds max allowed $10.00 for BTC-USD
+2026-02-14 05:15:33,842 [autonomous_work] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=1
+2026-02-14 05:15:33,843 [autonomous_work] INFO Coinbase DNS failover succeeded: host=api.coinbase.com ip=203.0.113.10 trigger=dns_exception
+2026-02-14 05:15:33,844 [autonomous_work] ERROR Coinbase API error 400: Bad Request
+2026-02-14 05:15:33,846 [autonomous_work] WARNING Coinbase API 500 (attempt 1/1) — retrying in 0.5s: Server Error
+2026-02-14 05:15:33,846 [autonomous_work] ERROR Coinbase request failed after 1 attempts: {'error': 'Server Error', 'status': 500}
+2026-02-14 05:15:33,847 [autonomous_work] WARNING Coinbase API 500 (attempt 1/3) — retrying in 0.5s: Server Error
+2026-02-14 05:15:33,859 [autonomous_work] WARNING Trade queue file was corrupt; reinitializing /var/folders/b3/6p274r7s3t39lyv82xjd_c1c0000gn/T/tmp5xrtxu2p/trade_queue.json
+2026-02-14 05:15:33,860 [autonomous_work] WARNING Skipping invalid trade record for queue write
+2026-02-14 05:15:33,861 [autonomous_work] INFO ExecutionAgent cycle 7 starting (mode=queue)
+2026-02-14 05:15:33,933 [autonomous_work] INFO EXIT EXECUTING: TAKE_PROFIT_TP1 BTC-USDC | amount=0.00030000 | value=$30.30 | reason=test | route=coinbase
+2026-02-14 05:15:33,934 [autonomous_work] INFO EXIT FILLED: BTC-USDC | order=test123 | PnL=$0.3000 (1.00%) | held 0.0h
+2026-02-14 05:15:33,936 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 05:15:33,936 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 05:15:33,937 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 05:15:33,937 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 05:15:33,937 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 05:15:33,937 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 05:15:33,938 [autonomous_work] INFO ================================================
+2026-02-14 05:15:33,938 [autonomous_work] INFO Primary region ewr: starting 2 agents from manifest
+2026-02-14 05:15:33,938 [autonomous_work] INFO Agent 'capital_allocator' starting (attempt 1)
+2026-02-14 05:15:33,938 [autonomous_work] INFO Assistant created for agent 'capital_allocator' in region 'local'
+2026-02-14 05:15:33,939 [autonomous_work] INFO Agent 'capital_allocator' exited normally
+2026-02-14 05:15:33,939 [autonomous_work] INFO Started agent thread: capital_allocator (tid=6111850496)
+2026-02-14 05:15:33,939 [autonomous_work] INFO Agent 'sniper' starting (attempt 1)
+2026-02-14 05:15:33,939 [autonomous_work] INFO Assistant created for agent 'sniper' in region 'local'
+2026-02-14 05:15:33,940 [autonomous_work] INFO Agent 'sniper' exited normally
+2026-02-14 05:15:33,940 [autonomous_work] INFO Started agent thread: sniper (tid=6111850496)
+2026-02-14 05:15:33,941 [autonomous_work] INFO Started 2 agent(s) in region ewr: ['capital_allocator', 'sniper']
+2026-02-14 05:15:33,941 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 05:15:33,942 [autonomous_work] INFO heartbeat region=ewr agents=2 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 05:15:33,966 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:34,483 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:35,499 [autonomous_work] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:35,500 [autonomous_work] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-14 05:15:35,501 [autonomous_work] INFO Agent runner stopped
+2026-02-14 05:15:35,502 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 05:15:35,502 [autonomous_work] INFO === AGENT GOALS (encoded in every decision) ===
+2026-02-14 05:15:35,503 [autonomous_work] INFO   Rule #1: NEVER lose money — capital preservation above all
+2026-02-14 05:15:35,503 [autonomous_work] INFO   Rule #2: Always make money — every decision must have positive expected value
+2026-02-14 05:15:35,503 [autonomous_work] INFO   Rule #3: Grow money faster — compound gains, reinvest 20-35% of profits
+2026-02-14 05:15:35,504 [autonomous_work] INFO   Order type: limit (fee: 0.4%)
+2026-02-14 05:15:35,504 [autonomous_work] INFO ================================================
+2026-02-14 05:15:35,505 [autonomous_work] INFO Started 0 agent(s) in region ewr: []
+2026-02-14 05:15:35,505 [autonomous_work] WARNING Agent runner already running
+2026-02-14 05:15:35,506 [autonomous_work] INFO FlyAgentRunner init: region=ewr, is_primary=True
+2026-02-14 05:15:35,506 [autonomous_work] INFO Stopping agent runner...
+2026-02-14 05:15:35,506 [autonomous_work] INFO heartbeat region=ewr agents=0 pending=None closes=None pnl24h=None autoproceed=False
+2026-02-14 05:15:35,510 [autonomous_work] INFO EXECUTING: BUY BTC-USD | $100.00 @ $30000.00 | signal=test conf=0.90
+2026-02-14 05:15:35,510 [autonomous_work] INFO ORDER FILLED: BTC-USD | order_id=order-xyz | route=market_ioc_fallback
+2026-02-14 05:15:35,515 [autonomous_work] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:35,528 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,533 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,536 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,539 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,545 [autonomous_work] INFO TRADE cc25af13-2e1: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:35,547 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,553 [autonomous_work] INFO TRADE 6204188b-d53: APPROVED sniper BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:35,555 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,557 [autonomous_work] INFO TRADE d093ca5a-672: APPROVED test_agent BUY BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:35,559 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,562 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,563 [autonomous_work] INFO TRADE be289fde-a41: APPROVED agent_liq BUY BTC-USDC $4.00 (vol=0.020)
+2026-02-14 05:15:35,565 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,566 [autonomous_work] INFO TRADE fe1c4af0-daf: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:35,568 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,571 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,576 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,577 [autonomous_work] INFO TRADE 1dc1afdc-a22: APPROVED test_agent SELL BTC-USDC $5.00 (vol=0.020)
+2026-02-14 05:15:35,580 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,582 [autonomous_work] INFO TRADE d08e1a2a-812: APPROVED agent_a BUY BTC-USDC $20.00 (vol=0.000)
+2026-02-14 05:15:35,582 [autonomous_work] INFO TRADE cce19d0c-435: APPROVED agent_a BUY BTC-USDC $9.00 (vol=0.000)
+2026-02-14 05:15:35,584 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,586 [autonomous_work] INFO TRADE 6d0a8e3b-0c5: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 05:15:35,588 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,589 [autonomous_work] INFO TRADE f4ff95f1-e39: APPROVED agent_0 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,590 [autonomous_work] INFO TRADE cdc69354-177: APPROVED agent_1 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,590 [autonomous_work] INFO TRADE f6b4eefb-ec7: APPROVED agent_2 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,590 [autonomous_work] INFO TRADE 5add33e5-d60: APPROVED agent_3 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,591 [autonomous_work] INFO TRADE 08b17bec-2b4: APPROVED agent_4 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,591 [autonomous_work] INFO TRADE 0f6661e8-860: APPROVED agent_5 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,591 [autonomous_work] INFO TRADE b46880c5-1e6: APPROVED agent_6 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,592 [autonomous_work] INFO TRADE 8c0872c7-632: APPROVED agent_7 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,592 [autonomous_work] INFO TRADE 64a7265c-48d: APPROVED agent_8 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,593 [autonomous_work] INFO TRADE a27306ac-393: APPROVED agent_9 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,593 [autonomous_work] INFO TRADE 60e468d2-762: APPROVED agent_10 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,593 [autonomous_work] INFO TRADE 06cdfeeb-6bd: APPROVED agent_11 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,594 [autonomous_work] INFO TRADE 480b05cc-dfa: APPROVED agent_12 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,594 [autonomous_work] INFO TRADE b8c32205-f63: APPROVED agent_13 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,594 [autonomous_work] INFO TRADE 0ee595f2-645: APPROVED agent_14 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,595 [autonomous_work] INFO TRADE 0c0e4b53-a95: APPROVED agent_15 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,595 [autonomous_work] INFO TRADE 035cd682-59b: APPROVED agent_16 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,595 [autonomous_work] INFO TRADE 21dec90a-430: APPROVED agent_17 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,596 [autonomous_work] INFO TRADE f9f07b8b-cde: APPROVED agent_18 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,596 [autonomous_work] INFO TRADE d1d06224-f5d: APPROVED agent_19 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,597 [autonomous_work] INFO TRADE 8e2620d1-db2: APPROVED agent_20 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,597 [autonomous_work] INFO TRADE 5d2be59e-9f5: APPROVED agent_21 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,597 [autonomous_work] INFO TRADE 848b5d43-636: APPROVED agent_22 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,598 [autonomous_work] INFO TRADE 7558408d-4c3: APPROVED agent_23 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,598 [autonomous_work] INFO TRADE b701313e-4f8: APPROVED agent_24 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,598 [autonomous_work] INFO TRADE 96478a9a-cf0: APPROVED agent_25 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,599 [autonomous_work] INFO TRADE 72cbe995-d2b: APPROVED agent_26 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,599 [autonomous_work] INFO TRADE d3df9775-ba7: APPROVED agent_27 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,599 [autonomous_work] INFO TRADE f5db71da-0ed: APPROVED agent_28 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,600 [autonomous_work] INFO TRADE 1ef03eaf-1b1: APPROVED agent_29 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,600 [autonomous_work] INFO TRADE 00ebb0a3-9e7: APPROVED agent_30 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,600 [autonomous_work] INFO TRADE b3bca025-fd7: APPROVED agent_31 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,601 [autonomous_work] INFO TRADE 4291edf1-e73: APPROVED agent_32 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,601 [autonomous_work] INFO TRADE 0bffada4-cd4: APPROVED agent_33 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,601 [autonomous_work] INFO TRADE 871710fe-57a: APPROVED agent_34 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,602 [autonomous_work] INFO TRADE f29e2d20-a56: APPROVED agent_35 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,602 [autonomous_work] INFO TRADE 13ade2b4-1d7: APPROVED agent_36 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,603 [autonomous_work] INFO TRADE 029328d7-206: APPROVED agent_37 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,603 [autonomous_work] INFO TRADE 88b1b5b8-2a0: APPROVED agent_38 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,603 [autonomous_work] INFO TRADE 6ec1adcf-d64: APPROVED agent_39 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,604 [autonomous_work] INFO TRADE c19ee5b5-2bb: APPROVED agent_40 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,604 [autonomous_work] INFO TRADE 60495218-6c8: APPROVED agent_41 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,604 [autonomous_work] INFO TRADE 6940db24-cf4: APPROVED agent_42 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,605 [autonomous_work] INFO TRADE d5a5f0df-369: APPROVED agent_43 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,605 [autonomous_work] INFO TRADE 030d6ce4-947: APPROVED agent_44 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,605 [autonomous_work] INFO TRADE 4587c267-d5b: APPROVED agent_45 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,606 [autonomous_work] INFO TRADE 0b5b7041-0c3: APPROVED agent_46 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,606 [autonomous_work] INFO TRADE b1258e33-da4: APPROVED agent_47 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,606 [autonomous_work] INFO TRADE ff8b96a8-a35: APPROVED agent_48 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,607 [autonomous_work] INFO TRADE bed64364-5dc: APPROVED agent_49 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,607 [autonomous_work] INFO TRADE 4789453b-f10: APPROVED agent_50 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,607 [autonomous_work] INFO TRADE 85e5e300-8d1: APPROVED agent_51 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,608 [autonomous_work] INFO TRADE 7f638a72-c27: APPROVED agent_52 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,608 [autonomous_work] INFO TRADE 9a98625e-a7d: APPROVED agent_53 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,609 [autonomous_work] INFO TRADE c4641360-293: APPROVED agent_54 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,609 [autonomous_work] INFO TRADE 5e1869f2-532: APPROVED agent_55 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,609 [autonomous_work] INFO TRADE 126b8608-052: APPROVED agent_56 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,610 [autonomous_work] INFO TRADE eb5ed649-411: APPROVED agent_57 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,610 [autonomous_work] INFO TRADE d9ecc2c0-6ad: APPROVED agent_58 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,610 [autonomous_work] INFO TRADE c132fda3-405: APPROVED agent_59 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,611 [autonomous_work] INFO TRADE 65afa5c9-118: APPROVED agent_60 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,611 [autonomous_work] INFO TRADE ae4e272c-165: APPROVED agent_61 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,612 [autonomous_work] INFO TRADE 91294c48-177: APPROVED agent_62 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,612 [autonomous_work] INFO TRADE b8d74799-a2f: APPROVED agent_63 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,612 [autonomous_work] INFO TRADE 970ec59e-0ee: APPROVED agent_64 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,613 [autonomous_work] INFO TRADE 575466fe-2e7: APPROVED agent_65 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,613 [autonomous_work] INFO TRADE bae93b69-695: APPROVED agent_66 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,613 [autonomous_work] INFO TRADE 08c04eeb-546: APPROVED agent_67 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,614 [autonomous_work] INFO TRADE bb4a9b11-dc1: APPROVED agent_68 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,614 [autonomous_work] INFO TRADE dfa6ffa1-ce6: APPROVED agent_69 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,615 [autonomous_work] INFO TRADE 153a6d4e-64c: APPROVED agent_70 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,615 [autonomous_work] INFO TRADE 141bc616-c8d: APPROVED agent_71 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,615 [autonomous_work] INFO TRADE b23091da-074: APPROVED agent_72 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,616 [autonomous_work] INFO TRADE e1272135-5e6: APPROVED agent_73 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,616 [autonomous_work] INFO TRADE a1434e5a-272: APPROVED agent_74 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,616 [autonomous_work] INFO TRADE 970d2f2f-0e9: APPROVED agent_75 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,617 [autonomous_work] INFO TRADE e15c47e3-8d7: APPROVED agent_76 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,617 [autonomous_work] INFO TRADE cc408d45-692: APPROVED agent_77 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,618 [autonomous_work] INFO TRADE 55c335c8-f5e: APPROVED agent_78 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,618 [autonomous_work] INFO TRADE 269580b1-d25: APPROVED agent_79 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,618 [autonomous_work] INFO TRADE bcde13f9-568: APPROVED agent_80 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,619 [autonomous_work] INFO TRADE 988a0db0-4d2: APPROVED agent_81 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,619 [autonomous_work] INFO TRADE bbe30f3e-1a0: APPROVED agent_82 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,619 [autonomous_work] INFO TRADE cc9b47ec-953: APPROVED agent_83 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,620 [autonomous_work] INFO TRADE 61dae7c4-ed3: APPROVED agent_84 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,620 [autonomous_work] INFO TRADE 81fefe11-a49: APPROVED agent_85 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,620 [autonomous_work] INFO TRADE 0bcd2f08-bdd: APPROVED agent_86 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,621 [autonomous_work] INFO TRADE 93e0f886-00e: APPROVED agent_87 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,621 [autonomous_work] INFO TRADE 2c312d51-589: APPROVED agent_88 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,621 [autonomous_work] INFO TRADE b05427a3-72a: APPROVED agent_89 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,622 [autonomous_work] INFO TRADE 32511dd7-62f: APPROVED agent_90 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,622 [autonomous_work] INFO TRADE f4cfc836-2cd: APPROVED agent_91 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,623 [autonomous_work] INFO TRADE 4fb87d14-d7e: APPROVED agent_92 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,623 [autonomous_work] INFO TRADE 1f5b2574-808: APPROVED agent_93 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,623 [autonomous_work] INFO TRADE 6fe4b99f-b26: APPROVED agent_94 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,624 [autonomous_work] INFO TRADE 6154e3f6-e19: APPROVED agent_95 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,624 [autonomous_work] INFO TRADE d0c94604-bfe: APPROVED agent_96 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,624 [autonomous_work] INFO TRADE 69f04c23-f17: APPROVED agent_97 BUY BTC-USDC $1.00 (vol=0.020)
+2026-02-14 05:15:35,627 [autonomous_work] INFO MIGRATION: Added trade_id to pending_allocations
+2026-02-14 05:15:35,628 [autonomous_work] INFO TRADE 9f3ecfa7-f01: APPROVED agent_a BUY BTC-USDC $10.00 (vol=0.020)
+2026-02-14 05:15:36,030 [autonomous_work] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:15:36,449 [autonomous_work] INFO STRIKE base: BUY throttled on BTC-USD (sell_close_rate=25.00% target=75.00% obs=4)
+2026-02-14 05:15:36,450 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD due to execution health gate (dns_unhealthy)
+2026-02-14 05:15:36,632 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD due to hard execution health condition (telemetry_samples_low:0<3)
+2026-02-14 05:15:36,633 [autonomous_work] INFO STRIKE base: blocked SELL BTC-USD — no tracked inventory (source=test)
+2026-02-14 05:15:49,285 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:18:49,976 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0

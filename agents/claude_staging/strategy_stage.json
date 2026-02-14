@@ -1,13 +1,147 @@
 {
-  "updated_at": "2026-02-14T06:47:36.531123+00:00",
+  "updated_at": "2026-02-14T10:19:15.536565+00:00",
   "stage_counts": {
-    "COLD": 361,
-    "WARM": 0,
+    "COLD": 354,
+    "WARM": 7,
     "HOT": 39,
     "KILLED": 0
   },
-  "warm_candidates": [],
+  "warm_candidates": [
+    {
+      "name": "rsi_q100_042",
+      "pair": "ETH-USD",
+      "stage": "WARM",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-14 00:24:27"
+    },
+    {
+      "name": "rsi_q100_043",
+      "pair": "SOL-USD",
+      "stage": "WARM",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-14 00:24:27"
+    },
+    {
+      "name": "dip_buyer_q100_063",
+      "pair": "SOL-USD",
+      "stage": "WARM",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-13 02:53:30"
+    },
+    {
+      "name": "dip_buyer_q100_073",
+      "pair": "SOL-USD",
+      "stage": "WARM",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-13 04:00:24"
+    },
+    {
+      "name": "mean_reversion_q100_003",
+      "pair": "SOL-USD",
+      "stage": "WARM",
+      "updated_at": "2026-02-14 07:32:37",
+      "promoted_at": "2026-02-14 00:24:27"
+    },
+    {
+      "name": "momentum_q100_021",
+      "pair": "BTC-USD",
+      "stage": "WARM",
+      "updated_at": "2026-02-14 07:32:37",
+      "promoted_at": "2026-02-13 03:41:16"
+    },
+    {
+      "name": "momentum_q100_022",
+      "pair": "ETH-USD",
+      "stage": "WARM",
+      "updated_at": "2026-02-14 07:32:37",
+      "promoted_at": "2026-02-13 05:18:18"
+    }
+  ],
   "hot_strategies": [
+    {
+      "name": "momentum_q100_033",
+      "pair": "SOL-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-13 04:53:35"
+    },
+    {
+      "name": "dip_buyer_q100_061",
+      "pair": "BTC-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-14 04:37:41"
+    },
+    {
+      "name": "dip_buyer_q100_062",
+      "pair": "ETH-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-14 04:37:48"
+    },
+    {
+      "name": "dip_buyer_q100_071",
+      "pair": "BTC-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-14 04:37:41"
+    },
+    {
+      "name": "dip_buyer_q100_072",
+      "pair": "ETH-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-14 04:37:48"
+    },
+    {
+      "name": "multi_timeframe_q100_083",
+      "pair": "SOL-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-14 04:38:05"
+    },
+    {
+      "name": "accumulate_hold_q100_093",
+      "pair": "SOL-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:38",
+      "promoted_at": "2026-02-13 04:13:04"
+    },
+    {
+      "name": "mean_reversion_q100_002",
+      "pair": "ETH-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:37",
+      "promoted_at": "2026-02-14 04:37:52"
+    },
+    {
+      "name": "mean_reversion_q100_012",
+      "pair": "ETH-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:37",
+      "promoted_at": "2026-02-14 04:37:52"
+    },
+    {
+      "name": "mean_reversion_q100_013",
+      "pair": "SOL-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:37",
+      "promoted_at": "2026-02-14 04:38:04"
+    },
+    {
+      "name": "momentum_q100_023",
+      "pair": "SOL-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:37",
+      "promoted_at": "2026-02-13 04:13:10"
+    },
+    {
+      "name": "momentum_q100_031",
+      "pair": "BTC-USD",
+      "stage": "HOT",
+      "updated_at": "2026-02-14 07:32:37",
+      "promoted_at": "2026-02-14 04:37:44"
+    },
     {
       "name": "multi_timeframe_q1000_0991_batch_20260213_033001",
       "pair": "SOL-USD",
@@ -196,90 +330,6 @@
       "stage": "HOT",
       "updated_at": "2026-02-14 04:53:45",
       "promoted_at": "2026-02-14 04:38:09"
-    },
-    {
-      "name": "rsi_q1000_0693_batch_20260213_033001",
-      "pair": "BTC-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:52:45",
-      "promoted_at": "2026-02-14 04:37:46"
-    },
-    {
-      "name": "rsi_q1000_0692_batch_20260213_033001",
-      "pair": "ETH-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:52:42",
-      "promoted_at": "2026-02-14 04:37:56"
-    },
-    {
-      "name": "rsi_q1000_0691_batch_20260213_033001",
-      "pair": "SOL-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:52:40",
-      "promoted_at": "2026-02-14 04:38:09"
-    },
-    {
-      "name": "rsi_q1000_0663_batch_20260213_033001",
-      "pair": "BTC-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:51:48",
-      "promoted_at": "2026-02-14 04:37:46"
-    },
-    {
-      "name": "rsi_q1000_0662_batch_20260213_033001",
-      "pair": "ETH-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:51:47",
-      "promoted_at": "2026-02-14 04:37:56"
-    },
-    {
-      "name": "rsi_q1000_0661_batch_20260213_033001",
-      "pair": "SOL-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:51:45",
-      "promoted_at": "2026-02-14 04:38:09"
-    },
-    {
-      "name": "rsi_q1000_0633_batch_20260213_033001",
-      "pair": "BTC-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:51:01",
-      "promoted_at": "2026-02-14 04:37:45"
-    },
-    {
-      "name": "rsi_q1000_0632_batch_20260213_033001",
-      "pair": "ETH-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:50:58",
-      "promoted_at": "2026-02-14 04:37:55"
-    },
-    {
-      "name": "rsi_q1000_0631_batch_20260213_033001",
-      "pair": "SOL-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:50:55",
-      "promoted_at": "2026-02-14 04:38:08"
-    },
-    {
-      "name": "rsi_q1000_0603_batch_20260213_033001",
-      "pair": "BTC-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:49:51",
-      "promoted_at": "2026-02-14 04:37:45"
-    },
-    {
-      "name": "rsi_q1000_0602_batch_20260213_033001",
-      "pair": "ETH-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:49:50",
-      "promoted_at": "2026-02-14 04:37:55"
-    },
-    {
-      "name": "rsi_q1000_0601_batch_20260213_033001",
-      "pair": "SOL-USD",
-      "stage": "HOT",
-      "updated_at": "2026-02-14 04:49:49",
-      "promoted_at": "2026-02-14 04:38:08"
     }
   ],
   "hard_priority_pairs": [
@@ -292,9 +342,9 @@
     "XRP-USD"
   ],
   "quant100_summary": {
-    "total": 1000,
+    "total": 100,
     "promoted_warm": 0,
-    "rejected_cold": 906,
+    "rejected_cold": 81,
     "no_data": 0
   },
   "focus_pairs": [
@@ -304,8 +354,6 @@
     "AVAX-USD",
     "LINK-USD",
     "DOGE-USD",
-    "XRP-USD",
-    "BCH-USD",
-    "ADA-USD"
+    "XRP-USD"
   ]
 }

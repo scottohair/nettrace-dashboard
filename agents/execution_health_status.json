@@ -1,9 +1,10 @@
 {
-  "updated_at": "2026-02-14T06:48:17.407606+00:00",
+  "updated_at": "2026-02-14T10:19:36.256363+00:00",
   "green": false,
   "reason": "telemetry_samples_low:0<3",
   "reasons": [
-    "telemetry_samples_low:0<3"
+    "telemetry_samples_low:0<3",
+    "reconcile_status_stale"
   ],
   "dns_degraded": false,
   "egress_blocked": false,
@@ -42,35 +43,52 @@
           "ips": [
             "2606:4700:440a::ac40:98f1",
             "2a06:98c1:3105::6812:230f",
-            "104.18.35.15",
-            "172.64.152.241"
+            "172.64.152.241",
+            "104.18.35.15"
           ],
           "error": "",
           "resolver_source": "system",
-          "latency_ms": 2.529
+          "latency_ms": 3.657
         },
         {
           "host": "api.exchange.coinbase.com",
           "ok": true,
           "ips": [
-            "2a06:98c1:310d::ac40:974e",
             "2a06:98c1:3103::6812:24b2",
-            "172.64.151.78",
-            "104.18.36.178"
+            "2a06:98c1:310d::ac40:974e",
+            "104.18.36.178",
+            "172.64.151.78"
           ],
           "error": "",
           "resolver_source": "system",
-          "latency_ms": 0.587
+          "latency_ms": 3.548
         }
       ]
     },
     "api_probe": {
-      "enabled": false,
+      "enabled": true,
       "green": true,
-      "rows": []
+      "rows": [
+        {
+          "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+          "ok": true,
+          "status": 200,
+          "error": "",
+          "latency_ms": 41.266
+        },
+        {
+          "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+          "ok": true,
+          "status": 200,
+          "error": "",
+          "latency_ms": 39.464
+        }
+      ]
     },
     "telemetry": {
       "green": false,
+      "degraded": false,
+      "degraded_reasons": [],
       "bypass_enabled": false,
       "bypass_used": false,
       "dns_failures_excluded": 0,
@@ -114,13 +132,13 @@
       }
     },
     "reconcile": {
-      "green": true,
+      "green": false,
       "max_age_seconds": 900,
       "allow_stale_no_pending": true,
       "stale_no_pending_grace_seconds": 3600,
       "stale_no_activity_grace_seconds": 7200,
-      "stale_grace_applied": true,
-      "age_seconds": 5605.954,
+      "stale_grace_applied": false,
+      "age_seconds": 18284.8,
       "summary": {
         "checked": 0,
         "updated": 0,
@@ -145,8 +163,8 @@
       "enabled": false,
       "green": true,
       "reason": "gate_disabled",
-      "path": "/Users/scott/src/quant/tests/../agents/candle_feed_latest.json",
-      "aggregator_status_path": "/Users/scott/src/quant/tests/../agents/candle_aggregator_status.json",
+      "path": "/Users/scott/src/quant/agents/candle_feed_latest.json",
+      "aggregator_status_path": "/Users/scott/src/quant/agents/candle_aggregator_status.json",
       "feed_exists": false,
       "aggregator_status_exists": false,
       "age_seconds": null,

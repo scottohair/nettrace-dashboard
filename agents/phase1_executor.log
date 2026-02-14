@@ -20,3 +20,20 @@
 2026-02-14 01:48:11,244 [phase1_executor] INFO EXECUTE futures_mispricing: reverse_cash_carry for BTC-USD
 2026-02-14 01:48:11,244 [phase1_executor] INFO EXECUTE futures_mispricing: reverse_cash_carry for BTC-USD
 2026-02-14 01:48:11,244 [phase1_executor] INFO Cycle complete (total: 0 trades)
+2026-02-14 05:16:23,320 [phase1_executor] INFO ✓ AgentTools loaded
+2026-02-14 05:16:23,320 [phase1_executor] INFO ✓ RiskController loaded
+2026-02-14 05:16:23,323 [phase1_executor] INFO ✓ ExitManager loaded
+2026-02-14 05:16:23,323 [phase1_executor] INFO Starting Phase 1 signal execution...
+2026-02-14 05:16:23,947 [phase1_executor] INFO TRADE f4854e96-16b: APPROVED sentiment_leech BUY BTC-USD $10.00 (vol=0.001)
+2026-02-14 05:16:23,947 [phase1_executor] INFO → PLACE sentiment_leech BUY BTC-USD $10.00 @ $69445.37
+2026-02-14 05:16:24,474 [phase1_executor] WARNING [unknown] BUY blocked by no-loss policy: expected_edge 0.000% < required 1.402%; venue_failure_rate 96.29% > max 20.00%
+2026-02-14 05:16:24,474 [phase1_executor] ERROR Failed to place order for BTC-USD
+2026-02-14 05:16:24,665 [phase1_executor] INFO TRADE ded8ab40-79d: APPROVED sentiment_leech BUY ETH-USD $10.00 (vol=0.002)
+2026-02-14 05:16:24,665 [phase1_executor] INFO → PLACE sentiment_leech BUY ETH-USD $10.00 @ $2069.53
+2026-02-14 05:16:25,127 [phase1_executor] WARNING [unknown] BUY blocked by no-loss policy: expected_edge 0.000% < required 1.402%; venue_failure_rate 96.00% > max 20.00%
+2026-02-14 05:16:25,127 [phase1_executor] ERROR Failed to place order for ETH-USD
+2026-02-14 05:16:25,303 [phase1_executor] INFO TRADE d5664c59-fd5: APPROVED sentiment_leech BUY SOL-USD $10.00 (vol=0.002)
+2026-02-14 05:16:25,303 [phase1_executor] INFO → PLACE sentiment_leech BUY SOL-USD $10.00 @ $85.68
+2026-02-14 05:16:25,747 [phase1_executor] WARNING [unknown] BUY blocked by no-loss policy: expected_edge 0.000% < required 1.402%; venue_failure_rate 95.81% > max 20.00%
+2026-02-14 05:16:25,747 [phase1_executor] ERROR Failed to place order for SOL-USD
+2026-02-14 05:16:25,748 [phase1_executor] INFO Cycle complete (executed: 0, capital used: $0.00)

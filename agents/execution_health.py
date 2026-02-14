@@ -50,6 +50,7 @@ PUBLIC_DNS_TIMEOUT_SECONDS = float(os.environ.get("EXEC_HEALTH_PUBLIC_DNS_TIMEOU
 PUBLIC_DNS_MAX_IPS = int(os.environ.get("EXEC_HEALTH_PUBLIC_DNS_MAX_IPS", "8"))
 DNS_PROBE_ATTEMPTS = int(os.environ.get("EXEC_HEALTH_DNS_PROBE_ATTEMPTS", "2"))
 DNS_PROBE_RETRY_DELAY_SECONDS = float(os.environ.get("EXEC_HEALTH_DNS_PROBE_RETRY_DELAY_SECONDS", "0.15"))
+PROBE_WORKERS = int(os.environ.get("EXEC_HEALTH_PROBE_WORKERS", "8"))
 
 MIN_TELEMETRY_SAMPLES = int(os.environ.get("EXEC_HEALTH_MIN_TELEMETRY_SAMPLES", "3"))
 MIN_SUCCESS_RATE = float(os.environ.get("EXEC_HEALTH_MIN_SUCCESS_RATE", "0.55"))
@@ -608,22 +609,29 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
 
     dns_rows = []
     if DNS_HOSTS:
-        max_workers = max(1, min(int(os.environ.get("EXEC_HEALTH_PROBE_WORKERS", "8")), len(DNS_HOSTS)))
+        max_workers = max(1, min(int(PROBE_WORKERS), len(DNS_HOSTS)))
         if len(DNS_HOSTS) == 1:
             dns_rows = [_dns_probe(DNS_HOSTS[0])]
         else:
+            host_rows = list(enumerate(DNS_HOSTS))
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_host = {
-                    executor.submit(_dns_probe, host): host for host in DNS_HOSTS
+                    executor.submit(_dns_probe, host): index for index, host in host_rows
                 }
                 dns_rows = [None] * len(DNS_HOSTS)
                 for future in as_completed(future_to_host):
-                    host = future_to_host[future]
-                    idx = list(DNS_HOSTS).index(host)
+                    idx = future_to_host[future]
                     try:
                         dns_rows[idx] = future.result()
                     except Exception:
-                        dns_rows[idx] = {"host": host, "ok": False, "ips": [], "error": "probe_exception", "latency_ms": 0.0, "resolver_source": "exception"}
+                        dns_rows[idx] = {
+                            "host": str(DNS_HOSTS[idx]),
+                            "ok": False,
+                            "ips": [],
+                            "error": "probe_exception",
+                            "latency_ms": 0.0,
+                            "resolver_source": "exception",
+                        }
             dns_rows = [row for row in dns_rows if row is not None]
     dns_ok_count = sum(1 for r in dns_rows if bool(r.get("ok")))
     dns_green = (dns_ok_count == len(dns_rows)) if DNS_REQUIRE_ALL else (dns_ok_count > 0)
@@ -662,6 +670,7 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
         and telemetry_failure_rate <= float(MAX_FAILURE_RATE)
         and telemetry_p90 <= float(MAX_P90_LATENCY_MS)
     )
+    telemetry_degraded_reasons: list[str] = []
 
     do_probe = HTTP_PROBE_ENABLED if probe_http is None else bool(probe_http)
     if LOCAL_TEST_MODE and probe_http is None:
@@ -674,7 +683,7 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
             if row.get("ok")
         }
         if HTTP_PROBE_URLS:
-            max_workers = max(1, min(int(os.environ.get("EXEC_HEALTH_PROBE_WORKERS", "8")), len(HTTP_PROBE_URLS)))
+            max_workers = max(1, min(int(PROBE_WORKERS), len(HTTP_PROBE_URLS)))
             if len(HTTP_PROBE_URLS) == 1:
                 url = HTTP_PROBE_URLS[0]
                 probe_rows = [
@@ -685,6 +694,7 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
                     )
                 ]
             else:
+                probe_rows_input = list(enumerate(HTTP_PROBE_URLS))
                 with ThreadPoolExecutor(max_workers=max_workers) as executor:
                     future_to_url = {
                         executor.submit(
@@ -692,13 +702,13 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
                             url,
                             HTTP_PROBE_TIMEOUT_SECONDS,
                             fallback_ips=host_to_ips.get(urlparse(str(url)).hostname or "", []),
-                        ): url
-                        for url in HTTP_PROBE_URLS
+                        ): index
+                        for index, url in probe_rows_input
                     }
                     probe_rows = [None] * len(HTTP_PROBE_URLS)
                     for future in as_completed(future_to_url):
-                        url = future_to_url[future]
-                        idx = list(HTTP_PROBE_URLS).index(url)
+                        idx = future_to_url[future]
+                        url = HTTP_PROBE_URLS[idx]
                         try:
                             probe_rows[idx] = future.result()
                         except Exception:
@@ -847,6 +857,13 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
                 f"telemetry_p90_high:{telemetry_p90:.2f}>{float(MAX_P90_LATENCY_MS):.2f}"
             )
     telemetry_bypass_used = False
+    telemetry_degraded = False
+    if not telemetry_green and any(r.startswith("telemetry_samples_low:") for r in reasons):
+        if bool(dns_green) and bool(probe_green) and bool(reconcile_green) and not egress_blocked:
+            telemetry_green = True
+            telemetry_degraded = True
+            telemetry_degraded_reasons = [r for r in reasons if r.startswith("telemetry_samples_low:")]
+            reasons = [r for r in reasons if not r.startswith("telemetry_")]
     if (
         FORCE_TELEMETRY_BYPASS
         and not dns_degraded
@@ -918,6 +935,8 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
             },
         "telemetry": {
             "green": bool(telemetry_green),
+            "degraded": bool(telemetry_degraded),
+            "degraded_reasons": list(telemetry_degraded_reasons),
             "bypass_enabled": bool(FORCE_TELEMETRY_BYPASS),
             "bypass_used": bool(telemetry_bypass_used),
             "dns_failures_excluded": int(telemetry.get("dns_failures_excluded", 0) or 0),

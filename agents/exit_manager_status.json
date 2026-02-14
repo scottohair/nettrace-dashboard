@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-02-14T06:47:45.480044+00:00",
+  "updated_at": "2026-02-14T10:20:15.160474+00:00",
   "running": true,
-  "cycle_index": 35,
+  "cycle_index": 333,
   "monitor_interval_seconds": 42,
   "active_positions": 0,
   "consecutive_api_failures": 0,
   "execution_failures": 1,
-  "last_cycle_latency_ms": 493.084,
+  "last_cycle_latency_ms": 571.98,
   "improvements": {
     "advanced_total": 100,
     "hyper_total": 10,

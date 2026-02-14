@@ -23,7 +23,7 @@
     "last_trade_fix_age_seconds": null,
     "last_venue_universe_age_seconds": null,
     "last_venue_onboarding_age_seconds": null,
-    "last_status_age_seconds": 0.0,
+    "last_status_age_seconds": 0.001,
     "last_autoproceed_age_seconds": null
   },
   "trade_fix": {
@@ -79,5 +79,5 @@
     "error": "not_collected"
   },
   "status_file": "/Users/scott/src/quant/agents/fly_agent_runner_status.json",
-  "timestamp": "2026-02-14T06:48:15.539463+00:00"
+  "timestamp": "2026-02-14T10:15:35.506265+00:00"
 }

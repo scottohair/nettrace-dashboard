@@ -3986,3 +3986,202 @@
 2026-02-13 22:31:34,207 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_100/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
 2026-02-13 22:31:34,207 [quant_100] WARNING Q100-100 BCH-USD rejected_cold (insufficient_candles 0 < 30)
 2026-02-13 22:31:34,216 [claude_quant_agent] INFO Cycle 1 complete: total=100 promoted=9 rejected=81 no_data=0 priority_pairs=BTC-USD,ETH-USD,SOL-USD,AVAX-USD,LINK-USD,DOGE-USD,XRP-USD directives=44
+2026-02-14 02:32:37,054 [claude_quant_agent] INFO Starting quant cycle 2
+2026-02-14 02:32:37,094 [strategy_pipeline] WARNING Candle fetch failed for BTC-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,105 [strategy_pipeline] INFO Using local candle fallback for BTC-USD (300s, 72h): 152 candles
+2026-02-14 02:32:37,172 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_001/BTC-USD from WARM: trades 4 < 6, walkforward oos trades 0 < 1, walkforward oos return 0.00% < 0.10%
+2026-02-14 02:32:37,173 [quant_100] INFO Q100-001 BTC-USD rejected_cold ret=+0.74% wr=100.0% dd=0.32% sharpe=0.71 budget=$0.00 tier=none
+2026-02-14 02:32:37,178 [strategy_pipeline] WARNING Candle fetch failed for ETH-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,182 [strategy_pipeline] INFO Using local candle fallback for ETH-USD (300s, 72h): 106 candles
+2026-02-14 02:32:37,253 [quant_100] INFO Q100-002 ETH-USD retained_hot_passed ret=+0.89% wr=100.0% dd=0.46% sharpe=0.65 budget=$0.00 tier=shadow
+2026-02-14 02:32:37,258 [strategy_pipeline] WARNING Candle fetch failed for SOL-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,262 [strategy_pipeline] INFO Using local candle fallback for SOL-USD (300s, 72h): 106 candles
+2026-02-14 02:32:37,317 [quant_100] INFO Q100-003 SOL-USD retained_warm_passed ret=+1.90% wr=100.0% dd=0.66% sharpe=0.77 budget=$0.00 tier=shadow
+2026-02-14 02:32:37,323 [strategy_pipeline] WARNING Candle fetch failed for AVAX-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,326 [strategy_pipeline] INFO Using local candle fallback for AVAX-USD (300s, 72h): 10 candles
+2026-02-14 02:32:37,329 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_004/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,329 [quant_100] WARNING Q100-004 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:37,334 [strategy_pipeline] WARNING Candle fetch failed for LINK-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,337 [strategy_pipeline] INFO Using local candle fallback for LINK-USD (300s, 72h): 19 candles
+2026-02-14 02:32:37,340 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_005/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,340 [quant_100] WARNING Q100-005 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:37,345 [strategy_pipeline] WARNING Candle fetch failed for DOGE-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,348 [strategy_pipeline] INFO Using local candle fallback for DOGE-USD (300s, 72h): 11 candles
+2026-02-14 02:32:37,351 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_006/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,351 [quant_100] WARNING Q100-006 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:37,356 [strategy_pipeline] WARNING Candle fetch failed for XRP-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,361 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_007/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,361 [quant_100] WARNING Q100-007 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,366 [strategy_pipeline] WARNING Candle fetch failed for BCH-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,371 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_008/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,371 [quant_100] WARNING Q100-008 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,375 [strategy_pipeline] WARNING Candle fetch failed for ADA-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,380 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_009/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,380 [quant_100] WARNING Q100-009 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,385 [strategy_pipeline] WARNING Candle fetch failed for LTC-USD: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 02:32:37,389 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_010/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,389 [quant_100] WARNING Q100-010 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,454 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_011/BTC-USD from WARM: trades 4 < 6
+2026-02-14 02:32:37,455 [quant_100] INFO Q100-011 BTC-USD rejected_cold ret=+0.74% wr=100.0% dd=0.32% sharpe=0.71 budget=$0.00 tier=none
+2026-02-14 02:32:37,526 [quant_100] INFO Q100-012 ETH-USD retained_hot_passed ret=+0.89% wr=100.0% dd=0.46% sharpe=0.65 budget=$0.00 tier=shadow
+2026-02-14 02:32:37,596 [quant_100] INFO Q100-013 SOL-USD retained_hot_passed ret=+1.42% wr=100.0% dd=0.62% sharpe=0.71 budget=$0.00 tier=shadow
+2026-02-14 02:32:37,598 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_014/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,599 [quant_100] WARNING Q100-014 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:37,601 [strategy_pipeline] WARNING REJECTED mean_reversion_q100_015/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,602 [quant_100] WARNING Q100-015 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:37,604 [strategy_pipeline] WARNING REJECTED momentum_q100_016/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,605 [quant_100] WARNING Q100-016 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:37,607 [strategy_pipeline] WARNING REJECTED momentum_q100_017/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,607 [quant_100] WARNING Q100-017 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,610 [strategy_pipeline] WARNING REJECTED momentum_q100_018/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,610 [quant_100] WARNING Q100-018 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,612 [strategy_pipeline] WARNING REJECTED momentum_q100_019/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,612 [quant_100] WARNING Q100-019 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,615 [strategy_pipeline] WARNING REJECTED momentum_q100_020/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,615 [quant_100] WARNING Q100-020 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,703 [quant_100] INFO Q100-021 BTC-USD retained_warm_failed ret=+0.11% wr=100.0% dd=0.53% sharpe=0.28 budget=$0.00 tier=none
+2026-02-14 02:32:37,761 [quant_100] INFO Q100-022 ETH-USD retained_warm_failed ret=+0.49% wr=100.0% dd=0.37% sharpe=0.52 budget=$0.00 tier=none
+2026-02-14 02:32:37,827 [quant_100] INFO Q100-023 SOL-USD retained_hot_passed ret=+1.56% wr=100.0% dd=0.71% sharpe=0.70 budget=$0.00 tier=shadow
+2026-02-14 02:32:37,829 [strategy_pipeline] WARNING REJECTED momentum_q100_024/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,830 [quant_100] WARNING Q100-024 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:37,832 [strategy_pipeline] WARNING REJECTED momentum_q100_025/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,833 [quant_100] WARNING Q100-025 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:37,835 [strategy_pipeline] WARNING REJECTED momentum_q100_026/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,835 [quant_100] WARNING Q100-026 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:37,837 [strategy_pipeline] WARNING REJECTED momentum_q100_027/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,838 [quant_100] WARNING Q100-027 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,840 [strategy_pipeline] WARNING REJECTED momentum_q100_028/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,841 [quant_100] WARNING Q100-028 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,843 [strategy_pipeline] WARNING REJECTED momentum_q100_029/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,844 [quant_100] WARNING Q100-029 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,846 [strategy_pipeline] WARNING REJECTED momentum_q100_030/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:37,846 [quant_100] WARNING Q100-030 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:37,914 [quant_100] INFO Q100-031 BTC-USD retained_hot_passed ret=+14.53% wr=100.0% dd=0.33% sharpe=1.03 budget=$0.00 tier=shadow
+2026-02-14 02:32:37,969 [strategy_pipeline] WARNING REJECTED momentum_q100_032/ETH-USD from WARM: strict mode: backtest ended with underwater open position (loss close blocked)
+2026-02-14 02:32:37,969 [quant_100] INFO Q100-032 ETH-USD rejected_cold ret=+0.45% wr=100.0% dd=0.36% sharpe=0.51 budget=$0.00 tier=none
+2026-02-14 02:32:38,035 [quant_100] INFO Q100-033 SOL-USD retained_hot_passed ret=+1.56% wr=100.0% dd=0.71% sharpe=0.70 budget=$0.00 tier=shadow
+2026-02-14 02:32:38,038 [strategy_pipeline] WARNING REJECTED momentum_q100_034/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,038 [quant_100] WARNING Q100-034 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:38,040 [strategy_pipeline] WARNING REJECTED momentum_q100_035/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,041 [quant_100] WARNING Q100-035 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:38,043 [strategy_pipeline] WARNING REJECTED rsi_q100_036/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,044 [quant_100] WARNING Q100-036 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:38,046 [strategy_pipeline] WARNING REJECTED rsi_q100_037/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,047 [quant_100] WARNING Q100-037 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,050 [strategy_pipeline] WARNING REJECTED rsi_q100_038/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,050 [quant_100] WARNING Q100-038 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,053 [strategy_pipeline] WARNING REJECTED rsi_q100_039/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,053 [quant_100] WARNING Q100-039 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,056 [strategy_pipeline] WARNING REJECTED rsi_q100_040/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,056 [quant_100] WARNING Q100-040 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,144 [strategy_pipeline] WARNING REJECTED rsi_q100_041/BTC-USD from WARM: trades 4 < 6, walkforward oos trades 0 < 1, walkforward oos return 0.00% < 0.10%
+2026-02-14 02:32:38,145 [quant_100] INFO Q100-041 BTC-USD rejected_cold ret=+0.56% wr=100.0% dd=0.40% sharpe=0.62 budget=$0.00 tier=none
+2026-02-14 02:32:38,214 [quant_100] INFO Q100-042 ETH-USD retained_warm_passed ret=+1.31% wr=100.0% dd=0.23% sharpe=0.88 budget=$0.00 tier=shadow
+2026-02-14 02:32:38,305 [quant_100] INFO Q100-043 SOL-USD retained_warm_passed ret=+1.78% wr=100.0% dd=0.65% sharpe=0.79 budget=$0.00 tier=shadow
+2026-02-14 02:32:38,308 [strategy_pipeline] WARNING REJECTED rsi_q100_044/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,309 [quant_100] WARNING Q100-044 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:38,311 [strategy_pipeline] WARNING REJECTED rsi_q100_045/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,311 [quant_100] WARNING Q100-045 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:38,314 [strategy_pipeline] WARNING REJECTED rsi_q100_046/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,315 [quant_100] WARNING Q100-046 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:38,317 [strategy_pipeline] WARNING REJECTED rsi_q100_047/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,317 [quant_100] WARNING Q100-047 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,320 [strategy_pipeline] WARNING REJECTED rsi_q100_048/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,320 [quant_100] WARNING Q100-048 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,323 [strategy_pipeline] WARNING REJECTED rsi_q100_049/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,323 [quant_100] WARNING Q100-049 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,325 [strategy_pipeline] WARNING REJECTED rsi_q100_050/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,326 [quant_100] WARNING Q100-050 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,363 [strategy_pipeline] WARNING REJECTED vwap_q100_051/BTC-USD from WARM: trades 4 < 6, return -0.21% < 0.25%, risk_governor: non-positive return
+2026-02-14 02:32:38,364 [quant_100] INFO Q100-051 BTC-USD rejected_cold ret=-0.21% wr=100.0% dd=0.44% sharpe=-0.48 budget=$0.00 tier=none
+2026-02-14 02:32:38,404 [strategy_pipeline] WARNING REJECTED vwap_q100_052/ETH-USD from WARM: return -0.06% < 0.12%, risk_governor: non-positive return
+2026-02-14 02:32:38,405 [quant_100] INFO Q100-052 ETH-USD rejected_cold ret=-0.06% wr=100.0% dd=0.25% sharpe=-0.22 budget=$0.00 tier=none
+2026-02-14 02:32:38,445 [strategy_pipeline] WARNING REJECTED vwap_q100_053/SOL-USD from WARM: return -0.20% < 0.12%, risk_governor: non-positive return
+2026-02-14 02:32:38,445 [quant_100] INFO Q100-053 SOL-USD rejected_cold ret=-0.20% wr=100.0% dd=0.43% sharpe=-0.50 budget=$0.00 tier=none
+2026-02-14 02:32:38,448 [strategy_pipeline] WARNING REJECTED vwap_q100_054/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,449 [quant_100] WARNING Q100-054 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:38,451 [strategy_pipeline] WARNING REJECTED vwap_q100_055/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,451 [quant_100] WARNING Q100-055 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:38,454 [strategy_pipeline] WARNING REJECTED vwap_q100_056/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,454 [quant_100] WARNING Q100-056 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:38,457 [strategy_pipeline] WARNING REJECTED vwap_q100_057/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,457 [quant_100] WARNING Q100-057 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,460 [strategy_pipeline] WARNING REJECTED vwap_q100_058/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,460 [quant_100] WARNING Q100-058 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,462 [strategy_pipeline] WARNING REJECTED vwap_q100_059/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,462 [quant_100] WARNING Q100-059 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,464 [strategy_pipeline] WARNING REJECTED vwap_q100_060/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,465 [quant_100] WARNING Q100-060 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,500 [quant_100] INFO Q100-061 BTC-USD retained_hot_passed ret=+16.60% wr=100.0% dd=0.47% sharpe=0.97 budget=$0.00 tier=shadow
+2026-02-14 02:32:38,525 [quant_100] INFO Q100-062 ETH-USD retained_hot_passed ret=+0.98% wr=100.0% dd=0.48% sharpe=0.72 budget=$0.00 tier=shadow
+2026-02-14 02:32:38,581 [quant_100] INFO Q100-063 SOL-USD retained_warm_failed ret=+0.73% wr=100.0% dd=0.69% sharpe=0.49 budget=$0.00 tier=none
+2026-02-14 02:32:38,584 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_064/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,584 [quant_100] WARNING Q100-064 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:38,586 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_065/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,586 [quant_100] WARNING Q100-065 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:38,589 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_066/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,589 [quant_100] WARNING Q100-066 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:38,592 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_067/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,592 [quant_100] WARNING Q100-067 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,595 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_068/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,595 [quant_100] WARNING Q100-068 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,597 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_069/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,598 [quant_100] WARNING Q100-069 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,600 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_070/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,600 [quant_100] WARNING Q100-070 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,637 [quant_100] INFO Q100-071 BTC-USD retained_hot_passed ret=+16.60% wr=100.0% dd=0.47% sharpe=0.97 budget=$0.00 tier=shadow
+2026-02-14 02:32:38,658 [quant_100] INFO Q100-072 ETH-USD retained_hot_passed ret=+0.98% wr=100.0% dd=0.48% sharpe=0.72 budget=$0.00 tier=shadow
+2026-02-14 02:32:38,703 [quant_100] INFO Q100-073 SOL-USD retained_warm_failed ret=+0.73% wr=100.0% dd=0.69% sharpe=0.49 budget=$0.00 tier=none
+2026-02-14 02:32:38,706 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_074/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,706 [quant_100] WARNING Q100-074 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:38,708 [strategy_pipeline] WARNING REJECTED dip_buyer_q100_075/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,708 [quant_100] WARNING Q100-075 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:38,711 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_076/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,712 [quant_100] WARNING Q100-076 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:38,714 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_077/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,714 [quant_100] WARNING Q100-077 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,716 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_078/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,717 [quant_100] WARNING Q100-078 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,720 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_079/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,720 [quant_100] WARNING Q100-079 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,723 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_080/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,723 [quant_100] WARNING Q100-080 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,749 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_081/BTC-USD from WARM: trades 2 < 6, return -0.05% < 0.25%, walkforward oos trades 0 < 1, walkforward oos return 0.00% < 0.10%, monte_carlo trades 1 < 2, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,749 [quant_100] INFO Q100-081 BTC-USD rejected_cold ret=-0.05% wr=100.0% dd=0.33% sharpe=-0.15 budget=$0.00 tier=none
+2026-02-14 02:32:38,767 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_082/ETH-USD from WARM: trades 2 < 4, return -0.14% < 0.12%, monte_carlo regime(fragile) p50 0.04% < 0.08%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,767 [quant_100] INFO Q100-082 ETH-USD rejected_cold ret=-0.14% wr=100.0% dd=0.16% sharpe=-0.54 budget=$0.00 tier=none
+2026-02-14 02:32:38,802 [quant_100] INFO Q100-083 SOL-USD retained_hot_passed ret=+1.97% wr=100.0% dd=0.35% sharpe=0.89 budget=$0.00 tier=shadow
+2026-02-14 02:32:38,805 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_084/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,805 [quant_100] WARNING Q100-084 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:38,808 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_085/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,808 [quant_100] WARNING Q100-085 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:38,810 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_086/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,810 [quant_100] WARNING Q100-086 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:38,812 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_087/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,812 [quant_100] WARNING Q100-087 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,815 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_088/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,815 [quant_100] WARNING Q100-088 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,817 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_089/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,817 [quant_100] WARNING Q100-089 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,819 [strategy_pipeline] WARNING REJECTED multi_timeframe_q100_090/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,820 [quant_100] WARNING Q100-090 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,861 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_091/BTC-USD from WARM: strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos drawdown 9.98% > 7.50%
+2026-02-14 02:32:38,862 [quant_100] INFO Q100-091 BTC-USD rejected_cold ret=+28.28% wr=100.0% dd=0.37% sharpe=1.38 budget=$0.00 tier=none
+2026-02-14 02:32:38,916 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_092/ETH-USD from WARM: strict mode: backtest ended with underwater open position (loss close blocked)
+2026-02-14 02:32:38,916 [quant_100] INFO Q100-092 ETH-USD rejected_cold ret=+0.17% wr=100.0% dd=0.69% sharpe=0.27 budget=$0.00 tier=none
+2026-02-14 02:32:38,946 [quant_100] INFO Q100-093 SOL-USD retained_hot_failed ret=+0.80% wr=100.0% dd=0.58% sharpe=0.53 budget=$0.00 tier=none
+2026-02-14 02:32:38,949 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_094/AVAX-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,949 [quant_100] WARNING Q100-094 AVAX-USD rejected_cold (insufficient_candles 10 < 30)
+2026-02-14 02:32:38,952 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_095/LINK-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,952 [quant_100] WARNING Q100-095 LINK-USD rejected_cold (insufficient_candles 19 < 30)
+2026-02-14 02:32:38,954 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_096/DOGE-USD from WARM: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.05%, monte_carlo regime(calm) p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,954 [quant_100] WARNING Q100-096 DOGE-USD rejected_cold (insufficient_candles 11 < 30)
+2026-02-14 02:32:38,956 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_097/XRP-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,957 [quant_100] WARNING Q100-097 XRP-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,959 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_098/BCH-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,959 [quant_100] WARNING Q100-098 BCH-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,962 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_099/ADA-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,962 [quant_100] WARNING Q100-099 ADA-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,965 [strategy_pipeline] WARNING REJECTED accumulate_hold_q100_100/LTC-USD from WARM: trades 0 < 12, win_rate 0.00% < 58.00%, return 0.00% < 0.3%, monte_carlo regime(calm) p50 0.00% < 0.07%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed
+2026-02-14 02:32:38,965 [quant_100] WARNING Q100-100 LTC-USD rejected_cold (insufficient_candles 0 < 30)
+2026-02-14 02:32:38,976 [claude_quant_agent] INFO Cycle 2 complete: total=100 promoted=0 rejected=81 no_data=0 priority_pairs=BTC-USD,ETH-USD,SOL-USD,AVAX-USD,LINK-USD,DOGE-USD,XRP-USD,BCH-USD,ADA-USD directives=200
