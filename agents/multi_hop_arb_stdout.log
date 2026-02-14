@@ -610,3 +610,18 @@
 2026-02-14 13:44:14,638 [multi_hop_arb] INFO cycle=5 assets=6 approved_candidates=0 best_edge=n/a
 2026-02-14 14:34:16,048 [multi_hop_arb] INFO starting multi_hop_arb loop interval=120s execute_live=False
 2026-02-14 14:34:18,759 [multi_hop_arb] INFO cycle=1 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:36:19,124 [multi_hop_arb] INFO cycle=2 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:38:19,369 [multi_hop_arb] INFO cycle=3 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:40:19,864 [multi_hop_arb] INFO cycle=4 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:42:20,152 [multi_hop_arb] INFO cycle=5 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:44:20,338 [multi_hop_arb] INFO cycle=6 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:46:20,772 [multi_hop_arb] INFO cycle=7 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:48:20,259 [multi_hop_arb] INFO cycle=8 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:50:19,595 [multi_hop_arb] INFO cycle=9 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:52:20,395 [multi_hop_arb] INFO cycle=10 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:54:20,007 [multi_hop_arb] INFO cycle=11 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:56:19,582 [multi_hop_arb] INFO cycle=12 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 14:58:19,186 [multi_hop_arb] INFO cycle=13 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 15:00:19,075 [multi_hop_arb] INFO cycle=14 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 15:02:18,769 [multi_hop_arb] INFO cycle=15 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 15:04:18,593 [multi_hop_arb] INFO cycle=16 assets=6 approved_candidates=0 best_edge=n/a

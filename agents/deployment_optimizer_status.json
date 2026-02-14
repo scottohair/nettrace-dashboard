@@ -1,17 +1,17 @@
 {
-  "updated_at": "2026-02-14T19:34:22.188761+00:00",
+  "updated_at": "2026-02-14T20:04:23.163538+00:00",
   "running": true,
-  "cycle": 1,
+  "cycle": 7,
   "interval_seconds": 300,
   "runtime_region": "local",
-  "deployment_score": 0.31,
-  "hf_live_ready": false,
+  "deployment_score": 0.5233,
+  "hf_live_ready": true,
   "top_regions": [
     "ewr",
     "nrt",
     "sin"
   ],
-  "priority_action_count": 5,
+  "priority_action_count": 4,
   "files": {
     "plan": "/Users/scott/src/quant/agents/deployment_optimizer_plan.json",
     "roadmap": "/Users/scott/src/quant/agents/deployment_optimizer_roadmap.md",

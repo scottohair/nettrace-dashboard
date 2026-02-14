@@ -661,6 +661,76 @@ def init_db():
             FOREIGN KEY (org_id) REFERENCES organizations(id)
         );
         CREATE INDEX IF NOT EXISTS idx_fee_invoices_org ON fee_invoices(org_id, status);
+
+        -- Capital Ledger: unified audit trail for every dollar movement
+        CREATE TABLE IF NOT EXISTS capital_ledger (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_type TEXT NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            user_id INTEGER,
+
+            -- Transaction details
+            asset TEXT,
+            venue TEXT,
+            amount REAL,
+            value_usd REAL,
+
+            -- Trade-specific fields
+            pair TEXT,
+            side TEXT,
+            price REAL,
+            order_id TEXT,
+            agent TEXT,
+            strategy_name TEXT,
+
+            -- P&L fields
+            cost_basis_usd REAL,
+            realized_pnl_usd REAL,
+            fees_usd REAL,
+
+            -- Attribution
+            trigger TEXT,
+
+            -- References
+            trade_id INTEGER,
+            allocation_id INTEGER,
+            snapshot_id INTEGER,
+
+            -- Metadata
+            metadata_json TEXT,
+
+            -- Reconciliation
+            reconciled INTEGER DEFAULT 0,
+            reconciliation_delta_usd REAL
+        );
+        CREATE INDEX IF NOT EXISTS idx_capital_ledger_timestamp ON capital_ledger(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_capital_ledger_event_type ON capital_ledger(event_type);
+        CREATE INDEX IF NOT EXISTS idx_capital_ledger_asset ON capital_ledger(asset);
+        CREATE INDEX IF NOT EXISTS idx_capital_ledger_user_id ON capital_ledger(user_id);
+        CREATE INDEX IF NOT EXISTS idx_capital_ledger_pair ON capital_ledger(pair);
+        CREATE INDEX IF NOT EXISTS idx_capital_ledger_agent ON capital_ledger(agent);
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_capital_ledger_dedup
+            ON capital_ledger(event_type, trade_id, timestamp)
+            WHERE trade_id IS NOT NULL;
+
+        -- Cost-basis lots for tax tracking (FIFO)
+        CREATE TABLE IF NOT EXISTS cost_basis_lots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            asset TEXT NOT NULL,
+            venue TEXT NOT NULL,
+            acquired_at TIMESTAMP NOT NULL,
+            quantity REAL NOT NULL,
+            cost_basis_per_unit REAL NOT NULL,
+            total_cost_usd REAL NOT NULL,
+            quantity_remaining REAL NOT NULL,
+            disposed_at TIMESTAMP,
+            source_trade_id INTEGER,
+            source_event_type TEXT,
+            lot_method TEXT DEFAULT 'FIFO'
+        );
+        CREATE INDEX IF NOT EXISTS idx_cost_basis_lots_asset ON cost_basis_lots(asset, venue);
+        CREATE INDEX IF NOT EXISTS idx_cost_basis_lots_acquired ON cost_basis_lots(acquired_at);
     """)
 
     # Keep one active credential row per user/exchange, preserve previous rows in history.

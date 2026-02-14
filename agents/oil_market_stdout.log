@@ -267,3 +267,13 @@ sqlite3.OperationalError: disk I/O error
 2026-02-14 13:42:13,310 [oil_market] INFO cycle=3 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
 2026-02-14 14:34:14,022 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
 2026-02-14 14:34:14,576 [oil_market] INFO cycle=1 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 14:37:14,779 [oil_market] INFO cycle=2 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 14:40:15,260 [oil_market] INFO cycle=3 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 14:43:15,597 [oil_market] INFO cycle=4 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 14:46:15,861 [oil_market] INFO cycle=5 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 14:49:16,034 [oil_market] INFO cycle=6 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 14:52:16,206 [oil_market] INFO cycle=7 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 14:55:16,371 [oil_market] INFO cycle=8 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 14:58:16,572 [oil_market] INFO cycle=9 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 15:01:16,814 [oil_market] INFO cycle=10 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 15:04:17,021 [oil_market] INFO cycle=11 side=HOLD edge=0.115% conf=0.43 policy=False exec=none

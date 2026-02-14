@@ -255,6 +255,22 @@ class CapitalAllocator:
                 (account, share)
             )
         self.db.commit()
+
+        # Record to capital ledger
+        try:
+            from ledger_writer import LedgerWriter
+            _ledger = LedgerWriter()
+            for account, pct in PROFIT_ALLOCATION.items():
+                share = amount * pct
+                _ledger.record_allocation(
+                    from_account="gains",
+                    to_account=account,
+                    amount_usd=share,
+                    reason="profit_distribution",
+                )
+        except Exception:
+            pass
+
         logger.info("Distributed $%.2f gains: checking=$%.2f savings=$%.2f "
                      "growth=$%.2f subsavings=$%.2f",
                      amount,
@@ -356,6 +372,19 @@ class CapitalAllocator:
                     "VALUES ('checking', 'savings', ?, 'principle_lock')",
                     (principle_to_lock,)
                 )
+
+                # Record to capital ledger
+                try:
+                    from ledger_writer import LedgerWriter
+                    _ledger = LedgerWriter()
+                    _ledger.record_allocation(
+                        from_account="checking",
+                        to_account="savings",
+                        amount_usd=principle_to_lock,
+                        reason="principle_lock",
+                    )
+                except Exception:
+                    pass
 
             self.db.execute(
                 "INSERT INTO principle_events "

@@ -2,6 +2,7 @@
 """Tests for sniper long-chain game-theory gate."""
 
 import os
+import sqlite3
 import sys
 import types
 
@@ -148,3 +149,81 @@ def test_fit_buy_to_quote_capacity_rejects_when_below_min_viable(monkeypatch, tm
     assert pair == "ETH-USD"
     assert size == 0.0
     assert reason.startswith("quote_capacity_insufficient")
+
+
+def test_profit_focus_prefers_recent_realized_winner(monkeypatch, tmp_path):
+    monkeypatch.setattr(sn, "SNIPER_DB", str(tmp_path / "sniper.db"))
+    trader_db = tmp_path / "trader.db"
+    monkeypatch.setattr(sn, "TRADER_DB_PATH", trader_db)
+    conn = sqlite3.connect(str(trader_db))
+    conn.execute(
+        """
+        CREATE TABLE agent_trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pair TEXT,
+            side TEXT,
+            status TEXT,
+            pnl REAL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    for _ in range(4):
+        conn.execute(
+            "INSERT INTO agent_trades (pair, side, status, pnl, created_at) VALUES ('SOL-USD','SELL','filled',0.35,datetime('now'))"
+        )
+    for _ in range(4):
+        conn.execute(
+            "INSERT INTO agent_trades (pair, side, status, pnl, created_at) VALUES ('AVAX-USD','SELL','filled',-0.20,datetime('now'))"
+        )
+    conn.commit()
+    conn.close()
+
+    monkeypatch.setitem(sn.CONFIG, "pairs", ["SOL-USD", "AVAX-USD", "LINK-USD"])
+    monkeypatch.setitem(sn.CONFIG, "primary_pairs", [])
+    monkeypatch.setitem(sn.CONFIG, "close_evidence_target_pairs", tuple())
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_mode", True)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_lookback_hours", 72)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_min_closes", 3)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_min_net_pnl_usd", 0.1)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_top_n", 1)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_min_scan_pairs", 1)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_include_primary", False)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_include_close_targets", False)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_cache_seconds", 1)
+
+    sniper = sn.Sniper()
+    focused = sniper._profit_focus_scan_pairs(list(sn.CONFIG["pairs"]))
+    assert focused == ["SOL-USD"]
+
+
+def test_profit_focus_falls_back_to_base_pairs_when_no_evidence(monkeypatch, tmp_path):
+    monkeypatch.setattr(sn, "SNIPER_DB", str(tmp_path / "sniper.db"))
+    trader_db = tmp_path / "trader.db"
+    monkeypatch.setattr(sn, "TRADER_DB_PATH", trader_db)
+    conn = sqlite3.connect(str(trader_db))
+    conn.execute(
+        """
+        CREATE TABLE agent_trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pair TEXT,
+            side TEXT,
+            status TEXT,
+            pnl REAL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
+
+    monkeypatch.setitem(sn.CONFIG, "pairs", ["ETH-USD", "SOL-USD"])
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_mode", True)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_top_n", 2)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_min_scan_pairs", 2)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_include_primary", False)
+    monkeypatch.setitem(sn.CONFIG, "profit_focus_include_close_targets", False)
+
+    sniper = sn.Sniper()
+    focused = sniper._profit_focus_scan_pairs(list(sn.CONFIG["pairs"]))
+    assert focused == ["ETH-USD", "SOL-USD"]

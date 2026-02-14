@@ -4102,3 +4102,34 @@
 2026-02-14 14:34:36,250 [ORCH] INFO Started 29/29 agents
 2026-02-14 14:34:39,509 [ORCH] INFO Wallet: $1.40 across 4 chains
 2026-02-14 14:34:39,510 [ORCH] INFO Portfolio: $237.46 | Cash: $234.62 | Held: $0.00 | Bridge: $0.00 | Day P&L: $+0.00 | DD: 26.4% | Agents: 29
+2026-02-14 14:38:51,027 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 14:39:55,678 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 14:39:55,680 [ORCH] INFO Portfolio: $237.03 | Cash: $132.58 | Held: $91.76 | Bridge: $0.00 | Day P&L: $-0.43 | DD: 26.5% | Agents: 29
+2026-02-14 14:43:57,101 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 14:44:59,666 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 14:44:59,667 [ORCH] INFO Portfolio: $236.63 | Cash: $118.28 | Held: $102.39 | Bridge: $0.00 | Day P&L: $-0.83 | DD: 26.7% | Agents: 29
+2026-02-14 14:46:36,798 [ORCH] INFO Integration guard now READY; starting deferred guarded agent 'flywheel_controller'
+2026-02-14 14:46:36,825 [ORCH] INFO Started agent 'flywheel_controller' (PID 30178): Always-on growth flywheel: quant cycles, audit gating, reserve targets, and Claude updates
+2026-02-14 14:47:07,384 [ORCH] INFO Integration guard now READY; starting deferred guarded agent 'flywheel_controller'
+2026-02-14 14:47:07,418 [ORCH] INFO Started agent 'flywheel_controller' (PID 30475): Always-on growth flywheel: quant cycles, audit gating, reserve targets, and Claude updates
+2026-02-14 14:48:08,298 [ORCH] WARNING Agent 'sniper' exited with code -15
+2026-02-14 14:48:08,301 [ORCH] INFO Restarting agent 'sniper'...
+2026-02-14 14:48:08,341 [ORCH] INFO Started agent 'sniper' (PID 30860): High-confidence stacked-signal sniper (90%+ conf)
+2026-02-14 14:49:08,565 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 14:49:09,533 [ORCH] WARNING Terminated stray PID 31033 (single_root:mcp_opportunity)
+2026-02-14 14:49:39,872 [ORCH] INFO Integration guard now READY; starting deferred guarded agent 'flywheel_controller'
+2026-02-14 14:49:39,915 [ORCH] INFO Started agent 'flywheel_controller' (PID 31621): Always-on growth flywheel: quant cycles, audit gating, reserve targets, and Claude updates
+2026-02-14 14:49:40,505 [ORCH] WARNING Agent 'sniper' exited with code -15
+2026-02-14 14:49:40,506 [ORCH] INFO Restarting agent 'sniper'...
+2026-02-14 14:49:40,539 [ORCH] INFO Started agent 'sniper' (PID 31626): High-confidence stacked-signal sniper (90%+ conf)
+2026-02-14 14:50:13,953 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 14:50:13,954 [ORCH] INFO Portfolio: $236.65 | Cash: $217.95 | Held: $0.00 | Bridge: $0.00 | Day P&L: $-0.81 | DD: 26.7% | Agents: 29
+2026-02-14 14:54:17,603 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 14:55:21,487 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 14:55:21,489 [ORCH] INFO Portfolio: $236.56 | Cash: $202.50 | Held: $11.78 | Bridge: $0.00 | Day P&L: $-0.90 | DD: 26.7% | Agents: 29
+2026-02-14 14:59:28,691 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:00:35,784 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:00:35,787 [ORCH] INFO Portfolio: $236.54 | Cash: $202.50 | Held: $11.79 | Bridge: $0.00 | Day P&L: $-0.92 | DD: 26.7% | Agents: 29
+2026-02-14 15:04:45,947 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:05:51,458 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:05:51,460 [ORCH] INFO Portfolio: $236.56 | Cash: $202.50 | Held: $15.12 | Bridge: $0.00 | Day P&L: $-0.90 | DD: 26.7% | Agents: 29

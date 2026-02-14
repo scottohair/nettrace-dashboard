@@ -235,3 +235,63 @@ def test_execute_trade_blocks_buy_when_close_flow_unhealthy(monkeypatch, tmp_pat
     result = sniper.execute_trade(_buy_signal(ev_positive=True))
     assert result is False
     assert called["price"] == 0
+
+
+def test_balanced_growth_state_blocks_buy_when_buy_sell_ratio_too_high(monkeypatch, tmp_path):
+    monkeypatch.setattr(sn, "SNIPER_DB", str(tmp_path / "sniper.db"))
+    sniper = sn.Sniper()
+    monkeypatch.setitem(sn.CONFIG, "balance_growth_mode", True)
+    monkeypatch.setitem(sn.CONFIG, "balance_cache_seconds", 5)
+    monkeypatch.setitem(sn.CONFIG, "balance_max_buy_sell_ratio", 1.20)
+    monkeypatch.setattr(
+        sniper,
+        "_trade_flow_metrics_for_balance",
+        lambda lookback_hours=24: {
+            "lookback_hours": int(lookback_hours),
+            "buy_fills": 9,
+            "sell_fills": 2,
+            "sell_close_attempts": 6,
+            "sell_close_completions": 2,
+            "sell_close_completion_rate": 0.8,
+            "effective_sell_completions": 2,
+            "buy_sell_ratio": 4.5,
+            "realized_sell_closes": 4,
+            "realized_sell_net_pnl_usd": 1.1,
+            "reconcile_gate_passed": True,
+            "reconcile_gate_reason": "ok",
+        },
+    )
+    state = sniper._balanced_growth_state(force_refresh=True)
+    assert state["allow_buy"] is False
+    assert state["mode"] == "sell_recovery"
+    assert "balance_buy_sell_ratio_high" in str(state["reason"])
+
+
+def test_execute_trade_blocks_buy_when_balanced_growth_gate_fails(monkeypatch, tmp_path):
+    monkeypatch.setattr(sn, "SNIPER_DB", str(tmp_path / "sniper.db"))
+    monkeypatch.setattr(sn, "_exit_mgr", _ExitMgr(ready=True))
+    sniper = sn.Sniper()
+    monkeypatch.setattr(sniper, "_execution_health_allows_buy", lambda: (True, "ok"))
+    monkeypatch.setattr(sniper, "_exit_manager_status_allows_buy", lambda: (True, "ok"))
+    monkeypatch.setattr(sniper, "_close_flow_allows_buy", lambda: (True, "close_flow_healthy"))
+    monkeypatch.setattr(
+        sniper,
+        "_balanced_growth_state",
+        lambda force_refresh=False: {
+            "allow_buy": False,
+            "mode": "sell_recovery",
+            "reason": "balance_buy_sell_ratio_high:3.0>1.2",
+            "buy_size_factor": 1.0,
+        },
+    )
+
+    called = {"price": 0}
+
+    def _fake_price(_pair):
+        called["price"] += 1
+        return 100.0
+
+    monkeypatch.setattr(sniper, "_get_price", _fake_price)
+    result = sniper.execute_trade(_buy_signal(ev_positive=True))
+    assert result is False
+    assert called["price"] == 0

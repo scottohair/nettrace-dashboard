@@ -1,11 +1,11 @@
 {
   "locked": false,
-  "reason": "cleared_after_health_fix",
-  "source": "orchestrator_v2.execution_health_guard",
-  "set_at": "2026-02-14T19:33:06.218777+00:00",
+  "reason": "growth decision GO",
+  "source": "flywheel_controller",
+  "set_at": "2026-02-14T19:49:25.310230+00:00",
   "metadata": {
     "cleared": true
   },
-  "epoch": 1771097586.218903,
-  "pid": 27672
+  "epoch": 1771098565.310234,
+  "pid": 31457
 }

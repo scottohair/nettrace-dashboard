@@ -696,3 +696,12 @@
 2026-02-14 14:02:00,786 [flywheel] INFO Reconcile gate failed but terminal-cancelled bypass enabled — bypassing: terminal_cancelled_bypass
 2026-02-14 14:02:00,787 [flywheel] INFO cycle=1 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$0.00 lock=ON
 2026-02-14 14:33:43,539 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-14 14:46:25,241 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-14 14:46:36,885 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-14 14:47:07,499 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-14 14:48:35,062 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-14 14:49:10,483 [flywheel] INFO cycle=64 decision=NO_GO quant_run=True pnl_today=+47.9364 total=$235.24 lock=ON
+2026-02-14 14:49:10,483 [flywheel] INFO flywheel stopped
+2026-02-14 14:49:40,031 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-14 14:50:21,675 [flywheel] INFO cycle=65 decision=GO quant_run=False pnl_today=+47.9364 total=$235.25 lock=OFF
+2026-02-14 14:55:05,136 [flywheel] INFO cycle=66 decision=GO quant_run=False pnl_today=+47.9364 total=$235.16 lock=OFF

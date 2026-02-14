@@ -3671,3 +3671,27 @@
 2026-02-14 14:33:48,174 [ALLOC] INFO Treasury synced: was $240.66, now $237.46 (delta $-3.20)
 2026-02-14 14:33:48,174 [ALLOC] CRITICAL PRINCIPLE LOCK: Gains ($173.84) exceeded 100% of principle ($119.41). Locking principle in savings!
 2026-02-14 14:33:48,175 [ALLOC] INFO Locked $0.00 principle in savings. Now playing with house money.
+2026-02-14 14:38:52,179 [ALLOC] INFO Wallet total: $1.40 across 4 chains
+2026-02-14 14:38:52,850 [ALLOC] INFO Coinbase total: $235.75
+2026-02-14 14:38:52,851 [ALLOC] INFO Absorbed $0.31 loss from checking/growth
+2026-02-14 14:38:52,851 [ALLOC] INFO Treasury synced: was $237.46, now $237.15 (delta $-0.31)
+2026-02-14 14:43:54,690 [ALLOC] INFO Wallet total: $1.40 across 4 chains
+2026-02-14 14:43:55,390 [ALLOC] INFO Coinbase total: $235.23
+2026-02-14 14:43:55,391 [ALLOC] INFO Absorbed $0.52 loss from checking/growth
+2026-02-14 14:43:55,391 [ALLOC] INFO Treasury synced: was $237.15, now $236.63 (delta $-0.52)
+2026-02-14 14:49:03,937 [ALLOC] INFO Wallet total: $1.40 across 4 chains
+2026-02-14 14:49:04,742 [ALLOC] INFO Coinbase total: $235.24
+2026-02-14 14:49:04,743 [ALLOC] INFO Distributed $0.01 gains: checking=$0.00 savings=$0.00 growth=$0.00 subsavings=$0.00
+2026-02-14 14:49:04,743 [ALLOC] INFO Treasury synced: was $236.63, now $236.64 (delta $+0.01)
+2026-02-14 14:54:17,036 [ALLOC] INFO Wallet total: $1.40 across 4 chains
+2026-02-14 14:54:17,829 [ALLOC] INFO Coinbase total: $235.25
+2026-02-14 14:54:17,830 [ALLOC] INFO Distributed $0.01 gains: checking=$0.00 savings=$0.00 growth=$0.00 subsavings=$0.00
+2026-02-14 14:54:17,830 [ALLOC] INFO Treasury synced: was $236.64, now $236.65 (delta $+0.01)
+2026-02-14 14:59:23,910 [ALLOC] INFO Wallet total: $1.40 across 4 chains
+2026-02-14 14:59:24,766 [ALLOC] INFO Coinbase total: $235.14
+2026-02-14 14:59:24,767 [ALLOC] INFO Absorbed $0.11 loss from checking/growth
+2026-02-14 14:59:24,767 [ALLOC] INFO Treasury synced: was $236.65, now $236.54 (delta $-0.11)
+2026-02-14 15:04:36,812 [ALLOC] INFO Wallet total: $1.40 across 4 chains
+2026-02-14 15:04:37,678 [ALLOC] INFO Coinbase total: $235.20
+2026-02-14 15:04:37,681 [ALLOC] INFO Distributed $0.06 gains: checking=$0.01 savings=$0.02 growth=$0.02 subsavings=$0.01
+2026-02-14 15:04:37,681 [ALLOC] INFO Treasury synced: was $236.54, now $236.60 (delta $+0.06)

@@ -199,6 +199,32 @@ CONFIG = {
     "close_flow_min_attempts": int(os.environ.get("SNIPER_CLOSE_FLOW_MIN_ATTEMPTS", "2")),
     "close_flow_min_completion_rate": float(os.environ.get("SNIPER_CLOSE_FLOW_MIN_COMPLETION_RATE", "0.40")),
     "close_flow_max_terminal_failures": int(os.environ.get("SNIPER_CLOSE_FLOW_MAX_TERMINAL_FAILURES", "3")),
+    "balance_growth_mode": os.environ.get("SNIPER_BALANCE_GROWTH_MODE", "1").lower() not in ("0", "false", "no"),
+    "balance_cache_seconds": int(os.environ.get("SNIPER_BALANCE_CACHE_SECONDS", "20")),
+    "balance_lookback_hours": int(os.environ.get("SNIPER_BALANCE_LOOKBACK_HOURS", "24")),
+    "balance_max_buy_sell_ratio": float(os.environ.get("SNIPER_BALANCE_MAX_BUY_SELL_RATIO", "1.35")),
+    "balance_min_buy_sell_ratio_for_accel": float(
+        os.environ.get("SNIPER_BALANCE_MIN_BUY_SELL_RATIO_FOR_ACCEL", "0.55")
+    ),
+    "balance_min_sell_completions": int(os.environ.get("SNIPER_BALANCE_MIN_SELL_COMPLETIONS", "2")),
+    "balance_min_close_attempts": int(os.environ.get("SNIPER_BALANCE_MIN_CLOSE_ATTEMPTS", "2")),
+    "balance_min_close_completion_rate": float(
+        os.environ.get("SNIPER_BALANCE_MIN_CLOSE_COMPLETION_RATE", "0.45")
+    ),
+    "balance_require_non_negative_realized_pnl": os.environ.get(
+        "SNIPER_BALANCE_REQUIRE_NON_NEGATIVE_REALIZED_PNL", "1"
+    ).lower() not in ("0", "false", "no"),
+    "balance_min_realized_closes_for_pnl_gate": int(
+        os.environ.get("SNIPER_BALANCE_MIN_REALIZED_CLOSES_FOR_PNL_GATE", "3")
+    ),
+    "balance_buy_confidence_penalty": float(
+        os.environ.get("SNIPER_BALANCE_BUY_CONFIDENCE_PENALTY", "0.88")
+    ),
+    "balance_buy_size_penalty": float(os.environ.get("SNIPER_BALANCE_BUY_SIZE_PENALTY", "0.72")),
+    "balance_buy_confidence_boost": float(
+        os.environ.get("SNIPER_BALANCE_BUY_CONFIDENCE_BOOST", "1.06")
+    ),
+    "balance_buy_size_boost": float(os.environ.get("SNIPER_BALANCE_BUY_SIZE_BOOST", "1.12")),
     "min_trade_size_usd": float(os.environ.get("SNIPER_MIN_TRADE_SIZE_USD", "0.50")),
     "min_trade_size_max_trade_fraction": float(
         os.environ.get("SNIPER_MIN_TRADE_SIZE_MAX_TRADE_FRACTION", "0.00")
@@ -251,6 +277,35 @@ CONFIG = {
     "close_evidence_sell_fill_wait_seconds": float(
         os.environ.get("SNIPER_CLOSE_EVIDENCE_SELL_FILL_WAIT_SECONDS", "6.0")
     ),
+    "profit_focus_mode": os.environ.get("SNIPER_PROFIT_FOCUS_MODE", "1").lower() not in (
+        "0",
+        "false",
+        "no",
+    ),
+    "profit_focus_lookback_hours": int(
+        os.environ.get("SNIPER_PROFIT_FOCUS_LOOKBACK_HOURS", "72")
+    ),
+    "profit_focus_min_closes": int(
+        os.environ.get("SNIPER_PROFIT_FOCUS_MIN_CLOSES", "3")
+    ),
+    "profit_focus_min_net_pnl_usd": float(
+        os.environ.get("SNIPER_PROFIT_FOCUS_MIN_NET_PNL_USD", "0.10")
+    ),
+    "profit_focus_top_n": int(
+        os.environ.get("SNIPER_PROFIT_FOCUS_TOP_N", "3")
+    ),
+    "profit_focus_min_scan_pairs": int(
+        os.environ.get("SNIPER_PROFIT_FOCUS_MIN_SCAN_PAIRS", "2")
+    ),
+    "profit_focus_cache_seconds": int(
+        os.environ.get("SNIPER_PROFIT_FOCUS_CACHE_SECONDS", "90")
+    ),
+    "profit_focus_include_primary": os.environ.get(
+        "SNIPER_PROFIT_FOCUS_INCLUDE_PRIMARY", "1"
+    ).lower() not in ("0", "false", "no"),
+    "profit_focus_include_close_targets": os.environ.get(
+        "SNIPER_PROFIT_FOCUS_INCLUDE_CLOSE_TARGETS", "1"
+    ).lower() not in ("0", "false", "no"),
 }
 
 
@@ -787,6 +842,8 @@ class Sniper:
         self._holdings_cache = {"ts": 0.0, "holdings": {}, "cash": 0.0, "quotes": {"USD": 0.0, "USDC": 0.0}}
         self._pair_buy_cooldown_until = {}
         self._close_evidence_cache = {}
+        self._profit_focus_cache = {"ts": 0.0, "pairs": []}
+        self._balance_flow_cache = {"ts": 0.0, "state": {}}
         self._last_interval_logged = None
         self.sources = {
             "latency": LatencySignalSource(),
@@ -918,6 +975,160 @@ class Sniper:
         for pair in self._close_evidence_targets():
             aliases.update(self._pair_aliases(pair))
         return aliases
+
+    @staticmethod
+    def _canonical_focus_pair(pair):
+        p = Sniper._normalize_pair(pair)
+        if p.endswith("-USDC"):
+            return p.replace("-USDC", "-USD")
+        return p
+
+    def _profit_focus_scan_pairs(self, base_pairs):
+        pairs = [self._normalize_pair(p) for p in (base_pairs or []) if self._normalize_pair(p)]
+        if not bool(CONFIG.get("profit_focus_mode", True)):
+            return pairs
+        if not pairs:
+            return pairs
+
+        lookback_h = max(1, int(CONFIG.get("profit_focus_lookback_hours", 72) or 72))
+        min_closes = max(1, int(CONFIG.get("profit_focus_min_closes", 3) or 3))
+        min_net = float(CONFIG.get("profit_focus_min_net_pnl_usd", 0.10) or 0.10)
+        top_n = max(1, int(CONFIG.get("profit_focus_top_n", 4) or 4))
+        min_scan_pairs = max(1, int(CONFIG.get("profit_focus_min_scan_pairs", 2) or 2))
+        cache_ttl = max(10, int(CONFIG.get("profit_focus_cache_seconds", 90) or 90))
+        include_primary = bool(CONFIG.get("profit_focus_include_primary", True))
+        include_targets = bool(CONFIG.get("profit_focus_include_close_targets", True))
+
+        base_by_canonical = {}
+        for pair in pairs:
+            canon = self._canonical_focus_pair(pair)
+            if not canon:
+                continue
+            bucket = base_by_canonical.setdefault(canon, [])
+            if pair not in bucket:
+                bucket.append(pair)
+
+        def _select_base_alias(canon, observed_pair):
+            options = list(base_by_canonical.get(canon, []))
+            if not options:
+                return ""
+            observed = self._normalize_pair(observed_pair)
+            if observed in options:
+                return observed
+            if observed.endswith("-USDC"):
+                for item in options:
+                    if item.endswith("-USDC"):
+                        return item
+            for item in options:
+                if item.endswith("-USD"):
+                    return item
+            return options[0]
+
+        now = time.time()
+        cached = self._profit_focus_cache if isinstance(self._profit_focus_cache, dict) else {}
+        ranked = []
+        if (
+            cached
+            and isinstance(cached.get("pairs"), list)
+            and (now - float(cached.get("ts", 0.0) or 0.0)) <= cache_ttl
+        ):
+            ranked = [self._normalize_pair(p) for p in cached.get("pairs", []) if self._normalize_pair(p)]
+        else:
+            blocked = (
+                "pending",
+                "placed",
+                "open",
+                "accepted",
+                "ack_ok",
+                "failed",
+                "blocked",
+                "canceled",
+                "cancelled",
+                "expired",
+            )
+            marks = ",".join("?" for _ in blocked)
+            conn = None
+            try:
+                if TRADER_DB_PATH.exists():
+                    conn = sqlite3.connect(str(TRADER_DB_PATH), timeout=5.0)
+                    conn.row_factory = sqlite3.Row
+                    conn.execute("PRAGMA busy_timeout=5000")
+                    if self._trader_table_exists(conn, "agent_trades"):
+                        rows = conn.execute(
+                            f"""
+                            SELECT
+                                pair,
+                                COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
+                                COALESCE(SUM(COALESCE(pnl, 0)), 0) AS net_pnl,
+                                COALESCE(AVG(CASE WHEN pnl IS NOT NULL THEN pnl END), 0) AS avg_pnl
+                            FROM agent_trades
+                            WHERE UPPER(COALESCE(side, ''))='SELL'
+                              AND pnl IS NOT NULL
+                              AND created_at >= datetime('now', ?)
+                              AND (
+                                status IS NULL
+                                OR LOWER(COALESCE(status, '')) NOT IN ({marks})
+                              )
+                            GROUP BY pair
+                            HAVING COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) >= ?
+                               AND COALESCE(SUM(COALESCE(pnl, 0)), 0) > ?
+                            ORDER BY net_pnl DESC, avg_pnl DESC, closes DESC
+                            LIMIT ?
+                            """,
+                            (
+                                f"-{int(lookback_h)} hours",
+                                *blocked,
+                                int(min_closes),
+                                float(min_net),
+                                int(max(4, top_n * 3)),
+                            ),
+                        ).fetchall()
+                        for row in rows:
+                            canon = self._canonical_focus_pair(row["pair"])
+                            pick = _select_base_alias(canon, row["pair"])
+                            if pick:
+                                ranked.append(pick)
+            except Exception:
+                ranked = []
+            finally:
+                try:
+                    if conn is not None:
+                        conn.close()
+                except Exception:
+                    pass
+            ranked = list(dict.fromkeys(ranked))
+            self._profit_focus_cache = {"ts": now, "pairs": list(ranked)}
+
+        required = []
+        if include_primary:
+            for pair in (CONFIG.get("primary_pairs") or []):
+                p = self._normalize_pair(pair)
+                if p and p in pairs:
+                    required.append(p)
+        if include_targets:
+            for pair in self._close_evidence_targets():
+                alias = _select_base_alias(self._canonical_focus_pair(pair), pair)
+                if alias:
+                    required.append(alias)
+
+        out = []
+        seen = set()
+        for pair in list(ranked) + list(required):
+            p = self._normalize_pair(pair)
+            if not p or p in seen or p not in pairs:
+                continue
+            out.append(p)
+            seen.add(p)
+
+        target_size = max(min_scan_pairs, min(top_n, len(pairs)))
+        for pair in pairs:
+            if len(out) >= target_size:
+                break
+            if pair in seen:
+                continue
+            out.append(pair)
+            seen.add(pair)
+        return out[:target_size]
 
     @staticmethod
     def _trader_table_exists(conn, table_name):
@@ -1810,9 +2021,18 @@ class Sniper:
         logger.info("=== SNIPER SCAN ===")
         actionable = []
         scan_results = {}
+        base_pairs = [self._normalize_pair(p) for p in CONFIG.get("pairs", []) if self._normalize_pair(p)]
+        scan_pairs = self._profit_focus_scan_pairs(base_pairs)
+        if not scan_pairs:
+            scan_pairs = list(base_pairs)
+        logger.info(
+            "SNIPER: pair focus universe %s (base=%s)",
+            scan_pairs,
+            base_pairs,
+        )
 
-        with ThreadPoolExecutor(max_workers=min(4, len(CONFIG["pairs"]))) as executor:
-            futures = {executor.submit(self.scan_pair, pair): pair for pair in CONFIG["pairs"]}
+        with ThreadPoolExecutor(max_workers=max(1, min(4, len(scan_pairs)))) as executor:
+            futures = {executor.submit(self.scan_pair, pair): pair for pair in scan_pairs}
             for future in as_completed(futures):
                 pair = futures[future]
                 try:
@@ -1833,7 +2053,7 @@ class Sniper:
                 len(analysis.get("entry_validations", {}) or {}),
             )
 
-        for pair in CONFIG["pairs"]:
+        for pair in scan_pairs:
             result = scan_results.get(pair)
             if not result:
                 continue
@@ -1938,6 +2158,8 @@ class Sniper:
             logger.info("SNIPER: non-BTC close evidence gaps detected %s", compact)
         actionable = self._inject_close_evidence_sell_signals(actionable, close_gaps)
         actionable = self._prioritize_actionable_for_close_evidence(actionable, close_gaps)
+        balance_state = self._balanced_growth_state()
+        actionable = self._apply_balance_growth_to_actionable(actionable, balance_state)
 
         # Store actionable signals for opportunity-cost selling
         self._pending_buys = [s for s in actionable if s["direction"] == "BUY"]
@@ -2114,6 +2336,277 @@ class Sniper:
             f"_needed={needed:.2f}_min_viable={min_viable:.2f}"
         )
         return pair, 0.0, reason
+
+    def _trade_flow_metrics_for_balance(self, lookback_hours=24):
+        lookback = max(1, int(lookback_hours or 24))
+        metrics = {
+            "lookback_hours": int(lookback),
+            "buy_fills": 0,
+            "sell_fills": 0,
+            "sell_close_attempts": 0,
+            "sell_close_completions": 0,
+            "sell_close_completion_rate": 1.0,
+            "effective_sell_completions": 0,
+            "buy_sell_ratio": 0.0,
+            "realized_sell_closes": 0,
+            "realized_sell_net_pnl_usd": 0.0,
+            "reconcile_gate_passed": True,
+            "reconcile_gate_reason": "not_available",
+        }
+        completed = tuple(self._completed_trade_statuses())
+        marks = ",".join("?" for _ in completed)
+        conn = None
+        try:
+            if TRADER_DB_PATH.exists():
+                conn = sqlite3.connect(str(TRADER_DB_PATH), timeout=5.0)
+                conn.row_factory = sqlite3.Row
+                conn.execute("PRAGMA busy_timeout=5000")
+                if self._trader_table_exists(conn, "agent_trades"):
+                    rows = conn.execute(
+                        f"""
+                        SELECT UPPER(COALESCE(side, '')) AS side, COUNT(*) AS n
+                        FROM agent_trades
+                        WHERE created_at >= datetime('now', ?)
+                          AND LOWER(COALESCE(status, '')) IN ({marks})
+                        GROUP BY UPPER(COALESCE(side, ''))
+                        """,
+                        (f"-{lookback} hours", *completed),
+                    ).fetchall()
+                    for row in rows:
+                        side = str(row["side"] or "").upper()
+                        count = int(row["n"] or 0)
+                        if side == "BUY":
+                            metrics["buy_fills"] = count
+                        elif side == "SELL":
+                            metrics["sell_fills"] = count
+
+                    row = conn.execute(
+                        f"""
+                        SELECT
+                            COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
+                            COALESCE(SUM(CASE WHEN pnl IS NOT NULL THEN COALESCE(pnl, 0) ELSE 0 END), 0) AS net_pnl
+                        FROM agent_trades
+                        WHERE UPPER(COALESCE(side, ''))='SELL'
+                          AND created_at >= datetime('now', ?)
+                          AND LOWER(COALESCE(status, '')) IN ({marks})
+                        """,
+                        (f"-{lookback} hours", *completed),
+                    ).fetchone()
+                    metrics["realized_sell_closes"] = int((row["closes"] if row else 0) or 0)
+                    metrics["realized_sell_net_pnl_usd"] = float((row["net_pnl"] if row else 0.0) or 0.0)
+        except Exception:
+            pass
+        finally:
+            try:
+                if conn is not None:
+                    conn.close()
+            except Exception:
+                pass
+
+        try:
+            if RECONCILE_STATUS_PATH.exists():
+                payload = json.loads(RECONCILE_STATUS_PATH.read_text())
+                if isinstance(payload, dict):
+                    summary = payload.get("summary", {}) if isinstance(payload.get("summary"), dict) else {}
+                    close = payload.get("close_reconciliation", {}) if isinstance(payload.get("close_reconciliation"), dict) else {}
+                    attempts = int(close.get("attempts", summary.get("close_attempts", 0)) or 0)
+                    completions = int(close.get("completions", summary.get("close_completions", 0)) or 0)
+                    if attempts > 0:
+                        metrics["sell_close_attempts"] = attempts
+                        metrics["sell_close_completions"] = completions
+                        if "completion_rate" in close:
+                            completion_rate = float(close.get("completion_rate", 0.0) or 0.0)
+                        else:
+                            completion_rate = float(completions) / float(max(1, attempts))
+                        metrics["sell_close_completion_rate"] = max(0.0, min(1.0, completion_rate))
+                    gate_passed = close.get("gate_passed", summary.get("close_gate_passed"))
+                    gate_reason = str(close.get("gate_reason", summary.get("close_gate_reason", "")) or "").strip()
+                    if isinstance(gate_passed, bool):
+                        metrics["reconcile_gate_passed"] = bool(gate_passed)
+                    if gate_reason:
+                        metrics["reconcile_gate_reason"] = gate_reason
+        except Exception:
+            pass
+
+        effective = max(
+            int(metrics.get("sell_fills", 0) or 0),
+            int(metrics.get("sell_close_completions", 0) or 0),
+        )
+        metrics["effective_sell_completions"] = int(effective)
+        buys = int(metrics.get("buy_fills", 0) or 0)
+        metrics["buy_sell_ratio"] = float(buys) / float(max(1, effective))
+        return metrics
+
+    def _balanced_growth_state(self, force_refresh=False):
+        state = {
+            "enabled": bool(CONFIG.get("balance_growth_mode", True)),
+            "allow_buy": True,
+            "mode": "disabled",
+            "reason": "balance_growth_disabled",
+            "buy_confidence_factor": 1.0,
+            "buy_size_factor": 1.0,
+            "metrics": {},
+        }
+        if not state["enabled"]:
+            return state
+
+        now = time.time()
+        ttl = max(5, int(CONFIG.get("balance_cache_seconds", 20) or 20))
+        cached = self._balance_flow_cache if isinstance(self._balance_flow_cache, dict) else {}
+        if (
+            not force_refresh
+            and isinstance(cached.get("state"), dict)
+            and (now - float(cached.get("ts", 0.0) or 0.0)) <= ttl
+        ):
+            return dict(cached.get("state") or state)
+
+        metrics = self._trade_flow_metrics_for_balance(
+            lookback_hours=CONFIG.get("balance_lookback_hours", 24)
+        )
+        state["metrics"] = metrics
+        state["mode"] = "balanced"
+        state["reason"] = "balanced_flow"
+
+        buys = int(metrics.get("buy_fills", 0) or 0)
+        effective_sells = int(metrics.get("effective_sell_completions", 0) or 0)
+        ratio = float(metrics.get("buy_sell_ratio", 0.0) or 0.0)
+        attempts = int(metrics.get("sell_close_attempts", 0) or 0)
+        completion_rate = float(metrics.get("sell_close_completion_rate", 1.0) or 0.0)
+        realized_closes = int(metrics.get("realized_sell_closes", 0) or 0)
+        realized_net = float(metrics.get("realized_sell_net_pnl_usd", 0.0) or 0.0)
+
+        min_sell_completions = max(0, int(CONFIG.get("balance_min_sell_completions", 2) or 2))
+        min_close_attempts = max(1, int(CONFIG.get("balance_min_close_attempts", 2) or 2))
+        min_close_rate = max(
+            0.0,
+            min(1.0, float(CONFIG.get("balance_min_close_completion_rate", 0.45) or 0.45)),
+        )
+        max_ratio = max(0.1, float(CONFIG.get("balance_max_buy_sell_ratio", 1.35) or 1.35))
+        min_ratio_for_accel = max(
+            0.0,
+            float(CONFIG.get("balance_min_buy_sell_ratio_for_accel", 0.55) or 0.55),
+        )
+        require_non_negative_pnl = bool(
+            CONFIG.get("balance_require_non_negative_realized_pnl", True)
+        )
+        min_realized_closes = max(
+            1, int(CONFIG.get("balance_min_realized_closes_for_pnl_gate", 3) or 3)
+        )
+
+        if buys <= 0 and effective_sells <= 0:
+            state["reason"] = "balance_bootstrap_no_completed_flow"
+            self._balance_flow_cache = {"ts": now, "state": dict(state)}
+            return state
+
+        blockers = []
+        if buys > 0 and effective_sells < min_sell_completions:
+            blockers.append(
+                f"balance_insufficient_sell_completions:{effective_sells}<{min_sell_completions}"
+            )
+        if attempts >= min_close_attempts and completion_rate < min_close_rate:
+            blockers.append(
+                f"balance_close_completion_rate_low:{completion_rate:.3f}<{min_close_rate:.3f}"
+            )
+        if buys > 0 and ratio > max_ratio:
+            blockers.append(f"balance_buy_sell_ratio_high:{ratio:.3f}>{max_ratio:.3f}")
+        if (
+            require_non_negative_pnl
+            and realized_closes >= min_realized_closes
+            and realized_net < 0.0
+        ):
+            blockers.append(
+                f"balance_realized_sell_pnl_negative:{realized_net:.4f}@{realized_closes}"
+            )
+
+        if blockers:
+            state["allow_buy"] = False
+            state["mode"] = "sell_recovery"
+            state["reason"] = "|".join(blockers[:2])
+            self._balance_flow_cache = {"ts": now, "state": dict(state)}
+            return state
+
+        caution_floor = max(min_ratio_for_accel, min(max_ratio * 0.85, max_ratio - 0.10))
+        if buys > 0 and ratio >= caution_floor:
+            state["mode"] = "buy_caution"
+            state["reason"] = f"balance_near_ratio_cap:{ratio:.3f}>={caution_floor:.3f}"
+            state["buy_confidence_factor"] = max(
+                0.25,
+                min(1.0, float(CONFIG.get("balance_buy_confidence_penalty", 0.88) or 0.88)),
+            )
+            state["buy_size_factor"] = max(
+                0.25,
+                min(1.0, float(CONFIG.get("balance_buy_size_penalty", 0.72) or 0.72)),
+            )
+        elif (
+            ratio <= min_ratio_for_accel
+            and effective_sells >= min_sell_completions
+            and (
+                not require_non_negative_pnl
+                or realized_closes < min_realized_closes
+                or realized_net >= 0.0
+            )
+        ):
+            state["mode"] = "buy_accelerate"
+            state["reason"] = f"balance_underweight_buy_flow:{ratio:.3f}<={min_ratio_for_accel:.3f}"
+            state["buy_confidence_factor"] = max(
+                1.0,
+                min(1.5, float(CONFIG.get("balance_buy_confidence_boost", 1.06) or 1.06)),
+            )
+            state["buy_size_factor"] = max(
+                1.0,
+                min(1.5, float(CONFIG.get("balance_buy_size_boost", 1.12) or 1.12)),
+            )
+
+        self._balance_flow_cache = {"ts": now, "state": dict(state)}
+        return state
+
+    def _apply_balance_growth_to_actionable(self, actionable, state):
+        out = []
+        dropped_buys = 0
+        allow_buy = bool((state or {}).get("allow_buy", True))
+        mode = str((state or {}).get("mode", "balanced"))
+        reason = str((state or {}).get("reason", "balanced_flow"))
+        conf_factor = float((state or {}).get("buy_confidence_factor", 1.0) or 1.0)
+        size_factor = float((state or {}).get("buy_size_factor", 1.0) or 1.0)
+        metrics = (state or {}).get("metrics", {}) if isinstance((state or {}).get("metrics"), dict) else {}
+
+        for signal in list(actionable or []):
+            entry = dict(signal)
+            direction = str(entry.get("direction", "")).upper()
+            if direction != "BUY":
+                out.append(entry)
+                continue
+            if not allow_buy:
+                dropped_buys += 1
+                continue
+            old_conf = float(entry.get("composite_confidence", 0.0) or 0.0)
+            entry["composite_confidence"] = max(0.0, min(0.99, old_conf * conf_factor))
+            entry["balance_growth"] = {
+                "mode": mode,
+                "reason": reason,
+                "buy_confidence_factor": conf_factor,
+                "buy_size_factor": size_factor,
+                "buy_sell_ratio": round(float(metrics.get("buy_sell_ratio", 0.0) or 0.0), 4),
+                "effective_sell_completions": int(metrics.get("effective_sell_completions", 0) or 0),
+                "realized_sell_net_pnl_usd": round(float(metrics.get("realized_sell_net_pnl_usd", 0.0) or 0.0), 6),
+            }
+            out.append(entry)
+
+        if dropped_buys > 0:
+            logger.info(
+                "SNIPER: balanced growth blocked %d BUY signals (%s)",
+                dropped_buys,
+                reason,
+            )
+        elif mode in {"buy_caution", "buy_accelerate"}:
+            logger.info(
+                "SNIPER: balanced growth mode=%s conf_factor=%.3f size_factor=%.3f reason=%s",
+                mode,
+                conf_factor,
+                size_factor,
+                reason,
+            )
+        return out
 
     def _close_flow_allows_buy(self):
         """Block new BUYs when close/fill reconciliation is stale or too failure-heavy."""
@@ -2385,6 +2878,9 @@ class Sniper:
             logger.info("SNIPER: %s %s BLOCKED — %s", pair, direction, throttle_reason)
             return False
 
+        balance_state = {}
+        balance_size_factor = 1.0
+
         if direction == "BUY":
             # Fear & Greed — log but don't block (maker orders + throttle protect us now)
             fg_val = self._get_fear_greed_value()
@@ -2403,6 +2899,19 @@ class Sniper:
             if not close_ok:
                 logger.info("SNIPER: %s BUY blocked — %s", pair, close_reason)
                 return False
+            balance_state = self._balanced_growth_state()
+            if not bool(balance_state.get("allow_buy", True)):
+                logger.info(
+                    "SNIPER: %s BUY blocked — balanced growth gate (%s)",
+                    pair,
+                    str(balance_state.get("reason", "buy_blocked")),
+                )
+                return False
+            balance_meta = signal.get("balance_growth", {}) if isinstance(signal.get("balance_growth"), dict) else {}
+            balance_size_factor = float(
+                balance_meta.get("buy_size_factor", balance_state.get("buy_size_factor", 1.0)) or 1.0
+            )
+            balance_size_factor = max(0.25, min(1.5, balance_size_factor))
             cooldown_active, remaining = self._pair_buy_cooldown_active(pair)
             if cooldown_active:
                 logger.info("SNIPER: %s BUY blocked — cooldown active (%ss remaining)", pair, remaining)
@@ -2595,6 +3104,15 @@ class Sniper:
             if str(health_reason).startswith("execution_health_degraded:"):
                 trade_size *= float(CONFIG.get("execution_health_degraded_trade_size_factor", 0.75))
                 trade_size = round(trade_size, 2)
+            if abs(balance_size_factor - 1.0) > 1e-9:
+                trade_size *= balance_size_factor
+                trade_size = round(float(trade_size), 4)
+                logger.info(
+                    "SNIPER: %s BUY size adjusted by balanced growth x%.3f (mode=%s)",
+                    pair,
+                    balance_size_factor,
+                    str((balance_state or {}).get("mode", "balanced")),
+                )
 
             # Quote-aware reroute + bankroll-aware sizing (fixes USD-vs-USDC mismatches and over-sized proposals).
             fit_pair, fitted_size, fit_reason = self._fit_buy_to_quote_capacity(
@@ -2949,6 +3467,35 @@ class Sniper:
             status=status,
             pnl=ledger_pnl,
         )
+
+        # Record to capital ledger (unified audit trail)
+        if status in ("filled", "pending"):
+            try:
+                from ledger_writer import LedgerWriter
+                _ledger = LedgerWriter()
+                asset = pair.split("-")[0] if "-" in pair else pair
+                fees = effective_notional * 0.004  # maker fee
+                _ledger.record_trade_fill(
+                    asset=asset,
+                    venue="coinbase",
+                    amount=effective_qty if side == "BUY" else -effective_qty,
+                    value_usd=effective_notional if side == "BUY" else -effective_notional,
+                    pair=pair,
+                    side=side,
+                    price=effective_price,
+                    order_id=order_id,
+                    agent="sniper",
+                    fees_usd=fees,
+                    realized_pnl_usd=pnl,
+                    trigger=f"sniper_scan:confidence={signal.get('composite_confidence', 0):.2f}",
+                    metadata={
+                        "confidence": float(signal.get("composite_confidence", 0) or 0),
+                        "confirming_signals": int(signal.get("confirming_signals", 0) or 0),
+                        "lifecycle_status": lifecycle_status,
+                    },
+                )
+            except Exception as ledger_err:
+                logger.debug("Capital ledger write failed: %s", ledger_err)
 
         # Record to KPI tracker for scorecard
         if _kpi and status in ("filled", "pending"):

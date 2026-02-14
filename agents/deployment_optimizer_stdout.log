@@ -159,3 +159,9 @@
 2026-02-14 13:41:22,183 [deployment_optimizer] INFO cycle=2 score=0.31 hf_live_ready=False top_regions=ewr,nrt,sin
 2026-02-14 14:34:22,129 [deployment_optimizer] INFO starting deployment_optimizer loop interval=300s
 2026-02-14 14:34:22,189 [deployment_optimizer] INFO cycle=1 score=0.31 hf_live_ready=False top_regions=ewr,nrt,sin
+2026-02-14 14:39:22,413 [deployment_optimizer] INFO cycle=2 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin
+2026-02-14 14:44:22,871 [deployment_optimizer] INFO cycle=3 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin
+2026-02-14 14:49:23,009 [deployment_optimizer] INFO cycle=4 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin
+2026-02-14 14:54:23,037 [deployment_optimizer] INFO cycle=5 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin
+2026-02-14 14:59:23,125 [deployment_optimizer] INFO cycle=6 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin
+2026-02-14 15:04:23,164 [deployment_optimizer] INFO cycle=7 score=0.52 hf_live_ready=True top_regions=ewr,nrt,sin

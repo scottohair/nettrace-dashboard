@@ -17,7 +17,8 @@
       "Bash(openclaw --version:*)",
       "Bash(npm install:*)",
       "Bash(python3:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(ls:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

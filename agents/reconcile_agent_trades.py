@@ -166,6 +166,20 @@ def _apply_reconcile_row(tools, row, summary):
                 if abs(delta) > 1e-12:
                     tools.record_pnl(delta)
 
+        # Record realized P&L to capital ledger
+        if pnl is not None and str(row["side"] or "").upper() == "SELL" and new_status == "filled":
+            try:
+                from ledger_writer import LedgerWriter
+                _ledger = LedgerWriter()
+                _ledger.record_realized_pnl(
+                    trade_id=int(row["id"]),
+                    realized_pnl_usd=float(pnl),
+                    pair=str(row["pair"] or ""),
+                    agent=str(row["agent"] or ""),
+                )
+            except Exception:
+                pass
+
         if new_status == "filled":
             summary["filled"] += 1
         elif new_status in {"partial_filled", "partially_filled"}:

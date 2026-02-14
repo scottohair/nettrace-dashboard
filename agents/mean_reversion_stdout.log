@@ -13651,3 +13651,14 @@
 2026-02-14 13:44:12,207 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 3s, reason=egress_blocked)
 2026-02-14 13:44:12,207 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 3s, reason=egress_blocked)
 2026-02-14 14:34:09,938 [mean_reversion] INFO Mean Reversion Agent starting | Pairs: ['BTC/ETH', 'ETH/SOL', 'BTC/SOL', 'LINK/AVAX'] | Z-entry: 2.0 | Z-exit: 0.2
+2026-02-14 14:44:30,677 [mean_reversion] INFO Warming up BTC/ETH: 10/100 observations
+2026-02-14 14:44:33,015 [mean_reversion] INFO Warming up ETH/SOL: 10/100 observations
+2026-02-14 14:44:35,236 [mean_reversion] INFO Warming up BTC/SOL: 10/100 observations
+2026-02-14 14:44:37,463 [mean_reversion] INFO Warming up LINK/AVAX: 10/100 observations
+2026-02-14 14:56:11,772 [mean_reversion] INFO BTC/ETH: z=-0.83 ratio=33.4485 mean=33.4600 obs=20 
+2026-02-14 14:56:11,773 [mean_reversion] INFO ETH/SOL: z=0.86 ratio=23.6907 mean=23.6826 obs=20 
+2026-02-14 14:56:11,773 [mean_reversion] INFO BTC/SOL: z=-0.18 ratio=792.3311 mean=792.4388 obs=20 
+2026-02-14 14:56:11,773 [mean_reversion] INFO LINK/AVAX: z=-3.47 ratio=0.9533 mean=0.9564 obs=20 
+2026-02-14 15:03:10,100 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.02659013 @ $88.4 (post_only=True)
+2026-02-14 15:03:10,277 [mean_reversion] INFO ENTER ETH/SOL: BUY_A/SELL_B | z=-2.45 | $4.70 | ratio=23.6519 (mean=23.6793)
+2026-02-14 15:05:28,910 [mean_reversion] INFO EXIT ETH/SOL: z crossed zero to 1.14 | z=-2.45→1.14 | pnl=$-0.0296 | held=138s

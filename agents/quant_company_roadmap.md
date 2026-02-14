@@ -1,24 +1,24 @@
 # Quant Company Roadmap
 
-Updated: 2026-02-14T19:34:26.234479+00:00
+Updated: 2026-02-14T20:04:28.076360+00:00
 
 ## WIN Objective
 - WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.
 - Treasury capture assets: USD, USDC
 
 ## Scores
-- Alpha score: 0.89
-- Migration score: 0.70
-- GTM score: 0.70
-- Deployment score: 0.31
-- GO live: False
-- HF live ready: False
+- Alpha score: 0.45
+- Migration score: 0.75
+- GTM score: 0.75
+- Deployment score: 0.52
+- GO live: True
+- HF live ready: True
 
 ## Profit Targets
-- Daily PnL: $0.00
+- Daily PnL: $-0.92
 - Next target: $1,000.00
-- Target progress: 0.00%
-- Required run-rate: $225.93/hour
+- Target progress: -0.09%
+- Required run-rate: $254.98/hour
 - Budget escalator: de_escalate x0.80
 - Realized close gate: passed=True reason=passed
 
@@ -28,35 +28,27 @@ Updated: 2026-02-14T19:34:26.234479+00:00
 - Phase 3: go_to_market_rollout [blocked]
 
 ## Region Targets
-- ewr: score=0.47 role=Primary Coordinator (US East)
-- nrt: score=0.23 role=Asian Exchange Primary (Tokyo)
-- sin: score=0.23 role=Asian Exchange Backup (Singapore)
-- ord: score=0.20 role=CME/NYMEX Proximity (US Central)
-- lhr: score=0.15 role=European Exchange Hub (London)
-- fra: score=0.15 role=European Backup + Risk Monitor (Frankfurt)
+- ewr: score=0.75 role=Primary Coordinator (US East)
+- nrt: score=0.41 role=Asian Exchange Primary (Tokyo)
+- sin: score=0.41 role=Asian Exchange Backup (Singapore)
+- ord: score=0.38 role=CME/NYMEX Proximity (US Central)
+- lhr: score=0.33 role=European Exchange Hub (London)
+- fra: score=0.33 role=European Backup + Risk Monitor (Frankfurt)
 
 ## Market Priorities
-- SOL-USDC: score=0.45, edge=0.468%
 
 ## GTM Stages
 - private_alpha: in_progress (risk-capped automated strategy basket)
-- partner_beta: blocked (dashboard + execution transparency + reserve reporting)
+- partner_beta: planned (dashboard + execution transparency + reserve reporting)
 - public_launch: planned (multi-market quant platform + treasury custody controls)
-
-## Blockers
-- close_flow_gate_failed:reconcile_close_gate_failed:sell_close_completion_missing:not_completed_pending
-- hf_live_not_ready
 
 ## Profit Task Queue
 - Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.
-- HF live gate is blocked; keep HF lane in paper mode and fix DNS + venue credentials before live budget.
-- Stabilize Coinbase API health before live budget escalation (improve retries + region routing).
-- Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.
-- Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.
-- Current run-rate gap: need $225.93/hour to hit next daily target $1,000.00.
+- Current run-rate gap: need $254.98/hour to hit next daily target $1,000.00.
 - Deploy primary execution to region order: ewr -> nrt -> sin.
-- Focus quant sweeps + walk-forward + Monte Carlo on top pairs: SOL-USDC.
 - Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.
 - Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.
 - Continuously harvest realized gains into treasury assets: USD and USDC.
 - Prefer strategies with fast, repeatable close cycles that improve realized USD/USDC run-rate.
+- Send Claude a high-priority directive each cycle with blockers, required run-rate, and top migration actions.
+- Promote only strategies with positive realized PnL evidence; de-escalate automatically on drawdown or failed close windows.

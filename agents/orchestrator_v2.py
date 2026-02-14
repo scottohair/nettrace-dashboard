@@ -291,6 +291,14 @@ AGENT_CONFIGS = [
         "description": "Latency-based arb using Fly.io proximity signals",
     },
     {
+        "name": "multi_exchange_arb",
+        "script": "multi_exchange_service.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Multi-exchange arbitrage scanner (10 exchanges, 0.3% threshold)",
+    },
+    {
         "name": "momentum_scalper",
         "script": "momentum_scalper.py",
         "args": [],

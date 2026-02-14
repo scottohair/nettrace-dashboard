@@ -337,8 +337,69 @@ class TestStrikeTeamExitValidation(unittest.TestCase):
                 st, "STRIKE_DYNAMIC_PAIRS_REFRESH_SECONDS", 0
             ), patch.object(st, "STRIKE_DYNAMIC_PAIR_MIN_POINTS", 6), patch.object(
                 st, "STRIKE_DYNAMIC_PAIR_LOOKBACK", 16
+            ), patch.object(
+                st, "STRIKE_PROFIT_FOCUS_ENABLED", False
             ):
                 pairs, source = st._dynamic_pair_universe("HF", ["BTC-USD"])
 
             self.assertEqual(source, "candle_feed")
             self.assertIn("AVAX-USD", pairs)
+
+    def test_profit_focus_pairs_prefers_positive_realized_lanes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            trader_db = Path(tmp) / "trader.db"
+            conn = sqlite3.connect(str(trader_db))
+            conn.execute(
+                """
+                CREATE TABLE agent_trades (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    pair TEXT,
+                    side TEXT,
+                    status TEXT,
+                    pnl REAL,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+            for _ in range(4):
+                conn.execute(
+                    "INSERT INTO agent_trades (pair, side, status, pnl, created_at) VALUES ('SOL-USD','SELL','filled',0.30,datetime('now'))"
+                )
+            for _ in range(4):
+                conn.execute(
+                    "INSERT INTO agent_trades (pair, side, status, pnl, created_at) VALUES ('AVAX-USD','SELL','filled',-0.20,datetime('now'))"
+                )
+            conn.commit()
+            conn.close()
+
+            with patch.object(st, "TRADER_DB_PATH", trader_db), patch.object(
+                st, "STRIKE_PROFIT_FOCUS_ENABLED", True
+            ), patch.object(
+                st, "STRIKE_PROFIT_FOCUS_INCLUDE_CLOSE_TARGETS", False
+            ), patch.object(
+                st, "STRIKE_PROFIT_FOCUS_MIN_CLOSES", 3
+            ), patch.object(
+                st, "STRIKE_PROFIT_FOCUS_MIN_NET_PNL_USD", 0.1
+            ), patch.object(
+                st, "STRIKE_PROFIT_FOCUS_TOP_N_HF", 2
+            ):
+                st._PROFIT_FOCUS_CACHE.update({"ts": 0.0, "pairs": []})
+                pairs = st._profit_focus_pairs("HF")
+            self.assertIn("SOL-USD", pairs)
+            self.assertNotIn("AVAX-USD", pairs)
+
+    def test_apply_profit_focus_universe_keeps_min_active_pairs(self):
+        with patch.object(st, "STRIKE_PROFIT_FOCUS_ENABLED", True), patch.object(
+            st, "STRIKE_PROFIT_FOCUS_MIN_ACTIVE_PAIRS", 2
+        ), patch.object(
+            st, "_profit_focus_pairs", return_value=["SOL-USD"]
+        ), patch.object(
+            st, "STRIKE_PROFIT_FOCUS_INCLUDE_CLOSE_TARGETS", False
+        ):
+            out = st._apply_profit_focus_universe(
+                ["BTC-USD", "SOL-USD", "ETH-USD"],
+                team_type="HF",
+                limit=4,
+            )
+        self.assertEqual(out[0], "SOL-USD")
+        self.assertEqual(len(out), 2)

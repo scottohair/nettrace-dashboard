@@ -101,6 +101,35 @@ STRIKE_DYNAMIC_INCLUDE_USDC = os.environ.get("STRIKE_DYNAMIC_INCLUDE_USDC", "0")
     "false",
     "no",
 )
+STRIKE_PROFIT_FOCUS_ENABLED = os.environ.get("STRIKE_PROFIT_FOCUS_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+STRIKE_PROFIT_FOCUS_LOOKBACK_HOURS = int(
+    os.environ.get("STRIKE_PROFIT_FOCUS_LOOKBACK_HOURS", "72") or 72
+)
+STRIKE_PROFIT_FOCUS_MIN_CLOSES = int(
+    os.environ.get("STRIKE_PROFIT_FOCUS_MIN_CLOSES", "3") or 3
+)
+STRIKE_PROFIT_FOCUS_MIN_NET_PNL_USD = float(
+    os.environ.get("STRIKE_PROFIT_FOCUS_MIN_NET_PNL_USD", "0.10") or 0.10
+)
+STRIKE_PROFIT_FOCUS_TOP_N_HF = int(
+    os.environ.get("STRIKE_PROFIT_FOCUS_TOP_N_HF", "4") or 4
+)
+STRIKE_PROFIT_FOCUS_TOP_N_LF = int(
+    os.environ.get("STRIKE_PROFIT_FOCUS_TOP_N_LF", "6") or 6
+)
+STRIKE_PROFIT_FOCUS_CACHE_SECONDS = int(
+    os.environ.get("STRIKE_PROFIT_FOCUS_CACHE_SECONDS", "90") or 90
+)
+STRIKE_PROFIT_FOCUS_MIN_ACTIVE_PAIRS = int(
+    os.environ.get("STRIKE_PROFIT_FOCUS_MIN_ACTIVE_PAIRS", "2") or 2
+)
+STRIKE_PROFIT_FOCUS_INCLUDE_CLOSE_TARGETS = os.environ.get(
+    "STRIKE_PROFIT_FOCUS_INCLUDE_CLOSE_TARGETS", "1"
+).lower() not in ("0", "false", "no")
 STRIKE_CLOSE_EVIDENCE_PRIORITY_ENABLED = os.environ.get("STRIKE_CLOSE_EVIDENCE_PRIORITY_ENABLED", "1").lower() not in (
     "0",
     "false",
@@ -129,6 +158,41 @@ STRIKE_CLOSE_EVIDENCE_RECONCILE_POLL_SECONDS = float(
 )
 STRIKE_CLOSE_EVIDENCE_SELL_FILL_WAIT_SECONDS = float(
     os.environ.get("STRIKE_CLOSE_EVIDENCE_SELL_FILL_WAIT_SECONDS", "6.0") or 6.0
+)
+RECONCILE_STATUS_PATH = Path(__file__).parent / "reconcile_agent_trades_status.json"
+STRIKE_BALANCED_GROWTH_ENABLED = os.environ.get("STRIKE_BALANCED_GROWTH_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+STRIKE_BALANCED_CACHE_SECONDS = int(os.environ.get("STRIKE_BALANCED_CACHE_SECONDS", "20") or 20)
+STRIKE_BALANCED_LOOKBACK_HOURS = int(os.environ.get("STRIKE_BALANCED_LOOKBACK_HOURS", "24") or 24)
+STRIKE_BALANCED_MAX_BUY_SELL_RATIO = float(
+    os.environ.get("STRIKE_BALANCED_MAX_BUY_SELL_RATIO", "1.35") or 1.35
+)
+STRIKE_BALANCED_MIN_BUY_SELL_RATIO_FOR_ACCEL = float(
+    os.environ.get("STRIKE_BALANCED_MIN_BUY_SELL_RATIO_FOR_ACCEL", "0.55") or 0.55
+)
+STRIKE_BALANCED_MIN_SELL_COMPLETIONS = int(
+    os.environ.get("STRIKE_BALANCED_MIN_SELL_COMPLETIONS", "2") or 2
+)
+STRIKE_BALANCED_MIN_CLOSE_ATTEMPTS = int(
+    os.environ.get("STRIKE_BALANCED_MIN_CLOSE_ATTEMPTS", "2") or 2
+)
+STRIKE_BALANCED_MIN_CLOSE_COMPLETION_RATE = float(
+    os.environ.get("STRIKE_BALANCED_MIN_CLOSE_COMPLETION_RATE", "0.45") or 0.45
+)
+STRIKE_BALANCED_REQUIRE_NON_NEGATIVE_REALIZED_PNL = os.environ.get(
+    "STRIKE_BALANCED_REQUIRE_NON_NEGATIVE_REALIZED_PNL", "1"
+).lower() not in ("0", "false", "no")
+STRIKE_BALANCED_MIN_REALIZED_CLOSES_FOR_PNL_GATE = int(
+    os.environ.get("STRIKE_BALANCED_MIN_REALIZED_CLOSES_FOR_PNL_GATE", "3") or 3
+)
+STRIKE_BALANCED_BUY_SIZE_PENALTY = float(
+    os.environ.get("STRIKE_BALANCED_BUY_SIZE_PENALTY", "0.72") or 0.72
+)
+STRIKE_BALANCED_BUY_SIZE_BOOST = float(
+    os.environ.get("STRIKE_BALANCED_BUY_SIZE_BOOST", "1.12") or 1.12
 )
 COMPLETED_TRADE_STATUSES = (
     "filled",
@@ -188,6 +252,7 @@ except Exception:
 
 
 _EXECUTION_HEALTH_CACHE = {"ts": 0.0, "payload": {"green": False, "reason": "uninitialized"}}
+_BALANCED_FLOW_CACHE = {"ts": 0.0, "state": {}}
 
 
 def _safe_float(value, fallback=0.0):
@@ -758,6 +823,7 @@ def _latest_local_close(pair):
 
 
 _PAIR_UNIVERSE_CACHE = {"ts": 0.0, "hf": [], "lf": [], "source": "none"}
+_PROFIT_FOCUS_CACHE = {"ts": 0.0, "pairs": []}
 
 
 def _score_pair_window(candles):
@@ -901,6 +967,126 @@ def _pairs_from_aggregator_db(team_type, limit):
             pass
 
 
+def _profit_focus_pairs(team_type):
+    if not STRIKE_PROFIT_FOCUS_ENABLED:
+        return []
+    now = time.time()
+    ttl = max(10, int(STRIKE_PROFIT_FOCUS_CACHE_SECONDS))
+    cached = _PROFIT_FOCUS_CACHE.get("pairs", [])
+    if cached and (now - float(_PROFIT_FOCUS_CACHE.get("ts", 0.0))) <= ttl:
+        ranked = list(cached)
+    else:
+        ranked = []
+        if TRADER_DB_PATH.exists():
+            conn = None
+            blocked = (
+                "pending",
+                "placed",
+                "open",
+                "accepted",
+                "ack_ok",
+                "failed",
+                "blocked",
+                "canceled",
+                "cancelled",
+                "expired",
+            )
+            blocked_marks = ",".join("?" for _ in blocked)
+            try:
+                conn = _open_trader_db()
+                if _table_exists(conn, "agent_trades"):
+                    rows = conn.execute(
+                        f"""
+                        SELECT
+                            pair,
+                            COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
+                            COALESCE(SUM(COALESCE(pnl, 0)), 0) AS net_pnl,
+                            COALESCE(AVG(CASE WHEN pnl IS NOT NULL THEN pnl END), 0) AS avg_pnl
+                        FROM agent_trades
+                        WHERE UPPER(COALESCE(side, ''))='SELL'
+                          AND pnl IS NOT NULL
+                          AND created_at >= datetime('now', ?)
+                          AND (
+                            status IS NULL
+                            OR LOWER(COALESCE(status, '')) NOT IN ({blocked_marks})
+                          )
+                        GROUP BY pair
+                        HAVING COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) >= ?
+                           AND COALESCE(SUM(COALESCE(pnl, 0)), 0) > ?
+                        ORDER BY net_pnl DESC, avg_pnl DESC, closes DESC
+                        LIMIT ?
+                        """,
+                        (
+                            f"-{int(max(1, STRIKE_PROFIT_FOCUS_LOOKBACK_HOURS))} hours",
+                            *blocked,
+                            int(max(1, STRIKE_PROFIT_FOCUS_MIN_CLOSES)),
+                            float(STRIKE_PROFIT_FOCUS_MIN_NET_PNL_USD),
+                            int(max(4, STRIKE_PROFIT_FOCUS_TOP_N_LF * 3)),
+                        ),
+                    ).fetchall()
+                    for row in rows:
+                        p = _canonical_dynamic_pair(row["pair"])
+                        if p:
+                            ranked.append(p)
+            except Exception:
+                ranked = []
+            finally:
+                try:
+                    if conn is not None:
+                        conn.close()
+                except Exception:
+                    pass
+        ranked = list(dict.fromkeys(ranked))
+        _PROFIT_FOCUS_CACHE["ts"] = now
+        _PROFIT_FOCUS_CACHE["pairs"] = list(ranked)
+
+    if STRIKE_PROFIT_FOCUS_INCLUDE_CLOSE_TARGETS:
+        ranked = list(dict.fromkeys(list(_close_evidence_targets()) + list(ranked)))
+    cap = int(
+        max(
+            1,
+            STRIKE_PROFIT_FOCUS_TOP_N_HF
+            if str(team_type).upper() == "HF"
+            else STRIKE_PROFIT_FOCUS_TOP_N_LF,
+        )
+    )
+    return list(ranked)[:cap]
+
+
+def _apply_profit_focus_universe(pairs, team_type, limit):
+    ordered = [_canonical_dynamic_pair(p) for p in (pairs or []) if _canonical_dynamic_pair(p)]
+    if not STRIKE_PROFIT_FOCUS_ENABLED:
+        return ordered[: int(max(1, limit))]
+    focus = _profit_focus_pairs(team_type)
+    if not focus:
+        return ordered[: int(max(1, limit))]
+
+    allowed = set(focus)
+    out = []
+    seen = set()
+    for pair in ordered:
+        if pair in allowed and pair not in seen:
+            out.append(pair)
+            seen.add(pair)
+
+    if STRIKE_PROFIT_FOCUS_INCLUDE_CLOSE_TARGETS:
+        for pair in _close_evidence_targets():
+            p = _canonical_dynamic_pair(pair)
+            if p in ordered and p not in seen:
+                out.append(p)
+                seen.add(p)
+
+    min_active = int(max(1, STRIKE_PROFIT_FOCUS_MIN_ACTIVE_PAIRS))
+    for pair in ordered:
+        if pair in seen:
+            continue
+        if len(out) >= min_active:
+            break
+        out.append(pair)
+        seen.add(pair)
+    return out[: int(max(1, limit))]
+
+
 def _dynamic_pair_universe(team_type, defaults):
     if not STRIKE_DYNAMIC_PAIR_SELECTION:
         return list(defaults), "dynamic_disabled"
@@ -925,11 +1111,213 @@ def _dynamic_pair_universe(team_type, defaults):
         seen.add(p)
         out.append(p)
     out = _prioritize_pairs_for_close_evidence(out, limit=limit)
+    focused = _apply_profit_focus_universe(out, team_type=team_type, limit=limit)
+    if focused != out:
+        logger.info(
+            "STRIKE %s: profit-focus filtered universe %s -> %s",
+            str(team_type).upper(),
+            out,
+            focused,
+        )
+    out = focused
     out = out[:limit]
     _PAIR_UNIVERSE_CACHE["ts"] = now
     _PAIR_UNIVERSE_CACHE[key] = list(out)
     _PAIR_UNIVERSE_CACHE["source"] = source
     return out, source
+
+
+def _global_trade_flow_metrics(lookback_hours=24):
+    lookback = max(1, int(lookback_hours or 24))
+    metrics = {
+        "lookback_hours": int(lookback),
+        "buy_fills": 0,
+        "sell_fills": 0,
+        "sell_close_attempts": 0,
+        "sell_close_completions": 0,
+        "sell_close_completion_rate": 1.0,
+        "effective_sell_completions": 0,
+        "buy_sell_ratio": 0.0,
+        "realized_sell_closes": 0,
+        "realized_sell_net_pnl_usd": 0.0,
+        "reconcile_gate_passed": True,
+        "reconcile_gate_reason": "not_available",
+    }
+    conn = None
+    completed = tuple(COMPLETED_TRADE_STATUSES)
+    marks = ",".join("?" for _ in completed)
+    try:
+        if TRADER_DB_PATH.exists():
+            conn = _open_trader_db()
+            if _table_exists(conn, "agent_trades"):
+                rows = conn.execute(
+                    f"""
+                    SELECT UPPER(COALESCE(side, '')) AS side, COUNT(*) AS n
+                    FROM agent_trades
+                    WHERE created_at >= datetime('now', ?)
+                      AND LOWER(COALESCE(status, '')) IN ({marks})
+                    GROUP BY UPPER(COALESCE(side, ''))
+                    """,
+                    (f"-{lookback} hours", *completed),
+                ).fetchall()
+                for row in rows:
+                    side = str(row["side"] or "").upper()
+                    count = int(row["n"] or 0)
+                    if side == "BUY":
+                        metrics["buy_fills"] = count
+                    elif side == "SELL":
+                        metrics["sell_fills"] = count
+
+                row = conn.execute(
+                    f"""
+                    SELECT
+                        COUNT(CASE WHEN pnl IS NOT NULL THEN 1 END) AS closes,
+                        COALESCE(SUM(CASE WHEN pnl IS NOT NULL THEN COALESCE(pnl, 0) ELSE 0 END), 0) AS net_pnl
+                    FROM agent_trades
+                    WHERE UPPER(COALESCE(side, ''))='SELL'
+                      AND created_at >= datetime('now', ?)
+                      AND LOWER(COALESCE(status, '')) IN ({marks})
+                    """,
+                    (f"-{lookback} hours", *completed),
+                ).fetchone()
+                metrics["realized_sell_closes"] = int((row["closes"] if row else 0) or 0)
+                metrics["realized_sell_net_pnl_usd"] = float((row["net_pnl"] if row else 0.0) or 0.0)
+    except Exception:
+        pass
+    finally:
+        try:
+            if conn is not None:
+                conn.close()
+        except Exception:
+            pass
+
+    try:
+        if RECONCILE_STATUS_PATH.exists():
+            payload = json.loads(RECONCILE_STATUS_PATH.read_text())
+            if isinstance(payload, dict):
+                summary = payload.get("summary", {}) if isinstance(payload.get("summary"), dict) else {}
+                close = payload.get("close_reconciliation", {}) if isinstance(payload.get("close_reconciliation"), dict) else {}
+                attempts = int(close.get("attempts", summary.get("close_attempts", 0)) or 0)
+                completions = int(close.get("completions", summary.get("close_completions", 0)) or 0)
+                if attempts > 0:
+                    metrics["sell_close_attempts"] = attempts
+                    metrics["sell_close_completions"] = completions
+                    if "completion_rate" in close:
+                        completion_rate = float(close.get("completion_rate", 0.0) or 0.0)
+                    else:
+                        completion_rate = float(completions) / float(max(1, attempts))
+                    metrics["sell_close_completion_rate"] = max(0.0, min(1.0, completion_rate))
+                gate_passed = close.get("gate_passed", summary.get("close_gate_passed"))
+                gate_reason = str(close.get("gate_reason", summary.get("close_gate_reason", "")) or "").strip()
+                if isinstance(gate_passed, bool):
+                    metrics["reconcile_gate_passed"] = bool(gate_passed)
+                if gate_reason:
+                    metrics["reconcile_gate_reason"] = gate_reason
+    except Exception:
+        pass
+
+    effective = max(
+        int(metrics.get("sell_fills", 0) or 0),
+        int(metrics.get("sell_close_completions", 0) or 0),
+    )
+    metrics["effective_sell_completions"] = int(effective)
+    buys = int(metrics.get("buy_fills", 0) or 0)
+    metrics["buy_sell_ratio"] = float(buys) / float(max(1, effective))
+    return metrics
+
+
+def _global_buy_sell_balance_state(force_refresh=False):
+    state = {
+        "enabled": bool(STRIKE_BALANCED_GROWTH_ENABLED),
+        "allow_buy": True,
+        "mode": "disabled",
+        "reason": "balance_growth_disabled",
+        "buy_size_factor": 1.0,
+        "metrics": {},
+    }
+    if not state["enabled"]:
+        return state
+
+    now = time.time()
+    ttl = max(5, int(STRIKE_BALANCED_CACHE_SECONDS))
+    if (
+        not force_refresh
+        and isinstance(_BALANCED_FLOW_CACHE.get("state"), dict)
+        and (now - float(_BALANCED_FLOW_CACHE.get("ts", 0.0) or 0.0)) <= ttl
+    ):
+        return dict(_BALANCED_FLOW_CACHE.get("state") or state)
+
+    metrics = _global_trade_flow_metrics(lookback_hours=STRIKE_BALANCED_LOOKBACK_HOURS)
+    state["metrics"] = metrics
+    state["mode"] = "balanced"
+    state["reason"] = "balanced_flow"
+
+    buys = int(metrics.get("buy_fills", 0) or 0)
+    effective_sells = int(metrics.get("effective_sell_completions", 0) or 0)
+    ratio = float(metrics.get("buy_sell_ratio", 0.0) or 0.0)
+    attempts = int(metrics.get("sell_close_attempts", 0) or 0)
+    close_rate = float(metrics.get("sell_close_completion_rate", 1.0) or 0.0)
+    realized_closes = int(metrics.get("realized_sell_closes", 0) or 0)
+    realized_net = float(metrics.get("realized_sell_net_pnl_usd", 0.0) or 0.0)
+
+    min_sell_completions = max(0, int(STRIKE_BALANCED_MIN_SELL_COMPLETIONS))
+    min_close_attempts = max(1, int(STRIKE_BALANCED_MIN_CLOSE_ATTEMPTS))
+    min_close_rate = max(0.0, min(1.0, float(STRIKE_BALANCED_MIN_CLOSE_COMPLETION_RATE)))
+    max_ratio = max(0.1, float(STRIKE_BALANCED_MAX_BUY_SELL_RATIO))
+    accel_ratio = max(0.0, float(STRIKE_BALANCED_MIN_BUY_SELL_RATIO_FOR_ACCEL))
+    min_realized_closes = max(1, int(STRIKE_BALANCED_MIN_REALIZED_CLOSES_FOR_PNL_GATE))
+
+    if buys <= 0 and effective_sells <= 0:
+        state["reason"] = "balance_bootstrap_no_completed_flow"
+        _BALANCED_FLOW_CACHE["ts"] = now
+        _BALANCED_FLOW_CACHE["state"] = dict(state)
+        return state
+
+    blockers = []
+    if buys > 0 and effective_sells < min_sell_completions:
+        blockers.append(
+            f"balance_insufficient_sell_completions:{effective_sells}<{min_sell_completions}"
+        )
+    if attempts >= min_close_attempts and close_rate < min_close_rate:
+        blockers.append(f"balance_close_completion_rate_low:{close_rate:.3f}<{min_close_rate:.3f}")
+    if buys > 0 and ratio > max_ratio:
+        blockers.append(f"balance_buy_sell_ratio_high:{ratio:.3f}>{max_ratio:.3f}")
+    if (
+        STRIKE_BALANCED_REQUIRE_NON_NEGATIVE_REALIZED_PNL
+        and realized_closes >= min_realized_closes
+        and realized_net < 0.0
+    ):
+        blockers.append(f"balance_realized_sell_pnl_negative:{realized_net:.4f}@{realized_closes}")
+
+    if blockers:
+        state["allow_buy"] = False
+        state["mode"] = "sell_recovery"
+        state["reason"] = "|".join(blockers[:2])
+        _BALANCED_FLOW_CACHE["ts"] = now
+        _BALANCED_FLOW_CACHE["state"] = dict(state)
+        return state
+
+    caution_floor = max(accel_ratio, min(max_ratio * 0.85, max_ratio - 0.10))
+    if buys > 0 and ratio >= caution_floor:
+        state["mode"] = "buy_caution"
+        state["reason"] = f"balance_near_ratio_cap:{ratio:.3f}>={caution_floor:.3f}"
+        state["buy_size_factor"] = max(0.25, min(1.0, float(STRIKE_BALANCED_BUY_SIZE_PENALTY)))
+    elif (
+        ratio <= accel_ratio
+        and effective_sells >= min_sell_completions
+        and (
+            not STRIKE_BALANCED_REQUIRE_NON_NEGATIVE_REALIZED_PNL
+            or realized_closes < min_realized_closes
+            or realized_net >= 0.0
+        )
+    ):
+        state["mode"] = "buy_accelerate"
+        state["reason"] = f"balance_underweight_buy_flow:{ratio:.3f}<={accel_ratio:.3f}"
+        state["buy_size_factor"] = max(1.0, min(1.5, float(STRIKE_BALANCED_BUY_SIZE_BOOST)))
+
+    _BALANCED_FLOW_CACHE["ts"] = now
+    _BALANCED_FLOW_CACHE["state"] = dict(state)
+    return state
 
 
 def _execution_health_status(force_refresh=False):
@@ -1014,11 +1402,14 @@ class StrikeTeam:
         self.trades_executed = 0
         self.total_pnl = 0.0
         self.buy_throttled = 0
+        self.balance_growth_blocked = 0
         self.exec_health_blocked = 0
         self.sell_attempted = 0
         self.sell_completed = 0
         self.sell_failed = 0
         self._sell_close_recent = []
+        self.balance_mode = "bootstrap"
+        self.balance_reason = "not_evaluated"
         self.close_first_forced = 0
         self.close_first_forced_blocked = 0
         self.sell_no_inventory_blocked = 0
@@ -1223,8 +1614,18 @@ class StrikeTeam:
 
         throttle = bool(self._buy_throttle_active())
         low_completion = self._sell_completion_rate() < float(SELL_CLOSE_TARGET_RATE)
-        if not (throttle or low_completion):
+        global_balance = _global_buy_sell_balance_state()
+        global_recovery = str(global_balance.get("mode", "")) == "sell_recovery"
+        if not (throttle or low_completion or global_recovery):
             return {"active": False, "reason": "close_rate_ok", "position": pos}
+
+        trigger = (
+            "balance_sell_recovery"
+            if global_recovery
+            else "buy_throttle"
+            if throttle
+            else "sell_completion_rate_low"
+        )
 
         return {
             "active": True,
@@ -1232,7 +1633,7 @@ class StrikeTeam:
             "position": pos,
             "sell_qty": open_qty,
             "sell_size_usd": max(1.0, open_notional),
-            "trigger": "buy_throttle" if throttle else "sell_completion_rate_low",
+            "trigger": trigger,
         }
 
     def scout(self, pair):
@@ -1261,6 +1662,7 @@ class StrikeTeam:
         if size_usd < 1.0 or price <= 0:
             return None
         base_amount = size_usd / price
+        balance_state = {"allow_buy": True, "mode": "balanced", "reason": "balanced_flow", "buy_size_factor": 1.0}
 
         if direction == "SELL":
             pos = self._position_snapshot(pair)
@@ -1335,6 +1737,20 @@ class StrikeTeam:
                         direction,
                         pair,
                     )
+        if direction == "BUY":
+            balance_state = _global_buy_sell_balance_state()
+            self.balance_mode = str(balance_state.get("mode", "balanced"))
+            self.balance_reason = str(balance_state.get("reason", "balanced_flow"))
+            if not bool(balance_state.get("allow_buy", True)):
+                self.buy_throttled += 1
+                self.balance_growth_blocked += 1
+                logger.info(
+                    "STRIKE %s: BUY blocked by balanced growth gate on %s (%s)",
+                    self.name,
+                    pair,
+                    self.balance_reason,
+                )
+                return None
         if direction == "BUY" and self._buy_throttle_active():
             self.buy_throttled += 1
             logger.info(
@@ -1411,6 +1827,21 @@ class StrikeTeam:
             size_usd = round(float(size_usd), 2)
             if size_usd < 1.0:
                 return None
+        if direction == "BUY":
+            buy_size_factor = float(balance_state.get("buy_size_factor", 1.0) or 1.0)
+            buy_size_factor = max(0.25, min(1.5, buy_size_factor))
+            if abs(buy_size_factor - 1.0) > 1e-9:
+                size_usd *= buy_size_factor
+                size_usd = round(float(size_usd), 2)
+                if size_usd < 1.0:
+                    return None
+                logger.info(
+                    "STRIKE %s: BUY size adjusted by balanced growth x%.3f on %s (mode=%s)",
+                    self.name,
+                    buy_size_factor,
+                    pair,
+                    self.balance_mode,
+                )
 
         # Execute via exchange connector
         try:
@@ -1658,6 +2089,9 @@ class StrikeTeam:
             "trades": self.trades_executed,
             "pnl": round(self.total_pnl, 4),
             "buy_throttled": int(self.buy_throttled),
+            "balance_growth_blocked": int(self.balance_growth_blocked),
+            "balance_mode": str(self.balance_mode),
+            "balance_reason": str(self.balance_reason),
             "exec_health_blocked": int(self.exec_health_blocked),
             "sell_attempted": int(self.sell_attempted),
             "sell_completed": int(self.sell_completed),

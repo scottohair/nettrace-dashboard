@@ -80,3 +80,6 @@
 2026-02-14 13:36:24,025 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
 2026-02-14 14:34:24,136 [fly_migration] INFO starting fly migration controller loop interval=600s
 2026-02-14 14:34:24,137 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-14 14:44:24,139 [fly_migration] INFO cycle=2 regions=7 primary=ewr runtime=local
+2026-02-14 14:54:24,143 [fly_migration] INFO cycle=3 regions=7 primary=ewr runtime=local
+2026-02-14 15:04:24,161 [fly_migration] INFO cycle=4 regions=7 primary=ewr runtime=local

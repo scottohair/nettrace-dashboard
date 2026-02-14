@@ -439,6 +439,7 @@ def test_hot_evidence_bootstrap_guard_keeps_no_go_in_strict_mode(monkeypatch):
     monkeypatch.setattr(gs, "WARM_MICROLANE_ALLOW", True)
     monkeypatch.setattr(gs, "WARM_MICROLANE_MAX_FUNDED_BUDGET", 2.0)
     monkeypatch.setattr(gs, "WARM_MICROLANE_MAX_FUNDED_STRATEGIES", 2)
+    monkeypatch.setattr(gs, "AUTONOMY_SAFE_WARM_OVERRIDE", False)
     monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", False)
     monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", False)
 

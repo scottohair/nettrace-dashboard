@@ -688,6 +688,35 @@ class LiveTrader:
             self.db.commit()
             self.trades_today += 1
 
+            # Record to capital ledger
+            if execution_status in ("filled", "pending", "success"):
+                try:
+                    from ledger_writer import LedgerWriter
+                    _ledger = LedgerWriter()
+                    asset = executed_pair.split("-")[0] if "-" in executed_pair else executed_pair
+                    qty = usd_amount / exec_price if exec_price else 0
+                    fees = usd_amount * 0.004
+                    _ledger.record_trade_fill(
+                        asset=asset,
+                        venue="coinbase",
+                        amount=qty if side == "BUY" else -qty,
+                        value_usd=usd_amount if side == "BUY" else -usd_amount,
+                        pair=executed_pair,
+                        side=side,
+                        price=exec_price,
+                        order_id=order_id,
+                        agent="live_trader",
+                        fees_usd=fees,
+                        trigger=signal.get("signal_type"),
+                        metadata={
+                            "signal_type": signal.get("signal_type"),
+                            "confidence": signal.get("confidence"),
+                            "target_host": signal.get("target_host"),
+                        },
+                    )
+                except Exception:
+                    pass
+
         finally:
             if trade_id:
                 _live_risk_ctrl.complete_trade(trade_id, status=execution_status)

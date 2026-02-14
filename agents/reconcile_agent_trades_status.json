@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T19:33:43.630654+00:00",
+  "updated_at": "2026-02-14T20:05:00.470428+00:00",
   "max_orders": 120,
   "lookback_hours": 96,
   "reconcile_statuses": [
@@ -18,8 +18,8 @@
     "failed": 0,
     "expired": 0,
     "early_exit_reason": "",
-    "close_attempts": 188,
-    "close_completions": 167,
+    "close_attempts": 199,
+    "close_completions": 178,
     "close_failures": 21,
     "close_failure_reasons": {
       "terminal_cancelled": 12,
@@ -29,10 +29,10 @@
     "close_gate_reason": "sell_close_completion_observed"
   },
   "close_reconciliation": {
-    "attempts": 188,
-    "completions": 167,
+    "attempts": 199,
+    "completions": 178,
     "failures": 21,
-    "completion_rate": 0.888298,
+    "completion_rate": 0.894472,
     "failure_reasons": {
       "terminal_cancelled": 12,
       "terminal_failed": 9

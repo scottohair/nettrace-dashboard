@@ -898,3 +898,237 @@ def autonomy_status():
         return jsonify(state), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# ---------------------------------------------------------------------------
+# Capital Ledger & Attribution
+# ---------------------------------------------------------------------------
+
+@api_v1.route("/ledger/events")
+@verify_api_key
+@require_tier("enterprise", "enterprise_pro")
+def ledger_events():
+    """Return recent capital ledger events."""
+    db = get_db()
+    event_type = request.args.get("event_type")
+    start = request.args.get("start_date")
+    end = request.args.get("end_date")
+    limit_val = parse_int_query_param("limit", 200, max_value=1000)
+    if isinstance(limit_val, tuple):
+        return limit_val
+
+    where = ["user_id=2"]
+    params = []
+    if event_type:
+        where.append("event_type=?")
+        params.append(event_type)
+    if start:
+        where.append("timestamp>=?")
+        params.append(start)
+    if end:
+        where.append("timestamp<=?")
+        params.append(end)
+    params.append(limit_val)
+
+    try:
+        rows = db.execute(
+            f"SELECT * FROM capital_ledger WHERE {' AND '.join(where)} ORDER BY timestamp DESC LIMIT ?",
+            params,
+        ).fetchall()
+        return jsonify({"events": [dict(r) for r in rows], "count": len(rows)}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/ledger/attribution")
+@verify_api_key
+@require_tier("enterprise", "enterprise_pro")
+def ledger_attribution():
+    """P&L attribution by agent, strategy, pair, or event_type."""
+    db = get_db()
+    start = request.args.get("start_date")
+    end = request.args.get("end_date")
+    group_by = request.args.get("group_by", "agent")
+
+    allowed_groups = {"agent", "strategy_name", "pair", "event_type", "venue"}
+    if group_by not in allowed_groups:
+        return jsonify({"error": f"group_by must be one of: {sorted(allowed_groups)}"}), 400
+
+    where = ["user_id=2"]
+    params = []
+    if start:
+        where.append("timestamp>=?")
+        params.append(start)
+    if end:
+        where.append("timestamp<=?")
+        params.append(end)
+
+    where_clause = " AND ".join(where)
+
+    try:
+        # Attribution breakdown
+        rows = db.execute(
+            f"""SELECT
+                    COALESCE({group_by}, 'unknown') AS group_key,
+                    COUNT(*) AS event_count,
+                    SUM(CASE WHEN event_type='trade_fill' THEN 1 ELSE 0 END) AS trades,
+                    COALESCE(SUM(CASE WHEN side='BUY' THEN value_usd ELSE 0 END), 0) AS total_bought_usd,
+                    COALESCE(SUM(CASE WHEN side='SELL' THEN ABS(value_usd) ELSE 0 END), 0) AS total_sold_usd,
+                    COALESCE(SUM(realized_pnl_usd), 0) AS realized_pnl,
+                    COALESCE(SUM(fees_usd), 0) AS total_fees,
+                    COALESCE(SUM(realized_pnl_usd), 0) - COALESCE(SUM(fees_usd), 0) AS net_pnl,
+                    COALESCE(SUM(value_usd), 0) AS net_flow
+                FROM capital_ledger
+                WHERE {where_clause}
+                GROUP BY COALESCE({group_by}, 'unknown')
+                ORDER BY net_pnl DESC""",
+            params,
+        ).fetchall()
+
+        attribution = {}
+        for r in rows:
+            attribution[r["group_key"]] = {
+                "event_count": r["event_count"],
+                "trades": r["trades"],
+                "total_bought_usd": round(r["total_bought_usd"], 4),
+                "total_sold_usd": round(r["total_sold_usd"], 4),
+                "realized_pnl": round(r["realized_pnl"], 4),
+                "total_fees": round(r["total_fees"], 4),
+                "net_pnl": round(r["net_pnl"], 4),
+                "net_flow": round(r["net_flow"], 4),
+            }
+
+        # Totals
+        totals = db.execute(
+            f"""SELECT
+                    COUNT(*) AS total_events,
+                    SUM(CASE WHEN event_type='trade_fill' THEN 1 ELSE 0 END) AS total_trades,
+                    COALESCE(SUM(realized_pnl_usd), 0) AS total_realized_pnl,
+                    COALESCE(SUM(fees_usd), 0) AS total_fees,
+                    COALESCE(SUM(value_usd), 0) AS total_flow
+                FROM capital_ledger
+                WHERE {where_clause}""",
+            params,
+        ).fetchone()
+
+        # Unreconciled gaps
+        gaps = db.execute(
+            f"""SELECT id, event_type, timestamp, value_usd, snapshot_id, reconciliation_delta_usd
+                FROM capital_ledger
+                WHERE {where_clause}
+                  AND event_type IN ('appreciation', 'deposit_unreconciled', 'fee_unreconciled')
+                ORDER BY timestamp DESC
+                LIMIT 20""",
+            params,
+        ).fetchall()
+
+        period_start = start or "all time"
+        period_end = end or datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+        return jsonify({
+            "period": f"{period_start} to {period_end}",
+            "group_by": group_by,
+            "totals": {
+                "events": totals["total_events"],
+                "trades": totals["total_trades"],
+                "realized_pnl": round(totals["total_realized_pnl"], 4),
+                "fees": round(totals["total_fees"], 4),
+                "net_flow": round(totals["total_flow"], 4),
+            },
+            f"by_{group_by}": attribution,
+            "unreconciled_gaps": [dict(g) for g in gaps],
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/ledger/reconciliation")
+@verify_api_key
+@require_tier("enterprise", "enterprise_pro")
+def ledger_reconciliation():
+    """Get reconciliation summary and run reconciliation if requested."""
+    db = get_db()
+    run = request.args.get("run", "false").lower() == "true"
+
+    try:
+        if run:
+            from agents.ledger_reconciler import LedgerReconciler
+            reconciler = LedgerReconciler()
+            results = reconciler.reconcile_all_unreconciled(limit=20)
+            summary = reconciler.summary()
+            return jsonify({"summary": summary, "results": results}), 200
+
+        # Just return current state
+        total_events = db.execute(
+            "SELECT COUNT(*) AS n FROM capital_ledger WHERE user_id=2"
+        ).fetchone()["n"]
+
+        by_type = db.execute(
+            """SELECT event_type, COUNT(*) AS n, COALESCE(SUM(value_usd), 0) AS total
+               FROM capital_ledger WHERE user_id=2
+               GROUP BY event_type ORDER BY n DESC"""
+        ).fetchall()
+
+        ledger_total = db.execute(
+            "SELECT COALESCE(SUM(value_usd), 0) AS total FROM capital_ledger WHERE user_id=2"
+        ).fetchone()["total"]
+
+        latest_snap = db.execute(
+            "SELECT total_value_usd FROM trading_snapshots WHERE user_id=2 ORDER BY recorded_at DESC LIMIT 1"
+        ).fetchone()
+
+        return jsonify({
+            "total_events": total_events,
+            "ledger_total_usd": round(ledger_total, 2),
+            "latest_snapshot_usd": round(float(latest_snap["total_value_usd"] or 0), 2) if latest_snap else None,
+            "current_gap_usd": round(float(latest_snap["total_value_usd"] or 0) - ledger_total, 2) if latest_snap else None,
+            "by_event_type": {r["event_type"]: {"count": r["n"], "total_usd": round(r["total"], 2)} for r in by_type},
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/ledger/export")
+@verify_api_key
+@require_tier("enterprise", "enterprise_pro")
+def ledger_export():
+    """Export capital ledger as CSV for tax/compliance."""
+    db = get_db()
+    start = request.args.get("start_date")
+    end = request.args.get("end_date")
+    fmt = request.args.get("format", "csv")
+
+    where = ["user_id=2"]
+    params = []
+    if start:
+        where.append("timestamp>=?")
+        params.append(start)
+    if end:
+        where.append("timestamp<=?")
+        params.append(end)
+
+    try:
+        rows = db.execute(
+            f"SELECT * FROM capital_ledger WHERE {' AND '.join(where)} ORDER BY timestamp ASC",
+            params,
+        ).fetchall()
+
+        if fmt == "json":
+            return jsonify({"events": [dict(r) for r in rows], "count": len(rows)}), 200
+
+        # CSV export
+        output = io.StringIO()
+        if rows:
+            cols = rows[0].keys()
+            writer = csv.DictWriter(output, fieldnames=cols)
+            writer.writeheader()
+            for r in rows:
+                writer.writerow(dict(r))
+
+        return Response(
+            output.getvalue(),
+            mimetype="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=capital_ledger_{datetime.now().strftime('%Y%m%d')}.csv"},
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

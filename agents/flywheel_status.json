@@ -1,20 +1,18 @@
 {
-  "updated_at": "2026-02-14T11:46:22.921961+00:00",
-  "cycle": 63,
+  "updated_at": "2026-02-14T19:55:05.130057+00:00",
+  "cycle": 66,
   "quant_run": false,
   "bench_run": false,
-  "cycle_elapsed_seconds": 38.75,
+  "cycle_elapsed_seconds": 42.68,
   "growth_decision": {
-    "decision": "NO_GO",
-    "go_live": false,
-    "reasons": [
-      "close_flow_gate_failed:close_completion_rate_low:0.333<0.400 attempts=3 completions=1"
-    ],
+    "decision": "GO",
+    "go_live": true,
+    "reasons": [],
     "warnings": [
-      "warm_runtime_rejections_top=return_below_min:32,sharpe_below_min:32,drawdown_above_max:29"
+      "warm_runtime_rejections_top=return_below_min:25,sharpe_below_min:25,drawdown_above_max:23"
     ],
     "autonomy": {
-      "enabled": false,
+      "enabled": true,
       "active": false,
       "warm_max_funded_budget": 2.0,
       "warm_max_funded_strategies": 2,
@@ -59,23 +57,23 @@
       "bootstrap_reason": "",
       "bootstrap_max_budget_usd": 2.0,
       "bootstrap_max_strategies": 2,
-      "updated_at": "2026-02-14T11:46:21.737488+00:00"
+      "updated_at": "2026-02-14T19:54:51.079370+00:00"
     },
     "close_flow_gate": {
       "enabled": true,
-      "passed": false,
-      "reason": "close_completion_rate_low:0.333<0.400 attempts=3 completions=1",
+      "passed": true,
+      "reason": "balanced_close_flow",
       "lookback_hours": 6,
       "buy_fills": 0,
-      "sell_fills": 58,
-      "sell_close_events": 7,
-      "effective_sell_completions": 58,
+      "sell_fills": 22,
+      "sell_close_events": 0,
+      "effective_sell_completions": 22,
       "buy_sell_ratio": 0.0,
       "max_buy_sell_ratio": 2.5,
       "min_sell_completions": 1,
-      "sell_close_attempts": 3,
-      "sell_close_completions": 1,
-      "sell_close_completion_rate": 0.333333,
+      "sell_close_attempts": 198,
+      "sell_close_completions": 177,
+      "sell_close_completion_rate": 0.893939,
       "min_close_attempts": 2,
       "min_close_completion_rate": 0.4,
       "reconcile_gate_passed": true,
@@ -89,61 +87,61 @@
     },
     "pipeline_metrics": {
       "stage_counts": {
-        "COLD": 7386,
-        "HOT": 3097,
-        "WARM": 32
+        "COLD": 8028,
+        "HOT": 3144,
+        "WARM": 25
       },
-      "promoted_hot_events": 3738,
-      "promoted_hot_events_recent_24h": 3659,
+      "promoted_hot_events": 3788,
+      "promoted_hot_events_recent_24h": 3709,
       "killed_events": 0,
-      "max_pair_share": 0.6801,
-      "total_funded_budget": 8.44,
+      "max_pair_share": 0.3894,
+      "total_funded_budget": 14.74,
       "funded_strategy_count": 13,
-      "funded_hot_strategy_count": 11,
-      "funded_warm_strategy_count": 2,
-      "hot_stage_count": 3097,
-      "warm_stage_count": 32,
+      "funded_hot_strategy_count": 12,
+      "funded_warm_strategy_count": 1,
+      "hot_stage_count": 3144,
+      "warm_stage_count": 25,
       "funded_with_oos_trades": 13
     },
     "warm_collector_summary": {
-      "warm_checked": 32,
+      "warm_checked": 25,
       "eligible_hot": 0,
       "promoted_hot": 0,
       "collecting": 0,
-      "rejected": 32,
-      "not_ready": 32,
+      "rejected": 25,
+      "not_ready": 25,
       "skipped": 0
     },
     "warm_promotion_summary": {
-      "warm_checked": 32,
+      "warm_checked": 25,
       "promoted_hot": 0,
       "eligible_hot": 0,
       "collecting": 0,
-      "rejected": 32,
-      "not_ready": 32,
+      "rejected": 25,
+      "not_ready": 25,
       "skipped": 0
     },
     "promotion_feed": {
       "has_active_hot_evidence": true,
-      "pipeline_hot_stage_count": 3097,
-      "pipeline_warm_stage_count": 32,
-      "pipeline_promoted_hot_events": 3738,
-      "pipeline_funded_hot_strategy_count": 11,
+      "pipeline_hot_stage_count": 3144,
+      "pipeline_warm_stage_count": 25,
+      "pipeline_promoted_hot_events": 3788,
+      "pipeline_funded_hot_strategy_count": 12,
       "quant_retained_hot_passed": 0,
       "quant_retained_warm_passed": 0,
       "quant_implementable_count": 0,
       "collector_reason_codes_top": [
         [
           "return_below_min",
-          32
+          25
         ],
         [
           "sharpe_below_min",
-          32
+          25
         ],
         [
           "drawdown_above_max",
-          29
+          23
         ]
       ]
     }
@@ -153,13 +151,14 @@
     "status_available": true,
     "passed": true,
     "reason": "sell_close_completion_observed",
-    "attempts": 3,
-    "completions": 1,
-    "failures": 2,
+    "attempts": 198,
+    "completions": 177,
+    "failures": 21,
     "failure_reasons": {
-      "not_completed_pending": 2
+      "terminal_cancelled": 12,
+      "terminal_failed": 9
     },
-    "updated_at": "2026-02-14T11:45:44.749906+00:00"
+    "updated_at": "2026-02-14T19:54:22.560058+00:00"
   },
   "exit_manager_gate": {
     "enabled": true,
@@ -167,8 +166,8 @@
     "passed": true,
     "reason": "exit_manager_healthy",
     "running": true,
-    "updated_at": "2026-02-14T11:45:35.806887+00:00",
-    "age_seconds": 8.984,
+    "updated_at": "2026-02-14T19:54:10.924141+00:00",
+    "age_seconds": 11.65,
     "max_stale_seconds": 300,
     "require_running": true,
     "idle_stale_grace_seconds": 1800,
@@ -178,253 +177,109 @@
     "consecutive_api_failures": 0
   },
   "trading_lock": {
-    "locked": true,
-    "reason": "NO_GO: close_flow_gate_failed:close_completion_rate_low:0.333<0.400 attempts=3 completions=1",
+    "locked": false,
+    "reason": "growth decision GO",
     "source": "flywheel_controller",
-    "set_at": "2026-02-14T11:46:22.260522+00:00",
+    "set_at": "2026-02-14T19:49:25.310230+00:00",
+    "epoch": 1771098565.310234,
+    "pid": 31457,
     "metadata": {
-      "decision": {
-        "decision": "NO_GO",
-        "go_live": false,
-        "reasons": [
-          "close_flow_gate_failed:close_completion_rate_low:0.333<0.400 attempts=3 completions=1"
-        ],
-        "warnings": [
-          "warm_runtime_rejections_top=return_below_min:32,sharpe_below_min:32,drawdown_above_max:29"
-        ],
-        "autonomy": {
-          "enabled": false,
-          "active": false,
-          "warm_max_funded_budget": 2.0,
-          "warm_max_funded_strategies": 2,
-          "blocked_reasons": [],
-          "details": []
-        },
-        "limits": {
-          "max_pair_share_cap": 0.7,
-          "concentration_cap_enforced": true
-        },
-        "strict_realized_gate": {
-          "enabled": true,
-          "status_available": true,
-          "passed": true,
-          "reason": "passed",
-          "bootstrap_override": false,
-          "bootstrap_reason": "",
-          "bootstrap_limits": {
-            "enabled": true,
-            "max_funded_budget": 2.0,
-            "max_funded_strategies": 8
-          }
-        },
-        "hot_evidence_bootstrap": {
-          "strict_required": false,
-          "enabled": true,
-          "active": false,
-          "warning": "",
-          "limits": {
-            "max_funded_budget": 2.0,
-            "max_funded_strategies": 2
-          }
-        },
-        "execution_health_gate": {
-          "enabled": true,
-          "status_available": true,
-          "green": true,
-          "reason": "passed",
-          "reasons": [],
-          "bootstrap_enabled": true,
-          "bootstrap_active": false,
-          "bootstrap_reason": "",
-          "bootstrap_max_budget_usd": 2.0,
-          "bootstrap_max_strategies": 2,
-          "updated_at": "2026-02-14T11:46:21.737488+00:00"
-        },
-        "close_flow_gate": {
-          "enabled": true,
-          "passed": false,
-          "reason": "close_completion_rate_low:0.333<0.400 attempts=3 completions=1",
-          "lookback_hours": 6,
-          "buy_fills": 0,
-          "sell_fills": 58,
-          "sell_close_events": 7,
-          "effective_sell_completions": 58,
-          "buy_sell_ratio": 0.0,
-          "max_buy_sell_ratio": 2.5,
-          "min_sell_completions": 1,
-          "sell_close_attempts": 3,
-          "sell_close_completions": 1,
-          "sell_close_completion_rate": 0.333333,
-          "min_close_attempts": 2,
-          "min_close_completion_rate": 0.4,
-          "reconcile_gate_passed": true,
-          "reconcile_gate_reason": "sell_close_completion_observed"
-        },
-        "audit_summary": {
-          "total_checks": 7,
-          "failed_checks": 0,
-          "critical_failures": 0,
-          "high_failures": 0
-        },
-        "pipeline_metrics": {
-          "stage_counts": {
-            "COLD": 7386,
-            "HOT": 3097,
-            "WARM": 32
-          },
-          "promoted_hot_events": 3738,
-          "promoted_hot_events_recent_24h": 3659,
-          "killed_events": 0,
-          "max_pair_share": 0.6801,
-          "total_funded_budget": 8.44,
-          "funded_strategy_count": 13,
-          "funded_hot_strategy_count": 11,
-          "funded_warm_strategy_count": 2,
-          "hot_stage_count": 3097,
-          "warm_stage_count": 32,
-          "funded_with_oos_trades": 13
-        },
-        "warm_collector_summary": {
-          "warm_checked": 32,
-          "eligible_hot": 0,
-          "promoted_hot": 0,
-          "collecting": 0,
-          "rejected": 32,
-          "not_ready": 32,
-          "skipped": 0
-        },
-        "warm_promotion_summary": {
-          "warm_checked": 32,
-          "promoted_hot": 0,
-          "eligible_hot": 0,
-          "collecting": 0,
-          "rejected": 32,
-          "not_ready": 32,
-          "skipped": 0
-        },
-        "promotion_feed": {
-          "has_active_hot_evidence": true,
-          "pipeline_hot_stage_count": 3097,
-          "pipeline_warm_stage_count": 32,
-          "pipeline_promoted_hot_events": 3738,
-          "pipeline_funded_hot_strategy_count": 11,
-          "quant_retained_hot_passed": 0,
-          "quant_retained_warm_passed": 0,
-          "quant_implementable_count": 0,
-          "collector_reason_codes_top": [
-            [
-              "return_below_min",
-              32
-            ],
-            [
-              "sharpe_below_min",
-              32
-            ],
-            [
-              "drawdown_above_max",
-              29
-            ]
-          ]
-        }
-      },
-      "set_at": "2026-02-14T11:46:22.260466+00:00"
-    },
-    "epoch": 1771069582.260524,
-    "pid": 80507
+      "cleared": true
+    }
   },
   "portfolio": {
-    "total_usd": 239.18,
-    "available_cash": 144.18,
-    "held_in_orders": 66.99,
+    "total_usd": 235.16,
+    "available_cash": 202.5,
+    "held_in_orders": 11.78,
     "source": "agent_tools"
   },
   "reserve_targets": {
-    "updated_at": "2026-02-14T11:46:22.905183+00:00",
-    "portfolio_total_usd": 239.18,
+    "updated_at": "2026-02-14T19:55:05.123921+00:00",
+    "portfolio_total_usd": 235.16,
     "targets": [
+      {
+        "asset": "USDC",
+        "target_pct": 35.0,
+        "target_usd": 82.31,
+        "actual_usd": 129.77,
+        "gap_usd": -47.46
+      },
       {
         "asset": "BTC",
         "target_pct": 20.0,
-        "target_usd": 47.84,
+        "target_usd": 47.03,
         "actual_usd": 0.0,
-        "gap_usd": 47.84
-      },
-      {
-        "asset": "USD",
-        "target_pct": 25.0,
-        "target_usd": 59.8,
-        "actual_usd": 90.79,
-        "gap_usd": -31.0
+        "gap_usd": 47.03
       },
       {
         "asset": "ETH",
         "target_pct": 12.0,
-        "target_usd": 28.7,
-        "actual_usd": 1.48,
-        "gap_usd": 27.22
+        "target_usd": 28.22,
+        "actual_usd": 7.88,
+        "gap_usd": 20.34
       },
       {
-        "asset": "USDC",
-        "target_pct": 35.0,
-        "target_usd": 83.71,
-        "actual_usd": 101.35,
-        "gap_usd": -17.64
+        "asset": "USD",
+        "target_pct": 25.0,
+        "target_usd": 58.79,
+        "actual_usd": 72.73,
+        "gap_usd": -13.94
       },
       {
         "asset": "MKD",
         "target_pct": 2.0,
-        "target_usd": 4.78,
+        "target_usd": 4.7,
         "actual_usd": 0.0,
-        "gap_usd": 4.78
+        "gap_usd": 4.7
       },
       {
         "asset": "KRW",
         "target_pct": 2.0,
-        "target_usd": 4.78,
+        "target_usd": 4.7,
         "actual_usd": 0.0,
-        "gap_usd": 4.78
+        "gap_usd": 4.7
       },
       {
         "asset": "EUR",
         "target_pct": 2.0,
-        "target_usd": 4.78,
+        "target_usd": 4.7,
         "actual_usd": 0.0,
-        "gap_usd": 4.78
+        "gap_usd": 4.7
       },
       {
         "asset": "GBP",
         "target_pct": 2.0,
-        "target_usd": 4.78,
+        "target_usd": 4.7,
         "actual_usd": 0.0,
-        "gap_usd": 4.78
+        "gap_usd": 4.7
       }
     ]
   },
-  "realized_daily_pnl_usd": 43.954655,
+  "realized_daily_pnl_usd": 47.936435,
   "target_progress": [
     {
       "target_usd_per_day": 1000,
-      "realized_usd_today": 43.954655,
-      "progress_pct": 4.3955,
-      "remaining_usd": 956.05,
-      "required_hourly_run_rate_usd": 78.19,
-      "day_elapsed_pct_utc": 0.4905
+      "realized_usd_today": 47.936435,
+      "progress_pct": 4.7936,
+      "remaining_usd": 952.06,
+      "required_hourly_run_rate_usd": 233.24,
+      "day_elapsed_pct_utc": 0.8299
     },
     {
       "target_usd_per_day": 1000000,
-      "realized_usd_today": 43.954655,
-      "progress_pct": 0.0044,
-      "remaining_usd": 999956.05,
-      "required_hourly_run_rate_usd": 81781.13,
-      "day_elapsed_pct_utc": 0.4905
+      "realized_usd_today": 47.936435,
+      "progress_pct": 0.0048,
+      "remaining_usd": 999952.06,
+      "required_hourly_run_rate_usd": 244969.54,
+      "day_elapsed_pct_utc": 0.8299
     },
     {
       "target_usd_per_day": 9999999,
-      "realized_usd_today": 43.954655,
-      "progress_pct": 0.0004,
-      "remaining_usd": 9999955.05,
-      "required_hourly_run_rate_usd": 817843.57,
-      "day_elapsed_pct_utc": 0.4905
+      "realized_usd_today": 47.936435,
+      "progress_pct": 0.0005,
+      "remaining_usd": 9999951.06,
+      "required_hourly_run_rate_usd": 2449800.87,
+      "day_elapsed_pct_utc": 0.8299
     }
   ],
   "win_objective": {
@@ -446,26 +301,53 @@
   },
   "quant_blockers": [
     {
-      "reason": "Failed: return -1.58% < 0.3%, walkforward oos return -0.54% < 0.12%, probabilistic calibrated_p05 -0.07% < -0.06%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed; gain_gate_failed: return -1.58% < 0.05%, sharpe -0.95 < 0.00, walkforward_oos_return -0.54% < 0.02%, walkforward_oos_trades 4 < 8",
+      "reason": "Failed: trades 9 < 12, return -1.35% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.14% < 0.12%, risk_governor: non-positive return; gain_gate_failed: return -1.35% < 0.05%, sharpe -0.66 < 0.00, walkforward_oos_return -1.14% < 0.02%, walkforward_oos_trades 7 < 8",
+      "count": 2
+    },
+    {
+      "reason": "Failed: trades 7 < 12, return -1.54% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -1.17% < 0.12%, risk_governor: non-positive return; gain_gate_failed: return -1.54% < 0.05%, sharpe -0.82 < 0.00, walkforward_oos_return -1.17% < 0.02%, walkforward_oos_trades 5 < 8",
       "count": 1
     },
     {
-      "reason": "Failed: return -1.70% < 0.3%, walkforward oos return -0.74% < 0.12%, probabilistic calibrated_p05 -0.14% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed; gain_gate_failed: return -1.70% < 0.05%, sharpe -0.99 < 0.00, walkforward_oos_return -0.74% < 0.02%, walkforward_oos_trades 6 < 8",
+      "reason": "Failed: return -1.45% < 0.3%, walkforward oos return -0.79% < 0.12%, probabilistic calibrated_p05 -0.13% < -0.06%, probabilistic conformal_error 1.00 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed; gain_gate_failed: return -1.45% < 0.05%, sharpe -0.93 < 0.00, walkforward_oos_return -0.79% < 0.02%, walkforward_oos_trades 6 < 8",
       "count": 1
     },
     {
-      "reason": "Failed: return -1.99% < 0.3%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.93% < 0.12%, probabilistic calibrated_p05 -0.12% < -0.08%, probabilistic conformal_error 0.99 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed; gain_gate_failed: return -1.99% < 0.05%, sharpe -0.97 < 0.00, walkforward_oos_return -0.93% < 0.02%, walkforward_oos_trades 5 < 8",
+      "reason": "Failed: return -1.46% < 0.3%, walkforward oos return -0.49% < 0.12%, probabilistic calibrated_p05 -0.08% < -0.06%, probabilistic conformal_error 0.75 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed; gain_gate_failed: return -1.46% < 0.05%, sharpe -0.89 < 0.00, walkforward_oos_return -0.49% < 0.02%, walkforward_oos_trades 4 < 8",
       "count": 1
     },
     {
-      "reason": "Failed: return -1.70% < 0.3%, walkforward oos return -0.81% < 0.12%, probabilistic calibrated_p05 -0.12% < -0.06%, probabilistic conformal_error 0.83 > 0.70, risk_governor: non-positive return, risk_governor: monte_carlo gate failed; gain_gate_failed: return -1.70% < 0.05%, sharpe -1.13 < 0.00, walkforward_oos_return -0.81% < 0.02%, walkforward_oos_trades 6 < 8",
-      "count": 1
-    },
-    {
-      "reason": "Failed: return -1.56% < 0.3%, walkforward oos return -0.49% < 0.12%, probabilistic calibrated_p05 -0.07% < -0.06%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed; gain_gate_failed: return -1.56% < 0.05%, sharpe -0.91 < 0.00, walkforward_oos_return -0.49% < 0.02%, walkforward_oos_trades 4 < 8",
+      "reason": "Failed: trades 10 < 12, return -1.24% < 0.3%, walkforward oos return -0.41% < 0.12%, risk_governor: non-positive return; gain_gate_failed: return -1.24% < 0.05%, sharpe -0.88 < 0.00, walkforward_oos_return -0.41% < 0.02%, walkforward_oos_trades 4 < 8",
       "count": 1
     }
   ],
+  "cog_control": {
+    "tier": 2,
+    "go_streak": 2,
+    "failure_streak": 0,
+    "commands_run_total": 4,
+    "active_transitions": [
+      {
+        "at": 1771098904.411,
+        "action": "tier_up",
+        "reason": "streak=2",
+        "cycle": 66
+      }
+    ],
+    "cog_last_run_at": {
+      "claude_stager_agent.py::--once": 1771098904.411287,
+      "autonomous_work_manager.py::--once": 1771098904.4113111,
+      "quant_company_agent.py::--once": 1771098904.411314,
+      "mcp_opportunity_agent.py::--once": 1771098904.411319
+    },
+    "cog_failures": {
+      "claude_stager_agent.py::--once": 0,
+      "autonomous_work_manager.py::--once": 0,
+      "quant_company_agent.py::--once": 0,
+      "mcp_opportunity_agent.py::--once": 0
+    },
+    "cog_pause_until": {}
+  },
   "commands": [
     {
       "cmd": [
@@ -477,8 +359,8 @@
         "96"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.618,
-      "stdout_tail": "{\"updated_at\": \"2026-02-14T11:45:44.749906+00:00\", \"max_orders\": 120, \"lookback_hours\": 96, \"reconcile_statuses\": [\"accepted\", \"ack_ok\", \"open\", \"pending\", \"placed\"], \"summary\": {\"checked\": 3, \"updated\": 1, \"filled\": 1, \"partial\": 0, \"cancelled\": 0, \"failed\": 0, \"expired\": 0, \"early_exit_reason\": \"\", \"close_attempts\": 3, \"close_completions\": 1, \"close_failures\": 2, \"close_failure_reasons\": {\"not_completed_pending\": 2}, \"close_gate_passed\": true, \"close_gate_reason\": \"sell_close_completion_observed\"}, \"close_reconciliation\": {\"attempts\": 3, \"completions\": 1, \"failures\": 2, \"completion_rate\": 0.333333, \"failure_reasons\": {\"not_completed_pending\": 2}, \"gate_passed\": true, \"gate_reason\": \"sell_close_completion_observed\"}}",
+      "elapsed_seconds": 0.123,
+      "stdout_tail": "{\"updated_at\": \"2026-02-14T19:54:22.560058+00:00\", \"max_orders\": 120, \"lookback_hours\": 96, \"reconcile_statuses\": [\"accepted\", \"ack_ok\", \"open\", \"pending\", \"placed\"], \"summary\": {\"checked\": 0, \"updated\": 0, \"filled\": 0, \"partial\": 0, \"cancelled\": 0, \"failed\": 0, \"expired\": 0, \"early_exit_reason\": \"\", \"close_attempts\": 198, \"close_completions\": 177, \"close_failures\": 21, \"close_failure_reasons\": {\"terminal_cancelled\": 12, \"terminal_failed\": 9}, \"close_gate_passed\": true, \"close_gate_reason\": \"sell_close_completion_observed\"}, \"close_reconciliation\": {\"attempts\": 198, \"completions\": 177, \"failures\": 21, \"completion_rate\": 0.893939, \"failure_reasons\": {\"terminal_cancelled\": 12, \"terminal_failed\": 9}, \"gate_passed\": true, \"gate_reason\": \"sell_close_completion_observed\"}}",
       "stderr_tail": "",
       "env_overrides": {}
     },
@@ -490,8 +372,8 @@
         "300"
       ],
       "returncode": 0,
-      "elapsed_seconds": 36.973,
-      "stdout_tail": "  \"promotion_feed\": {\n    \"has_active_hot_evidence\": true,\n    \"pipeline_hot_stage_count\": 3097,\n    \"pipeline_warm_stage_count\": 32,\n    \"pipeline_promoted_hot_events\": 3738,\n    \"pipeline_funded_hot_strategy_count\": 11,\n    \"quant_retained_hot_passed\": 0,\n    \"quant_retained_warm_passed\": 0,\n    \"quant_implementable_count\": 0,\n    \"collector_reason_codes_top\": [\n      [\n        \"return_below_min\",\n        32\n      ],\n      [\n        \"sharpe_below_min\",\n        32\n      ],\n      [\n        \"drawdown_above_max\",\n        29\n      ]\n    ]\n  }\n}",
+      "elapsed_seconds": 28.521,
+      "stdout_tail": "  \"promotion_feed\": {\n    \"has_active_hot_evidence\": true,\n    \"pipeline_hot_stage_count\": 3144,\n    \"pipeline_warm_stage_count\": 25,\n    \"pipeline_promoted_hot_events\": 3788,\n    \"pipeline_funded_hot_strategy_count\": 12,\n    \"quant_retained_hot_passed\": 0,\n    \"quant_retained_warm_passed\": 0,\n    \"quant_implementable_count\": 0,\n    \"collector_reason_codes_top\": [\n      [\n        \"return_below_min\",\n        25\n      ],\n      [\n        \"sharpe_below_min\",\n        25\n      ],\n      [\n        \"drawdown_above_max\",\n        23\n      ]\n    ]\n  }\n}",
       "stderr_tail": "",
       "env_overrides": {}
     },
@@ -502,10 +384,16 @@
         "--once"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.234,
-      "stdout_tail": "    ],\n    \"online_nodes\": 1,\n    \"frameworks\": {\n      \"numpy\": 3,\n      \"mlx\": 2,\n      \"pytorch\": 2,\n      \"mps\": 2\n    },\n    \"advanced_msgs\": 120,\n    \"operator_msgs\": 132,\n    \"duplex_to\": 120,\n    \"duplex_from\": 120\n  },\n  \"bundle_id\": \"bundle-266-3d2dfb1775f3\",\n  \"bundle_hash\": \"3d2dfb1775f324c2cd67dae4d914b1e956b0d878fb08132fca0661da45eb938e\",\n  \"bundle_sequence\": 266,\n  \"schema_version\": 1,\n  \"metadata\": {\n    \"bundle_id\": \"bundle-266-3d2dfb1775f3\",\n    \"bundle_hash\": \"3d2dfb1775f324c2cd67dae4d914b1e956b0d878fb08132fca0661da45eb938e\",\n    \"bundle_sequence\": 266,\n    \"generated_at\": \"2026-02-14T11:46:21.853047+00:00\",\n    \"schema_version\": 1\n  }\n}",
-      "stderr_tail": "2026-02-14 06:46:21,971 [claude_stager] INFO cycle=1 focus_pairs=10 online_nodes=1 frameworks=4 msgs=120/132",
-      "env_overrides": {}
+      "elapsed_seconds": 0.178,
+      "stdout_tail": "    ],\n    \"online_nodes\": 1,\n    \"frameworks\": {\n      \"numpy\": 3,\n      \"mlx\": 2,\n      \"pytorch\": 2,\n      \"mps\": 2\n    },\n    \"advanced_msgs\": 120,\n    \"operator_msgs\": 134,\n    \"duplex_to\": 120,\n    \"duplex_from\": 120\n  },\n  \"bundle_id\": \"bundle-280-2a7dc8ec66db\",\n  \"bundle_hash\": \"2a7dc8ec66db45136c868afbf67dceecf1bf8974cac10699efaa1ba0025c13e9\",\n  \"bundle_sequence\": 280,\n  \"schema_version\": 1,\n  \"metadata\": {\n    \"bundle_id\": \"bundle-280-2a7dc8ec66db\",\n    \"bundle_hash\": \"2a7dc8ec66db45136c868afbf67dceecf1bf8974cac10699efaa1ba0025c13e9\",\n    \"bundle_sequence\": 280,\n    \"generated_at\": \"2026-02-14T19:54:51.159014+00:00\",\n    \"schema_version\": 1\n  }\n}",
+      "stderr_tail": "2026-02-14 14:54:51,252 [claude_stager] INFO cycle=1 focus_pairs=10 online_nodes=1 frameworks=4 msgs=120/134",
+      "env_overrides": {},
+      "is_flywheel_cog": true,
+      "cog_script": "claude_stager_agent.py",
+      "cog_args": [
+        "--once"
+      ],
+      "cog_id": "claude_stager_agent.py::--once"
     },
     {
       "cmd": [
@@ -514,24 +402,52 @@
         "--once"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.147,
-      "stdout_tail": "      \"priority_score\": 100.0,\n      \"dispatch_count\": 0,\n      \"trace_id\": \"\",\n      \"verification_reason\": \"source_truth:win_task_status_completed\"\n    }\n  ],\n  \"win_1000_snapshot\": {\n    \"updated_at\": \"2026-02-14T11:41:42.239595+00:00\",\n    \"tasks_total\": 1000,\n    \"worked_through_count\": 1000,\n    \"status_counts\": {\n      \"completed\": 520,\n      \"in_progress\": 480,\n      \"pending\": 0,\n      \"blocked\": 0\n    },\n    \"priority_counts\": {\n      \"P0\": 660,\n      \"P1\": 144,\n      \"P2\": 140,\n      \"P3\": 56,\n      \"P4\": 0\n    }\n  }\n}",
-      "stderr_tail": "2026-02-14 06:46:22,134 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0",
-      "env_overrides": {}
+      "elapsed_seconds": 0.2,
+      "stdout_tail": "      \"priority_score\": 100.0,\n      \"dispatch_count\": 0,\n      \"trace_id\": \"\",\n      \"verification_reason\": \"not_checked\"\n    }\n  ],\n  \"win_1000_snapshot\": {\n    \"updated_at\": \"2026-02-14T11:46:22.237102+00:00\",\n    \"tasks_total\": 1000,\n    \"worked_through_count\": 1000,\n    \"status_counts\": {\n      \"completed\": 520,\n      \"in_progress\": 220,\n      \"pending\": 260,\n      \"blocked\": 0\n    },\n    \"priority_counts\": {\n      \"P0\": 660,\n      \"P1\": 144,\n      \"P2\": 140,\n      \"P3\": 56,\n      \"P4\": 0\n    }\n  }\n}",
+      "stderr_tail": "2026-02-14 14:54:51,466 [autonomous_work] INFO queue=80 dispatched=0 acked=0 completed=0 stale=0",
+      "env_overrides": {},
+      "is_flywheel_cog": true,
+      "cog_script": "autonomous_work_manager.py",
+      "cog_args": [
+        "--once"
+      ],
+      "cog_id": "autonomous_work_manager.py::--once"
     },
     {
       "cmd": [
         "/opt/homebrew/bin/python3",
-        "/Users/scott/src/quant/agents/win_1000_runner.py",
-        "--work-through-all",
-        "--execute-top",
-        "0"
+        "/Users/scott/src/quant/agents/quant_company_agent.py",
+        "--once"
       ],
       "returncode": 0,
-      "elapsed_seconds": 0.11,
-      "stdout_tail": "      \"worked_through\": true,\n      \"blocked_reason\": \"\",\n      \"acceptance\": \"Positive OOS + Monte Carlo + realized close-profit evidence where applicable.\",\n      \"last_reviewed_at\": \"2026-02-14T11:46:22.235512+00:00\",\n      \"notes\": [],\n      \"priority_rank\": 24\n    },\n    {\n      \"id\": \"WIN-0896\",\n      \"title\": \"Region routing benchmark 96: compare latency and fill quality in sin\",\n      \"category\": \"deployment_regions\",\n      \"pair\": \"PEPE-USD\",\n      \"region\": \"sin\",\n      \"priority_score\": 100.0,\n      \"priority_tier\": \"P0\",\n      \"status\": \"completed\",\n      \"worked_through\": true,\n      \"blocked_reason\": \"\",\n      \"acceptance\": \"Positive OOS + Monte Carlo + realized close-profit evidence where applicable.\",\n      \"last_reviewed_at\": \"2026-02-14T11:46:22.235513+00:00\",\n      \"notes\": [],\n      \"priority_rank\": 25\n    }\n  ]\n}",
-      "stderr_tail": "",
-      "env_overrides": {}
+      "elapsed_seconds": 0.163,
+      "stdout_tail": "  \"close_balance_reason\": \"balanced_close_flow\",\n  \"buy_fills_lookback\": 0,\n  \"sell_fills_lookback\": 22,\n  \"sell_close_events_lookback\": 0,\n  \"sell_close_attempts_lookback\": 198,\n  \"sell_close_completions_lookback\": 177,\n  \"sell_close_completion_rate_lookback\": 0.893939,\n  \"blockers\": [],\n  \"profit_task_queue\": [\n    \"Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.\",\n    \"Current run-rate gap: need $244.95/hour to hit next daily target $1,000.00.\",\n    \"Deploy primary execution to region order: ewr -> nrt -> sin.\",\n    \"Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.\",\n    \"Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.\",\n    \"Continuously harvest realized gains into treasury assets: USD and USDC.\",\n    \"Prefer strategies with fast, repeatable close cycles that improve realized USD/USDC run-rate.\",\n    \"Send Claude a high-priority directive each cycle with blockers, required run-rate, and top migration actions.\",\n    \"Promote only strategies with positive realized PnL evidence; de-escalate automatically on drawdown or failed close windows.\"\n  ],\n  \"files\": {\n    \"master_plan\": \"/Users/scott/src/quant/agents/quant_company_master_plan.json\",\n    \"status\": \"/Users/scott/src/quant/agents/quant_company_status.json\",\n    \"roadmap\": \"/Users/scott/src/quant/agents/quant_company_roadmap.md\"\n  }\n}",
+      "stderr_tail": "2026-02-14 14:54:51,627 [quant_company] INFO cycle=1 alpha=0.45 migration=0.75 gtm=0.75 deploy=0.52 hf_live=True daily_pnl=$-0.81 next_target=$1000.00 budget=de_escalate",
+      "env_overrides": {},
+      "is_flywheel_cog": true,
+      "cog_script": "quant_company_agent.py",
+      "cog_args": [
+        "--once"
+      ],
+      "cog_id": "quant_company_agent.py::--once"
+    },
+    {
+      "cmd": [
+        "/opt/homebrew/bin/python3",
+        "/Users/scott/src/quant/agents/mcp_opportunity_agent.py",
+        "--once"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 12.771,
+      "stdout_tail": "{\n  \"updated_at\": \"2026-02-14T19:55:04.398182+00:00\",\n  \"running\": true,\n  \"cycle\": 1,\n  \"interval_seconds\": 150,\n  \"go_live\": true,\n  \"opportunity_count\": 0,\n  \"top_sources\": [],\n  \"files\": {\n    \"opportunities\": \"/Users/scott/src/quant/agents/mcp_opportunities.json\",\n    \"exit_hints\": \"/Users/scott/src/quant/agents/mcp_exit_hints.json\",\n    \"outbox\": \"/Users/scott/src/quant/agents/mcp_opportunity_outbox.json\"\n  }\n}",
+      "stderr_tail": "2026-02-14 14:54:51,763 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed \u2014 run: pip install ib_async\n2026-02-14 14:55:01,266 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed \u2014 run: pip install ib_async\n2026-02-14 14:55:04,398 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=0 top=n/a",
+      "env_overrides": {},
+      "is_flywheel_cog": true,
+      "cog_script": "mcp_opportunity_agent.py",
+      "cog_args": [
+        "--once"
+      ],
+      "cog_id": "mcp_opportunity_agent.py::--once"
     }
   ],
   "win_1000": {
@@ -567,14 +483,14 @@
     "updated_at": "2026-02-14T11:46:22.237102+00:00"
   },
   "autonomous_work": {
-    "queue_size": 85,
+    "queue_size": 80,
     "counts": {
-      "queued": 33,
-      "dispatched": 12,
-      "acknowledged": 0,
+      "queued": 62,
+      "dispatched": 2,
+      "acknowledged": 10,
       "completion_claimed": 0,
-      "completed": 40,
-      "stale": 0,
+      "completed": 0,
+      "stale": 6,
       "blocked": 0
     },
     "dispatch": {
@@ -590,31 +506,31 @@
       "claimed": 0,
       "completed": 0,
       "completion_waiting_verification": 0,
-      "last_from_claude_id": 1315
+      "last_from_claude_id": 1418
     },
-    "updated_at": "2026-02-14T11:46:22.133781+00:00"
+    "updated_at": "2026-02-14T19:54:51.465756+00:00"
   },
   "claude_update": {
-    "id": 1380,
-    "timestamp": "2026-02-14T11:46:22.922822+00:00"
+    "id": 1454,
+    "timestamp": "2026-02-14T19:55:05.130800+00:00"
   },
   "claude_collaboration": {
     "enabled": true,
     "team_loop_enabled": true,
-    "last_from_claude_id": 1315,
+    "last_from_claude_id": 1418,
     "sent": {
       "sent_count": 3,
       "sent_ids": [
-        1381,
-        1382,
-        1383
+        1455,
+        1456,
+        1457
       ],
-      "priority": "high"
+      "priority": "normal"
     },
     "received": {
       "received_count_total": 0,
       "received_role_count": 0,
-      "last_from_claude_id": 1315,
+      "last_from_claude_id": 1418,
       "sources": {},
       "msg_types": {},
       "latest": []
