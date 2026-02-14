@@ -1,7 +1,7 @@
 {
   "region": "ewr",
   "is_primary": true,
-  "running": true,
+  "running": false,
   "uptime_seconds": 0,
   "agents": {},
   "control": {
@@ -13,6 +13,7 @@
     "autoproceed_interval_seconds": 120,
     "autoproceed_timeout_seconds": 180,
     "autoproceed_with_claude_updates": true,
+    "autoproceed_lean_mode": true,
     "auto_accept_edits_always": false,
     "venue_universe_enabled": false,
     "venue_onboarding_enabled": false,
@@ -22,7 +23,7 @@
     "last_trade_fix_age_seconds": null,
     "last_venue_universe_age_seconds": null,
     "last_venue_onboarding_age_seconds": null,
-    "last_status_age_seconds": null,
+    "last_status_age_seconds": 0.0,
     "last_autoproceed_age_seconds": null
   },
   "trade_fix": {
@@ -45,7 +46,9 @@
     "portfolio_total_usd": 0.0,
     "target_achievement_pct_to_next": 0.0,
     "stdout_tail": "",
-    "stderr_tail": ""
+    "stderr_tail": "",
+    "lean_mode": true,
+    "env_overrides": {}
   },
   "venue_universe": {
     "ok": false,
@@ -76,5 +79,5 @@
     "error": "not_collected"
   },
   "status_file": "/Users/scott/src/quant/agents/fly_agent_runner_status.json",
-  "timestamp": "2026-02-14T06:08:52.502225+00:00"
+  "timestamp": "2026-02-14T06:48:15.539463+00:00"
 }

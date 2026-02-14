@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(flyctl status:*)",
-      "Bash(/Users/scott/.fly/bin/flyctl status:*)"
+      "Bash(/Users/scott/.fly/bin/flyctl status:*)",
+      "Bash(python3 -m pytest:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nActivate flywheel: clawdbot + growth_engine + meta_engine + strategy_pipeline\n\nAdded flywheel_activator.py to coordinate 4-agent trading loop:\n- Strategy Pipeline \\(COLD→WARM→HOT, feeds growth engine\\)\n- Growth Engine \\(algebraic signal fusion, boosts sniper confidence\\)\n- Meta Engine \\(strategy evolution, ML research, new alpha discovery\\)\n- ClawdBot \\(orchestration hub, alerts across 7 Fly regions\\)\n\nFixed sniper quote capacity routing: now correctly routes to alt quote\nwhen current quote can''t satisfy requested size \\(even if min_viable met\\).\n\nThis creates a self-reinforcing flywheel where:\n1. Pipeline graduates winning strategies\n2. Growth engine optimizes position sizing\n3. Meta engine evolves new strategies\n4. Loop repeats with compounding portfolio\n\nCo-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(/Users/scott/.fly/bin/flyctl deploy:*)",
+      "Bash(/Users/scott/.fly/bin/flyctl ssh console:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

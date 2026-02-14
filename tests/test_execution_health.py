@@ -5,7 +5,7 @@ import json
 import os
 import socket
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "agents"))
 
@@ -672,6 +672,49 @@ def test_execution_health_allows_stale_no_pending_with_grace(monkeypatch, tmp_pa
     )
     monkeypatch.setattr(eh, "_dns_probe", lambda host: {"host": host, "ok": True, "ips": ["127.0.0.1"], "error": "", "latency_ms": 1.0})
 
+    payload = eh.evaluate_execution_health(
+        refresh=True,
+        probe_http=False,
+        write_status=False,
+        status_path=tmp_path / "health.json",
+    )
+    assert payload["green"] is True
+    assert payload["components"]["reconcile"]["stale_grace_applied"] is True
+
+
+def test_execution_health_allows_stale_close_completion_with_activity_grace(monkeypatch, tmp_path):
+    stale_at = datetime.now(timezone.utc) - timedelta(seconds=3500)
+    reconcile = tmp_path / "reconcile_status.json"
+    reconcile.write_text(
+        json.dumps(
+            {
+                "updated_at": stale_at.isoformat(),
+                "summary": {
+                    "checked": 0,
+                    "early_exit_reason": "",
+                    "close_gate_passed": True,
+                    "close_gate_reason": "sell_close_completion_observed",
+                },
+            }
+        )
+    )
+    monkeypatch.setattr(eh, "RECON_STATUS_PATH", reconcile)
+    monkeypatch.setattr(eh, "DNS_HOSTS", ("api.coinbase.com",))
+    monkeypatch.setattr(eh, "DNS_REQUIRE_ALL", True)
+    monkeypatch.setattr(eh, "MIN_TELEMETRY_SAMPLES", 1)
+    monkeypatch.setattr(eh, "RECON_MAX_AGE_SECONDS", 60)
+    monkeypatch.setattr(eh, "RECON_STALE_NO_ACTIVITY_GRACE_SECONDS", 4100)
+    monkeypatch.setattr(
+        eh,
+        "venue_health_snapshot",
+        lambda *_args, **_kwargs: {
+            "samples": 10,
+            "success_rate": 0.9,
+            "failure_rate": 0.1,
+            "p90_latency_ms": 250.0,
+        },
+    )
+    monkeypatch.setattr(eh, "_dns_probe", lambda host: {"host": host, "ok": True, "ips": ["127.0.0.1"], "error": "", "latency_ms": 1.0})
     payload = eh.evaluate_execution_health(
         refresh=True,
         probe_http=False,

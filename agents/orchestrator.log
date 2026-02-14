@@ -3752,3 +3752,6 @@
 2026-02-13 23:03:28,312 [ORCH] INFO Stopping all agents: orchestrator_exit
 2026-02-13 23:03:28,312 [ORCH] INFO Orchestrator V2 shutdown complete
 2026-02-14 01:03:48,844 [ORCH] INFO Starting capital from DB: $322.66
+2026-02-14 01:38:20,366 [ORCH] INFO Starting capital from DB: $322.66
+2026-02-14 01:38:21,818 [ORCH] INFO Starting capital from DB: $322.66
+2026-02-14 01:38:23,425 [ORCH] INFO Starting capital from DB: $322.66

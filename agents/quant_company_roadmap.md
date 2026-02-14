@@ -1,6 +1,6 @@
 # Quant Company Roadmap
 
-Updated: 2026-02-14T06:08:19.006803+00:00
+Updated: 2026-02-14T06:44:23.387587+00:00
 
 ## WIN Objective
 - WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.
@@ -18,7 +18,7 @@ Updated: 2026-02-14T06:08:19.006803+00:00
 - Daily PnL: $0.00
 - Next target: $1,000.00
 - Target progress: 0.00%
-- Required run-rate: $55.99/hour
+- Required run-rate: $57.94/hour
 - Budget escalator: de_escalate x0.80
 - Realized close gate: passed=True reason=passed
 
@@ -51,8 +51,8 @@ Updated: 2026-02-14T06:08:19.006803+00:00
 - Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.
 - Stabilize Coinbase API health before live budget escalation (improve retries + region routing).
 - Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.
-- Execution-health gate failed (telemetry_success_rate_low:0.0060<0.5500); block budget escalations until DNS/API/reconcile checks are green.
-- Current run-rate gap: need $55.99/hour to hit next daily target $1,000.00.
+- Execution-health gate failed (telemetry_success_rate_low:0.0100<0.5500); block budget escalations until DNS/API/reconcile checks are green.
+- Current run-rate gap: need $57.94/hour to hit next daily target $1,000.00.
 - Deploy primary execution to region order: ewr -> nrt -> sin.
 - Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.
 - Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.

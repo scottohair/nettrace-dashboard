@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-02-14T03:31:57.052705+00:00",
+  "updated_at": "2026-02-14T06:47:45.480044+00:00",
   "running": true,
-  "cycle_index": 2,
-  "monitor_interval_seconds": 46,
+  "cycle_index": 35,
+  "monitor_interval_seconds": 42,
   "active_positions": 0,
-  "consecutive_api_failures": 2,
-  "execution_failures": 0,
-  "last_cycle_latency_ms": 1.091,
+  "consecutive_api_failures": 0,
+  "execution_failures": 1,
+  "last_cycle_latency_ms": 493.084,
   "improvements": {
     "advanced_total": 100,
     "hyper_total": 10,
@@ -20,5 +20,5 @@
     "mcp_outbox_file": "/Users/scott/src/quant/agents/mcp_exit_outbox.json",
     "status_file": "/Users/scott/src/quant/agents/exit_manager_status.json"
   },
-  "mcp_hints_present": false
+  "mcp_hints_present": true
 }

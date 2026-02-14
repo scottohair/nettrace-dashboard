@@ -4,6 +4,7 @@
 import json
 import os
 import socket
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 import urllib.request
 from urllib.parse import urlparse, urlunparse
@@ -77,6 +78,9 @@ RECON_ALLOW_STALE_NO_PENDING = os.environ.get(
 ).lower() not in ("0", "false", "no")
 RECON_STALE_NO_PENDING_GRACE_SECONDS = int(
     os.environ.get("EXEC_HEALTH_RECON_STALE_NO_PENDING_GRACE_SECONDS", "3600")
+)
+RECON_STALE_NO_ACTIVITY_GRACE_SECONDS = int(
+    os.environ.get("EXEC_HEALTH_RECON_STALE_NO_ACTIVITY_GRACE_SECONDS", "7200")
 )
 HEALTH_CACHE_MAX_AGE_SECONDS = int(os.environ.get("EXEC_HEALTH_CACHE_MAX_AGE_SECONDS", "120"))
 
@@ -602,7 +606,25 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
             if age is not None and age <= max(5, int(HEALTH_CACHE_MAX_AGE_SECONDS)):
                 return cached
 
-    dns_rows = [_dns_probe(h) for h in DNS_HOSTS]
+    dns_rows = []
+    if DNS_HOSTS:
+        max_workers = max(1, min(int(os.environ.get("EXEC_HEALTH_PROBE_WORKERS", "8")), len(DNS_HOSTS)))
+        if len(DNS_HOSTS) == 1:
+            dns_rows = [_dns_probe(DNS_HOSTS[0])]
+        else:
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_host = {
+                    executor.submit(_dns_probe, host): host for host in DNS_HOSTS
+                }
+                dns_rows = [None] * len(DNS_HOSTS)
+                for future in as_completed(future_to_host):
+                    host = future_to_host[future]
+                    idx = list(DNS_HOSTS).index(host)
+                    try:
+                        dns_rows[idx] = future.result()
+                    except Exception:
+                        dns_rows[idx] = {"host": host, "ok": False, "ips": [], "error": "probe_exception", "latency_ms": 0.0, "resolver_source": "exception"}
+            dns_rows = [row for row in dns_rows if row is not None]
     dns_ok_count = sum(1 for r in dns_rows if bool(r.get("ok")))
     dns_green = (dns_ok_count == len(dns_rows)) if DNS_REQUIRE_ALL else (dns_ok_count > 0)
     if not dns_rows:
@@ -651,14 +673,43 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
             for row in dns_rows
             if row.get("ok")
         }
-        probe_rows = [
-            _http_probe(
-                u,
-                HTTP_PROBE_TIMEOUT_SECONDS,
-                fallback_ips=host_to_ips.get(urlparse(str(u)).hostname or "", []),
-            )
-            for u in HTTP_PROBE_URLS
-        ]
+        if HTTP_PROBE_URLS:
+            max_workers = max(1, min(int(os.environ.get("EXEC_HEALTH_PROBE_WORKERS", "8")), len(HTTP_PROBE_URLS)))
+            if len(HTTP_PROBE_URLS) == 1:
+                url = HTTP_PROBE_URLS[0]
+                probe_rows = [
+                    _http_probe(
+                        url,
+                        HTTP_PROBE_TIMEOUT_SECONDS,
+                        fallback_ips=host_to_ips.get(urlparse(str(url)).hostname or "", []),
+                    )
+                ]
+            else:
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    future_to_url = {
+                        executor.submit(
+                            _http_probe,
+                            url,
+                            HTTP_PROBE_TIMEOUT_SECONDS,
+                            fallback_ips=host_to_ips.get(urlparse(str(url)).hostname or "", []),
+                        ): url
+                        for url in HTTP_PROBE_URLS
+                    }
+                    probe_rows = [None] * len(HTTP_PROBE_URLS)
+                    for future in as_completed(future_to_url):
+                        url = future_to_url[future]
+                        idx = list(HTTP_PROBE_URLS).index(url)
+                        try:
+                            probe_rows[idx] = future.result()
+                        except Exception:
+                            probe_rows[idx] = {
+                                "url": str(url),
+                                "ok": False,
+                                "status": 0,
+                                "error": "probe_exception",
+                                "latency_ms": 0.0,
+                            }
+                probe_rows = [row for row in probe_rows if row is not None]
     probe_green = True
     if do_probe:
         probe_green = bool(probe_rows) and all(bool(r.get("ok")) for r in probe_rows)
@@ -699,6 +750,14 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
         and reconcile_age is not None
         and reconcile_age <= float(stale_grace_limit)
     )
+    reconcile_stale_no_activity_grace_ok = bool(
+        reconcile_age is not None
+        and reconcile_checked == 0
+        and close_gate_passed
+        and not reconcile_early_exit
+        and reconcile_age <= float(RECON_STALE_NO_ACTIVITY_GRACE_SECONDS)
+        and close_gate_reason in {"no_pending_sell_closes", "sell_close_completion_observed"}
+    )
     reconcile_has_positive_signal = bool(
         reconcile_checked > 0
         or close_gate_passed
@@ -713,6 +772,7 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
         and (
             reconcile_age <= max(30, int(RECON_MAX_AGE_SECONDS))
             or reconcile_stale_grace_ok
+            or reconcile_stale_no_activity_grace_ok
         )
     )
     candle_feed = _candle_feed_health()
@@ -880,7 +940,10 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
                 "max_age_seconds": int(RECON_MAX_AGE_SECONDS),
                 "allow_stale_no_pending": bool(RECON_ALLOW_STALE_NO_PENDING),
                 "stale_no_pending_grace_seconds": int(RECON_STALE_NO_PENDING_GRACE_SECONDS),
-                "stale_grace_applied": bool(reconcile_stale_grace_ok),
+                "stale_no_activity_grace_seconds": int(RECON_STALE_NO_ACTIVITY_GRACE_SECONDS),
+                "stale_grace_applied": bool(
+                    reconcile_stale_grace_ok or reconcile_stale_no_activity_grace_ok
+                ),
                 "age_seconds": None if reconcile_age is None else round(float(reconcile_age), 3),
                 "summary": reconcile_summary,
             },

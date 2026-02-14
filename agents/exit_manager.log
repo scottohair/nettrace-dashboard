@@ -2361,3 +2361,4 @@ when serializing dict item 'route_hint'
 2026-02-13 22:31:13,863 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
 2026-02-13 22:31:57,051 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 76s, reason=egress_blocked)
 2026-02-13 22:31:57,052 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 76s, reason=egress_blocked)
+2026-02-14 01:24:52,379 [risk_controller] INFO STARTUP: Flushed 2 stale pending allocations

@@ -440,6 +440,14 @@ AGENT_CONFIGS = [
         "critical": False,
         "description": "Spot-futures basis arbitrage: 0.5-2% APR on market-neutral spreads",
     },
+    {
+        "name": "phase1_executor",
+        "script": "phase1_executor.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Execute pending signals from Phase 1 agents (sentiment, regulatory, liquidation, narrative, futures)",
+    },
 ]
 
 

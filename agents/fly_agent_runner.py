@@ -823,6 +823,16 @@ class FlyAgentRunner:
         cmd = [sys.executable, str(flywheel_script), "--once"]
         if not self._autoproceed_with_claude_updates:
             cmd.append("--no-claude-updates")
+        if self._autoproceed_lean_mode:
+            cmd.extend(
+                [
+                    "--once-no-force-quant",
+                    "--collector-interval-seconds",
+                    "60",
+                    "--quant-every-cycles",
+                    "1",
+                ]
+            )
         result["cmd"] = list(cmd)
         env = os.environ.copy()
         if self._autoproceed_lean_mode:

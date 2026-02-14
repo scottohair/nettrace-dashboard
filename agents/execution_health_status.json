@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-02-14T06:08:19.004448+00:00",
+  "updated_at": "2026-02-14T06:48:17.407606+00:00",
   "green": false,
-  "reason": "telemetry_success_rate_low:0.0060<0.5500",
+  "reason": "telemetry_samples_low:0<3",
   "reasons": [
-    "telemetry_success_rate_low:0.0060<0.5500"
+    "telemetry_samples_low:0<3"
   ],
   "dns_degraded": false,
   "egress_blocked": false,
@@ -40,23 +40,27 @@
           "host": "api.coinbase.com",
           "ok": true,
           "ips": [
+            "2606:4700:440a::ac40:98f1",
+            "2a06:98c1:3105::6812:230f",
             "104.18.35.15",
             "172.64.152.241"
           ],
-          "error": "system_dns_failed_host_map_recovered:[Errno 8] nodename nor servname provided, or not known",
-          "resolver_source": "host_map",
-          "latency_ms": 152.473
+          "error": "",
+          "resolver_source": "system",
+          "latency_ms": 2.529
         },
         {
           "host": "api.exchange.coinbase.com",
           "ok": true,
           "ips": [
-            "104.18.36.178",
-            "172.64.151.78"
+            "2a06:98c1:310d::ac40:974e",
+            "2a06:98c1:3103::6812:24b2",
+            "172.64.151.78",
+            "104.18.36.178"
           ],
-          "error": "system_dns_failed_host_map_recovered:[Errno 8] nodename nor servname provided, or not known",
-          "resolver_source": "host_map",
-          "latency_ms": 155.422
+          "error": "",
+          "resolver_source": "system",
+          "latency_ms": 0.587
         }
       ]
     },
@@ -67,19 +71,30 @@
     },
     "telemetry": {
       "green": false,
+      "bypass_enabled": false,
+      "bypass_used": false,
+      "dns_failures_excluded": 0,
       "min_samples": 3,
       "min_success_rate": 0.55,
       "max_failure_rate": 0.45,
       "max_p90_latency_ms": 4500.0,
+      "include_endpoint_prefixes": [
+        "/api/v3/brokerage/products",
+        "/api/v3/brokerage/orders"
+      ],
+      "exclude_endpoint_prefixes": [
+        "/api/v3/brokerage/orders/historical"
+      ],
       "snapshot": {
         "venue": "coinbase",
         "window_minutes": 30,
-        "samples": 2000,
-        "success_rate": 0.006,
-        "failure_rate": 0.994,
-        "p50_latency_ms": 9.769,
-        "p90_latency_ms": 17.513,
-        "p99_latency_ms": 21.163
+        "samples": 0,
+        "success_rate": 0.0,
+        "failure_rate": 0.0,
+        "p50_latency_ms": 0.0,
+        "p90_latency_ms": 0.0,
+        "p99_latency_ms": 0.0,
+        "dns_failures_excluded": 0
       },
       "recovery_override": false,
       "recovery_window_minutes": 3,
@@ -89,12 +104,13 @@
       "recovery_snapshot": {
         "venue": "coinbase",
         "window_minutes": 3,
-        "samples": 1220,
-        "success_rate": 0.0049,
-        "failure_rate": 0.9951,
-        "p50_latency_ms": 11.539,
-        "p90_latency_ms": 18.29,
-        "p99_latency_ms": 20.957
+        "samples": 0,
+        "success_rate": 0.0,
+        "failure_rate": 0.0,
+        "p50_latency_ms": 0.0,
+        "p90_latency_ms": 0.0,
+        "p99_latency_ms": 0.0,
+        "dns_failures_excluded": 0
       }
     },
     "reconcile": {
@@ -102,8 +118,9 @@
       "max_age_seconds": 900,
       "allow_stale_no_pending": true,
       "stale_no_pending_grace_seconds": 3600,
+      "stale_no_activity_grace_seconds": 7200,
       "stale_grace_applied": true,
-      "age_seconds": 3207.556,
+      "age_seconds": 5605.954,
       "summary": {
         "checked": 0,
         "updated": 0,
@@ -122,6 +139,33 @@
         },
         "close_gate_passed": true,
         "close_gate_reason": "sell_close_completion_observed"
+      }
+    },
+    "candle_feed": {
+      "enabled": false,
+      "green": true,
+      "reason": "gate_disabled",
+      "path": "/Users/scott/src/quant/tests/../agents/candle_feed_latest.json",
+      "aggregator_status_path": "/Users/scott/src/quant/tests/../agents/candle_aggregator_status.json",
+      "feed_exists": false,
+      "aggregator_status_exists": false,
+      "age_seconds": null,
+      "generated_at": "",
+      "latest_at": "",
+      "latest_ts": null,
+      "total_points": 0,
+      "target_points": 0,
+      "target_achieved": false,
+      "pair_count": 0,
+      "timeframe_count": 0,
+      "filters": {},
+      "aggregator_status": {},
+      "requirements": {
+        "min_points": 1000,
+        "min_pair_count": 6,
+        "min_timeframe_count": 2,
+        "max_age_seconds": 360,
+        "require_target_achieved": true
       }
     }
   }

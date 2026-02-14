@@ -519,14 +519,20 @@ class FlywheelController:
             return 0.0
         conn = sqlite3.connect(str(TRADER_DB))
         try:
-            live = conn.execute(
-                "SELECT COALESCE(SUM(COALESCE(pnl, 0)), 0) FROM live_trades "
-                "WHERE date(created_at, 'utc')=date('now', 'utc')"
-            ).fetchone()[0]
-            agent = conn.execute(
-                "SELECT COALESCE(SUM(COALESCE(pnl, 0)), 0) FROM agent_trades "
-                "WHERE date(created_at, 'utc')=date('now', 'utc')"
-            ).fetchone()[0]
+            table_rows = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+            tables = {str(r[0]) for r in table_rows if r and r[0]}
+            live = 0.0
+            agent = 0.0
+            if "live_trades" in tables:
+                live = conn.execute(
+                    "SELECT COALESCE(SUM(COALESCE(pnl, 0)), 0) FROM live_trades "
+                    "WHERE date(created_at, 'utc')=date('now', 'utc')"
+                ).fetchone()[0]
+            if "agent_trades" in tables:
+                agent = conn.execute(
+                    "SELECT COALESCE(SUM(COALESCE(pnl, 0)), 0) FROM agent_trades "
+                    "WHERE date(created_at, 'utc')=date('now', 'utc')"
+                ).fetchone()[0]
             return round(float(live or 0.0) + float(agent or 0.0), 6)
         finally:
             conn.close()
@@ -1057,6 +1063,11 @@ def print_status():
 def main():
     parser = argparse.ArgumentParser(description="Always-on growth flywheel controller")
     parser.add_argument("--once", action="store_true", help="run one cycle and exit")
+    parser.add_argument(
+        "--once-no-force-quant",
+        action="store_true",
+        help="when used with --once, run a non-forced quant cycle",
+    )
     parser.add_argument("--status", action="store_true", help="print current status JSON")
     parser.add_argument("--interval-seconds", type=int, default=DEFAULT_INTERVAL_SECONDS)
     parser.add_argument("--collector-interval-seconds", type=int, default=DEFAULT_COLLECTOR_INTERVAL_SECONDS)
@@ -1077,7 +1088,7 @@ def main():
         enable_claude_updates=(not args.no_claude_updates),
     )
     if args.once:
-        print(json.dumps(controller.run_cycle(force_quant=True), indent=2))
+        print(json.dumps(controller.run_cycle(force_quant=(not args.once_no_force_quant)), indent=2))
         return
     controller.run_forever()
 

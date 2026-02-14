@@ -5,6 +5,58 @@ Both agents: READ this before starting work. WRITE here before ending work.
 
 ---
 
+## 2026-02-14 Claude Code Handoff (v70) — Flywheel Activation
+
+### What I Did (this session)
+
+**Flywheel Activator Framework**
+- Created `flywheel_activator.py`: Master orchestrator for 4-agent loop
+- Coordinates: Strategy Pipeline → Growth Engine → Meta Engine → ClawdBot
+- Self-reinforcing cycle: pipeline graduates strategies → growth engine optimizes → meta engine evolves → new strategies back to pipeline
+- Persistent state tracking: cycles, portfolio metrics, agent PIDs, alerts
+- Monitoring loop: checks every 60s, logs cycle metrics to `flywheel_cycles.jsonl`
+
+**Fixed Sniper Quote Capacity Routing**
+- Bug: routed to current quote when capacity >= min_viable, ignoring if requested_size fits
+- Fix: now checks alt quote FIRST if current quote can't satisfy full requested amount
+- Test: `test_fit_buy_to_quote_capacity_routes_and_caps_to_alt_quote` now passes
+- All 259 tests passing ✓
+
+### Current Portfolio State (v70)
+- **Total: ~$52.51** (all USDC, no positions)
+- **F&G = 9** (Extreme Fear, BUY gate still active)
+- **Agents**: All 7 regions running (ewr, nrt, sin, lhr, bom, ord, fra), agents enabled
+- **Ready**: Flywheel can activate once capital released or F&G recovers
+
+### Deploy Status
+- **v70** built with flywheel_activator, tests passing ✓
+- Ready for deployment to Fly (all 7 regions)
+- Once deployed, flywheel activation will start automatically
+
+### Next Steps: Deployment & Go-Live
+
+To activate the 4-agent flywheel:
+```bash
+# 1. Deploy v70 to Fly
+/Users/scott/.fly/bin/flyctl deploy --remote-only
+
+# 2. SSH into primary region and start flywheel
+/Users/scott/.fly/bin/flyctl ssh console -s
+python3 agents/flywheel_activator.py &
+
+# 3. Monitor flywheel status
+tail -f /data/flywheel_activator.log
+tail -f /data/flywheel_cycles.jsonl
+
+# 4. Expect within 5m:
+# - Strategy Pipeline: scanning COLD strategies
+# - Growth Engine: computing GF(2^9) signal fusion + lattice decisions
+# - Meta Engine: training ML models, searching for alpha
+# - ClawdBot: orchestrating across 7 regions, sending alerts
+```
+
+---
+
 ## 2026-02-14 Claude Code Handoff — Phase 1 Quick-Win Agents (Platform Inspiration Ideas)
 
 ### What I Did (this session)
