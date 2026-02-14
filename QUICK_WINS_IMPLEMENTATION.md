@@ -7,20 +7,27 @@
    - File: strategy_pipeline.py:94
    - Changed: 0.006 → 0.012 (actual Coinbase Intro tier)
    - Impact: Backtests now show correct profitability, prevents promoting losing strategies
+   - Committed: f0a36fd (with Persistent Trade Throttle)
+
+2. **Persistent Trade Throttle** (1 hour, $30+/day impact)
+   - File: sniper.py lines 731-755
+   - Issue: Throttle resets on deploy, allows fee-burning bursts on restart
+   - Solution: Add trade_throttle_log table, load on startup, persist each trade
+   - Implementation:
+     - Added _load_throttle_state() to restore state from DB
+     - Modified _record_trade_timestamp() to persist to SQLite
+     - New trade_throttle_log table with trade timestamps
+   - Impact: Prevents $30-50/day in churn fees on app restart/deploy
+   - Tested: ✓ Persistence verified across simulated restart
+   - Committed: f0a36fd
 
 ### IN PROGRESS 🔄
 
-2. **Candle Fetch Deduplication** (2 hours, $20+/day impact)
+3. **Candle Fetch Deduplication** (2 hours, $20+/day impact)
    - File: sniper.py
    - Issue: 9 SignalSource classes fetch same candles independently
    - Solution: Fetch candles once in scan_pair(), pass shared data
    - Files: sniper.py (lines 257-700)
-   - Status: READY
-
-3. **Persistent Trade Throttle** (1 hour, $30+/day impact)
-   - File: sniper.py lines 707-710
-   - Issue: Throttle resets on deploy, allows fee-burning bursts
-   - Solution: Store throttle state in SQLite daily_risk_state
    - Status: READY
 
 4. **Heartbeat API Call Reduction** (1 hour, $15+/day impact)
