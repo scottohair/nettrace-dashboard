@@ -55,6 +55,12 @@ DEFAULT_COLLECTOR_INTERVAL_SECONDS = int(os.environ.get("FLYWHEEL_COLLECTOR_INTE
 DEFAULT_QUANT_EVERY_CYCLES = int(os.environ.get("FLYWHEEL_QUANT_EVERY_CYCLES", "3"))
 DEFAULT_BENCH_EVERY_CYCLES = int(os.environ.get("FLYWHEEL_BENCH_EVERY_CYCLES", "12"))
 DEFAULT_PYTHON_BIN = os.environ.get("FLYWHEEL_PYTHON_BIN") or shutil.which("python3") or sys.executable
+FLYWHEEL_SUBPROCESS_TIMEOUT_SECONDS = max(
+    10, int(os.environ.get("FLYWHEEL_SUBPROCESS_TIMEOUT_SECONDS", "900"))
+)
+FLYWHEEL_SUPERVISOR_REPORT_MAX_AGE_SECONDS = max(
+    60, int(os.environ.get("FLYWHEEL_SUPERVISOR_REPORT_MAX_AGE_SECONDS", "900"))
+)
 WIN_TASKS_ENABLED = os.environ.get("FLYWHEEL_WIN_TASKS_ENABLED", "1").lower() not in {"0", "false", "no"}
 WIN_TASKS_EXECUTE_TOP = int(os.environ.get("FLYWHEEL_WIN_TASKS_EXECUTE_TOP", "0"))
 CLAUDE_TEAM_ROLE_LOOP_ENABLED = (
@@ -66,6 +72,9 @@ RECONCILE_AGENT_TRADES_MAX_ORDERS = int(os.environ.get("FLYWHEEL_RECONCILE_AGENT
 RECONCILE_AGENT_TRADES_LOOKBACK_HOURS = int(os.environ.get("FLYWHEEL_RECONCILE_AGENT_TRADES_LOOKBACK_HOURS", "96"))
 CLOSE_FIRST_RECONCILE_GROWTH_GATE_ENABLED = (
     os.environ.get("FLYWHEEL_CLOSE_FIRST_RECONCILE_GROWTH_GATE_ENABLED", "1").lower() not in {"0", "false", "no"}
+)
+CLOSE_FIRST_RECONCILE_BOOTSTRAP_BYPASS = (
+    os.environ.get("FLYWHEEL_CLOSE_FIRST_RECONCILE_BOOTSTRAP_BYPASS", "1").lower() not in {"0", "false", "no"}
 )
 AUTONOMOUS_WORK_ENABLED = (
     os.environ.get("FLYWHEEL_AUTONOMOUS_WORK_ENABLED", "1").lower() not in {"0", "false", "no"}
@@ -224,13 +233,27 @@ class FlywheelController:
         if isinstance(env_overrides, dict):
             for k, v in env_overrides.items():
                 env[str(k)] = str(v)
-        proc = subprocess.run(
-            cmd,
-            stdin=subprocess.DEVNULL,
-            capture_output=True,
-            text=True,
-            env=env,
-        )
+        try:
+            proc = subprocess.run(
+                cmd,
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                env=env,
+                timeout=FLYWHEEL_SUBPROCESS_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired as exc:
+            return {
+                "cmd": cmd,
+                "returncode": 124,
+                "elapsed_seconds": round(time.time() - started, 3),
+                "stdout_tail": "\n".join((exc.stdout or "").strip().splitlines()[-25:]),
+                "stderr_tail": (
+                    f"command timed out after {FLYWHEEL_SUBPROCESS_TIMEOUT_SECONDS}s: {exc}"
+                ),
+                "env_overrides": dict(env_overrides or {}),
+                "timed_out": True,
+            }
         return {
             "cmd": cmd,
             "returncode": int(proc.returncode),
@@ -244,6 +267,23 @@ class FlywheelController:
         payload = _load_json(REPORT_FILE, {})
         decision = payload.get("decision", {}) if isinstance(payload, dict) else {}
         return decision if isinstance(decision, dict) else {}
+
+    def _growth_decision_allows_go(self):
+        payload = _load_json(REPORT_FILE, {})
+        generated = payload.get("generated_at", "")
+        if not isinstance(payload, dict):
+            return False, {}
+        age_seconds = _iso_age_seconds(generated)
+        if age_seconds is None or age_seconds > FLYWHEEL_SUPERVISOR_REPORT_MAX_AGE_SECONDS:
+            return False, {}
+        decision = payload.get("decision", {})
+        if not isinstance(decision, dict):
+            return False, {}
+        if not bool(decision.get("go_live", False)):
+            return False, decision
+        if str(decision.get("decision", "")).strip().upper() != "GO":
+            return False, decision
+        return True, decision
 
     def _read_reconcile_close_gate(self, reconcile_cmd=None):
         gate = {
@@ -842,12 +882,26 @@ class FlywheelController:
             )
             commands.append(reconcile_cmd)
         reconcile_close_gate = self._read_reconcile_close_gate(reconcile_cmd=reconcile_cmd)
-        close_gate_blocks_growth = bool(
+        reconcile_gate_failed = bool(
             RECONCILE_AGENT_TRADES_ENABLED
             and reconcile_close_gate.get("enabled", False)
             and not reconcile_close_gate.get("passed", False)
         )
+        # In bootstrap mode, don't let reconcile gate block the growth supervisor.
+        # The growth supervisor has its own close flow gate with bootstrap awareness.
+        bootstrap_bypass = False
+        if reconcile_gate_failed and CLOSE_FIRST_RECONCILE_BOOTSTRAP_BYPASS:
+            prev_report = _load_json(REPORT_FILE, {})
+            prev_decision = prev_report.get("decision", {}) if isinstance(prev_report, dict) else {}
+            bootstrap_bypass = bool(prev_decision.get("hot_evidence_bootstrap", {}).get("active", False))
+            if bootstrap_bypass:
+                logger.info(
+                    "Reconcile gate failed but bootstrap active — bypassing: %s",
+                    reconcile_close_gate.get("reason", "unknown"),
+                )
+        close_gate_blocks_growth = reconcile_gate_failed and not bootstrap_bypass
         exit_manager_gate = self._read_exit_manager_gate()
+        used_supervisor_fallback = False
 
         supervisor_args = ["--collector-interval-seconds", str(self.collector_interval_seconds)]
         if quant_run:
@@ -884,6 +938,21 @@ class FlywheelController:
             supervisor_cmd = self._run_py("growth_supervisor.py", *supervisor_args)
             commands.append(supervisor_cmd)
             decision = self._read_growth_decision()
+            if supervisor_cmd.get("returncode", 0) != 0 and supervisor_cmd.get("timed_out"):
+                fallback_go, fallback_decision = self._growth_decision_allows_go()
+                if fallback_go:
+                    decision = dict(fallback_decision)
+                    reasons = list(decision.get("reasons", []) or [])
+                    reasons.append(
+                        f"growth_supervisor_timeout_fallback_rc_{supervisor_cmd.get('returncode')}"
+                    )
+                    decision["reasons"] = sorted(set(str(r) for r in reasons if str(r)))
+                    decision["warnings"] = sorted(
+                        set(str(w) for w in (decision.get("warnings", []) or []) + ["supervisor_timeout_fallback"])
+                    )
+                    decision["go_live"] = True
+                    decision["decision"] = "GO"
+                    used_supervisor_fallback = True
         supervisor_failed = supervisor_cmd["returncode"] != 0
 
         if bench_run:
@@ -929,7 +998,7 @@ class FlywheelController:
             )
             decision = self._read_growth_decision()
 
-        if supervisor_failed:
+        if supervisor_failed and not used_supervisor_fallback:
             decision = {
                 "decision": "NO_GO",
                 "go_live": False,
