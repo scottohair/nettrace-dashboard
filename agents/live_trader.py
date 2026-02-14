@@ -403,8 +403,7 @@ class LiveTrader:
             logger.warning("Daily loss limit hit ($%.2f >= $%.2f). STOPPED.", self.daily_pnl, max_daily_loss)
             return
 
-        # We only BUY — we accumulate assets on strong signals
-        # We only SELL when price is ABOVE our purchase price + fees (0.6%)
+        # BUY on strong signals, SELL only when price is ABOVE purchase price + fees
         # This ensures we NEVER LOSE MONEY on a trade
 
         usdc = holdings.get("USDC", {}).get("usd_value", 0)
@@ -518,10 +517,7 @@ class LiveTrader:
         market_regime_info=None,
         risk_portfolio_value=None,
     ):
-        """Execute a real BUY trade on Coinbase. SELL is disabled (accumulation mode)."""
-        if side.upper() != "BUY":
-            logger.warning("BLOCKED SELL on %s — accumulation mode, BUY only until portfolio > $100", pair)
-            return
+        """Execute a real trade on Coinbase (BUY or SELL)."""
 
         if not _live_risk_ctrl:
             logger.error("Risk controller unavailable — BLOCKING execution for %s", pair)

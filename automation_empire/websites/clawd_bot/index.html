@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clawd.bot - Autonomous AI Automation Platform</title>
+    <meta name="description" content="Automated revenue streams powered by adaptive AI agents. Deploy intelligent automation across trading, data services, arbitrage, and SaaS.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent: '#ec4899'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animated-gradient {
+            background: linear-gradient(-45deg, #6366f1, #8b5cf6, #ec4899, #f43f5e);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        .glow {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans antialiased">
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col justify-center items-center animated-gradient px-4">
+        <div class="max-w-5xl mx-auto text-center">
+            <h1 class="text-6xl md:text-8xl font-bold mb-6 text-white drop-shadow-lg">
+                Clawd<span class="text-yellow-300">.bot</span>
+            </h1>
+
+            <p class="text-2xl md:text-3xl mb-4 text-gray-100 font-light">
+                Autonomous AI Automation Platform
+            </p>
+
+            <p class="text-lg md:text-xl mb-8 text-gray-200 max-w-3xl mx-auto">
+                Deploy intelligent agents that generate revenue 24/7. Trading, arbitrage, data services, SaaS — all automated with adaptive AI.
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-4 justify-center mb-12">
+                <a href="#products" class="bg-white text-indigo-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition glow">
+                    Explore Products
+                </a>
+                <a href="#api" class="bg-indigo-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-indigo-700 transition border-2 border-white">
+                    API Access
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 text-center">
+                <div class="bg-white/10 backdrop-blur-lg rounded-lg p-6">
+                    <div class="text-4xl font-bold text-yellow-300">858+</div>
+                    <div class="text-sm text-gray-300 mt-2">Business Ideas</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-lg rounded-lg p-6">
+                    <div class="text-4xl font-bold text-green-400">24/7</div>
+                    <div class="text-sm text-gray-300 mt-2">Uptime</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-lg rounded-lg p-6">
+                    <div class="text-4xl font-bold text-blue-400">7</div>
+                    <div class="text-sm text-gray-300 mt-2">Global Regions</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-lg rounded-lg p-6">
+                    <div class="text-4xl font-bold text-purple-400">95+</div>
+                    <div class="text-sm text-gray-300 mt-2">Active Agents</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-20 bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                Automation Tier
+            </h2>
+            <p class="text-center text-gray-400 mb-16 text-lg">
+                Intelligent agents across 6 revenue categories
+            </p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- SaaS Card -->
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl p-8 hover:scale-105 transition shadow-2xl">
+                    <div class="text-5xl mb-4">🚀</div>
+                    <h3 class="text-2xl font-bold mb-3">SaaS & APIs</h3>
+                    <p class="text-gray-200 mb-4">
+                        200 SaaS ideas from real-time data APIs to AI-powered micro-tools. Subscription and usage-based revenue.
+                    </p>
+                    <div class="text-sm text-yellow-300 font-semibold">$100-$10K/mo potential</div>
+                </div>
+
+                <!-- Arbitrage Card -->
+                <div class="bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl p-8 hover:scale-105 transition shadow-2xl">
+                    <div class="text-5xl mb-4">💰</div>
+                    <h3 class="text-2xl font-bold mb-3">Arbitrage</h3>
+                    <p class="text-gray-200 mb-4">
+                        Cross-exchange crypto, sports betting, retail product arbitrage. Automated price monitoring and execution.
+                    </p>
+                    <div class="text-sm text-yellow-300 font-semibold">$1K-$50K/mo potential</div>
+                </div>
+
+                <!-- Data Services Card -->
+                <div class="bg-gradient-to-br from-pink-600 to-red-600 rounded-xl p-8 hover:scale-105 transition shadow-2xl">
+                    <div class="text-5xl mb-4">📊</div>
+                    <h3 class="text-2xl font-bold mb-3">Data Services</h3>
+                    <p class="text-gray-200 mb-4">
+                        Lead generation, market intelligence, sports stats. Curated data feeds sold to hedge funds and businesses.
+                    </p>
+                    <div class="text-sm text-yellow-300 font-semibold">$500-$20K/mo potential</div>
+                </div>
+
+                <!-- AI Agents Card -->
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-8 hover:scale-105 transition shadow-2xl">
+                    <div class="text-5xl mb-4">🤖</div>
+                    <h3 class="text-2xl font-bold mb-3">AI Agents</h3>
+                    <p class="text-gray-200 mb-4">
+                        Workflow automation, virtual assistants, content generation. Outcome-based pricing for business process automation.
+                    </p>
+                    <div class="text-sm text-yellow-300 font-semibold">$1K-$30K/mo potential</div>
+                </div>
+
+                <!-- Marketplace Card -->
+                <div class="bg-gradient-to-br from-green-600 to-teal-600 rounded-xl p-8 hover:scale-105 transition shadow-2xl">
+                    <div class="text-5xl mb-4">🌐</div>
+                    <h3 class="text-2xl font-bold mb-3">Marketplaces</h3>
+                    <p class="text-gray-200 mb-4">
+                        Two-sided platforms connecting supply and demand. Commission-based revenue from service and data exchanges.
+                    </p>
+                    <div class="text-sm text-yellow-300 font-semibold">$500-$100K/mo potential</div>
+                </div>
+
+                <!-- Infrastructure Card -->
+                <div class="bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl p-8 hover:scale-105 transition shadow-2xl">
+                    <div class="text-5xl mb-4">⚙️</div>
+                    <h3 class="text-2xl font-bold mb-3">Infrastructure</h3>
+                    <p class="text-gray-200 mb-4">
+                        DevOps tools, managed hosting, monitoring. Developer-focused products with subscription pricing.
+                    </p>
+                    <div class="text-sm text-yellow-300 font-semibold">$200-$15K/mo potential</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Stack -->
+    <section class="py-20 bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-16">
+                Powered by <span class="text-indigo-400">Adaptive AI</span>
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Evolutionary -->
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-4xl">
+                        🧬
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Evolutionary</h3>
+                    <p class="text-gray-400">
+                        Fire losing strategies, clone winners. Agents compete for capital allocation based on performance.
+                    </p>
+                </div>
+
+                <!-- Multi-Agent -->
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-4xl">
+                        🕸️
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Multi-Agent</h3>
+                    <p class="text-gray-400">
+                        95+ specialized agents coordinate across 7 global regions for latency arbitrage and signal confirmation.
+                    </p>
+                </div>
+
+                <!-- Adaptive -->
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-pink-500 to-red-500 rounded-full flex items-center justify-center text-4xl">
+                        🎯
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Adaptive</h3>
+                    <p class="text-gray-400">
+                        Zero hardcoded parameters. Risk, position sizing, and strategies adjust dynamically to market conditions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tech Stack Pills -->
+            <div class="mt-16 flex flex-wrap gap-3 justify-center">
+                <span class="bg-indigo-600 px-4 py-2 rounded-full text-sm">Flask + FastAPI</span>
+                <span class="bg-purple-600 px-4 py-2 rounded-full text-sm">SQLite + PostgreSQL</span>
+                <span class="bg-pink-600 px-4 py-2 rounded-full text-sm">Docker + Kubernetes</span>
+                <span class="bg-blue-600 px-4 py-2 rounded-full text-sm">MLX (Apple Silicon)</span>
+                <span class="bg-green-600 px-4 py-2 rounded-full text-sm">PyTorch</span>
+                <span class="bg-yellow-600 px-4 py-2 rounded-full text-sm">React + Tailwind</span>
+                <span class="bg-red-600 px-4 py-2 rounded-full text-sm">Fly.io Multi-Region</span>
+                <span class="bg-gray-600 px-4 py-2 rounded-full text-sm">Playwright + Selenium</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Access -->
+    <section id="api" class="py-20 bg-gray-900">
+        <div class="max-w-5xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-8">
+                Developer <span class="text-indigo-400">API</span>
+            </h2>
+            <p class="text-center text-gray-400 mb-12 text-lg">
+                Integrate our automation agents into your products
+            </p>
+
+            <div class="bg-gray-800 rounded-xl p-8 shadow-2xl">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold mb-3 text-indigo-400">Available Endpoints</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><code class="bg-gray-700 px-2 py-1 rounded">GET /api/v1/signals</code> - Real-time trading signals</li>
+                        <li><code class="bg-gray-700 px-2 py-1 rounded">GET /api/v1/latency/:host</code> - Exchange latency data</li>
+                        <li><code class="bg-gray-700 px-2 py-1 rounded">GET /api/v1/candles</code> - Normalized OHLCV data (7 exchanges)</li>
+                        <li><code class="bg-gray-700 px-2 py-1 rounded">GET /api/agents/portfolio</code> - Live portfolio state</li>
+                        <li><code class="bg-gray-700 px-2 py-1 rounded">POST /api/agents/execute</code> - Trigger agent actions</li>
+                    </ul>
+                </div>
+
+                <!-- Code Example -->
+                <div class="bg-gray-900 rounded-lg p-6">
+                    <pre class="text-green-400 text-sm overflow-x-auto"><code>// Example: Get trading signals
+fetch('https://api.clawd.bot/v1/signals', {
+    headers: {
+        'Authorization': 'Bearer YOUR_API_KEY'
+    }
+})
+.then(res => res.json())
+.then(data => {
+    console.log(data.signals);
+    // => [{ type: "latency_spike", confidence: 0.92, ... }]
+});</code></pre>
+                </div>
+
+                <!-- Pricing -->
+                <div class="mt-8 grid md:grid-cols-3 gap-4">
+                    <div class="bg-gray-700 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-white">Free</div>
+                        <div class="text-sm text-gray-400 mt-1">100 calls/day</div>
+                    </div>
+                    <div class="bg-indigo-600 rounded-lg p-4 text-center glow">
+                        <div class="text-2xl font-bold text-white">Pro - $99/mo</div>
+                        <div class="text-sm text-gray-200 mt-1">10,000 calls/day</div>
+                    </div>
+                    <div class="bg-purple-600 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-white">Enterprise</div>
+                        <div class="text-sm text-gray-200 mt-1">Unlimited</div>
+                    </div>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <a href="mailto:api@clawd.bot" class="text-indigo-400 hover:text-indigo-300 font-semibold">
+                        Request API Access →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Demo -->
+    <section class="py-20 bg-gray-800">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-12">
+                Live <span class="text-green-400">Dashboard</span>
+            </h2>
+
+            <div class="bg-gray-900 rounded-xl p-8 shadow-2xl">
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <!-- Portfolio -->
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-bold mb-4 text-indigo-400">Portfolio</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Total Value</span>
+                                <span class="text-green-400 font-bold">$52.51 USD</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Daily P&L</span>
+                                <span class="text-red-400">-$0.12</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Active Positions</span>
+                                <span class="text-white">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Regions Active</span>
+                                <span class="text-white">7/7</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Signals -->
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-bold mb-4 text-purple-400">Recent Signals</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-300">🟢 BTC Latency Spike (ewr)</span>
+                                <span class="text-green-400">92%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-300">🔴 ETH RSI Oversold (lhr)</span>
+                                <span class="text-yellow-400">78%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-300">🟡 SOL Arb Opportunity (sin)</span>
+                                <span class="text-green-400">85%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="https://nettrace-dashboard.fly.dev" target="_blank" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                        View Full Dashboard →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-gray-900 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="mb-6">
+                <h3 class="text-3xl font-bold">Clawd<span class="text-yellow-300">.bot</span></h3>
+                <p class="text-gray-500 mt-2">Autonomous AI Automation Platform</p>
+            </div>
+
+            <div class="flex justify-center gap-8 mb-6">
+                <a href="#products" class="text-gray-400 hover:text-white transition">Products</a>
+                <a href="#api" class="text-gray-400 hover:text-white transition">API</a>
+                <a href="https://github.com/scottohair/nettrace-dashboard" target="_blank" class="text-gray-400 hover:text-white transition">GitHub</a>
+                <a href="mailto:hello@clawd.bot" class="text-gray-400 hover:text-white transition">Contact</a>
+            </div>
+
+            <div class="text-gray-500 text-sm">
+                © 2026 Clawd.bot. Running on Fly.io with 7 global regions.
+            </div>
+
+            <div class="mt-4 text-xs text-gray-600">
+                Built with adaptive AI | 95+ agents | 858+ business ideas | 24/7 uptime
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

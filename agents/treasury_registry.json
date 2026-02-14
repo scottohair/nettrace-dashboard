@@ -1,0 +1,157 @@
+{
+  "updated_at": "2026-02-14T06:06:58.877595+00:00",
+  "cycle": 32,
+  "wallets": [
+    {
+      "address": "0x2Efbef64bdFc6D80E835B8312e051444716299aC",
+      "chain": "ethereum,base,arbitrum,polygon",
+      "wallet_type": "evm",
+      "label": "Main EVM wallet (all chains)",
+      "is_ours": true,
+      "source": "orchestrator.wallet_registry"
+    },
+    {
+      "address": "5zpnxwKFXrQDzac81hfePinjNmicAuqNhvpkpds79w38",
+      "chain": "solana",
+      "wallet_type": "solana",
+      "label": "Solana wallet (unfunded)",
+      "is_ours": true,
+      "source": "orchestrator.wallet_registry"
+    },
+    {
+      "address": "0x75466cd6CA88911CE680aF9b64aA652Cb9721D0C",
+      "chain": "ethereum",
+      "wallet_type": "coinbase_deposit",
+      "label": "Coinbase USDC deposit address",
+      "is_ours": true,
+      "source": "orchestrator.wallet_registry"
+    },
+    {
+      "address": "0x223eb5A5852248F74754dc912872a121fA05bae8",
+      "chain": "ethereum",
+      "wallet_type": "coinbase_deposit",
+      "label": "Coinbase ETH deposit address",
+      "is_ours": true,
+      "source": "orchestrator.wallet_registry"
+    }
+  ],
+  "connectors": [
+    {
+      "connector": "coinbase",
+      "auth_present": true,
+      "ready": true,
+      "details": {
+        "api_key_present": true,
+        "hub_ready": true
+      }
+    },
+    {
+      "connector": "etrade",
+      "auth_present": true,
+      "ready": false,
+      "details": {
+        "consumer_key_present": true,
+        "hub_ready": false
+      }
+    },
+    {
+      "connector": "ibkr",
+      "auth_present": false,
+      "ready": false,
+      "details": {
+        "host_config_present": false,
+        "hub_ready": false
+      }
+    },
+    {
+      "connector": "stripe",
+      "auth_present": false,
+      "ready": false,
+      "details": {
+        "secret_present": false
+      }
+    }
+  ],
+  "portfolio": {
+    "total_usd": 0.0,
+    "available_cash": 0.0,
+    "held_in_orders": 0.0,
+    "source": "agent_tools"
+  },
+  "reserve_targets": {
+    "updated_at": "2026-02-14T03:31:58.472788+00:00",
+    "portfolio_total_usd": 12.26,
+    "targets": [
+      {
+        "asset": "ETH",
+        "target_pct": 12.0,
+        "target_usd": 1.47,
+        "actual_usd": 5.76,
+        "gap_usd": -4.29
+      },
+      {
+        "asset": "USDC",
+        "target_pct": 35.0,
+        "target_usd": 4.29,
+        "actual_usd": 0.04,
+        "gap_usd": 4.25
+      },
+      {
+        "asset": "USD",
+        "target_pct": 25.0,
+        "target_usd": 3.06,
+        "actual_usd": 0.95,
+        "gap_usd": 2.12
+      },
+      {
+        "asset": "BTC",
+        "target_pct": 20.0,
+        "target_usd": 2.45,
+        "actual_usd": 2.17,
+        "gap_usd": 0.28
+      },
+      {
+        "asset": "MKD",
+        "target_pct": 2.0,
+        "target_usd": 0.25,
+        "actual_usd": 0.0,
+        "gap_usd": 0.25
+      },
+      {
+        "asset": "KRW",
+        "target_pct": 2.0,
+        "target_usd": 0.25,
+        "actual_usd": 0.0,
+        "gap_usd": 0.25
+      },
+      {
+        "asset": "EUR",
+        "target_pct": 2.0,
+        "target_usd": 0.25,
+        "actual_usd": 0.0,
+        "gap_usd": 0.25
+      },
+      {
+        "asset": "GBP",
+        "target_pct": 2.0,
+        "target_usd": 0.25,
+        "actual_usd": 0.0,
+        "gap_usd": 0.25
+      }
+    ]
+  },
+  "retrievability": {
+    "wallet_score": 1.0,
+    "connector_score": 0.25,
+    "total_score": 0.76,
+    "retrievable_wallets": 4,
+    "wallet_count": 4,
+    "ready_connectors": 1,
+    "connector_count": 4
+  },
+  "files": {
+    "registry": "/Users/scott/src/quant/agents/treasury_registry.json",
+    "key_index": "/Users/scott/src/quant/agents/treasury_key_index.json",
+    "status": "/Users/scott/src/quant/agents/treasury_registry_status.json"
+  }
+}

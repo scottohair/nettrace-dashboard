@@ -1,0 +1,20 @@
+{
+  "updated_at": "2026-02-14T06:07:00.870009+00:00",
+  "running": true,
+  "cycle": 32,
+  "interval_seconds": 300,
+  "runtime_region": "local",
+  "deployment_score": 0.31,
+  "hf_live_ready": false,
+  "top_regions": [
+    "ewr",
+    "nrt",
+    "sin"
+  ],
+  "priority_action_count": 7,
+  "files": {
+    "plan": "/Users/scott/src/quant/agents/deployment_optimizer_plan.json",
+    "roadmap": "/Users/scott/src/quant/agents/deployment_optimizer_roadmap.md",
+    "status": "/Users/scott/src/quant/agents/deployment_optimizer_status.json"
+  }
+}

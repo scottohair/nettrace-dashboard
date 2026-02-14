@@ -1,0 +1,4 @@
+2026-02-13 00:50:49,202 [mcp_opportunity] INFO starting mcp_opportunity_agent loop interval=150s
+2026-02-13 00:50:49,203 [mcp_opportunity] WARNING Coinbase CDP credentials not set
+2026-02-13 00:50:49,203 [mcp_opportunity] WARNING E*Trade credentials not set. Set ETRADE_CONSUMER_KEY and ETRADE_CONSUMER_SECRET env vars.
+2026-02-13 00:50:49,203 [mcp_opportunity] ERROR ib_insync not installed — run: pip install ib_insync

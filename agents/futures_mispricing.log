@@ -1,0 +1,6 @@
+2026-02-14 01:09:10,283 [futures_mispricing] INFO Starting futures mispricing scan...
+2026-02-14 01:09:10,379 [futures_mispricing] INFO BTCQ24: spot=$68706.36, futures=$69049.89
+2026-02-14 01:09:10,380 [futures_mispricing] INFO Found reverse_cash_carry: 0.319% mispricing
+2026-02-14 01:09:10,451 [futures_mispricing] INFO BTCU24: spot=$68706.36, futures=$69049.89
+2026-02-14 01:09:10,451 [futures_mispricing] INFO Found reverse_cash_carry: 1.523% mispricing
+2026-02-14 01:09:10,451 [futures_mispricing] INFO Found 2 opportunities. Open: 1/5

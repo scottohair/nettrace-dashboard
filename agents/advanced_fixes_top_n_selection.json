@@ -1,0 +1,137 @@
+{
+  "generated_at": "2026-02-13T22:50:59.459177+00:00",
+  "top_n": 12,
+  "selection": [
+    {
+      "rank": 1,
+      "id": "AFX-001",
+      "title": "Execution-health green streak gate before any budget escalation",
+      "score": 84.4,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/quant_company_agent.py",
+        "agents/execution_health.py"
+      ]
+    },
+    {
+      "rank": 2,
+      "id": "AFX-002",
+      "title": "BUY/SELL flow-imbalance gate to prevent cash drain during BUY-heavy phases",
+      "score": 82.62,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/quant_company_agent.py"
+      ]
+    },
+    {
+      "rank": 3,
+      "id": "AFX-003",
+      "title": "Sniper BUY gate requiring fresh exit-manager runtime status",
+      "score": 82.1,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/sniper.py"
+      ]
+    },
+    {
+      "rank": 4,
+      "id": "AFX-004",
+      "title": "Per-pair BUY cooldown after failed execution attempts",
+      "score": 79.74,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/sniper.py"
+      ]
+    },
+    {
+      "rank": 5,
+      "id": "AFX-005",
+      "title": "Health-adaptive sniper cadence (faster green, slower degraded)",
+      "score": 78.76,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/sniper.py"
+      ]
+    },
+    {
+      "rank": 6,
+      "id": "AFX-006",
+      "title": "Execution-health history persistence for trend/streak analytics",
+      "score": 78.28,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/execution_health.py"
+      ]
+    },
+    {
+      "rank": 7,
+      "id": "AFX-007",
+      "title": "Recent realized-window positivity gate for escalation",
+      "score": 77.42,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/quant_company_agent.py"
+      ]
+    },
+    {
+      "rank": 8,
+      "id": "AFX-008",
+      "title": "Escalation cooldown window to reduce budget-thrashing",
+      "score": 77.02,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/quant_company_agent.py"
+      ]
+    },
+    {
+      "rank": 9,
+      "id": "AFX-009",
+      "title": "Escalation/de-escalation factor clamps for bounded capital step changes",
+      "score": 76.64,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/quant_company_agent.py"
+      ]
+    },
+    {
+      "rank": 10,
+      "id": "AFX-010",
+      "title": "Realized-evidence fallback to exit-manager events with synthetic-fill filtering",
+      "score": 75.38,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "agents/quant_company_agent.py"
+      ]
+    },
+    {
+      "rank": 11,
+      "id": "AFX-011",
+      "title": "Integration guard decoupling to avoid startup deadlock on execution-health",
+      "score": 74.82,
+      "implemented": true,
+      "status": "implemented",
+      "implementation_refs": [
+        "tools/safe_integration/integration_guard.py"
+      ]
+    },
+    {
+      "rank": 12,
+      "id": "AFX-013",
+      "title": "Regime-conditioned Monte Carlo promotion gate with drawdown-tail penalty",
+      "score": 74.54,
+      "implemented": true,
+      "status": "planned",
+      "implementation_refs": []
+    }
+  ]
+}

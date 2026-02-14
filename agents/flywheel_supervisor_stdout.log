@@ -1,0 +1,8 @@
+2026-02-13 20:18:15,944 [flywheel_supervisor] INFO Started flywheel child PID 45505
+2026-02-13 20:18:17,997 [flywheel_supervisor] INFO Received signal 15, stopping flywheel supervisor
+2026-02-13 20:18:18,961 [flywheel_supervisor] INFO Stopping flywheel child PID 45505 (supervisor_shutdown)
+2026-02-13 20:18:22,054 [flywheel_supervisor] INFO Flywheel supervisor stopped
+2026-02-13 20:19:23,239 [flywheel_supervisor] INFO Started flywheel child PID 45908
+2026-02-13 20:19:24,274 [flywheel_supervisor] INFO Received signal 15, stopping flywheel supervisor
+2026-02-13 20:19:25,246 [flywheel_supervisor] INFO Stopping flywheel child PID 45908 (supervisor_shutdown)
+2026-02-13 20:19:28,600 [flywheel_supervisor] INFO Flywheel supervisor stopped

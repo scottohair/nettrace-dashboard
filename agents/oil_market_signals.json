@@ -1,0 +1,202 @@
+[
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 06:07:31"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 06:04:32"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 06:01:32"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:58:32"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:55:33"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:52:33"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:49:33"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:46:33"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:43:33"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:40:34"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:37:34"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:34:34"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:31:34"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:28:35"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:25:35"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:22:35"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:19:35"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:16:35"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:13:36"
+  },
+  {
+    "side": "HOLD",
+    "confidence": 0.3898,
+    "expected_edge_pct": 0.081542,
+    "regime": "FALLBACK",
+    "reason": "no_edge",
+    "policy_approved": 0,
+    "policy_reason": "expected_edge 0.082% < required 0.285%; spread 1.200% > max 0.350%; signal_confidence 38.98% < min 70.00%",
+    "created_at": "2026-02-14 05:10:36"
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "updated_at": "2026-02-14T03:31:57.052705+00:00",
+  "running": true,
+  "cycle_index": 2,
+  "monitor_interval_seconds": 46,
+  "active_positions": 0,
+  "consecutive_api_failures": 2,
+  "execution_failures": 0,
+  "last_cycle_latency_ms": 1.091,
+  "improvements": {
+    "advanced_total": 100,
+    "hyper_total": 10,
+    "advanced_active": 100,
+    "hyper_active": 10
+  },
+  "toolset": {
+    "risk_controller": true,
+    "smart_router": true,
+    "mcp_hints_file": "/Users/scott/src/quant/agents/mcp_exit_hints.json",
+    "mcp_outbox_file": "/Users/scott/src/quant/agents/mcp_exit_outbox.json",
+    "status_file": "/Users/scott/src/quant/agents/exit_manager_status.json"
+  },
+  "mcp_hints_present": false
+}

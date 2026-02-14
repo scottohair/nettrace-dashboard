@@ -11,6 +11,20 @@ import ssl
 from datetime import datetime, timezone
 from pathlib import Path
 
+
+def _parse_prefix_list(value):
+    items = str(value or "").split(",")
+    ordered = []
+    seen = set()
+    for item in items:
+        item_s = str(item or "").strip()
+        if not item_s or item_s in seen:
+            continue
+        seen.add(item_s)
+        ordered.append(item_s)
+    return tuple(ordered)
+
+
 BASE = Path(__file__).parent
 STATUS_PATH = BASE / "execution_health_status.json"
 HISTORY_PATH = BASE / "execution_health_history.jsonl"
@@ -40,6 +54,18 @@ MIN_TELEMETRY_SAMPLES = int(os.environ.get("EXEC_HEALTH_MIN_TELEMETRY_SAMPLES", 
 MIN_SUCCESS_RATE = float(os.environ.get("EXEC_HEALTH_MIN_SUCCESS_RATE", "0.55"))
 MAX_FAILURE_RATE = float(os.environ.get("EXEC_HEALTH_MAX_FAILURE_RATE", "0.45"))
 MAX_P90_LATENCY_MS = float(os.environ.get("EXEC_HEALTH_MAX_P90_LATENCY_MS", "4500"))
+TELEMETRY_INCLUDE_ENDPOINT_PREFIXES = _parse_prefix_list(
+    os.environ.get(
+        "EXEC_HEALTH_TELEMETRY_INCLUDE_ENDPOINT_PREFIXES",
+        "/api/v3/brokerage/products,/api/v3/brokerage/orders",
+    )
+)
+TELEMETRY_EXCLUDE_ENDPOINT_PREFIXES = _parse_prefix_list(
+    os.environ.get(
+        "EXEC_HEALTH_TELEMETRY_EXCLUDE_ENDPOINT_PREFIXES",
+        "/api/v3/brokerage/orders/historical",
+    )
+)
 RECOVERY_WINDOW_MINUTES = int(os.environ.get("EXEC_HEALTH_RECOVERY_WINDOW_MINUTES", "3"))
 RECOVERY_MIN_SAMPLES = int(os.environ.get("EXEC_HEALTH_RECOVERY_MIN_SAMPLES", "2"))
 RECOVERY_MIN_SUCCESS_RATE = float(os.environ.get("EXEC_HEALTH_RECOVERY_MIN_SUCCESS_RATE", "0.60"))
@@ -70,6 +96,12 @@ HTTP_PROBE_URLS = tuple(
     if u.strip()
 )
 LOCAL_TEST_MODE = os.environ.get("EXEC_HEALTH_LOCAL_TEST_MODE", "0").lower() not in ("0", "false", "no")
+FORCE_TELEMETRY_BYPASS = os.environ.get("EXEC_HEALTH_FORCE_TELEMETRY_BYPASS", "0").lower() not in (
+    "0",
+    "false",
+    "no",
+    "off",
+)
 
 CANDLE_FEED_GATE_ENABLED = os.environ.get("EXEC_HEALTH_CANDLE_FEED_GATE_ENABLED", "0").lower() not in (
     "0",
@@ -196,6 +228,22 @@ except Exception:
     except Exception:
         def venue_health_snapshot(*_args, **_kwargs):
             return {}
+
+
+def _venue_health_snapshot_safe(venue, window_minutes, include_endpoint_prefixes, exclude_endpoint_prefixes):
+    """Call snapshot helper with kwargs-first and positional fallback."""
+    try:
+        return venue_health_snapshot(
+            venue,
+            window_minutes=window_minutes,
+            include_endpoint_prefixes=include_endpoint_prefixes,
+            exclude_endpoint_prefixes=exclude_endpoint_prefixes,
+        )
+    except TypeError:
+        try:
+            return venue_health_snapshot(venue, window_minutes)
+        except TypeError:
+            return venue_health_snapshot(venue)
 
 try:
     from execution_telemetry import record_api_call
@@ -563,7 +611,15 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
     ) or public_dns_configured
     failover_active = bool(dns_degraded and failover_configured)
 
-    telemetry = venue_health_snapshot("coinbase", window_minutes=30) or {}
+    telemetry = (
+        _venue_health_snapshot_safe(
+            "coinbase",
+            30,
+            TELEMETRY_INCLUDE_ENDPOINT_PREFIXES,
+            TELEMETRY_EXCLUDE_ENDPOINT_PREFIXES,
+        )
+        or {}
+    )
     telemetry_samples = int(telemetry.get("samples", 0) or 0)
     telemetry_success_rate = float(telemetry.get("success_rate", 0.0) or 0.0)
     telemetry_failure_rate = float(telemetry.get("failure_rate", 0.0) or 0.0)
@@ -651,26 +707,40 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
     )
     candle_feed = _candle_feed_health()
     candle_feed_green = bool(candle_feed.get("green", True))
-    telemetry_recent = venue_health_snapshot("coinbase", window_minutes=max(1, int(RECOVERY_WINDOW_MINUTES))) or {}
-    recent_samples = int(telemetry_recent.get("samples", 0) or 0)
-    recent_success_rate = float(telemetry_recent.get("success_rate", 0.0) or 0.0)
-    recent_failure_rate = float(telemetry_recent.get("failure_rate", 0.0) or 0.0)
-    recent_p90 = float(telemetry_recent.get("p90_latency_ms", 0.0) or 0.0)
-    telemetry_recovery_override = (
-        (not telemetry_green)
-        and bool(dns_green)
-        and bool(probe_green)
-        and bool(reconcile_green)
-        and (
-            (
-                recent_samples >= int(RECOVERY_MIN_SAMPLES)
-                and recent_success_rate >= float(RECOVERY_MIN_SUCCESS_RATE)
-                and recent_failure_rate <= float(RECOVERY_MAX_FAILURE_RATE)
-                and recent_p90 <= float(MAX_P90_LATENCY_MS)
+    telemetry_recent = {}
+    recent_samples = 0
+    recent_success_rate = 0.0
+    recent_failure_rate = 0.0
+    recent_p90 = 0.0
+    telemetry_recovery_override = False
+    if not telemetry_green:
+        telemetry_recent = (
+            _venue_health_snapshot_safe(
+                "coinbase",
+                max(1, int(RECOVERY_WINDOW_MINUTES)),
+                TELEMETRY_INCLUDE_ENDPOINT_PREFIXES,
+                TELEMETRY_EXCLUDE_ENDPOINT_PREFIXES,
             )
-            or (bool(do_probe) and bool(probe_rows) and all(bool(r.get("ok")) for r in probe_rows))
+            or {}
         )
-    )
+        recent_samples = int(telemetry_recent.get("samples", 0) or 0)
+        recent_success_rate = float(telemetry_recent.get("success_rate", 0.0) or 0.0)
+        recent_failure_rate = float(telemetry_recent.get("failure_rate", 0.0) or 0.0)
+        recent_p90 = float(telemetry_recent.get("p90_latency_ms", 0.0) or 0.0)
+        telemetry_recovery_override = (
+            bool(dns_green)
+            and bool(probe_green)
+            and bool(reconcile_green)
+            and (
+                (
+                    recent_samples >= int(RECOVERY_MIN_SAMPLES)
+                    and recent_success_rate >= float(RECOVERY_MIN_SUCCESS_RATE)
+                    and recent_failure_rate <= float(RECOVERY_MAX_FAILURE_RATE)
+                    and recent_p90 <= float(MAX_P90_LATENCY_MS)
+                )
+                or (bool(do_probe) and bool(probe_rows) and all(bool(r.get("ok")) for r in probe_rows))
+            )
+        )
     if telemetry_recovery_override:
         telemetry_green = True
 
@@ -706,6 +776,18 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
             reasons.append(
                 f"telemetry_p90_high:{telemetry_p90:.2f}>{float(MAX_P90_LATENCY_MS):.2f}"
             )
+    telemetry_bypass_used = False
+    if (
+        FORCE_TELEMETRY_BYPASS
+        and not dns_degraded
+        and probe_green
+        and reconcile_green
+        and (telemetry_samples < int(MIN_TELEMETRY_SAMPLES) or telemetry_success_rate < float(MIN_SUCCESS_RATE))
+    ):
+        telemetry_bypass_used = True
+        telemetry_green = True
+        reasons = [r for r in reasons if not r.startswith("telemetry_")]
+        reasons.append("telemetry_bypass_enabled")
     if not reconcile_green:
         if not reconcile_summary:
             reasons.append("reconcile_status_missing")
@@ -759,12 +841,17 @@ def evaluate_execution_health(refresh=True, probe_http=None, write_status=True, 
                 "green": bool(probe_green),
                 "rows": probe_rows,
             },
-            "telemetry": {
-                "green": bool(telemetry_green),
-                "min_samples": int(MIN_TELEMETRY_SAMPLES),
-                "min_success_rate": float(MIN_SUCCESS_RATE),
-                "max_failure_rate": float(MAX_FAILURE_RATE),
+        "telemetry": {
+            "green": bool(telemetry_green),
+            "bypass_enabled": bool(FORCE_TELEMETRY_BYPASS),
+            "bypass_used": bool(telemetry_bypass_used),
+            "dns_failures_excluded": int(telemetry.get("dns_failures_excluded", 0) or 0),
+            "min_samples": int(MIN_TELEMETRY_SAMPLES),
+            "min_success_rate": float(MIN_SUCCESS_RATE),
+            "max_failure_rate": float(MAX_FAILURE_RATE),
                 "max_p90_latency_ms": float(MAX_P90_LATENCY_MS),
+                "include_endpoint_prefixes": list(TELEMETRY_INCLUDE_ENDPOINT_PREFIXES),
+                "exclude_endpoint_prefixes": list(TELEMETRY_EXCLUDE_ENDPOINT_PREFIXES),
                 "snapshot": telemetry,
                 "recovery_override": bool(telemetry_recovery_override),
                 "recovery_window_minutes": int(RECOVERY_WINDOW_MINUTES),

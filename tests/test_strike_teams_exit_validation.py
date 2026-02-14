@@ -127,6 +127,24 @@ class TestStrikeTeamExitValidation(unittest.TestCase):
             self.assertIsNone(result)
             self.assertEqual(team.exec_health_blocked, 1)
 
+    def test_health_allows_degraded_telemetry_only_reasons(self):
+        payload = {
+            "green": False,
+            "reason": "telemetry_success_rate_low:0.2500<0.5500",
+            "reasons": ["telemetry_success_rate_low:0.2500<0.5500"],
+        }
+        ok = st._is_execution_health_degraded_allowed(payload)
+        self.assertTrue(ok)
+
+    def test_health_blocks_mixed_reasons(self):
+        payload = {
+            "green": False,
+            "reason": "telemetry_success_rate_low:0.2500<0.5500",
+            "reasons": ["telemetry_success_rate_low:0.2500<0.5500", "dns_unhealthy"],
+        }
+        ok = st._is_execution_health_degraded_allowed(payload)
+        self.assertFalse(ok)
+
     def test_close_first_plan_forces_sell_when_open_inventory_and_close_rate_low(self):
         with patch.object(st, "CLOSE_FIRST_MODE_ENABLED", True), patch.object(
             st, "BUY_THROTTLE_ON_SELL_GAP", True

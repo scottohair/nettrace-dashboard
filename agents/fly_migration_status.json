@@ -1,0 +1,10 @@
+{
+  "updated_at": "2026-02-14T06:01:56.091514+00:00",
+  "cycle": 16,
+  "runtime_region": "local",
+  "region_count": 7,
+  "primary_region": "ewr",
+  "target_mode": "fly_primary_remote",
+  "plan_path": "/Users/scott/src/quant/agents/fly_migration_plan.json",
+  "roadmap_path": "/Users/scott/src/quant/agents/fly_migration_roadmap.md"
+}

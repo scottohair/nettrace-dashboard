@@ -103,9 +103,32 @@ class QuantOptimizerAgent:
             return "OFFENSIVE"
         return "BALANCED"
 
-    def _derive_risk_overrides(self, posture, algorithm_tuning, ranking):
-        base_min_conf = float(algorithm_tuning.get("min_confidence", 0.55))
+    def _derive_data_quality_penalty(self, memo):
+        """Return conservative penalties for degraded research data."""
+        if not isinstance(memo, dict):
+            return 0.0, False, "normal"
 
+        profile = memo.get("data_fidelity", {})
+        score = float(profile.get("source_health_score", 1.0))
+        missing = set(profile.get("missing_sources", []))
+        fallback_field = profile.get("fallback_used", False)
+        if isinstance(fallback_field, dict):
+            fallback = bool(fallback_field.get("prices", False))
+        else:
+            fallback = bool(fallback_field)
+        fallback_count = len(missing) + (1 if fallback else 0)
+
+        if score >= 0.80:
+            return 0.0, False, "normal"
+
+        # More missing sources -> bigger confidence and position penalty.
+        penalty = min(0.20, 0.04 * fallback_count + 0.05 * len(missing))
+        if score < 0.60:
+            penalty = min(0.30, penalty + 0.05)
+        return penalty, True, "degraded"
+
+    def _derive_risk_overrides(self, posture, algorithm_tuning, ranking, memo=None):
+        base_min_conf = float(algorithm_tuning.get("min_confidence", 0.55))
         min_confidence = base_min_conf
         max_trade_usd = 5.0
         max_trades_per_cycle = 2
@@ -130,7 +153,15 @@ class QuantOptimizerAgent:
                 if row["pair"].endswith("-USD"):
                     blocked_pairs.append(row["pair"].replace("-USD", "-USDC"))
 
-        min_confidence = round(self._clamp(min_confidence, 0.62, 0.85), 4)
+        # Degraded source quality reduces confidence and risk posture friction
+        quality_penalty, degraded, mode = self._derive_data_quality_penalty(memo)
+        min_confidence = min_confidence - quality_penalty
+        if degraded:
+            max_trade_usd *= 0.80
+            max_trades_per_cycle = min(max_trades_per_cycle, 2)
+            size_multiplier = size_multiplier * 0.9
+
+        min_confidence = round(self._clamp(min_confidence, 0.45, 0.85), 4)
         max_trade_usd = round(self._clamp(max_trade_usd, 1.0, 5.0), 2)
         max_trades_per_cycle = int(self._clamp(max_trades_per_cycle, 1, 4))
         size_multiplier = round(self._clamp(size_multiplier, 0.6, 1.2), 4)
@@ -142,6 +173,8 @@ class QuantOptimizerAgent:
             "max_trades_per_cycle": max_trades_per_cycle,
             "blocked_pairs": sorted(set(blocked_pairs)),
             "size_multiplier": size_multiplier,
+            "data_quality_penalty": quality_penalty,
+            "data_quality_mode": mode,
         }
 
     def run(self, cycle):
@@ -154,7 +187,7 @@ class QuantOptimizerAgent:
 
         pair_alpha, ranking = self._compute_pair_alpha(memo)
         posture = self._derive_risk_posture(memo, learning)
-        risk_overrides = self._derive_risk_overrides(posture, algorithm_tuning, ranking)
+        risk_overrides = self._derive_risk_overrides(posture, algorithm_tuning, ranking, memo)
 
         recommendations = []
         if ranking:

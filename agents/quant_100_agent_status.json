@@ -1,0 +1,14 @@
+{
+  "state": "sleeping",
+  "updated_at": "2026-02-14T03:31:34.216643+00:00",
+  "cycle_count": 1,
+  "interval_seconds": 14400,
+  "backtest_hours": 72,
+  "granularity": "5min",
+  "summary": {},
+  "ingest": {},
+  "consumed_directives": {},
+  "decision_trace": {},
+  "last_to_claude_id": 723,
+  "error": ""
+}

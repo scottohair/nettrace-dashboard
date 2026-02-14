@@ -1,0 +1,328 @@
+{
+  "summary": {
+    "hot_count": 15,
+    "simulated": 15,
+    "positive_return_count": 15,
+    "non_positive_count": 0,
+    "avg_return_pct": 0.201907,
+    "median_return_pct": 0.1894,
+    "avg_sharpe": 0.57284
+  },
+  "results": [
+    {
+      "strategy": "accumulate_hold_q100_093",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.1572,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.2154,
+      "sharpe": 0.7419
+    },
+    {
+      "strategy": "momentum_q100_013",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.2142,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.2486,
+      "sharpe": 0.5058
+    },
+    {
+      "strategy": "momentum_q100_016",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.0854,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.2646,
+      "sharpe": 0.261
+    },
+    {
+      "strategy": "momentum_q100_017",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.2142,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.2486,
+      "sharpe": 0.5058
+    },
+    {
+      "strategy": "momentum_q100_019",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.4028,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.1961,
+      "sharpe": 0.9767
+    },
+    {
+      "strategy": "momentum_q100_020",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.0854,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.2646,
+      "sharpe": 0.261
+    },
+    {
+      "strategy": "momentum_q100_023",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.4028,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.1961,
+      "sharpe": 0.9767
+    },
+    {
+      "strategy": "momentum_q100_025",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.205,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.1691,
+      "sharpe": 0.7141
+    },
+    {
+      "strategy": "momentum_q100_029",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.205,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.1691,
+      "sharpe": 0.7141
+    },
+    {
+      "strategy": "momentum_q100_031",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.1585,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.2077,
+      "sharpe": 0.4874
+    },
+    {
+      "strategy": "momentum_q100_034",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.1608,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.1496,
+      "sharpe": 0.4953
+    },
+    {
+      "strategy": "momentum_q100_035",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.1585,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.2077,
+      "sharpe": 0.4874
+    },
+    {
+      "strategy": "momentum_q100_037",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.2142,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.2486,
+      "sharpe": 0.5058
+    },
+    {
+      "strategy": "rsi_q100_047",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.1752,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.161,
+      "sharpe": 0.4798
+    },
+    {
+      "strategy": "rsi_q100_050",
+      "pair": "SOL-USD",
+      "status": "ok",
+      "candles": 87,
+      "source": {
+        "pair": "SOL-USD",
+        "granularity_seconds": 300,
+        "hours": 168,
+        "source": "local_fallback",
+        "candles": 87,
+        "notes": [
+          "public=0 local=87"
+        ]
+      },
+      "return_pct": 0.1894,
+      "trades": 2,
+      "win_rate": 1.0,
+      "drawdown_pct": 0.1741,
+      "sharpe": 0.4798
+    }
+  ]
+}

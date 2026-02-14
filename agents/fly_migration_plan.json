@@ -1,0 +1,244 @@
+{
+  "updated_at": "2026-02-14T06:01:56.090165+00:00",
+  "summary": {
+    "runtime_region": "local",
+    "region_count": 7,
+    "nettrace_apps": 7,
+    "clawdbot_apps": 7,
+    "target_mode": "fly_primary_remote",
+    "primary_region": "ewr"
+  },
+  "priority_actions": [
+    "Deploy/scale nettrace app per region and keep ENABLE_AGENTS=1 everywhere.",
+    "Pin primary treasury + allocation authority in PRIMARY_REGION; run scout stacks in secondary regions.",
+    "Deploy one clawdbot/OpenClaw instance per region for local tool/agent orchestration.",
+    "Route quant agent control through API keys in Fly secrets, never through repository files.",
+    "Cut local-only orchestrator loops after remote health + PnL close reconciliation is green."
+  ],
+  "regions": [
+    {
+      "region": "ewr",
+      "role": "Primary Coordinator (US East)",
+      "agent_names": [
+        "capital_allocator",
+        "advanced_team",
+        "sniper",
+        "meta_engine"
+      ],
+      "agent_count": 4,
+      "priority_agents": [
+        "capital_allocator",
+        "advanced_team",
+        "sniper",
+        "meta_engine"
+      ],
+      "exchanges": [
+        "coinbase",
+        "gemini",
+        "kraken_us"
+      ],
+      "nettrace_app": "nettrace-dashboard",
+      "nettrace_deploy_commands": [
+        "fly apps create nettrace-dashboard || true",
+        "fly volumes create nettrace_dashboard_data --region ewr --size 5 -a nettrace-dashboard || true",
+        "fly secrets set -a nettrace-dashboard ENABLE_AGENTS=1 PRIMARY_REGION=ewr FLY_REGION_TARGET=ewr",
+        "fly deploy -a nettrace-dashboard -c fly.toml --region ewr"
+      ],
+      "clawdbot_app": "clawdbot-ewr",
+      "clawdbot_deploy_commands": [
+        "fly apps create clawdbot-ewr || true",
+        "fly volumes create clawdbot_ewr_data --region ewr --size 3 -a clawdbot-ewr || true",
+        "fly secrets set -a clawdbot-ewr OPENCLAW_STATE_DIR=/data OPENCLAW_GATEWAY_TOKEN=<set-token> NETTRACE_URL=https://nettrace-dashboard.fly.dev NETTRACE_API_KEY=<set-key>",
+        "fly deploy -a clawdbot-ewr -c tools/openclaw/fly.toml --region ewr"
+      ]
+    },
+    {
+      "region": "nrt",
+      "role": "Asian Exchange Primary (Tokyo)",
+      "agent_names": [
+        "latency_arb"
+      ],
+      "agent_count": 1,
+      "priority_agents": [
+        "latency_arb"
+      ],
+      "exchanges": [
+        "bitflyer",
+        "liquid",
+        "gmo_coin",
+        "tse",
+        "ose"
+      ],
+      "nettrace_app": "nettrace-dashboard-nrt",
+      "nettrace_deploy_commands": [
+        "fly apps create nettrace-dashboard-nrt || true",
+        "fly volumes create nettrace_dashboard_nrt_data --region nrt --size 5 -a nettrace-dashboard-nrt || true",
+        "fly secrets set -a nettrace-dashboard-nrt ENABLE_AGENTS=1 PRIMARY_REGION=ewr FLY_REGION_TARGET=nrt",
+        "fly deploy -a nettrace-dashboard-nrt -c fly.toml --region nrt"
+      ],
+      "clawdbot_app": "clawdbot-nrt",
+      "clawdbot_deploy_commands": [
+        "fly apps create clawdbot-nrt || true",
+        "fly volumes create clawdbot_nrt_data --region nrt --size 3 -a clawdbot-nrt || true",
+        "fly secrets set -a clawdbot-nrt OPENCLAW_STATE_DIR=/data OPENCLAW_GATEWAY_TOKEN=<set-token> NETTRACE_URL=https://nettrace-dashboard.fly.dev NETTRACE_API_KEY=<set-key>",
+        "fly deploy -a clawdbot-nrt -c tools/openclaw/fly.toml --region nrt"
+      ]
+    },
+    {
+      "region": "sin",
+      "role": "Asian Exchange Backup (Singapore)",
+      "agent_names": [
+        "latency_arb",
+        "exchange_scanner"
+      ],
+      "agent_count": 2,
+      "priority_agents": [],
+      "exchanges": [
+        "sgx",
+        "binance",
+        "bybit",
+        "okx"
+      ],
+      "nettrace_app": "nettrace-dashboard-sin",
+      "nettrace_deploy_commands": [
+        "fly apps create nettrace-dashboard-sin || true",
+        "fly volumes create nettrace_dashboard_sin_data --region sin --size 5 -a nettrace-dashboard-sin || true",
+        "fly secrets set -a nettrace-dashboard-sin ENABLE_AGENTS=1 PRIMARY_REGION=ewr FLY_REGION_TARGET=sin",
+        "fly deploy -a nettrace-dashboard-sin -c fly.toml --region sin"
+      ],
+      "clawdbot_app": "clawdbot-sin",
+      "clawdbot_deploy_commands": [
+        "fly apps create clawdbot-sin || true",
+        "fly volumes create clawdbot_sin_data --region sin --size 3 -a clawdbot-sin || true",
+        "fly secrets set -a clawdbot-sin OPENCLAW_STATE_DIR=/data OPENCLAW_GATEWAY_TOKEN=<set-token> NETTRACE_URL=https://nettrace-dashboard.fly.dev NETTRACE_API_KEY=<set-key>",
+        "fly deploy -a clawdbot-sin -c tools/openclaw/fly.toml --region sin"
+      ]
+    },
+    {
+      "region": "ord",
+      "role": "CME/NYMEX Proximity (US Central)",
+      "agent_names": [
+        "exchange_scanner"
+      ],
+      "agent_count": 1,
+      "priority_agents": [
+        "exchange_scanner"
+      ],
+      "exchanges": [
+        "cme",
+        "nymex",
+        "cbot",
+        "cboe"
+      ],
+      "nettrace_app": "nettrace-dashboard-ord",
+      "nettrace_deploy_commands": [
+        "fly apps create nettrace-dashboard-ord || true",
+        "fly volumes create nettrace_dashboard_ord_data --region ord --size 5 -a nettrace-dashboard-ord || true",
+        "fly secrets set -a nettrace-dashboard-ord ENABLE_AGENTS=1 PRIMARY_REGION=ewr FLY_REGION_TARGET=ord",
+        "fly deploy -a nettrace-dashboard-ord -c fly.toml --region ord"
+      ],
+      "clawdbot_app": "clawdbot-ord",
+      "clawdbot_deploy_commands": [
+        "fly apps create clawdbot-ord || true",
+        "fly volumes create clawdbot_ord_data --region ord --size 3 -a clawdbot-ord || true",
+        "fly secrets set -a clawdbot-ord OPENCLAW_STATE_DIR=/data OPENCLAW_GATEWAY_TOKEN=<set-token> NETTRACE_URL=https://nettrace-dashboard.fly.dev NETTRACE_API_KEY=<set-key>",
+        "fly deploy -a clawdbot-ord -c tools/openclaw/fly.toml --region ord"
+      ]
+    },
+    {
+      "region": "lhr",
+      "role": "European Exchange Hub (London)",
+      "agent_names": [
+        "exchange_scanner",
+        "forex_arb"
+      ],
+      "agent_count": 2,
+      "priority_agents": [
+        "exchange_scanner",
+        "forex_arb"
+      ],
+      "exchanges": [
+        "lse",
+        "eex",
+        "eurex",
+        "ice_europe",
+        "bitstamp"
+      ],
+      "nettrace_app": "nettrace-dashboard-lhr",
+      "nettrace_deploy_commands": [
+        "fly apps create nettrace-dashboard-lhr || true",
+        "fly volumes create nettrace_dashboard_lhr_data --region lhr --size 5 -a nettrace-dashboard-lhr || true",
+        "fly secrets set -a nettrace-dashboard-lhr ENABLE_AGENTS=1 PRIMARY_REGION=ewr FLY_REGION_TARGET=lhr",
+        "fly deploy -a nettrace-dashboard-lhr -c fly.toml --region lhr"
+      ],
+      "clawdbot_app": "clawdbot-lhr",
+      "clawdbot_deploy_commands": [
+        "fly apps create clawdbot-lhr || true",
+        "fly volumes create clawdbot_lhr_data --region lhr --size 3 -a clawdbot-lhr || true",
+        "fly secrets set -a clawdbot-lhr OPENCLAW_STATE_DIR=/data OPENCLAW_GATEWAY_TOKEN=<set-token> NETTRACE_URL=https://nettrace-dashboard.fly.dev NETTRACE_API_KEY=<set-key>",
+        "fly deploy -a clawdbot-lhr -c tools/openclaw/fly.toml --region lhr"
+      ]
+    },
+    {
+      "region": "fra",
+      "role": "European Backup + Risk Monitor (Frankfurt)",
+      "agent_names": [
+        "exchange_scanner",
+        "forex_arb"
+      ],
+      "agent_count": 2,
+      "priority_agents": [],
+      "exchanges": [
+        "eurex",
+        "deutsche_borse",
+        "xetra"
+      ],
+      "nettrace_app": "nettrace-dashboard-fra",
+      "nettrace_deploy_commands": [
+        "fly apps create nettrace-dashboard-fra || true",
+        "fly volumes create nettrace_dashboard_fra_data --region fra --size 5 -a nettrace-dashboard-fra || true",
+        "fly secrets set -a nettrace-dashboard-fra ENABLE_AGENTS=1 PRIMARY_REGION=ewr FLY_REGION_TARGET=fra",
+        "fly deploy -a nettrace-dashboard-fra -c fly.toml --region fra"
+      ],
+      "clawdbot_app": "clawdbot-fra",
+      "clawdbot_deploy_commands": [
+        "fly apps create clawdbot-fra || true",
+        "fly volumes create clawdbot_fra_data --region fra --size 3 -a clawdbot-fra || true",
+        "fly secrets set -a clawdbot-fra OPENCLAW_STATE_DIR=/data OPENCLAW_GATEWAY_TOKEN=<set-token> NETTRACE_URL=https://nettrace-dashboard.fly.dev NETTRACE_API_KEY=<set-key>",
+        "fly deploy -a clawdbot-fra -c tools/openclaw/fly.toml --region fra"
+      ]
+    },
+    {
+      "region": "bom",
+      "role": "DGCX + India Market Monitor (Mumbai)",
+      "agent_names": [
+        "exchange_scanner",
+        "forex_arb"
+      ],
+      "agent_count": 2,
+      "priority_agents": [
+        "exchange_scanner"
+      ],
+      "exchanges": [
+        "dgcx",
+        "nse",
+        "bse",
+        "mcx"
+      ],
+      "nettrace_app": "nettrace-dashboard-bom",
+      "nettrace_deploy_commands": [
+        "fly apps create nettrace-dashboard-bom || true",
+        "fly volumes create nettrace_dashboard_bom_data --region bom --size 5 -a nettrace-dashboard-bom || true",
+        "fly secrets set -a nettrace-dashboard-bom ENABLE_AGENTS=1 PRIMARY_REGION=ewr FLY_REGION_TARGET=bom",
+        "fly deploy -a nettrace-dashboard-bom -c fly.toml --region bom"
+      ],
+      "clawdbot_app": "clawdbot-bom",
+      "clawdbot_deploy_commands": [
+        "fly apps create clawdbot-bom || true",
+        "fly volumes create clawdbot_bom_data --region bom --size 3 -a clawdbot-bom || true",
+        "fly secrets set -a clawdbot-bom OPENCLAW_STATE_DIR=/data OPENCLAW_GATEWAY_TOKEN=<set-token> NETTRACE_URL=https://nettrace-dashboard.fly.dev NETTRACE_API_KEY=<set-key>",
+        "fly deploy -a clawdbot-bom -c tools/openclaw/fly.toml --region bom"
+      ]
+    }
+  ]
+}

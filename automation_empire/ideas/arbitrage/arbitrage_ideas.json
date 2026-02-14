@@ -1,0 +1,1743 @@
+[
+  {
+    "id": "arbitrage_001",
+    "category": "arbitrage",
+    "title": "auto parts price arbitrage across 10 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_002",
+    "category": "arbitrage",
+    "title": "kitchen appliances price arbitrage across 5 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_003",
+    "category": "arbitrage",
+    "title": "kitchen appliances price arbitrage across 20 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_004",
+    "category": "arbitrage",
+    "title": "books price arbitrage across 20 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_005",
+    "category": "arbitrage",
+    "title": "sporting goods price arbitrage across 20 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_006",
+    "category": "arbitrage",
+    "title": "clothing price arbitrage across 10 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_007",
+    "category": "arbitrage",
+    "title": "office supplies price arbitrage across 10 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_008",
+    "category": "arbitrage",
+    "title": "books price arbitrage across 10 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_009",
+    "category": "arbitrage",
+    "title": "auto parts price arbitrage across 5 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_010",
+    "category": "arbitrage",
+    "title": "office supplies price arbitrage across 20 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_011",
+    "category": "arbitrage",
+    "title": "home goods price arbitrage across 50 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_012",
+    "category": "arbitrage",
+    "title": "clothing price arbitrage across 50 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_013",
+    "category": "arbitrage",
+    "title": "furniture price arbitrage across 10 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_014",
+    "category": "arbitrage",
+    "title": "pet supplies price arbitrage across 50 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_015",
+    "category": "arbitrage",
+    "title": "auto parts price arbitrage across 50 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_016",
+    "category": "arbitrage",
+    "title": "tools price arbitrage across 50 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_017",
+    "category": "arbitrage",
+    "title": "tools price arbitrage across 20 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_018",
+    "category": "arbitrage",
+    "title": "pet supplies price arbitrage across 20 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_019",
+    "category": "arbitrage",
+    "title": "furniture price arbitrage across 20 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_020",
+    "category": "arbitrage",
+    "title": "beauty products price arbitrage across 10 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_021",
+    "category": "arbitrage",
+    "title": "home goods price arbitrage across 10 marketplaces",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "marketplace",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_022",
+    "category": "arbitrage",
+    "title": "tennis arbitrage betting bot with 50+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_023",
+    "category": "arbitrage",
+    "title": "hockey arbitrage betting bot with 50+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_024",
+    "category": "arbitrage",
+    "title": "baseball arbitrage betting bot with 15+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_025",
+    "category": "arbitrage",
+    "title": "cricket arbitrage betting bot with 50+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_026",
+    "category": "arbitrage",
+    "title": "basketball arbitrage betting bot with 30+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_027",
+    "category": "arbitrage",
+    "title": "football arbitrage betting bot with 15+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_028",
+    "category": "arbitrage",
+    "title": "hockey arbitrage betting bot with 15+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_029",
+    "category": "arbitrage",
+    "title": "tennis arbitrage betting bot with 30+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_030",
+    "category": "arbitrage",
+    "title": "horse racing arbitrage betting bot with 50+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_031",
+    "category": "arbitrage",
+    "title": "cricket arbitrage betting bot with 15+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_032",
+    "category": "arbitrage",
+    "title": "basketball arbitrage betting bot with 50+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_033",
+    "category": "arbitrage",
+    "title": "football arbitrage betting bot with 50+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_034",
+    "category": "arbitrage",
+    "title": "baseball arbitrage betting bot with 50+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_035",
+    "category": "arbitrage",
+    "title": "football arbitrage betting bot with 30+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_036",
+    "category": "arbitrage",
+    "title": "esports arbitrage betting bot with 30+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_037",
+    "category": "arbitrage",
+    "title": "hockey arbitrage betting bot with 30+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_038",
+    "category": "arbitrage",
+    "title": "baseball arbitrage betting bot with 30+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_039",
+    "category": "arbitrage",
+    "title": "MMA arbitrage betting bot with 30+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_040",
+    "category": "arbitrage",
+    "title": "cricket arbitrage betting bot with 30+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_041",
+    "category": "arbitrage",
+    "title": "horse racing arbitrage betting bot with 30+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_042",
+    "category": "arbitrage",
+    "title": "tennis arbitrage betting bot with 15+ odds sources",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_043",
+    "category": "arbitrage",
+    "title": "ETFs cross-exchange arbitrage (latency optimized)",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_044",
+    "category": "arbitrage",
+    "title": "crypto cross-exchange arbitrage (latency optimized)",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "blockchain",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_045",
+    "category": "arbitrage",
+    "title": "bonds cross-exchange arbitrage (latency optimized)",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_046",
+    "category": "arbitrage",
+    "title": "forex cross-exchange arbitrage (latency optimized)",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_047",
+    "category": "arbitrage",
+    "title": "commodities cross-exchange arbitrage (latency optimized)",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_048",
+    "category": "arbitrage",
+    "title": "REITs cross-exchange arbitrage (latency optimized)",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_049",
+    "category": "arbitrage",
+    "title": "Best Buy flash sale detector with auto-purchasing",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_050",
+    "category": "arbitrage",
+    "title": "Etsy flash sale detector with auto-purchasing",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_051",
+    "category": "arbitrage",
+    "title": "Wayfair flash sale detector with auto-purchasing",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "arbitrage_052",
+    "category": "arbitrage",
+    "title": "Walmart flash sale detector with auto-purchasing",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_053",
+    "category": "arbitrage",
+    "title": "eBay flash sale detector with auto-purchasing",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_054",
+    "category": "arbitrage",
+    "title": "Amazon flash sale detector with auto-purchasing",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_055",
+    "category": "arbitrage",
+    "title": "Target flash sale detector with auto-purchasing",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_056",
+    "category": "arbitrage",
+    "title": "government surplus liquidation/clearance aggregator",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_057",
+    "category": "arbitrage",
+    "title": "B2B liquidation/clearance aggregator",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "b2b"
+    ]
+  },
+  {
+    "id": "arbitrage_058",
+    "category": "arbitrage",
+    "title": "retail liquidation/clearance aggregator",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "arbitrage_059",
+    "category": "arbitrage",
+    "title": "bankruptcy auctions liquidation/clearance aggregator",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_060",
+    "category": "arbitrage",
+    "title": "wholesale liquidation/clearance aggregator",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_061",
+    "category": "arbitrage",
+    "title": "designer bags import-export arbitrage India to Canada",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_062",
+    "category": "arbitrage",
+    "title": "smartphones import-export arbitrage Mexico to Australia",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_063",
+    "category": "arbitrage",
+    "title": "collectibles import-export arbitrage Turkey to Japan",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_064",
+    "category": "arbitrage",
+    "title": "designer bags import-export arbitrage Vietnam to UK",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_065",
+    "category": "arbitrage",
+    "title": "vintage items import-export arbitrage Mexico to EU",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_066",
+    "category": "arbitrage",
+    "title": "designer bags import-export arbitrage Mexico to Australia",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_067",
+    "category": "arbitrage",
+    "title": "smartphones import-export arbitrage Mexico to US",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_068",
+    "category": "arbitrage",
+    "title": "rare books import-export arbitrage Vietnam to UK",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_069",
+    "category": "arbitrage",
+    "title": "collectibles import-export arbitrage Poland to Canada",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_070",
+    "category": "arbitrage",
+    "title": "smartphones import-export arbitrage Poland to UK",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_071",
+    "category": "arbitrage",
+    "title": "vintage items import-export arbitrage Vietnam to US",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_072",
+    "category": "arbitrage",
+    "title": "sneakers import-export arbitrage Poland to Canada",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_073",
+    "category": "arbitrage",
+    "title": "rare books import-export arbitrage Mexico to Australia",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_074",
+    "category": "arbitrage",
+    "title": "rare books import-export arbitrage Poland to Australia",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_075",
+    "category": "arbitrage",
+    "title": "GPUs import-export arbitrage China to EU",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_076",
+    "category": "arbitrage",
+    "title": "vintage items import-export arbitrage China to Canada",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_077",
+    "category": "arbitrage",
+    "title": "smartphones import-export arbitrage China to Australia",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_078",
+    "category": "arbitrage",
+    "title": "rare books import-export arbitrage Mexico to Canada",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_079",
+    "category": "arbitrage",
+    "title": "sneakers import-export arbitrage India to Japan",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_080",
+    "category": "arbitrage",
+    "title": "sneakers import-export arbitrage India to UK",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_081",
+    "category": "arbitrage",
+    "title": "collectibles import-export arbitrage Mexico to Australia",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_082",
+    "category": "arbitrage",
+    "title": "Timezone arbitrage for seasonal products",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_083",
+    "category": "arbitrage",
+    "title": "Timezone arbitrage for hotel rooms",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_084",
+    "category": "arbitrage",
+    "title": "Timezone arbitrage for domain names",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "ai/ml",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_085",
+    "category": "arbitrage",
+    "title": "Timezone arbitrage for event tickets",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_086",
+    "category": "arbitrage",
+    "title": "Timezone arbitrage for limited editions",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_087",
+    "category": "arbitrage",
+    "title": "Timezone arbitrage for airline tickets",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "ai/ml",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_088",
+    "category": "arbitrage",
+    "title": "service price differences between Uber vs Handy",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_089",
+    "category": "arbitrage",
+    "title": "service price differences between Fiverr vs Handy",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_090",
+    "category": "arbitrage",
+    "title": "service price differences between Fiverr vs Toptal",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_091",
+    "category": "arbitrage",
+    "title": "service price differences between TaskRabbit vs Toptal",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_092",
+    "category": "arbitrage",
+    "title": "service price differences between DoorDash vs Handy",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_093",
+    "category": "arbitrage",
+    "title": "service price differences between DoorDash vs Toptal",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_094",
+    "category": "arbitrage",
+    "title": "service price differences between TaskRabbit vs Handy",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_095",
+    "category": "arbitrage",
+    "title": "service price differences between Upwork vs Handy",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_096",
+    "category": "arbitrage",
+    "title": "service price differences between Uber vs Toptal",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_097",
+    "category": "arbitrage",
+    "title": "service price differences between Upwork vs Lyft",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_098",
+    "category": "arbitrage",
+    "title": "service price differences between TaskRabbit vs GrubHub",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_099",
+    "category": "arbitrage",
+    "title": "service price differences between DoorDash vs Lyft",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_100",
+    "category": "arbitrage",
+    "title": "service price differences between Fiverr vs GrubHub",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_101",
+    "category": "arbitrage",
+    "title": "service price differences between DoorDash vs GrubHub",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_102",
+    "category": "arbitrage",
+    "title": "service price differences between Uber vs GrubHub",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_103",
+    "category": "arbitrage",
+    "title": "service price differences between Uber vs Freelancer",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_104",
+    "category": "arbitrage",
+    "title": "service price differences between TaskRabbit vs Lyft",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_105",
+    "category": "arbitrage",
+    "title": "service price differences between TaskRabbit vs Freelancer",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_106",
+    "category": "arbitrage",
+    "title": "service price differences between Upwork vs Toptal",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_107",
+    "category": "arbitrage",
+    "title": "service price differences between Uber vs Lyft",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_108",
+    "category": "arbitrage",
+    "title": "service price differences between DoorDash vs Freelancer",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "arbitrage_109",
+    "category": "arbitrage",
+    "title": "Tax/regulatory arbitrage for import/export",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_110",
+    "category": "arbitrage",
+    "title": "Tax/regulatory arbitrage for legal gambling",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_111",
+    "category": "arbitrage",
+    "title": "Tax/regulatory arbitrage for crypto trading",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "blockchain",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_112",
+    "category": "arbitrage",
+    "title": "wheat futures arbitrage with futures spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_113",
+    "category": "arbitrage",
+    "title": "oil futures arbitrage with cash-and-carry",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_114",
+    "category": "arbitrage",
+    "title": "oil futures arbitrage with futures spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_115",
+    "category": "arbitrage",
+    "title": "silver futures arbitrage with futures spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_116",
+    "category": "arbitrage",
+    "title": "natural gas futures arbitrage with cash-and-carry",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_117",
+    "category": "arbitrage",
+    "title": "coffee futures arbitrage with calendar spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_118",
+    "category": "arbitrage",
+    "title": "coffee futures arbitrage with cash-and-carry",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_119",
+    "category": "arbitrage",
+    "title": "oil futures arbitrage with calendar spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_120",
+    "category": "arbitrage",
+    "title": "gold futures arbitrage with cash-and-carry",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_121",
+    "category": "arbitrage",
+    "title": "corn futures arbitrage with cash-and-carry",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_122",
+    "category": "arbitrage",
+    "title": "coffee futures arbitrage with futures spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_123",
+    "category": "arbitrage",
+    "title": "wheat futures arbitrage with cash-and-carry",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_124",
+    "category": "arbitrage",
+    "title": "gold futures arbitrage with futures spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_125",
+    "category": "arbitrage",
+    "title": "silver futures arbitrage with cash-and-carry",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_126",
+    "category": "arbitrage",
+    "title": "silver futures arbitrage with calendar spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_127",
+    "category": "arbitrage",
+    "title": "natural gas futures arbitrage with calendar spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_128",
+    "category": "arbitrage",
+    "title": "natural gas futures arbitrage with futures spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_129",
+    "category": "arbitrage",
+    "title": "corn futures arbitrage with calendar spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_130",
+    "category": "arbitrage",
+    "title": "corn futures arbitrage with futures spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_131",
+    "category": "arbitrage",
+    "title": "wheat futures arbitrage with calendar spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "arbitrage_132",
+    "category": "arbitrage",
+    "title": "gold futures arbitrage with calendar spread",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$50,000",
+    "tags": [
+      "arbitrage"
+    ]
+  }
+]

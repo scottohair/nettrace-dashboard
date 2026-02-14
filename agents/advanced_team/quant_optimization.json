@@ -1,0 +1,19 @@
+{
+  "cycle": 70,
+  "timestamp": "2026-02-14T06:09:12.622392+00:00",
+  "pair_alpha": {},
+  "ranking": [],
+  "risk_overrides": {
+    "risk_posture": "DEFENSIVE",
+    "min_confidence": 0.73,
+    "max_trade_usd": 3.5,
+    "max_trades_per_cycle": 1,
+    "blocked_pairs": [],
+    "size_multiplier": 0.75
+  },
+  "size_multiplier": 0.75,
+  "recommendations": [
+    "Posture=DEFENSIVE min_conf=0.73 max_trade=$3.50"
+  ],
+  "source": "quant_optimizer"
+}

@@ -1,0 +1,40 @@
+2026-02-13 14:08:28,199 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 14:12:56,250 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 14:12:56,251 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 14:16:25,569 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 14:16:25,570 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 14:20:40,965 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 14:20:40,966 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 14:30:40,973 [fly_migration] INFO cycle=2 regions=7 primary=ewr runtime=local
+2026-02-13 14:40:40,979 [fly_migration] INFO cycle=3 regions=7 primary=ewr runtime=local
+2026-02-13 14:47:09,991 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 14:47:09,992 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 19:24:51,161 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 19:24:51,162 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 19:32:48,085 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 19:32:48,086 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 19:34:07,866 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 19:34:07,868 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 19:37:04,060 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 19:37:04,061 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 19:40:38,269 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 19:40:38,270 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 20:05:03,247 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 20:05:03,249 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 22:31:55,989 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-13 22:31:55,991 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-13 22:41:56,000 [fly_migration] INFO cycle=2 regions=7 primary=ewr runtime=local
+2026-02-13 22:51:56,011 [fly_migration] INFO cycle=3 regions=7 primary=ewr runtime=local
+2026-02-13 23:01:56,013 [fly_migration] INFO cycle=4 regions=7 primary=ewr runtime=local
+2026-02-13 23:11:56,023 [fly_migration] INFO cycle=5 regions=7 primary=ewr runtime=local
+2026-02-13 23:21:56,014 [fly_migration] INFO cycle=6 regions=7 primary=ewr runtime=local
+2026-02-13 23:31:56,010 [fly_migration] INFO cycle=7 regions=7 primary=ewr runtime=local
+2026-02-13 23:41:56,014 [fly_migration] INFO cycle=8 regions=7 primary=ewr runtime=local
+2026-02-13 23:51:56,018 [fly_migration] INFO cycle=9 regions=7 primary=ewr runtime=local
+2026-02-14 00:01:56,034 [fly_migration] INFO cycle=10 regions=7 primary=ewr runtime=local
+2026-02-14 00:11:56,042 [fly_migration] INFO cycle=11 regions=7 primary=ewr runtime=local
+2026-02-14 00:21:56,048 [fly_migration] INFO cycle=12 regions=7 primary=ewr runtime=local
+2026-02-14 00:31:56,064 [fly_migration] INFO cycle=13 regions=7 primary=ewr runtime=local
+2026-02-14 00:41:56,077 [fly_migration] INFO cycle=14 regions=7 primary=ewr runtime=local
+2026-02-14 00:51:56,084 [fly_migration] INFO cycle=15 regions=7 primary=ewr runtime=local
+2026-02-14 01:01:56,091 [fly_migration] INFO cycle=16 regions=7 primary=ewr runtime=local

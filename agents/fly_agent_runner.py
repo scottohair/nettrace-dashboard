@@ -25,6 +25,7 @@ Usage:
 import json
 import logging
 import os
+import subprocess
 import sys
 import threading
 import time
@@ -60,12 +61,19 @@ FLY_URL = os.environ.get("APP_URL", "https://nettrace-dashboard.fly.dev")
 DB_PATH = os.environ.get("DB_PATH", str(Path(__file__).resolve().parent.parent / "traceroute.db"))
 PRIMARY_REGION = os.environ.get("PRIMARY_REGION", "ewr")
 SCOUT_INTERVAL = int(os.environ.get("CRYPTO_SCAN_INTERVAL", "120"))
+PROCESS_TURBO_MODE = os.environ.get("AGENT_PROCESS_TURBO_MODE", "0").lower() not in (
+    "0",
+    "false",
+    "no",
+)
 STATUS_INTERVAL_SECONDS = max(5, int(os.environ.get("AGENT_STATUS_INTERVAL_SECONDS", "5") or 5))
 TRADE_FIX_INTERVAL_SECONDS = max(
-    5, int(os.environ.get("AGENT_TRADE_FIX_INTERVAL_SECONDS", "15") or 15)
+    1 if PROCESS_TURBO_MODE else 5,
+    int(os.environ.get("AGENT_TRADE_FIX_INTERVAL_SECONDS", "5" if PROCESS_TURBO_MODE else "15") or (5 if PROCESS_TURBO_MODE else 15)),
 )
 PORTFOLIO_REFRESH_INTERVAL_SECONDS = max(
-    5, int(os.environ.get("AGENT_PORTFOLIO_REFRESH_SECONDS", "20") or 20)
+    2 if PROCESS_TURBO_MODE else 5,
+    int(os.environ.get("AGENT_PORTFOLIO_REFRESH_SECONDS", "10" if PROCESS_TURBO_MODE else "20") or (10 if PROCESS_TURBO_MODE else 20)),
 )
 TRADE_FIX_ENABLED = os.environ.get("AGENT_TRADE_FIX_ENABLED", "1").lower() not in (
     "0",
@@ -91,10 +99,35 @@ VENUE_ONBOARDING_ENABLED = os.environ.get("AGENT_VENUE_ONBOARDING_ENABLED", "1")
     "no",
 )
 VENUE_ONBOARDING_INTERVAL_SECONDS = max(
-    10, int(os.environ.get("AGENT_VENUE_ONBOARDING_INTERVAL_SECONDS", "30") or 30)
+    1 if PROCESS_TURBO_MODE else 10,
+    int(os.environ.get("AGENT_VENUE_ONBOARDING_INTERVAL_SECONDS", "1" if PROCESS_TURBO_MODE else "30") or (1 if PROCESS_TURBO_MODE else 30)),
 )
 VENUE_ONBOARDING_MAX_TASKS = max(
-    1, int(os.environ.get("AGENT_VENUE_ONBOARDING_MAX_TASKS", "16") or 16)
+    1, int(os.environ.get("AGENT_VENUE_ONBOARDING_MAX_TASKS", "512" if PROCESS_TURBO_MODE else "16") or (512 if PROCESS_TURBO_MODE else 16))
+)
+VENUE_ONBOARDING_PARALLELISM = max(
+    1, int(os.environ.get("AGENT_VENUE_ONBOARDING_PARALLELISM", "128" if PROCESS_TURBO_MODE else "8") or (128 if PROCESS_TURBO_MODE else 8))
+)
+AUTOPROCEED_ENABLED = os.environ.get("AGENT_AUTOPROCEED_ENABLED", "0").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+AUTOPROCEED_INTERVAL_SECONDS = max(
+    15,
+    int(os.environ.get("AGENT_AUTOPROCEED_INTERVAL_SECONDS", "120") or 120),
+)
+AUTOPROCEED_TIMEOUT_SECONDS = max(
+    20,
+    int(os.environ.get("AGENT_AUTOPROCEED_TIMEOUT_SECONDS", "180") or 180),
+)
+AUTOPROCEED_WITH_CLAUDE_UPDATES = os.environ.get(
+    "AGENT_AUTOPROCEED_WITH_CLAUDE_UPDATES", "1"
+).lower() not in ("0", "false", "no")
+AUTO_ACCEPT_EDITS_ALWAYS = os.environ.get("AGENT_AUTO_ACCEPT_EDITS_ALWAYS", "0").lower() not in (
+    "0",
+    "false",
+    "no",
 )
 TRADE_FIX_MAX_ORDERS = max(10, int(os.environ.get("AGENT_TRADE_FIX_MAX_ORDERS", "120") or 120))
 TRADE_FIX_LOOKBACK_HOURS = max(1, int(os.environ.get("AGENT_TRADE_FIX_LOOKBACK_HOURS", "96") or 96))
@@ -168,16 +201,24 @@ class FlyAgentRunner:
         self._started_at = None
         self._lock = threading.RLock()
         self._control_thread = None
+        self._autoproceed_thread = None
         self._tools = None
         self._status_interval_seconds = int(STATUS_INTERVAL_SECONDS)
         self._trade_fix_interval_seconds = int(TRADE_FIX_INTERVAL_SECONDS)
         self._portfolio_refresh_interval_seconds = int(PORTFOLIO_REFRESH_INTERVAL_SECONDS)
         self._trade_fix_enabled = bool(TRADE_FIX_ENABLED)
+        self._autoproceed_enabled = bool(AUTOPROCEED_ENABLED and self.is_primary)
+        self._autoproceed_interval_seconds = int(AUTOPROCEED_INTERVAL_SECONDS)
+        self._autoproceed_timeout_seconds = int(AUTOPROCEED_TIMEOUT_SECONDS)
+        self._autoproceed_with_claude_updates = bool(AUTOPROCEED_WITH_CLAUDE_UPDATES)
+        self._auto_accept_edits_always = bool(AUTO_ACCEPT_EDITS_ALWAYS)
         self._venue_universe_enabled = bool(VENUE_UNIVERSE_ENABLED and self.is_primary)
         self._venue_onboarding_enabled = bool(VENUE_ONBOARDING_ENABLED and self.is_primary)
         self._last_status_at = 0.0
         self._last_trade_fix_at = 0.0
         self._last_portfolio_refresh_at = 0.0
+        self._last_autoproceed_at = 0.0
+        self._autoproceed_running = False
         self._last_venue_universe_at = 0.0
         self._last_venue_onboarding_at = 0.0
         self._cached_portfolio = {
@@ -194,6 +235,20 @@ class FlyAgentRunner:
             "reconcile": {},
             "close_reconciliation": {},
             "trade_metrics": {},
+        }
+        self._last_autoproceed = {
+            "ok": False,
+            "reason": "not_started",
+            "updated_at": "",
+            "running": False,
+            "returncode": None,
+            "decision": "UNKNOWN",
+            "go_live": False,
+            "realized_daily_pnl_usd": 0.0,
+            "portfolio_total_usd": 0.0,
+            "target_achievement_pct_to_next": 0.0,
+            "stdout_tail": "",
+            "stderr_tail": "",
         }
         self._last_venue_universe = {
             "ok": False,
@@ -212,6 +267,7 @@ class FlyAgentRunner:
             "completed": 0,
             "blocked_human": 0,
             "deferred": 0,
+            "auto_accepted_human": 0,
             "remaining_pending_auto": 0,
             "remaining_pending_human": 0,
         }
@@ -223,6 +279,7 @@ class FlyAgentRunner:
             "agents": {},
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "trade_fix": dict(self._last_trade_fix),
+            "autoproceed": dict(self._last_autoproceed),
             "venue_universe": dict(self._last_venue_universe),
             "venue_onboarding": dict(self._last_venue_onboarding),
             "portfolio": dict(self._cached_portfolio),
@@ -289,12 +346,18 @@ class FlyAgentRunner:
             control_thread.join(timeout=4)
             if control_thread.is_alive():
                 logger.warning("Control thread still alive after stop timeout")
+        autoproceed_thread = self._autoproceed_thread
+        if autoproceed_thread is not None:
+            autoproceed_thread.join(timeout=4)
+            if autoproceed_thread.is_alive():
+                logger.warning("Autoproceed thread still alive after stop timeout")
 
         with self._lock:
             self.agents.clear()
             self.assistants.clear()
             self._started_at = None
             self._control_thread = None
+            self._autoproceed_thread = None
             payload = self._build_status_payload()
             self._last_status_payload = payload
             self._last_status_at = time.time()
@@ -327,12 +390,13 @@ class FlyAgentRunner:
                         self._last_status_payload = payload
                         self._last_status_at = now
                     logger.info(
-                        "heartbeat region=%s agents=%d pending=%s closes=%s pnl24h=%s",
+                        "heartbeat region=%s agents=%d pending=%s closes=%s pnl24h=%s autoproceed=%s",
                         self.region,
                         len(payload.get("agents", {}) or {}),
                         ((payload.get("trade_fix", {}) or {}).get("trade_metrics", {}) or {}).get("pending_orders"),
                         ((payload.get("trade_fix", {}) or {}).get("close_reconciliation", {}) or {}).get("completions"),
                         ((payload.get("trade_fix", {}) or {}).get("trade_metrics", {}) or {}).get("realized_pnl_24h"),
+                        ((payload.get("autoproceed", {}) or {}).get("running", False)),
                     )
 
                 if (
@@ -350,6 +414,13 @@ class FlyAgentRunner:
                     with self._lock:
                         self._cached_portfolio = portfolio
                         self._last_portfolio_refresh_at = now
+
+                if (
+                    self._autoproceed_enabled
+                    and self.is_primary
+                    and (now - self._last_autoproceed_at) >= float(self._autoproceed_interval_seconds)
+                ):
+                    self._start_autoproceed_cycle()
 
                 if (
                     self._venue_universe_enabled
@@ -670,6 +741,134 @@ class FlyAgentRunner:
         while self.running and time.time() < end:
             time.sleep(min(5, end - time.time()))
 
+    def _start_autoproceed_cycle(self):
+        with self._lock:
+            if self._autoproceed_running:
+                return
+            self._autoproceed_running = True
+            self._last_autoproceed["running"] = True
+            t = threading.Thread(
+                target=self._autoproceed_cycle,
+                name="agent-autoproceed",
+                daemon=True,
+            )
+            t.start()
+            self._autoproceed_thread = t
+
+    def _autoproceed_cycle(self):
+        try:
+            result = self._run_autoproceed_once()
+        except Exception as e:
+            result = {
+                "ok": False,
+                "reason": f"autoproceed_exception:{e}",
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "running": False,
+                "returncode": None,
+                "decision": "UNKNOWN",
+                "go_live": False,
+                "realized_daily_pnl_usd": 0.0,
+                "portfolio_total_usd": 0.0,
+                "target_achievement_pct_to_next": 0.0,
+                "stdout_tail": "",
+                "stderr_tail": str(e),
+            }
+        now = time.time()
+        with self._lock:
+            self._last_autoproceed = dict(result)
+            self._autoproceed_running = False
+            self._last_autoproceed["running"] = False
+            self._last_autoproceed_at = now
+            self._autoproceed_thread = None
+
+    def _run_autoproceed_once(self):
+        result = {
+            "ok": False,
+            "reason": "not_started",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "running": True,
+            "returncode": None,
+            "decision": "UNKNOWN",
+            "go_live": False,
+            "realized_daily_pnl_usd": 0.0,
+            "portfolio_total_usd": 0.0,
+            "target_achievement_pct_to_next": 0.0,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "elapsed_seconds": 0.0,
+            "cmd": [],
+        }
+        if not self.is_primary:
+            result["ok"] = True
+            result["reason"] = "non_primary_region"
+            result["running"] = False
+            return result
+        if not self.running:
+            result["ok"] = True
+            result["reason"] = "runner_stopped"
+            result["running"] = False
+            return result
+
+        flywheel_script = Path(__file__).resolve().parent / "flywheel_controller.py"
+        cmd = [sys.executable, str(flywheel_script), "--once"]
+        if not self._autoproceed_with_claude_updates:
+            cmd.append("--no-claude-updates")
+        result["cmd"] = list(cmd)
+
+        started = time.time()
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=float(self._autoproceed_timeout_seconds),
+        )
+        result["returncode"] = int(proc.returncode)
+        result["elapsed_seconds"] = round(time.time() - started, 3)
+        stdout_text = str(proc.stdout or "")
+        stderr_text = str(proc.stderr or "")
+        result["stdout_tail"] = "\n".join(stdout_text.strip().splitlines()[-20:])
+        result["stderr_tail"] = "\n".join(stderr_text.strip().splitlines()[-20:])
+
+        payload = {}
+        if stdout_text.strip():
+            try:
+                payload = json.loads(stdout_text)
+            except Exception:
+                payload = {}
+
+        if not isinstance(payload, dict):
+            payload = {}
+
+        decision = payload.get("growth_decision", {}) if isinstance(payload.get("growth_decision"), dict) else {}
+        target_progress = payload.get("target_progress", {}) if isinstance(payload.get("target_progress"), dict) else {}
+        portfolio = payload.get("portfolio", {}) if isinstance(payload.get("portfolio"), dict) else {}
+
+        result["decision"] = str(decision.get("decision", "UNKNOWN") or "UNKNOWN")
+        result["go_live"] = bool(decision.get("go_live", False))
+        result["realized_daily_pnl_usd"] = float(payload.get("realized_daily_pnl_usd", 0.0) or 0.0)
+        result["portfolio_total_usd"] = float(portfolio.get("total_usd", 0.0) or 0.0)
+        result["target_achievement_pct_to_next"] = float(
+            target_progress.get("achievement_pct_to_next", 0.0) or 0.0
+        )
+
+        if proc.returncode == 0:
+            result["ok"] = True
+            result["reason"] = "autoproceed_cycle_complete"
+        else:
+            result["ok"] = False
+            result["reason"] = f"autoproceed_failed_rc_{proc.returncode}"
+        logger.info(
+            "autoproceed rc=%s decision=%s go_live=%s pnl_today=%+.6f total=%.2f elapsed=%.3fs",
+            result["returncode"],
+            result["decision"],
+            result["go_live"],
+            result["realized_daily_pnl_usd"],
+            result["portfolio_total_usd"],
+            result["elapsed_seconds"],
+        )
+        result["running"] = False
+        return result
+
     def _get_tools(self):
         if self._tools is not None:
             return self._tools
@@ -889,6 +1088,8 @@ class FlyAgentRunner:
                 status_path=VENUE_ONBOARDING_WORKER_STATUS_PATH,
                 events_path=VENUE_ONBOARDING_EVENTS_PATH,
                 db_path=Path(DB_PATH),
+                parallelism=int(VENUE_ONBOARDING_PARALLELISM),
+                auto_accept_always=bool(self._auto_accept_edits_always),
             )
             if isinstance(result, dict):
                 payload.update(result)
@@ -904,6 +1105,11 @@ class FlyAgentRunner:
             agents = list(self.agents.items())
             assistants = dict(self.assistants)
             trade_fix = dict(self._last_trade_fix) if isinstance(self._last_trade_fix, dict) else {}
+            autoproceed = (
+                dict(self._last_autoproceed)
+                if isinstance(self._last_autoproceed, dict)
+                else {}
+            )
             venue_universe = (
                 dict(self._last_venue_universe)
                 if isinstance(self._last_venue_universe, dict)
@@ -936,8 +1142,15 @@ class FlyAgentRunner:
                 "trade_fix_interval_seconds": int(self._trade_fix_interval_seconds),
                 "portfolio_refresh_interval_seconds": int(self._portfolio_refresh_interval_seconds),
                 "trade_fix_enabled": bool(self._trade_fix_enabled and self.is_primary),
+                "autoproceed_enabled": bool(self._autoproceed_enabled and self.is_primary),
+                "autoproceed_interval_seconds": int(self._autoproceed_interval_seconds),
+                "autoproceed_timeout_seconds": int(self._autoproceed_timeout_seconds),
+                "autoproceed_with_claude_updates": bool(self._autoproceed_with_claude_updates),
+                "auto_accept_edits_always": bool(self._auto_accept_edits_always),
                 "venue_universe_enabled": bool(self._venue_universe_enabled and self.is_primary),
                 "venue_onboarding_enabled": bool(self._venue_onboarding_enabled and self.is_primary),
+                "process_turbo_mode": bool(PROCESS_TURBO_MODE),
+                "venue_onboarding_parallelism": int(VENUE_ONBOARDING_PARALLELISM),
                 "control_thread_alive": control_thread_alive,
                 "last_trade_fix_age_seconds": round(max(0.0, time.time() - float(self._last_trade_fix_at)), 3)
                 if self._last_trade_fix_at > 0
@@ -957,8 +1170,15 @@ class FlyAgentRunner:
                 "last_status_age_seconds": round(max(0.0, time.time() - float(self._last_status_at)), 3)
                 if self._last_status_at > 0
                 else None,
+                "last_autoproceed_age_seconds": round(
+                    max(0.0, time.time() - float(self._last_autoproceed_at)),
+                    3,
+                )
+                if self._last_autoproceed_at > 0
+                else None,
             },
             "trade_fix": trade_fix,
+            "autoproceed": autoproceed,
             "venue_universe": venue_universe,
             "venue_onboarding": venue_onboarding,
             "portfolio": portfolio,
@@ -998,6 +1218,14 @@ class FlyAgentRunner:
                         agents[name]["alive"] = bool(thread.is_alive())
                         if name in self.assistants:
                             agents[name]["metrics"] = self.assistants[name].get_metrics()
+                    payload["autoproceed"] = dict(self._last_autoproceed)
+                    control = payload.get("control", {})
+                    if isinstance(control, dict):
+                        control["last_autoproceed_age_seconds"] = (
+                            round(max(0.0, time.time() - float(self._last_autoproceed_at)), 3)
+                            if self._last_autoproceed_at > 0
+                            else None
+                        )
             payload["running"] = bool(self.running)
             payload["timestamp"] = datetime.now(timezone.utc).isoformat()
         return payload

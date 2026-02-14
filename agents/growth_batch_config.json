@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-02-14T03:09:51.971914+00:00",
+  "active": true,
+  "active_batch_id": "BATCH-20260213-033001",
+  "active_categories": [
+    "agent_collaboration",
+    "data_quality",
+    "execution_quality",
+    "governance",
+    "infrastructure",
+    "market_expansion",
+    "ml_research",
+    "monitoring",
+    "portfolio_risk",
+    "signal_engineering"
+  ],
+  "running_item_ids": [
+    "IMPR-001",
+    "IMPR-002",
+    "IMPR-003",
+    "IMPR-011",
+    "IMPR-012",
+    "IMPR-013",
+    "IMPR-021",
+    "IMPR-022",
+    "IMPR-023",
+    "IMPR-031",
+    "IMPR-032",
+    "IMPR-033",
+    "IMPR-101",
+    "IMPR-102",
+    "IMPR-103",
+    "IMPR-104",
+    "IMPR-105",
+    "IMPR-106",
+    "IMPR-107",
+    "IMPR-108",
+    "IMPR-109",
+    "IMPR-110",
+    "IMPR-111",
+    "IMPR-112",
+    "IMPR-113",
+    "IMPR-114",
+    "IMPR-115",
+    "IMPR-116",
+    "IMPR-117",
+    "IMPR-118",
+    "IMPR-119",
+    "IMPR-120"
+  ],
+  "strategy_count_overrides": {
+    "mean_reversion": 80,
+    "momentum": 18,
+    "rsi": 155,
+    "vwap": 0,
+    "dip_buyer": 1,
+    "multi_timeframe": 4,
+    "accumulate_hold": 0
+  },
+  "priority_pairs": [
+    "SOL-USD",
+    "ETH-USD",
+    "BTC-USD"
+  ],
+  "evidence_rebalance": {
+    "source": "quant_100_results.json",
+    "run_tag": "rebalance4",
+    "promoted_warm": 293,
+    "gain_gate_passed": 547,
+    "notes": "Current best run in this session; low-yield families disabled and diversity maintained."
+  }
+}

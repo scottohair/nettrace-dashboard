@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flyctl status:*)",
+      "Bash(/Users/scott/.fly/bin/flyctl status:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "nettrace"
+  ]
+}

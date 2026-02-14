@@ -1,0 +1,12 @@
+{
+  "updated_at": "2026-02-14T06:06:58.877455+00:00",
+  "presence": {
+    "wallet_private_key": true,
+    "solana_private_key": true,
+    "coinbase_api": true,
+    "etrade_api": true,
+    "ibkr_api": false,
+    "stripe_api": false
+  },
+  "note": "presence flags only; raw secrets are never written by treasury_registry_agent"
+}

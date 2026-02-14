@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "reason": "processed",
+  "updated_at": "2026-02-14T05:30:34.203505+00:00",
+  "queue_path": "/Users/scott/src/quant/agents/venue_onboarding_queue.json",
+  "processed": 120,
+  "completed": 96,
+  "blocked_human": 0,
+  "deferred": 24,
+  "skipped_prereq": 96,
+  "remaining_pending_auto": 120,
+  "remaining_pending_human": 120,
+  "events_written": 120,
+  "network_smoke": true,
+  "parallelism": 128,
+  "turbo_mode": false,
+  "duration_seconds": 0.077
+}

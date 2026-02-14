@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-02-14T05:01:59.734888+00:00",
+  "overall_pass": true,
+  "checks": [
+    {
+      "name": "Bounded-Loss Controls",
+      "passed": true,
+      "severity": "high",
+      "detail": "Absolute no-loss guarantees are impossible in live markets; enforce strict bounded-loss controls. strict_profit_only=True, KILLED events=0",
+      "remediation": "Keep strict profit-only gating, kill-switches, and funded budget caps active at all times."
+    },
+    {
+      "name": "Capital Protection (Kill Events)",
+      "passed": true,
+      "severity": "high",
+      "detail": "KILLED events: 0",
+      "remediation": "If >0, freeze budget escalation and root-cause failed HOT strategies."
+    },
+    {
+      "name": "Active Profit Pipeline",
+      "passed": true,
+      "severity": "high",
+      "detail": "Quant promoted WARM=0, Quant funded promoted=0, Pipeline promoted HOT=3725, Pipeline funded strategies=13",
+      "remediation": "Increase positive OOS candidates and keep only funded strategies with robust gate metrics."
+    },
+    {
+      "name": "Live Profit Evidence",
+      "passed": true,
+      "severity": "critical",
+      "detail": "Promoted HOT events: 3725",
+      "remediation": "Run WARM strategies through runtime gate and promote only if paper PnL remains positive over required window."
+    },
+    {
+      "name": "Funded Diversification",
+      "passed": true,
+      "severity": "high",
+      "detail": "Max funded pair budget share=47.52%, funded_per_pair={'BTC-USD': {'count': 4, 'budget_usd': 14.48}, 'ETH-USD': {'count': 4, 'budget_usd': 8.98}, 'LINK-USD': {'count': 1, 'budget_usd': 0.91}, 'SOL-USD': {'count': 4, 'budget_usd': 6.1}}, bootstrap_exception=False",
+      "remediation": "Enforce per-pair funded cap and total funded budget cap before granting new starter budget."
+    },
+    {
+      "name": "Funded OOS Trade Evidence",
+      "passed": true,
+      "severity": "medium",
+      "detail": "Funded with OOS trades=13 / 13 (100.00%)",
+      "remediation": "Throttle sparse-OOS funding and prefer strategies with observed OOS trade activity."
+    }
+  ],
+  "summary": {
+    "total_checks": 6,
+    "failed_checks": 0,
+    "critical_failures": 0,
+    "high_failures": 0
+  },
+  "metrics": {
+    "quant": {
+      "promoted_warm": 0,
+      "rejected_cold": 906,
+      "no_data": 0,
+      "funded_promoted": 0,
+      "funded_with_oos_trades": 0
+    },
+    "pipeline": {
+      "stage_counts": {
+        "COLD": 7377,
+        "HOT": 3084,
+        "WARM": 23
+      },
+      "promoted_hot_events": 3725,
+      "killed_events": 0,
+      "max_pair_share": 0.4752,
+      "total_funded_budget": 30.47,
+      "funded_strategy_count": 13,
+      "funded_with_oos_trades": 13
+    }
+  }
+}

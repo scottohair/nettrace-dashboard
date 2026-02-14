@@ -1,0 +1,67 @@
+2026-02-12 09:02:53 [quant_v2] INFO StrategyEngine initialized | mode=paper | capital=$10000.00 | strategies=5
+2026-02-12 09:02:57 [quant_v2] INFO StrategyEngine initialized | mode=paper | capital=$10000.00 | strategies=5
+2026-02-12 22:00:15 [quant_v2] INFO StrategyEngine initialized | mode=paper | capital=$10000.00 | strategies=5
+2026-02-12 22:00:21 [quant_v2] INFO StrategyEngine initialized | mode=paper | capital=$10000.00 | strategies=5
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/AAPL?interval=1m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/v2/prices/BTC-USD/spot: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/BTC?interval=1m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/v2/prices/ETH-USD/spot: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/ETH?interval=1m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/MSFT?interval=1m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/NVDA?interval=1m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/v2/prices/SOL-USD/spot: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SOL?interval=1m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SPY?interval=1m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/TSLA?interval=1m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/TSLA?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/TSLA?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/BTC-USD/candles?start=1770915621&end=1770951621&granularity=FIVE_MINUTE: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/BTC?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/BTC-USD/candles?start=1770519621&end=1770951621&granularity=ONE_HOUR: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/BTC?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/AAPL?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/AAPL?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/ETH-USD/candles?start=1770915621&end=1770951621&granularity=FIVE_MINUTE: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/ETH?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/ETH-USD/candles?start=1770519621&end=1770951621&granularity=ONE_HOUR: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/ETH?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/SOL-USD/candles?start=1770915621&end=1770951621&granularity=FIVE_MINUTE: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SOL?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/SOL-USD/candles?start=1770519621&end=1770951621&granularity=ONE_HOUR: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SOL?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SPY?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SPY?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/NVDA?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/NVDA?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/MSFT?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/MSFT?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/BTC-USD/candles?start=1770927621&end=1770951621&granularity=FIVE_MINUTE: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/BTC?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/ETH-USD/candles?start=1770927621&end=1770951621&granularity=FIVE_MINUTE: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/ETH?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/SOL-USD/candles?start=1770927621&end=1770951621&granularity=FIVE_MINUTE: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SOL?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/BTC-USD/candles?start=1770933621&end=1770951621&granularity=FIVE_MINUTE: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/BTC?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/ETH-USD/candles?start=1770933621&end=1770951621&granularity=FIVE_MINUTE: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/ETH?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/SOL-USD/candles?start=1770933621&end=1770951621&granularity=FIVE_MINUTE: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SOL?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/AAPL?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/MSFT?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/NVDA?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/TSLA?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SPY?interval=5m&range=1d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/BTC-USD/candles?start=1770519621&end=1770951621&granularity=ONE_HOUR: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/BTC?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/ETH-USD/candles?start=1770519621&end=1770951621&granularity=ONE_HOUR: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/ETH?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://api.coinbase.com/api/v3/brokerage/market/products/SOL-USD/candles?start=1770519621&end=1770951621&granularity=ONE_HOUR: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://query2.finance.yahoo.com/v8/finance/chart/SOL?interval=1h&range=6d: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://hacker-news.firebaseio.com/v0/topstories.json: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://www.reddit.com/r/cryptocurrency/hot.json?limit=10: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://www.reddit.com/r/bitcoin/hot.json?limit=10: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://www.reddit.com/r/ethtrader/hot.json?limit=10: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:00:21 [quant_v2] DEBUG HTTP GET failed https://www.reddit.com/r/wallstreetbets/hot.json?limit=10: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 22:06:32 [quant_v2] INFO Restored capital: $10000.00
+2026-02-12 22:06:32 [quant_v2] INFO StrategyEngine initialized | mode=paper | capital=$10000.00 | strategies=5

@@ -1,0 +1,409 @@
+2026-02-13 01:24:35,603 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True
+2026-02-13 13:03:40,546 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 13:03:52,147 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:03:52,654 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:03:53,664 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:03:55,668 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:03:55,697 [flywheel] INFO cycle=4 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:08:07,772 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:08:08,280 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:08:09,290 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:08:11,293 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:08:11,318 [flywheel] INFO cycle=5 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:12:23,322 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:12:23,829 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:12:24,844 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:12:26,850 [flywheel] ERROR Circuit breaker OPEN — 3 consecutive failures, pausing for 30s
+2026-02-13 13:12:26,852 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:12:26,880 [flywheel] INFO cycle=6 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:16:39,426 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:16:39,934 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:16:40,944 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:16:42,950 [flywheel] ERROR Circuit breaker OPEN — 4 consecutive failures, pausing for 30s
+2026-02-13 13:16:42,950 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:16:42,967 [flywheel] INFO cycle=7 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:20:55,032 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:20:55,548 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:20:56,558 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:20:58,564 [flywheel] ERROR Circuit breaker OPEN — 5 consecutive failures, pausing for 30s
+2026-02-13 13:20:58,566 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:20:58,602 [flywheel] INFO cycle=8 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:22:46,140 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 13:22:56,931 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:22:57,441 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:22:58,448 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:23:00,452 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:23:00,466 [flywheel] INFO cycle=10 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:25:10,716 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:25:11,224 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:25:12,233 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:25:14,238 [flywheel] ERROR Circuit breaker OPEN — 6 consecutive failures, pausing for 30s
+2026-02-13 13:25:14,239 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:25:14,259 [flywheel] INFO cycle=9 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:27:12,273 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:27:12,779 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:27:13,790 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:27:15,796 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:27:15,817 [flywheel] INFO cycle=11 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:29:26,682 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:29:27,193 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:29:28,202 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:29:30,208 [flywheel] ERROR Circuit breaker OPEN — 7 consecutive failures, pausing for 30s
+2026-02-13 13:29:30,210 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:29:30,244 [flywheel] INFO cycle=10 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:31:28,157 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:31:28,664 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:31:29,674 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:31:31,680 [flywheel] ERROR Circuit breaker OPEN — 3 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 13:31:31,683 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:31:31,714 [flywheel] INFO cycle=12 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:33:42,273 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:33:42,782 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:33:43,791 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:33:45,797 [flywheel] ERROR Circuit breaker OPEN — 8 consecutive failures, pausing for 30s
+2026-02-13 13:33:45,797 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:33:45,812 [flywheel] INFO cycle=11 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:35:43,457 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 13:35:43,467 [flywheel] INFO cycle=13 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:37:58,673 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:37:59,185 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:38:00,199 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:38:02,204 [flywheel] ERROR Circuit breaker OPEN — 9 consecutive failures, pausing for 30s
+2026-02-13 13:38:02,205 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:38:02,239 [flywheel] INFO cycle=12 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:39:55,237 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 13:39:55,248 [flywheel] INFO cycle=14 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:42:14,647 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:42:15,156 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:42:16,160 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:42:18,162 [flywheel] ERROR Circuit breaker OPEN — 10 consecutive failures, pausing for 30s
+2026-02-13 13:42:18,163 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:42:18,187 [flywheel] INFO cycle=13 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:44:06,973 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 13:44:06,984 [flywheel] INFO cycle=15 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:46:30,281 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:46:30,789 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:46:31,797 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:46:33,803 [flywheel] ERROR Circuit breaker OPEN — 11 consecutive failures, pausing for 30s
+2026-02-13 13:46:33,804 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:46:33,823 [flywheel] INFO cycle=14 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:48:18,785 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 13:48:18,796 [flywheel] INFO cycle=16 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:50:45,924 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:50:46,431 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:50:47,438 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:50:49,444 [flywheel] ERROR Circuit breaker OPEN — 12 consecutive failures, pausing for 30s
+2026-02-13 13:50:49,444 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:50:49,463 [flywheel] INFO cycle=15 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:52:30,652 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 13:52:30,663 [flywheel] INFO cycle=17 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:55:01,979 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:55:02,489 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:55:03,500 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:55:05,501 [flywheel] ERROR Circuit breaker OPEN — 13 consecutive failures, pausing for 30s
+2026-02-13 13:55:05,502 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:55:05,523 [flywheel] INFO cycle=16 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:56:42,427 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 13:56:42,437 [flywheel] INFO cycle=18 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 13:59:17,649 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:59:18,157 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:59:19,168 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:59:21,176 [flywheel] ERROR Circuit breaker OPEN — 14 consecutive failures, pausing for 30s
+2026-02-13 13:59:21,177 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 13:59:21,196 [flywheel] INFO cycle=17 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 14:00:54,206 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 14:00:54,217 [flywheel] INFO cycle=19 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 14:03:22,618 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:03:23,123 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:03:24,134 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:03:26,137 [flywheel] ERROR Circuit breaker OPEN — 15 consecutive failures, pausing for 30s
+2026-02-13 14:03:26,138 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 14:03:26,160 [flywheel] INFO cycle=18 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 14:04:55,648 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 14:04:55,659 [flywheel] INFO cycle=20 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=ON
+2026-02-13 14:07:27,975 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:07:28,483 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:07:29,490 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:07:31,495 [flywheel] ERROR Circuit breaker OPEN — 16 consecutive failures, pausing for 30s
+2026-02-13 14:07:31,496 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 14:07:31,519 [flywheel] INFO cycle=19 decision=GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=OFF
+2026-02-13 14:08:57,176 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 14:08:57,186 [flywheel] INFO cycle=21 decision=GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=OFF
+2026-02-13 14:11:32,997 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:11:33,506 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:11:34,514 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:11:36,517 [flywheel] ERROR Circuit breaker OPEN — 17 consecutive failures, pausing for 30s
+2026-02-13 14:11:36,518 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 14:11:36,538 [flywheel] INFO cycle=20 decision=GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=OFF
+2026-02-13 14:12:20,042 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 14:12:20,567 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:12:21,086 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:12:22,094 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:12:24,096 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 14:12:24,107 [flywheel] INFO cycle=21 decision=GO quant_run=False pnl_today=+0.0000 total=$12.26 lock=OFF
+2026-02-13 14:12:59,005 [flywheel] WARNING Circuit reopen blocked by health gate (dns_unhealthy); extending cooldown by 10s
+2026-02-13 14:12:59,016 [flywheel] INFO cycle=22 decision=GO quant_run=True pnl_today=+0.0000 total=$12.26 lock=OFF
+2026-02-13 14:13:35,905 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 14:13:36,392 [flywheel] INFO flywheel stopped
+2026-02-13 14:14:48,298 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 14:14:48,317 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 14:14:48,442 [flywheel] INFO flywheel stopped
+2026-02-13 14:14:49,297 [flywheel] INFO flywheel stopped
+2026-02-13 14:15:48,859 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 14:16:08,148 [flywheel] INFO cycle=23 decision=GO quant_run=False pnl_today=+0.0000 total=$262.31 lock=OFF
+2026-02-13 14:18:34,609 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 14:18:34,723 [flywheel] INFO flywheel stopped
+2026-02-13 14:20:04,296 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 14:20:23,891 [flywheel] INFO cycle=24 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$258.07 lock=ON
+2026-02-13 14:25:25,578 [flywheel] INFO cycle=25 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$257.59 lock=ON
+2026-02-13 14:29:51,130 [flywheel] INFO cycle=26 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$255.84 lock=ON
+2026-02-13 14:34:17,192 [flywheel] INFO cycle=27 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$251.19 lock=ON
+2026-02-13 14:39:17,000 [flywheel] INFO cycle=28 decision=NO_GO quant_run=True pnl_today=+0.0000 total=$250.82 lock=ON
+2026-02-13 14:43:43,486 [flywheel] INFO cycle=29 decision=NO_GO quant_run=False pnl_today=+0.0000 total=$250.69 lock=ON
+2026-02-13 14:45:36,578 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 14:45:36,967 [flywheel] INFO flywheel stopped
+2026-02-13 19:32:09,878 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 19:32:11,434 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:11,946 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:12,963 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:14,970 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:32:14,993 [flywheel] INFO cycle=40 decision=GO quant_run=True pnl_today=+6.0000 total=$12.26 lock=OFF
+2026-02-13 19:32:28,405 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 19:32:29,081 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:29,586 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:30,597 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:32,602 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:32:32,624 [flywheel] INFO cycle=41 decision=GO quant_run=False pnl_today=+6.3000 total=$12.26 lock=OFF
+2026-02-13 19:32:40,104 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 19:32:40,781 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:41,292 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:42,303 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:44,309 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:32:44,328 [flywheel] INFO cycle=42 decision=GO quant_run=False pnl_today=+6.3000 total=$12.26 lock=OFF
+2026-02-13 19:32:57,719 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 19:32:58,160 [flywheel] INFO flywheel stopped
+2026-02-13 19:33:29,574 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 19:33:31,108 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:33:31,620 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:33:32,640 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:33:34,643 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:33:34,670 [flywheel] INFO cycle=43 decision=GO quant_run=True pnl_today=+6.6000 total=$12.26 lock=OFF
+2026-02-13 19:35:47,558 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 19:35:48,187 [flywheel] INFO flywheel stopped
+2026-02-13 19:36:25,747 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 19:36:26,415 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 19:36:26,420 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:26,424 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:26,426 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:26,938 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=2
+2026-02-13 19:36:26,952 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:26,962 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:26,963 [flywheel] WARNING Coinbase DNS preflight failed for api.coinbase.com (2 candidates): <urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:26,971 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 19:36:26,978 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:26,985 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:26,989 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:27,992 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=2
+2026-02-13 19:36:27,998 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:28,003 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:28,004 [flywheel] WARNING Coinbase DNS preflight failed for api.coinbase.com (2 candidates): <urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:28,009 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 19:36:28,014 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:28,019 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:36:28,021 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:30,027 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-13 19:36:30,057 [flywheel] INFO cycle=44 decision=GO quant_run=False pnl_today=+7.2000 total=$12.26 lock=OFF
+2026-02-13 19:36:34,223 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:34,730 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:35,746 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:37,749 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:36:37,783 [flywheel] INFO cycle=42 decision=GO quant_run=False pnl_today=+7.2000 total=$12.26 lock=OFF
+2026-02-13 19:36:46,787 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:47,314 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:48,342 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:50,349 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:36:50,374 [flywheel] INFO cycle=43 decision=GO quant_run=True pnl_today=+7.2000 total=$12.26 lock=OFF
+2026-02-13 19:39:43,757 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 19:39:43,783 [flywheel] INFO flywheel stopped
+2026-02-13 19:40:00,044 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 19:40:01,512 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 19:40:01,516 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:01,521 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:01,522 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:02,025 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=2
+2026-02-13 19:40:02,032 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:02,039 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:02,039 [flywheel] WARNING Coinbase DNS preflight failed for api.coinbase.com (2 candidates): <urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:02,045 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 19:40:02,050 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:02,056 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:02,057 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:03,064 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_degraded candidates=2
+2026-02-13 19:40:03,074 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:03,082 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_degraded err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:03,083 [flywheel] WARNING Coinbase DNS preflight failed for api.coinbase.com (2 candidates): <urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:03,090 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 19:40:03,096 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:03,102 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 19:40:03,104 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:05,111 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-13 19:40:05,138 [flywheel] INFO cycle=44 decision=GO quant_run=False pnl_today=+7.5000 total=$12.26 lock=OFF
+2026-02-13 19:40:40,964 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:41,471 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:42,477 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:44,482 [flywheel] ERROR Circuit breaker OPEN — 3 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:40:44,483 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:40:44,508 [flywheel] INFO cycle=43 decision=GO quant_run=True pnl_today=+7.5000 total=$12.26 lock=OFF
+2026-02-13 19:40:52,703 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:53,215 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:54,228 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:56,235 [flywheel] ERROR Circuit breaker OPEN — 3 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:40:56,236 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:40:56,262 [flywheel] INFO cycle=44 decision=GO quant_run=False pnl_today=+7.5000 total=$12.26 lock=OFF
+2026-02-13 19:41:48,005 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 19:41:48,545 [flywheel] INFO flywheel stopped
+2026-02-13 19:44:47,275 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 19:44:47,276 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:44:47,781 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:44:48,794 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:44:50,800 [flywheel] ERROR Circuit breaker OPEN — 4 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:44:50,801 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:44:50,830 [flywheel] INFO cycle=44 decision=GO quant_run=False pnl_today=+8.1000 total=$12.26 lock=OFF
+2026-02-13 19:44:58,660 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 19:44:58,666 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:44:59,194 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:45:00,215 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:45:02,219 [flywheel] ERROR Circuit breaker OPEN — 4 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:45:02,220 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:45:02,247 [flywheel] INFO cycle=45 decision=GO quant_run=False pnl_today=+8.1000 total=$12.26 lock=OFF
+2026-02-13 19:48:53,226 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 19:48:53,228 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:48:53,737 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:48:54,744 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:48:56,751 [flywheel] ERROR Circuit breaker OPEN — 5 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:48:56,752 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:48:56,779 [flywheel] INFO cycle=45 decision=NO_GO quant_run=False pnl_today=+9.0000 total=$12.26 lock=ON
+2026-02-13 19:49:05,462 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 19:49:05,468 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:49:05,989 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:49:07,008 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:49:09,015 [flywheel] ERROR Circuit breaker OPEN — 5 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:49:09,016 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:49:09,041 [flywheel] INFO cycle=46 decision=NO_GO quant_run=True pnl_today=+9.0000 total=$12.26 lock=ON
+2026-02-13 19:52:59,990 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 19:52:59,992 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:53:00,499 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:53:01,506 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:53:03,511 [flywheel] ERROR Circuit breaker OPEN — 6 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:53:03,512 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:53:03,530 [flywheel] INFO cycle=46 decision=NO_GO quant_run=True pnl_today=+10.2000 total=$12.26 lock=ON
+2026-02-13 19:53:11,408 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 19:53:11,415 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:53:11,934 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:53:12,953 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:53:14,960 [flywheel] ERROR Circuit breaker OPEN — 6 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:53:14,961 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:53:14,990 [flywheel] INFO cycle=47 decision=NO_GO quant_run=False pnl_today=+10.2000 total=$12.26 lock=ON
+2026-02-13 19:57:05,973 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 19:57:05,975 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:57:06,485 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:57:07,492 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:57:09,498 [flywheel] ERROR Circuit breaker OPEN — 7 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:57:09,499 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:57:09,530 [flywheel] INFO cycle=47 decision=NO_GO quant_run=False pnl_today=+12.0000 total=$12.26 lock=ON
+2026-02-13 19:57:18,074 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 19:57:18,080 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:57:18,599 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:57:19,620 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:57:21,628 [flywheel] ERROR Circuit breaker OPEN — 7 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 19:57:21,629 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:57:21,659 [flywheel] INFO cycle=48 decision=NO_GO quant_run=False pnl_today=+12.0000 total=$12.26 lock=ON
+2026-02-13 20:01:12,710 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 20:01:12,713 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:01:13,222 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:01:14,233 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:01:16,240 [flywheel] ERROR Circuit breaker OPEN — 8 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 20:01:16,242 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 20:01:16,273 [flywheel] INFO cycle=48 decision=NO_GO quant_run=False pnl_today=+12.3000 total=$12.26 lock=ON
+2026-02-13 20:01:24,905 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 20:01:24,912 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:01:25,431 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:01:26,451 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:01:28,458 [flywheel] ERROR Circuit breaker OPEN — 8 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 20:01:28,459 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 20:01:28,487 [flywheel] INFO cycle=49 decision=NO_GO quant_run=True pnl_today=+12.3000 total=$12.26 lock=ON
+2026-02-13 20:04:25,015 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 20:04:26,615 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 20:04:26,619 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 20:04:26,624 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 20:04:26,625 [flywheel] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:04:26,626 [flywheel] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-13 20:04:26,626 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-13 20:04:26,643 [flywheel] INFO cycle=51 decision=GO quant_run=False pnl_today=+12.3000 total=$12.26 lock=OFF
+2026-02-13 20:05:11,366 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 20:05:11,802 [flywheel] INFO flywheel stopped
+2026-02-13 20:05:19,649 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 20:05:19,651 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:05:20,159 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:05:21,166 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:05:23,173 [flywheel] ERROR Circuit breaker OPEN — 9 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 20:05:23,174 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 20:05:23,216 [flywheel] INFO cycle=49 decision=GO quant_run=True pnl_today=+12.6000 total=$12.26 lock=OFF
+2026-02-13 20:05:30,936 [flywheel] INFO Circuit breaker HALF-OPEN — health gate passed (execution_health_dns_green)
+2026-02-13 20:05:30,942 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:05:31,468 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:05:32,487 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:05:34,493 [flywheel] ERROR Circuit breaker OPEN — 9 consecutive failures, pausing for 30s (reason=dns_unhealthy)
+2026-02-13 20:05:34,494 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 20:05:34,519 [flywheel] INFO cycle=50 decision=GO quant_run=False pnl_today=+12.6000 total=$12.26 lock=OFF
+2026-02-13 20:09:12,646 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 20:09:12,645 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 20:09:13,094 [flywheel] INFO flywheel stopped
+2026-02-13 20:09:13,329 [flywheel] INFO flywheel stopped
+2026-02-13 20:18:15,999 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 20:18:18,464 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:18:18,962 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 20:18:18,982 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:18:19,999 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:18:22,006 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 20:18:22,038 [flywheel] INFO cycle=52 decision=GO quant_run=True pnl_today=+12.6000 total=$12.26 lock=OFF
+2026-02-13 20:18:22,039 [flywheel] INFO flywheel stopped
+2026-02-13 20:19:23,287 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 20:19:24,883 [flywheel] WARNING GO decision present, but lock is owned by 'orchestrator_v2'; preserving external lock
+2026-02-13 20:19:24,952 [flywheel] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:19:25,248 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 20:19:25,474 [flywheel] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:19:26,489 [flywheel] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:19:28,496 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 20:19:28,534 [flywheel] INFO cycle=53 decision=GO quant_run=False pnl_today=+12.6000 total=$12.26 lock=ON
+2026-02-13 20:19:28,535 [flywheel] INFO flywheel stopped
+2026-02-13 20:32:23,333 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 20:32:25,756 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 20:32:25,761 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 20:32:25,766 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 20:32:25,767 [flywheel] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:32:25,768 [flywheel] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-13 20:32:25,768 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-13 20:32:25,784 [flywheel] INFO cycle=55 decision=GO quant_run=True pnl_today=+12.6000 total=$12.26 lock=OFF
+2026-02-13 20:32:27,430 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 20:32:27,794 [flywheel] INFO flywheel stopped
+2026-02-13 20:55:42,149 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 20:55:43,745 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 20:55:43,749 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 20:55:43,754 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 20:55:43,755 [flywheel] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:55:43,756 [flywheel] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-13 20:55:43,756 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-13 20:55:43,772 [flywheel] INFO cycle=56 decision=GO quant_run=False pnl_today=+12.9000 total=$12.26 lock=OFF
+2026-02-13 20:55:50,454 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 20:55:50,802 [flywheel] INFO flywheel stopped
+2026-02-13 22:31:17,866 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-13 22:31:58,460 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-13 22:31:58,465 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 22:31:58,470 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-13 22:31:58,471 [flywheel] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:31:58,472 [flywheel] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-13 22:31:58,472 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-13 22:31:58,491 [flywheel] INFO cycle=57 decision=GO quant_run=False pnl_today=+19.8000 total=$12.26 lock=OFF
+2026-02-13 22:32:34,185 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-13 22:32:34,639 [flywheel] INFO flywheel stopped

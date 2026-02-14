@@ -1,0 +1,23 @@
+{
+  "updated_at": "2026-02-13T02:43:39.722076+00:00",
+  "priority_pairs": [
+    "BTC-USD",
+    "ETH-USD",
+    "SOL-USD",
+    "AVAX-USD",
+    "LINK-USD",
+    "DOGE-USD",
+    "XRP-USD"
+  ],
+  "framework_preferences": [
+    "mlx",
+    "pytorch",
+    "mps",
+    "numpy"
+  ],
+  "hard_directives": [
+    "Keep staging strategy, frameworks, and messages for Claude ingestion.",
+    "Run strict profit-only pipeline gates before any promotion.",
+    "Prioritize majors (BTC/ETH/SOL) for baseline experiments."
+  ]
+}

@@ -51,6 +51,9 @@ CLOSE_FLOW_MIN_CLOSE_ATTEMPTS = int(
 CLOSE_FLOW_MIN_CLOSE_COMPLETION_RATE = float(
     os.environ.get("CLOSE_FLOW_MIN_CLOSE_COMPLETION_RATE", "0.40")
 )
+EXECUTION_HEALTH_GO_LIVE_REQUIRED = os.environ.get(
+    "EXECUTION_HEALTH_GO_LIVE_REQUIRED", "1"
+).lower() not in ("0", "false", "no")
 TRADER_DB_PATH = BASE / "trader.db"
 EXIT_MANAGER_DB_PATH = BASE / "exit_manager.db"
 COMPLETED_TRADE_STATUSES = (
@@ -376,7 +379,12 @@ def _build_decision(
     exec_health = execution_health if isinstance(execution_health, dict) else {}
     exec_green = bool(exec_health.get("green", False))
     exec_reason = str(exec_health.get("reason", "missing"))
-    if exec_health and not exec_green:
+    if EXECUTION_HEALTH_GO_LIVE_REQUIRED:
+        if not exec_health:
+            reasons.append("execution_health_status_missing")
+        elif not exec_green:
+            reasons.append(f"execution_health_not_green:{exec_reason}")
+    elif exec_health and not exec_green:
         warnings.append(f"execution_health_not_green:{exec_reason}")
     close_flow_gate = _evaluate_close_flow_gate(trade_flow_metrics)
     if close_flow_gate.get("enabled", False) and not close_flow_gate.get("passed", False):
@@ -441,6 +449,7 @@ def _build_decision(
             },
         },
         "execution_health_gate": {
+            "enabled": bool(EXECUTION_HEALTH_GO_LIVE_REQUIRED),
             "status_available": bool(exec_health),
             "green": bool(exec_green),
             "reason": exec_reason,

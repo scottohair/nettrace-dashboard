@@ -1,0 +1,710 @@
+
+============================================================
+  PORTFOLIO REPORT — 14:43:16
+============================================================
+  Total Value:  $152.28
+  Cash:         $122.68 (USDC: $97.75 avail + $21.08 hold | USD: $0.13)
+  Holdings:     $29.60
+
+    FET   :      89.2330 @ $      0.16 = $   14.17
+    LINK  :       1.3300 @ $      8.37 = $   11.13
+    BTC   :       0.0000 @ $ 65,941.36 = $    1.63
+    SOL   :       0.0096 @ $     78.00 = $    0.75
+    AVAX  :       0.0846 @ $      8.81 = $    0.75
+    ETH   :       0.0004 @ $  1,932.14 = $    0.73
+    AUCTION:       0.0763 @ $      4.99 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 123 trades, $275.80 volume
+    filled  : 50 trades, $98.33 volume
+
+  Recent trades:
+    [+] BUY FET-USDC $1.13 [filled] 2026-02-12 19:42:44
+    [+] BUY LINK-USDC $1.13 [filled] 2026-02-12 19:42:44
+    [+] BUY BTC-USDC $1.13 [filled] 2026-02-12 19:42:43
+    [X] BUY FET-USDC $1.13 [failed] 2026-02-12 19:42:08
+    [X] BUY LINK-USDC $1.13 [failed] 2026-02-12 19:42:08
+
+  Agents running: 7
+    - arb_scanner.py
+    - dca_bot.py
+    - live_trader.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - run
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 14:48:17
+============================================================
+  Total Value:  $151.11
+  Cash:         $66.33 (USDC: $16.70 avail + $45.78 hold | USD: $0.13)
+  Holdings:     $84.78
+
+    LINK  :       4.6100 @ $      8.38 = $   38.62
+    FET   :     205.6330 @ $      0.16 = $   32.61
+    BTC   :       0.0001 @ $ 66,010.29 = $    4.36
+    ETH   :       0.0019 @ $  1,934.06 = $    3.71
+    DOGE  :      38.4000 @ $      0.09 = $    3.54
+    SOL   :       0.0096 @ $     78.03 = $    0.75
+    AVAX  :       0.0846 @ $      8.82 = $    0.75
+    AUCTION:       0.0763 @ $      4.98 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 123 trades, $275.80 volume
+    filled  : 56 trades, $162.32 volume
+
+  Recent trades:
+    [+] BUY DOGE-USDC $3.54 [filled] 2026-02-12 19:46:39
+    [+] SELL ETH-USDC $3.71 [filled] 2026-02-12 19:46:37
+    [+] BUY BTC-USDC $3.54 [filled] 2026-02-12 19:46:37
+    [+] BUY FET-USDC $6.11 [filled] 2026-02-12 19:46:09
+    [+] BUY LINK-USDC $6.08 [filled] 2026-02-12 19:46:08
+
+  Agents running: 7
+    - arb_scanner.py
+    - run
+    - dca_bot.py
+    - live_trader.py
+    - sniper.py
+    - meta_engine.py
+    - run
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 14:53:18
+============================================================
+  Total Value:  $149.54
+  Cash:         $65.87 (USDC: $16.24 avail + $45.78 hold | USD: $0.13)
+  Holdings:     $83.66
+
+    FET   :     205.6330 @ $      0.16 = $   32.46
+    LINK  :       2.8200 @ $      8.35 = $   23.56
+    ETH   :       0.0053 @ $  1,929.90 = $   10.15
+    SOL   :       0.0872 @ $     77.49 = $    6.75
+    BTC   :       0.0001 @ $ 65,883.48 = $    4.98
+    DOGE  :      49.8000 @ $      0.09 = $    4.57
+    AVAX  :       0.0846 @ $      8.77 = $    0.74
+    AUCTION:       0.0763 @ $      4.96 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 122 trades, $277.16 volume
+    filled  : 63 trades, $243.78 volume
+
+  Recent trades:
+    [+] BUY DOGE-USDC $6.12 [filled] 2026-02-12 19:53:11
+    [+] SELL BTC-USDC $2.49 [filled] 2026-02-12 19:53:09
+    [+] SELL DOGE-USDC $4.57 [filled] 2026-02-12 19:52:33
+    [+] SELL ETH-USDC $10.00 [filled] 2026-02-12 19:52:32
+    [+] BUY BTC-USDC $2.18 [filled] 2026-02-12 19:52:31
+
+  Agents running: 7
+    - arb_scanner.py
+    - run
+    - dca_bot.py
+    - live_trader.py
+    - sniper.py
+    - meta_engine.py
+    - run
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 14:58:19
+============================================================
+  Total Value:  $273.07
+  Cash:         $173.65 (USDC: $117.12 avail + $52.68 hold | USD: $0.13)
+  Holdings:     $99.42
+
+    LINK  :       4.6300 @ $      8.34 = $   38.61
+    FET   :     243.0330 @ $      0.16 = $   38.33
+    ETH   :       0.0086 @ $  1,927.58 = $   16.48
+    DOGE  :      36.3000 @ $      0.09 = $    3.33
+    SOL   :       0.0109 @ $     77.61 = $    0.85
+    AVAX  :       0.0846 @ $      8.79 = $    0.74
+    BTC   :       0.0000 @ $ 65,874.49 = $    0.62
+    AUCTION:       0.0763 @ $      4.99 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 117 trades, $268.33 volume
+    filled  : 84 trades, $354.94 volume
+
+  Recent trades:
+    [+] BUY FET-USDC $5.01 [filled] 2026-02-12 19:58:14
+    [+] SELL DOGE-USDC $1.67 [filled] 2026-02-12 19:58:12
+    [+] SELL ETH-USDC $8.24 [filled] 2026-02-12 19:58:12
+    [+] SELL DOGE-USDC $3.33 [filled] 2026-02-12 19:57:40
+    [+] BUY LINK-USDC $2.48 [filled] 2026-02-12 19:57:39
+
+  Agents running: 14
+    - arb_scanner.py
+    - run
+    - dca_bot.py
+    - live_trader.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - run
+    - forex_agent.py
+    - dca_bot.py
+    - latency_arb_agent.py
+    - live_trader.py
+    - sniper.py
+    - meta_engine.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:03:20
+============================================================
+  Total Value:  $266.27
+  Cash:         $106.65 (USDC: $9.96 avail + $92.83 hold | USD: $0.13)
+  Holdings:     $159.62
+
+    FET   :     312.2330 @ $      0.16 = $   49.19
+    LINK  :       4.5100 @ $      8.30 = $   37.43
+    SOL   :       0.4580 @ $     77.55 = $   35.52
+    ETH   :       0.0183 @ $  1,923.93 = $   35.19
+    DOGE  :       9.1000 @ $      0.09 = $    0.83
+    AVAX  :       0.0846 @ $      8.76 = $    0.74
+    AUCTION:       0.0763 @ $      4.99 = $    0.38
+    BTC   :       0.0000 @ $ 65,747.38 = $    0.27
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 108 trades, $273.04 volume
+    filled  : 141 trades, $732.63 volume
+
+  Recent trades:
+    [+] BUY SOL-USDC $5.13 [filled] 2026-02-12 20:02:06
+    [X] BUY SOL-USDC $5.13 [failed] 2026-02-12 20:02:05
+    [X] BUY ETH-USDC $5.13 [failed] 2026-02-12 20:02:04
+    [X] BUY ETH-USDC $5.13 [failed] 2026-02-12 20:02:03
+    [+] BUY BTC-USDC $5.13 [filled] 2026-02-12 20:02:03
+
+  Agents running: 1
+    - arb_scanner.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:08:21
+============================================================
+  Total Value:  $265.99
+  Cash:         $146.12 (USDC: $142.27 avail + $0.00 hold | USD: $3.85)
+  Holdings:     $119.87
+
+    ETH   :       0.0183 @ $  1,927.55 = $   35.26
+    FET   :     212.2330 @ $      0.16 = $   33.45
+    LINK  :       3.0100 @ $      8.31 = $   25.00
+    SOL   :       0.3080 @ $     77.49 = $   23.87
+    DOGE  :       9.1000 @ $      0.09 = $    0.83
+    AVAX  :       0.0846 @ $      8.77 = $    0.74
+    AUCTION:       0.0763 @ $      5.00 = $    0.38
+    BTC   :       0.0000 @ $ 65,889.87 = $    0.27
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 93 trades, $259.69 volume
+    filled  : 141 trades, $732.63 volume
+
+  Recent trades:
+    [+] BUY SOL-USDC $5.13 [filled] 2026-02-12 20:02:06
+    [X] BUY SOL-USDC $5.13 [failed] 2026-02-12 20:02:05
+    [X] BUY ETH-USDC $5.13 [failed] 2026-02-12 20:02:04
+    [X] BUY ETH-USDC $5.13 [failed] 2026-02-12 20:02:03
+    [+] BUY BTC-USDC $5.13 [filled] 2026-02-12 20:02:03
+
+  Agents running: 1
+    - arb_scanner.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:13:22
+============================================================
+  Total Value:  $296.80
+  Cash:         $85.07 (USDC: $81.22 avail + $0.00 hold | USD: $3.85)
+  Holdings:     $211.73
+
+    ETH   :       0.0264 @ $  1,917.85 = $   50.61
+    FET   :     319.1330 @ $      0.16 = $   49.98
+    LINK  :       4.9000 @ $      8.28 = $   40.58
+    SOL   :       0.5206 @ $     77.25 = $   40.22
+    AVAX  :       2.0846 @ $      8.73 = $   18.20
+    BTC   :       0.0002 @ $ 65,624.51 = $   10.86
+    DOGE  :       9.1000 @ $      0.09 = $    0.83
+    AUCTION:       0.0763 @ $      4.96 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 83 trades, $244.03 volume
+    filled  : 145 trades, $865.22 volume
+
+  Recent trades:
+    [+] BUY FET-USDC $16.83 [filled] 2026-02-12 20:09:55
+    [+] BUY LINK-USDC $15.69 [filled] 2026-02-12 20:09:53
+    [+] BUY AVAX-USDC $17.49 [filled] 2026-02-12 20:09:52
+    [+] BUY SOL-USDC $16.45 [filled] 2026-02-12 20:09:50
+    [+] BUY BTC-USDC $18.60 [filled] 2026-02-12 20:09:48
+
+  Agents running: 9
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:18:23
+============================================================
+  Total Value:  $293.49
+  Cash:         $76.02 (USDC: $72.16 avail + $0.00 hold | USD: $3.85)
+  Holdings:     $217.47
+
+    ETH   :       0.0350 @ $  1,919.06 = $   67.08
+    FET   :     319.1330 @ $      0.16 = $   50.01
+    LINK  :       4.9000 @ $      8.29 = $   40.61
+    SOL   :       0.5206 @ $     77.33 = $   40.26
+    AVAX  :       2.0846 @ $      8.74 = $   18.23
+    DOGE  :       9.1000 @ $      0.09 = $    0.83
+    AUCTION:       0.0763 @ $      4.96 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 73 trades, $229.45 volume
+    filled  : 154 trades, $1009.62 volume
+
+  Recent trades:
+    [+] BUY ETH-USDC $4.93 [filled] 2026-02-12 20:17:02
+    [+] BUY ETH-USDC $5.43 [filled] 2026-02-12 20:16:47
+    [+] BUY BTC-USDC $8.05 [filled] 2026-02-12 20:16:22
+    [+] BUY ETH-USDC $9.87 [filled] 2026-02-12 20:16:09
+    [+] BUY ETH-USDC $6.08 [filled] 2026-02-12 20:15:44
+
+  Agents running: 17
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:23:24
+============================================================
+  Total Value:  $290.90
+  Cash:         $54.54 (USDC: $37.06 avail + $13.63 hold | USD: $3.85)
+  Holdings:     $236.36
+
+    ETH   :       0.0279 @ $  1,918.84 = $   53.60
+    LINK  :       6.2200 @ $      8.28 = $   51.48
+    FET   :     319.1330 @ $      0.16 = $   49.98
+    SOL   :       0.6041 @ $     77.14 = $   46.60
+    AVAX  :       2.0846 @ $      8.75 = $   18.24
+    BTC   :       0.0002 @ $ 65,561.96 = $   15.18
+    DOGE  :       9.1000 @ $      0.09 = $    0.83
+    AUCTION:       0.0763 @ $      4.96 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 64 trades, $222.70 volume
+    filled  : 161 trades, $1131.57 volume
+
+  Recent trades:
+    [+] BUY ETH-USDC $11.53 [filled] 2026-02-12 20:22:55
+    [+] BUY BTC-USDC $19.36 [filled] 2026-02-12 20:22:53
+    [+] BUY LINK-USDC $11.01 [filled] 2026-02-12 20:21:18
+    [+] BUY AVAX-USDC $13.47 [filled] 2026-02-12 20:21:17
+    [+] BUY SOL-USDC $6.45 [filled] 2026-02-12 20:21:15
+
+  Agents running: 17
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:28:25
+============================================================
+  Total Value:  $287.70
+  Cash:         $37.99 (USDC: $34.14 avail + $0.00 hold | USD: $3.85)
+  Holdings:     $249.71
+
+    ETH   :       0.0347 @ $  1,916.24 = $   66.46
+    LINK  :       6.2200 @ $      8.26 = $   51.37
+    FET   :     319.1330 @ $      0.16 = $   49.88
+    SOL   :       0.6041 @ $     77.03 = $   46.54
+    AVAX  :       3.6258 @ $      8.73 = $   31.67
+    BTC   :       0.0000 @ $ 65,433.72 = $    2.51
+    DOGE  :       9.1000 @ $      0.09 = $    0.83
+    AUCTION:       0.0763 @ $      4.99 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 50 trades, $212.20 volume
+    filled  : 171 trades, $1248.27 volume
+
+  Recent trades:
+    [+] BUY ETH-USDC $5.23 [filled] 2026-02-12 20:27:52
+    [+] BUY BTC-USDC $11.92 [filled] 2026-02-12 20:27:51
+    [+] BUY ETH-USDC $12.61 [filled] 2026-02-12 20:26:39
+    [+] BUY ETH-USDC $7.22 [filled] 2026-02-12 20:26:19
+    [+] BUY ETH-USDC $14.95 [filled] 2026-02-12 20:25:43
+
+  Agents running: 17
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:33:26
+============================================================
+  Total Value:  $287.01
+  Cash:         $51.62 (USDC: $47.77 avail + $0.00 hold | USD: $3.85)
+  Holdings:     $235.40
+
+    LINK  :       6.3500 @ $      8.25 = $   52.40
+    FET   :     331.7330 @ $      0.16 = $   51.80
+    ETH   :       0.0246 @ $  1,915.70 = $   47.18
+    SOL   :       0.6041 @ $     76.97 = $   46.50
+    AVAX  :       4.0555 @ $      8.72 = $   35.36
+    BTC   :       0.0000 @ $ 65,390.65 = $    0.87
+    DOGE  :       9.1000 @ $      0.09 = $    0.83
+    AUCTION:       0.0763 @ $      4.99 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 39 trades, $169.50 volume
+    filled  : 171 trades, $1271.35 volume
+
+  Recent trades:
+    [+] SELL ETH-USDC $19.26 [filled] 2026-02-12 20:33:14
+    [+] BUY FET-USDC $1.97 [filled] 2026-02-12 20:29:33
+    [+] BUY LINK-USDC $1.10 [filled] 2026-02-12 20:29:32
+    [+] BUY AVAX-USDC $3.76 [filled] 2026-02-12 20:29:31
+    [+] BUY BTC-USDC $6.96 [filled] 2026-02-12 20:29:04
+
+  Agents running: 18
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+    - orchestrator_v2.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:38:26
+============================================================
+  Total Value:  $285.45
+  Cash:         $44.28 (USDC: $21.88 avail + $18.55 hold | USD: $3.85)
+  Holdings:     $241.17
+
+    LINK  :       7.8600 @ $      8.27 = $   65.02
+    AVAX  :       5.8382 @ $      8.74 = $   51.06
+    ETH   :       0.0240 @ $  1,920.38 = $   46.03
+    SOL   :       0.5853 @ $     77.25 = $   45.21
+    BTC   :       0.0002 @ $ 65,528.00 = $   11.64
+    DOGE  :     126.6000 @ $      0.09 = $   11.55
+    FET   :      65.3330 @ $      0.16 = $   10.22
+    AUCTION:       0.0763 @ $      4.99 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 13 trades, $61.52 volume
+    filled  : 180 trades, $1420.78 volume
+
+  Recent trades:
+    [+] BUY FET-USDC $10.23 [filled] 2026-02-12 20:37:43
+    [+] BUY DOGE-USDC $10.73 [filled] 2026-02-12 20:37:42
+    [+] BUY AVAX-USDC $15.59 [filled] 2026-02-12 20:37:40
+    [+] SELL SOL-USDC $16.96 [filled] 2026-02-12 20:37:39
+    [+] BUY ETH-USDC $16.55 [filled] 2026-02-12 20:37:38
+
+  Agents running: 9
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:43:27
+============================================================
+  Total Value:  $278.74
+  Cash:         $118.84 (USDC: $94.60 avail + $20.38 hold | USD: $3.85)
+  Holdings:     $159.90
+
+    ETH   :       0.0335 @ $  1,920.11 = $   64.40
+    AVAX  :       7.2204 @ $      8.75 = $   63.18
+    FET   :      93.8330 @ $      0.16 = $   14.67
+    BTC   :       0.0002 @ $ 65,552.36 = $   14.65
+    DOGE  :      18.3000 @ $      0.09 = $    1.67
+    SOL   :       0.0115 @ $     77.23 = $    0.89
+    AUCTION:       0.0763 @ $      4.99 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 5 trades, $35.23 volume
+    filled  : 198 trades, $1705.79 volume
+
+  Recent trades:
+    [+] BUY FET-USDC $14.67 [filled] 2026-02-12 20:42:56
+    [+] SELL DOGE-USDC $1.67 [filled] 2026-02-12 20:42:55
+    [+] BUY FET-USDC $14.70 [filled] 2026-02-12 20:42:17
+    [+] SELL DOGE-USDC $3.33 [filled] 2026-02-12 20:42:16
+    [+] BUY LINK-USDC $13.77 [filled] 2026-02-12 20:42:15
+
+  Agents running: 9
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:48:28
+============================================================
+  Total Value:  $274.96
+  Cash:         $34.26 (USDC: $30.41 avail + $0.00 hold | USD: $3.85)
+  Holdings:     $240.71
+
+    AVAX  :       9.5272 @ $      8.71 = $   82.98
+    LINK  :       7.8700 @ $      8.24 = $   64.83
+    FET   :     335.8330 @ $      0.16 = $   52.29
+    ETH   :       0.0174 @ $  1,914.19 = $   33.39
+    BTC   :       0.0001 @ $ 65,329.88 = $    5.05
+    SOL   :       0.0115 @ $     76.78 = $    0.88
+    DOGE  :       9.2000 @ $      0.09 = $    0.84
+    AUCTION:       0.0763 @ $      4.96 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 6 trades, $51.49 volume
+    filled  : 202 trades, $1811.09 volume
+
+  Recent trades:
+    [+] BUY FET-USDC $9.60 [filled] 2026-02-12 20:47:48
+    [+] BUY LINK-USDC $9.12 [filled] 2026-02-12 20:47:46
+    [+] SELL ETH-USDC $18.12 [filled] 2026-02-12 20:47:44
+    [+] BUY BTC-USDC $4.94 [filled] 2026-02-12 20:47:43
+    [+] SELL BTC-USDC $1.29 [filled] 2026-02-12 20:47:02
+
+  Agents running: 9
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:53:29
+============================================================
+  Total Value:  $272.37
+  Cash:         $42.07 (USDC: $38.22 avail + $0.00 hold | USD: $3.85)
+  Holdings:     $230.30
+
+    AVAX  :       9.5272 @ $      8.70 = $   82.84
+    FET   :     417.8330 @ $      0.16 = $   64.89
+    LINK  :       3.8700 @ $      8.23 = $   31.86
+    SOL   :       0.3203 @ $     76.81 = $   24.60
+    ETH   :       0.0113 @ $  1,912.77 = $   21.53
+    BTC   :       0.0001 @ $ 65,285.11 = $    3.30
+    DOGE  :       9.2000 @ $      0.09 = $    0.84
+    AUCTION:       0.0763 @ $      4.97 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 5 trades, $45.50 volume
+    filled  : 199 trades, $1854.02 volume
+
+  Recent trades:
+    [+] SELL LINK-USDC $16.37 [filled] 2026-02-12 20:53:16
+    [+] BUY ETH-USDC $16.55 [filled] 2026-02-12 20:53:14
+    [+] SELL LINK-USDC $16.66 [filled] 2026-02-12 20:52:35
+    [+] BUY SOL-USDC $5.53 [filled] 2026-02-12 20:52:33
+    [+] SELL BTC-USDC $0.71 [filled] 2026-02-12 20:52:31
+
+  Agents running: 9
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 15:58:30
+============================================================
+  Total Value:  $270.14
+  Cash:         $27.53 (USDC: $23.68 avail + $0.00 hold | USD: $3.85)
+  Holdings:     $242.61
+
+    AVAX  :       9.5272 @ $      8.70 = $   82.84
+    FET   :     417.8330 @ $      0.16 = $   65.22
+    SOL   :       0.8008 @ $     76.89 = $   61.58
+    BTC   :       0.0002 @ $ 65,373.25 = $   15.71
+    DOGE  :     106.0000 @ $      0.09 = $    9.64
+    ETH   :       0.0032 @ $  1,914.89 = $    6.09
+    LINK  :       0.1300 @ $      8.24 = $    1.07
+    AUCTION:       0.0763 @ $      4.96 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 5 trades, $45.50 volume
+    filled  : 189 trades, $1900.96 volume
+
+  Recent trades:
+    [+] SELL ETH-USDC $1.11 [filled] 2026-02-12 20:57:59
+    [+] SELL BTC-USDC $13.13 [filled] 2026-02-12 20:57:58
+    [+] SELL LINK-USDC $1.03 [filled] 2026-02-12 20:57:21
+    [+] SELL ETH-USDC $2.21 [filled] 2026-02-12 20:57:19
+    [+] BUY DOGE-USDC $9.64 [filled] 2026-02-12 20:56:41
+
+  Agents running: 9
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+
+
+============================================================
+  PORTFOLIO REPORT — 16:03:31
+============================================================
+  Total Value:  $269.07
+  Cash:         $17.73 (USDC: $9.66 avail + $4.22 hold | USD: $3.85)
+  Holdings:     $251.34
+
+    AVAX  :       9.5272 @ $      8.72 = $   83.08
+    FET   :     417.8330 @ $      0.16 = $   65.45
+    SOL   :       0.7070 @ $     77.16 = $   54.55
+    DOGE  :     332.6000 @ $      0.09 = $   30.31
+    ETH   :       0.0084 @ $  1,917.32 = $   16.06
+    BTC   :       0.0000 @ $ 65,505.38 = $    0.86
+    LINK  :       0.0700 @ $      8.26 = $    0.58
+    AUCTION:       0.0763 @ $      4.97 = $    0.38
+    AMP   :      48.8971 @ $      0.00 = $    0.07
+
+  SNIPER (last hour):
+    failed  : 2 trades, $30.11 volume
+    filled  : 149 trades, $1666.34 volume
+
+  Recent trades:
+    [+] BUY DOGE-USDC $9.93 [filled] 2026-02-12 21:03:04
+    [+] BUY SOL-USDC $9.14 [filled] 2026-02-12 21:03:01
+    [+] BUY DOGE-USDC $15.37 [filled] 2026-02-12 21:02:12
+    [+] BUY SOL-USDC $14.67 [filled] 2026-02-12 21:02:09
+    [+] BUY ETH-USDC $15.48 [filled] 2026-02-12 21:02:08
+
+  Agents running: 9
+    - arb_scanner.py
+    - sniper.py
+    - meta_engine.py
+    - run
+    - forex_agent.py
+    - latency_arb_agent.py
+    - momentum_scalper.py
+    - exchange_scanner.py
+    - coordinator.py
+============================================================
+

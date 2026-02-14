@@ -1,0 +1,65 @@
+{
+  "generated_at": "2026-02-13T04:02:14.171532+00:00",
+  "program": "strict_growth_mode_120_improvements",
+  "total_items": 120,
+  "counts": {
+    "planned": 88,
+    "running": 32,
+    "validated": 0,
+    "blocked": 0
+  },
+  "active_batches": [
+    {
+      "batch_id": "BATCH-20260213-033001",
+      "items": [
+        "IMPR-001",
+        "IMPR-002",
+        "IMPR-003",
+        "IMPR-011",
+        "IMPR-012",
+        "IMPR-013",
+        "IMPR-021",
+        "IMPR-022",
+        "IMPR-023",
+        "IMPR-031",
+        "IMPR-032",
+        "IMPR-033"
+      ],
+      "size": 12
+    },
+    {
+      "batch_id": "BATCH-CREATIVE-20260213-040137",
+      "items": [
+        "IMPR-101",
+        "IMPR-102",
+        "IMPR-103",
+        "IMPR-104",
+        "IMPR-105",
+        "IMPR-106",
+        "IMPR-107",
+        "IMPR-108",
+        "IMPR-109",
+        "IMPR-110",
+        "IMPR-111",
+        "IMPR-112",
+        "IMPR-113",
+        "IMPR-114",
+        "IMPR-115",
+        "IMPR-116",
+        "IMPR-117",
+        "IMPR-118",
+        "IMPR-119",
+        "IMPR-120"
+      ],
+      "size": 20
+    }
+  ],
+  "quant_snapshot": {
+    "generated_at": "2026-02-13T04:00:24.824208+00:00",
+    "total": 100,
+    "promoted_warm": 16,
+    "promoted_rate_pct": 16.0,
+    "rejected_cold": 84,
+    "no_data": 0
+  }
+}

@@ -15,7 +15,9 @@ def test_execution_health_gate_blocks_budget_increase_on_hot_promotion(monkeypat
     monkeypatch.setattr(sp, "TRADER_DB", str(tmp_path / "trader.db"))
     monkeypatch.setattr(sp, "GROWTH_MODE_ENABLED", True)
     monkeypatch.setattr(sp, "REALIZED_ESCALATION_GATE_ENABLED", False)
+    monkeypatch.setattr(sp, "REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION", False)
     monkeypatch.setattr(sp, "EXECUTION_HEALTH_ESCALATION_GATE", True)
+    monkeypatch.setattr(sp, "EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION", False)
     monkeypatch.setattr(sp, "WARM_WALKFORWARD_LEAKAGE_ENFORCE", False)
 
     validator = sp.StrategyValidator()
@@ -74,4 +76,94 @@ def test_execution_health_gate_blocks_budget_increase_on_hot_promotion(monkeypat
     budget = details.get("budget_update", {})
     assert budget.get("action") == "hold"
     assert str(budget.get("reason", "")).startswith("execution_health_gate_failed")
+    validator.db.close()
+
+
+def test_execution_health_required_gate_blocks_hot_promotion(monkeypatch, tmp_path):
+    monkeypatch.setattr(sp, "PIPELINE_DB", str(tmp_path / "pipeline.db"))
+    monkeypatch.setattr(sp, "TRADER_DB", str(tmp_path / "trader.db"))
+    monkeypatch.setattr(sp, "GROWTH_MODE_ENABLED", False)
+    monkeypatch.setattr(sp, "REALIZED_ESCALATION_GATE_ENABLED", False)
+    monkeypatch.setattr(sp, "REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION", False)
+    monkeypatch.setattr(sp, "EXECUTION_HEALTH_ESCALATION_GATE", True)
+    monkeypatch.setattr(sp, "EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION", True)
+    monkeypatch.setattr(sp, "WARM_WALKFORWARD_LEAKAGE_ENFORCE", False)
+
+    validator = sp.StrategyValidator()
+    strategy = sp.MomentumStrategy()
+    pair = "BTC-USD"
+    validator.register_strategy(strategy, pair)
+    validator.db.execute(
+        "UPDATE strategy_registry SET stage='WARM' WHERE name=? AND pair=?",
+        (strategy.name, pair),
+    )
+    validator.db.commit()
+    monkeypatch.setattr(
+        validator,
+        "_execution_health_gate_status",
+        lambda refresh=False: {
+            "enabled": True,
+            "green": False,
+            "reason": "dns_unhealthy",
+            "updated_at": "2026-02-13T00:00:00+00:00",
+        },
+    )
+
+    paper_metrics = {
+        "total_trades": 15,
+        "win_rate": 0.72,
+        "total_return_pct": 0.35,
+        "max_drawdown_pct": 1.2,
+        "runtime_seconds": 7200,
+        "sharpe_ratio": 1.05,
+        "losses": 0,
+    }
+    promoted, msg = validator.check_warm_promotion(strategy.name, pair, paper_metrics)
+    assert promoted is False
+    assert "execution_health_gate_failed:dns_unhealthy" in msg
+    validator.db.close()
+
+
+def test_realized_close_required_gate_blocks_hot_promotion(monkeypatch, tmp_path):
+    monkeypatch.setattr(sp, "PIPELINE_DB", str(tmp_path / "pipeline.db"))
+    monkeypatch.setattr(sp, "TRADER_DB", str(tmp_path / "trader.db"))
+    monkeypatch.setattr(sp, "GROWTH_MODE_ENABLED", False)
+    monkeypatch.setattr(sp, "REALIZED_ESCALATION_GATE_ENABLED", True)
+    monkeypatch.setattr(sp, "REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION", True)
+    monkeypatch.setattr(sp, "EXECUTION_HEALTH_ESCALATION_GATE", False)
+    monkeypatch.setattr(sp, "EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION", False)
+    monkeypatch.setattr(sp, "WARM_WALKFORWARD_LEAKAGE_ENFORCE", False)
+
+    validator = sp.StrategyValidator()
+    strategy = sp.MomentumStrategy()
+    pair = "BTC-USD"
+    validator.register_strategy(strategy, pair)
+    validator.db.execute(
+        "UPDATE strategy_registry SET stage='WARM' WHERE name=? AND pair=?",
+        (strategy.name, pair),
+    )
+    validator.db.commit()
+    monkeypatch.setattr(
+        validator,
+        "_pair_realized_close_evidence",
+        lambda _pair: {
+            "enabled": True,
+            "pair": _pair,
+            "passed": False,
+            "reason": "closed_trades 0 < 2",
+        },
+    )
+
+    paper_metrics = {
+        "total_trades": 15,
+        "win_rate": 0.72,
+        "total_return_pct": 0.35,
+        "max_drawdown_pct": 1.2,
+        "runtime_seconds": 7200,
+        "sharpe_ratio": 1.05,
+        "losses": 0,
+    }
+    promoted, msg = validator.check_warm_promotion(strategy.name, pair, paper_metrics)
+    assert promoted is False
+    assert "realized_close_gate_failed:closed_trades 0 < 2" in msg
     validator.db.close()

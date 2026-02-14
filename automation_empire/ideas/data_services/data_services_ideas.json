@@ -1,0 +1,1914 @@
+[
+  {
+    "id": "data_services_001",
+    "category": "data_services",
+    "title": "dentists leads in nationwide with employee count filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_002",
+    "category": "data_services",
+    "title": "real estate agents leads in nationwide with tech stack filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_003",
+    "category": "data_services",
+    "title": "insurance agents leads in nationwide with revenue size filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_004",
+    "category": "data_services",
+    "title": "dentists leads in nationwide with tech stack filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_005",
+    "category": "data_services",
+    "title": "dentists leads in nationwide with funding stage filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_006",
+    "category": "data_services",
+    "title": "plumbers leads in by ZIP code with tech stack filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_007",
+    "category": "data_services",
+    "title": "consultants leads in nationwide with funding stage filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_008",
+    "category": "data_services",
+    "title": "chiropractors leads in by ZIP code with tech stack filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_009",
+    "category": "data_services",
+    "title": "lawyers leads in nationwide with employee count filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_010",
+    "category": "data_services",
+    "title": "chiropractors leads in nationwide with tech stack filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_011",
+    "category": "data_services",
+    "title": "chiropractors leads in by city with revenue size filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_012",
+    "category": "data_services",
+    "title": "consultants leads in nationwide with tech stack filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_013",
+    "category": "data_services",
+    "title": "mortgage brokers leads in by state with funding stage filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_014",
+    "category": "data_services",
+    "title": "consultants leads in by ZIP code with funding stage filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_015",
+    "category": "data_services",
+    "title": "lawyers leads in by state with employee count filters",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_016",
+    "category": "data_services",
+    "title": "retail decision-maker contact database with updated weekly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "data_services_017",
+    "category": "data_services",
+    "title": "manufacturing decision-maker contact database with updated weekly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_018",
+    "category": "data_services",
+    "title": "e-commerce decision-maker contact database with verified monthly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_019",
+    "category": "data_services",
+    "title": "fintech decision-maker contact database with updated weekly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_020",
+    "category": "data_services",
+    "title": "e-commerce decision-maker contact database with updated weekly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_021",
+    "category": "data_services",
+    "title": "healthcare decision-maker contact database with updated weekly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_022",
+    "category": "data_services",
+    "title": "manufacturing decision-maker contact database with real-time",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "real-time"
+    ]
+  },
+  {
+    "id": "data_services_023",
+    "category": "data_services",
+    "title": "healthcare decision-maker contact database with real-time",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "real-time"
+    ]
+  },
+  {
+    "id": "data_services_024",
+    "category": "data_services",
+    "title": "retail decision-maker contact database with verified monthly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "data_services_025",
+    "category": "data_services",
+    "title": "e-commerce decision-maker contact database with real-time",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "real-time"
+    ]
+  },
+  {
+    "id": "data_services_026",
+    "category": "data_services",
+    "title": "SaaS decision-maker contact database with updated weekly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_027",
+    "category": "data_services",
+    "title": "healthcare decision-maker contact database with verified monthly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_028",
+    "category": "data_services",
+    "title": "manufacturing decision-maker contact database with verified monthly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_029",
+    "category": "data_services",
+    "title": "fintech decision-maker contact database with verified monthly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_030",
+    "category": "data_services",
+    "title": "SaaS decision-maker contact database with verified monthly",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_031",
+    "category": "data_services",
+    "title": "webinar attendee scraping and enrichment",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_032",
+    "category": "data_services",
+    "title": "trade show attendee scraping and enrichment",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_033",
+    "category": "data_services",
+    "title": "networking event attendee scraping and enrichment",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_034",
+    "category": "data_services",
+    "title": "conference attendee scraping and enrichment",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_035",
+    "category": "data_services",
+    "title": "LinkedIn user profile scraping for recruitment",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_036",
+    "category": "data_services",
+    "title": "LinkedIn user profile scraping for influencer marketing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_037",
+    "category": "data_services",
+    "title": "Twitter user profile scraping for competitor analysis",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_038",
+    "category": "data_services",
+    "title": "Product Hunt user profile scraping for recruitment",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_039",
+    "category": "data_services",
+    "title": "GitHub user profile scraping for recruitment",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_040",
+    "category": "data_services",
+    "title": "Twitter user profile scraping for influencer marketing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_041",
+    "category": "data_services",
+    "title": "AngelList user profile scraping for influencer marketing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_042",
+    "category": "data_services",
+    "title": "Twitter user profile scraping for sales prospecting",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_043",
+    "category": "data_services",
+    "title": "Reddit user profile scraping for recruitment",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_044",
+    "category": "data_services",
+    "title": "LinkedIn user profile scraping for sales prospecting",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_045",
+    "category": "data_services",
+    "title": "GitHub user profile scraping for competitor analysis",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_046",
+    "category": "data_services",
+    "title": "Product Hunt user profile scraping for influencer marketing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_047",
+    "category": "data_services",
+    "title": "AngelList user profile scraping for recruitment",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_048",
+    "category": "data_services",
+    "title": "Reddit user profile scraping for influencer marketing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_049",
+    "category": "data_services",
+    "title": "Reddit user profile scraping for sales prospecting",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_050",
+    "category": "data_services",
+    "title": "franchise pricing/product tracking dashboard",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_051",
+    "category": "data_services",
+    "title": "e-commerce store pricing/product tracking dashboard",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_052",
+    "category": "data_services",
+    "title": "local business pricing/product tracking dashboard",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_053",
+    "category": "data_services",
+    "title": "SaaS competitor pricing/product tracking dashboard",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_054",
+    "category": "data_services",
+    "title": "healthcare news aggregator with sentiment analysis",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_055",
+    "category": "data_services",
+    "title": "e-commerce news aggregator with sentiment analysis",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_056",
+    "category": "data_services",
+    "title": "manufacturing news aggregator with sentiment analysis",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_057",
+    "category": "data_services",
+    "title": "retail news aggregator with sentiment analysis",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "data_services_058",
+    "category": "data_services",
+    "title": "SaaS news aggregator with sentiment analysis",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_059",
+    "category": "data_services",
+    "title": "fintech news aggregator with sentiment analysis",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_060",
+    "category": "data_services",
+    "title": "real estate trend forecasting based on job postings",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_061",
+    "category": "data_services",
+    "title": "real estate trend forecasting based on search trends",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_062",
+    "category": "data_services",
+    "title": "tech trend forecasting based on search trends",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_063",
+    "category": "data_services",
+    "title": "fashion trend forecasting based on social media volume",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_064",
+    "category": "data_services",
+    "title": "food trend forecasting based on social media volume",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_065",
+    "category": "data_services",
+    "title": "food trend forecasting based on patent filings",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_066",
+    "category": "data_services",
+    "title": "fashion trend forecasting based on patent filings",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_067",
+    "category": "data_services",
+    "title": "automotive trend forecasting based on search trends",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_068",
+    "category": "data_services",
+    "title": "healthcare trend forecasting based on patent filings",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_069",
+    "category": "data_services",
+    "title": "fashion trend forecasting based on search trends",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_070",
+    "category": "data_services",
+    "title": "fashion trend forecasting based on job postings",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_071",
+    "category": "data_services",
+    "title": "real estate trend forecasting based on social media volume",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_072",
+    "category": "data_services",
+    "title": "automotive trend forecasting based on job postings",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_073",
+    "category": "data_services",
+    "title": "automotive trend forecasting based on patent filings",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_074",
+    "category": "data_services",
+    "title": "tech trend forecasting based on job postings",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_075",
+    "category": "data_services",
+    "title": "Alternative data: web scraping analytics for hedge funds",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_076",
+    "category": "data_services",
+    "title": "Alternative data: IoT sensors analytics for hedge funds",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_077",
+    "category": "data_services",
+    "title": "Alternative data: foot traffic analytics for researchers",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_078",
+    "category": "data_services",
+    "title": "Alternative data: IoT sensors analytics for retail chains",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "data_services_079",
+    "category": "data_services",
+    "title": "Alternative data: credit card transactions analytics for hedge funds",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_080",
+    "category": "data_services",
+    "title": "Alternative data: satellite imagery analytics for PE firms",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_081",
+    "category": "data_services",
+    "title": "Alternative data: IoT sensors analytics for researchers",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_082",
+    "category": "data_services",
+    "title": "Alternative data: satellite imagery analytics for researchers",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_083",
+    "category": "data_services",
+    "title": "Alternative data: satellite imagery analytics for hedge funds",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_084",
+    "category": "data_services",
+    "title": "Alternative data: credit card transactions analytics for researchers",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_085",
+    "category": "data_services",
+    "title": "Alternative data: credit card transactions analytics for retail chains",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "data_services_086",
+    "category": "data_services",
+    "title": "Alternative data: web scraping analytics for researchers",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_087",
+    "category": "data_services",
+    "title": "Alternative data: web scraping analytics for PE firms",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "scraping"
+    ]
+  },
+  {
+    "id": "data_services_088",
+    "category": "data_services",
+    "title": "Alternative data: credit card transactions analytics for PE firms",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_089",
+    "category": "data_services",
+    "title": "Alternative data: foot traffic analytics for hedge funds",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_090",
+    "category": "data_services",
+    "title": "cricket player statistics API with play-by-play",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_091",
+    "category": "data_services",
+    "title": "tennis player statistics API with season-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_092",
+    "category": "data_services",
+    "title": "NFL player statistics API with game-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_093",
+    "category": "data_services",
+    "title": "NBA player statistics API with season-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_094",
+    "category": "data_services",
+    "title": "golf player statistics API with game-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_095",
+    "category": "data_services",
+    "title": "golf player statistics API with play-by-play",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_096",
+    "category": "data_services",
+    "title": "tennis player statistics API with game-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_097",
+    "category": "data_services",
+    "title": "soccer player statistics API with game-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_098",
+    "category": "data_services",
+    "title": "NFL player statistics API with season-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_099",
+    "category": "data_services",
+    "title": "NFL player statistics API with play-by-play",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_100",
+    "category": "data_services",
+    "title": "MLB player statistics API with season-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml",
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_101",
+    "category": "data_services",
+    "title": "NBA player statistics API with game-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_102",
+    "category": "data_services",
+    "title": "golf player statistics API with season-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_103",
+    "category": "data_services",
+    "title": "MLB player statistics API with play-by-play",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml",
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_104",
+    "category": "data_services",
+    "title": "MLB player statistics API with game-level",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml",
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_105",
+    "category": "data_services",
+    "title": "sports betting odds movement tracker with arbitrage detection",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "data_services_106",
+    "category": "data_services",
+    "title": "poker odds movement tracker with value bet identification",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_107",
+    "category": "data_services",
+    "title": "daily fantasy odds movement tracker with arbitrage detection",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml",
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "data_services_108",
+    "category": "data_services",
+    "title": "poker odds movement tracker with arbitrage detection",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "data_services_109",
+    "category": "data_services",
+    "title": "casino odds movement tracker with value bet identification",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_110",
+    "category": "data_services",
+    "title": "sports betting odds movement tracker with line movement alerts",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_111",
+    "category": "data_services",
+    "title": "sports betting odds movement tracker with value bet identification",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_112",
+    "category": "data_services",
+    "title": "casino odds movement tracker with arbitrage detection",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "arbitrage"
+    ]
+  },
+  {
+    "id": "data_services_113",
+    "category": "data_services",
+    "title": "daily fantasy odds movement tracker with value bet identification",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "data_services_114",
+    "category": "data_services",
+    "title": "casino odds movement tracker with line movement alerts",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_115",
+    "category": "data_services",
+    "title": "daily fantasy odds movement tracker with line movement alerts",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "data_services_116",
+    "category": "data_services",
+    "title": "poker odds movement tracker with line movement alerts",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_117",
+    "category": "data_services",
+    "title": "product review aggregation and sentiment scoring",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_118",
+    "category": "data_services",
+    "title": "TV show review aggregation and sentiment scoring",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_119",
+    "category": "data_services",
+    "title": "restaurant review aggregation and sentiment scoring",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_120",
+    "category": "data_services",
+    "title": "hotel review aggregation and sentiment scoring",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_121",
+    "category": "data_services",
+    "title": "movie review aggregation and sentiment scoring",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_122",
+    "category": "data_services",
+    "title": "derivatives fundamental data API",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_123",
+    "category": "data_services",
+    "title": "crypto fundamental data API",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api",
+      "blockchain"
+    ]
+  },
+  {
+    "id": "data_services_124",
+    "category": "data_services",
+    "title": "bonds fundamental data API",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_125",
+    "category": "data_services",
+    "title": "forex fundamental data API",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_126",
+    "category": "data_services",
+    "title": "commodities fundamental data API",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_127",
+    "category": "data_services",
+    "title": "stocks fundamental data API",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "data_services_128",
+    "category": "data_services",
+    "title": "P/E ratio screener for growth stocks",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_129",
+    "category": "data_services",
+    "title": "growth screener for dividend aristocrats",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_130",
+    "category": "data_services",
+    "title": "value screener for dividend aristocrats",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_131",
+    "category": "data_services",
+    "title": "momentum screener for value investing",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_132",
+    "category": "data_services",
+    "title": "value screener for value investing",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_133",
+    "category": "data_services",
+    "title": "value screener for growth stocks",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_134",
+    "category": "data_services",
+    "title": "momentum screener for dividend aristocrats",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_135",
+    "category": "data_services",
+    "title": "dividend yield screener for dividend aristocrats",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_136",
+    "category": "data_services",
+    "title": "momentum screener for growth stocks",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_137",
+    "category": "data_services",
+    "title": "P/E ratio screener for value investing",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_138",
+    "category": "data_services",
+    "title": "dividend yield screener for growth stocks",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_139",
+    "category": "data_services",
+    "title": "growth screener for value investing",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_140",
+    "category": "data_services",
+    "title": "growth screener for growth stocks",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_141",
+    "category": "data_services",
+    "title": "dividend yield screener for value investing",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_142",
+    "category": "data_services",
+    "title": "P/E ratio screener for dividend aristocrats",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_143",
+    "category": "data_services",
+    "title": "Insider trading tracker for corporate bonds",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_144",
+    "category": "data_services",
+    "title": "Insider trading tracker for options",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "data_services_145",
+    "category": "data_services",
+    "title": "Insider trading tracker for stocks",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$500-$20,000",
+    "tags": [
+      "general"
+    ]
+  }
+]

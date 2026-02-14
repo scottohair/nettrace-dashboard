@@ -1,0 +1,12 @@
+{
+  "updated_at": "2026-02-14T01:19:28.599985+00:00",
+  "running": false,
+  "pid": 45906,
+  "child_pid": null,
+  "child_running": false,
+  "restarts_total": 0,
+  "restart_window_count": 0,
+  "max_restarts_per_hour": 30,
+  "last_exit_code": 0,
+  "reason": "supervisor_stopped"
+}

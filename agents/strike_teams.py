@@ -38,6 +38,17 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 logger = logging.getLogger("strike_teams")
 
+
+def _parse_csv_values(value):
+    """Parse comma/iterable values into normalized, non-empty tokens."""
+    if value is None:
+        return tuple()
+    if isinstance(value, (list, tuple, set)):
+        items = [str(v or "").strip() for v in value]
+    else:
+        items = [item.strip() for item in str(value).split(",")]
+    return tuple(item for item in items if item)
+
 MAKER_FEE_RATE = float(os.environ.get("STRIKE_MAKER_FEE_RATE", "0.004") or 0.004)
 TAKER_FEE_RATE = float(os.environ.get("STRIKE_TAKER_FEE_RATE", "0.006") or 0.006)
 EXIT_BUFFER_RATE = float(os.environ.get("STRIKE_EXIT_BUFFER_RATE", "0.0025") or 0.0025)
@@ -51,6 +62,14 @@ BUY_THROTTLE_ON_SELL_GAP = os.environ.get("STRIKE_BUY_THROTTLE_ON_SELL_GAP", "1"
 EXECUTION_HEALTH_GATE = os.environ.get("STRIKE_EXECUTION_HEALTH_GATE", "1").lower() not in ("0", "false", "no")
 EXECUTION_HEALTH_BUY_ONLY = os.environ.get("STRIKE_EXECUTION_HEALTH_BUY_ONLY", "1").lower() not in ("0", "false", "no")
 EXECUTION_HEALTH_CACHE_SECONDS = int(os.environ.get("STRIKE_EXECUTION_HEALTH_CACHE_SECONDS", "45") or 45)
+EXECUTION_HEALTH_DEGRADED_MODE = os.environ.get("STRIKE_EXECUTION_HEALTH_DEGRADED_MODE", "1").lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_DEGRADED_REASONS = _parse_csv_values(
+    os.environ.get(
+        "STRIKE_EXECUTION_HEALTH_DEGRADED_REASONS",
+        "telemetry_samples_low,telemetry_success_rate_low,telemetry_failure_rate_high,telemetry_p90_high",
+    )
+)
+EXECUTION_HEALTH_DEGRADED_SIZE_FACTOR = float(os.environ.get("STRIKE_EXECUTION_HEALTH_DEGRADED_SIZE_FACTOR", "0.75"))
 CLOSE_FIRST_MODE_ENABLED = os.environ.get("STRIKE_CLOSE_FIRST_MODE_ENABLED", "1").lower() not in ("0", "false", "no")
 CLOSE_FIRST_POSITION_LOOKBACK_HOURS = int(os.environ.get("STRIKE_CLOSE_FIRST_LOOKBACK_HOURS", "96") or 96)
 CLOSE_FIRST_MIN_OPEN_NOTIONAL_USD = float(os.environ.get("STRIKE_CLOSE_FIRST_MIN_OPEN_NOTIONAL_USD", "2.0") or 2.0)
@@ -582,6 +601,19 @@ def _execution_health_status(force_refresh=False):
     return payload
 
 
+def _is_execution_health_degraded_allowed(payload):
+    reasons = payload.get("reasons", [])
+    if not isinstance(reasons, (list, tuple)):
+        reasons = [payload.get("reason", "unknown")]
+    reasons = [str(r or "").strip().lower() for r in reasons if str(r or "").strip()]
+    if not reasons:
+        return False
+    allowed = tuple(str(v).strip().lower() for v in EXECUTION_HEALTH_DEGRADED_REASONS)
+    if not allowed:
+        return False
+    return all(any(r == allow or r.startswith(f"{allow}:") for allow in allowed) for r in reasons)
+
+
 def _open_trader_db():
     conn = sqlite3.connect(str(TRADER_DB_PATH), timeout=max(1.0, float(STRIKE_DB_BUSY_TIMEOUT_MS) / 1000.0))
     conn.row_factory = sqlite3.Row
@@ -899,20 +931,52 @@ class StrikeTeam:
 
         if EXECUTION_HEALTH_GATE:
             require_gate = True
+            allow_degraded_health = False
             if EXECUTION_HEALTH_BUY_ONLY and direction != "BUY":
                 require_gate = False
             if require_gate:
                 exec_health = _execution_health_status()
+                exec_health_reason = str(exec_health.get("reason", "unknown"))
                 if not bool(exec_health.get("green", False)):
-                    self.exec_health_blocked += 1
+                    reasons = exec_health.get("reasons", [])
+                    if not isinstance(reasons, (list, tuple)):
+                        reasons = []
+                    hard_blocks = (
+                        bool(exec_health.get("egress_blocked", False))
+                        or any(str(r).startswith("dns_") for r in reasons)
+                        or any(str(r).startswith("reconcile_") for r in reasons)
+                        or any(str(r).startswith("candle_feed") for r in reasons)
+                        or any(str(r) == "api_probe_failed" for r in reasons)
+                    )
+                    if hard_blocks:
+                        self.exec_health_blocked += 1
+                        logger.info(
+                            "STRIKE %s: blocked %s %s due to hard execution health condition (%s)",
+                            self.name,
+                            direction,
+                            pair,
+                            exec_health_reason,
+                        )
+                        return None
+
+                    allow_degraded = bool(EXECUTION_HEALTH_DEGRADED_MODE) and _is_execution_health_degraded_allowed(exec_health)
+                    if not allow_degraded:
+                        self.exec_health_blocked += 1
+                        logger.info(
+                            "STRIKE %s: blocked %s %s due to execution health gate (%s)",
+                            self.name,
+                            direction,
+                            pair,
+                            exec_health_reason,
+                        )
+                        return None
+                    allow_degraded_health = True
                     logger.info(
-                        "STRIKE %s: blocked %s %s due to execution health gate (%s)",
+                        "STRIKE %s: running in execution_health_degraded mode for %s %s",
                         self.name,
                         direction,
                         pair,
-                        str(exec_health.get("reason", "unknown")),
                     )
-                    return None
         if direction == "BUY" and self._buy_throttle_active():
             self.buy_throttled += 1
             logger.info(
@@ -984,6 +1048,11 @@ class StrikeTeam:
                 logger.debug("%s: Risk blocked %s %s: %s", self.name, direction, pair, reason)
                 return None
             size_usd = adj_size
+        if allow_degraded_health:
+            size_usd *= float(EXECUTION_HEALTH_DEGRADED_SIZE_FACTOR)
+            size_usd = round(float(size_usd), 2)
+            if size_usd < 1.0:
+                return None
 
         # Execute via exchange connector
         try:

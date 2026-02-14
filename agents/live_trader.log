@@ -1,0 +1,78 @@
+2026-02-12 08:02:32,539 [live_trader] INFO Live Trader starting | Portfolio: $13.68 | 8 assets
+2026-02-12 08:06:33,430 [live_trader] INFO EXECUTING: SELL SOL-USD | $4.77 @ $80.95 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:06:33,432 [exchange] INFO Placing SELL order: SOL-USD 0.05897597 @ market
+2026-02-12 08:06:33,752 [live_trader] WARNING ORDER FAILED: SOL-USD | Insufficient balance in source account
+2026-02-12 08:08:34,442 [live_trader] INFO EXECUTING: SELL SOL-USD | $4.77 @ $80.95 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:08:34,442 [exchange] INFO Placing SELL order: SOL-USD 0.05897962 @ market
+2026-02-12 08:08:34,574 [live_trader] WARNING ORDER FAILED: SOL-USD | Insufficient balance in source account
+2026-02-12 08:10:35,169 [live_trader] INFO EXECUTING: SELL SOL-USD | $4.77 @ $81.11 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:10:35,169 [exchange] INFO Placing SELL order: SOL-USD 0.05886327 @ market
+2026-02-12 08:10:35,316 [live_trader] WARNING ORDER FAILED: SOL-USD | Insufficient balance in source account
+2026-02-12 08:12:36,106 [live_trader] INFO EXECUTING: SELL SOL-USD | $4.77 @ $81.12 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:12:36,106 [exchange] INFO Placing SELL order: SOL-USD 0.05885602 @ market
+2026-02-12 08:12:36,289 [live_trader] WARNING ORDER FAILED: SOL-USD | Insufficient balance in source account
+2026-02-12 08:14:37,126 [live_trader] INFO EXECUTING: SELL SOL-USD | $4.77 @ $81.17 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:14:37,126 [exchange] INFO Placing SELL order: SOL-USD 0.05882338 @ market
+2026-02-12 08:14:37,281 [live_trader] WARNING ORDER FAILED: SOL-USD | Insufficient balance in source account
+2026-02-12 08:16:37,962 [live_trader] INFO EXECUTING: SELL SOL-USD | $4.77 @ $81.03 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:16:37,962 [exchange] INFO Placing SELL order: SOL-USD 0.05891775 @ market
+2026-02-12 08:16:38,224 [live_trader] WARNING ORDER FAILED: SOL-USD | Insufficient balance in source account
+2026-02-12 08:18:38,841 [live_trader] INFO EXECUTING: SELL SOL-USD | $4.77 @ $81.14 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:18:38,841 [exchange] INFO Placing SELL order: SOL-USD 0.05884151 @ market
+2026-02-12 08:18:38,978 [live_trader] WARNING ORDER FAILED: SOL-USD | Insufficient balance in source account
+2026-02-12 08:20:39,660 [live_trader] INFO EXECUTING: SELL SOL-USD | $4.77 @ $81.08 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:20:39,660 [exchange] INFO Placing SELL order: SOL-USD 0.05888142 @ market
+2026-02-12 08:20:39,803 [live_trader] WARNING ORDER FAILED: SOL-USD | Insufficient balance in source account
+05888142 @ market
+2026-02-12 08:20:39,803 [live_trader] WARNING ORDER FAILED: SOL-USD | Insufficient balance in source account
+2026-02-12 08:22:02,753 [live_trader] INFO Live Trader starting | Portfolio: $13.51 | 8 assets
+2026-02-12 08:22:02,753 [live_trader] INFO Live Trader starting | Portfolio: $13.51 | 8 assets
+2026-02-12 08:22:03,044 [live_trader] INFO EXECUTING: SELL BTC-USD | $4.77 @ $67926.87 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:22:03,044 [live_trader] INFO EXECUTING: SELL BTC-USD | $4.77 @ $67926.87 | signal=route_change_crypto_arb conf=0.60
+2026-02-12 08:22:03,159 [exchange] INFO Placing SELL order: BTC-USD 7.029e-05 @ market
+2026-02-12 08:22:03,159 [exchange] INFO Placing SELL order: BTC-USD 7.029e-05 @ market
+2026-02-12 08:22:03,326 [live_trader] INFO ORDER FILLED: BTC-USD | order_id=f91e2ce0-f2cb-4945-bdf0-589a8601c33b
+2026-02-12 08:22:03,326 [live_trader] INFO ORDER FILLED: BTC-USD | order_id=f91e2ce0-f2cb-4945-bdf0-589a8601c33b
+2026-02-12 08:25:31,509 [live_trader] INFO Live Trader starting | Portfolio: $13.45 | 8 assets
+2026-02-12 08:25:31,509 [live_trader] INFO Live Trader starting | Portfolio: $13.45 | 8 assets
+2026-02-12 09:04:26,355 [exchange] WARNING Coinbase CDP credentials not set
+2026-02-12 09:04:58,140 [live_trader] INFO Live Trader starting | Portfolio: $13.47 | 8 assets
+2026-02-12 09:25:41,948 [live_trader] INFO Live Trader starting | Portfolio: $13.47 | 8 assets
+2026-02-12 09:27:41,534 [live_trader] INFO Live Trader starting | Portfolio: $13.47 | 8 assets
+2026-02-12 09:32:11,311 [live_trader] INFO Live Trader starting | Portfolio: $13.50 | 8 assets
+2026-02-12 09:32:14,191 [live_trader] INFO Live Trader starting | Portfolio: $13.50 | 8 assets
+2026-02-12 09:33:01,991 [live_trader] INFO Live Trader starting | Portfolio: $13.50 | 8 assets
+2026-02-12 09:33:14,885 [live_trader] INFO Live Trader starting | Portfolio: $13.50 | 8 assets
+2026-02-12 09:38:30,466 [live_trader] INFO Live Trader starting | Portfolio: $13.46 | 8 assets
+2026-02-12 09:39:12,356 [live_trader] INFO Live Trader starting | Portfolio: $13.47 | 8 assets
+2026-02-12 12:29:49,851 [exchange] ERROR Coinbase request failed: The read operation timed out
+2026-02-12 12:29:49,853 [live_trader] ERROR Failed to get accounts: {'error': 'The read operation timed out'}
+2026-02-12 12:56:04,093 [live_trader] INFO Live Trader starting | Portfolio: $13.09 | 8 assets
+2026-02-12 12:56:08,910 [live_trader] INFO Live Trader starting | Portfolio: $13.09 | 8 assets
+2026-02-12 13:20:40,437 [live_trader] INFO Live Trader starting | Portfolio: $13.03 | 8 assets
+2026-02-12 13:29:47,746 [live_trader] INFO Live Trader starting | Portfolio: $12.78 | 10 assets
+2026-02-12 14:02:02,175 [live_trader] INFO Live Trader starting | Portfolio: $12.27 | 10 assets
+2026-02-12 14:10:07,654 [live_trader] INFO Live Trader starting | Portfolio: $12.25 | 10 assets
+2026-02-12 14:18:12,001 [live_trader] INFO Live Trader starting | Portfolio: $12.04 | 10 assets
+2026-02-12 14:31:49,012 [live_trader] INFO Live Trader starting | Portfolio: $37.01 | 10 assets
+2026-02-12 14:34:24,562 [live_trader] INFO Live Trader starting | Portfolio: $37.02 | 10 assets
+2026-02-12 14:40:42,506 [live_trader] INFO Live Trader starting | Portfolio: $52.56 | 10 assets
+2026-02-12 14:44:18,506 [live_trader] INFO Live Trader starting | Portfolio: $152.08 | 10 assets
+2026-02-12 14:44:47,361 [live_trader] INFO Live Trader starting | Portfolio: $151.86 | 10 assets
+2026-02-12 14:46:29,988 [live_trader] INFO Live Trader starting | Portfolio: $151.43 | 10 assets
+2026-02-12 14:57:29,561 [live_trader] INFO Live Trader starting | Portfolio: $273.28 | 11 assets
+2026-02-12 14:58:04,310 [live_trader] INFO Live Trader starting | Portfolio: $273.09 | 11 assets
+2026-02-12 14:58:15,698 [live_trader] INFO Live Trader starting | Portfolio: $273.02 | 11 assets
+2026-02-12 14:58:37,727 [live_trader] INFO Live Trader starting | Portfolio: $272.64 | 11 assets
+2026-02-12 14:58:40,711 [live_trader] INFO Live Trader starting | Portfolio: $272.64 | 11 assets
+2026-02-12 14:58:50,083 [live_trader] INFO Live Trader starting | Portfolio: $272.45 | 11 assets
+2026-02-12 14:59:19,651 [live_trader] INFO Live Trader starting | Portfolio: $271.47 | 11 assets
+2026-02-12 23:42:42,234 [exchange] WARNING Coinbase request failed (attempt 1/3) — retrying in 0.5s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 23:42:42,743 [exchange] WARNING Coinbase request failed (attempt 2/3) — retrying in 1.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 23:42:43,753 [exchange] WARNING Coinbase request failed (attempt 3/3) — retrying in 2.0s: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-12 23:42:45,757 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-12 23:42:45,758 [live_trader] ERROR Failed to get accounts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>'}
+2026-02-13 19:46:29,197 [live_trader] INFO EXECUTING: BUY BTC-USD | $100.00 @ $30000.00 | signal=test conf=0.90
+2026-02-13 19:46:29,197 [live_trader] INFO ORDER FILLED: BTC-USD | order_id=order-xyz | route=market_ioc_fallback
+2026-02-13 19:56:19,478 [live_trader] INFO EXECUTING: BUY BTC-USD | $100.00 @ $30000.00 | signal=test conf=0.90
+2026-02-13 19:56:19,479 [live_trader] INFO ORDER FILLED: BTC-USD | order_id=order-xyz | route=market_ioc_fallback

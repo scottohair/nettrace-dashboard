@@ -82,6 +82,35 @@ class TestRetryLogic(unittest.TestCase):
             self.assertEqual(call_count[0], 2)
 
     @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
+    @patch("time.sleep")
+    def test_path_specific_retry_budget_is_respected(self, mock_sleep, mock_jwt):
+        """Critical endpoints can tighten retry budget via config map."""
+        import exchange_connector as ec
+        import urllib.error
+        from exchange_connector import CoinbaseTrader
+        trader = CoinbaseTrader(key_id="test", key_secret="test")
+
+        error_resp = MagicMock()
+        error_resp.read.return_value = b"Server Error"
+
+        with patch.object(
+            ec,
+            "COINBASE_RETRY_BUDGET_BY_PATH",
+            (("GET", "/api/v3/brokerage/orders", 1),),
+        ), patch.object(
+            ec,
+            "COINBASE_RETRY_DEFAULT_ATTEMPTS",
+            3,
+        ), patch(
+            "urllib.request.urlopen",
+            side_effect=urllib.error.HTTPError("url", 500, "Server Error", {}, error_resp),
+        ):
+            result = trader._request_with_retry("GET", "/api/v3/brokerage/orders/historical")
+
+        self.assertEqual(result.get("status"), 500)
+        self.assertEqual(mock_sleep.call_count, 0)
+
+    @patch("exchange_connector.CoinbaseTrader._build_jwt", return_value="fake_jwt")
     @patch("exchange_connector.CoinbaseTrader._resolve_dns_candidates", return_value=["203.0.113.10"])
     def test_dns_fallback_after_resolution_error(self, mock_resolve, mock_jwt):
         """If resolver fails, DNS override fallback path should be attempted."""

@@ -1,0 +1,5 @@
+2026-02-13 13:22:20,310 [ORCH] INFO Starting capital from DB: $322.66
+2026-02-13 13:22:20,311 [ORCH] INFO Orchestrator V2 starting (PID 61084)
+2026-02-13 13:22:20,311 [ORCH] INFO PID 61084 written to /Users/scott/src/quant/agents/orchestrator.pid
+2026-02-13 13:22:20,312 [ORCH] INFO Starting all agents...
+2026-02-13 13:22:20,337 [ORCH] INFO Started agent 'sniper' (PID 61108): High-confidence stacked-signal sniper (90%+ conf)

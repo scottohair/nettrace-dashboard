@@ -625,3 +625,168 @@ def meta_engine_status():
     """Get meta-engine status: agents, ideas, predictions, evolution log."""
     status = _read_meta_engine_status()
     return jsonify(status)
+
+
+# Phase 1 Quick-Win Agents (Regulatory, Sentiment, Liquidation, Narrative, Futures)
+
+
+@api_v1.route("/regulatory/recent")
+@verify_api_key
+@require_tier("pro", "enterprise", "enterprise_pro")
+def regulatory_recent():
+    """Recent regulatory announcements with impact scores."""
+    try:
+        db_path = Path(__file__).parent / "agents" / "regulatory_scanner.db"
+        if not db_path.exists():
+            return jsonify({"announcements": [], "error": "Scanner not initialized"}), 200
+
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.execute(
+            "SELECT * FROM announcements ORDER BY parsed_at DESC LIMIT 20"
+        )
+        announcements = []
+        for row in cursor.fetchall():
+            announcements.append({
+                "id": row["id"],
+                "source": row["source"],
+                "title": row["title"],
+                "url": row["url"],
+                "impact_score": row["impact_score"],
+                "keywords": json.loads(row["keywords_json"] or "[]"),
+                "affected_tokens": json.loads(row["affected_tokens_json"] or "[]"),
+                "created_at": row["created_at"],
+            })
+        conn.close()
+        return jsonify({"announcements": announcements}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/sentiment/<pair>")
+@verify_api_key
+def sentiment_for_pair(pair):
+    """Current sentiment score for trading pair."""
+    try:
+        db_path = Path(__file__).parent / "agents" / "sentiment_leech.db"
+        if not db_path.exists():
+            return jsonify({"pair": pair, "sentiment": None, "error": "Sentiment data unavailable"}), 200
+
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.execute(
+            "SELECT * FROM sentiment_snapshots WHERE pair = ? ORDER BY snapshot_time DESC LIMIT 1",
+            (pair,)
+        )
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            return jsonify({
+                "pair": pair,
+                "sentiment_score": row["sentiment_score"],
+                "fear_greed_index": row["fear_greed_index"],
+                "snapshot_time": row["snapshot_time"],
+            }), 200
+        else:
+            return jsonify({"pair": pair, "sentiment": None}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/liquidations/predictions")
+@verify_api_key
+@require_tier("pro", "enterprise", "enterprise_pro")
+def liquidation_predictions():
+    """Predicted liquidation cascade levels."""
+    try:
+        db_path = Path(__file__).parent / "agents" / "liquidation_hunter.db"
+        if not db_path.exists():
+            return jsonify({"predictions": [], "error": "Scanner not initialized"}), 200
+
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.execute(
+            "SELECT * FROM cascade_predictions WHERE status IN ('pending', 'active') ORDER BY created_at DESC LIMIT 20"
+        )
+        predictions = []
+        for row in cursor.fetchall():
+            predictions.append({
+                "id": row["id"],
+                "pair": row["pair"],
+                "funding_rate": row["funding_rate"],
+                "predicted_cascade_price": row["predicted_cascade_price"],
+                "limit_order_price": row["limit_order_price"],
+                "status": row["status"],
+                "created_at": row["created_at"],
+            })
+        conn.close()
+        return jsonify({"predictions": predictions}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/narratives")
+@verify_api_key
+def narrative_trends():
+    """Current narrative lifecycle stages and top tokens."""
+    try:
+        db_path = Path(__file__).parent / "agents" / "narrative_tracker.db"
+        if not db_path.exists():
+            return jsonify({"narratives": [], "error": "Tracker not initialized"}), 200
+
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.execute(
+            "SELECT * FROM narratives ORDER BY momentum_7d DESC"
+        )
+        narratives = []
+        for row in cursor.fetchall():
+            narratives.append({
+                "id": row["id"],
+                "name": row["name"],
+                "category": row["category"],
+                "lifecycle_stage": row["lifecycle_stage"],
+                "momentum_7d": row["momentum_7d"],
+                "top_tokens": json.loads(row["top_tokens_json"] or "[]"),
+                "last_update": row["last_update"],
+            })
+        conn.close()
+        return jsonify({"narratives": narratives}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/futures/arbitrage")
+@verify_api_key
+@require_tier("enterprise", "enterprise_pro")
+def futures_arbitrage():
+    """Spot-futures mispricing opportunities."""
+    try:
+        db_path = Path(__file__).parent / "agents" / "futures_mispricing.db"
+        if not db_path.exists():
+            return jsonify({"opportunities": [], "error": "Scanner not initialized"}), 200
+
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.execute(
+            "SELECT * FROM arbitrage_opportunities WHERE status IN ('pending', 'active') ORDER BY created_at DESC LIMIT 20"
+        )
+        opportunities = []
+        for row in cursor.fetchall():
+            opportunities.append({
+                "id": row["id"],
+                "pair": row["pair"],
+                "futures_symbol": row["futures_symbol"],
+                "spot_price": row["spot_price"],
+                "futures_price": row["futures_price"],
+                "fair_value": row["fair_value"],
+                "mispricing_pct": row["mispricing_pct"],
+                "arb_type": row["arb_type"],
+                "status": row["status"],
+                "created_at": row["created_at"],
+            })
+        conn.close()
+        return jsonify({"opportunities": opportunities}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

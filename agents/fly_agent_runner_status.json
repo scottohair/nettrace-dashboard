@@ -1,0 +1,80 @@
+{
+  "region": "ewr",
+  "is_primary": true,
+  "running": true,
+  "uptime_seconds": 0,
+  "agents": {},
+  "control": {
+    "status_interval_seconds": 5,
+    "trade_fix_interval_seconds": 15,
+    "portfolio_refresh_interval_seconds": 3600,
+    "trade_fix_enabled": false,
+    "autoproceed_enabled": false,
+    "autoproceed_interval_seconds": 120,
+    "autoproceed_timeout_seconds": 180,
+    "autoproceed_with_claude_updates": true,
+    "auto_accept_edits_always": false,
+    "venue_universe_enabled": false,
+    "venue_onboarding_enabled": false,
+    "process_turbo_mode": false,
+    "venue_onboarding_parallelism": 8,
+    "control_thread_alive": true,
+    "last_trade_fix_age_seconds": null,
+    "last_venue_universe_age_seconds": null,
+    "last_venue_onboarding_age_seconds": null,
+    "last_status_age_seconds": null,
+    "last_autoproceed_age_seconds": null
+  },
+  "trade_fix": {
+    "ok": false,
+    "reason": "not_started",
+    "updated_at": "",
+    "reconcile": {},
+    "close_reconciliation": {},
+    "trade_metrics": {}
+  },
+  "autoproceed": {
+    "ok": false,
+    "reason": "not_started",
+    "updated_at": "",
+    "running": false,
+    "returncode": null,
+    "decision": "UNKNOWN",
+    "go_live": false,
+    "realized_daily_pnl_usd": 0.0,
+    "portfolio_total_usd": 0.0,
+    "target_achievement_pct_to_next": 0.0,
+    "stdout_tail": "",
+    "stderr_tail": ""
+  },
+  "venue_universe": {
+    "ok": false,
+    "reason": "not_started",
+    "updated_at": "",
+    "actual_count": 0,
+    "manual_actions": 0,
+    "active_batch_size": 120,
+    "target_count": 1000
+  },
+  "venue_onboarding": {
+    "ok": false,
+    "reason": "not_started",
+    "updated_at": "",
+    "processed": 0,
+    "completed": 0,
+    "blocked_human": 0,
+    "deferred": 0,
+    "auto_accepted_human": 0,
+    "remaining_pending_auto": 0,
+    "remaining_pending_human": 0
+  },
+  "portfolio": {
+    "total_usd": 0.0,
+    "available_cash": 0.0,
+    "held_in_orders": 0.0,
+    "holdings": {},
+    "error": "not_collected"
+  },
+  "status_file": "/Users/scott/src/quant/agents/fly_agent_runner_status.json",
+  "timestamp": "2026-02-14T06:08:52.502225+00:00"
+}

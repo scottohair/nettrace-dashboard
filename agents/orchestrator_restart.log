@@ -1,0 +1,167 @@
+2026-02-12 22:12:57,493 [ORCH] INFO Starting capital from DB: $322.66
+2026-02-12 22:12:57,493 [ORCH] INFO Orchestrator V2 starting (PID 86209)
+2026-02-12 22:12:57,494 [ORCH] INFO PID 86209 written to /Users/scott/src/quant/agents/orchestrator.pid
+2026-02-12 22:12:57,494 [ORCH] INFO Starting all agents...
+2026-02-12 22:12:57,502 [ORCH] INFO Started agent 'sniper' (PID 86210): High-confidence stacked-signal sniper (90%+ conf)
+2026-02-12 22:12:59,513 [ORCH] INFO Started agent 'meta_engine' (PID 86211): Autonomous strategy evolution engine
+2026-02-12 22:13:01,523 [ORCH] INFO Started agent 'capital_allocator' (PID 86225): Treasury management — principle protection + profit allocation
+2026-02-12 22:13:03,534 [ORCH] INFO Started agent 'forex_arb' (PID 86226): Forex correlation + stablecoin arb
+2026-02-12 22:13:05,546 [ORCH] INFO Started agent 'latency_arb' (PID 86237): Latency-based arb using Fly.io proximity signals
+2026-02-12 22:13:07,554 [ORCH] INFO Started agent 'momentum_scalper' (PID 86256): Short-timeframe momentum scalper (1-5min)
+2026-02-12 22:13:09,569 [ORCH] INFO Started agent 'exchange_scanner' (PID 86258): Multi-exchange correlation scanner (CME, ICE, NYMEX, LSE, etc.)
+2026-02-12 22:13:11,580 [ORCH] INFO Started agent 'advanced_team' (PID 86259): 8-agent research/strategy/risk/execution/learning/optimization team
+2026-02-12 22:13:13,585 [ORCH] INFO Started agent 'claude_quant' (PID 86260): Claude Quant 100 validator + pipeline promotion + budgeting
+2026-02-12 22:13:15,592 [ORCH] INFO Started agent 'claude_stager' (PID 86264): Stages strategy/framework/message context for Claude ingestion
+2026-02-12 22:13:17,602 [ORCH] INFO Started agent 'amicoin' (PID 86284): AmiCoin Network simulation agent (isolated, not counted in real holdings)
+2026-02-12 22:13:19,611 [ORCH] INFO Started agent 'market_maker' (PID 86285): Spread collection via limit orders (BUY below bid, SELL above ask). No directional bet — profits from liquidity provision in any regime.
+2026-02-12 22:13:21,621 [ORCH] INFO Started agent 'mean_reversion' (PID 86287): Statistical arb on correlated pairs (BTC/ETH, ETH/SOL). Trades z-score deviations — deterministic, no confidence needed.
+2026-02-12 22:13:23,630 [ORCH] INFO Started agent 'arb_scanner' (PID 86322): Cross-exchange price arb (5 exchanges). DETERMINISTIC: spread > fees = trade. No confidence gate.
+2026-02-12 22:13:25,637 [ORCH] INFO Started 14/14 agents
+2026-02-12 22:13:28,231 [ORCH] INFO Wallet: $1.30 across 4 chains
+2026-02-12 22:13:28,234 [ORCH] INFO Portfolio: $263.17 | Cash: $56.23 | Held: $44.61 | Bridge: $0.00 | Day P&L: $+0.00 | DD: 18.4% | Agents: 14
+2026-02-12 22:18:30,655 [ORCH] INFO Wallet: $1.30 across 4 chains
+2026-02-12 22:18:30,657 [ORCH] INFO Portfolio: $262.22 | Cash: $100.92 | Held: $58.08 | Bridge: $0.00 | Day P&L: $-0.95 | DD: 18.7% | Agents: 14
+2026-02-12 22:23:33,324 [ORCH] INFO Wallet: $1.30 across 4 chains
+2026-02-12 22:23:33,326 [ORCH] INFO Portfolio: $262.19 | Cash: $95.34 | Held: $56.61 | Bridge: $0.00 | Day P&L: $-0.98 | DD: 18.7% | Agents: 14
+2026-02-12 22:28:36,712 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 22:28:36,714 [ORCH] INFO Portfolio: $262.47 | Cash: $95.53 | Held: $60.46 | Bridge: $0.00 | Day P&L: $-0.70 | DD: 18.7% | Agents: 14
+2026-02-12 22:33:39,368 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 22:33:39,371 [ORCH] INFO Portfolio: $262.95 | Cash: $96.77 | Held: $59.02 | Bridge: $0.00 | Day P&L: $-0.22 | DD: 18.5% | Agents: 14
+2026-02-12 22:38:41,684 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 22:38:41,685 [ORCH] INFO Portfolio: $262.51 | Cash: $92.76 | Held: $46.82 | Bridge: $0.00 | Day P&L: $-0.66 | DD: 18.6% | Agents: 14
+2026-02-12 22:43:52,096 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 22:43:52,098 [ORCH] INFO Portfolio: $262.36 | Cash: $93.34 | Held: $59.31 | Bridge: $0.00 | Day P&L: $-0.81 | DD: 18.7% | Agents: 14
+2026-02-12 22:48:55,329 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 22:48:55,331 [ORCH] INFO Portfolio: $261.96 | Cash: $101.14 | Held: $57.05 | Bridge: $0.00 | Day P&L: $-1.21 | DD: 18.8% | Agents: 14
+2026-02-12 22:53:57,642 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 22:53:57,643 [ORCH] INFO Portfolio: $261.83 | Cash: $93.61 | Held: $55.91 | Bridge: $0.00 | Day P&L: $-1.34 | DD: 18.9% | Agents: 14
+2026-02-12 22:59:01,120 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 22:59:01,123 [ORCH] INFO Portfolio: $261.82 | Cash: $94.93 | Held: $59.27 | Bridge: $0.00 | Day P&L: $-1.35 | DD: 18.9% | Agents: 14
+2026-02-12 23:04:03,411 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:04:03,413 [ORCH] INFO Portfolio: $261.69 | Cash: $93.43 | Held: $58.75 | Bridge: $0.00 | Day P&L: $-1.48 | DD: 18.9% | Agents: 14
+2026-02-12 23:09:05,705 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:09:05,707 [ORCH] INFO Portfolio: $261.45 | Cash: $96.15 | Held: $52.67 | Bridge: $0.00 | Day P&L: $-1.72 | DD: 19.0% | Agents: 14
+2026-02-12 23:14:07,953 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:14:07,955 [ORCH] INFO Portfolio: $261.29 | Cash: $93.35 | Held: $55.83 | Bridge: $0.00 | Day P&L: $-1.88 | DD: 19.0% | Agents: 14
+2026-02-12 23:19:10,477 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:19:10,479 [ORCH] INFO Portfolio: $261.51 | Cash: $94.85 | Held: $58.70 | Bridge: $0.00 | Day P&L: $-1.66 | DD: 19.0% | Agents: 14
+2026-02-12 23:24:13,093 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:24:13,095 [ORCH] INFO Portfolio: $261.30 | Cash: $93.35 | Held: $58.01 | Bridge: $0.00 | Day P&L: $-1.87 | DD: 19.0% | Agents: 14
+2026-02-12 23:29:24,268 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:29:24,269 [ORCH] INFO Portfolio: $261.50 | Cash: $94.86 | Held: $57.98 | Bridge: $0.00 | Day P&L: $-1.67 | DD: 19.0% | Agents: 14
+2026-02-12 23:34:27,565 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:34:27,568 [ORCH] INFO Portfolio: $260.83 | Cash: $130.78 | Held: $58.36 | Bridge: $0.00 | Day P&L: $-2.34 | DD: 19.2% | Agents: 14
+2026-02-12 23:39:30,781 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:39:30,784 [ORCH] INFO Portfolio: $260.85 | Cash: $135.54 | Held: $55.85 | Bridge: $0.00 | Day P&L: $-2.32 | DD: 19.2% | Agents: 14
+2026-02-12 23:44:33,695 [ORCH] INFO Wallet: $1.30 across 4 chains
+2026-02-12 23:44:33,696 [ORCH] INFO Portfolio: $260.64 | Cash: $135.47 | Held: $52.85 | Bridge: $0.00 | Day P&L: $-2.53 | DD: 19.2% | Agents: 14
+2026-02-12 23:49:36,273 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:49:36,275 [ORCH] INFO Portfolio: $260.60 | Cash: $131.61 | Held: $56.69 | Bridge: $0.00 | Day P&L: $-2.57 | DD: 19.2% | Agents: 14
+2026-02-12 23:54:39,104 [ORCH] INFO Wallet: $1.31 across 4 chains
+2026-02-12 23:54:39,106 [ORCH] INFO Portfolio: $260.57 | Cash: $136.26 | Held: $56.89 | Bridge: $0.00 | Day P&L: $-2.60 | DD: 19.2% | Agents: 14
+2026-02-12 23:59:43,219 [ORCH] INFO Wallet: $1.30 across 4 chains
+2026-02-12 23:59:43,224 [ORCH] INFO Portfolio: $260.31 | Cash: $130.69 | Held: $52.80 | Bridge: $0.00 | Day P&L: $-2.86 | DD: 19.3% | Agents: 14
+2026-02-13 00:01:55,415 [ORCH] INFO Received signal 15, shutting down...
+2026-02-13 00:02:13,284 [ORCH] INFO Stopping all agents: orchestrator_exit
+2026-02-13 00:02:13,284 [ORCH] INFO Stopping agent 'sniper' (PID 86210): orchestrator_exit
+2026-02-13 00:02:13,296 [ORCH] INFO Stopping agent 'meta_engine' (PID 86211): orchestrator_exit
+2026-02-13 00:02:13,301 [ORCH] INFO Stopping agent 'capital_allocator' (PID 86225): orchestrator_exit
+2026-02-13 00:02:13,305 [ORCH] INFO Stopping agent 'forex_arb' (PID 86226): orchestrator_exit
+2026-02-13 00:02:13,310 [ORCH] INFO Stopping agent 'latency_arb' (PID 86237): orchestrator_exit
+2026-02-13 00:02:13,314 [ORCH] INFO Stopping agent 'momentum_scalper' (PID 86256): orchestrator_exit
+2026-02-13 00:02:13,319 [ORCH] INFO Stopping agent 'exchange_scanner' (PID 86258): orchestrator_exit
+2026-02-13 00:02:13,338 [ORCH] INFO Stopping agent 'advanced_team' (PID 86259): orchestrator_exit
+2026-02-13 00:02:13,846 [ORCH] INFO Stopping agent 'claude_quant' (PID 86260): orchestrator_exit
+2026-02-13 00:02:14,138 [ORCH] INFO Stopping agent 'claude_stager' (PID 86264): orchestrator_exit
+2026-02-13 00:02:14,778 [ORCH] INFO Stopping agent 'amicoin' (PID 86284): orchestrator_exit
+2026-02-13 00:02:15,599 [ORCH] INFO Stopping agent 'market_maker' (PID 86285): orchestrator_exit
+2026-02-13 00:02:15,604 [ORCH] INFO Stopping agent 'mean_reversion' (PID 86287): orchestrator_exit
+2026-02-13 00:02:15,608 [ORCH] INFO Stopping agent 'arb_scanner' (PID 86322): orchestrator_exit
+2026-02-13 00:02:15,612 [ORCH] INFO Orchestrator V2 shutdown complete
+
+======================================================================
+  ORCHESTRATOR V2 STATUS
+======================================================================
+  sniper             PID 86210    RUNNING      uptime=1814s restarts=0
+  meta_engine        PID 86211    RUNNING      uptime=1812s restarts=0
+  capital_allocator  PID 86225    RUNNING      uptime=1810s restarts=0
+  forex_arb          PID 86226    RUNNING      uptime=1808s restarts=0
+  latency_arb        PID 86237    RUNNING      uptime=1806s restarts=0
+  momentum_scalper   PID 86256    RUNNING      uptime=1804s restarts=0
+  exchange_scanner   PID 86258    RUNNING      uptime=1802s restarts=0
+  advanced_team      PID 86259    RUNNING      uptime=1800s restarts=0
+  claude_quant       PID 86260    RUNNING      uptime=1798s restarts=0
+  claude_stager      PID 86264    RUNNING      uptime=1796s restarts=0
+  amicoin            PID 86284    RUNNING      uptime=1794s restarts=0
+  market_maker       PID 86285    RUNNING      uptime=1792s restarts=0
+  mean_reversion     PID 86287    RUNNING      uptime=1790s restarts=0
+  arb_scanner        PID 86322    RUNNING      uptime=1788s restarts=0
+
+  Portfolio: $262.51 | Day P&L: $-0.66 | DD: 18.6% | Peak: $322.66
+
+  Recent risk events:
+    [2026-02-13 01:58:11] sanity_check_skip: Suspicious 100% drop: $264.63 → $0.00
+    [2026-02-12 20:02:08] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+    [2026-02-12 20:02:08] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+    [2026-02-12 20:02:03] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+    [2026-02-12 20:01:58] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+======================================================================
+
+
+======================================================================
+  ORCHESTRATOR V2 STATUS
+======================================================================
+  sniper             PID 86210    RUNNING      uptime=3638s restarts=0
+  meta_engine        PID 86211    RUNNING      uptime=3636s restarts=0
+  capital_allocator  PID 86225    RUNNING      uptime=3634s restarts=0
+  forex_arb          PID 86226    RUNNING      uptime=3632s restarts=0
+  latency_arb        PID 86237    RUNNING      uptime=3630s restarts=0
+  momentum_scalper   PID 86256    RUNNING      uptime=3628s restarts=0
+  exchange_scanner   PID 86258    RUNNING      uptime=3626s restarts=0
+  advanced_team      PID 86259    RUNNING      uptime=3624s restarts=0
+  claude_quant       PID 86260    RUNNING      uptime=3622s restarts=0
+  claude_stager      PID 86264    RUNNING      uptime=3620s restarts=0
+  amicoin            PID 86284    RUNNING      uptime=3618s restarts=0
+  market_maker       PID 86285    RUNNING      uptime=3616s restarts=0
+  mean_reversion     PID 86287    RUNNING      uptime=3614s restarts=0
+  arb_scanner        PID 86322    RUNNING      uptime=3612s restarts=0
+
+  Portfolio: $261.45 | Day P&L: $-1.72 | DD: 19.0% | Peak: $322.66
+
+  Recent risk events:
+    [2026-02-13 01:58:11] sanity_check_skip: Suspicious 100% drop: $264.63 → $0.00
+    [2026-02-12 20:02:08] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+    [2026-02-12 20:02:08] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+    [2026-02-12 20:02:03] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+    [2026-02-12 20:01:58] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+======================================================================
+
+
+======================================================================
+  ORCHESTRATOR V2 STATUS
+======================================================================
+  sniper             PID 86210    RUNNING      uptime=5463s restarts=0
+  meta_engine        PID 86211    RUNNING      uptime=5461s restarts=0
+  capital_allocator  PID 86225    RUNNING      uptime=5459s restarts=0
+  forex_arb          PID 86226    RUNNING      uptime=5457s restarts=0
+  latency_arb        PID 86237    RUNNING      uptime=5455s restarts=0
+  momentum_scalper   PID 86256    RUNNING      uptime=5453s restarts=0
+  exchange_scanner   PID 86258    RUNNING      uptime=5451s restarts=0
+  advanced_team      PID 86259    RUNNING      uptime=5449s restarts=0
+  claude_quant       PID 86260    RUNNING      uptime=5447s restarts=0
+  claude_stager      PID 86264    RUNNING      uptime=5445s restarts=0
+  amicoin            PID 86284    RUNNING      uptime=5443s restarts=0
+  market_maker       PID 86285    RUNNING      uptime=5441s restarts=0
+  mean_reversion     PID 86287    RUNNING      uptime=5439s restarts=0
+  arb_scanner        PID 86322    RUNNING      uptime=5437s restarts=0
+
+  Portfolio: $260.85 | Day P&L: $-2.32 | DD: 19.2% | Peak: $322.66
+
+  Recent risk events:
+    [2026-02-13 01:58:11] sanity_check_skip: Suspicious 100% drop: $264.63 → $0.00
+    [2026-02-12 20:02:08] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+    [2026-02-12 20:02:08] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+    [2026-02-12 20:02:03] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+    [2026-02-12 20:01:58] restart_limit: Agent 'momentum_scalper' exceeded 3 restarts/hour
+======================================================================
+

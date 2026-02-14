@@ -1,0 +1,11 @@
+{
+  "updated_at": "2026-02-14T06:09:12.346425+00:00",
+  "cycle": 64,
+  "go_live": true,
+  "opportunity_count": 0,
+  "top_opportunities": [],
+  "dashboard_latency_ms": {
+    "median": 0.0,
+    "samples": 0
+  }
+}

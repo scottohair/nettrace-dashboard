@@ -82,6 +82,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger("sniper")
 
+
+def _parse_csv_values(value):
+    """Parse comma/iterable values from env or config into normalized tokens."""
+    if value is None:
+        return tuple()
+    if isinstance(value, (list, tuple, set)):
+        items = [str(v or "").strip() for v in value]
+    else:
+        items = [item.strip() for item in str(value).split(",")]
+    return tuple(item for item in items if item)
+
 # Use persistent volume on Fly (/data/), local agents/ dir otherwise
 _persistent_dir = Path("/data") if Path("/data").is_dir() else Path(__file__).parent
 SNIPER_DB = str(_persistent_dir / "sniper.db")
@@ -91,6 +102,7 @@ WALLET_ADDRESS = os.environ.get("WALLET_ADDRESS", "")
 ORCH_OWNER_ENV = "ORCHESTRATOR_OWNER_ID"
 EXECUTION_HEALTH_STATUS_PATH = Path(__file__).parent / "execution_health_status.json"
 EXIT_MANAGER_STATUS_PATH = Path(__file__).parent / "exit_manager_status.json"
+RECONCILE_STATUS_PATH = Path(__file__).parent / "reconcile_agent_trades_status.json"
 
 # Dynamic risk controller — NO hardcoded values
 # CRITICAL: If risk_controller fails to load, refuse all NEW trades (still allow exits)
@@ -168,9 +180,32 @@ CONFIG = {
     "min_chain_worst_case_edge": float(os.environ.get("SNIPER_MIN_CHAIN_WORST_EDGE_PCT", "0.001")),
     "min_chain_steps": int(os.environ.get("SNIPER_MIN_CHAIN_STEPS", "2")),
     "require_execution_health_for_buy": os.environ.get("SNIPER_REQUIRE_EXECUTION_HEALTH_FOR_BUY", "1").lower() not in ("0", "false", "no"),
+    "execution_health_degraded_mode": os.environ.get("SNIPER_EXECUTION_HEALTH_DEGRADED_MODE", "1").lower() not in ("0", "false", "no"),
+    "execution_health_degraded_reasons": _parse_csv_values(
+        os.environ.get(
+            "SNIPER_EXECUTION_HEALTH_DEGRADED_REASONS",
+            "telemetry_samples_low,telemetry_success_rate_low,telemetry_failure_rate_high,telemetry_p90_high",
+        )
+    ),
+    "execution_health_degraded_trade_size_factor": float(
+        os.environ.get("SNIPER_EXECUTION_HEALTH_DEGRADED_TRADE_SIZE_FACTOR", "0.75")
+    ),
     "execution_health_max_age_seconds": int(os.environ.get("SNIPER_EXECUTION_HEALTH_MAX_AGE_SECONDS", "300")),
     "require_exit_manager_status_for_buy": os.environ.get("SNIPER_REQUIRE_EXIT_MANAGER_STATUS_FOR_BUY", "1").lower() not in ("0", "false", "no"),
     "exit_manager_status_max_age_seconds": int(os.environ.get("SNIPER_EXIT_MANAGER_STATUS_MAX_AGE_SECONDS", "300")),
+    "require_close_flow_for_buy": os.environ.get("SNIPER_REQUIRE_CLOSE_FLOW_FOR_BUY", "0").lower() not in ("0", "false", "no"),
+    "close_flow_status_max_age_seconds": int(os.environ.get("SNIPER_CLOSE_FLOW_STATUS_MAX_AGE_SECONDS", "300")),
+    "close_flow_min_attempts": int(os.environ.get("SNIPER_CLOSE_FLOW_MIN_ATTEMPTS", "2")),
+    "close_flow_min_completion_rate": float(os.environ.get("SNIPER_CLOSE_FLOW_MIN_COMPLETION_RATE", "0.40")),
+    "close_flow_max_terminal_failures": int(os.environ.get("SNIPER_CLOSE_FLOW_MAX_TERMINAL_FAILURES", "3")),
+    "min_trade_size_usd": float(os.environ.get("SNIPER_MIN_TRADE_SIZE_USD", "0.50")),
+    "min_trade_size_max_trade_fraction": float(
+        os.environ.get("SNIPER_MIN_TRADE_SIZE_MAX_TRADE_FRACTION", "0.00")
+    ),
+    "min_trade_size_cash_fraction": float(
+        os.environ.get("SNIPER_MIN_TRADE_SIZE_CASH_FRACTION", "0.00")
+    ),
+    "quote_balance_buffer_usd": float(os.environ.get("SNIPER_QUOTE_BALANCE_BUFFER_USD", "0.02")),
     "pair_failure_cooldown_seconds": int(os.environ.get("SNIPER_PAIR_FAILURE_COOLDOWN_SECONDS", "180")),
     "scan_interval_healthy": int(os.environ.get("SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS", "20")),
     "scan_interval_degraded": int(os.environ.get("SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS", "45")),
@@ -1255,6 +1290,19 @@ class Sniper:
         balances = getattr(self, "_last_quote_balances", None) or {}
         return {"USD": float(balances.get("USD", 0.0) or 0.0), "USDC": float(balances.get("USDC", 0.0) or 0.0)}
 
+    def _minimum_viable_buy_size(self, max_trade_usd=0.0, available_cash_usd=0.0):
+        """Adaptive minimum notional floor to improve buy activation without creating dust."""
+        floor = max(0.25, float(CONFIG.get("min_trade_size_usd", 0.5) or 0.5))
+        max_trade = max(0.0, float(max_trade_usd or 0.0))
+        available = max(0.0, float(available_cash_usd or 0.0))
+        max_trade_frac = max(0.0, float(CONFIG.get("min_trade_size_max_trade_fraction", 0.0) or 0.0))
+        cash_frac = max(0.0, float(CONFIG.get("min_trade_size_cash_fraction", 0.0) or 0.0))
+        if max_trade_frac > 0 and max_trade > 0:
+            floor = max(floor, max_trade * max_trade_frac)
+        if cash_frac > 0 and available > 0:
+            floor = max(floor, available * cash_frac)
+        return round(float(floor), 4)
+
     def _resolve_buy_pair_for_balance(self, pair, min_quote_needed):
         """Route BUY to USD/USDC quote with sufficient available balance."""
         if "-" not in pair:
@@ -1279,6 +1327,99 @@ class Sniper:
             return alt_pair
         return pair
 
+    def _fit_buy_to_quote_capacity(self, pair, requested_size, min_viable_size):
+        """Cap/reroute buy notional to available quote bankroll for USD/USDC pairs."""
+        if "-" not in pair:
+            return pair, max(0.0, float(requested_size or 0.0)), "pair_unstructured"
+
+        base, quote = pair.split("-", 1)
+        quote = quote.upper()
+        needed = max(0.0, float(requested_size or 0.0))
+        min_viable = max(0.25, float(min_viable_size or 0.0))
+        balances = self._get_quote_balances()
+        buffer = max(0.0, float(CONFIG.get("quote_balance_buffer_usd", 0.02) or 0.0))
+
+        current_capacity = max(0.0, float(balances.get(quote, 0.0) or 0.0) - buffer)
+        if current_capacity >= min_viable:
+            return pair, min(needed, current_capacity), "current_quote_capacity"
+
+        alt_quote = "USD" if quote == "USDC" else "USDC" if quote == "USD" else ""
+        if alt_quote:
+            alt_capacity = max(0.0, float(balances.get(alt_quote, 0.0) or 0.0) - buffer)
+            if alt_capacity >= min_viable:
+                return f"{base}-{alt_quote}", min(needed, alt_capacity), "alt_quote_capacity"
+
+        reason = (
+            f"quote_capacity_insufficient:{quote}={current_capacity:.2f}"
+            f"_needed={needed:.2f}_min_viable={min_viable:.2f}"
+        )
+        return pair, 0.0, reason
+
+    def _close_flow_allows_buy(self):
+        """Block new BUYs when close/fill reconciliation is stale or too failure-heavy."""
+        if not bool(CONFIG.get("require_close_flow_for_buy", False)):
+            return True, "gate_disabled"
+        try:
+            if not RECONCILE_STATUS_PATH.exists():
+                return False, "reconcile_status_missing"
+            payload = json.loads(RECONCILE_STATUS_PATH.read_text())
+            if not isinstance(payload, dict):
+                return False, "reconcile_status_invalid"
+
+            updated = str(payload.get("updated_at", "") or "").strip()
+            if not updated:
+                return False, "reconcile_status_updated_at_missing"
+            dt = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            age = (datetime.now(timezone.utc) - dt).total_seconds()
+            max_age = max(30, int(CONFIG.get("close_flow_status_max_age_seconds", 300) or 300))
+            if age > max_age:
+                return False, f"reconcile_status_stale:{int(age)}s>{max_age}s"
+
+            summary = payload.get("summary", {}) if isinstance(payload.get("summary"), dict) else {}
+            close = payload.get("close_reconciliation", {}) if isinstance(payload.get("close_reconciliation"), dict) else {}
+            attempts = int(close.get("attempts", summary.get("close_attempts", 0)) or 0)
+            completions = int(close.get("completions", summary.get("close_completions", 0)) or 0)
+            if "completion_rate" in close:
+                completion_rate = float(close.get("completion_rate", 0.0) or 0.0)
+            else:
+                completion_rate = float(completions) / float(max(1, attempts))
+            gate_passed = bool(close.get("gate_passed", summary.get("close_gate_passed", True)))
+            gate_reason = str(close.get("gate_reason", summary.get("close_gate_reason", "")) or "").strip()
+            min_attempts = max(1, int(CONFIG.get("close_flow_min_attempts", 2) or 2))
+            min_rate = max(0.0, min(1.0, float(CONFIG.get("close_flow_min_completion_rate", 0.40) or 0.40)))
+            max_terminal_failures = max(0, int(CONFIG.get("close_flow_max_terminal_failures", 3) or 3))
+
+            failure_map = close.get("failure_reasons", summary.get("close_failure_reasons", {}))
+            terminal_failures = 0
+            if isinstance(failure_map, dict):
+                for key, value in failure_map.items():
+                    reason_key = str(key or "").strip().lower()
+                    if (
+                        "terminal" in reason_key
+                        or reason_key in {"failed", "cancelled", "canceled", "expired"}
+                    ):
+                        try:
+                            terminal_failures += int(value or 0)
+                        except Exception:
+                            continue
+
+            if attempts <= 0:
+                return True, "close_flow_no_attempts"
+            if not gate_passed:
+                return False, f"close_flow_gate_failed:{gate_reason or 'unknown'}"
+            if attempts >= min_attempts and completion_rate < min_rate:
+                return False, (
+                    f"close_flow_completion_rate_low:{completion_rate:.3f}<{min_rate:.3f}"
+                    f"_attempts={attempts}_completions={completions}"
+                )
+            if terminal_failures > max_terminal_failures:
+                return False, f"close_flow_terminal_failures_high:{terminal_failures}>{max_terminal_failures}"
+            return True, "close_flow_healthy"
+        except Exception as e:
+            return False, f"close_flow_gate_error:{e}"
+
     _fear_greed_cache = (0, None)  # (timestamp, value)
 
     def _get_fear_greed_value(self):
@@ -1296,7 +1437,7 @@ class Sniper:
             return cached_val
 
     def _execution_health_allows_buy(self):
-        """Buy only when execution health is green and fresh."""
+        """Buy when health is green, stale-safe, or allowed degraded telemetry."""
         if not bool(CONFIG.get("require_execution_health_for_buy", True)):
             return True, "gate_disabled"
         try:
@@ -1305,9 +1446,34 @@ class Sniper:
             payload = json.loads(EXECUTION_HEALTH_STATUS_PATH.read_text())
             if not isinstance(payload, dict):
                 return False, "execution_health_status_invalid"
-            green = bool(payload.get("green", False))
-            if not green:
-                return False, f"execution_health_not_green:{payload.get('reason', 'unknown')}"
+            reasons = payload.get("reasons", [])
+            if not isinstance(reasons, (list, tuple)):
+                reasons = [payload.get("reason", "unknown")]
+            reasons = [str(r or "").strip().lower() for r in reasons if str(r or "").strip()]
+            fail_reason = str(payload.get("reason", "unknown"))
+
+            if bool(payload.get("green", False)):
+                return True, "execution_health_green"
+
+            if bool(payload.get("egress_blocked", False)):
+                return False, f"execution_health_blocked:egress_blocked:{fail_reason}"
+            if any(r.startswith("egress_blocked") for r in reasons):
+                return False, f"execution_health_blocked:egress_blocked:{fail_reason}"
+            hard_block_prefixes = ("dns_", "reconcile_", "api_probe_failed", "candle_feed")
+            if any(any(r.startswith(prefix) for r in reasons) for prefix in hard_block_prefixes):
+                return False, f"execution_health_not_green:{fail_reason}"
+
+            if bool(CONFIG.get("execution_health_degraded_mode", True)) and reasons:
+                allowed = tuple(
+                    str(v).strip().lower()
+                    for v in CONFIG.get("execution_health_degraded_reasons", ())
+                )
+                if allowed and all(
+                    any(r == allow or r.startswith(f"{allow}:") for allow in allowed)
+                    for r in reasons
+                ):
+                    return True, f"execution_health_degraded:{fail_reason}"
+
             updated = str(payload.get("updated_at", "") or "").strip()
             if not updated:
                 return False, "execution_health_updated_at_missing"
@@ -1318,7 +1484,17 @@ class Sniper:
             max_age = max(30, int(CONFIG.get("execution_health_max_age_seconds", 300) or 300))
             if age > max_age:
                 return False, f"execution_health_stale:{int(age)}s>{max_age}s"
-            return True, "execution_health_green"
+            if bool(CONFIG.get("execution_health_degraded_mode", True)) and reasons:
+                allowed = tuple(
+                    str(v).strip().lower()
+                    for v in CONFIG.get("execution_health_degraded_reasons", ())
+                )
+                if allowed and all(
+                    any(r == allow or r.startswith(f"{allow}:") for allow in allowed)
+                    for r in reasons
+                ):
+                    return True, f"execution_health_degraded:{fail_reason}"
+            return False, f"execution_health_not_green:{fail_reason}"
         except Exception as e:
             return False, f"execution_health_gate_error:{e}"
 
@@ -1367,8 +1543,12 @@ class Sniper:
     def _effective_scan_interval(self):
         healthy = max(5, int(CONFIG.get("scan_interval_healthy", CONFIG.get("scan_interval", 30)) or 20))
         degraded = max(healthy, int(CONFIG.get("scan_interval_degraded", max(healthy, 45)) or 45))
-        ok, _ = self._execution_health_allows_buy()
-        return healthy if ok else degraded
+        ok, reason = self._execution_health_allows_buy()
+        if not ok:
+            return degraded
+        if str(reason).startswith("execution_health_degraded:"):
+            return degraded
+        return healthy
 
     def _check_trade_throttle(self):
         """Check if trade frequency limits are exceeded. Returns (ok, reason)."""
@@ -1418,6 +1598,10 @@ class Sniper:
             em_ok, em_reason = self._exit_manager_status_allows_buy()
             if not em_ok:
                 logger.info("SNIPER: %s BUY blocked — %s", pair, em_reason)
+                return False
+            close_ok, close_reason = self._close_flow_allows_buy()
+            if not close_ok:
+                logger.info("SNIPER: %s BUY blocked — %s", pair, close_reason)
                 return False
             cooldown_active, remaining = self._pair_buy_cooldown_active(pair)
             if cooldown_active:
@@ -1482,7 +1666,10 @@ class Sniper:
                 if int(chain.get("steps", 0) or 0) < int(CONFIG["min_chain_steps"]):
                     logger.info("SNIPER: %s BUY blocked — chain depth too shallow", pair)
                     return False
-            routed_pair = self._resolve_buy_pair_for_balance(pair, min_quote_needed=1.0)
+            routed_pair = self._resolve_buy_pair_for_balance(
+                pair,
+                min_quote_needed=self._minimum_viable_buy_size(0.0, 0.0),
+            )
             if routed_pair != pair:
                 pair = routed_pair
                 signal["pair"] = pair
@@ -1576,7 +1763,11 @@ class Sniper:
 
             # Size with DYNAMIC limits — scale with confidence
             remaining_room = max_position - held_usd
-            if remaining_room < 1.00:
+            absolute_min_notional = max(
+                0.25,
+                float(CONFIG.get("min_trade_size_usd", 0.5) or 0.5),
+            )
+            if remaining_room < absolute_min_notional:
                 logger.info("SNIPER: %s at max position ($%.2f / $%.2f cap) — skipping BUY",
                            pair, held_usd, max_position)
                 return False
@@ -1584,33 +1775,54 @@ class Sniper:
             cycle_spent = getattr(self, '_cycle_cash_spent', 0.0)
             effective_cash = cash - cycle_spent  # account for orders placed earlier this cycle
             available_after_reserve = effective_cash - reserve
-            if available_after_reserve < 1.00:
-                logger.info("SNIPER: Cash below reserve ($%.2f - $%.2f reserve = $%.2f)",
-                           effective_cash, reserve, available_after_reserve)
+            min_viable_buy = self._minimum_viable_buy_size(max_trade, available_after_reserve)
+            if available_after_reserve < min_viable_buy:
+                logger.info(
+                    "SNIPER: Cash below reserve/min viable size ($%.2f - $%.2f reserve = $%.2f, min $%.2f)",
+                    effective_cash,
+                    reserve,
+                    available_after_reserve,
+                    min_viable_buy,
+                )
                 return False
 
-            trade_size = min(max_trade, max(1.00, signal["composite_confidence"] * max_trade * 1.2))
+            trade_size = min(
+                max_trade,
+                max(min_viable_buy, signal["composite_confidence"] * max_trade * 1.2),
+            )
             trade_size = min(trade_size, remaining_room)
             trade_size = min(trade_size, available_after_reserve)  # DYNAMIC reserve
+            if str(health_reason).startswith("execution_health_degraded:"):
+                trade_size *= float(CONFIG.get("execution_health_degraded_trade_size_factor", 0.75))
+                trade_size = round(trade_size, 2)
 
-            # Quote-aware reroute with actual order size (fixes USD-vs-USDC funding mismatches).
-            sized_pair = self._resolve_buy_pair_for_balance(pair, min_quote_needed=trade_size)
-            if sized_pair != pair:
-                pair = sized_pair
-                signal["pair"] = pair
-                if _exit_mgr and not _exit_mgr.has_exit_plan(pair):
-                    logger.info("SNIPER: %s BUY blocked — routed pair missing exit plan", pair)
-                    return False
-                price = self._get_price(pair)
-                if not price:
-                    logger.warning("Cannot get price for routed pair %s", pair)
-                    return False
-                base_currency = pair.split("-")[0]
-                held_amount = holdings.get(base_currency, 0)
-                held_usd = held_amount * price if price else 0
-                max_position = total_portfolio * max_pos_pct
-                remaining_room = max_position - held_usd
-                trade_size = min(trade_size, remaining_room)
+            # Quote-aware reroute + bankroll-aware sizing (fixes USD-vs-USDC mismatches and over-sized proposals).
+            fit_pair, fitted_size, fit_reason = self._fit_buy_to_quote_capacity(
+                pair,
+                trade_size,
+                min_viable_buy,
+            )
+            if fitted_size <= 0:
+                logger.info("SNIPER: %s BUY blocked — %s", pair, fit_reason)
+                return False
+            if fit_pair != pair:
+                logger.info("SNIPER: %s BUY rerouted to %s (%s)", pair, fit_pair, fit_reason)
+            pair = fit_pair
+            signal["pair"] = pair
+            trade_size = float(fitted_size)
+            if _exit_mgr and not _exit_mgr.has_exit_plan(pair):
+                logger.info("SNIPER: %s BUY blocked — routed pair missing exit plan", pair)
+                return False
+            price = self._get_price(pair)
+            if not price:
+                logger.warning("Cannot get price for routed pair %s", pair)
+                return False
+            base_currency = pair.split("-")[0]
+            held_amount = holdings.get(base_currency, 0)
+            held_usd = held_amount * price if price else 0
+            max_position = total_portfolio * max_pos_pct
+            remaining_room = max_position - held_usd
+            trade_size = min(trade_size, remaining_room)
 
             # Risk controller approval
             if _risk_ctrl:
@@ -1621,9 +1833,36 @@ class Sniper:
                     return False
                 trade_size = adj_size
 
-            if trade_size < 1.00:
-                logger.info("SNIPER: Insufficient for BUY after dynamic sizing ($%.2f cash, $%.2f reserve)",
-                           cash, reserve)
+            # Refit once more after risk adjustment in case controller resized above quote capacity.
+            pre_refit_pair = pair
+            pair, trade_size, fit_reason = self._fit_buy_to_quote_capacity(
+                pair,
+                trade_size,
+                min_viable_buy,
+            )
+            signal["pair"] = pair
+            if pair != pre_refit_pair:
+                logger.info("SNIPER: %s BUY rerouted to %s after risk sizing (%s)", pre_refit_pair, pair, fit_reason)
+                if _exit_mgr and not _exit_mgr.has_exit_plan(pair):
+                    logger.info("SNIPER: %s BUY blocked — post-risk routed pair missing exit plan", pair)
+                    return False
+                price = self._get_price(pair)
+                if not price:
+                    logger.warning("Cannot get price for post-risk routed pair %s", pair)
+                    return False
+                base_currency = pair.split("-")[0]
+                held_amount = holdings.get(base_currency, 0)
+                held_usd = held_amount * price if price else 0
+                max_position = total_portfolio * max_pos_pct
+                remaining_room = max_position - held_usd
+                trade_size = min(trade_size, remaining_room)
+            if trade_size < min_viable_buy:
+                logger.info(
+                    "SNIPER: Insufficient for BUY after sizing/routing ($%.2f cash, $%.2f reserve, min $%.2f)",
+                    cash,
+                    reserve,
+                    min_viable_buy,
+                )
                 return False
             trade_size = round(trade_size, 2)
 

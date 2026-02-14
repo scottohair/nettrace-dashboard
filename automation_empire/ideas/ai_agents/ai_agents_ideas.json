@@ -1,0 +1,2437 @@
+[
+  {
+    "id": "ai_agents_001",
+    "category": "ai_agents",
+    "title": "AI invoice processing automation for legal",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_002",
+    "category": "ai_agents",
+    "title": "AI compliance checking automation for accounting",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_003",
+    "category": "ai_agents",
+    "title": "AI customer support ticket routing automation for healthcare",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_004",
+    "category": "ai_agents",
+    "title": "AI employee onboarding automation for healthcare",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_005",
+    "category": "ai_agents",
+    "title": "AI expense reporting automation for legal",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_006",
+    "category": "ai_agents",
+    "title": "AI contract review automation for healthcare",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_007",
+    "category": "ai_agents",
+    "title": "AI invoice processing automation for real estate",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_008",
+    "category": "ai_agents",
+    "title": "AI contract review automation for accounting",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_009",
+    "category": "ai_agents",
+    "title": "AI compliance checking automation for insurance",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_010",
+    "category": "ai_agents",
+    "title": "AI compliance checking automation for legal",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_011",
+    "category": "ai_agents",
+    "title": "AI employee onboarding automation for legal",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_012",
+    "category": "ai_agents",
+    "title": "AI expense reporting automation for insurance",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_013",
+    "category": "ai_agents",
+    "title": "AI invoice processing automation for accounting",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_014",
+    "category": "ai_agents",
+    "title": "AI contract review automation for legal",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_015",
+    "category": "ai_agents",
+    "title": "AI compliance checking automation for HR",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_016",
+    "category": "ai_agents",
+    "title": "AI expense reporting automation for healthcare",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_017",
+    "category": "ai_agents",
+    "title": "AI expense reporting automation for real estate",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_018",
+    "category": "ai_agents",
+    "title": "AI contract review automation for real estate",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_019",
+    "category": "ai_agents",
+    "title": "AI timesheet approval automation for HR",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_020",
+    "category": "ai_agents",
+    "title": "Intelligent hiring funnel orchestrator with external API calls",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "ai_agents_021",
+    "category": "ai_agents",
+    "title": "Intelligent sales pipeline orchestrator with multi-step reasoning",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_022",
+    "category": "ai_agents",
+    "title": "Intelligent customer journey orchestrator with multi-step reasoning",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_023",
+    "category": "ai_agents",
+    "title": "Intelligent marketing campaign orchestrator with context retention",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_024",
+    "category": "ai_agents",
+    "title": "Intelligent customer journey orchestrator with context retention",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_025",
+    "category": "ai_agents",
+    "title": "Intelligent hiring funnel orchestrator with multi-step reasoning",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_026",
+    "category": "ai_agents",
+    "title": "Intelligent customer journey orchestrator with external API calls",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "ai_agents_027",
+    "category": "ai_agents",
+    "title": "Intelligent marketing campaign orchestrator with multi-step reasoning",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_028",
+    "category": "ai_agents",
+    "title": "Intelligent hiring funnel orchestrator with context retention",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_029",
+    "category": "ai_agents",
+    "title": "Intelligent marketing campaign orchestrator with external API calls",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml",
+      "api"
+    ]
+  },
+  {
+    "id": "ai_agents_030",
+    "category": "ai_agents",
+    "title": "Intelligent sales pipeline orchestrator with context retention",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_031",
+    "category": "ai_agents",
+    "title": "Intelligent sales pipeline orchestrator with external API calls",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "ai_agents_032",
+    "category": "ai_agents",
+    "title": "calendar management bot with proactive suggestions",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_033",
+    "category": "ai_agents",
+    "title": "meeting scheduling bot with natural language commands",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_034",
+    "category": "ai_agents",
+    "title": "data entry bot with natural language commands",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_035",
+    "category": "ai_agents",
+    "title": "email triage bot with natural language commands",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_036",
+    "category": "ai_agents",
+    "title": "meeting scheduling bot with proactive suggestions",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_037",
+    "category": "ai_agents",
+    "title": "calendar management bot with natural language commands",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_038",
+    "category": "ai_agents",
+    "title": "email triage bot with learning from corrections",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_039",
+    "category": "ai_agents",
+    "title": "meeting scheduling bot with learning from corrections",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_040",
+    "category": "ai_agents",
+    "title": "data entry bot with proactive suggestions",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_041",
+    "category": "ai_agents",
+    "title": "data entry bot with learning from corrections",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_042",
+    "category": "ai_agents",
+    "title": "email triage bot with proactive suggestions",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_043",
+    "category": "ai_agents",
+    "title": "calendar management bot with learning from corrections",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_044",
+    "category": "ai_agents",
+    "title": "Auto-extract AI agent for sales",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_045",
+    "category": "ai_agents",
+    "title": "Auto-verify AI agent for sales",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_046",
+    "category": "ai_agents",
+    "title": "Auto-transcribe AI agent for finance",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_047",
+    "category": "ai_agents",
+    "title": "Auto-translate AI agent for finance",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_048",
+    "category": "ai_agents",
+    "title": "Auto-summarize AI agent for operations",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_049",
+    "category": "ai_agents",
+    "title": "Auto-categorize AI agent for legal",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_050",
+    "category": "ai_agents",
+    "title": "Auto-transcribe AI agent for HR",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_051",
+    "category": "ai_agents",
+    "title": "Auto-summarize AI agent for legal",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_052",
+    "category": "ai_agents",
+    "title": "Auto-verify AI agent for HR",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_053",
+    "category": "ai_agents",
+    "title": "Auto-translate AI agent for sales",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_054",
+    "category": "ai_agents",
+    "title": "Auto-summarize AI agent for HR",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_055",
+    "category": "ai_agents",
+    "title": "Auto-categorize AI agent for marketing",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_056",
+    "category": "ai_agents",
+    "title": "Auto-summarize AI agent for sales",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_057",
+    "category": "ai_agents",
+    "title": "Auto-transcribe AI agent for operations",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_058",
+    "category": "ai_agents",
+    "title": "Auto-extract AI agent for HR",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_059",
+    "category": "ai_agents",
+    "title": "Auto-transcribe AI agent for legal",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_060",
+    "category": "ai_agents",
+    "title": "Auto-categorize AI agent for finance",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_061",
+    "category": "ai_agents",
+    "title": "Auto-categorize AI agent for operations",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_062",
+    "category": "ai_agents",
+    "title": "Auto-transcribe AI agent for sales",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_063",
+    "category": "ai_agents",
+    "title": "AI sales rep for real estate agencies",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_064",
+    "category": "ai_agents",
+    "title": "AI sales rep for law firms",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_065",
+    "category": "ai_agents",
+    "title": "AI paralegal for dentist offices",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_066",
+    "category": "ai_agents",
+    "title": "AI accountant for dentist offices",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_067",
+    "category": "ai_agents",
+    "title": "AI paralegal for law firms",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_068",
+    "category": "ai_agents",
+    "title": "AI receptionist for law firms",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_069",
+    "category": "ai_agents",
+    "title": "AI customer success manager for dentist offices",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_070",
+    "category": "ai_agents",
+    "title": "AI sales rep for restaurants",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_071",
+    "category": "ai_agents",
+    "title": "AI paralegal for restaurants",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_072",
+    "category": "ai_agents",
+    "title": "AI receptionist for restaurants",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_073",
+    "category": "ai_agents",
+    "title": "AI receptionist for dentist offices",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_074",
+    "category": "ai_agents",
+    "title": "AI accountant for real estate agencies",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_075",
+    "category": "ai_agents",
+    "title": "AI customer success manager for real estate agencies",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_076",
+    "category": "ai_agents",
+    "title": "AI paralegal for real estate agencies",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_077",
+    "category": "ai_agents",
+    "title": "AI receptionist for real estate agencies",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_078",
+    "category": "ai_agents",
+    "title": "AI customer success manager for restaurants",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_079",
+    "category": "ai_agents",
+    "title": "AI accountant for restaurants",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_080",
+    "category": "ai_agents",
+    "title": "AI customer success manager for law firms",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_081",
+    "category": "ai_agents",
+    "title": "AI accountant for law firms",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_082",
+    "category": "ai_agents",
+    "title": "Virtual tax accountant powered by Claude",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_083",
+    "category": "ai_agents",
+    "title": "Virtual tax accountant powered by LLaMA",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_084",
+    "category": "ai_agents",
+    "title": "Virtual underwriter powered by LLaMA",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_085",
+    "category": "ai_agents",
+    "title": "Virtual legal researcher powered by Claude",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_086",
+    "category": "ai_agents",
+    "title": "Virtual medical coder powered by custom fine-tuned models",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_087",
+    "category": "ai_agents",
+    "title": "Virtual underwriter powered by Claude",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_088",
+    "category": "ai_agents",
+    "title": "Virtual medical coder powered by GPT-4",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_089",
+    "category": "ai_agents",
+    "title": "Virtual tax accountant powered by custom fine-tuned models",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_090",
+    "category": "ai_agents",
+    "title": "Virtual legal researcher powered by LLaMA",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_091",
+    "category": "ai_agents",
+    "title": "Virtual legal researcher powered by GPT-4",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_092",
+    "category": "ai_agents",
+    "title": "Virtual underwriter powered by custom fine-tuned models",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_093",
+    "category": "ai_agents",
+    "title": "Virtual legal researcher powered by custom fine-tuned models",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_094",
+    "category": "ai_agents",
+    "title": "Virtual tax accountant powered by GPT-4",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_095",
+    "category": "ai_agents",
+    "title": "Virtual medical coder powered by LLaMA",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_096",
+    "category": "ai_agents",
+    "title": "Virtual underwriter powered by GPT-4",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_097",
+    "category": "ai_agents",
+    "title": "Virtual medical coder powered by Claude",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_098",
+    "category": "ai_agents",
+    "title": "medical chatbot with voice support",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_099",
+    "category": "ai_agents",
+    "title": "sales chatbot with multilingual",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_100",
+    "category": "ai_agents",
+    "title": "legal chatbot with multilingual",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_101",
+    "category": "ai_agents",
+    "title": "sales chatbot with sentiment-aware responses",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_102",
+    "category": "ai_agents",
+    "title": "medical chatbot with sentiment-aware responses",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_103",
+    "category": "ai_agents",
+    "title": "technical support chatbot with multilingual",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_104",
+    "category": "ai_agents",
+    "title": "legal chatbot with sentiment-aware responses",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_105",
+    "category": "ai_agents",
+    "title": "customer support chatbot with sentiment-aware responses",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_106",
+    "category": "ai_agents",
+    "title": "technical support chatbot with sentiment-aware responses",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_107",
+    "category": "ai_agents",
+    "title": "customer support chatbot with voice support",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_108",
+    "category": "ai_agents",
+    "title": "medical chatbot with multilingual",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_109",
+    "category": "ai_agents",
+    "title": "HR chatbot with sentiment-aware responses",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_110",
+    "category": "ai_agents",
+    "title": "HR chatbot with multilingual",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_111",
+    "category": "ai_agents",
+    "title": "HR chatbot with voice support",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_112",
+    "category": "ai_agents",
+    "title": "technical support chatbot with voice support",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_113",
+    "category": "ai_agents",
+    "title": "customer support chatbot with multilingual",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_114",
+    "category": "ai_agents",
+    "title": "sales chatbot with voice support",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_115",
+    "category": "ai_agents",
+    "title": "legal chatbot with voice support",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_116",
+    "category": "ai_agents",
+    "title": "AI blog post generator with brand voice matching",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_117",
+    "category": "ai_agents",
+    "title": "AI ad copy generator with conversion optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_118",
+    "category": "ai_agents",
+    "title": "AI social media caption generator with SEO optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_119",
+    "category": "ai_agents",
+    "title": "AI email generator with brand voice matching",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_120",
+    "category": "ai_agents",
+    "title": "AI email generator with SEO optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_121",
+    "category": "ai_agents",
+    "title": "AI blog post generator with SEO optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_122",
+    "category": "ai_agents",
+    "title": "AI social media caption generator with conversion optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_123",
+    "category": "ai_agents",
+    "title": "AI ad copy generator with brand voice matching",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_124",
+    "category": "ai_agents",
+    "title": "AI blog post generator with conversion optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_125",
+    "category": "ai_agents",
+    "title": "AI product description generator with SEO optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_126",
+    "category": "ai_agents",
+    "title": "AI product description generator with brand voice matching",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_127",
+    "category": "ai_agents",
+    "title": "AI ad copy generator with SEO optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_128",
+    "category": "ai_agents",
+    "title": "AI social media caption generator with brand voice matching",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_129",
+    "category": "ai_agents",
+    "title": "AI email generator with conversion optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_130",
+    "category": "ai_agents",
+    "title": "AI product description generator with conversion optimization",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_131",
+    "category": "ai_agents",
+    "title": "Auto-logo design for Instagram",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_132",
+    "category": "ai_agents",
+    "title": "Auto-video captioning for Instagram",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_133",
+    "category": "ai_agents",
+    "title": "Auto-slide deck creation for LinkedIn",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_134",
+    "category": "ai_agents",
+    "title": "Auto-slide deck creation for YouTube",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_135",
+    "category": "ai_agents",
+    "title": "Auto-logo design for TikTok",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_136",
+    "category": "ai_agents",
+    "title": "Auto-video captioning for LinkedIn",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_137",
+    "category": "ai_agents",
+    "title": "Auto-logo design for YouTube",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_138",
+    "category": "ai_agents",
+    "title": "Auto-image editing for Instagram",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_139",
+    "category": "ai_agents",
+    "title": "Auto-video captioning for Twitter",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_140",
+    "category": "ai_agents",
+    "title": "Auto-logo design for Twitter",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_141",
+    "category": "ai_agents",
+    "title": "Auto-logo design for LinkedIn",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_142",
+    "category": "ai_agents",
+    "title": "Auto-image editing for TikTok",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_143",
+    "category": "ai_agents",
+    "title": "Auto-slide deck creation for Twitter",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_144",
+    "category": "ai_agents",
+    "title": "Auto-slide deck creation for Instagram",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_145",
+    "category": "ai_agents",
+    "title": "Auto-image editing for Twitter",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_146",
+    "category": "ai_agents",
+    "title": "Auto-slide deck creation for TikTok",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_147",
+    "category": "ai_agents",
+    "title": "Auto-video captioning for TikTok",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_148",
+    "category": "ai_agents",
+    "title": "Auto-video captioning for YouTube",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_149",
+    "category": "ai_agents",
+    "title": "Auto-image editing for YouTube",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_150",
+    "category": "ai_agents",
+    "title": "AI-powered product recommender for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_151",
+    "category": "ai_agents",
+    "title": "AI-powered pricing recommender for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_152",
+    "category": "ai_agents",
+    "title": "AI-powered inventory recommender for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_153",
+    "category": "ai_agents",
+    "title": "AI-powered inventory recommender for trading",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_154",
+    "category": "ai_agents",
+    "title": "AI-powered pricing recommender for recruiting",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_155",
+    "category": "ai_agents",
+    "title": "AI-powered investment recommender for recruiting",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_156",
+    "category": "ai_agents",
+    "title": "AI-powered pricing recommender for trading",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_157",
+    "category": "ai_agents",
+    "title": "AI-powered product recommender for trading",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_158",
+    "category": "ai_agents",
+    "title": "AI-powered investment recommender for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_159",
+    "category": "ai_agents",
+    "title": "AI-powered investment recommender for supply chain",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_160",
+    "category": "ai_agents",
+    "title": "AI-powered hiring recommender for trading",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_161",
+    "category": "ai_agents",
+    "title": "AI-powered investment recommender for B2B sales",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml",
+      "b2b"
+    ]
+  },
+  {
+    "id": "ai_agents_162",
+    "category": "ai_agents",
+    "title": "AI-powered hiring recommender for B2B sales",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml",
+      "b2b"
+    ]
+  },
+  {
+    "id": "ai_agents_163",
+    "category": "ai_agents",
+    "title": "AI-powered investment recommender for trading",
+    "status": "idea",
+    "revenue_model": "spread/profit",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_164",
+    "category": "ai_agents",
+    "title": "AI-powered product recommender for recruiting",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_165",
+    "category": "ai_agents",
+    "title": "AI-powered pricing recommender for supply chain",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_166",
+    "category": "ai_agents",
+    "title": "AI-powered hiring recommender for supply chain",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_167",
+    "category": "ai_agents",
+    "title": "AI-powered hiring recommender for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_168",
+    "category": "ai_agents",
+    "title": "AI-powered pricing recommender for B2B sales",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml",
+      "b2b"
+    ]
+  },
+  {
+    "id": "ai_agents_169",
+    "category": "ai_agents",
+    "title": "Predictive failure engine for manufacturing",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_170",
+    "category": "ai_agents",
+    "title": "Predictive fraud engine for logistics",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_171",
+    "category": "ai_agents",
+    "title": "Predictive failure engine for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_172",
+    "category": "ai_agents",
+    "title": "Predictive conversion engine for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_173",
+    "category": "ai_agents",
+    "title": "Predictive conversion engine for manufacturing",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_174",
+    "category": "ai_agents",
+    "title": "Predictive fraud engine for manufacturing",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_175",
+    "category": "ai_agents",
+    "title": "Predictive failure engine for logistics",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_176",
+    "category": "ai_agents",
+    "title": "Predictive fraud engine for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_177",
+    "category": "ai_agents",
+    "title": "Predictive churn engine for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_178",
+    "category": "ai_agents",
+    "title": "Predictive churn engine for logistics",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_179",
+    "category": "ai_agents",
+    "title": "Predictive churn engine for manufacturing",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_180",
+    "category": "ai_agents",
+    "title": "Predictive churn engine for subscription services",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_181",
+    "category": "ai_agents",
+    "title": "Predictive fraud engine for subscription services",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_182",
+    "category": "ai_agents",
+    "title": "Predictive failure engine for subscription services",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "ai_agents_183",
+    "category": "ai_agents",
+    "title": "Predictive demand engine for manufacturing",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_184",
+    "category": "ai_agents",
+    "title": "Predictive demand engine for subscription services",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_185",
+    "category": "ai_agents",
+    "title": "Predictive demand engine for e-commerce",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_186",
+    "category": "ai_agents",
+    "title": "Predictive conversion engine for logistics",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "ai_agents_187",
+    "category": "ai_agents",
+    "title": "Predictive demand engine for logistics",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$1,000-$30,000",
+    "tags": [
+      "general"
+    ]
+  }
+]

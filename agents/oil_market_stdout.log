@@ -1,0 +1,231 @@
+2026-02-13 13:04:06,713 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 13:04:06,725 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:04:06,729 [oil_market] INFO cycle=1 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:07:06,348 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:07:06,352 [oil_market] INFO cycle=2 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:10:05,992 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:10:05,999 [oil_market] INFO cycle=3 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:13:05,619 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:13:05,624 [oil_market] INFO cycle=4 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:16:05,258 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:16:05,262 [oil_market] INFO cycle=5 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:19:04,859 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:19:04,863 [oil_market] INFO cycle=6 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:22:04,570 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:22:04,575 [oil_market] INFO cycle=7 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:23:12,248 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 13:23:12,260 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:23:12,263 [oil_market] INFO cycle=1 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:25:04,261 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:25:04,267 [oil_market] INFO cycle=8 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:26:11,983 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:26:11,992 [oil_market] INFO cycle=2 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:28:03,979 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:28:03,984 [oil_market] INFO cycle=9 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:29:11,681 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:29:11,684 [oil_market] INFO cycle=3 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:31:03,659 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:31:03,664 [oil_market] INFO cycle=10 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:32:11,378 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:32:11,383 [oil_market] INFO cycle=4 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:34:03,385 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:34:03,388 [oil_market] INFO cycle=11 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:35:11,061 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:35:11,064 [oil_market] INFO cycle=5 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:37:03,090 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:37:03,099 [oil_market] INFO cycle=12 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:38:10,749 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:38:10,756 [oil_market] INFO cycle=6 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:40:02,774 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:40:02,790 [oil_market] INFO cycle=13 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:41:10,419 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:41:10,422 [oil_market] INFO cycle=7 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:43:02,470 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:43:02,475 [oil_market] INFO cycle=14 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:44:10,147 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:44:10,151 [oil_market] INFO cycle=8 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:46:02,183 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:46:02,193 [oil_market] INFO cycle=15 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:47:09,834 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:47:09,840 [oil_market] INFO cycle=9 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:49:01,917 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:49:01,923 [oil_market] INFO cycle=16 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:50:09,541 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:50:09,545 [oil_market] INFO cycle=10 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:52:01,575 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:52:01,580 [oil_market] INFO cycle=17 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:53:09,309 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:53:09,312 [oil_market] INFO cycle=11 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:55:01,266 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:55:01,270 [oil_market] INFO cycle=18 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:56:09,038 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:56:09,043 [oil_market] INFO cycle=12 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:58:00,955 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:58:00,962 [oil_market] INFO cycle=19 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 13:59:08,755 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 13:59:08,765 [oil_market] INFO cycle=13 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:01:00,666 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:01:00,670 [oil_market] INFO cycle=20 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:02:08,390 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:02:08,395 [oil_market] INFO cycle=14 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:04:00,387 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:04:00,393 [oil_market] INFO cycle=21 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:05:08,102 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:05:08,107 [oil_market] INFO cycle=15 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:07:00,064 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:07:00,069 [oil_market] INFO cycle=22 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:08:07,801 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:08:07,806 [oil_market] INFO cycle=16 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:09:59,765 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:09:59,771 [oil_market] INFO cycle=23 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:11:07,526 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:11:07,532 [oil_market] INFO cycle=17 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:12:46,211 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 14:12:46,222 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:12:46,225 [oil_market] INFO cycle=1 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:12:59,509 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:12:59,513 [oil_market] INFO cycle=24 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:14:07,237 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:14:07,241 [oil_market] INFO cycle=18 side=HOLD edge=0.000% conf=0.36 policy=False exec=none
+2026-02-13 14:16:15,384 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 14:16:15,690 [oil_market] INFO cycle=1 side=HOLD edge=0.105% conf=0.40 policy=False exec=none
+2026-02-13 14:20:30,786 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 14:20:31,100 [oil_market] INFO cycle=1 side=HOLD edge=0.009% conf=0.36 policy=False exec=none
+2026-02-13 14:23:31,072 [oil_market] INFO cycle=2 side=HOLD edge=0.100% conf=0.41 policy=False exec=none
+2026-02-13 14:26:31,213 [oil_market] INFO cycle=3 side=HOLD edge=0.062% conf=0.38 policy=False exec=none
+2026-02-13 14:29:31,287 [oil_market] INFO cycle=4 side=HOLD edge=0.135% conf=0.42 policy=False exec=none
+2026-02-13 14:32:31,358 [oil_market] INFO cycle=5 side=HOLD edge=0.126% conf=0.41 policy=False exec=none
+2026-02-13 14:35:31,452 [oil_market] INFO cycle=6 side=HOLD edge=0.066% conf=0.39 policy=False exec=none
+2026-02-13 14:38:31,484 [oil_market] INFO cycle=7 side=HOLD edge=0.207% conf=0.46 policy=False exec=none
+2026-02-13 14:41:31,493 [oil_market] INFO cycle=8 side=HOLD edge=0.222% conf=0.47 policy=False exec=none
+2026-02-13 14:44:31,521 [oil_market] INFO cycle=9 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 14:46:59,952 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 14:46:59,964 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 14:46:59,966 [oil_market] INFO cycle=1 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 19:24:41,119 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 19:24:41,131 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:24:41,135 [oil_market] INFO cycle=1 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 19:27:41,277 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:27:41,284 [oil_market] INFO cycle=2 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 19:32:38,046 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 19:32:38,058 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:32:38,061 [oil_market] INFO cycle=1 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 19:33:57,800 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 19:33:57,812 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:33:57,814 [oil_market] INFO cycle=1 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 19:36:53,978 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 19:36:53,990 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:36:53,993 [oil_market] INFO cycle=1 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 19:40:28,224 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 19:40:28,236 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 19:40:28,239 [oil_market] INFO cycle=1 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 20:04:53,213 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 20:04:53,225 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 20:04:53,229 [oil_market] INFO cycle=1 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:31:45,969 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-13 22:31:45,980 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:31:45,983 [oil_market] INFO cycle=1 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:34:45,664 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:34:45,670 [oil_market] INFO cycle=2 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:37:45,304 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:37:45,311 [oil_market] INFO cycle=3 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:40:44,979 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:40:44,984 [oil_market] INFO cycle=4 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:43:44,814 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:43:44,819 [oil_market] INFO cycle=5 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:46:44,477 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:46:44,484 [oil_market] INFO cycle=6 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:49:44,135 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:49:44,143 [oil_market] INFO cycle=7 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:52:43,750 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:52:43,754 [oil_market] INFO cycle=8 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:55:43,374 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:55:43,380 [oil_market] INFO cycle=9 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 22:58:43,004 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 22:58:43,011 [oil_market] INFO cycle=10 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:01:42,650 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:01:42,655 [oil_market] INFO cycle=11 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:04:42,306 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:04:42,310 [oil_market] INFO cycle=12 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:07:41,954 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:07:41,962 [oil_market] INFO cycle=13 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:10:41,635 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:10:41,643 [oil_market] INFO cycle=14 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:13:41,243 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:13:41,248 [oil_market] INFO cycle=15 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:16:41,282 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:16:41,290 [oil_market] INFO cycle=16 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:19:40,911 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:19:40,919 [oil_market] INFO cycle=17 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:22:40,545 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:22:40,550 [oil_market] INFO cycle=18 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:25:40,245 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:25:40,249 [oil_market] INFO cycle=19 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:28:39,920 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:28:39,929 [oil_market] INFO cycle=20 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:31:39,635 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:31:39,639 [oil_market] INFO cycle=21 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:34:39,394 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:34:39,401 [oil_market] INFO cycle=22 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:37:39,127 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:37:39,131 [oil_market] INFO cycle=23 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:40:38,855 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:40:38,859 [oil_market] INFO cycle=24 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:43:38,618 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:43:38,623 [oil_market] INFO cycle=25 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:46:38,357 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:46:38,362 [oil_market] INFO cycle=26 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:49:38,113 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:49:38,117 [oil_market] INFO cycle=27 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:52:37,890 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:52:37,894 [oil_market] INFO cycle=28 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:55:37,683 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:55:37,686 [oil_market] INFO cycle=29 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-13 23:58:37,788 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-13 23:58:37,792 [oil_market] INFO cycle=30 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:01:37,563 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:01:37,566 [oil_market] INFO cycle=31 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:04:37,242 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:04:37,245 [oil_market] INFO cycle=32 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:07:36,931 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:07:36,938 [oil_market] INFO cycle=33 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:10:36,587 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:10:36,594 [oil_market] INFO cycle=34 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:13:36,240 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:13:36,244 [oil_market] INFO cycle=35 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:16:35,913 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:16:35,918 [oil_market] INFO cycle=36 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:19:35,593 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:19:35,599 [oil_market] INFO cycle=37 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:22:35,272 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:22:35,278 [oil_market] INFO cycle=38 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:25:35,364 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:25:35,375 [oil_market] INFO cycle=39 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:28:35,251 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:28:35,258 [oil_market] INFO cycle=40 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:31:34,954 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:31:34,961 [oil_market] INFO cycle=41 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:34:34,689 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:34:34,693 [oil_market] INFO cycle=42 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:37:34,386 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:37:34,391 [oil_market] INFO cycle=43 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:40:34,104 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:40:34,111 [oil_market] INFO cycle=44 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:43:33,764 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:43:33,768 [oil_market] INFO cycle=45 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:46:33,529 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:46:33,539 [oil_market] INFO cycle=46 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:49:33,716 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:49:33,720 [oil_market] INFO cycle=47 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:52:33,411 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:52:33,416 [oil_market] INFO cycle=48 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:55:33,104 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:55:33,112 [oil_market] INFO cycle=49 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 00:58:32,777 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 00:58:32,785 [oil_market] INFO cycle=50 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 01:01:32,462 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:01:32,467 [oil_market] INFO cycle=51 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 01:04:32,091 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:04:32,096 [oil_market] INFO cycle=52 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 01:07:31,750 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 01:07:31,756 [oil_market] INFO cycle=53 side=HOLD edge=0.082% conf=0.39 policy=False exec=none

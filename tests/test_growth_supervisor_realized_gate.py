@@ -35,13 +35,23 @@ def _base_warm():
     return {"summary": {"promoted_hot": 1}}
 
 
+def _green_execution_health():
+    return {
+        "green": True,
+        "reason": "ok",
+        "updated_at": "2026-02-14T00:00:00+00:00",
+    }
+
+
 def test_strict_realized_gate_blocks_go_when_failed(monkeypatch):
     monkeypatch.setattr(gs, "STRICT_REALIZED_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
     decision = gs._build_decision(
         _base_audit(),
         _base_warm(),
         _base_warm(),
         quant_company_status={"realized_gate_passed": False, "realized_gate_reason": "realized_pnl_below_threshold"},
+        execution_health=_green_execution_health(),
     )
     assert decision["go_live"] is False
     assert any("strict_realized_gate_failed" in r for r in decision["reasons"])
@@ -49,11 +59,13 @@ def test_strict_realized_gate_blocks_go_when_failed(monkeypatch):
 
 def test_strict_realized_gate_allows_go_when_passed(monkeypatch):
     monkeypatch.setattr(gs, "STRICT_REALIZED_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
     decision = gs._build_decision(
         _base_audit(),
         _base_warm(),
         _base_warm(),
         quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health=_green_execution_health(),
     )
     assert decision["go_live"] is True
     assert not any("strict_realized_gate_failed" in r for r in decision["reasons"])
@@ -61,6 +73,7 @@ def test_strict_realized_gate_allows_go_when_passed(monkeypatch):
 
 def test_strict_realized_gate_bootstrap_override_allows_go_for_low_budget(monkeypatch):
     monkeypatch.setattr(gs, "STRICT_REALIZED_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
     monkeypatch.setattr(gs, "STRICT_REALIZED_BOOTSTRAP_ALLOW", True)
     monkeypatch.setattr(gs, "STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET", 2.0)
     monkeypatch.setattr(gs, "STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_STRATEGIES", 8)
@@ -80,6 +93,7 @@ def test_strict_realized_gate_bootstrap_override_allows_go_for_low_budget(monkey
             "realized_total_closes": 6,
             "realized_total_net_pnl_usd": 0.42,
         },
+        execution_health=_green_execution_health(),
     )
 
     assert decision["go_live"] is True
@@ -91,6 +105,7 @@ def test_strict_realized_gate_bootstrap_override_allows_go_for_low_budget(monkey
 
 def test_strict_realized_gate_bootstrap_allows_near_pass_positive_windows(monkeypatch):
     monkeypatch.setattr(gs, "STRICT_REALIZED_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
     monkeypatch.setattr(gs, "STRICT_REALIZED_BOOTSTRAP_ALLOW", True)
     monkeypatch.setattr(gs, "STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_BUDGET", 2.0)
     monkeypatch.setattr(gs, "STRICT_REALIZED_BOOTSTRAP_MAX_FUNDED_STRATEGIES", 8)
@@ -110,6 +125,7 @@ def test_strict_realized_gate_bootstrap_allows_near_pass_positive_windows(monkey
             "realized_total_closes": 11,
             "realized_total_net_pnl_usd": 3.17,
         },
+        execution_health=_green_execution_health(),
     )
 
     assert decision["go_live"] is True
@@ -118,6 +134,7 @@ def test_strict_realized_gate_bootstrap_allows_near_pass_positive_windows(monkey
 
 
 def test_close_flow_gate_blocks_buy_heavy_no_sell_closes(monkeypatch):
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
     monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
     monkeypatch.setattr(gs, "CLOSE_FLOW_MIN_SELL_COMPLETIONS", 1)
     monkeypatch.setattr(gs, "CLOSE_FLOW_MAX_BUY_SELL_RATIO", 2.5)
@@ -127,6 +144,7 @@ def test_close_flow_gate_blocks_buy_heavy_no_sell_closes(monkeypatch):
         _base_warm(),
         _base_warm(),
         quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health=_green_execution_health(),
         trade_flow_metrics={
             "lookback_hours": 6,
             "buy_fills": 8,
@@ -144,6 +162,7 @@ def test_close_flow_gate_blocks_buy_heavy_no_sell_closes(monkeypatch):
 
 
 def test_close_flow_gate_allows_balanced_flow(monkeypatch):
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
     monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
     monkeypatch.setattr(gs, "CLOSE_FLOW_MIN_SELL_COMPLETIONS", 1)
     monkeypatch.setattr(gs, "CLOSE_FLOW_MAX_BUY_SELL_RATIO", 2.5)
@@ -153,6 +172,7 @@ def test_close_flow_gate_allows_balanced_flow(monkeypatch):
         _base_warm(),
         _base_warm(),
         quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health=_green_execution_health(),
         trade_flow_metrics={
             "lookback_hours": 6,
             "buy_fills": 4,
@@ -170,6 +190,7 @@ def test_close_flow_gate_allows_balanced_flow(monkeypatch):
 
 
 def test_close_flow_gate_blocks_low_close_completion_rate(monkeypatch):
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
     monkeypatch.setattr(gs, "CLOSE_FLOW_GO_LIVE_REQUIRED", True)
     monkeypatch.setattr(gs, "CLOSE_FLOW_MIN_SELL_COMPLETIONS", 1)
     monkeypatch.setattr(gs, "CLOSE_FLOW_MAX_BUY_SELL_RATIO", 2.5)
@@ -181,6 +202,7 @@ def test_close_flow_gate_blocks_low_close_completion_rate(monkeypatch):
         _base_warm(),
         _base_warm(),
         quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health=_green_execution_health(),
         trade_flow_metrics={
             "lookback_hours": 6,
             "buy_fills": 2,
@@ -198,3 +220,35 @@ def test_close_flow_gate_blocks_low_close_completion_rate(monkeypatch):
 
     assert decision["go_live"] is False
     assert any("close_flow_gate_failed:close_completion_rate_low:" in r for r in decision["reasons"])
+
+
+def test_execution_health_gate_blocks_go_when_status_missing(monkeypatch):
+    monkeypatch.setattr(gs, "STRICT_REALIZED_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+
+    decision = gs._build_decision(
+        _base_audit(),
+        _base_warm(),
+        _base_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={},
+    )
+
+    assert decision["go_live"] is False
+    assert "execution_health_status_missing" in decision["reasons"]
+
+
+def test_execution_health_gate_blocks_go_when_not_green(monkeypatch):
+    monkeypatch.setattr(gs, "STRICT_REALIZED_GO_LIVE_REQUIRED", True)
+    monkeypatch.setattr(gs, "EXECUTION_HEALTH_GO_LIVE_REQUIRED", True)
+
+    decision = gs._build_decision(
+        _base_audit(),
+        _base_warm(),
+        _base_warm(),
+        quant_company_status={"realized_gate_passed": True, "realized_gate_reason": "passed"},
+        execution_health={"green": False, "reason": "dns_unhealthy", "updated_at": "2026-02-14T00:00:00+00:00"},
+    )
+
+    assert decision["go_live"] is False
+    assert "execution_health_not_green:dns_unhealthy" in decision["reasons"]

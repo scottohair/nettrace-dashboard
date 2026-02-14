@@ -1,0 +1,58 @@
+{
+  "updated_at": "2026-02-14T06:08:22.996293+00:00",
+  "online_nodes": 1,
+  "total_nodes": 3,
+  "framework_totals": {
+    "numpy": 3,
+    "mlx": 2,
+    "pytorch": 2,
+    "mps": 2
+  },
+  "nodes": [
+    {
+      "name": "m2ultra-studio",
+      "node_id": "m2ultra",
+      "status": "pending",
+      "gpu_type": "apple_metal",
+      "chip": "Apple M2 Ultra",
+      "memory_gb": 192.0,
+      "frameworks": [
+        "numpy",
+        "mlx",
+        "pytorch",
+        "mps"
+      ],
+      "load": 0.0,
+      "last_heartbeat": "2026-02-12T13:12:59.309251+00:00"
+    },
+    {
+      "name": "m1max-studio",
+      "node_id": "m1max",
+      "status": "pending",
+      "gpu_type": "apple_metal",
+      "chip": "Apple M1 Max",
+      "memory_gb": 64.0,
+      "frameworks": [
+        "numpy",
+        "mlx",
+        "pytorch",
+        "mps"
+      ],
+      "load": 0.0,
+      "last_heartbeat": "2026-02-12T13:12:59.308845+00:00"
+    },
+    {
+      "name": "local-purple-2.local",
+      "node_id": "local",
+      "status": "online",
+      "gpu_type": "apple_metal",
+      "chip": "Apple M3",
+      "memory_gb": 16.0,
+      "frameworks": [
+        "numpy"
+      ],
+      "load": 0.1,
+      "last_heartbeat": "2026-02-12T13:13:00.337948+00:00"
+    }
+  ]
+}

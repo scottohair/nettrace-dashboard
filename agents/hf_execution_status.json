@@ -1,0 +1,13 @@
+{
+  "updated_at": "2026-02-13T05:50:49.206668+00:00",
+  "running": true,
+  "cycle": 1,
+  "interval_ms": 900,
+  "execute_live": false,
+  "pairs": [
+    "BTC-USDC",
+    "ETH-USDC",
+    "SOL-USDC"
+  ],
+  "recent_signals": []
+}

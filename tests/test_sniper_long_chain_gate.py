@@ -118,3 +118,33 @@ def test_resolve_buy_pair_keeps_usdc_when_funded(monkeypatch, tmp_path):
     monkeypatch.setattr(sniper, "_get_quote_balances", lambda: {"USD": 5.0, "USDC": 20.0})
     routed = sniper._resolve_buy_pair_for_balance("BTC-USDC", min_quote_needed=10.0)
     assert routed == "BTC-USDC"
+
+
+def test_fit_buy_to_quote_capacity_routes_and_caps_to_alt_quote(monkeypatch, tmp_path):
+    monkeypatch.setattr(sn, "SNIPER_DB", str(tmp_path / "sniper.db"))
+    sniper = sn.Sniper()
+    monkeypatch.setattr(sniper, "_get_quote_balances", lambda: {"USD": 110.0, "USDC": 4.7})
+    pair, size, reason = sniper._fit_buy_to_quote_capacity("BTC-USDC", 12.0, 0.5)
+    assert pair == "BTC-USD"
+    assert size == 12.0
+    assert reason == "alt_quote_capacity"
+
+
+def test_fit_buy_to_quote_capacity_caps_to_current_quote_capacity(monkeypatch, tmp_path):
+    monkeypatch.setattr(sn, "SNIPER_DB", str(tmp_path / "sniper.db"))
+    sniper = sn.Sniper()
+    monkeypatch.setattr(sniper, "_get_quote_balances", lambda: {"USD": 3.0, "USDC": 0.0})
+    pair, size, reason = sniper._fit_buy_to_quote_capacity("ETH-USD", 10.0, 0.5)
+    assert pair == "ETH-USD"
+    assert 2.9 < size < 3.0
+    assert reason == "current_quote_capacity"
+
+
+def test_fit_buy_to_quote_capacity_rejects_when_below_min_viable(monkeypatch, tmp_path):
+    monkeypatch.setattr(sn, "SNIPER_DB", str(tmp_path / "sniper.db"))
+    sniper = sn.Sniper()
+    monkeypatch.setattr(sniper, "_get_quote_balances", lambda: {"USD": 0.30, "USDC": 0.20})
+    pair, size, reason = sniper._fit_buy_to_quote_capacity("ETH-USD", 1.0, 0.5)
+    assert pair == "ETH-USD"
+    assert size == 0.0
+    assert reason.startswith("quote_capacity_insufficient")

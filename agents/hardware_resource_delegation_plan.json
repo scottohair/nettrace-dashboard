@@ -1,0 +1,186 @@
+{
+  "updated_at": "2026-02-14T00:00:00Z",
+  "mode": "planning_and_delegation",
+  "objective": "Delegate prioritized work to hardware/resource lanes running agent workloads with deterministic acceptance gates.",
+  "hardware_profile": {
+    "arch": "arm64",
+    "memory_bytes": 17179869184,
+    "mlx_available": false,
+    "torch_available": false,
+    "notes": [
+      "CPU details restricted by sandbox sysctl permissions",
+      "Treat runtime as CPU-only with strict network/DNS resilience requirements"
+    ]
+  },
+  "global_policies": {
+    "no_unverified_budget_escalation": true,
+    "require_realized_close_evidence": true,
+    "require_exit_manager_heartbeat": true,
+    "execution_health_gate_blocks_live_growth": true
+  },
+  "lanes": [
+    {
+      "lane_id": "exec_network_lane",
+      "resource_class": "network_dns_egress",
+      "primary_agents": [
+        "execution_health",
+        "exit_manager",
+        "reconcile_agent_trades",
+        "flywheel_controller"
+      ],
+      "cadence_seconds": 60,
+      "tasks": [
+        {
+          "task_id": "HWP-001",
+          "title": "Unify DNS failover probing between execution health and connector",
+          "owners": [
+            "agents/execution_health.py",
+            "agents/exchange_connector.py"
+          ],
+          "acceptance": [
+            "execution_health_status.components.dns.green=true when fallback endpoints are reachable",
+            "execution_health_status.reasons excludes dns_unhealthy for validated fallback-path success"
+          ]
+        },
+        {
+          "task_id": "HWP-002",
+          "title": "Keep exit_manager alive through transient DNS/API failures",
+          "owners": [
+            "agents/exit_manager.py"
+          ],
+          "acceptance": [
+            "exit_manager_status.running=true continuously while monitor loop active",
+            "exit_manager_status.cycle_index increments across retry windows",
+            "flywheel exit_manager_gate.passed=true when heartbeat fresh"
+          ]
+        },
+        {
+          "task_id": "HWP-003",
+          "title": "Ensure SELL-close reconciliation observes real completion events",
+          "owners": [
+            "agents/reconcile_agent_trades.py",
+            "agents/flywheel_controller.py"
+          ],
+          "acceptance": [
+            "reconcile_agent_trades_status.close_reconciliation.attempts>0 after SELL close events",
+            "close_gate_reason becomes sell_close_completion_observed when completions exist"
+          ]
+        }
+      ]
+    },
+    {
+      "lane_id": "compute_sql_lane",
+      "resource_class": "cpu_sql",
+      "primary_agents": [
+        "quant_engine",
+        "quant_100_runner"
+      ],
+      "cadence_seconds": 180,
+      "tasks": [
+        {
+          "task_id": "HWP-101",
+          "title": "Make quant history scans index-aware",
+          "owners": [
+            "quant_engine.py",
+            "app.py"
+          ],
+          "acceptance": [
+            "EXPLAIN QUERY PLAN indicates index usage for target_host+created_at path",
+            "quant_engine runtime improves vs baseline on same dataset"
+          ]
+        }
+      ]
+    },
+    {
+      "lane_id": "io_scan_lane",
+      "resource_class": "memory_io",
+      "primary_agents": [
+        "scheduler"
+      ],
+      "cadence_seconds": 900,
+      "tasks": [
+        {
+          "task_id": "HWP-201",
+          "title": "Parallelize traceroute scan workers with bounded pool",
+          "owners": [
+            "scheduler.py"
+          ],
+          "acceptance": [
+            "cycle_duration remains below SCAN_INTERVAL under normal target counts",
+            "no dropped targets in cycle summary"
+          ]
+        }
+      ]
+    },
+    {
+      "lane_id": "sim_hf_lane",
+      "resource_class": "cpu_native_path",
+      "primary_agents": [
+        "turbo_sim",
+        "hf_execution",
+        "strategy_pipeline"
+      ],
+      "cadence_seconds": 120,
+      "tasks": [
+        {
+          "task_id": "HWP-301",
+          "title": "Parallel market data fetch in turbo_sim before native decision path",
+          "owners": [
+            "agents/turbo_sim.py"
+          ],
+          "acceptance": [
+            "fetch phase latency decreases and is logged separately",
+            "decision cadence remains stable at configured loop interval"
+          ]
+        },
+        {
+          "task_id": "HWP-302",
+          "title": "Add short-lived Monte Carlo result cache for unchanged inputs",
+          "owners": [
+            "agents/strategy_pipeline.py"
+          ],
+          "acceptance": [
+            "cache-hit path returns identical gate decision for unchanged inputs",
+            "cache invalidates on candle_count or key input changes"
+          ]
+        }
+      ]
+    },
+    {
+      "lane_id": "control_plane_lane",
+      "resource_class": "orchestration_governance",
+      "primary_agents": [
+        "orchestrator_v2",
+        "flywheel_controller",
+        "autonomous_work_manager",
+        "quant_company_agent"
+      ],
+      "cadence_seconds": 60,
+      "tasks": [
+        {
+          "task_id": "HWP-401",
+          "title": "Keep flywheel gate strict: no GO when exit manager heartbeat is stale/down",
+          "owners": [
+            "agents/flywheel_controller.py"
+          ],
+          "acceptance": [
+            "growth_decision.decision=NO_GO when exit_manager_gate.passed=false",
+            "trading_lock.locked=true under gate failure"
+          ]
+        },
+        {
+          "task_id": "HWP-402",
+          "title": "Dispatch lane directives continuously to Claude duplex/autonomous queue",
+          "owners": [
+            "agents/autonomous_work_manager.py",
+            "agents/claude_duplex.py"
+          ],
+          "acceptance": [
+            "duplex_to_claude contains current lane directives with trace ids",
+            "autonomous_work_status.dispatch.dispatched increments during active cycles"
+          ]
+        }
+      ]
+    }
+  ]
+}

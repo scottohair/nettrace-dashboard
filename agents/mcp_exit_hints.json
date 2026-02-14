@@ -1,0 +1,12 @@
+{
+  "updated_at": "2026-02-14T06:09:12.345904+00:00",
+  "source": "mcp_opportunity_agent",
+  "global": {
+    "vol_scale": 1.0,
+    "stop_scale": 1.0,
+    "dead_money_hours_mult": 1.0,
+    "force_eval_hours_mult": 1.0,
+    "tp_bias_pct": 0.0
+  },
+  "pairs": {}
+}

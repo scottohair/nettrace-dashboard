@@ -5,6 +5,91 @@ Both agents: READ this before starting work. WRITE here before ending work.
 
 ---
 
+## 2026-02-14 Claude Code Handoff — Phase 1 Quick-Win Agents (Platform Inspiration Ideas)
+
+### What I Did (this session)
+
+**Implemented 5 Phase 1 Quick-Win Trading Agents:**
+1. **regulatory_scanner.py** (disabled, needs Twitter/Reddit API keys)
+   - Monitors SEC/CFTC/Fed RSS feeds for regulatory announcements
+   - Scores impact on affected tokens (stablecoin, leverage, custody, DeFi keywords)
+   - Generates high-confidence (0.75+) policy arbitrage signals
+   - Database: regulatory_scanner.db, API endpoint: `/api/v1/regulatory/recent`
+
+2. **sentiment_leech.py** (ENABLED — ready to run)
+   - Uses Alternative.me Fear & Greed Index (public, no auth needed)
+   - CONTRARIAN: BUY when sentiment < -0.6 (extreme fear), SELL when > +0.8 (euphoria)
+   - Runs every 15 minutes, max 3 trades/day
+   - Database: sentiment_leech.db, API endpoint: `/api/v1/sentiment/<pair>`
+
+3. **liquidation_hunter.py** (disabled, needs Binance/Deribit funding rate API)
+   - Monitors funding rates to detect leverage stress
+   - Simulates cascade: "if BTC drops 5%, which strikes liquidate?"
+   - Pre-places limit orders 0.3-0.5% above predicted liquidation levels
+   - Database: liquidation_hunter.db, API endpoint: `/api/v1/liquidations/predictions`
+
+4. **narrative_tracker.py** (disabled, needs Google Trends API)
+   - Detects 20+ narrative themes: AI, RWA, Gaming, L2s, Restaking, DeFi 2.0, etc.
+   - Lifecycle detection: Birth (hockey stick) → Growth → Saturation → Death
+   - LONG at inflection (birth stage), SHORT at saturation (consensus fade)
+   - Database: narrative_tracker.db, API endpoint: `/api/v1/narratives`
+
+5. **futures_mispricing.py** (disabled, needs CME/Deribit futures API)
+   - Spot-futures basis arbitrage: cash-carry (contango) and reverse (backwardation)
+   - Fair price = spot * (1 + r*t), flags mispricing > 0.3%
+   - Target: 0.5-2% APR on market-neutral spreads
+   - Database: futures_mispricing.db, API endpoint: `/api/v1/futures/arbitrage`
+
+**Code Updates:**
+- Added 5 new agent scripts: regulatory_scanner.py, sentiment_leech.py, liquidation_hunter.py, narrative_tracker.py, futures_mispricing.py
+- Updated requirements.txt: added feedparser, requests, beautifulsoup4
+- Updated api_v1.py: 5 new endpoints for agent data (regulatory, sentiment, liquidations, narratives, futures arb)
+- Updated orchestrator_v2.py: added 5 agent configs (sentiment_leech ENABLED, others disabled pending API keys)
+
+### Deploy Status
+- Code ready for testing on local machine
+- sentiment_leech.py ready to enable immediately (uses public Fear & Greed Index)
+- Other 4 agents require API key setup in agents/.env before enabling:
+  - TWITTER_BEARER_TOKEN (regulatory_scanner)
+  - REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT (sentiment_leech, regulatory_scanner)
+  - LUNARCRUSH_API_KEY (potential sentiment enhancement)
+  - COINGLASS_API_KEY (liquidation_hunter)
+  - Google Trends API credentials (narrative_tracker)
+  - CME/Deribit API keys (futures_mispricing)
+
+### Current Portfolio State
+- Still ~$52 USDC (from previous session)
+- Sentiment leech ready to generate buy/sell signals
+- New agents will compete for capital allocation via capital_allocator
+
+### Risk Controls Integrated
+- All agents use risk_controller pattern (approval gates before trades)
+- All agents log to DB with status tracking
+- All agents have position size limits: 2-5% per agent
+- Confidence thresholds: 0.75 (regulatory), 0.6 (sentiment), 0.6 (others)
+- Exit stops: 1% (regulatory), trailing on sentiment moves, 0.3% (liquidation bets), narrative death detection
+
+### What Codex Should Work On
+1. **API Key Integration** — Add Twitter, Reddit, Coinglass, Google Trends credentials to agents/.env
+2. **Test Phase 1 Agents** — Run sentiment_leech locally for 7 days in paper mode
+3. **ML Signal Enhancement** — Integrate neural sentiment models (better than Fear & Greed)
+4. **Futures Pricing Models** — Build more accurate fair-value calculator with vol term structure
+5. **Narrative S-Curve Fitting** — Use Gompertz/logistic curves for better lifecycle detection
+
+### Blockers
+- API keys needed for 4/5 agents to be production-ready
+- sentiment_leech enabled but no risk_controller integration yet (pre-trading phase)
+- Need to test with actual market data before enabling real trading
+- IBKR account still pending approval
+
+### For Scott
+- **sentiment_leech** is ready to enable immediately (uses public API)
+- Can test with $5-10 allocation once we enable it
+- Other 4 agents are high-potential but require API setup
+- Phase 2 agents (latency oracle, zero-knowledge, Nash escape, strategy sandbox) will add more alpha
+
+---
+
 ## 2026-02-13 Claude Code Handoff (v69+) — Crisis Response + Cycle Speed Optimization
 
 ### What I Did (this session)

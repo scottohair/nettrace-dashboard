@@ -1,0 +1,5 @@
+2026-02-13 22:53:33,626 [candle_agg_agent] INFO refresh ok points=3332 target=1000 achieved=True pairs=14 tf=4
+2026-02-13 22:54:02,262 [candle_agg_agent] INFO starting candle aggregator loop interval=20s target_points=1000 since_hours=48
+2026-02-13 22:55:11,162 [candle_agg_agent] INFO starting candle aggregator loop interval=20s target_points=1000 since_hours=48
+2026-02-13 22:55:15,486 [candle_agg_agent] INFO starting candle aggregator loop interval=20s target_points=1000 since_hours=48
+2026-02-13 23:03:19,312 [candle_agg_agent] INFO refresh ok points=3332 target=1000 achieved=True pairs=14 tf=4

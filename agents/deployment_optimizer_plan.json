@@ -1,0 +1,205 @@
+{
+  "updated_at": "2026-02-14T06:07:00.869196+00:00",
+  "cycle": 32,
+  "summary": {
+    "runtime_region": "local",
+    "deployment_score": 0.31,
+    "hf_live_ready": false,
+    "top_regions": [
+      "ewr",
+      "nrt",
+      "sin"
+    ]
+  },
+  "credential_matrix": {
+    "coinbase_api": true,
+    "fix_gateway": false,
+    "fix_api_key": false,
+    "fix_gateway_url": "",
+    "fix_gateway_host": "",
+    "fix_timeout_ms": 0,
+    "ibkr_api": false,
+    "etrade_api": true
+  },
+  "dns_probes": {
+    "api.coinbase.com": {
+      "host": "api.coinbase.com",
+      "ok": false,
+      "latency_ms": 0.318,
+      "error": "[Errno 8] nodename nor servname provided, or not known"
+    },
+    "api.exchange.coinbase.com": {
+      "host": "api.exchange.coinbase.com",
+      "ok": false,
+      "latency_ms": 0.066,
+      "error": "[Errno 8] nodename nor servname provided, or not known"
+    }
+  },
+  "telemetry": {
+    "coinbase": {
+      "venue": "coinbase",
+      "window_minutes": 60,
+      "samples": 2000,
+      "success_rate": 0.009,
+      "failure_rate": 0.991,
+      "p50_latency_ms": 9.168,
+      "p90_latency_ms": 17.257,
+      "p99_latency_ms": 22.767
+    },
+    "ibkr": {
+      "venue": "ibkr",
+      "window_minutes": 60,
+      "samples": 0,
+      "success_rate": 0.0,
+      "failure_rate": 0.0,
+      "p50_latency_ms": 0.0,
+      "p90_latency_ms": 0.0,
+      "p99_latency_ms": 0.0
+    },
+    "etrade": {
+      "venue": "etrade",
+      "window_minutes": 60,
+      "samples": 0,
+      "success_rate": 0.0,
+      "failure_rate": 0.0,
+      "p50_latency_ms": 0.0,
+      "p90_latency_ms": 0.0,
+      "p99_latency_ms": 0.0
+    },
+    "fix": {
+      "venue": "fix",
+      "window_minutes": 60,
+      "samples": 0,
+      "success_rate": 0.0,
+      "failure_rate": 0.0,
+      "p50_latency_ms": 0.0,
+      "p90_latency_ms": 0.0,
+      "p99_latency_ms": 0.0
+    }
+  },
+  "venue_readiness": {
+    "coinbase": {
+      "live_ready": false,
+      "dns_ok": false,
+      "credentials_present": true,
+      "success_rate": 0.009,
+      "samples": 2000,
+      "p90_latency_ms": 17.257,
+      "reason": "requires_dns+credentials+healthy_telemetry"
+    },
+    "fix": {
+      "live_ready": false,
+      "dns_ok": true,
+      "credentials_present": false,
+      "timeout_ms": 0,
+      "reason": "requires_gateway_url+dns+timeout"
+    },
+    "ibkr": {
+      "live_ready": false,
+      "dns_ok": true,
+      "credentials_present": false,
+      "success_rate": 0.0,
+      "samples": 0,
+      "reason": "requires_host_port+health"
+    }
+  },
+  "region_ranking": [
+    {
+      "region": "ewr",
+      "score": 0.47,
+      "role": "Primary Coordinator (US East)",
+      "vm_recommendation": "shared-cpu-2x",
+      "agent_count": 4,
+      "reasons": [
+        "coinbase_primary",
+        "coinbase_success_degraded"
+      ]
+    },
+    {
+      "region": "nrt",
+      "score": 0.23,
+      "role": "Asian Exchange Primary (Tokyo)",
+      "vm_recommendation": "shared-cpu-1x",
+      "agent_count": 1,
+      "reasons": [
+        "asia_liquidity",
+        "coinbase_success_degraded"
+      ]
+    },
+    {
+      "region": "sin",
+      "score": 0.23,
+      "role": "Asian Exchange Backup (Singapore)",
+      "vm_recommendation": "shared-cpu-1x",
+      "agent_count": 2,
+      "reasons": [
+        "asia_liquidity",
+        "coinbase_success_degraded"
+      ]
+    },
+    {
+      "region": "ord",
+      "score": 0.2,
+      "role": "CME/NYMEX Proximity (US Central)",
+      "vm_recommendation": "shared-cpu-1x",
+      "agent_count": 1,
+      "reasons": [
+        "futures_proximity",
+        "coinbase_success_degraded"
+      ]
+    },
+    {
+      "region": "lhr",
+      "score": 0.15,
+      "role": "European Exchange Hub (London)",
+      "vm_recommendation": "shared-cpu-1x",
+      "agent_count": 2,
+      "reasons": [
+        "coinbase_success_degraded"
+      ]
+    },
+    {
+      "region": "fra",
+      "score": 0.15,
+      "role": "European Backup + Risk Monitor (Frankfurt)",
+      "vm_recommendation": "shared-cpu-1x",
+      "agent_count": 2,
+      "reasons": [
+        "coinbase_success_degraded"
+      ]
+    },
+    {
+      "region": "bom",
+      "score": 0.15,
+      "role": "DGCX + India Market Monitor (Mumbai)",
+      "vm_recommendation": "shared-cpu-1x",
+      "agent_count": 2,
+      "reasons": [
+        "coinbase_success_degraded"
+      ]
+    }
+  ],
+  "traceroute_summary": {
+    "db_path": "/Users/scott/src/quant/traceroute.db",
+    "rows": [],
+    "available": true
+  },
+  "priority_actions": [
+    "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
+    "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
+    "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
+    "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
+    "Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com",
+    "Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+    "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
+  ],
+  "source_manifest_regions": [
+    "bom",
+    "ewr",
+    "fra",
+    "lhr",
+    "nrt",
+    "ord",
+    "sin"
+  ]
+}

@@ -1,0 +1,2 @@
+2026-02-13 00:50:49,202 [treasury_registry] INFO starting treasury_registry_agent loop interval=300s
+2026-02-13 00:50:49,203 [treasury_registry] ERROR ib_insync not installed — run: pip install ib_insync

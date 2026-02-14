@@ -64,6 +64,54 @@ def test_execution_health_green_when_all_components_pass(monkeypatch, tmp_path):
     assert payload["components"]["dns"]["failover_profile"]["active"] is False
 
 
+def test_execution_health_applies_telemetry_endpoint_filters(monkeypatch, tmp_path):
+    now_iso = datetime.now(timezone.utc).isoformat()
+    reconcile = tmp_path / "reconcile_status.json"
+    reconcile.write_text(
+        json.dumps(
+            {
+                "updated_at": now_iso,
+                "summary": {"checked": 4, "early_exit_reason": ""},
+            }
+        )
+    )
+    captured = {}
+
+    def _snap(venue, window_minutes=30, include_endpoint_prefixes=None, exclude_endpoint_prefixes=None, **_kwargs):
+        captured["venue"] = venue
+        captured["window_minutes"] = int(window_minutes)
+        captured["include"] = tuple(include_endpoint_prefixes or ())
+        captured["exclude"] = tuple(exclude_endpoint_prefixes or ())
+        return {
+            "samples": 8,
+            "success_rate": 0.95,
+            "failure_rate": 0.05,
+            "p90_latency_ms": 210.0,
+        }
+
+    monkeypatch.setattr(eh, "RECON_STATUS_PATH", reconcile)
+    monkeypatch.setattr(eh, "DNS_HOSTS", ("api.coinbase.com",))
+    monkeypatch.setattr(eh, "DNS_REQUIRE_ALL", True)
+    monkeypatch.setattr(eh, "MIN_TELEMETRY_SAMPLES", 1)
+    monkeypatch.setattr(eh, "venue_health_snapshot", _snap)
+    monkeypatch.setattr(eh, "_dns_probe", lambda host: {"host": host, "ok": True, "ips": ["127.0.0.1"], "error": "", "latency_ms": 1.0})
+    monkeypatch.setattr(eh, "HTTP_PROBE_URLS", ("https://example.com/ok",))
+    payload = eh.evaluate_execution_health(
+        refresh=True,
+        probe_http=False,
+        write_status=False,
+        status_path=tmp_path / "health.json",
+    )
+    assert payload["green"] is True
+    assert captured["venue"] == "coinbase"
+    assert captured["include"] == eh.TELEMETRY_INCLUDE_ENDPOINT_PREFIXES
+    assert (
+        "/api/v3/brokerage/orders/historical" in captured["exclude"]
+        and captured["exclude"] == eh.TELEMETRY_EXCLUDE_ENDPOINT_PREFIXES
+    )
+    assert captured["window_minutes"] == 30
+
+
 def test_execution_health_fails_when_reconcile_early_exit(monkeypatch, tmp_path):
     now_iso = datetime.now(timezone.utc).isoformat()
     reconcile = tmp_path / "reconcile_status.json"
@@ -421,6 +469,68 @@ def test_execution_health_local_test_mode_ignores_egress_and_telemetry_gate(monk
     assert payload["components"]["api_probe"]["enabled"] is False
     assert payload["egress_blocked"] is False
     assert payload["components"]["telemetry"]["green"] is True
+
+
+def test_execution_health_allows_telemetry_bypass_flag(monkeypatch, tmp_path):
+    now_iso = datetime.now(timezone.utc).isoformat()
+    reconcile = tmp_path / "reconcile_status.json"
+    reconcile.write_text(
+        json.dumps(
+            {
+                "updated_at": now_iso,
+                "summary": {
+                    "checked": 4,
+                    "early_exit_reason": "",
+                    "close_gate_passed": True,
+                    "close_gate_reason": "sell_close_completion_observed",
+                },
+            }
+        )
+    )
+    monkeypatch.setattr(eh, "RECON_STATUS_PATH", reconcile)
+    monkeypatch.setattr(eh, "DNS_HOSTS", ("api.coinbase.com",))
+    monkeypatch.setattr(eh, "DNS_REQUIRE_ALL", True)
+    monkeypatch.setattr(eh, "MIN_TELEMETRY_SAMPLES", 3)
+    monkeypatch.setattr(
+        eh,
+        "venue_health_snapshot",
+        lambda *_args, **_kwargs: {
+            "samples": 2,
+            "success_rate": 0.40,
+            "failure_rate": 0.60,
+            "p90_latency_ms": 12000.0,
+        },
+    )
+    monkeypatch.setattr(
+        eh,
+        "_dns_probe",
+        lambda host: {"host": host, "ok": True, "ips": ["127.0.0.1"], "error": "", "latency_ms": 1.0},
+    )
+    monkeypatch.setattr(
+        eh,
+        "_http_probe",
+        lambda url, _timeout, fallback_ips=None: {
+            "url": url,
+            "ok": True,
+            "status": 200,
+            "error": "",
+            "latency_ms": 3.0,
+            "fallback_ip_used": bool(fallback_ips),
+        },
+    )
+    monkeypatch.setattr(eh, "HTTP_PROBE_URLS", ("https://example.com/ok",))
+    monkeypatch.setattr(eh, "FORCE_TELEMETRY_BYPASS", True)
+
+    payload = eh.evaluate_execution_health(
+        refresh=True,
+        probe_http=True,
+        write_status=False,
+        status_path=tmp_path / "health.json",
+    )
+    assert payload["green"] is True
+    assert payload["reason"] == "telemetry_bypass_enabled"
+    assert payload["components"]["telemetry"]["bypass_used"] is True
+    assert payload["components"]["telemetry"]["bypass_enabled"] is True
 
 
 def test_dns_probe_retries_system_dns_before_fallback(monkeypatch):

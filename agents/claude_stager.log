@@ -1,0 +1,502 @@
+2026-02-12 21:38:11,903 [claude_stager] INFO cycle=1 focus_pairs=0 online_nodes=1 frameworks=4 msgs=120/1
+2026-02-12 21:38:17,936 [claude_stager] INFO cycle=1 focus_pairs=0 online_nodes=1 frameworks=4 msgs=120/1
+2026-02-12 21:38:31,213 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-12 21:38:31,219 [claude_stager] INFO cycle=1 focus_pairs=0 online_nodes=1 frameworks=4 msgs=120/1
+2026-02-12 22:13:15,625 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-12 22:13:15,632 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:16:16,218 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:19:17,737 [claude_stager] INFO cycle=3 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:22:18,666 [claude_stager] INFO cycle=4 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:25:19,317 [claude_stager] INFO cycle=5 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:28:19,966 [claude_stager] INFO cycle=6 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:31:20,559 [claude_stager] INFO cycle=7 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:34:21,172 [claude_stager] INFO cycle=8 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:37:21,842 [claude_stager] INFO cycle=9 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:40:22,503 [claude_stager] INFO cycle=10 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:43:23,134 [claude_stager] INFO cycle=11 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:46:23,868 [claude_stager] INFO cycle=12 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:49:24,554 [claude_stager] INFO cycle=13 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:52:26,906 [claude_stager] INFO cycle=14 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:55:27,553 [claude_stager] INFO cycle=15 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 22:58:28,142 [claude_stager] INFO cycle=16 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:01:28,824 [claude_stager] INFO cycle=17 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:04:29,551 [claude_stager] INFO cycle=18 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:07:30,267 [claude_stager] INFO cycle=19 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:10:30,935 [claude_stager] INFO cycle=20 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:13:31,640 [claude_stager] INFO cycle=21 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:16:32,372 [claude_stager] INFO cycle=22 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:19:33,109 [claude_stager] INFO cycle=23 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:22:33,845 [claude_stager] INFO cycle=24 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:25:34,489 [claude_stager] INFO cycle=25 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:28:35,217 [claude_stager] INFO cycle=26 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:31:35,952 [claude_stager] INFO cycle=27 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:34:36,912 [claude_stager] INFO cycle=28 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:37:38,107 [claude_stager] INFO cycle=29 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:40:38,818 [claude_stager] INFO cycle=30 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:43:39,487 [claude_stager] INFO cycle=31 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:46:40,172 [claude_stager] INFO cycle=32 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:49:40,839 [claude_stager] INFO cycle=33 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:52:41,540 [claude_stager] INFO cycle=34 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:55:42,200 [claude_stager] INFO cycle=35 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-12 23:58:42,893 [claude_stager] INFO cycle=36 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:00:27,785 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:00:49,148 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:01:43,559 [claude_stager] INFO cycle=37 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:02:14,138 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 00:02:14,674 [claude_stager] INFO Claude stager stopped
+2026-02-13 00:03:57,939 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 00:03:57,948 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:04:32,366 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:06:58,650 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:07:39,336 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:09:59,324 [claude_stager] INFO cycle=3 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:13:00,008 [claude_stager] INFO cycle=4 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:15:51,281 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:16:00,735 [claude_stager] INFO cycle=5 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:18:05,560 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:18:20,852 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 00:18:20,862 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:19:01,469 [claude_stager] INFO cycle=6 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:20:11,038 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:21:21,552 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:22:02,211 [claude_stager] INFO cycle=7 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:22:10,500 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:23:39,777 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 00:23:40,328 [claude_stager] INFO Claude stager stopped
+2026-02-13 00:23:55,107 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:24:10,401 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 00:24:10,410 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:25:03,204 [claude_stager] INFO cycle=8 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:26:25,258 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 00:26:25,929 [claude_stager] INFO Claude stager stopped
+2026-02-13 00:26:37,230 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:26:52,576 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 00:26:52,585 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:27:26,166 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:28:03,880 [claude_stager] INFO cycle=9 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:29:53,286 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:30:42,093 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:31:04,586 [claude_stager] INFO cycle=10 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:32:54,005 [claude_stager] INFO cycle=3 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:34:05,253 [claude_stager] INFO cycle=11 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:34:46,880 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:35:54,711 [claude_stager] INFO cycle=4 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:37:05,926 [claude_stager] INFO cycle=12 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:38:52,072 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:38:55,418 [claude_stager] INFO cycle=5 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:40:06,655 [claude_stager] INFO cycle=13 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:41:56,131 [claude_stager] INFO cycle=6 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:42:56,934 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:43:07,380 [claude_stager] INFO cycle=14 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:44:56,889 [claude_stager] INFO cycle=7 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:46:08,179 [claude_stager] INFO cycle=15 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:47:01,868 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:47:57,674 [claude_stager] INFO cycle=8 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:49:08,878 [claude_stager] INFO cycle=16 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:50:29,926 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 00:50:30,183 [claude_stager] INFO Claude stager stopped
+2026-02-13 00:50:58,397 [claude_stager] INFO cycle=9 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:51:07,048 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:53:59,125 [claude_stager] INFO cycle=10 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:55:11,916 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:56:59,871 [claude_stager] INFO cycle=11 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 00:59:16,751 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:00:00,571 [claude_stager] INFO cycle=12 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:03:01,357 [claude_stager] INFO cycle=13 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:03:22,096 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:06:02,105 [claude_stager] INFO cycle=14 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:07:26,974 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:09:02,840 [claude_stager] INFO cycle=15 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:11:32,432 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:12:03,543 [claude_stager] INFO cycle=16 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:15:04,273 [claude_stager] INFO cycle=17 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:15:37,662 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:17:10,316 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:18:05,021 [claude_stager] INFO cycle=18 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:19:42,554 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:21:05,777 [claude_stager] INFO cycle=19 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:23:24,275 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:23:47,479 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:24:06,515 [claude_stager] INFO cycle=20 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:25:03,286 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:27:07,231 [claude_stager] INFO cycle=21 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:30:07,953 [claude_stager] INFO cycle=22 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:32:17,082 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:32:38,409 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:33:08,689 [claude_stager] INFO cycle=23 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:36:09,387 [claude_stager] INFO cycle=24 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:39:10,129 [claude_stager] INFO cycle=25 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:41:00,201 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:42:10,840 [claude_stager] INFO cycle=26 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:45:11,488 [claude_stager] INFO cycle=27 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:48:12,125 [claude_stager] INFO cycle=28 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:51:13,101 [claude_stager] INFO cycle=29 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:54:14,271 [claude_stager] INFO cycle=30 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 01:57:15,393 [claude_stager] INFO cycle=31 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:00:16,503 [claude_stager] INFO cycle=32 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:03:17,679 [claude_stager] INFO cycle=33 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:06:18,768 [claude_stager] INFO cycle=34 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:09:19,855 [claude_stager] INFO cycle=35 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:12:20,972 [claude_stager] INFO cycle=36 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:15:22,082 [claude_stager] INFO cycle=37 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:18:23,241 [claude_stager] INFO cycle=38 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:21:24,320 [claude_stager] INFO cycle=39 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:24:25,410 [claude_stager] INFO cycle=40 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:27:26,548 [claude_stager] INFO cycle=41 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:30:27,610 [claude_stager] INFO cycle=42 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:33:28,709 [claude_stager] INFO cycle=43 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:36:29,849 [claude_stager] INFO cycle=44 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:39:30,981 [claude_stager] INFO cycle=45 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:42:32,126 [claude_stager] INFO cycle=46 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:45:33,226 [claude_stager] INFO cycle=47 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:48:34,355 [claude_stager] INFO cycle=48 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:51:35,547 [claude_stager] INFO cycle=49 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:54:36,686 [claude_stager] INFO cycle=50 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 02:57:37,841 [claude_stager] INFO cycle=51 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:00:38,892 [claude_stager] INFO cycle=52 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:03:40,002 [claude_stager] INFO cycle=53 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:06:41,049 [claude_stager] INFO cycle=54 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:09:42,140 [claude_stager] INFO cycle=55 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:12:43,196 [claude_stager] INFO cycle=56 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:15:44,226 [claude_stager] INFO cycle=57 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:18:45,187 [claude_stager] INFO cycle=58 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:21:46,356 [claude_stager] INFO cycle=59 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:24:47,560 [claude_stager] INFO cycle=60 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:27:48,664 [claude_stager] INFO cycle=61 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:30:49,779 [claude_stager] INFO cycle=62 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:33:50,846 [claude_stager] INFO cycle=63 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:36:51,907 [claude_stager] INFO cycle=64 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:39:53,050 [claude_stager] INFO cycle=65 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:42:54,118 [claude_stager] INFO cycle=66 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:45:55,162 [claude_stager] INFO cycle=67 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:48:56,310 [claude_stager] INFO cycle=68 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:51:57,550 [claude_stager] INFO cycle=69 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:54:58,658 [claude_stager] INFO cycle=70 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 03:57:59,826 [claude_stager] INFO cycle=71 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:01:00,931 [claude_stager] INFO cycle=72 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:04:02,078 [claude_stager] INFO cycle=73 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:07:03,217 [claude_stager] INFO cycle=74 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:10:04,346 [claude_stager] INFO cycle=75 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:13:05,438 [claude_stager] INFO cycle=76 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:16:06,443 [claude_stager] INFO cycle=77 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:19:07,663 [claude_stager] INFO cycle=78 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:22:08,762 [claude_stager] INFO cycle=79 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:25:09,910 [claude_stager] INFO cycle=80 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:28:11,004 [claude_stager] INFO cycle=81 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:31:12,099 [claude_stager] INFO cycle=82 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:34:13,207 [claude_stager] INFO cycle=83 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:37:14,344 [claude_stager] INFO cycle=84 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:40:15,443 [claude_stager] INFO cycle=85 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:43:16,532 [claude_stager] INFO cycle=86 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:46:17,592 [claude_stager] INFO cycle=87 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:49:18,810 [claude_stager] INFO cycle=88 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:52:19,843 [claude_stager] INFO cycle=89 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:55:20,862 [claude_stager] INFO cycle=90 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 04:58:22,017 [claude_stager] INFO cycle=91 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:01:23,105 [claude_stager] INFO cycle=92 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:04:23,879 [claude_stager] INFO cycle=93 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:07:24,625 [claude_stager] INFO cycle=94 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:10:25,400 [claude_stager] INFO cycle=95 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:13:26,091 [claude_stager] INFO cycle=96 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:15:52,913 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:16:26,739 [claude_stager] INFO cycle=97 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:19:27,398 [claude_stager] INFO cycle=98 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:22:28,087 [claude_stager] INFO cycle=99 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:22:52,760 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:23:24,134 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:25:28,740 [claude_stager] INFO cycle=100 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:28:29,422 [claude_stager] INFO cycle=101 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:31:30,472 [claude_stager] INFO cycle=102 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:34:31,469 [claude_stager] INFO cycle=103 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:37:32,105 [claude_stager] INFO cycle=104 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:40:32,956 [claude_stager] INFO cycle=105 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:43:34,070 [claude_stager] INFO cycle=106 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:46:35,121 [claude_stager] INFO cycle=107 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:49:36,250 [claude_stager] INFO cycle=108 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:52:37,381 [claude_stager] INFO cycle=109 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:55:38,495 [claude_stager] INFO cycle=110 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 05:58:39,539 [claude_stager] INFO cycle=111 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 06:01:40,589 [claude_stager] INFO cycle=112 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 06:22:23,654 [claude_stager] INFO cycle=113 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:27:34,594 [claude_stager] INFO cycle=114 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:30:35,224 [claude_stager] INFO cycle=115 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:33:36,093 [claude_stager] INFO cycle=116 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:36:37,259 [claude_stager] INFO cycle=117 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:39:38,356 [claude_stager] INFO cycle=118 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:42:39,356 [claude_stager] INFO cycle=119 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:45:40,447 [claude_stager] INFO cycle=120 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:48:41,581 [claude_stager] INFO cycle=121 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:51:42,753 [claude_stager] INFO cycle=122 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 08:54:43,934 [claude_stager] INFO cycle=123 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 09:14:08,569 [claude_stager] INFO cycle=124 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 11:52:59,112 [claude_stager] INFO cycle=125 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 12:47:10,922 [claude_stager] INFO cycle=126 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 12:50:11,619 [claude_stager] INFO cycle=127 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 12:53:12,326 [claude_stager] INFO cycle=128 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 12:56:13,045 [claude_stager] INFO cycle=129 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 12:59:13,654 [claude_stager] INFO cycle=130 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:02:14,330 [claude_stager] INFO cycle=131 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:03:52,069 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:03:56,633 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 13:03:56,643 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:05:14,976 [claude_stager] INFO cycle=132 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:06:57,345 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:08:07,717 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:08:15,605 [claude_stager] INFO cycle=133 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:09:58,019 [claude_stager] INFO cycle=3 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:11:16,242 [claude_stager] INFO cycle=134 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:12:23,270 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:12:58,641 [claude_stager] INFO cycle=4 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:14:16,887 [claude_stager] INFO cycle=135 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:15:59,306 [claude_stager] INFO cycle=5 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:16:39,372 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:17:17,553 [claude_stager] INFO cycle=136 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:18:59,914 [claude_stager] INFO cycle=6 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:20:18,231 [claude_stager] INFO cycle=137 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:20:54,983 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:21:45,082 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:22:00,602 [claude_stager] INFO cycle=7 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:22:56,856 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:23:02,184 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 13:23:02,194 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:23:18,912 [claude_stager] INFO cycle=138 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:25:01,314 [claude_stager] INFO cycle=8 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:25:10,669 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:26:02,919 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:26:19,661 [claude_stager] INFO cycle=139 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:27:12,213 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:28:02,059 [claude_stager] INFO cycle=9 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:29:03,645 [claude_stager] INFO cycle=3 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:29:20,386 [claude_stager] INFO cycle=140 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:29:26,633 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:31:02,746 [claude_stager] INFO cycle=10 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:31:28,105 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:32:04,372 [claude_stager] INFO cycle=4 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:32:21,051 [claude_stager] INFO cycle=141 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:33:42,225 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:34:03,447 [claude_stager] INFO cycle=11 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:35:05,080 [claude_stager] INFO cycle=5 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:35:21,737 [claude_stager] INFO cycle=142 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:35:43,407 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:37:04,194 [claude_stager] INFO cycle=12 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:37:58,620 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:38:05,786 [claude_stager] INFO cycle=6 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:38:22,449 [claude_stager] INFO cycle=143 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:39:43,499 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:39:55,187 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:40:04,919 [claude_stager] INFO cycle=13 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:41:06,517 [claude_stager] INFO cycle=7 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:41:23,133 [claude_stager] INFO cycle=144 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:42:14,595 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:43:05,622 [claude_stager] INFO cycle=14 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:44:06,920 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:44:07,240 [claude_stager] INFO cycle=8 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:44:23,815 [claude_stager] INFO cycle=145 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:46:06,406 [claude_stager] INFO cycle=15 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:46:30,231 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:47:07,993 [claude_stager] INFO cycle=9 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:47:24,549 [claude_stager] INFO cycle=146 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:48:18,732 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:49:07,145 [claude_stager] INFO cycle=16 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:50:08,747 [claude_stager] INFO cycle=10 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:50:25,294 [claude_stager] INFO cycle=147 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:50:45,876 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:52:07,886 [claude_stager] INFO cycle=17 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:52:30,601 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:53:09,489 [claude_stager] INFO cycle=11 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:53:26,024 [claude_stager] INFO cycle=148 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:55:01,929 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:55:08,642 [claude_stager] INFO cycle=18 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:56:10,230 [claude_stager] INFO cycle=12 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:56:26,784 [claude_stager] INFO cycle=149 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:56:42,376 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:58:09,339 [claude_stager] INFO cycle=19 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:59:10,939 [claude_stager] INFO cycle=13 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:59:17,599 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 13:59:27,513 [claude_stager] INFO cycle=150 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:00:54,157 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:01:10,079 [claude_stager] INFO cycle=20 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:02:11,639 [claude_stager] INFO cycle=14 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:02:28,229 [claude_stager] INFO cycle=151 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:03:22,566 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:04:10,812 [claude_stager] INFO cycle=21 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:04:55,600 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:05:12,387 [claude_stager] INFO cycle=15 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:05:28,934 [claude_stager] INFO cycle=152 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:07:11,523 [claude_stager] INFO cycle=22 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:07:27,925 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:08:13,117 [claude_stager] INFO cycle=16 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:08:29,646 [claude_stager] INFO cycle=153 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:08:57,128 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:10:02,013 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:10:12,189 [claude_stager] INFO cycle=23 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:10:53,140 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:11:13,861 [claude_stager] INFO cycle=17 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:11:30,340 [claude_stager] INFO cycle=154 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:11:32,947 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:12:20,491 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:12:36,134 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 14:12:36,160 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:12:58,956 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:13:12,916 [claude_stager] INFO cycle=24 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:13:37,754 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 14:13:38,414 [claude_stager] INFO Claude stager stopped
+2026-02-13 14:14:14,588 [claude_stager] INFO cycle=18 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:14:31,137 [claude_stager] INFO cycle=155 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:14:48,295 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 14:14:48,315 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 14:14:48,302 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 14:14:48,324 [claude_stager] INFO Claude stager stopped
+2026-02-13 14:14:48,704 [claude_stager] INFO Claude stager stopped
+2026-02-13 14:14:49,196 [claude_stager] INFO Claude stager stopped
+2026-02-13 14:15:17,491 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:16:05,167 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 14:16:05,183 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:16:07,402 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:18:36,383 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 14:18:36,835 [claude_stager] INFO Claude stager stopped
+2026-02-13 14:20:20,583 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 14:20:20,600 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:20:23,302 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:23:21,298 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:25:24,927 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:26:22,034 [claude_stager] INFO cycle=3 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:29:22,758 [claude_stager] INFO cycle=4 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:29:50,469 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:32:23,439 [claude_stager] INFO cycle=5 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:34:16,551 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:35:24,264 [claude_stager] INFO cycle=6 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:38:24,989 [claude_stager] INFO cycle=7 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:39:16,372 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:41:25,688 [claude_stager] INFO cycle=8 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:43:42,611 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:44:26,409 [claude_stager] INFO cycle=9 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:45:36,581 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 14:45:36,686 [claude_stager] INFO Claude stager stopped
+2026-02-13 14:46:49,875 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 14:46:49,895 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 14:48:01,690 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 14:48:02,184 [claude_stager] INFO Claude stager stopped
+2026-02-13 15:21:42,190 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 15:44:24,068 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 18:05:26,501 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 18:09:54,150 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 18:13:03,020 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 18:17:56,921 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 18:19:14,611 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 18:20:32,778 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 18:23:52,585 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:24:29,001 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 19:24:29,045 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:27:30,231 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:30:01,314 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 19:30:01,864 [claude_stager] INFO Claude stager stopped
+2026-02-13 19:31:15,893 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:32:11,246 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:32:25,968 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 19:32:25,997 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:32:28,902 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:32:40,602 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:32:58,623 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 19:32:59,129 [claude_stager] INFO Claude stager stopped
+2026-02-13 19:33:30,930 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:33:45,666 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 19:33:45,697 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:35:49,740 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 19:35:50,193 [claude_stager] INFO Claude stager stopped
+2026-02-13 19:36:26,235 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:36:34,071 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:36:41,866 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 19:36:41,896 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:36:46,629 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:39:42,616 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:39:45,089 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 19:39:45,630 [claude_stager] INFO Claude stager stopped
+2026-02-13 19:40:01,324 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:40:16,131 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 19:40:16,163 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:40:40,803 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:40:52,536 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:41:50,091 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 19:41:50,523 [claude_stager] INFO Claude stager stopped
+2026-02-13 19:44:47,123 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:44:58,511 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:48:53,070 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:49:05,301 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:52:59,828 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:53:11,242 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:53:35,636 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:57:05,808 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:57:17,915 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 19:58:12,886 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:01:12,550 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:01:24,745 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:03:06,302 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:04:26,425 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:04:41,104 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 20:04:41,161 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:05:12,793 [claude_stager] INFO Received signal 15, stopping...
+2026-02-13 20:05:13,294 [claude_stager] INFO Claude stager stopped
+2026-02-13 20:05:19,481 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:05:30,779 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:07:04,487 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:18:18,230 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:19:24,724 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:25:00,142 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:32:25,570 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 20:55:43,560 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 22:31:33,902 [claude_stager] INFO Claude stager started (interval=180s)
+2026-02-13 22:31:34,146 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/2
+2026-02-13 22:31:58,263 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/3
+2026-02-13 22:34:35,004 [claude_stager] INFO cycle=2 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/4
+2026-02-13 22:37:35,812 [claude_stager] INFO cycle=3 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/5
+2026-02-13 22:40:36,624 [claude_stager] INFO cycle=4 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/6
+2026-02-13 22:43:37,672 [claude_stager] INFO cycle=5 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/7
+2026-02-13 22:46:38,477 [claude_stager] INFO cycle=6 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/8
+2026-02-13 22:49:39,260 [claude_stager] INFO cycle=7 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/10
+2026-02-13 22:52:40,068 [claude_stager] INFO cycle=8 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/11
+2026-02-13 22:55:40,870 [claude_stager] INFO cycle=9 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/12
+2026-02-13 22:58:41,673 [claude_stager] INFO cycle=10 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/13
+2026-02-13 23:01:42,447 [claude_stager] INFO cycle=11 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/14
+2026-02-13 23:04:43,282 [claude_stager] INFO cycle=12 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/16
+2026-02-13 23:07:44,090 [claude_stager] INFO cycle=13 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/17
+2026-02-13 23:10:44,898 [claude_stager] INFO cycle=14 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/18
+2026-02-13 23:13:45,716 [claude_stager] INFO cycle=15 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/19
+2026-02-13 23:16:46,816 [claude_stager] INFO cycle=16 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/20
+2026-02-13 23:19:47,632 [claude_stager] INFO cycle=17 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/22
+2026-02-13 23:22:48,492 [claude_stager] INFO cycle=18 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/23
+2026-02-13 23:25:49,392 [claude_stager] INFO cycle=19 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/24
+2026-02-13 23:28:50,350 [claude_stager] INFO cycle=20 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/25
+2026-02-13 23:31:51,331 [claude_stager] INFO cycle=21 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/27
+2026-02-13 23:34:52,222 [claude_stager] INFO cycle=22 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/28
+2026-02-13 23:37:53,127 [claude_stager] INFO cycle=23 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/29
+2026-02-13 23:40:54,050 [claude_stager] INFO cycle=24 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/30
+2026-02-13 23:43:54,985 [claude_stager] INFO cycle=25 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/31
+2026-02-13 23:46:55,858 [claude_stager] INFO cycle=26 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/33
+2026-02-13 23:49:56,791 [claude_stager] INFO cycle=27 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/34
+2026-02-13 23:52:57,761 [claude_stager] INFO cycle=28 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/35
+2026-02-13 23:55:58,741 [claude_stager] INFO cycle=29 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/36
+2026-02-13 23:59:00,057 [claude_stager] INFO cycle=30 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/37
+2026-02-14 00:02:00,878 [claude_stager] INFO cycle=31 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:05:01,737 [claude_stager] INFO cycle=32 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:08:02,585 [claude_stager] INFO cycle=33 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:11:03,493 [claude_stager] INFO cycle=34 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:14:04,321 [claude_stager] INFO cycle=35 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:17:05,159 [claude_stager] INFO cycle=36 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:20:06,167 [claude_stager] INFO cycle=37 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:23:07,217 [claude_stager] INFO cycle=38 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:26:08,619 [claude_stager] INFO cycle=39 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:29:09,741 [claude_stager] INFO cycle=40 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:32:10,722 [claude_stager] INFO cycle=41 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:35:11,718 [claude_stager] INFO cycle=42 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:38:12,759 [claude_stager] INFO cycle=43 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:41:13,763 [claude_stager] INFO cycle=44 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:44:14,719 [claude_stager] INFO cycle=45 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:47:15,910 [claude_stager] INFO cycle=46 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:50:17,163 [claude_stager] INFO cycle=47 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:53:18,130 [claude_stager] INFO cycle=48 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:56:19,139 [claude_stager] INFO cycle=49 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 00:59:20,144 [claude_stager] INFO cycle=50 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 01:02:21,136 [claude_stager] INFO cycle=51 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 01:05:22,088 [claude_stager] INFO cycle=52 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38
+2026-02-14 01:08:23,032 [claude_stager] INFO cycle=53 focus_pairs=9 online_nodes=1 frameworks=4 msgs=120/38

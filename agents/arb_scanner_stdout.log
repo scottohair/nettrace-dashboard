@@ -1,0 +1,113 @@
+2026-02-12 16:39:14,243 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 0.60%
+2026-02-12 16:52:17,748 [arb_scanner] INFO Status: cycle=40 opportunities=0 trades=0
+2026-02-12 17:05:33,662 [arb_scanner] INFO Status: cycle=80 opportunities=0 trades=0
+2026-02-12 17:18:53,196 [arb_scanner] INFO Status: cycle=120 opportunities=0 trades=0
+2026-02-12 17:32:04,998 [arb_scanner] INFO Status: cycle=160 opportunities=0 trades=0
+2026-02-12 17:45:17,656 [arb_scanner] INFO Status: cycle=200 opportunities=0 trades=0
+2026-02-12 17:58:37,750 [arb_scanner] INFO Status: cycle=240 opportunities=0 trades=0
+2026-02-12 18:11:49,503 [arb_scanner] INFO Status: cycle=280 opportunities=0 trades=0
+2026-02-12 18:25:00,226 [arb_scanner] INFO Status: cycle=320 opportunities=0 trades=0
+2026-02-12 21:07:27,849 [arb_scanner] INFO Status: cycle=360 opportunities=0 trades=0
+2026-02-12 21:20:41,630 [arb_scanner] INFO Status: cycle=400 opportunities=0 trades=0
+2026-02-12 21:33:52,381 [arb_scanner] INFO Status: cycle=440 opportunities=0 trades=0
+2026-02-12 21:47:02,071 [arb_scanner] INFO Status: cycle=480 opportunities=0 trades=0
+2026-02-12 22:00:18,648 [arb_scanner] INFO Status: cycle=520 opportunities=0 trades=0
+2026-02-12 22:13:23,739 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-12 22:26:33,449 [arb_scanner] INFO Status: cycle=40 opportunities=0 trades=0
+2026-02-12 22:39:53,545 [arb_scanner] INFO Status: cycle=80 opportunities=0 trades=0
+2026-02-12 22:53:09,227 [arb_scanner] INFO Status: cycle=120 opportunities=0 trades=0
+2026-02-12 23:06:21,338 [arb_scanner] INFO Status: cycle=160 opportunities=0 trades=0
+2026-02-12 23:19:28,391 [arb_scanner] INFO Status: cycle=200 opportunities=0 trades=0
+2026-02-12 23:32:25,298 [arb_scanner] INFO Status: cycle=240 opportunities=0 trades=0
+2026-02-12 23:45:22,180 [arb_scanner] INFO Status: cycle=280 opportunities=0 trades=0
+2026-02-12 23:58:17,721 [arb_scanner] INFO Status: cycle=320 opportunities=0 trades=0
+2026-02-13 00:04:05,967 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 00:16:50,914 [arb_scanner] INFO Status: cycle=40 opportunities=0 trades=0
+2026-02-13 00:18:28,899 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 00:24:18,453 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 00:27:00,642 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 00:29:45,706 [arb_scanner] INFO Status: cycle=80 opportunities=0 trades=0
+2026-02-13 00:37:32,282 [arb_scanner] INFO Status: cycle=40 opportunities=0 trades=0
+2026-02-13 00:42:41,172 [arb_scanner] INFO Status: cycle=120 opportunities=0 trades=0
+2026-02-13 00:48:13,836 [arb_scanner] INFO Status: cycle=80 opportunities=0 trades=0
+2026-02-13 00:58:55,354 [arb_scanner] INFO Status: cycle=120 opportunities=0 trades=0
+2026-02-13 01:09:37,021 [arb_scanner] INFO Status: cycle=160 opportunities=0 trades=0
+2026-02-13 01:20:18,560 [arb_scanner] INFO Status: cycle=200 opportunities=0 trades=0
+2026-02-13 01:31:00,047 [arb_scanner] INFO Status: cycle=240 opportunities=0 trades=0
+2026-02-13 01:41:41,665 [arb_scanner] INFO Status: cycle=280 opportunities=0 trades=0
+2026-02-13 01:52:23,521 [arb_scanner] INFO Status: cycle=320 opportunities=0 trades=0
+2026-02-13 02:03:05,817 [arb_scanner] INFO Status: cycle=360 opportunities=0 trades=0
+2026-02-13 02:13:48,101 [arb_scanner] INFO Status: cycle=400 opportunities=0 trades=0
+2026-02-13 02:24:30,415 [arb_scanner] INFO Status: cycle=440 opportunities=0 trades=0
+2026-02-13 02:35:12,762 [arb_scanner] INFO Status: cycle=480 opportunities=0 trades=0
+2026-02-13 02:45:54,958 [arb_scanner] INFO Status: cycle=520 opportunities=0 trades=0
+2026-02-13 02:56:37,225 [arb_scanner] INFO Status: cycle=560 opportunities=0 trades=0
+2026-02-13 03:07:19,550 [arb_scanner] INFO Status: cycle=600 opportunities=0 trades=0
+2026-02-13 03:18:01,806 [arb_scanner] INFO Status: cycle=640 opportunities=0 trades=0
+2026-02-13 03:28:44,024 [arb_scanner] INFO Status: cycle=680 opportunities=0 trades=0
+2026-02-13 03:39:26,160 [arb_scanner] INFO Status: cycle=720 opportunities=0 trades=0
+2026-02-13 03:50:08,422 [arb_scanner] INFO Status: cycle=760 opportunities=0 trades=0
+2026-02-13 04:00:50,679 [arb_scanner] INFO Status: cycle=800 opportunities=0 trades=0
+2026-02-13 04:11:32,999 [arb_scanner] INFO Status: cycle=840 opportunities=0 trades=0
+2026-02-13 04:22:15,298 [arb_scanner] INFO Status: cycle=880 opportunities=0 trades=0
+2026-02-13 04:32:57,552 [arb_scanner] INFO Status: cycle=920 opportunities=0 trades=0
+2026-02-13 04:43:39,827 [arb_scanner] INFO Status: cycle=960 opportunities=0 trades=0
+2026-02-13 04:54:22,100 [arb_scanner] INFO Status: cycle=1000 opportunities=0 trades=0
+2026-02-13 05:05:04,166 [arb_scanner] INFO Status: cycle=1040 opportunities=0 trades=0
+2026-02-13 05:15:45,702 [arb_scanner] INFO Status: cycle=1080 opportunities=0 trades=0
+2026-02-13 05:26:27,298 [arb_scanner] INFO Status: cycle=1120 opportunities=0 trades=0
+2026-02-13 05:37:09,279 [arb_scanner] INFO Status: cycle=1160 opportunities=0 trades=0
+2026-02-13 05:47:51,478 [arb_scanner] INFO Status: cycle=1200 opportunities=0 trades=0
+2026-02-13 05:58:33,776 [arb_scanner] INFO Status: cycle=1240 opportunities=0 trades=0
+2026-02-13 08:29:08,109 [arb_scanner] INFO Status: cycle=1280 opportunities=0 trades=0
+2026-02-13 08:39:50,225 [arb_scanner] INFO Status: cycle=1320 opportunities=0 trades=0
+2026-02-13 08:50:32,520 [arb_scanner] INFO Status: cycle=1360 opportunities=0 trades=0
+2026-02-13 12:26:37,872 [arb_scanner] INFO Status: cycle=1400 opportunities=0 trades=0
+2026-02-13 12:55:19,281 [arb_scanner] INFO Status: cycle=1440 opportunities=0 trades=0
+2026-02-13 13:04:04,696 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 13:06:00,873 [arb_scanner] INFO Status: cycle=1480 opportunities=0 trades=0
+2026-02-13 13:14:36,306 [arb_scanner] INFO Status: cycle=40 opportunities=0 trades=0
+2026-02-13 13:16:42,414 [arb_scanner] INFO Status: cycle=1520 opportunities=0 trades=0
+2026-02-13 13:23:10,237 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 13:25:17,824 [arb_scanner] INFO Status: cycle=80 opportunities=0 trades=0
+2026-02-13 13:27:23,911 [arb_scanner] INFO Status: cycle=1560 opportunities=0 trades=0
+2026-02-13 13:33:41,791 [arb_scanner] INFO Status: cycle=40 opportunities=0 trades=0
+2026-02-13 13:35:59,418 [arb_scanner] INFO Status: cycle=120 opportunities=0 trades=0
+2026-02-13 13:38:05,524 [arb_scanner] INFO Status: cycle=1600 opportunities=0 trades=0
+2026-02-13 13:44:23,365 [arb_scanner] INFO Status: cycle=80 opportunities=0 trades=0
+2026-02-13 13:46:41,082 [arb_scanner] INFO Status: cycle=160 opportunities=0 trades=0
+2026-02-13 13:48:47,125 [arb_scanner] INFO Status: cycle=1640 opportunities=0 trades=0
+2026-02-13 13:55:04,930 [arb_scanner] INFO Status: cycle=120 opportunities=0 trades=0
+2026-02-13 13:57:22,624 [arb_scanner] INFO Status: cycle=200 opportunities=0 trades=0
+2026-02-13 13:59:28,842 [arb_scanner] INFO Status: cycle=1680 opportunities=0 trades=0
+2026-02-13 14:05:46,631 [arb_scanner] INFO Status: cycle=160 opportunities=0 trades=0
+2026-02-13 14:08:04,226 [arb_scanner] INFO Status: cycle=240 opportunities=0 trades=0
+2026-02-13 14:10:10,391 [arb_scanner] INFO Status: cycle=1720 opportunities=0 trades=0
+2026-02-13 14:12:44,194 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 14:16:13,337 [risk_controller] INFO STARTUP: Flushed 6 stale pending allocations
+2026-02-13 14:16:13,338 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 14:20:28,748 [risk_controller] INFO STARTUP: Flushed 6 stale pending allocations
+2026-02-13 14:20:28,749 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 14:33:18,269 [arb_scanner] INFO Status: cycle=40 opportunities=0 trades=0
+2026-02-13 14:46:57,931 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 19:24:39,095 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 19:32:36,025 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 19:33:55,763 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 19:36:51,955 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 19:40:26,203 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 20:04:51,192 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 22:31:43,951 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-13 22:42:24,559 [arb_scanner] INFO Status: cycle=40 opportunities=0 trades=0
+2026-02-13 22:53:15,293 [arb_scanner] INFO Status: cycle=80 opportunities=0 trades=0
+2026-02-13 23:04:05,286 [arb_scanner] INFO Status: cycle=120 opportunities=0 trades=0
+2026-02-13 23:14:56,368 [arb_scanner] INFO Status: cycle=160 opportunities=0 trades=0
+2026-02-13 23:25:46,415 [arb_scanner] INFO Status: cycle=200 opportunities=0 trades=0
+2026-02-13 23:36:33,499 [arb_scanner] INFO Status: cycle=240 opportunities=0 trades=0
+2026-02-13 23:47:21,190 [arb_scanner] INFO Status: cycle=280 opportunities=0 trades=0
+2026-02-13 23:58:08,362 [arb_scanner] INFO Status: cycle=320 opportunities=0 trades=0
+2026-02-14 00:08:57,639 [arb_scanner] INFO Status: cycle=360 opportunities=0 trades=0
+2026-02-14 00:19:46,148 [arb_scanner] INFO Status: cycle=400 opportunities=0 trades=0
+2026-02-14 00:30:36,491 [arb_scanner] INFO Status: cycle=440 opportunities=0 trades=0
+2026-02-14 00:41:26,238 [arb_scanner] INFO Status: cycle=480 opportunities=0 trades=0
+2026-02-14 00:52:16,218 [arb_scanner] INFO Status: cycle=520 opportunities=0 trades=0
+2026-02-14 01:03:04,872 [arb_scanner] INFO Status: cycle=560 opportunities=0 trades=0

@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "fail_open": false,
+  "require_green": true,
+  "max_age_seconds": 240,
+  "checked_at": "2026-02-14T06:03:48.845106+00:00",
+  "status_available": true,
+  "green": false,
+  "passed": false,
+  "reason": "execution_health_not_green:egress_blocked",
+  "updated_at": "2026-02-14T06:03:49.608739+00:00",
+  "age_seconds": 0.001,
+  "egress_blocked": true,
+  "payload_reason": "egress_blocked",
+  "payload_reasons": [
+    "egress_blocked",
+    "api_probe_failed",
+    "telemetry_samples_low:0<3",
+    "candle_feed_stale:7230.3s>360.0s"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "agent": "claude_stager",
+  "state": "sleeping",
+  "updated_at": "2026-02-14T06:08:23.032639+00:00",
+  "interval_seconds": 180,
+  "cycle_count": 53,
+  "summary": {},
+  "bundle_id": "",
+  "bundle_hash": "",
+  "bundle_sequence": 0,
+  "bundle_path": "/Users/scott/src/quant/agents/claude_staging/claude_ingest_bundle.json",
+  "error": ""
+}

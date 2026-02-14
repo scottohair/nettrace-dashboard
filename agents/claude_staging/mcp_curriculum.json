@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "title": "MCP Quick Curriculum for Claude",
+  "updated_at": "2026-02-13T00:00:00+00:00",
+  "goals": [
+    "Understand MCP roles: host, client, server, tools, resources, prompts.",
+    "Use safe tool invocation and validate outputs before promotion decisions.",
+    "Maintain full-duplex communication loop with acknowledgements and summaries."
+  ],
+  "core_model": {
+    "host": "App/agent runtime controlling model and tool routing",
+    "client": "Component that connects to MCP servers and requests capabilities",
+    "server": "Service exposing tools/resources/prompts",
+    "tool": "Action endpoint with structured input and output",
+    "resource": "Context artifact (files, state, schemas, docs)",
+    "prompt": "Template instruction for a task"
+  },
+  "protocol_flow": [
+    "1) Discover capabilities (tools/resources/prompts).",
+    "2) Select minimal tool for the task.",
+    "3) Execute with constrained args.",
+    "4) Validate result shape and confidence.",
+    "5) Publish response + next action in duplex channel."
+  ],
+  "local_endpoints": {
+    "agent_websocket_namespace": "/ws/agent",
+    "claude_staging_snapshot": "/api/claude-staging",
+    "claude_stage_message": "/api/claude-staging/message",
+    "claude_duplex": "/api/claude-duplex"
+  },
+  "safety_rules": [
+    "Never bypass strict profit-only and risk-lock constraints.",
+    "Treat network/API failures as no-data, not alpha.",
+    "Acknowledge received directives before acting on them.",
+    "Write concise structured summaries after each cycle."
+  ],
+  "duplex_contract": {
+    "to_claude_types": [
+      "directive",
+      "priority_update",
+      "mcp_lesson"
+    ],
+    "from_claude_types": [
+      "ack",
+      "response",
+      "cycle_report",
+      "mcp_reflection"
+    ],
+    "required_meta_keys": [
+      "priority_pairs",
+      "source_context",
+      "reply_to_id"
+    ]
+  }
+}
+

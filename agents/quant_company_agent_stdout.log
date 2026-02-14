@@ -1,0 +1,2 @@
+2026-02-13 00:50:49,178 [quant_company] INFO starting quant_company_agent loop interval=360s
+2026-02-13 00:50:49,184 [quant_company] INFO cycle=1 alpha=0.45 migration=0.64 gtm=0.50 daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate

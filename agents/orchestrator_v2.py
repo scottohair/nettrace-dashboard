@@ -399,6 +399,47 @@ AGENT_CONFIGS = [
         "critical": False,
         "description": "High-frequency execution lane (sub-second scanner + native fast-path scoring).",
     },
+    # ── PHASE 1: QUICK-WIN ALPHA AGENTS (Regulatory, Sentiment, Liquidation, Narrative, Futures) ──
+    {
+        "name": "regulatory_scanner",
+        "script": "regulatory_scanner.py",
+        "args": [],
+        "enabled": False,  # DISABLED: Pending API key setup (Twitter, Reddit) — enable after .env configured
+        "critical": False,
+        "description": "Front-run compliance changes: SEC/CFTC/Fed regulatory arbitrage",
+    },
+    {
+        "name": "sentiment_leech",
+        "script": "sentiment_leech.py",
+        "args": [],
+        "enabled": True,
+        "critical": False,
+        "description": "Contrarian sentiment trading: buy fear (FGI<40), sell greed (FGI>80)",
+    },
+    {
+        "name": "liquidation_hunter",
+        "script": "liquidation_hunter.py",
+        "args": [],
+        "enabled": False,  # DISABLED: Pending Binance/Deribit funding rate API setup
+        "critical": False,
+        "description": "Hunt leverage cascades: pre-place bets 0.3-0.5% above liquidation levels",
+    },
+    {
+        "name": "narrative_tracker",
+        "script": "narrative_tracker.py",
+        "args": [],
+        "enabled": False,  # DISABLED: Pending Google Trends API setup — enable after .env configured
+        "critical": False,
+        "description": "Memetic trading: lifecycle detection for AI/DeFi/L2s/RWA narratives",
+    },
+    {
+        "name": "futures_mispricing",
+        "script": "futures_mispricing.py",
+        "args": [],
+        "enabled": False,  # DISABLED: Pending CME futures API setup — enable after .env configured
+        "critical": False,
+        "description": "Spot-futures basis arbitrage: 0.5-2% APR on market-neutral spreads",
+    },
 ]
 
 

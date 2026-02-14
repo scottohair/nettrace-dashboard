@@ -2,11 +2,74 @@
 """Execution telemetry store for request latency and order lifecycle metrics."""
 
 import json
+import os
 import sqlite3
 import time
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent / "execution_telemetry.db"
+
+EXCLUDE_DNS_FAILURES = os.environ.get(
+    "EXEC_HEALTH_EXCLUDE_DNS_FAILURES", "1"
+).lower() not in ("0", "false", "no")
+
+
+def _is_dns_failure(error_text):
+    """Detect DNS resolution failures (infrastructure, not API errors)."""
+    t = str(error_text or "").lower()
+    if not t:
+        return False
+    return "nodename" in t or "servname" in t or "[errno 8]" in t or "name resolution" in t
+
+
+def _parse_prefix_list(value):
+    if value is None:
+        return ()
+    if isinstance(value, (list, tuple, set)):
+        items = [str(v or "").strip() for v in value]
+    else:
+        items = [item.strip() for item in str(value).split(",")]
+    ordered = []
+    seen = set()
+    for item in items:
+        item_s = str(item or "").strip()
+        if not item_s:
+            continue
+        if item_s in seen:
+            continue
+        seen.add(item_s)
+        ordered.append(item_s)
+    return tuple(ordered)
+
+
+def _has_prefix(value, prefixes):
+    if not prefixes:
+        return True
+    text = str(value or "")
+    return any(text.startswith(prefix) for prefix in prefixes)
+
+
+def _filter_api_rows(rows, include_prefixes=(), exclude_prefixes=()):
+    includes = _parse_prefix_list(include_prefixes)
+    excludes = _parse_prefix_list(exclude_prefixes)
+    if not includes and not excludes:
+        return rows
+
+    filtered = []
+    for row in rows:
+        endpoint = ""
+        if isinstance(row, sqlite3.Row):
+            try:
+                endpoint = row["endpoint"]
+            except (IndexError, KeyError):
+                endpoint = ""
+        endpoint_s = str(endpoint or "")
+        if includes and not _has_prefix(endpoint_s, includes):
+            continue
+        if excludes and _has_prefix(endpoint_s, excludes):
+            continue
+        filtered.append(row)
+    return filtered
 
 
 def _connect():
@@ -125,14 +188,19 @@ def _percentile(values, pct):
     return vals[lo] * (1.0 - w) + vals[hi] * w
 
 
-def venue_health_snapshot(venue, window_minutes=30):
+def venue_health_snapshot(
+    venue,
+    window_minutes=30,
+    include_endpoint_prefixes=(),
+    exclude_endpoint_prefixes=(),
+):
     db = _connect()
     try:
         now = float(time.time())
         cutoff = now - max(1, int(window_minutes)) * 60.0
         rows = db.execute(
             """
-            SELECT latency_ms, ok
+            SELECT endpoint, latency_ms, ok, error_text
             FROM api_call_metrics
             WHERE venue=? AND created_at>=?
             ORDER BY id DESC
@@ -142,6 +210,24 @@ def venue_health_snapshot(venue, window_minutes=30):
         ).fetchall()
     finally:
         db.close()
+
+    rows = _filter_api_rows(rows, include_prefixes=include_endpoint_prefixes, exclude_prefixes=exclude_endpoint_prefixes)
+
+    # Filter out DNS resolution failures (infrastructure issue, not API issue)
+    dns_failures_excluded = 0
+    if EXCLUDE_DNS_FAILURES:
+        filtered = []
+        for r in rows:
+            err = ""
+            try:
+                err = r["error_text"]
+            except (IndexError, KeyError):
+                pass
+            if not int(r["ok"] or 0) and _is_dns_failure(err):
+                dns_failures_excluded += 1
+            else:
+                filtered.append(r)
+        rows = filtered
 
     lat = [float(r["latency_ms"] or 0.0) for r in rows]
     ok = [int(r["ok"] or 0) for r in rows]
@@ -158,10 +244,18 @@ def venue_health_snapshot(venue, window_minutes=30):
         "p50_latency_ms": round(_percentile(lat, 50), 3),
         "p90_latency_ms": round(_percentile(lat, 90), 3),
         "p99_latency_ms": round(_percentile(lat, 99), 3),
+        "dns_failures_excluded": dns_failures_excluded,
     }
 
 
-def endpoint_latency_ms(venue, endpoint_prefix="", window_minutes=30, pct=90):
+def endpoint_latency_ms(
+    venue,
+    endpoint_prefix="",
+    window_minutes=30,
+    pct=90,
+    include_endpoint_prefixes=(),
+    exclude_endpoint_prefixes=(),
+):
     db = _connect()
     try:
         now = float(time.time())
@@ -169,7 +263,7 @@ def endpoint_latency_ms(venue, endpoint_prefix="", window_minutes=30, pct=90):
         if endpoint_prefix:
             rows = db.execute(
                 """
-                SELECT latency_ms
+                SELECT endpoint, latency_ms
                 FROM api_call_metrics
                 WHERE venue=? AND endpoint LIKE ? AND created_at>=?
                 ORDER BY id DESC
@@ -180,7 +274,7 @@ def endpoint_latency_ms(venue, endpoint_prefix="", window_minutes=30, pct=90):
         else:
             rows = db.execute(
                 """
-                SELECT latency_ms
+                SELECT endpoint, latency_ms
                 FROM api_call_metrics
                 WHERE venue=? AND created_at>=?
                 ORDER BY id DESC
@@ -190,6 +284,7 @@ def endpoint_latency_ms(venue, endpoint_prefix="", window_minutes=30, pct=90):
             ).fetchall()
     finally:
         db.close()
+    rows = _filter_api_rows(rows, include_prefixes=include_endpoint_prefixes, exclude_prefixes=exclude_endpoint_prefixes)
     vals = [float(r["latency_ms"] or 0.0) for r in rows]
     return round(_percentile(vals, pct), 3)
 

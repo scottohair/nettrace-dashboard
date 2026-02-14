@@ -219,20 +219,26 @@ LOCAL_FALLBACK_EXPAND_MULT = float(os.environ.get("LOCAL_FALLBACK_EXPAND_MULT", 
 REALIZED_ESCALATION_GATE_ENABLED = os.environ.get(
     "REALIZED_ESCALATION_GATE_ENABLED", "1"
 ).lower() not in ("0", "false", "no")
-REALIZED_ESCALATION_MIN_CLOSES = int(os.environ.get("REALIZED_ESCALATION_MIN_CLOSES", "2"))
-REALIZED_ESCALATION_MIN_NET_PNL_USD = float(os.environ.get("REALIZED_ESCALATION_MIN_NET_PNL_USD", "0.01"))
+REALIZED_ESCALATION_MIN_CLOSES = int(os.environ.get("REALIZED_ESCALATION_MIN_CLOSES", "10"))
+REALIZED_ESCALATION_MIN_NET_PNL_USD = float(os.environ.get("REALIZED_ESCALATION_MIN_NET_PNL_USD", "1.00"))
 REALIZED_ESCALATION_LOOKBACK_HOURS = int(os.environ.get("REALIZED_ESCALATION_LOOKBACK_HOURS", "72"))
 REALIZED_ESCALATION_MIN_WIN_RATE = float(os.environ.get("REALIZED_ESCALATION_MIN_WIN_RATE", "0.55"))
 REALIZED_ESCALATION_REQUIRE_WINNING_MAJORITY = os.environ.get(
     "REALIZED_ESCALATION_REQUIRE_WINNING_MAJORITY", "1"
 ).lower() not in ("0", "false", "no")
 REALIZED_ESCALATION_MIN_AVG_PNL_PER_CLOSE_USD = float(
-    os.environ.get("REALIZED_ESCALATION_MIN_AVG_PNL_PER_CLOSE_USD", "0.0001")
+    os.environ.get("REALIZED_ESCALATION_MIN_AVG_PNL_PER_CLOSE_USD", "0.10")
 )
+REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION = os.environ.get(
+    "REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION", "1"
+).lower() not in ("0", "false", "no")
 HOT_ESCALATION_BOOST_FACTOR = float(os.environ.get("HOT_ESCALATION_BOOST_FACTOR", "1.50"))
 HOT_ESCALATION_MIN_BUDGET_USD = float(os.environ.get("HOT_ESCALATION_MIN_BUDGET_USD", "1.25"))
 EXECUTION_HEALTH_ESCALATION_GATE = os.environ.get(
     "EXECUTION_HEALTH_ESCALATION_GATE", "1"
+).lower() not in ("0", "false", "no")
+EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION = os.environ.get(
+    "EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION", "1"
 ).lower() not in ("0", "false", "no")
 EXECUTION_HEALTH_GATE_CACHE_SECONDS = int(
     os.environ.get("EXECUTION_HEALTH_GATE_CACHE_SECONDS", "90")
@@ -2305,11 +2311,17 @@ class StrategyValidator:
         ).fetchone()
         return bool(row)
 
-    def _pair_realized_close_evidence(self, pair):
-        """Collect pair-level realized close evidence from trader.db for budget escalation gates."""
+    def _pair_realized_close_evidence(self, pair, strategy_name=None):
+        """Collect realized close evidence from trader.db for budget escalation gates.
+
+        When strategy_name is provided, filters to that specific strategy for
+        strategy-level evidence (prevents curve-fitted strategies from riding
+        pair-level wins they didn't produce).
+        """
         evidence = {
             "enabled": REALIZED_ESCALATION_GATE_ENABLED,
             "pair": str(pair),
+            "strategy_name": strategy_name,
             "lookback_hours": int(REALIZED_ESCALATION_LOOKBACK_HOURS),
             "closed_trades": 0,
             "winning_closes": 0,
@@ -2338,9 +2350,23 @@ class StrategyValidator:
             total_closed = 0
             total_wins = 0
             total_pnl = 0.0
+            # Check which tables have strategy_name column for filtering
+            def _has_column(c, tbl, col):
+                try:
+                    info = c.execute(f"PRAGMA table_info({tbl})").fetchall()
+                    return any(str(r[1]) == col for r in info)
+                except Exception:
+                    return False
+
             for table in tables:
                 if not self._table_exists(conn, table):
                     continue
+                # Build strategy filter clause
+                strategy_clause = ""
+                params = [str(pair), lookback_expr]
+                if strategy_name and _has_column(conn, table, "strategy_name"):
+                    strategy_clause = "AND strategy_name = ?"
+                    params.append(str(strategy_name))
                 row = conn.execute(
                     f"""
                     SELECT
@@ -2351,6 +2377,7 @@ class StrategyValidator:
                     WHERE pair=?
                       AND UPPER(COALESCE(side, ''))='SELL'
                       AND created_at >= datetime('now', ?)
+                      {strategy_clause}
                       AND (
                         status IS NULL
                         OR LOWER(COALESCE(status, '')) NOT IN (
@@ -2367,7 +2394,7 @@ class StrategyValidator:
                         )
                       )
                     """,
-                    (str(pair), lookback_expr),
+                    params,
                 ).fetchone()
                 closes = int(row["closes"] or 0) if row else 0
                 wins = int(row["wins"] or 0) if row else 0
@@ -3110,7 +3137,30 @@ class StrategyValidator:
             )
 
         budget_profile = self.get_budget_profile(strategy_name, pair)
-        realized_evidence = self._pair_realized_close_evidence(pair)
+        realized_evidence = self._pair_realized_close_evidence(pair, strategy_name=strategy_name)
+        execution_health = self._execution_health_gate_status()
+        promotion_gates = {
+            "realized_close_required": bool(
+                REALIZED_ESCALATION_GATE_ENABLED and REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION
+            ),
+            "realized_close_passed": bool(realized_evidence.get("passed", False)),
+            "realized_close_reason": str(realized_evidence.get("reason", "unknown")),
+            "execution_health_required": bool(
+                EXECUTION_HEALTH_ESCALATION_GATE and EXECUTION_HEALTH_REQUIRED_FOR_HOT_PROMOTION
+            ),
+            "execution_health_green": bool(execution_health.get("green", False)),
+            "execution_health_reason": str(execution_health.get("reason", "unknown")),
+        }
+        # Block HOT promotion entirely if realized close evidence is required but missing
+        if (
+            REALIZED_ESCALATION_GATE_ENABLED
+            and REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION
+            and not realized_evidence.get("passed", False)
+        ):
+            passed = False
+            reasons.append(
+                f"realized_close_evidence_required:{realized_evidence.get('reason', 'unknown')}"
+            )
         budget_update = {
             "action": "hold",
             "reason": "growth_mode_disabled",
@@ -3136,7 +3186,6 @@ class StrategyValidator:
                 )
                 budget_update["to_budget_usd"] = budget_update.get("from_budget_usd", 0.0)
 
-            execution_health = self._execution_health_gate_status()
             if (
                 EXECUTION_HEALTH_ESCALATION_GATE
                 and budget_update.get("action") == "increase"
@@ -3188,6 +3237,23 @@ class StrategyValidator:
                 },
             )
 
+        if (
+            promotion_gates["realized_close_required"]
+            and not promotion_gates["realized_close_passed"]
+        ):
+            passed = False
+            reasons.append(
+                f"realized_close_gate_failed:{promotion_gates['realized_close_reason']}"
+            )
+        if (
+            promotion_gates["execution_health_required"]
+            and not promotion_gates["execution_health_green"]
+        ):
+            passed = False
+            reasons.append(
+                f"execution_health_gate_failed:{promotion_gates['execution_health_reason']}"
+            )
+
         if passed:
             self.db.execute(
                 """UPDATE strategy_registry SET stage='HOT', paper_results_json=?,
@@ -3206,6 +3272,8 @@ class StrategyValidator:
                     "warm_gate_assessment": assessment,
                     "walkforward_leakage_gate": leakage_gate,
                     "realized_close_evidence": realized_evidence,
+                    "execution_health": execution_health,
+                    "promotion_gates": promotion_gates,
                 },
             )
             logger.info("PROMOTED %s/%s to HOT (paper trading passed)", strategy_name, pair)
@@ -3223,6 +3291,8 @@ class StrategyValidator:
                     "warm_gate_assessment": assessment,
                     "walkforward_leakage_gate": leakage_gate,
                     "realized_close_evidence": realized_evidence,
+                    "execution_health": execution_health,
+                    "promotion_gates": promotion_gates,
                 },
             )
             decision = str(assessment.get("decision", "rejected"))

@@ -304,6 +304,11 @@ class StrategyAgent:
         min_conf = self._clamp(opt["min_confidence"], 0.50, 0.80)
         size_mult = self._clamp(opt["size_multiplier"], 0.6, 1.2)
         disabled_families = set(opt.get("disabled_families", []))
+        strategy_data_quality = {
+            "data_quality_mode": memo.get("data_quality_mode", "unknown"),
+            "data_fidelity": memo.get("data_fidelity", {}),
+            "source_health": memo.get("source_health", {}),
+        }
 
         for research_pair, trade_pair in TRADEABLE_PAIRS.items():
             if research_pair in opt["blocked_pairs"] or trade_pair in opt["blocked_pairs"]:
@@ -427,6 +432,9 @@ class StrategyAgent:
                         "size_multiplier": round(size_mult, 4),
                         "pair_bias": round(pair_bias, 4),
                     },
+                    "data_quality_mode": strategy_data_quality["data_quality_mode"],
+                    "data_fidelity": strategy_data_quality["data_fidelity"],
+                    "source_health": strategy_data_quality["source_health"],
                 }
                 proposals.append(proposal)
 
@@ -479,6 +487,9 @@ class StrategyAgent:
                     "direction": "HOLD",
                     "pair": "NONE",
                     "confidence": 0.0,
+                    "data_quality_mode": memo.get("data_quality_mode", "unknown"),
+                    "data_fidelity": memo.get("data_fidelity", {}),
+                    "source_health": memo.get("source_health", {}),
                     "reasons": [
                         f"No signals met dynamic confidence threshold ({opt['min_confidence']:.2f})"
                     ],

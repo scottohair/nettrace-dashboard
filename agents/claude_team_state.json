@@ -1,0 +1,45 @@
+{
+  "updated_at": "2026-02-14T03:31:34.215101+00:00",
+  "cycle": 1,
+  "priority_pairs": [
+    "BTC-USD",
+    "ETH-USD",
+    "SOL-USD",
+    "AVAX-USD",
+    "LINK-USD",
+    "DOGE-USD",
+    "XRP-USD"
+  ],
+  "summary": {
+    "total": 100,
+    "promoted": 9,
+    "rejected": 81,
+    "no_data": 0
+  },
+  "directive_digest": {
+    "total": 44,
+    "from_codex": 0,
+    "high_priority": 2,
+    "target_role_counts": {
+      "opus": 8,
+      "sonnet": 8
+    },
+    "topic_hits": {
+      "realized_pnl": 17,
+      "budget": 9,
+      "risk": 8,
+      "execution": 8,
+      "quant": 17
+    }
+  },
+  "roles": {
+    "opus": {
+      "focus": "research_hypotheses_and_risk_architecture",
+      "target": "maximize robust realized close-profit evidence"
+    },
+    "sonnet": {
+      "focus": "execution_and_pipeline_implementation",
+      "target": "ship deterministic exit and fill-quality improvements fast"
+    }
+  }
+}

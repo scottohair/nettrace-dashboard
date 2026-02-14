@@ -1,0 +1,80 @@
+{
+  "updated_at": "2026-02-14T04:39:48.774054+00:00",
+  "universe_count": 1000,
+  "dex_count": 900,
+  "cex_count": 100,
+  "active_queue_size": 360,
+  "manual_actions": 120,
+  "top_preview": [
+    {
+      "rank": 1,
+      "venue_id": "dex:uniswap-ethereum-r1-1",
+      "name": "Uniswap Ethereum R1",
+      "kind": "dex",
+      "score": 59.98
+    },
+    {
+      "rank": 2,
+      "venue_id": "dex:curve-ethereum-r1-2",
+      "name": "Curve Ethereum R1",
+      "kind": "dex",
+      "score": 59.96
+    },
+    {
+      "rank": 3,
+      "venue_id": "dex:balancer-ethereum-r1-3",
+      "name": "Balancer Ethereum R1",
+      "kind": "dex",
+      "score": 59.94
+    },
+    {
+      "rank": 4,
+      "venue_id": "dex:sushiswap-ethereum-r1-4",
+      "name": "Sushiswap Ethereum R1",
+      "kind": "dex",
+      "score": 59.92
+    },
+    {
+      "rank": 5,
+      "venue_id": "dex:pancakeswap-ethereum-r1-5",
+      "name": "Pancakeswap Ethereum R1",
+      "kind": "dex",
+      "score": 59.9
+    },
+    {
+      "rank": 6,
+      "venue_id": "dex:traderjoe-ethereum-r1-6",
+      "name": "Traderjoe Ethereum R1",
+      "kind": "dex",
+      "score": 59.88
+    },
+    {
+      "rank": 7,
+      "venue_id": "dex:orca-ethereum-r1-7",
+      "name": "Orca Ethereum R1",
+      "kind": "dex",
+      "score": 59.86
+    },
+    {
+      "rank": 8,
+      "venue_id": "dex:raydium-ethereum-r1-8",
+      "name": "Raydium Ethereum R1",
+      "kind": "dex",
+      "score": 59.84
+    },
+    {
+      "rank": 9,
+      "venue_id": "dex:maverick-ethereum-r1-9",
+      "name": "Maverick Ethereum R1",
+      "kind": "dex",
+      "score": 59.82
+    },
+    {
+      "rank": 10,
+      "venue_id": "dex:camelot-ethereum-r1-10",
+      "name": "Camelot Ethereum R1",
+      "kind": "dex",
+      "score": 59.8
+    }
+  ]
+}

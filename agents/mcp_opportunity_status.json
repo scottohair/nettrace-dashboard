@@ -1,0 +1,14 @@
+{
+  "updated_at": "2026-02-14T06:09:12.346436+00:00",
+  "running": true,
+  "cycle": 64,
+  "interval_seconds": 150,
+  "go_live": true,
+  "opportunity_count": 0,
+  "top_sources": [],
+  "files": {
+    "opportunities": "/Users/scott/src/quant/agents/mcp_opportunities.json",
+    "exit_hints": "/Users/scott/src/quant/agents/mcp_exit_hints.json",
+    "outbox": "/Users/scott/src/quant/agents/mcp_opportunity_outbox.json"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "repo_root": "/Users/scott/src/quant",
+  "ready_for_staged_rollout": true,
+  "required_failures": [],
+  "checks": [
+    {
+      "name": "execution_health_green",
+      "passed": false,
+      "required": false,
+      "details": "green=False reason=egress_blocked"
+    },
+    {
+      "name": "trading_lock_allows_rollout",
+      "passed": true,
+      "required": true,
+      "details": "locked=False reason=recovered_stale_dead_owner_lock:Startup preflight blocked: execution_health_not_green:egress_blocked"
+    },
+    {
+      "name": "quant_validation_has_signal",
+      "passed": true,
+      "required": true,
+      "details": "promoted=641 rejected=359 no_data=0"
+    },
+    {
+      "name": "claude_bundle_metadata_present",
+      "passed": true,
+      "required": true,
+      "details": "bundle_id=bundle-93-7dc3debf6798 sequence=93"
+    },
+    {
+      "name": "claude_duplex_traceable",
+      "passed": true,
+      "required": true,
+      "details": "checked_messages=40 trace_coverage=100.00%"
+    },
+    {
+      "name": "sniper_buy_exit_gates_present",
+      "passed": true,
+      "required": true,
+      "details": "expects has_exit_plan + ev_positive checks in BUY path"
+    }
+  ],
+  "next_steps": [
+    "Run staged rollout in paper mode first (no budget escalation).",
+    "Require realized close PnL evidence before any HOT budget increase.",
+    "Promote only strategies with trace-linked Claude directive lineage."
+  ],
+  "checked_at": "2026-02-14T03:31:11.694067+00:00",
+  "guard_enabled": true,
+  "guard_fail_open": false,
+  "guarded_agents": [
+    "flywheel_controller"
+  ],
+  "always_allow_agents": []
+}

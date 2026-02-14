@@ -1,0 +1,5 @@
+2026-02-14 01:08:53,026 [sentiment_leech] INFO Starting sentiment scan...
+2026-02-14 01:08:53,154 [sentiment_leech] INFO Fear & Greed Index: 9, Sentiment: -0.82
+2026-02-14 01:08:53,196 [sentiment_leech] INFO Generated BUY signal for BTC-USD: Extreme fear (FGI=9, sentiment=-0.82)
+2026-02-14 01:08:53,224 [sentiment_leech] INFO Generated BUY signal for ETH-USD: Extreme fear (FGI=9, sentiment=-0.82)
+2026-02-14 01:08:53,279 [sentiment_leech] INFO Generated BUY signal for SOL-USD: Extreme fear (FGI=9, sentiment=-0.82)

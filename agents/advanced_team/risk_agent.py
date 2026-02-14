@@ -156,6 +156,17 @@ class RiskAgent:
 
         min_confidence = float(overrides.get("min_confidence", MIN_CONFIDENCE))
         max_trade_usd = float(overrides.get("max_trade_usd", MAX_TRADE_USD))
+        quality_penalty = float(overrides.get("data_quality_penalty", 0.0))
+        data_quality_mode = str(
+            proposal.get("data_quality_mode", overrides.get("data_quality_mode", ""))
+        ).lower()
+        data_quality_degraded = (
+            data_quality_mode == "degraded"
+            or str(overrides.get("data_quality_mode", "")).lower() == "degraded"
+        )
+
+        if data_quality_degraded and quality_penalty > 0:
+            min_confidence = max(0.0, min_confidence - (quality_penalty * 0.5))
         blocked_pairs = set(overrides.get("blocked_pairs", []) or [])
 
         reasons = []
@@ -190,6 +201,16 @@ class RiskAgent:
 
         # --- Soft checks (adjust size) ---
         adjusted_size = suggested_size
+
+        if data_quality_degraded:
+            quality_cap = round(min(max_trade_usd * 0.85, 3.0), 2)
+            if adjusted_size > quality_cap:
+                reasons.append(
+                    f"Degraded-source cap: ${adjusted_size:.2f} -> ${quality_cap:.2f}"
+                )
+                adjusted_size = quality_cap
+            if not reasons:
+                reasons.append("Degraded-data risk mode active")
 
         # Cap at max trade size
         if adjusted_size > max_trade_usd:

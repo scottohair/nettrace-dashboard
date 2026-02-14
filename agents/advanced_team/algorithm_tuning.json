@@ -1,0 +1,22 @@
+{
+  "cycle": 70,
+  "timestamp": "2026-02-14T06:09:10.609175+00:00",
+  "min_confidence": 0.66,
+  "size_multiplier": 0.675,
+  "pair_bias": {},
+  "factor_weight_overrides": {
+    "price_momentum": 0.2,
+    "volatility_regime": 0.15,
+    "fear_greed": 0.1,
+    "nettrace_latency": 0.25,
+    "cross_exchange_spread": 0.15,
+    "volume_trend": 0.15
+  },
+  "disabled_signal_families": [],
+  "blocked_pairs": [],
+  "recommendations": [
+    "Global min confidence -> 0.66",
+    "Global size multiplier -> 0.68x"
+  ],
+  "source": "algorithm_optimizer"
+}

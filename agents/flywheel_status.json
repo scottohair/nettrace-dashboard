@@ -1,0 +1,473 @@
+{
+  "updated_at": "2026-02-14T03:31:58.489579+00:00",
+  "cycle": 57,
+  "quant_run": false,
+  "bench_run": false,
+  "cycle_elapsed_seconds": 40.622,
+  "growth_decision": {
+    "decision": "GO",
+    "go_live": true,
+    "reasons": [],
+    "warnings": [
+      "execution_health_not_green:egress_blocked"
+    ],
+    "limits": {
+      "max_pair_share_cap": 0.7,
+      "concentration_cap_enforced": true
+    },
+    "strict_realized_gate": {
+      "enabled": true,
+      "status_available": true,
+      "passed": true,
+      "reason": "passed",
+      "bootstrap_override": false,
+      "bootstrap_reason": "",
+      "bootstrap_limits": {
+        "enabled": true,
+        "max_funded_budget": 2.0,
+        "max_funded_strategies": 8
+      }
+    },
+    "execution_health_gate": {
+      "status_available": true,
+      "green": false,
+      "reason": "egress_blocked",
+      "updated_at": "2026-02-14T03:31:58.173764+00:00"
+    },
+    "close_flow_gate": {
+      "enabled": true,
+      "passed": true,
+      "reason": "balanced_close_flow",
+      "lookback_hours": 6,
+      "buy_fills": 0,
+      "sell_fills": 55,
+      "sell_close_events": 0,
+      "effective_sell_completions": 55,
+      "buy_sell_ratio": 0.0,
+      "max_buy_sell_ratio": 2.5,
+      "min_sell_completions": 1,
+      "sell_close_attempts": 68,
+      "sell_close_completions": 66,
+      "sell_close_completion_rate": 0.970588,
+      "min_close_attempts": 2,
+      "min_close_completion_rate": 0.4,
+      "reconcile_gate_passed": true,
+      "reconcile_gate_reason": "sell_close_completion_observed"
+    },
+    "audit_summary": {
+      "total_checks": 6,
+      "failed_checks": 0,
+      "critical_failures": 0,
+      "high_failures": 0
+    },
+    "pipeline_metrics": {
+      "stage_counts": {
+        "COLD": 6755,
+        "HOT": 2779,
+        "WARM": 32
+      },
+      "promoted_hot_events": 2779,
+      "killed_events": 0,
+      "max_pair_share": 0.4606,
+      "total_funded_budget": 25.75,
+      "funded_strategy_count": 13,
+      "funded_with_oos_trades": 13
+    },
+    "warm_collector_summary": {
+      "warm_checked": 2712,
+      "eligible_hot": 2689,
+      "promoted_hot": 2689,
+      "collecting": 0,
+      "rejected": 22,
+      "not_ready": 22,
+      "skipped": 1
+    },
+    "warm_promotion_summary": {
+      "warm_checked": 32,
+      "promoted_hot": 0,
+      "eligible_hot": 0,
+      "collecting": 9,
+      "rejected": 22,
+      "not_ready": 31,
+      "skipped": 1
+    }
+  },
+  "reconcile_close_gate": {
+    "enabled": true,
+    "status_available": true,
+    "passed": true,
+    "reason": "sell_close_completion_observed",
+    "attempts": 68,
+    "completions": 66,
+    "failures": 2,
+    "failure_reasons": {
+      "terminal_cancelled": 1,
+      "terminal_failed": 1
+    },
+    "updated_at": "2026-02-14T03:31:17.939303+00:00"
+  },
+  "exit_manager_gate": {
+    "enabled": true,
+    "status_available": true,
+    "passed": true,
+    "reason": "exit_manager_healthy",
+    "running": true,
+    "updated_at": "2026-02-14T03:31:13.863365+00:00",
+    "age_seconds": 4.083,
+    "max_stale_seconds": 300,
+    "require_running": true,
+    "idle_stale_grace_seconds": 1800,
+    "idle_max_consecutive_api_failures": 6,
+    "idle_stale_grace_applied": false,
+    "active_positions": 0,
+    "consecutive_api_failures": 1
+  },
+  "trading_lock": {
+    "locked": false,
+    "reason": "recovered_stale_dead_owner_lock:Startup preflight blocked: execution_health_not_green:egress_blocked",
+    "source": "trading_guard",
+    "set_at": "2026-02-14T01:55:33.009390+00:00",
+    "epoch": 1771034133.009394,
+    "pid": 54125,
+    "metadata": {
+      "event": "STARTUP_PREFLIGHT_BLOCK",
+      "preflight": {
+        "enabled": true,
+        "fail_open": false,
+        "require_green": true,
+        "max_age_seconds": 240,
+        "checked_at": "2026-02-14T01:55:27.784096+00:00",
+        "status_available": true,
+        "green": false,
+        "passed": false,
+        "reason": "execution_health_not_green:egress_blocked",
+        "updated_at": "2026-02-14T01:55:28.565201+00:00",
+        "age_seconds": 0.001,
+        "egress_blocked": true,
+        "payload_reason": "egress_blocked",
+        "payload_reasons": [
+          "egress_blocked",
+          "api_probe_failed",
+          "telemetry_success_rate_low:0.2273<0.5500"
+        ]
+      }
+    }
+  },
+  "portfolio": {
+    "total_usd": 12.26,
+    "available_cash": 0.99,
+    "held_in_orders": 1.32,
+    "source": "trader_db_snapshot_fallback"
+  },
+  "reserve_targets": {
+    "updated_at": "2026-02-14T03:31:58.472788+00:00",
+    "portfolio_total_usd": 12.26,
+    "targets": [
+      {
+        "asset": "ETH",
+        "target_pct": 12.0,
+        "target_usd": 1.47,
+        "actual_usd": 5.76,
+        "gap_usd": -4.29
+      },
+      {
+        "asset": "USDC",
+        "target_pct": 35.0,
+        "target_usd": 4.29,
+        "actual_usd": 0.04,
+        "gap_usd": 4.25
+      },
+      {
+        "asset": "USD",
+        "target_pct": 25.0,
+        "target_usd": 3.06,
+        "actual_usd": 0.95,
+        "gap_usd": 2.12
+      },
+      {
+        "asset": "BTC",
+        "target_pct": 20.0,
+        "target_usd": 2.45,
+        "actual_usd": 2.17,
+        "gap_usd": 0.28
+      },
+      {
+        "asset": "MKD",
+        "target_pct": 2.0,
+        "target_usd": 0.25,
+        "actual_usd": 0.0,
+        "gap_usd": 0.25
+      },
+      {
+        "asset": "KRW",
+        "target_pct": 2.0,
+        "target_usd": 0.25,
+        "actual_usd": 0.0,
+        "gap_usd": 0.25
+      },
+      {
+        "asset": "EUR",
+        "target_pct": 2.0,
+        "target_usd": 0.25,
+        "actual_usd": 0.0,
+        "gap_usd": 0.25
+      },
+      {
+        "asset": "GBP",
+        "target_pct": 2.0,
+        "target_usd": 0.25,
+        "actual_usd": 0.0,
+        "gap_usd": 0.25
+      }
+    ]
+  },
+  "realized_daily_pnl_usd": 19.8,
+  "target_progress": [
+    {
+      "target_usd_per_day": 1000,
+      "realized_usd_today": 19.8,
+      "progress_pct": 1.98,
+      "remaining_usd": 980.2,
+      "required_hourly_run_rate_usd": 47.89,
+      "day_elapsed_pct_utc": 0.1472
+    },
+    {
+      "target_usd_per_day": 1000000,
+      "realized_usd_today": 19.8,
+      "progress_pct": 0.002,
+      "remaining_usd": 999980.2,
+      "required_hourly_run_rate_usd": 48857.64,
+      "day_elapsed_pct_utc": 0.1472
+    },
+    {
+      "target_usd_per_day": 9999999,
+      "realized_usd_today": 19.8,
+      "progress_pct": 0.0002,
+      "remaining_usd": 9999979.2,
+      "required_hourly_run_rate_usd": 488585.07,
+      "day_elapsed_pct_utc": 0.1472
+    }
+  ],
+  "win_objective": {
+    "definition": "WIN = mathematically validated, risk-governed realized gains with continuous resource optimization and treasury capture in USD/USDC.",
+    "strategy_themes": [
+      "multi_path_algorithmic_trading",
+      "radix_feature_experiments_base10_hex",
+      "network_stack_latency_tuning"
+    ],
+    "treasury_assets_priority": [
+      "USD",
+      "USDC"
+    ]
+  },
+  "metal_runtime": {
+    "mlx_available": false,
+    "torch_available": false,
+    "torch_mps_available": false
+  },
+  "quant_blockers": [
+    {
+      "reason": "insufficient_candles 0 < 30",
+      "count": 40
+    },
+    {
+      "reason": "insufficient_candles 10 < 30",
+      "count": 10
+    },
+    {
+      "reason": "insufficient_candles 19 < 30",
+      "count": 10
+    },
+    {
+      "reason": "insufficient_candles 11 < 30",
+      "count": 10
+    },
+    {
+      "reason": "Failed: trades 4 < 6",
+      "count": 3
+    }
+  ],
+  "commands": [
+    {
+      "cmd": [
+        "/opt/homebrew/bin/python3",
+        "/Users/scott/src/quant/agents/reconcile_agent_trades.py",
+        "--max-orders",
+        "120",
+        "--lookback-hours",
+        "96"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 0.079,
+      "stdout_tail": "{\"updated_at\": \"2026-02-14T03:31:17.939303+00:00\", \"max_orders\": 120, \"lookback_hours\": 96, \"reconcile_statuses\": [\"accepted\", \"ack_ok\", \"open\", \"pending\", \"placed\"], \"summary\": {\"checked\": 0, \"updated\": 0, \"filled\": 0, \"partial\": 0, \"cancelled\": 0, \"failed\": 0, \"expired\": 0, \"early_exit_reason\": \"\", \"close_attempts\": 68, \"close_completions\": 66, \"close_failures\": 2, \"close_failure_reasons\": {\"terminal_cancelled\": 1, \"terminal_failed\": 1}, \"close_gate_passed\": true, \"close_gate_reason\": \"sell_close_completion_observed\"}, \"close_reconciliation\": {\"attempts\": 68, \"completions\": 66, \"failures\": 2, \"completion_rate\": 0.970588, \"failure_reasons\": {\"terminal_cancelled\": 1, \"terminal_failed\": 1}, \"gate_passed\": true, \"gate_reason\": \"sell_close_completion_observed\"}}",
+      "stderr_tail": "",
+      "env_overrides": {}
+    },
+    {
+      "cmd": [
+        "/opt/homebrew/bin/python3",
+        "/Users/scott/src/quant/agents/growth_supervisor.py",
+        "--collector-interval-seconds",
+        "300"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 40.24,
+      "stdout_tail": "    \"killed_events\": 0,\n    \"max_pair_share\": 0.4606,\n    \"total_funded_budget\": 25.75,\n    \"funded_strategy_count\": 13,\n    \"funded_with_oos_trades\": 13\n  },\n  \"warm_collector_summary\": {\n    \"warm_checked\": 2712,\n    \"eligible_hot\": 2689,\n    \"promoted_hot\": 2689,\n    \"collecting\": 0,\n    \"rejected\": 22,\n    \"not_ready\": 22,\n    \"skipped\": 1\n  },\n  \"warm_promotion_summary\": {\n    \"warm_checked\": 32,\n    \"promoted_hot\": 0,\n    \"eligible_hot\": 0,\n    \"collecting\": 9,\n    \"rejected\": 22,\n    \"not_ready\": 31,\n    \"skipped\": 1\n  }\n}",
+      "stderr_tail": "",
+      "env_overrides": {}
+    },
+    {
+      "cmd": [
+        "/opt/homebrew/bin/python3",
+        "/Users/scott/src/quant/agents/claude_stager_agent.py",
+        "--once"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 0.085,
+      "stdout_tail": "    ],\n    \"online_nodes\": 1,\n    \"frameworks\": {\n      \"numpy\": 3,\n      \"mlx\": 2,\n      \"pytorch\": 2,\n      \"mps\": 2\n    },\n    \"advanced_msgs\": 120,\n    \"operator_msgs\": 3,\n    \"duplex_to\": 120,\n    \"duplex_from\": 120\n  },\n  \"bundle_id\": \"bundle-95-469e447184a3\",\n  \"bundle_hash\": \"469e447184a369a43cd665ad4863890898407d78077fdeedc457e26514591b71\",\n  \"bundle_sequence\": 95,\n  \"schema_version\": 1,\n  \"metadata\": {\n    \"bundle_id\": \"bundle-95-469e447184a3\",\n    \"bundle_hash\": \"469e447184a369a43cd665ad4863890898407d78077fdeedc457e26514591b71\",\n    \"bundle_sequence\": 95,\n    \"generated_at\": \"2026-02-14T03:31:58.224363+00:00\",\n    \"schema_version\": 1\n  }\n}",
+      "stderr_tail": "2026-02-13 22:31:58,263 [claude_stager] INFO cycle=1 focus_pairs=7 online_nodes=1 frameworks=4 msgs=120/3",
+      "env_overrides": {}
+    },
+    {
+      "cmd": [
+        "/opt/homebrew/bin/python3",
+        "/Users/scott/src/quant/agents/autonomous_work_manager.py",
+        "--once"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 0.113,
+      "stdout_tail": "      \"priority_score\": 100.0,\n      \"dispatch_count\": 0,\n      \"trace_id\": \"\",\n      \"verification_reason\": \"\"\n    }\n  ],\n  \"win_1000_snapshot\": {\n    \"updated_at\": \"2026-02-14T01:55:43.710922+00:00\",\n    \"tasks_total\": 1000,\n    \"worked_through_count\": 1000,\n    \"status_counts\": {\n      \"completed\": 220,\n      \"in_progress\": 780,\n      \"pending\": 0,\n      \"blocked\": 0\n    },\n    \"priority_counts\": {\n      \"P0\": 660,\n      \"P1\": 144,\n      \"P2\": 140,\n      \"P3\": 56,\n      \"P4\": 0\n    }\n  }\n}",
+      "stderr_tail": "2026-02-13 22:31:58,379 [autonomous_work] INFO queue=89 dispatched=0 acked=0 completed=0 stale=0",
+      "env_overrides": {}
+    },
+    {
+      "cmd": [
+        "/opt/homebrew/bin/python3",
+        "/Users/scott/src/quant/agents/win_1000_runner.py",
+        "--work-through-all",
+        "--execute-top",
+        "0"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 0.042,
+      "stdout_tail": "      \"worked_through\": true,\n      \"blocked_reason\": \"hf_live_not_ready\",\n      \"acceptance\": \"Positive OOS + Monte Carlo + realized close-profit evidence where applicable.\",\n      \"last_reviewed_at\": \"2026-02-14T03:31:58.418921+00:00\",\n      \"notes\": [],\n      \"priority_rank\": 24\n    },\n    {\n      \"id\": \"WIN-0896\",\n      \"title\": \"Region routing benchmark 96: compare latency and fill quality in sin\",\n      \"category\": \"deployment_regions\",\n      \"pair\": \"PEPE-USD\",\n      \"region\": \"sin\",\n      \"priority_score\": 100.0,\n      \"priority_tier\": \"P0\",\n      \"status\": \"in_progress\",\n      \"worked_through\": true,\n      \"blocked_reason\": \"hf_live_not_ready\",\n      \"acceptance\": \"Positive OOS + Monte Carlo + realized close-profit evidence where applicable.\",\n      \"last_reviewed_at\": \"2026-02-14T03:31:58.418922+00:00\",\n      \"notes\": [],\n      \"priority_rank\": 25\n    }\n  ]\n}",
+      "stderr_tail": "",
+      "env_overrides": {}
+    }
+  ],
+  "win_1000": {
+    "tasks_total": 1000,
+    "worked_through_count": 1000,
+    "status_counts": {
+      "completed": 220,
+      "in_progress": 780,
+      "pending": 0,
+      "blocked": 0
+    },
+    "priority_counts": {
+      "P0": 660,
+      "P1": 144,
+      "P2": 140,
+      "P3": 56,
+      "P4": 0
+    },
+    "state_snapshot": {
+      "go_live": true,
+      "realized_ok": true,
+      "hf_live_ready": false,
+      "coinbase_ready": false,
+      "dns_coinbase_ok": false,
+      "creds_coinbase": true,
+      "run_rate_usd_per_hour": 48.86,
+      "top_regions": [
+        "ewr",
+        "nrt",
+        "sin"
+      ]
+    },
+    "updated_at": "2026-02-14T03:31:58.419768+00:00"
+  },
+  "autonomous_work": {
+    "queue_size": 89,
+    "counts": {
+      "queued": 72,
+      "dispatched": 0,
+      "acknowledged": 12,
+      "completion_claimed": 0,
+      "completed": 3,
+      "stale": 2,
+      "blocked": 0
+    },
+    "dispatch": {
+      "available": true,
+      "dispatched": 0,
+      "ids": [],
+      "room": 0
+    },
+    "feedback": {
+      "available": true,
+      "ingested": 0,
+      "acked": 0,
+      "claimed": 0,
+      "completed": 0,
+      "completion_waiting_verification": 0,
+      "last_from_claude_id": 730
+    },
+    "updated_at": "2026-02-14T03:31:58.379430+00:00"
+  },
+  "claude_update": {
+    "id": 736,
+    "timestamp": "2026-02-14T03:31:58.489839+00:00"
+  },
+  "claude_collaboration": {
+    "enabled": true,
+    "team_loop_enabled": true,
+    "last_from_claude_id": 730,
+    "sent": {
+      "sent_count": 3,
+      "sent_ids": [
+        737,
+        738,
+        739
+      ],
+      "priority": "normal"
+    },
+    "received": {
+      "received_count_total": 6,
+      "received_role_count": 3,
+      "last_from_claude_id": 730,
+      "sources": {
+        "claude_opus": 1,
+        "claude_sonnet": 1,
+        "claude_team": 1
+      },
+      "msg_types": {
+        "role_update": 2,
+        "team_consensus": 1
+      },
+      "latest": [
+        {
+          "source": "claude_opus",
+          "id": 728,
+          "msg_type": "role_update",
+          "timestamp": "2026-02-14T03:31:34.215879+00:00",
+          "message": "Opus role update: refine strategy hypotheses toward realized-close-positive outcomes, tighten risk gates, and prefer high-confidence deterministic exits."
+        },
+        {
+          "source": "claude_sonnet",
+          "id": 729,
+          "msg_type": "role_update",
+          "timestamp": "2026-02-14T03:31:34.215969+00:00",
+          "message": "Sonnet role update: implement execution fixes that increase filled SELL closes, improve fill quality, and reduce pending/open order drift."
+        },
+        {
+          "source": "claude_team",
+          "id": 730,
+          "msg_type": "team_consensus",
+          "timestamp": "2026-02-14T03:31:34.216060+00:00",
+          "message": "Opus+Sonnet consensus: cycle=1 promoted=9 rejected=81 no_data=0. Joint plan: prioritize realized close-profit evidence before any budget escalation."
+        }
+      ]
+    }
+  }
+}

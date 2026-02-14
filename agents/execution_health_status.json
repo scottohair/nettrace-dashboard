@@ -1,0 +1,128 @@
+{
+  "updated_at": "2026-02-14T06:08:19.004448+00:00",
+  "green": false,
+  "reason": "telemetry_success_rate_low:0.0060<0.5500",
+  "reasons": [
+    "telemetry_success_rate_low:0.0060<0.5500"
+  ],
+  "dns_degraded": false,
+  "egress_blocked": false,
+  "components": {
+    "dns": {
+      "required_hosts": [
+        "api.coinbase.com",
+        "api.exchange.coinbase.com"
+      ],
+      "require_all": true,
+      "ok_count": 2,
+      "total": 2,
+      "green": true,
+      "degraded": false,
+      "failover_profile": {
+        "mode": "system_then_fallback",
+        "fallback_ips": [],
+        "host_map_keys": [
+          "api.coinbase.com",
+          "api.exchange.coinbase.com"
+        ],
+        "public_dns_enabled": true,
+        "public_dns_resolvers": [
+          "1.1.1.1",
+          "8.8.8.8",
+          "9.9.9.9"
+        ],
+        "public_dns_configured": true,
+        "configured": true,
+        "active": false
+      },
+      "rows": [
+        {
+          "host": "api.coinbase.com",
+          "ok": true,
+          "ips": [
+            "104.18.35.15",
+            "172.64.152.241"
+          ],
+          "error": "system_dns_failed_host_map_recovered:[Errno 8] nodename nor servname provided, or not known",
+          "resolver_source": "host_map",
+          "latency_ms": 152.473
+        },
+        {
+          "host": "api.exchange.coinbase.com",
+          "ok": true,
+          "ips": [
+            "104.18.36.178",
+            "172.64.151.78"
+          ],
+          "error": "system_dns_failed_host_map_recovered:[Errno 8] nodename nor servname provided, or not known",
+          "resolver_source": "host_map",
+          "latency_ms": 155.422
+        }
+      ]
+    },
+    "api_probe": {
+      "enabled": false,
+      "green": true,
+      "rows": []
+    },
+    "telemetry": {
+      "green": false,
+      "min_samples": 3,
+      "min_success_rate": 0.55,
+      "max_failure_rate": 0.45,
+      "max_p90_latency_ms": 4500.0,
+      "snapshot": {
+        "venue": "coinbase",
+        "window_minutes": 30,
+        "samples": 2000,
+        "success_rate": 0.006,
+        "failure_rate": 0.994,
+        "p50_latency_ms": 9.769,
+        "p90_latency_ms": 17.513,
+        "p99_latency_ms": 21.163
+      },
+      "recovery_override": false,
+      "recovery_window_minutes": 3,
+      "recovery_min_samples": 2,
+      "recovery_min_success_rate": 0.6,
+      "recovery_max_failure_rate": 0.4,
+      "recovery_snapshot": {
+        "venue": "coinbase",
+        "window_minutes": 3,
+        "samples": 1220,
+        "success_rate": 0.0049,
+        "failure_rate": 0.9951,
+        "p50_latency_ms": 11.539,
+        "p90_latency_ms": 18.29,
+        "p99_latency_ms": 20.957
+      }
+    },
+    "reconcile": {
+      "green": true,
+      "max_age_seconds": 900,
+      "allow_stale_no_pending": true,
+      "stale_no_pending_grace_seconds": 3600,
+      "stale_grace_applied": true,
+      "age_seconds": 3207.556,
+      "summary": {
+        "checked": 0,
+        "updated": 0,
+        "filled": 0,
+        "partial": 0,
+        "cancelled": 0,
+        "failed": 0,
+        "expired": 0,
+        "early_exit_reason": "",
+        "close_attempts": 86,
+        "close_completions": 84,
+        "close_failures": 2,
+        "close_failure_reasons": {
+          "terminal_cancelled": 1,
+          "terminal_failed": 1
+        },
+        "close_gate_passed": true,
+        "close_gate_reason": "sell_close_completion_observed"
+      }
+    }
+  }
+}

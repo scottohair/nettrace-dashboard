@@ -1,0 +1,49 @@
+{
+  "cycle": 70,
+  "updated_at": "2026-02-14T06:09:14.635244+00:00",
+  "risk_posture": "DEFENSIVE",
+  "focus_pairs": [],
+  "agent_status": [
+    {
+      "agent": "algorithm_optimizer",
+      "label": "Algorithm Optimizer",
+      "state": "active",
+      "detail": "min_conf=0.66"
+    },
+    {
+      "agent": "quant_optimizer",
+      "label": "Quant Optimizer",
+      "state": "active",
+      "detail": "posture=DEFENSIVE"
+    },
+    {
+      "agent": "dashboard_optimizer",
+      "label": "Dashboard Optimizer",
+      "state": "active",
+      "detail": "focus=none"
+    }
+  ],
+  "algorithm_recommendations": [
+    "Global min confidence -> 0.66",
+    "Global size multiplier -> 0.68x"
+  ],
+  "quant_recommendations": [
+    "Posture=DEFENSIVE min_conf=0.73 max_trade=$3.50"
+  ],
+  "dashboard_recommendations": [
+    "Risk posture: DEFENSIVE",
+    "Confidence floor: 0.73",
+    "Max trade: $3.50"
+  ],
+  "next_actions": [
+    "Global min confidence -> 0.66",
+    "Global size multiplier -> 0.68x",
+    "Posture=DEFENSIVE min_conf=0.73 max_trade=$3.50"
+  ],
+  "learning_snapshot": {
+    "sharpe_ratio": -2.6171,
+    "max_drawdown_pct": 65.13,
+    "total_trades": 0
+  },
+  "source": "dashboard_optimizer"
+}

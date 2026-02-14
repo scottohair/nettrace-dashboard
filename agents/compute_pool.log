@@ -1,0 +1,7 @@
+2026-02-12 08:12:30,765 [compute_pool] INFO Task 33f54a4a-0924-40 assigned to node 04c7bc93-b8a (test-node)
+2026-02-12 08:12:59,308 [compute_pool] INFO Local node registered: local | GPU=apple_metal | Chip=Apple M3 | Memory=16.0GB | Frameworks=['numpy']
+2026-02-12 08:12:59,309 [compute_pool] INFO Known node registered (pending): m1max-studio @ 192.168.1.110
+2026-02-12 08:12:59,309 [compute_pool] INFO Known node registered (pending): m2ultra-studio @ 192.168.1.106
+2026-02-12 08:12:59,313 [compute_pool] INFO Compute pool HTTP server started on 0.0.0.0:9090
+2026-02-12 08:13:00,337 [compute_pool] INFO Task de2f1bbc-35b3-49 assigned to node local (local-purple-2.local)
+2026-02-12 08:13:00,839 [compute_pool] INFO Compute pool shut down

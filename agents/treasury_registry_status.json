@@ -1,0 +1,18 @@
+{
+  "updated_at": "2026-02-14T06:06:58.877793+00:00",
+  "running": true,
+  "cycle": 32,
+  "interval_seconds": 300,
+  "wallet_count": 4,
+  "connector_count": 4,
+  "retrievability": {
+    "wallet_score": 1.0,
+    "connector_score": 0.25,
+    "total_score": 0.76,
+    "retrievable_wallets": 4,
+    "wallet_count": 4,
+    "ready_connectors": 1,
+    "connector_count": 4
+  },
+  "portfolio_total_usd": 0.0
+}

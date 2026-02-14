@@ -1,0 +1,2630 @@
+[
+  {
+    "id": "saas_001",
+    "category": "saas",
+    "title": "Real-time SEO API with real-time streaming",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_002",
+    "category": "saas",
+    "title": "Real-time logistics API with caching",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_003",
+    "category": "saas",
+    "title": "Real-time news API with caching",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_004",
+    "category": "saas",
+    "title": "Real-time news API with white-label",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_005",
+    "category": "saas",
+    "title": "Real-time real estate API with real-time streaming",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_006",
+    "category": "saas",
+    "title": "Real-time crypto API with rate limiting",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time",
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_007",
+    "category": "saas",
+    "title": "Real-time legal API with rate limiting",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_008",
+    "category": "saas",
+    "title": "Real-time IoT API with real-time streaming",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_009",
+    "category": "saas",
+    "title": "Real-time weather API with white-label",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_010",
+    "category": "saas",
+    "title": "Real-time healthcare API with GraphQL",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_011",
+    "category": "saas",
+    "title": "Real-time education API with GraphQL",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_012",
+    "category": "saas",
+    "title": "Real-time healthcare API with predictive analytics",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_013",
+    "category": "saas",
+    "title": "Real-time crypto API with white-label",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time",
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_014",
+    "category": "saas",
+    "title": "Real-time logistics API with predictive analytics",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_015",
+    "category": "saas",
+    "title": "Real-time social media API with bulk exports",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_016",
+    "category": "saas",
+    "title": "Real-time legal API with white-label",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_017",
+    "category": "saas",
+    "title": "Real-time agriculture API with predictive analytics",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_018",
+    "category": "saas",
+    "title": "Real-time weather API with multi-tenant",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_019",
+    "category": "saas",
+    "title": "Real-time agriculture API with webhooks",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_020",
+    "category": "saas",
+    "title": "Real-time crypto API with predictive analytics",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time",
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_021",
+    "category": "saas",
+    "title": "Real-time stock API with bulk exports",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "api",
+      "real-time"
+    ]
+  },
+  {
+    "id": "saas_022",
+    "category": "saas",
+    "title": "crypto monitoring dashboard with anomaly alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_023",
+    "category": "saas",
+    "title": "healthcare monitoring dashboard with threshold alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_024",
+    "category": "saas",
+    "title": "healthcare monitoring dashboard with regulatory alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_025",
+    "category": "saas",
+    "title": "competitor monitoring dashboard with trend alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_026",
+    "category": "saas",
+    "title": "agriculture monitoring dashboard with regulatory alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_027",
+    "category": "saas",
+    "title": "news monitoring dashboard with threshold alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_028",
+    "category": "saas",
+    "title": "social media monitoring dashboard with threshold alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_029",
+    "category": "saas",
+    "title": "job listings monitoring dashboard with anomaly alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_030",
+    "category": "saas",
+    "title": "supply chain monitoring dashboard with sentiment alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_031",
+    "category": "saas",
+    "title": "sports monitoring dashboard with anomaly alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_032",
+    "category": "saas",
+    "title": "legal monitoring dashboard with anomaly alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_033",
+    "category": "saas",
+    "title": "agriculture monitoring dashboard with threshold alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_034",
+    "category": "saas",
+    "title": "crypto monitoring dashboard with trend alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_035",
+    "category": "saas",
+    "title": "supply chain monitoring dashboard with anomaly alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_036",
+    "category": "saas",
+    "title": "stock monitoring dashboard with regulatory alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_037",
+    "category": "saas",
+    "title": "social media monitoring dashboard with regulatory alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_038",
+    "category": "saas",
+    "title": "energy monitoring dashboard with threshold alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_039",
+    "category": "saas",
+    "title": "weather monitoring dashboard with regulatory alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_040",
+    "category": "saas",
+    "title": "real estate monitoring dashboard with regulatory alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_041",
+    "category": "saas",
+    "title": "legal monitoring dashboard with sentiment alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_042",
+    "category": "saas",
+    "title": "crypto monitoring dashboard with threshold alerts",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_043",
+    "category": "saas",
+    "title": "Auto-moderate for e-commerce using AI/ML",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_044",
+    "category": "saas",
+    "title": "Auto-backup for marketing agencies using time-series forecasting",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_045",
+    "category": "saas",
+    "title": "Auto-categorize for healthcare using NLP",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_046",
+    "category": "saas",
+    "title": "Auto-backup for healthcare using NLP",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_047",
+    "category": "saas",
+    "title": "Auto-categorize for SaaS using AI/ML",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_048",
+    "category": "saas",
+    "title": "Auto-backup for logistics using blockchain",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml",
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_049",
+    "category": "saas",
+    "title": "Auto-deduplicate for SaaS using computer vision",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_050",
+    "category": "saas",
+    "title": "Auto-translate for SaaS using blockchain",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml",
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_051",
+    "category": "saas",
+    "title": "Auto-categorize for e-commerce using NLP",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_052",
+    "category": "saas",
+    "title": "Auto-verify for retail using time-series forecasting",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_053",
+    "category": "saas",
+    "title": "Auto-transcode for finance using NLP",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_054",
+    "category": "saas",
+    "title": "Auto-transcode for logistics using computer vision",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_055",
+    "category": "saas",
+    "title": "Auto-verify for real estate using NLP",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_056",
+    "category": "saas",
+    "title": "Auto-sync for real estate using computer vision",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_057",
+    "category": "saas",
+    "title": "Auto-translate for retail using blockchain",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml",
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_058",
+    "category": "saas",
+    "title": "Auto-enrich for finance using AI/ML",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_059",
+    "category": "saas",
+    "title": "Auto-moderate for retail using AI/ML",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_060",
+    "category": "saas",
+    "title": "Auto-translate for finance using computer vision",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_061",
+    "category": "saas",
+    "title": "Auto-enrich for healthcare using time-series forecasting",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_062",
+    "category": "saas",
+    "title": "Auto-backup for real estate using blockchain",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml",
+      "blockchain"
+    ]
+  },
+  {
+    "id": "saas_063",
+    "category": "saas",
+    "title": "Auto-backup for logistics using time-series forecasting",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_064",
+    "category": "saas",
+    "title": "healthcare analytics platform with benchmarking",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_065",
+    "category": "saas",
+    "title": "energy analytics platform with cohort analysis",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_066",
+    "category": "saas",
+    "title": "energy analytics platform with benchmarking",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_067",
+    "category": "saas",
+    "title": "social media analytics platform with cohort analysis",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_068",
+    "category": "saas",
+    "title": "SEO analytics platform with benchmarking",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_069",
+    "category": "saas",
+    "title": "weather analytics platform with trend detection",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_070",
+    "category": "saas",
+    "title": "sports analytics platform with benchmarking",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_071",
+    "category": "saas",
+    "title": "stock analytics platform with cohort analysis",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_072",
+    "category": "saas",
+    "title": "social media analytics platform with benchmarking",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_073",
+    "category": "saas",
+    "title": "news analytics platform with cohort analysis",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_074",
+    "category": "saas",
+    "title": "job listings analytics platform with cohort analysis",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_075",
+    "category": "saas",
+    "title": "IoT analytics platform with cohort analysis",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_076",
+    "category": "saas",
+    "title": "education analytics platform with forecasting",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_077",
+    "category": "saas",
+    "title": "weather analytics platform with benchmarking",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_078",
+    "category": "saas",
+    "title": "legal analytics platform with trend detection",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_079",
+    "category": "saas",
+    "title": "supply chain analytics platform with forecasting",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_080",
+    "category": "saas",
+    "title": "forex analytics platform with trend detection",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_081",
+    "category": "saas",
+    "title": "healthcare analytics platform with forecasting",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_082",
+    "category": "saas",
+    "title": "news analytics platform with forecasting",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_083",
+    "category": "saas",
+    "title": "job listings analytics platform with benchmarking",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_084",
+    "category": "saas",
+    "title": "logistics analytics platform with benchmarking",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_085",
+    "category": "saas",
+    "title": "Webhook-based customer onboarding automation for lead nurturing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_086",
+    "category": "saas",
+    "title": "Webhook-based employee screening automation for lead nurturing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_087",
+    "category": "saas",
+    "title": "Webhook-based contract review automation for subscription renewals",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_088",
+    "category": "saas",
+    "title": "Webhook-based customer onboarding automation for e-commerce checkouts",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_089",
+    "category": "saas",
+    "title": "Webhook-based contract review automation for e-commerce checkouts",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_090",
+    "category": "saas",
+    "title": "Webhook-based invoice processing automation for lead nurturing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_091",
+    "category": "saas",
+    "title": "Webhook-based invoice processing automation for subscription renewals",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_092",
+    "category": "saas",
+    "title": "Webhook-based employee screening automation for e-commerce checkouts",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_093",
+    "category": "saas",
+    "title": "Webhook-based employee screening automation for subscription renewals",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_094",
+    "category": "saas",
+    "title": "Webhook-based compliance checking automation for e-commerce checkouts",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_095",
+    "category": "saas",
+    "title": "Webhook-based customer onboarding automation for subscription renewals",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_096",
+    "category": "saas",
+    "title": "Webhook-based compliance checking automation for subscription renewals",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_097",
+    "category": "saas",
+    "title": "Webhook-based contract review automation for lead nurturing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_098",
+    "category": "saas",
+    "title": "Webhook-based compliance checking automation for lead nurturing",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_099",
+    "category": "saas",
+    "title": "Webhook-based invoice processing automation for e-commerce checkouts",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_100",
+    "category": "saas",
+    "title": "agriculture scheduler with AI meeting optimization",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_101",
+    "category": "saas",
+    "title": "weather scheduler with conflict resolution",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_102",
+    "category": "saas",
+    "title": "competitor scheduler with calendar health scoring",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_103",
+    "category": "saas",
+    "title": "logistics scheduler with calendar health scoring",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_104",
+    "category": "saas",
+    "title": "logistics scheduler with timezone auto-detection",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_105",
+    "category": "saas",
+    "title": "legal scheduler with calendar health scoring",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_106",
+    "category": "saas",
+    "title": "competitor scheduler with AI meeting optimization",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_107",
+    "category": "saas",
+    "title": "education scheduler with timezone auto-detection",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_108",
+    "category": "saas",
+    "title": "stock scheduler with conflict resolution",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_109",
+    "category": "saas",
+    "title": "SEO scheduler with calendar health scoring",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_110",
+    "category": "saas",
+    "title": "news scheduler with AI meeting optimization",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_111",
+    "category": "saas",
+    "title": "healthcare scheduler with calendar health scoring",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_112",
+    "category": "saas",
+    "title": "weather scheduler with timezone auto-detection",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_113",
+    "category": "saas",
+    "title": "job listings scheduler with timezone auto-detection",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_114",
+    "category": "saas",
+    "title": "SEO scheduler with conflict resolution",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_115",
+    "category": "saas",
+    "title": "energy scheduler with conflict resolution",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_116",
+    "category": "saas",
+    "title": "healthcare scheduler with conflict resolution",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_117",
+    "category": "saas",
+    "title": "social media scheduler with AI meeting optimization",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_118",
+    "category": "saas",
+    "title": "legal scheduler with AI meeting optimization",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_119",
+    "category": "saas",
+    "title": "social media scheduler with timezone auto-detection",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_120",
+    "category": "saas",
+    "title": "sports scheduler with conflict resolution",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_121",
+    "category": "saas",
+    "title": "AI-powered sales copy generator for consultants",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_122",
+    "category": "saas",
+    "title": "AI-powered blog posts generator for consultants",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_123",
+    "category": "saas",
+    "title": "AI-powered social media generator for consultants",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_124",
+    "category": "saas",
+    "title": "AI-powered technical documentation generator for gyms",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_125",
+    "category": "saas",
+    "title": "AI-powered product descriptions generator for dentists",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_126",
+    "category": "saas",
+    "title": "AI-powered sales copy generator for restaurants",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_127",
+    "category": "saas",
+    "title": "AI-powered social media generator for lawyers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_128",
+    "category": "saas",
+    "title": "AI-powered legal documents generator for restaurants",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_129",
+    "category": "saas",
+    "title": "AI-powered technical documentation generator for real estate agents",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_130",
+    "category": "saas",
+    "title": "AI-powered email campaigns generator for consultants",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_131",
+    "category": "saas",
+    "title": "AI-powered blog posts generator for dentists",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_132",
+    "category": "saas",
+    "title": "AI-powered sales copy generator for salons",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_133",
+    "category": "saas",
+    "title": "AI-powered sales copy generator for plumbers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_134",
+    "category": "saas",
+    "title": "AI-powered email campaigns generator for gyms",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_135",
+    "category": "saas",
+    "title": "AI-powered technical documentation generator for dentists",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_136",
+    "category": "saas",
+    "title": "AI-powered legal documents generator for real estate agents",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_137",
+    "category": "saas",
+    "title": "AI-powered email campaigns generator for plumbers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_138",
+    "category": "saas",
+    "title": "AI-powered blog posts generator for lawyers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_139",
+    "category": "saas",
+    "title": "AI-powered social media generator for electricians",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_140",
+    "category": "saas",
+    "title": "AI-powered legal documents generator for consultants",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_141",
+    "category": "saas",
+    "title": "AI-powered social media generator for restaurants",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_142",
+    "category": "saas",
+    "title": "compliance checking optimizer for writers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_143",
+    "category": "saas",
+    "title": "invoice processing optimizer for sales teams",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_144",
+    "category": "saas",
+    "title": "employee screening optimizer for sales teams",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_145",
+    "category": "saas",
+    "title": "invoice processing optimizer for designers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_146",
+    "category": "saas",
+    "title": "employee screening optimizer for developers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_147",
+    "category": "saas",
+    "title": "employee screening optimizer for designers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_148",
+    "category": "saas",
+    "title": "customer onboarding optimizer for writers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_149",
+    "category": "saas",
+    "title": "customer onboarding optimizer for designers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_150",
+    "category": "saas",
+    "title": "contract review optimizer for writers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_151",
+    "category": "saas",
+    "title": "customer onboarding optimizer for marketers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_152",
+    "category": "saas",
+    "title": "invoice processing optimizer for marketers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_153",
+    "category": "saas",
+    "title": "contract review optimizer for designers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_154",
+    "category": "saas",
+    "title": "invoice processing optimizer for developers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_155",
+    "category": "saas",
+    "title": "employee screening optimizer for writers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_156",
+    "category": "saas",
+    "title": "compliance checking optimizer for sales teams",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_157",
+    "category": "saas",
+    "title": "compliance checking optimizer for marketers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_158",
+    "category": "saas",
+    "title": "invoice processing optimizer for writers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_159",
+    "category": "saas",
+    "title": "compliance checking optimizer for designers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_160",
+    "category": "saas",
+    "title": "contract review optimizer for developers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_161",
+    "category": "saas",
+    "title": "employee screening optimizer for marketers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_162",
+    "category": "saas",
+    "title": "contract review optimizer for marketers",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_163",
+    "category": "saas",
+    "title": "Automated security reports for real estate",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_164",
+    "category": "saas",
+    "title": "Automated performance reports for logistics",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_165",
+    "category": "saas",
+    "title": "Automated financial reports for manufacturing",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_166",
+    "category": "saas",
+    "title": "Automated security reports for SaaS",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_167",
+    "category": "saas",
+    "title": "Automated performance reports for retail",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_168",
+    "category": "saas",
+    "title": "Automated financial reports for finance",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_169",
+    "category": "saas",
+    "title": "Automated customer health reports for real estate",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_170",
+    "category": "saas",
+    "title": "Automated compliance reports for manufacturing",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_171",
+    "category": "saas",
+    "title": "Automated financial reports for healthcare",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_172",
+    "category": "saas",
+    "title": "Automated security reports for logistics",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_173",
+    "category": "saas",
+    "title": "Automated customer health reports for retail",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_174",
+    "category": "saas",
+    "title": "Automated compliance reports for SaaS",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_175",
+    "category": "saas",
+    "title": "Automated performance reports for SaaS",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_176",
+    "category": "saas",
+    "title": "Automated compliance reports for marketing agencies",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_177",
+    "category": "saas",
+    "title": "Automated security reports for marketing agencies",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_178",
+    "category": "saas",
+    "title": "Automated financial reports for logistics",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_179",
+    "category": "saas",
+    "title": "Automated performance reports for finance",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_180",
+    "category": "saas",
+    "title": "Automated customer health reports for marketing agencies",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_181",
+    "category": "saas",
+    "title": "Automated financial reports for SaaS",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_182",
+    "category": "saas",
+    "title": "Automated customer health reports for finance",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_183",
+    "category": "saas",
+    "title": "Automated performance reports for marketing agencies",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_184",
+    "category": "saas",
+    "title": "No-code Email-Calendar builder for Salesforce",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_185",
+    "category": "saas",
+    "title": "No-code Email-Calendar builder for WordPress",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_186",
+    "category": "saas",
+    "title": "No-code Google Sheets-CRM builder for QuickBooks",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_187",
+    "category": "saas",
+    "title": "No-code Slack-GitHub builder for QuickBooks",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_188",
+    "category": "saas",
+    "title": "No-code Google Sheets-CRM builder for Salesforce",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_189",
+    "category": "saas",
+    "title": "No-code Slack-GitHub builder for WordPress",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_190",
+    "category": "saas",
+    "title": "No-code Slack-GitHub builder for HubSpot",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_191",
+    "category": "saas",
+    "title": "No-code Stripe-Shopify builder for HubSpot",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_192",
+    "category": "saas",
+    "title": "No-code Google Sheets-CRM builder for WordPress",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_193",
+    "category": "saas",
+    "title": "No-code Email-Calendar builder for Shopify",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_194",
+    "category": "saas",
+    "title": "No-code Slack-GitHub builder for Salesforce",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_195",
+    "category": "saas",
+    "title": "No-code Stripe-Shopify builder for Shopify",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_196",
+    "category": "saas",
+    "title": "No-code Email-Calendar builder for HubSpot",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "saas_197",
+    "category": "saas",
+    "title": "No-code Stripe-Shopify builder for QuickBooks",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_198",
+    "category": "saas",
+    "title": "No-code Stripe-Shopify builder for Salesforce",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_199",
+    "category": "saas",
+    "title": "No-code Stripe-Shopify builder for WordPress",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "saas_200",
+    "category": "saas",
+    "title": "No-code Google Sheets-CRM builder for Shopify",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$100-$10,000",
+    "tags": [
+      "general"
+    ]
+  }
+]

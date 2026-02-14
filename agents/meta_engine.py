@@ -118,6 +118,14 @@ logging.basicConfig(
 logger = logging.getLogger("meta_engine")
 
 META_DB = str(Path(__file__).parent / "meta_engine.db")
+TRADER_DB = str(Path(__file__).parent / "trader.db")
+PIPELINE_DB = str(Path(__file__).parent / "pipeline.db")
+FIRE_LOSING_STRATEGIES = os.environ.get(
+    "FIRE_LOSING_STRATEGIES", "1"
+).lower() not in ("0", "false", "no")
+FIRE_MIN_CLOSES = int(os.environ.get("FIRE_LOSING_MIN_CLOSES", "3"))
+FIRE_MIN_LOSS_USD = float(os.environ.get("FIRE_LOSING_MIN_LOSS_USD", "0.50"))
+FIRE_LOOKBACK_HOURS = int(os.environ.get("FIRE_LOSING_LOOKBACK_HOURS", "72"))
 NETTRACE_API_KEY = os.environ.get("NETTRACE_API_KEY", "")
 FLY_URL = "https://nettrace-dashboard.fly.dev"
 
@@ -1057,9 +1065,83 @@ class MetaEngine:
             pass  # Column already exists
         self.db.commit()
 
+    def fire_losing_strategies(self):
+        """Demote HOT strategies with realized losses to COLD and zero budget.
+
+        Requires 3+ closes and net realized loss > $0.50 in the lookback window.
+        Gated by FIRE_LOSING_STRATEGIES env var.
+        """
+        if not FIRE_LOSING_STRATEGIES:
+            return 0
+        trader_path = Path(TRADER_DB)
+        pipeline_path = Path(PIPELINE_DB)
+        if not trader_path.exists() or not pipeline_path.exists():
+            return 0
+
+        lookback_expr = f"-{max(1, FIRE_LOOKBACK_HOURS)} hours"
+        fired = 0
+        try:
+            tconn = sqlite3.connect(str(trader_path))
+            tconn.row_factory = sqlite3.Row
+            # Check if agent_trades table exists
+            has_table = tconn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='agent_trades'"
+            ).fetchone()
+            if not has_table:
+                tconn.close()
+                return 0
+
+            losers = tconn.execute(
+                """
+                SELECT strategy_name, pair,
+                       SUM(COALESCE(pnl, 0)) as net_pnl,
+                       COUNT(*) as closes
+                FROM agent_trades
+                WHERE UPPER(COALESCE(side, '')) = 'SELL'
+                  AND pnl IS NOT NULL
+                  AND created_at >= datetime('now', ?)
+                GROUP BY strategy_name, pair
+                HAVING COUNT(*) >= ? AND SUM(COALESCE(pnl, 0)) < ?
+                """,
+                (lookback_expr, FIRE_MIN_CLOSES, -abs(FIRE_MIN_LOSS_USD)),
+            ).fetchall()
+            tconn.close()
+
+            if not losers:
+                return 0
+
+            pconn = sqlite3.connect(str(pipeline_path))
+            pconn.row_factory = sqlite3.Row
+            for row in losers:
+                strategy = str(row["strategy_name"] or "")
+                pair = str(row["pair"] or "")
+                net_pnl = float(row["net_pnl"] or 0.0)
+                closes = int(row["closes"] or 0)
+                if not strategy or not pair:
+                    continue
+                pconn.execute(
+                    "UPDATE strategies SET tier='COLD', budget_usd=0 WHERE name=? AND pair=?",
+                    (strategy, pair),
+                )
+                fired += 1
+                logger.warning(
+                    "FIRED %s/%s: realized loss $%.2f over %d closes in %dh",
+                    strategy, pair, net_pnl, closes, FIRE_LOOKBACK_HOURS,
+                )
+            pconn.commit()
+            pconn.close()
+        except Exception as e:
+            logger.error("fire_losing_strategies error: %s", e)
+        return fired
+
     def evolve(self, cycle=0):
         """One evolution cycle: research -> generate -> test -> deploy -> prune."""
         logger.info("=== META-ENGINE EVOLUTION CYCLE ===")
+
+        # Step 0: Fire losing HOT strategies based on realized P&L
+        fired = self.fire_losing_strategies()
+        if fired:
+            logger.info("Step 0: Fired %d losing HOT strategies", fired)
 
         # Step 1: Research
         logger.info("Step 1: Researching alpha ideas...")

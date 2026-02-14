@@ -1,0 +1,760 @@
+2026-02-12 09:25:37,287 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:25:37,287 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 3,
+  "levels_below": 3,
+  "order_size_usd": 1.5,
+  "min_reserve_usd": 4.0,
+  "check_interval": 60,
+  "max_open_orders": 8,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:25:38,036 [grid_trader] WARNING Not enough cash to deploy grid. Available: $0.34, Reserve: $4.00, Deployable: $-3.66
+2026-02-12 09:25:38,036 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 09:25:43,982 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:25:43,982 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 3,
+  "levels_below": 3,
+  "order_size_usd": 1.5,
+  "min_reserve_usd": 4.0,
+  "check_interval": 60,
+  "max_open_orders": 8,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:25:44,653 [grid_trader] WARNING Not enough cash to deploy grid. Available: $0.34, Reserve: $4.00, Deployable: $-3.66
+2026-02-12 09:25:44,654 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 09:26:13,991 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:26:13,991 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 3,
+  "levels_below": 3,
+  "order_size_usd": 1.5,
+  "min_reserve_usd": 4.0,
+  "check_interval": 60,
+  "max_open_orders": 8,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:26:14,822 [grid_trader] WARNING Not enough cash to deploy grid. Available: $0.34, Reserve: $4.00, Deployable: $-3.66
+2026-02-12 09:26:14,823 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 09:26:44,008 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:26:44,008 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 3,
+  "levels_below": 3,
+  "order_size_usd": 1.5,
+  "min_reserve_usd": 4.0,
+  "check_interval": 60,
+  "max_open_orders": 8,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:26:44,744 [grid_trader] WARNING Not enough cash to deploy grid. Available: $0.34, Reserve: $4.00, Deployable: $-3.66
+2026-02-12 09:26:44,745 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 09:27:36,926 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:27:36,926 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:27:37,636 [grid_trader] INFO Setting up grid on BTC-USD @ $67878.77 | 2 buy + 2 sell levels | $1.00 per level
+2026-02-12 09:27:37,956 [exchange] INFO Placing LIMIT BUY: BTC-USD 1.488e-05 @ $67199.98 (post_only=True)
+2026-02-12 09:27:38,161 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00001488 @ $67199.98 ($1.00) [limit] placed
+2026-02-12 09:27:38,162 [grid_trader] INFO Grid BUY @ $67199.98 (level -1) → order bb43fa1f
+2026-02-12 09:27:38,256 [exchange] INFO Placing LIMIT BUY: BTC-USD 1.503e-05 @ $66521.19 (post_only=True)
+2026-02-12 09:27:38,427 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00001503 @ $66521.19 ($1.00) [limit] placed
+2026-02-12 09:27:38,428 [grid_trader] INFO Grid BUY @ $66521.19 (level -2) → order 59b9d4ba
+2026-02-12 09:27:38,428 [grid_trader] INFO Grid setup complete: 2 orders placed
+2026-02-12 09:32:06,697 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:32:06,697 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:32:07,401 [grid_trader] WARNING Not enough cash to deploy grid. Available: $2.80, Reserve: $2.00, Deployable: $0.80
+2026-02-12 09:32:07,401 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 09:32:13,362 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:32:13,362 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:32:13,619 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:32:13,619 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:32:14,009 [grid_trader] WARNING Not enough cash to deploy grid. Available: $2.80, Reserve: $2.00, Deployable: $0.80
+2026-02-12 09:32:14,009 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 09:32:14,310 [grid_trader] WARNING Not enough cash to deploy grid. Available: $2.80, Reserve: $2.00, Deployable: $0.80
+2026-02-12 09:32:14,310 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 09:32:43,358 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:32:43,358 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:32:43,635 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:32:43,635 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:32:44,223 [grid_trader] INFO Grid already has 2 active orders, cash is deployed. Monitoring fills.
+2026-02-12 09:32:44,451 [grid_trader] INFO Grid already has 2 active orders, cash is deployed. Monitoring fills.
+2026-02-12 09:32:57,301 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:32:57,301 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:32:58,259 [grid_trader] INFO Grid already has 2 active orders, cash is deployed. Monitoring fills.
+2026-02-12 09:33:14,250 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:33:14,250 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:33:15,370 [grid_trader] INFO Grid already has 2 active orders, cash is deployed. Monitoring fills.
+2026-02-12 09:38:25,882 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:38:25,883 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:38:26,778 [grid_trader] INFO Grid already has 2 active orders, cash is deployed. Monitoring fills.
+2026-02-12 09:39:07,759 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 09:39:07,760 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 09:39:08,689 [grid_trader] INFO Grid already has 2 active orders, cash is deployed. Monitoring fills.
+2026-02-12 10:07:15,631 [grid_trader] INFO GRID FILL: BUY BTC-USD @ $67199.98 (order bb43fa1f)
+2026-02-12 10:07:15,970 [exchange] INFO Placing LIMIT SELL: BTC-USD 1.989e-05 @ $67871.97 (post_only=True)
+2026-02-12 10:07:16,143 [agent_tools] INFO [grid_trader] SELL BTC-USD 0.00001989 @ $67871.97 ($1.35) [limit] failed
+2026-02-12 10:07:16,275 [grid_trader] INFO Cycle 29: 1 fills detected
+2026-02-12 11:11:26,417 [grid_trader] INFO GRID FILL: BUY BTC-USD @ $66521.19 (order 59b9d4ba)
+2026-02-12 11:11:26,661 [exchange] INFO Placing LIMIT SELL: BTC-USD 2.009e-05 @ $67186.39 (post_only=True)
+2026-02-12 11:11:26,871 [agent_tools] INFO [grid_trader] SELL BTC-USD 0.00002009 @ $67186.40 ($1.35) [limit] placed
+2026-02-12 11:11:26,872 [grid_trader] INFO Grid SELL @ $67186.40 (level -1) → order 6e28155f
+2026-02-12 11:11:26,872 [grid_trader] INFO Grid round-trip pending: buy $66521.19 → sell $67186.40 | gross $0.0100 - fees $0.0080 = net $0.0020
+2026-02-12 11:11:26,873 [grid_trader] INFO Cycle 93: 1 fills detected
+2026-02-12 11:58:33,565 [grid_trader] INFO Recentering grid: price moved 3.1% from center ($67945.82 → $65808.97)
+2026-02-12 11:58:34,407 [grid_trader] INFO Grid already has 1 active orders, cash is deployed. Monitoring fills.
+2026-02-12 12:55:59,536 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 12:55:59,536 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 12:56:00,300 [grid_trader] INFO Grid already has 1 active orders, cash is deployed. Monitoring fills.
+2026-02-12 12:56:04,425 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 12:56:04,425 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 12:56:05,090 [grid_trader] INFO Grid already has 1 active orders, cash is deployed. Monitoring fills.
+2026-02-12 13:20:35,830 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 13:20:35,830 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 13:20:36,731 [grid_trader] INFO Grid already has 1 active orders, cash is deployed. Monitoring fills.
+2026-02-12 13:29:43,126 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 13:29:43,126 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 13:29:44,185 [grid_trader] INFO Grid already has 1 active orders, cash is deployed. Monitoring fills.
+2026-02-12 14:01:57,348 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 14:01:57,349 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:01:58,403 [grid_trader] INFO Grid already has 1 active orders, cash is deployed. Monitoring fills.
+2026-02-12 14:10:02,326 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 14:10:02,327 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:10:03,271 [grid_trader] INFO Grid already has 1 active orders, cash is deployed. Monitoring fills.
+2026-02-12 14:18:07,053 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 14:18:07,054 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:18:08,043 [grid_trader] INFO Grid already has 1 active orders, cash is deployed. Monitoring fills.
+2026-02-12 14:31:44,245 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 14:31:44,246 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:31:45,313 [grid_trader] INFO Setting up grid on BTC-USD @ $65776.60 | 5 buy + 2 sell levels | $3.70 per level
+2026-02-12 14:31:45,614 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.681e-05 @ $65118.82 (post_only=True)
+2026-02-12 14:31:45,758 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005681 @ $65118.82 ($3.70) [limit] failed
+2026-02-12 14:31:45,863 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.739e-05 @ $64461.06 (post_only=True)
+2026-02-12 14:31:45,998 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005739 @ $64461.06 ($3.70) [limit] failed
+2026-02-12 14:31:46,103 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.799e-05 @ $63803.29 (post_only=True)
+2026-02-12 14:31:46,242 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005799 @ $63803.29 ($3.70) [limit] failed
+2026-02-12 14:31:46,335 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.859e-05 @ $63145.53 (post_only=True)
+2026-02-12 14:31:46,468 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005859 @ $63145.53 ($3.70) [limit] failed
+2026-02-12 14:31:46,575 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.921e-05 @ $62487.76 (post_only=True)
+2026-02-12 14:31:46,710 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005921 @ $62487.76 ($3.70) [limit] failed
+2026-02-12 14:31:46,710 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:31:46,710 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:31:59,222 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 14:31:59,222 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:32:00,161 [grid_trader] INFO Setting up grid on BTC-USD @ $65825.29 | 5 buy + 2 sell levels | $3.70 per level
+2026-02-12 14:32:00,507 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.677e-05 @ $65167.04 (post_only=True)
+2026-02-12 14:32:00,645 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005677 @ $65167.04 ($3.70) [limit] failed
+2026-02-12 14:32:00,748 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.735e-05 @ $64508.78 (post_only=True)
+2026-02-12 14:32:00,889 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005735 @ $64508.78 ($3.70) [limit] failed
+2026-02-12 14:32:01,004 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.794e-05 @ $63850.53 (post_only=True)
+2026-02-12 14:32:01,139 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005794 @ $63850.53 ($3.70) [limit] failed
+2026-02-12 14:32:01,238 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.855e-05 @ $63192.28 (post_only=True)
+2026-02-12 14:32:01,376 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005855 @ $63192.28 ($3.70) [limit] failed
+2026-02-12 14:32:01,496 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.916e-05 @ $62534.03 (post_only=True)
+2026-02-12 14:32:01,655 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005916 @ $62534.03 ($3.70) [limit] failed
+2026-02-12 14:32:01,655 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:32:01,656 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:32:29,246 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 14:32:29,246 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:32:30,230 [grid_trader] INFO Setting up grid on BTC-USD @ $65816.79 | 5 buy + 2 sell levels | $3.70 per level
+2026-02-12 14:32:30,561 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.678e-05 @ $65158.62 (post_only=True)
+2026-02-12 14:32:30,750 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005678 @ $65158.62 ($3.70) [limit] failed
+2026-02-12 14:32:30,851 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.736e-05 @ $64500.45 (post_only=True)
+2026-02-12 14:32:31,012 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005736 @ $64500.45 ($3.70) [limit] failed
+2026-02-12 14:32:31,143 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.795e-05 @ $63842.28 (post_only=True)
+2026-02-12 14:32:31,298 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005795 @ $63842.28 ($3.70) [limit] failed
+2026-02-12 14:32:31,401 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.855e-05 @ $63184.11 (post_only=True)
+2026-02-12 14:32:31,535 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005855 @ $63184.11 ($3.70) [limit] failed
+2026-02-12 14:32:31,662 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.917e-05 @ $62525.95 (post_only=True)
+2026-02-12 14:32:31,796 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005917 @ $62525.95 ($3.70) [limit] failed
+2026-02-12 14:32:31,796 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:32:31,797 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:32:59,264 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 14:32:59,264 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:33:00,386 [grid_trader] INFO Setting up grid on BTC-USD @ $65892.00 | 5 buy + 2 sell levels | $3.70 per level
+2026-02-12 14:33:00,746 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.671e-05 @ $65233.08 (post_only=True)
+2026-02-12 14:33:00,877 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005671 @ $65233.08 ($3.70) [limit] failed
+2026-02-12 14:33:00,988 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.729e-05 @ $64574.16 (post_only=True)
+2026-02-12 14:33:01,143 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005729 @ $64574.16 ($3.70) [limit] failed
+2026-02-12 14:33:01,501 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.788e-05 @ $63915.24 (post_only=True)
+2026-02-12 14:33:01,645 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005788 @ $63915.24 ($3.70) [limit] failed
+2026-02-12 14:33:01,747 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.849e-05 @ $63256.32 (post_only=True)
+2026-02-12 14:33:01,895 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005849 @ $63256.32 ($3.70) [limit] failed
+2026-02-12 14:33:02,051 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.91e-05 @ $62597.39 (post_only=True)
+2026-02-12 14:33:02,190 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005910 @ $62597.39 ($3.70) [limit] failed
+2026-02-12 14:33:02,190 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:33:02,190 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:34:19,821 [grid_trader] INFO Grid Trader starting on BTC-USD
+2026-02-12 14:34:19,821 [grid_trader] INFO Config: {
+  "pair": "BTC-USD",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:34:20,855 [grid_trader] INFO Setting up grid on BTC-USD @ $65935.99 | 6 buy + 2 sell levels | $3.70 per level
+2026-02-12 14:34:21,166 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.668e-05 @ $65276.63 (post_only=True)
+2026-02-12 14:34:21,351 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005668 @ $65276.63 ($3.70) [limit] placed
+2026-02-12 14:34:21,352 [grid_trader] INFO Grid BUY @ $65276.63 (level -1) → order 6a80dfc6
+2026-02-12 14:34:21,469 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.726e-05 @ $64617.27 (post_only=True)
+2026-02-12 14:34:21,622 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005726 @ $64617.27 ($3.70) [limit] failed
+2026-02-12 14:34:21,743 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.785e-05 @ $63957.91 (post_only=True)
+2026-02-12 14:34:21,876 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005785 @ $63957.91 ($3.70) [limit] failed
+2026-02-12 14:34:21,975 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.845e-05 @ $63298.55 (post_only=True)
+2026-02-12 14:34:22,110 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005845 @ $63298.55 ($3.70) [limit] failed
+2026-02-12 14:34:22,297 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.906e-05 @ $62639.19 (post_only=True)
+2026-02-12 14:34:22,438 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005906 @ $62639.19 ($3.70) [limit] failed
+2026-02-12 14:34:22,544 [exchange] INFO Placing LIMIT BUY: BTC-USD 5.969e-05 @ $61979.83 (post_only=True)
+2026-02-12 14:34:22,707 [agent_tools] INFO [grid_trader] BUY BTC-USD 0.00005969 @ $61979.83 ($3.70) [limit] failed
+2026-02-12 14:34:22,707 [grid_trader] INFO Grid setup complete: 1 orders placed
+2026-02-12 14:40:37,694 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:40:37,694 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:40:39,223 [grid_trader] INFO Setting up grid on BTC-USDC @ $65915.99 | 6 buy + 2 sell levels | $5.26 per level
+2026-02-12 14:40:39,331 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:39,331 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:39,331 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:39,331 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:39,331 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:39,331 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:39,331 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:40:39,333 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:40:54,561 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:40:54,561 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:40:56,120 [grid_trader] INFO Setting up grid on BTC-USDC @ $65872.40 | 6 buy + 2 sell levels | $5.26 per level
+2026-02-12 14:40:56,224 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:56,224 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:56,224 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:56,224 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:56,224 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:56,224 [agent_tools] WARNING [grid_trader] Order $5.26 exceeds adaptive max $5.26 (portfolio $52.56)
+2026-02-12 14:40:56,224 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:40:56,226 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:41:24,601 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:41:24,602 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:41:26,211 [grid_trader] INFO Setting up grid on BTC-USDC @ $65868.01 | 4 buy + 2 sell levels | $5.24 per level
+2026-02-12 14:41:26,525 [exchange] INFO Placing LIMIT BUY: BTC-USDC 8.035e-05 @ $65209.33 (post_only=True)
+2026-02-12 14:41:26,725 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00008035 @ $65209.33 ($5.24) [limit] placed
+2026-02-12 14:41:26,725 [grid_trader] INFO Grid BUY @ $65209.33 (level -1) → order f951630f
+2026-02-12 14:41:26,871 [exchange] INFO Placing LIMIT BUY: BTC-USDC 8.117e-05 @ $64550.65 (post_only=True)
+2026-02-12 14:41:27,061 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00008117 @ $64550.65 ($5.24) [limit] placed
+2026-02-12 14:41:27,062 [grid_trader] INFO Grid BUY @ $64550.65 (level -2) → order 134d619c
+2026-02-12 14:41:27,166 [exchange] INFO Placing LIMIT BUY: BTC-USDC 8.201e-05 @ $63891.97 (post_only=True)
+2026-02-12 14:41:27,334 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00008201 @ $63891.97 ($5.24) [limit] placed
+2026-02-12 14:41:27,335 [grid_trader] INFO Grid BUY @ $63891.97 (level -3) → order 951fc8ae
+2026-02-12 14:41:27,462 [exchange] INFO Placing LIMIT BUY: BTC-USDC 8.286e-05 @ $63233.29 (post_only=True)
+2026-02-12 14:41:27,643 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00008286 @ $63233.29 ($5.24) [limit] placed
+2026-02-12 14:41:27,645 [grid_trader] INFO Grid BUY @ $63233.29 (level -4) → order 0104549c
+2026-02-12 14:41:27,645 [grid_trader] INFO Grid setup complete: 4 orders placed
+2026-02-12 14:44:13,693 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:44:13,693 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:44:15,202 [grid_trader] INFO Setting up grid on BTC-USDC @ $65922.99 | 3 buy + 2 sell levels | $15.21 per level
+2026-02-12 14:44:15,313 [agent_tools] WARNING [grid_trader] Order $15.21 exceeds adaptive max $15.21 (portfolio $152.08)
+2026-02-12 14:44:15,313 [agent_tools] WARNING [grid_trader] Order $15.21 exceeds adaptive max $15.21 (portfolio $152.08)
+2026-02-12 14:44:15,313 [agent_tools] WARNING [grid_trader] Order $15.21 exceeds adaptive max $15.21 (portfolio $152.08)
+2026-02-12 14:44:15,313 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:44:15,315 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:44:35,897 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:44:35,898 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:44:37,059 [grid_trader] INFO Setting up grid on BTC-USDC @ $65905.35 | 4 buy + 2 sell levels | $15.19 per level
+2026-02-12 14:44:37,171 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.88)
+2026-02-12 14:44:37,171 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.88)
+2026-02-12 14:44:37,171 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.88)
+2026-02-12 14:44:37,172 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.88)
+2026-02-12 14:44:37,172 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:44:37,175 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:44:42,648 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:44:42,648 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:44:43,799 [grid_trader] INFO Setting up grid on BTC-USDC @ $65905.35 | 4 buy + 2 sell levels | $15.19 per level
+2026-02-12 14:44:43,905 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.86)
+2026-02-12 14:44:43,906 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.86)
+2026-02-12 14:44:43,906 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.86)
+2026-02-12 14:44:43,906 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.86)
+2026-02-12 14:44:43,906 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:44:43,907 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:44:59,521 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:44:59,522 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:45:00,543 [grid_trader] INFO Setting up grid on BTC-USDC @ $65907.26 | 4 buy + 2 sell levels | $15.19 per level
+2026-02-12 14:45:00,654 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.85)
+2026-02-12 14:45:00,654 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.85)
+2026-02-12 14:45:00,654 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.85)
+2026-02-12 14:45:00,654 [agent_tools] WARNING [grid_trader] Order $15.19 exceeds adaptive max $15.19 (portfolio $151.85)
+2026-02-12 14:45:00,654 [grid_trader] INFO Grid setup complete: 0 orders placed
+2026-02-12 14:45:00,656 [grid_trader] ERROR Failed to setup grid. Exiting.
+2026-02-12 14:45:29,559 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:45:29,559 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:45:30,653 [grid_trader] INFO Setting up grid on BTC-USDC @ $65910.64 | 3 buy + 2 sell levels | $15.17 per level
+2026-02-12 14:45:30,962 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00023248 @ $65251.53 (post_only=True)
+2026-02-12 14:45:31,127 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00023248 @ $65251.53 ($15.17) [limit] placed
+2026-02-12 14:45:31,128 [grid_trader] INFO Grid BUY @ $65251.53 (level -1) → order 08ae8c02
+2026-02-12 14:45:31,232 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00023485 @ $64592.42 (post_only=True)
+2026-02-12 14:45:31,393 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00023485 @ $64592.42 ($15.17) [limit] placed
+2026-02-12 14:45:31,394 [grid_trader] INFO Grid BUY @ $64592.42 (level -2) → order 1ca15077
+2026-02-12 14:45:31,490 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00023727 @ $63933.32 (post_only=True)
+2026-02-12 14:45:31,677 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00023727 @ $63933.32 ($15.17) [limit] placed
+2026-02-12 14:45:31,678 [grid_trader] INFO Grid BUY @ $63933.32 (level -3) → order a65996d3
+2026-02-12 14:45:31,678 [grid_trader] INFO Grid setup complete: 3 orders placed
+2026-02-12 14:46:25,268 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:46:25,268 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:46:26,358 [grid_trader] INFO Grid already has 3 active orders, cash is deployed. Monitoring fills.
+2026-02-12 14:57:24,756 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:57:24,756 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:57:26,270 [grid_trader] INFO Setting up grid on BTC-USDC @ $65881.87 | 3 buy + 2 sell levels | $23.23 per level
+2026-02-12 14:57:26,606 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035616 @ $65223.04 (post_only=True)
+2026-02-12 14:57:26,791 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035616 @ $65223.04 ($23.23) [limit] placed
+2026-02-12 14:57:26,791 [grid_trader] INFO Grid BUY @ $65223.04 (level -1) → order 7fbee1be
+2026-02-12 14:57:26,894 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035979 @ $64564.22 (post_only=True)
+2026-02-12 14:57:27,058 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035979 @ $64564.22 ($23.23) [limit] placed
+2026-02-12 14:57:27,059 [grid_trader] INFO Grid BUY @ $64564.22 (level -2) → order 964ea5ee
+2026-02-12 14:57:27,151 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.0003635 @ $63905.4 (post_only=True)
+2026-02-12 14:57:27,326 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00036350 @ $63905.40 ($23.23) [limit] placed
+2026-02-12 14:57:27,327 [grid_trader] INFO Grid BUY @ $63905.40 (level -3) → order 7ac8ac18
+2026-02-12 14:57:27,327 [grid_trader] INFO Grid setup complete: 3 orders placed
+2026-02-12 14:57:59,526 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:57:59,526 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:58:01,037 [grid_trader] INFO Setting up grid on BTC-USDC @ $65910.73 | 2 buy + 2 sell levels | $23.21 per level
+2026-02-12 14:58:01,352 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.0003557 @ $65251.61 (post_only=True)
+2026-02-12 14:58:01,511 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035570 @ $65251.61 ($23.21) [limit] placed
+2026-02-12 14:58:01,512 [grid_trader] INFO Grid BUY @ $65251.61 (level -1) → order ab955e36
+2026-02-12 14:58:01,620 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035932 @ $64592.51 (post_only=True)
+2026-02-12 14:58:01,811 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035932 @ $64592.51 ($23.21) [limit] placed
+2026-02-12 14:58:01,811 [grid_trader] INFO Grid BUY @ $64592.51 (level -2) → order 54f94132
+2026-02-12 14:58:01,811 [grid_trader] INFO Grid setup complete: 2 orders placed
+2026-02-12 14:58:10,926 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:58:10,926 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:58:12,578 [grid_trader] INFO Setting up grid on BTC-USDC @ $65874.49 | 3 buy + 2 sell levels | $23.21 per level
+2026-02-12 14:58:12,909 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035589 @ $65215.74 (post_only=True)
+2026-02-12 14:58:13,076 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035589 @ $65215.74 ($23.21) [limit] placed
+2026-02-12 14:58:13,077 [grid_trader] INFO Grid BUY @ $65215.74 (level -1) → order 6e8ad3e2
+2026-02-12 14:58:13,193 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035952 @ $64557.0 (post_only=True)
+2026-02-12 14:58:13,373 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035952 @ $64557.00 ($23.21) [limit] placed
+2026-02-12 14:58:13,374 [grid_trader] INFO Grid BUY @ $64557.00 (level -2) → order d1fa6d2a
+2026-02-12 14:58:13,472 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00036323 @ $63898.25 (post_only=True)
+2026-02-12 14:58:13,640 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00036323 @ $63898.25 ($23.21) [limit] placed
+2026-02-12 14:58:13,641 [grid_trader] INFO Grid BUY @ $63898.25 (level -3) → order afccfc88
+2026-02-12 14:58:13,641 [grid_trader] INFO Grid setup complete: 3 orders placed
+2026-02-12 14:58:22,945 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:58:22,946 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:58:24,352 [grid_trader] INFO Setting up grid on BTC-USDC @ $65878.18 | 2 buy + 2 sell levels | $23.19 per level
+2026-02-12 14:58:24,667 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035556 @ $65219.4 (post_only=True)
+2026-02-12 14:58:24,833 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035556 @ $65219.40 ($23.19) [limit] placed
+2026-02-12 14:58:24,834 [grid_trader] INFO Grid BUY @ $65219.40 (level -1) → order 140f3ea1
+2026-02-12 14:58:24,937 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035919 @ $64560.62 (post_only=True)
+2026-02-12 14:58:25,106 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035919 @ $64560.62 ($23.19) [limit] placed
+2026-02-12 14:58:25,106 [grid_trader] INFO Grid BUY @ $64560.62 (level -2) → order 35fd9856
+2026-02-12 14:58:25,106 [grid_trader] INFO Grid setup complete: 2 orders placed
+2026-02-12 14:58:35,866 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:58:35,866 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:58:38,258 [grid_trader] INFO Setting up grid on BTC-USDC @ $65887.49 | 3 buy + 2 sell levels | $23.17 per level
+2026-02-12 14:58:38,564 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035521 @ $65228.62 (post_only=True)
+2026-02-12 14:58:38,735 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035521 @ $65228.62 ($23.17) [limit] placed
+2026-02-12 14:58:38,736 [grid_trader] INFO Grid BUY @ $65228.62 (level -1) → order c4cf0c76
+2026-02-12 14:58:38,827 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035883 @ $64569.74 (post_only=True)
+2026-02-12 14:58:38,982 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035883 @ $64569.74 ($23.17) [limit] placed
+2026-02-12 14:58:38,982 [grid_trader] INFO Grid BUY @ $64569.74 (level -2) → order 049583cd
+2026-02-12 14:58:39,072 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00036253 @ $63910.87 (post_only=True)
+2026-02-12 14:58:39,233 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00036253 @ $63910.87 ($23.17) [limit] placed
+2026-02-12 14:58:39,234 [grid_trader] INFO Grid BUY @ $63910.87 (level -3) → order 291566c8
+2026-02-12 14:58:39,234 [grid_trader] INFO Grid setup complete: 3 orders placed
+2026-02-12 14:58:45,302 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:58:45,303 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:58:46,712 [grid_trader] INFO Setting up grid on BTC-USDC @ $65764.90 | 2 buy + 2 sell levels | $23.15 per level
+2026-02-12 14:58:47,042 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035556 @ $65107.24 (post_only=True)
+2026-02-12 14:58:47,231 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035556 @ $65107.24 ($23.15) [limit] placed
+2026-02-12 14:58:47,232 [grid_trader] INFO Grid BUY @ $65107.24 (level -1) → order d3c8e08f
+2026-02-12 14:58:47,335 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035919 @ $64449.59 (post_only=True)
+2026-02-12 14:58:47,507 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035919 @ $64449.59 ($23.15) [limit] placed
+2026-02-12 14:58:47,507 [grid_trader] INFO Grid BUY @ $64449.59 (level -2) → order b78974a7
+2026-02-12 14:58:47,508 [grid_trader] INFO Grid setup complete: 2 orders placed
+2026-02-12 14:59:14,748 [grid_trader] INFO Grid Trader starting on BTC-USDC
+2026-02-12 14:59:14,749 [grid_trader] INFO Config: {
+  "pair": "BTC-USDC",
+  "grid_spacing_pct": 0.01,
+  "levels_above": 2,
+  "levels_below": 2,
+  "order_size_usd": 1.0,
+  "min_reserve_usd": 2.0,
+  "check_interval": 60,
+  "max_open_orders": 6,
+  "recenter_threshold": 0.03
+}
+2026-02-12 14:59:16,018 [grid_trader] INFO Setting up grid on BTC-USDC @ $65783.00 | 4 buy + 2 sell levels | $23.07 per level
+2026-02-12 14:59:16,318 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035424 @ $65125.17 (post_only=True)
+2026-02-12 14:59:16,477 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035424 @ $65125.17 ($23.07) [limit] placed
+2026-02-12 14:59:16,478 [grid_trader] INFO Grid BUY @ $65125.17 (level -1) → order acd68d48
+2026-02-12 14:59:16,607 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00035785 @ $64467.34 (post_only=True)
+2026-02-12 14:59:16,783 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00035785 @ $64467.34 ($23.07) [limit] placed
+2026-02-12 14:59:16,783 [grid_trader] INFO Grid BUY @ $64467.34 (level -2) → order fcc7c568
+2026-02-12 14:59:16,878 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00036154 @ $63809.5 (post_only=True)
+2026-02-12 14:59:17,049 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00036154 @ $63809.50 ($23.07) [limit] placed
+2026-02-12 14:59:17,050 [grid_trader] INFO Grid BUY @ $63809.50 (level -3) → order f13d9b15
+2026-02-12 14:59:17,141 [exchange] INFO Placing LIMIT BUY: BTC-USDC 0.00036531 @ $63151.68 (post_only=True)
+2026-02-12 14:59:17,296 [agent_tools] INFO [grid_trader] BUY BTC-USDC 0.00036531 @ $63151.68 ($23.07) [limit] placed
+2026-02-12 14:59:17,297 [grid_trader] INFO Grid BUY @ $63151.68 (level -4) → order d80f0dd3
+2026-02-12 14:59:17,297 [grid_trader] INFO Grid setup complete: 4 orders placed

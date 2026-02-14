@@ -304,6 +304,64 @@ COINBASE_CIRCUIT_REOPEN_HEALTH_CACHE_SECONDS = _env_int(
     "COINBASE_CIRCUIT_REOPEN_HEALTH_CACHE_SECONDS", 15
 )
 
+COINBASE_RETRY_DEFAULT_ATTEMPTS = _env_int("COINBASE_RETRY_DEFAULT_ATTEMPTS", 3)
+
+
+def _parse_retry_budget_rules(raw):
+    if not isinstance(raw, dict):
+        return tuple()
+
+    parsed = []
+    for raw_key, raw_value in raw.items():
+        key = str(raw_key or "").strip()
+        if not key:
+            continue
+
+        attempts = 0
+        try:
+            attempts = int(raw_value)
+        except Exception:
+            continue
+        attempts = max(1, attempts)
+
+        method_prefix = None
+        path_prefix = key
+        if ":" in key:
+            left, right = key.split(":", 1)
+            left = left.strip().upper()
+            right = right.strip()
+            if left in {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"} and right:
+                method_prefix = left
+                path_prefix = right
+
+        prefix = str(path_prefix or "").strip()
+        if not prefix:
+            continue
+
+        parsed.append((method_prefix, prefix, attempts))
+
+    parsed.sort(key=lambda item: len(item[1]), reverse=True)
+    return tuple(parsed)
+
+
+COINBASE_RETRY_BUDGET_BY_PATH = _parse_retry_budget_rules(
+    _env_json_dict("COINBASE_RETRY_BUDGET_BY_PATH_JSON")
+)
+
+
+def _retry_budget_for_path(method, path):
+    method_s = str(method or "").strip().upper()
+    path_s = str(path or "").strip()
+
+    for rule_method, rule_prefix, rule_attempts in COINBASE_RETRY_BUDGET_BY_PATH:
+        if not path_s.startswith(rule_prefix):
+            continue
+        if rule_method and method_s and rule_method != method_s:
+            continue
+        return rule_attempts
+
+    return COINBASE_RETRY_DEFAULT_ATTEMPTS
+
 
 def _load_trading_lock():
     if not LOCK_FILE.exists():
@@ -1041,7 +1099,7 @@ class CoinbaseTrader:
         """Make API request with retry logic and circuit breaker."""
         return self._request_with_retry(method, path, body)
 
-    def _request_with_retry(self, method, path, body=None, max_retries=3):
+    def _request_with_retry(self, method, path, body=None, max_retries=None):
         """Make API request with exponential backoff retry on transient errors.
 
         Retries on: 429 (rate limit), 500, 502, 503 (server errors), timeouts.
@@ -1082,7 +1140,10 @@ class CoinbaseTrader:
         last_error = None
         saw_dns_issue = False
         saw_egress_issue = False
-        retries = max(1, int(max_retries))
+        if max_retries is None:
+            retries = int(_retry_budget_for_path(method, path))
+        else:
+            retries = max(1, int(max_retries))
         for attempt in range(retries):
             # Rebuild JWT for each attempt (they have short expiry)
             sign_path = path.split("?")[0]
@@ -1182,6 +1243,8 @@ class CoinbaseTrader:
                     backoff = 0.5 * (2 ** attempt)  # 0.5s, 1s, 2s
                     logger.warning("Coinbase API %d (attempt %d/%d) — retrying in %.1fs: %s",
                                    e.code, attempt + 1, retries, backoff, error_body[:200])
+                    if attempt + 1 >= retries:
+                        break
                     time.sleep(backoff)
                     continue
                 else:
@@ -1235,6 +1298,8 @@ class CoinbaseTrader:
                 backoff = 0.5 * (2 ** attempt)
                 logger.warning("Coinbase request failed (attempt %d/%d) — retrying in %.1fs: %s",
                                attempt + 1, retries, backoff, e)
+                if attempt + 1 >= retries:
+                    break
                 time.sleep(backoff)
 
         # All retries exhausted — update circuit breaker

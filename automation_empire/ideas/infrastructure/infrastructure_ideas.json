@@ -1,0 +1,1303 @@
+[
+  {
+    "id": "infrastructure_001",
+    "category": "infrastructure",
+    "title": "GPU compute as a service for web apps",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_002",
+    "category": "infrastructure",
+    "title": "message queue as a service for ML engineers",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_003",
+    "category": "infrastructure",
+    "title": "object storage as a service for ML engineers",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_004",
+    "category": "infrastructure",
+    "title": "container registry as a service for mobile apps",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_005",
+    "category": "infrastructure",
+    "title": "message queue as a service for game developers",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_006",
+    "category": "infrastructure",
+    "title": "message queue as a service for web apps",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_007",
+    "category": "infrastructure",
+    "title": "message queue as a service for mobile apps",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_008",
+    "category": "infrastructure",
+    "title": "database as a service for mobile apps",
+    "status": "idea",
+    "revenue_model": "data sales",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_009",
+    "category": "infrastructure",
+    "title": "edge compute as a service for web apps",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_010",
+    "category": "infrastructure",
+    "title": "cache as a service for game developers",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_011",
+    "category": "infrastructure",
+    "title": "GPU compute as a service for ML engineers",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_012",
+    "category": "infrastructure",
+    "title": "edge compute as a service for ML engineers",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_013",
+    "category": "infrastructure",
+    "title": "edge compute as a service for mobile apps",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_014",
+    "category": "infrastructure",
+    "title": "container registry as a service for web apps",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_015",
+    "category": "infrastructure",
+    "title": "container registry as a service for game developers",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_016",
+    "category": "infrastructure",
+    "title": "Managed PostgreSQL hosting with read replicas",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_017",
+    "category": "infrastructure",
+    "title": "Managed PostgreSQL hosting with auto-scaling",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_018",
+    "category": "infrastructure",
+    "title": "Managed MongoDB hosting with read replicas",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_019",
+    "category": "infrastructure",
+    "title": "Managed MongoDB hosting with auto-scaling",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_020",
+    "category": "infrastructure",
+    "title": "Managed Kafka hosting with point-in-time recovery",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_021",
+    "category": "infrastructure",
+    "title": "Managed Redis hosting with multi-region",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_022",
+    "category": "infrastructure",
+    "title": "Managed Elasticsearch hosting with read replicas",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_023",
+    "category": "infrastructure",
+    "title": "Managed Kafka hosting with read replicas",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_024",
+    "category": "infrastructure",
+    "title": "Managed Redis hosting with auto-scaling",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_025",
+    "category": "infrastructure",
+    "title": "Managed Elasticsearch hosting with point-in-time recovery",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_026",
+    "category": "infrastructure",
+    "title": "Managed MongoDB hosting with multi-region",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_027",
+    "category": "infrastructure",
+    "title": "Managed Redis hosting with point-in-time recovery",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_028",
+    "category": "infrastructure",
+    "title": "Managed Kafka hosting with multi-region",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_029",
+    "category": "infrastructure",
+    "title": "Managed PostgreSQL hosting with multi-region",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_030",
+    "category": "infrastructure",
+    "title": "Managed Kafka hosting with auto-scaling",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_031",
+    "category": "infrastructure",
+    "title": "GitOps-based platform for Next.js",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_032",
+    "category": "infrastructure",
+    "title": "infrastructure-as-code platform for Laravel",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_033",
+    "category": "infrastructure",
+    "title": "GitOps-based platform for Django",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_034",
+    "category": "infrastructure",
+    "title": "GitOps-based platform for Flask",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_035",
+    "category": "infrastructure",
+    "title": "GitOps-based platform for Rails",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_036",
+    "category": "infrastructure",
+    "title": "infrastructure-as-code platform for Next.js",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_037",
+    "category": "infrastructure",
+    "title": "GitOps-based platform for Laravel",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_038",
+    "category": "infrastructure",
+    "title": "infrastructure-as-code platform for Rails",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_039",
+    "category": "infrastructure",
+    "title": "one-click platform for Rails",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_040",
+    "category": "infrastructure",
+    "title": "one-click platform for Laravel",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_041",
+    "category": "infrastructure",
+    "title": "one-click platform for Django",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_042",
+    "category": "infrastructure",
+    "title": "one-click platform for Flask",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_043",
+    "category": "infrastructure",
+    "title": "infrastructure-as-code platform for Django",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_044",
+    "category": "infrastructure",
+    "title": "infrastructure-as-code platform for Flask",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_045",
+    "category": "infrastructure",
+    "title": "one-click platform for Next.js",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_046",
+    "category": "infrastructure",
+    "title": "cost monitoring for APIs",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "infrastructure_047",
+    "category": "infrastructure",
+    "title": "resource usage monitoring for databases",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_048",
+    "category": "infrastructure",
+    "title": "cost monitoring for CDNs",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_049",
+    "category": "infrastructure",
+    "title": "resource usage monitoring for CDNs",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_050",
+    "category": "infrastructure",
+    "title": "latency monitoring for CDNs",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_051",
+    "category": "infrastructure",
+    "title": "security monitoring for microservices",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_052",
+    "category": "infrastructure",
+    "title": "security monitoring for databases",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_053",
+    "category": "infrastructure",
+    "title": "resource usage monitoring for microservices",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_054",
+    "category": "infrastructure",
+    "title": "error rate monitoring for microservices",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_055",
+    "category": "infrastructure",
+    "title": "resource usage monitoring for Kubernetes clusters",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_056",
+    "category": "infrastructure",
+    "title": "error rate monitoring for CDNs",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_057",
+    "category": "infrastructure",
+    "title": "latency monitoring for Kubernetes clusters",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_058",
+    "category": "infrastructure",
+    "title": "error rate monitoring for Kubernetes clusters",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_059",
+    "category": "infrastructure",
+    "title": "error rate monitoring for databases",
+    "status": "idea",
+    "revenue_model": "subscription",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_060",
+    "category": "infrastructure",
+    "title": "latency monitoring for APIs",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "infrastructure_061",
+    "category": "infrastructure",
+    "title": "Auto-backup platform for edge nodes",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_062",
+    "category": "infrastructure",
+    "title": "Auto-scaling platform for serverless functions",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_063",
+    "category": "infrastructure",
+    "title": "Auto-patching platform for serverless functions",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_064",
+    "category": "infrastructure",
+    "title": "Auto-optimization platform for containers",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_065",
+    "category": "infrastructure",
+    "title": "Auto-failover platform for serverless functions",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_066",
+    "category": "infrastructure",
+    "title": "Auto-scaling platform for edge nodes",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_067",
+    "category": "infrastructure",
+    "title": "Auto-scaling platform for containers",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_068",
+    "category": "infrastructure",
+    "title": "Auto-backup platform for cloud VMs",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_069",
+    "category": "infrastructure",
+    "title": "Auto-optimization platform for edge nodes",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_070",
+    "category": "infrastructure",
+    "title": "Auto-failover platform for edge nodes",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_071",
+    "category": "infrastructure",
+    "title": "Auto-optimization platform for serverless functions",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_072",
+    "category": "infrastructure",
+    "title": "Auto-patching platform for edge nodes",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_073",
+    "category": "infrastructure",
+    "title": "Auto-scaling platform for cloud VMs",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_074",
+    "category": "infrastructure",
+    "title": "Auto-failover platform for cloud VMs",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_075",
+    "category": "infrastructure",
+    "title": "Auto-backup platform for containers",
+    "status": "idea",
+    "revenue_model": "commission",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_076",
+    "category": "infrastructure",
+    "title": "documentation generation with AI code suggestions",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_077",
+    "category": "infrastructure",
+    "title": "API testing with auto-generated tests",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "infrastructure_078",
+    "category": "infrastructure",
+    "title": "documentation generation with auto-generated tests",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_079",
+    "category": "infrastructure",
+    "title": "documentation generation with natural language queries",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_080",
+    "category": "infrastructure",
+    "title": "API testing with natural language queries",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "api"
+    ]
+  },
+  {
+    "id": "infrastructure_081",
+    "category": "infrastructure",
+    "title": "changelog creation with AI code suggestions",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_082",
+    "category": "infrastructure",
+    "title": "API testing with AI code suggestions",
+    "status": "idea",
+    "revenue_model": "usage-based",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml",
+      "api"
+    ]
+  },
+  {
+    "id": "infrastructure_083",
+    "category": "infrastructure",
+    "title": "code review with natural language queries",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_084",
+    "category": "infrastructure",
+    "title": "changelog creation with auto-generated tests",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_085",
+    "category": "infrastructure",
+    "title": "code review with auto-generated tests",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_086",
+    "category": "infrastructure",
+    "title": "code review with AI code suggestions",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "hard",
+    "time_to_market": "3-6 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "ai/ml"
+    ]
+  },
+  {
+    "id": "infrastructure_087",
+    "category": "infrastructure",
+    "title": "changelog creation with natural language queries",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "easy",
+    "time_to_market": "1-2 weeks",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_088",
+    "category": "infrastructure",
+    "title": "code review automation for large (50+) teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_089",
+    "category": "infrastructure",
+    "title": "CI/CD automation for large (50+) teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_090",
+    "category": "infrastructure",
+    "title": "code review automation for solo teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_091",
+    "category": "infrastructure",
+    "title": "release management automation for large (50+) teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_092",
+    "category": "infrastructure",
+    "title": "incident response automation for medium (10-50) teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_093",
+    "category": "infrastructure",
+    "title": "code review automation for medium (10-50) teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_094",
+    "category": "infrastructure",
+    "title": "incident response automation for large (50+) teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_095",
+    "category": "infrastructure",
+    "title": "release management automation for medium (10-50) teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_096",
+    "category": "infrastructure",
+    "title": "CI/CD automation for small (2-10) teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_097",
+    "category": "infrastructure",
+    "title": "incident response automation for small (2-10) teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_098",
+    "category": "infrastructure",
+    "title": "incident response automation for solo teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_099",
+    "category": "infrastructure",
+    "title": "release management automation for solo teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  },
+  {
+    "id": "infrastructure_100",
+    "category": "infrastructure",
+    "title": "CI/CD automation for solo teams",
+    "status": "idea",
+    "revenue_model": "mixed",
+    "difficulty": "medium",
+    "time_to_market": "1-2 months",
+    "potential_revenue": "$200-$15,000",
+    "tags": [
+      "general"
+    ]
+  }
+]

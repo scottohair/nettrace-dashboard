@@ -103,3 +103,14 @@ Exposes `nettrace_target_rtt_ms`, `nettrace_target_hops`, `nettrace_route_change
 - 7 Fly.io VMs (shared-cpu-1x, 256MB)
 - Total hosting cost: ~$17/mo
 - No external dependencies beyond stdlib + Flask
+
+## Developer Fast Path
+
+Use `tools/dev_cycle.py` for faster local iterations:
+
+- `python3.11 tools/dev_cycle.py` runs:
+  - parallel `py_compile` on changed `.py` files
+  - mapped test files for those changes
+- `python3.11 tools/dev_cycle.py --full` adds full-suite validation after mapped tests
+- `python3.11 tools/dev_cycle.py --full --include-untracked` includes new Python files
+- `python3.11 tools/dev_cycle.py --no-parallel-tests` disables parallel test execution when you want deterministic, single-process replay

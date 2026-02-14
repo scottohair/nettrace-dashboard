@@ -1,0 +1,11 @@
+2026-02-12 12:24:11,793 [nettrace.scanner] INFO Loaded 0 entries from ip_geo_cache
+2026-02-12 12:24:11,793 [nettrace.scanner] INFO Scanner loop starting...
+2026-02-12 12:24:11,793 [nettrace.scanner] INFO ContinuousScanner started (interval=900s, stagger=10s)
+2026-02-12 12:24:11,794 [nettrace.scanner] INFO Starting scan cycle: 109 targets
+2026-02-12 12:24:11,814 [dex_grid_trader] INFO Private key decrypted successfully
+2026-02-12 12:24:11,814 [dex_grid_trader] ERROR Balance check failed: WalletConnector.get_balances() takes 1 positional argument but 2 were given
+2026-02-12 12:24:28,763 [nettrace.scanner] INFO Loaded 0 entries from ip_geo_cache
+2026-02-12 12:24:28,763 [nettrace.scanner] INFO Scanner loop starting...
+2026-02-12 12:24:28,763 [nettrace.scanner] INFO ContinuousScanner started (interval=900s, stagger=10s)
+2026-02-12 12:24:28,763 [nettrace.scanner] INFO Starting scan cycle: 109 targets
+2026-02-12 12:24:28,780 [dex_grid_trader] INFO Private key decrypted successfully

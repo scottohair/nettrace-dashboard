@@ -1,0 +1,485 @@
+{
+  "updated_at": "2026-02-14T06:08:19.006803+00:00",
+  "cycle": 27,
+  "win_objective": {
+    "definition": "WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.",
+    "treasury_capture_assets": [
+      "USD",
+      "USDC"
+    ]
+  },
+  "progress": {
+    "alpha_score": 0.45,
+    "migration_score": 0.704,
+    "gtm_score": 0.75,
+    "go_live": true,
+    "blockers": [],
+    "opportunity_count": 0,
+    "deployment_score": 0.31,
+    "hf_live_ready": false,
+    "top_regions": [
+      "ewr",
+      "nrt",
+      "sin"
+    ]
+  },
+  "portfolio_metrics": {
+    "daily_pnl_usd": 0.0,
+    "total_value_usd": 252.19,
+    "drawdown_pct": 21.84
+  },
+  "realized_close_evidence": {
+    "source": "exit_manager.db.exit_events",
+    "passed": true,
+    "reason": "passed",
+    "lookback_hours": 48,
+    "window_hours": 4,
+    "positive_windows": 3,
+    "required_positive_windows": 3,
+    "total_closes": 66,
+    "total_net_pnl_usd": 7.002629,
+    "windows": [
+      {
+        "bucket_id": 122986,
+        "closes": 43,
+        "net_pnl_usd": 11.12577,
+        "positive_window": true
+      },
+      {
+        "bucket_id": 122983,
+        "closes": 2,
+        "net_pnl_usd": 0.032276,
+        "positive_window": true
+      },
+      {
+        "bucket_id": 122982,
+        "closes": 10,
+        "net_pnl_usd": 1.523448,
+        "positive_window": true
+      },
+      {
+        "bucket_id": 122981,
+        "closes": 11,
+        "net_pnl_usd": -5.678865,
+        "positive_window": false
+      }
+    ],
+    "source_candidates": [
+      {
+        "source": "trader_db.agent_trades",
+        "passed": false,
+        "reason": "insufficient_realized_closes",
+        "positive_windows": 0,
+        "total_net_pnl_usd": 0.0,
+        "total_closes": 0
+      },
+      {
+        "source": "exit_manager.db.exit_events",
+        "passed": true,
+        "reason": "passed",
+        "positive_windows": 3,
+        "total_net_pnl_usd": 7.002629,
+        "total_closes": 66
+      }
+    ]
+  },
+  "profit_target_tracker": {
+    "daily_targets_usd": [
+      1000.0,
+      2500.0,
+      9888.0,
+      15600.0,
+      1000000.0,
+      9999999.0
+    ],
+    "completed_targets": [],
+    "next_target_usd": 1000.0,
+    "daily_pnl_usd": 0.0,
+    "achievement_pct_to_next": 0.0,
+    "shortfall_usd": 1000.0,
+    "day_elapsed_pct_utc": 0.2558,
+    "required_hourly_run_rate_usd": 55.99
+  },
+  "budget_escalator": {
+    "action": "de_escalate",
+    "factor": 0.8,
+    "reason": "drawdown_or_negative_pnl",
+    "constraints": {
+      "requires_positive_realized_pnl": true,
+      "requires_positive_realized_windows": 3,
+      "max_daily_drawdown_pct_for_escalation": 8.0,
+      "requires_go_live": true,
+      "requires_execution_health_green": true,
+      "required_execution_health_green_streak": 2,
+      "required_execution_health_green_ratio": 0.6,
+      "max_buy_sell_ratio": 2.5,
+      "min_close_completion_rate": 0.4,
+      "min_close_attempts": 2,
+      "escalation_max_factor": 1.15,
+      "deescalation_min_factor": 0.75,
+      "escalation_cooldown_seconds": 900
+    },
+    "realized_evidence": {
+      "passed": true,
+      "reason": "passed",
+      "positive_windows": 3,
+      "required_positive_windows": 3,
+      "total_net_pnl_usd": 7.002629,
+      "total_closes": 66,
+      "recent_window_net_pnl_usd": 11.12577
+    },
+    "execution_health": {
+      "green": false,
+      "reason": "telemetry_success_rate_low:0.0060<0.5500",
+      "updated_at": "2026-02-14T06:08:19.004448+00:00",
+      "green_streak": 0,
+      "recent_green_ratio": 0.0
+    },
+    "trade_flow": {
+      "lookback_hours": 6,
+      "buy_fills": 0,
+      "sell_fills": 92,
+      "sell_close_events": 0,
+      "sell_close_attempts": 86,
+      "sell_close_completions": 84,
+      "sell_close_completion_rate": 0.976744,
+      "buy_sell_ratio": 0.0,
+      "close_balance_ok": true,
+      "close_balance_reason": "balanced_close_flow"
+    }
+  },
+  "execution_health": {
+    "enabled": true,
+    "green": false,
+    "reason": "telemetry_success_rate_low:0.0060<0.5500",
+    "updated_at": "2026-02-14T06:08:19.004448+00:00",
+    "green_streak": 0,
+    "recent_green_ratio": 0.0,
+    "recent_samples": 10
+  },
+  "trade_flow_metrics": {
+    "lookback_hours": 6,
+    "buy_fills": 0,
+    "sell_fills": 92,
+    "sell_close_events": 0,
+    "sell_close_attempts": 86,
+    "sell_close_completions": 84,
+    "sell_close_completion_rate": 0.976744,
+    "buy_sell_ratio": 0.0,
+    "close_balance_ok": true,
+    "close_balance_reason": "balanced_close_flow"
+  },
+  "migration_strategy": {
+    "phases": [
+      {
+        "phase": 1,
+        "name": "platform_hardening",
+        "goals": [
+          "stabilize agent uptime and restart loops",
+          "enforce no-loss + Monte Carlo promotion gates",
+          "establish treasury retrievability score >= 0.80"
+        ],
+        "kpi": {
+          "retrievability_score_target": 0.8,
+          "connector_ready_ratio_target": 0.6
+        },
+        "status": "in_progress"
+      },
+      {
+        "phase": 2,
+        "name": "market_connector_migration",
+        "goals": [
+          "promote market connector hub to primary routing layer",
+          "enable IBKR/E*Trade where credentials + infra are ready",
+          "introduce region-aware execution based on latency health",
+          "enforce HF live gate with DNS + credential + telemetry checks"
+        ],
+        "kpi": {
+          "dashboard_endpoint_health_target": 1.0,
+          "connector_ready_ratio_target": 0.75,
+          "deployment_score_target": 0.7
+        },
+        "status": "in_progress"
+      },
+      {
+        "phase": 3,
+        "name": "go_to_market_rollout",
+        "goals": [
+          "launch alpha-backed strategy offerings with auditable metrics",
+          "expose dashboard KPI surfaces for operators/investors",
+          "publish reserve and risk disclosures for trust"
+        ],
+        "kpi": {
+          "go_live_required": true,
+          "positive_realized_pnl_windows": 3,
+          "hf_live_ready_required": true
+        },
+        "status": "blocked"
+      }
+    ],
+    "current_connector_ready": {
+      "ready": 1,
+      "total": 4
+    },
+    "dashboard_endpoint_health": {
+      "ok": 0,
+      "total": 4
+    },
+    "flywheel_cycle": 57,
+    "deployment_optimizer": {
+      "score": 0.31,
+      "hf_live_ready": false,
+      "top_regions": [
+        "ewr",
+        "nrt",
+        "sin"
+      ],
+      "priority_actions": [
+        "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
+        "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
+        "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
+        "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
+        "Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com",
+        "Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+        "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
+      ],
+      "region_ranking": [
+        {
+          "region": "ewr",
+          "score": 0.47,
+          "role": "Primary Coordinator (US East)"
+        },
+        {
+          "region": "nrt",
+          "score": 0.23,
+          "role": "Asian Exchange Primary (Tokyo)"
+        },
+        {
+          "region": "sin",
+          "score": 0.23,
+          "role": "Asian Exchange Backup (Singapore)"
+        },
+        {
+          "region": "ord",
+          "score": 0.2,
+          "role": "CME/NYMEX Proximity (US Central)"
+        },
+        {
+          "region": "lhr",
+          "score": 0.15,
+          "role": "European Exchange Hub (London)"
+        },
+        {
+          "region": "fra",
+          "score": 0.15,
+          "role": "European Backup + Risk Monitor (Frankfurt)"
+        },
+        {
+          "region": "bom",
+          "score": 0.15,
+          "role": "DGCX + India Market Monitor (Mumbai)"
+        }
+      ]
+    }
+  },
+  "market_strategy": {
+    "ranked_pairs": [],
+    "quant_priority_pairs": [
+      {
+        "pair": "BCH-USD",
+        "return_pct": 0.061,
+        "win_rate": 1.0,
+        "trades": 20
+      },
+      {
+        "pair": "BCH-USD",
+        "return_pct": 0.0096,
+        "win_rate": 1.0,
+        "trades": 16
+      },
+      {
+        "pair": "BCH-USD",
+        "return_pct": 0.1876,
+        "win_rate": 1.0,
+        "trades": 18
+      },
+      {
+        "pair": "BCH-USD",
+        "return_pct": -0.0823,
+        "win_rate": 1.0,
+        "trades": 20
+      },
+      {
+        "pair": "BCH-USD",
+        "return_pct": 0.0011,
+        "win_rate": 1.0,
+        "trades": 20
+      },
+      {
+        "pair": "BCH-USD",
+        "return_pct": 0.1313,
+        "win_rate": 1.0,
+        "trades": 18
+      },
+      {
+        "pair": "BCH-USD",
+        "return_pct": -0.1788,
+        "win_rate": 1.0,
+        "trades": 22
+      },
+      {
+        "pair": "ADA-USD",
+        "return_pct": -0.5172,
+        "win_rate": 1.0,
+        "trades": 26
+      },
+      {
+        "pair": "BCH-USD",
+        "return_pct": -0.2436,
+        "win_rate": 1.0,
+        "trades": 22
+      },
+      {
+        "pair": "ADA-USD",
+        "return_pct": -0.1543,
+        "win_rate": 1.0,
+        "trades": 18
+      },
+      {
+        "pair": "XRP-USD",
+        "return_pct": -0.2332,
+        "win_rate": 1.0,
+        "trades": 12
+      },
+      {
+        "pair": "ADA-USD",
+        "return_pct": -0.577,
+        "win_rate": 1.0,
+        "trades": 18
+      }
+    ],
+    "market_tracks": [
+      {
+        "name": "crypto_spot_core",
+        "objective": "scale validated BTC/ETH/SOL alpha with strict risk governor",
+        "channel": "coinbase + smart_router",
+        "launch_gate": "GO + realized close-profit evidence"
+      },
+      {
+        "name": "multi_hop_arb",
+        "objective": "deploy deterministic cross-venue loops with hard no-loss gate",
+        "channel": "multi_hop_arb_engine",
+        "launch_gate": "policy-approved net edge > cost floor"
+      },
+      {
+        "name": "energy_proxy",
+        "objective": "oil regime signals via futures/ETF proxies and IBKR onboarding",
+        "channel": "oil_market_agent + ibkr_connector",
+        "launch_gate": "connector readiness + positive paper expectancy"
+      }
+    ]
+  },
+  "go_to_market_strategy": {
+    "launch_ready": false,
+    "blockers": [
+      "hf_live_not_ready"
+    ],
+    "stages": [
+      {
+        "stage": "private_alpha",
+        "audience": "internal capital only",
+        "offer": "risk-capped automated strategy basket",
+        "success_metric": "3 consecutive positive realized-PnL windows",
+        "status": "in_progress"
+      },
+      {
+        "stage": "partner_beta",
+        "audience": "small external allocator cohort",
+        "offer": "dashboard + execution transparency + reserve reporting",
+        "success_metric": "positive risk-adjusted returns with <5% drawdown band",
+        "status": "blocked"
+      },
+      {
+        "stage": "public_launch",
+        "audience": "broader market",
+        "offer": "multi-market quant platform + treasury custody controls",
+        "success_metric": "stable alpha + audited controls + compliant onboarding",
+        "status": "planned"
+      }
+    ],
+    "top_market_targets": [],
+    "migration_prereqs": [
+      {
+        "phase": 1,
+        "name": "platform_hardening",
+        "goals": [
+          "stabilize agent uptime and restart loops",
+          "enforce no-loss + Monte Carlo promotion gates",
+          "establish treasury retrievability score >= 0.80"
+        ],
+        "kpi": {
+          "retrievability_score_target": 0.8,
+          "connector_ready_ratio_target": 0.6
+        },
+        "status": "in_progress"
+      },
+      {
+        "phase": 2,
+        "name": "market_connector_migration",
+        "goals": [
+          "promote market connector hub to primary routing layer",
+          "enable IBKR/E*Trade where credentials + infra are ready",
+          "introduce region-aware execution based on latency health",
+          "enforce HF live gate with DNS + credential + telemetry checks"
+        ],
+        "kpi": {
+          "dashboard_endpoint_health_target": 1.0,
+          "connector_ready_ratio_target": 0.75,
+          "deployment_score_target": 0.7
+        },
+        "status": "in_progress"
+      },
+      {
+        "phase": 3,
+        "name": "go_to_market_rollout",
+        "goals": [
+          "launch alpha-backed strategy offerings with auditable metrics",
+          "expose dashboard KPI surfaces for operators/investors",
+          "publish reserve and risk disclosures for trust"
+        ],
+        "kpi": {
+          "go_live_required": true,
+          "positive_realized_pnl_windows": 3,
+          "hf_live_ready_required": true
+        },
+        "status": "blocked"
+      }
+    ]
+  },
+  "profit_task_queue": [
+    "Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.",
+    "HF live gate is blocked; keep HF lane in paper mode and fix DNS + venue credentials before live budget.",
+    "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
+    "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
+    "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
+    "Execution-health gate failed (telemetry_success_rate_low:0.0060<0.5500); block budget escalations until DNS/API/reconcile checks are green.",
+    "Current run-rate gap: need $55.99/hour to hit next daily target $1,000.00.",
+    "Deploy primary execution to region order: ewr -> nrt -> sin.",
+    "Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.",
+    "Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.",
+    "Continuously harvest realized gains into treasury assets: USD and USDC.",
+    "Prefer strategies with fast, repeatable close cycles that improve realized USD/USDC run-rate.",
+    "Send Claude a high-priority directive each cycle with blockers, required run-rate, and top migration actions.",
+    "Promote only strategies with positive realized PnL evidence; de-escalate automatically on drawdown or failed close windows."
+  ],
+  "inputs": {
+    "growth_report": "/Users/scott/src/quant/agents/growth_go_no_go_report.json",
+    "quant_results": "/Users/scott/src/quant/agents/quant_100_results.json",
+    "mcp_opportunities": "/Users/scott/src/quant/agents/mcp_opportunities.json",
+    "treasury_registry": "/Users/scott/src/quant/agents/treasury_registry.json",
+    "market_hub_status": "/Users/scott/src/quant/agents/market_connector_hub_status.json",
+    "flywheel_status": "/Users/scott/src/quant/agents/flywheel_status.json",
+    "deployment_optimizer_status": "/Users/scott/src/quant/agents/deployment_optimizer_status.json",
+    "deployment_optimizer_plan": "/Users/scott/src/quant/agents/deployment_optimizer_plan.json"
+  }
+}

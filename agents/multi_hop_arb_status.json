@@ -1,0 +1,18 @@
+{
+  "updated_at": "2026-02-14T06:09:22.009848+00:00",
+  "running": true,
+  "cycle": 80,
+  "interval_seconds": 120,
+  "execute_live": false,
+  "quote_assets": [
+    "AVAX",
+    "BTC",
+    "DOGE",
+    "ETH",
+    "LINK",
+    "SOL"
+  ],
+  "top_candidates": [],
+  "candidate_count": 0,
+  "last_execution": null
+}

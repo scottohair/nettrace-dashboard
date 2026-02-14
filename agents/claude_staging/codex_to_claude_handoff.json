@@ -1,0 +1,2999 @@
+{
+  "generated_at": "2026-02-13T03:33:43.803546+00:00",
+  "source": "codex",
+  "objective": "Increase robust promoted strategies with strict capital protection",
+  "quant100": {
+    "summary": {
+      "generated_at": "2026-02-13T03:32:35.777855+00:00",
+      "strict_profit_only": true,
+      "total": 100,
+      "promoted_warm": 18,
+      "rejected_cold": 82,
+      "no_data": 0,
+      "avg_starter_budget_usd": 3.71,
+      "total_starter_budget_usd": 66.78,
+      "retuned_low_activity": 9,
+      "walkforward_available": 100,
+      "walkforward_positive_oos": 0,
+      "rejection_reasons_top": [
+        [
+          "Failed: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.1%, monte_carlo p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed",
+          29
+        ],
+        [
+          "Failed: return -0.14% < 0.1%, risk_governor: non-positive return",
+          6
+        ],
+        [
+          "Failed: return 0.04% < 0.1%",
+          4
+        ],
+        [
+          "Failed: return -0.04% < 0.1%, risk_governor: non-positive return",
+          4
+        ],
+        [
+          "Failed: return -0.11% < 0.1%, risk_governor: non-positive return",
+          3
+        ],
+        [
+          "Failed: return 0.01% < 0.1%",
+          3
+        ],
+        [
+          "Failed: return -0.35% < 0.1%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.32% < 0.05%, risk_governor: non-positive return",
+          2
+        ],
+        [
+          "Failed: return 0.06% < 0.1%",
+          2
+        ],
+        [
+          "Failed: return -0.01% < 0.1%, risk_governor: non-positive return",
+          2
+        ],
+        [
+          "Failed: return 0.05% < 0.1%",
+          2
+        ],
+        [
+          "Failed: return -0.13% < 0.1%, risk_governor: non-positive return",
+          2
+        ],
+        [
+          "Failed: return 0.00% < 0.1%",
+          2
+        ],
+        [
+          "Failed: return -0.08% < 0.1%, risk_governor: non-positive return",
+          2
+        ],
+        [
+          "Failed: return -0.15% < 0.1%, risk_governor: non-positive return",
+          2
+        ],
+        [
+          "Failed: return -0.03% < 0.1%, risk_governor: non-positive return",
+          2
+        ]
+      ],
+      "top_candidates": [
+        {
+          "id": "Q100-076",
+          "strategy_base": "multi_timeframe",
+          "strategy_name": "multi_timeframe_q100_076",
+          "params": {
+            "rsi_period": 10,
+            "bb_window": 16,
+            "bb_std": 1.8
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "nrt",
+          "region_rationale": "Japan open overlap",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.1135,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.193,
+            "sharpe": 0.3786,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.2829,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.193,
+              "sharpe_ratio": 0.0809,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 1.0846,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.1034,
+              "max_daily_loss_pct": 1.4154,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.42pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-088",
+          "strategy_base": "multi_timeframe",
+          "strategy_name": "multi_timeframe_q100_088",
+          "params": {
+            "rsi_period": 14,
+            "bb_window": 20,
+            "bb_std": 1.8
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "fra",
+          "region_rationale": "EU low-latency routing",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": true,
+          "retuned_params": {
+            "rsi_period": 12,
+            "bb_window": 20,
+            "bb_std": 1.55
+          },
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.1159,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.1972,
+            "sharpe": 0.338,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.2891,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.1972,
+              "sharpe_ratio": -1.0292,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 1.0835,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.1033,
+              "max_daily_loss_pct": 1.4165,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.42pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-079",
+          "strategy_base": "multi_timeframe",
+          "strategy_name": "multi_timeframe_q100_079",
+          "params": {
+            "rsi_period": 10,
+            "bb_window": 20,
+            "bb_std": 1.8
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "ord",
+          "region_rationale": "CME / derivatives proximity",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.1154,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.1964,
+            "sharpe": 0.3162,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.2878,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.1964,
+              "sharpe_ratio": -1.9636,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 1.0777,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.1031,
+              "max_daily_loss_pct": 1.4223,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.42pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-085",
+          "strategy_base": "multi_timeframe",
+          "strategy_name": "multi_timeframe_q100_085",
+          "params": {
+            "rsi_period": 14,
+            "bb_window": 16,
+            "bb_std": 1.8
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "ewr",
+          "region_rationale": "US-East / Coinbase core",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": true,
+          "retuned_params": {
+            "rsi_period": 12,
+            "bb_window": 16,
+            "bb_std": 1.55
+          },
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.1139,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.1938,
+            "sharpe": 0.316,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.2841,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.1938,
+              "sharpe_ratio": -1.9385,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 1.0733,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.1029,
+              "max_daily_loss_pct": 1.4267,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.43pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-031",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_031",
+          "params": {
+            "short_window": 10,
+            "long_window": 15,
+            "volume_mult": 1.5
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "lhr",
+          "region_rationale": "EU liquidity overlap",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.2341,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.1979,
+            "sharpe": 0.2363,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.4051,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.1575,
+              "sharpe_ratio": -1.5748,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 1.1354,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.1054,
+              "max_daily_loss_pct": 1.3646,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.36pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-019",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_019",
+          "params": {
+            "short_window": 5,
+            "long_window": 15,
+            "volume_mult": 1.5
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "sin",
+          "region_rationale": "Asia night session",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.4419,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.241,
+            "sharpe": 0.0622,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.4213,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.241,
+              "sharpe_ratio": -1.869,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 1.098,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.1039,
+              "max_daily_loss_pct": 1.402,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.40pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-025",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_025",
+          "params": {
+            "short_window": 8,
+            "long_window": 15,
+            "volume_mult": 1.5
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "fra",
+          "region_rationale": "EU low-latency routing",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.2337,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.1592,
+            "sharpe": 0.0479,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.4124,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.1592,
+              "sharpe_ratio": -1.5916,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 1.1,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.104,
+              "max_daily_loss_pct": 1.4,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.40pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-017",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_017",
+          "params": {
+            "short_window": 3,
+            "long_window": 30,
+            "volume_mult": 1.5
+          },
+          "pair": "ETH-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "lhr",
+          "region_rationale": "EU liquidity overlap",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.15)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "ETH-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": true,
+          "retuned_params": {
+            "short_window": 2,
+            "long_window": 26,
+            "volume_mult": 1.5
+          },
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.1103,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.1801,
+            "sharpe": -0.6819,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.3026,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.1801,
+              "sharpe_ratio": -0.6819,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.15,
+            "tier": "standard",
+            "max_budget_usd": 6.3
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.15,
+            "starter_budget_usd": 3.15,
+            "max_budget_usd": 6.3,
+            "risk_tier": "standard",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "standard",
+              "score": 0.9001,
+              "starter_budget_usd": 3.15,
+              "max_budget_usd": 6.3,
+              "max_position_pct": 0.096,
+              "max_daily_loss_pct": 1.5999,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.60pct_or_return_non_positive",
+              "current_budget_usd": 3.15
+            }
+          }
+        },
+        {
+          "id": "Q100-013",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_013",
+          "params": {
+            "short_window": 3,
+            "long_window": 15,
+            "volume_mult": 1.5
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "nrt",
+          "region_rationale": "Japan open overlap",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.2651,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.2387,
+            "sharpe": -0.9945,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.3717,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.2387,
+              "sharpe_ratio": -4.5363,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 0.9857,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.0994,
+              "max_daily_loss_pct": 1.5143,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.51pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-037",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_037",
+          "params": {
+            "short_window": 3,
+            "long_window": 15,
+            "volume_mult": 1.5
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "ord",
+          "region_rationale": "CME / derivatives proximity",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.2651,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.2387,
+            "sharpe": -0.9945,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.3717,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.2387,
+              "sharpe_ratio": -4.5363,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 0.9857,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.0994,
+              "max_daily_loss_pct": 1.5143,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.51pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-016",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_016",
+          "params": {
+            "short_window": 3,
+            "long_window": 30,
+            "volume_mult": 1.2
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "ord",
+          "region_rationale": "CME / derivatives proximity",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.2383,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.2765,
+            "sharpe": -1.1773,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.4123,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.2765,
+              "sharpe_ratio": -2.4646,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 0.9834,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.0993,
+              "max_daily_loss_pct": 1.5166,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.52pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-067",
+          "strategy_base": "dip_buyer",
+          "strategy_name": "dip_buyer_q100_067",
+          "params": {
+            "dip_threshold": 0.01,
+            "recovery_target": 0.015,
+            "lookback": 6
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "fra",
+          "region_rationale": "EU low-latency routing",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.3134,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.4288,
+            "sharpe": -1.3599,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.7631,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.4288,
+              "sharpe_ratio": -1.3599,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 0.9743,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.099,
+              "max_daily_loss_pct": 1.5257,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.53pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-070",
+          "strategy_base": "dip_buyer",
+          "strategy_name": "dip_buyer_q100_070",
+          "params": {
+            "dip_threshold": 0.01,
+            "recovery_target": 0.02,
+            "lookback": 6
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "bom",
+          "region_rationale": "India / MENA overlap",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.3134,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.4288,
+            "sharpe": -1.3599,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.7631,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.4288,
+              "sharpe_ratio": -1.3599,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 0.9743,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.099,
+              "max_daily_loss_pct": 1.5257,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.53pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-073",
+          "strategy_base": "dip_buyer",
+          "strategy_name": "dip_buyer_q100_073",
+          "params": {
+            "dip_threshold": 0.01,
+            "recovery_target": 0.025,
+            "lookback": 6
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "lhr",
+          "region_rationale": "EU liquidity overlap",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.3134,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.4288,
+            "sharpe": -1.3599,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.7631,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.4288,
+              "sharpe_ratio": -1.3599,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 0.9743,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.099,
+              "max_daily_loss_pct": 1.5257,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.53pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-022",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_022",
+          "params": {
+            "short_window": 5,
+            "long_window": 30,
+            "volume_mult": 1.2
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "ewr",
+          "region_rationale": "US-East / Coinbase core",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.2641,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.1792,
+            "sharpe": -1.4344,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.3918,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.1614,
+              "sharpe_ratio": -1.614,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 0.9892,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.0996,
+              "max_daily_loss_pct": 1.5108,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.51pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-028",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_028",
+          "params": {
+            "short_window": 8,
+            "long_window": 30,
+            "volume_mult": 1.2
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "bom",
+          "region_rationale": "India / MENA overlap",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.2579,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.1594,
+            "sharpe": -1.5944,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.3899,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.1594,
+              "sharpe_ratio": -1.5944,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 0.9904,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.0996,
+              "max_daily_loss_pct": 1.5096,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.51pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-034",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_034",
+          "params": {
+            "short_window": 10,
+            "long_window": 30,
+            "volume_mult": 1.2
+          },
+          "pair": "SOL-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "nrt",
+          "region_rationale": "Japan open overlap",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.78)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "SOL-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 73,
+            "notes": [
+              "public=0 local=73"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 73,
+            "return_pct": 0.3344,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.1617,
+            "sharpe": -1.6168,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 40,
+            "in_sample_candles": 40,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 40,
+              "total_return_pct": -0.3246,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.1617,
+              "sharpe_ratio": -1.6168,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.78,
+            "tier": "high",
+            "max_budget_usd": 7.56
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.78,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "risk_tier": "high",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "high",
+              "score": 0.9903,
+              "starter_budget_usd": 3.78,
+              "max_budget_usd": 7.56,
+              "max_position_pct": 0.0996,
+              "max_daily_loss_pct": 1.5097,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.51pct_or_return_non_positive",
+              "current_budget_usd": 3.78
+            }
+          }
+        },
+        {
+          "id": "Q100-021",
+          "strategy_base": "momentum",
+          "strategy_name": "momentum_q100_021",
+          "params": {
+            "short_window": 5,
+            "long_window": 20,
+            "volume_mult": 1.5
+          },
+          "pair": "BTC-USD",
+          "market": "crypto_major",
+          "vol_bucket": "high_liquidity",
+          "target_region": "bom",
+          "region_rationale": "India / MENA overlap",
+          "status": "promoted_warm",
+          "gate_message": "Promoted to WARM (budget $3.15)",
+          "strict_profit_only": true,
+          "data_source": {
+            "pair": "BTC-USD",
+            "granularity_seconds": 300,
+            "hours": 168,
+            "source": "local_fallback",
+            "candles": 72,
+            "notes": [
+              "public=0 local=72"
+            ]
+          },
+          "retuned": false,
+          "retuned_params": null,
+          "metrics": {
+            "candle_count": 72,
+            "return_pct": 0.1224,
+            "win_rate": 1.0,
+            "trades": 2,
+            "losses": 0,
+            "drawdown_pct": 0.2103,
+            "sharpe": -2.1035,
+            "final_open_position_blocked": false
+          },
+          "walkforward": {
+            "enabled": true,
+            "available": true,
+            "split_index": 39,
+            "in_sample_candles": 39,
+            "out_of_sample_candles": 33,
+            "in_sample": {
+              "candle_count": 39,
+              "total_return_pct": -0.3412,
+              "total_trades": 1,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.2103,
+              "sharpe_ratio": -2.1035,
+              "final_open_position_blocked": true
+            },
+            "out_of_sample": {
+              "candle_count": 33,
+              "total_return_pct": 0.0,
+              "total_trades": 0,
+              "win_rate": 0.0,
+              "losses": 0,
+              "max_drawdown_pct": 0.0,
+              "sharpe_ratio": 0.0,
+              "final_open_position_blocked": false
+            }
+          },
+          "budget": {
+            "starter_budget_usd": 3.15,
+            "tier": "standard",
+            "max_budget_usd": 6.3
+          },
+          "risk_profile": {
+            "current_budget_usd": 3.15,
+            "starter_budget_usd": 3.15,
+            "max_budget_usd": 6.3,
+            "risk_tier": "standard",
+            "governor": {
+              "approved": true,
+              "reasons": [],
+              "tier": "standard",
+              "score": 0.9346,
+              "starter_budget_usd": 3.15,
+              "max_budget_usd": 6.3,
+              "max_position_pct": 0.0974,
+              "max_daily_loss_pct": 1.5654,
+              "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.57pct_or_return_non_positive",
+              "current_budget_usd": 3.15
+            }
+          }
+        }
+      ]
+    },
+    "top_candidates": [
+      {
+        "id": "Q100-076",
+        "strategy_base": "multi_timeframe",
+        "strategy_name": "multi_timeframe_q100_076",
+        "params": {
+          "rsi_period": 10,
+          "bb_window": 16,
+          "bb_std": 1.8
+        },
+        "pair": "SOL-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "nrt",
+        "region_rationale": "Japan open overlap",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.78)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "SOL-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": false,
+        "retuned_params": null,
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.1135,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.193,
+          "sharpe": 0.3786,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.2829,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.193,
+            "sharpe_ratio": 0.0809,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.78,
+          "tier": "high",
+          "max_budget_usd": 7.56
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.78,
+          "starter_budget_usd": 3.78,
+          "max_budget_usd": 7.56,
+          "risk_tier": "high",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "high",
+            "score": 1.0846,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "max_position_pct": 0.1034,
+            "max_daily_loss_pct": 1.4154,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.42pct_or_return_non_positive",
+            "current_budget_usd": 3.78
+          }
+        }
+      },
+      {
+        "id": "Q100-088",
+        "strategy_base": "multi_timeframe",
+        "strategy_name": "multi_timeframe_q100_088",
+        "params": {
+          "rsi_period": 14,
+          "bb_window": 20,
+          "bb_std": 1.8
+        },
+        "pair": "SOL-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "fra",
+        "region_rationale": "EU low-latency routing",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.78)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "SOL-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": true,
+        "retuned_params": {
+          "rsi_period": 12,
+          "bb_window": 20,
+          "bb_std": 1.55
+        },
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.1159,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.1972,
+          "sharpe": 0.338,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.2891,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.1972,
+            "sharpe_ratio": -1.0292,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.78,
+          "tier": "high",
+          "max_budget_usd": 7.56
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.78,
+          "starter_budget_usd": 3.78,
+          "max_budget_usd": 7.56,
+          "risk_tier": "high",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "high",
+            "score": 1.0835,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "max_position_pct": 0.1033,
+            "max_daily_loss_pct": 1.4165,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.42pct_or_return_non_positive",
+            "current_budget_usd": 3.78
+          }
+        }
+      },
+      {
+        "id": "Q100-079",
+        "strategy_base": "multi_timeframe",
+        "strategy_name": "multi_timeframe_q100_079",
+        "params": {
+          "rsi_period": 10,
+          "bb_window": 20,
+          "bb_std": 1.8
+        },
+        "pair": "SOL-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "ord",
+        "region_rationale": "CME / derivatives proximity",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.78)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "SOL-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": false,
+        "retuned_params": null,
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.1154,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.1964,
+          "sharpe": 0.3162,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.2878,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.1964,
+            "sharpe_ratio": -1.9636,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.78,
+          "tier": "high",
+          "max_budget_usd": 7.56
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.78,
+          "starter_budget_usd": 3.78,
+          "max_budget_usd": 7.56,
+          "risk_tier": "high",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "high",
+            "score": 1.0777,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "max_position_pct": 0.1031,
+            "max_daily_loss_pct": 1.4223,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.42pct_or_return_non_positive",
+            "current_budget_usd": 3.78
+          }
+        }
+      },
+      {
+        "id": "Q100-085",
+        "strategy_base": "multi_timeframe",
+        "strategy_name": "multi_timeframe_q100_085",
+        "params": {
+          "rsi_period": 14,
+          "bb_window": 16,
+          "bb_std": 1.8
+        },
+        "pair": "SOL-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "ewr",
+        "region_rationale": "US-East / Coinbase core",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.78)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "SOL-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": true,
+        "retuned_params": {
+          "rsi_period": 12,
+          "bb_window": 16,
+          "bb_std": 1.55
+        },
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.1139,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.1938,
+          "sharpe": 0.316,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.2841,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.1938,
+            "sharpe_ratio": -1.9385,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.78,
+          "tier": "high",
+          "max_budget_usd": 7.56
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.78,
+          "starter_budget_usd": 3.78,
+          "max_budget_usd": 7.56,
+          "risk_tier": "high",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "high",
+            "score": 1.0733,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "max_position_pct": 0.1029,
+            "max_daily_loss_pct": 1.4267,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.43pct_or_return_non_positive",
+            "current_budget_usd": 3.78
+          }
+        }
+      },
+      {
+        "id": "Q100-031",
+        "strategy_base": "momentum",
+        "strategy_name": "momentum_q100_031",
+        "params": {
+          "short_window": 10,
+          "long_window": 15,
+          "volume_mult": 1.5
+        },
+        "pair": "SOL-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "lhr",
+        "region_rationale": "EU liquidity overlap",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.78)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "SOL-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": false,
+        "retuned_params": null,
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.2341,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.1979,
+          "sharpe": 0.2363,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.4051,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.1575,
+            "sharpe_ratio": -1.5748,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.78,
+          "tier": "high",
+          "max_budget_usd": 7.56
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.78,
+          "starter_budget_usd": 3.78,
+          "max_budget_usd": 7.56,
+          "risk_tier": "high",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "high",
+            "score": 1.1354,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "max_position_pct": 0.1054,
+            "max_daily_loss_pct": 1.3646,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.36pct_or_return_non_positive",
+            "current_budget_usd": 3.78
+          }
+        }
+      },
+      {
+        "id": "Q100-019",
+        "strategy_base": "momentum",
+        "strategy_name": "momentum_q100_019",
+        "params": {
+          "short_window": 5,
+          "long_window": 15,
+          "volume_mult": 1.5
+        },
+        "pair": "SOL-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "sin",
+        "region_rationale": "Asia night session",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.78)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "SOL-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": false,
+        "retuned_params": null,
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.4419,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.241,
+          "sharpe": 0.0622,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.4213,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.241,
+            "sharpe_ratio": -1.869,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.78,
+          "tier": "high",
+          "max_budget_usd": 7.56
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.78,
+          "starter_budget_usd": 3.78,
+          "max_budget_usd": 7.56,
+          "risk_tier": "high",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "high",
+            "score": 1.098,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "max_position_pct": 0.1039,
+            "max_daily_loss_pct": 1.402,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.40pct_or_return_non_positive",
+            "current_budget_usd": 3.78
+          }
+        }
+      },
+      {
+        "id": "Q100-025",
+        "strategy_base": "momentum",
+        "strategy_name": "momentum_q100_025",
+        "params": {
+          "short_window": 8,
+          "long_window": 15,
+          "volume_mult": 1.5
+        },
+        "pair": "SOL-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "fra",
+        "region_rationale": "EU low-latency routing",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.78)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "SOL-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": false,
+        "retuned_params": null,
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.2337,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.1592,
+          "sharpe": 0.0479,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.4124,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.1592,
+            "sharpe_ratio": -1.5916,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.78,
+          "tier": "high",
+          "max_budget_usd": 7.56
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.78,
+          "starter_budget_usd": 3.78,
+          "max_budget_usd": 7.56,
+          "risk_tier": "high",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "high",
+            "score": 1.1,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "max_position_pct": 0.104,
+            "max_daily_loss_pct": 1.4,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.40pct_or_return_non_positive",
+            "current_budget_usd": 3.78
+          }
+        }
+      },
+      {
+        "id": "Q100-017",
+        "strategy_base": "momentum",
+        "strategy_name": "momentum_q100_017",
+        "params": {
+          "short_window": 3,
+          "long_window": 30,
+          "volume_mult": 1.5
+        },
+        "pair": "ETH-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "lhr",
+        "region_rationale": "EU liquidity overlap",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.15)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "ETH-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": true,
+        "retuned_params": {
+          "short_window": 2,
+          "long_window": 26,
+          "volume_mult": 1.5
+        },
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.1103,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.1801,
+          "sharpe": -0.6819,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.3026,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.1801,
+            "sharpe_ratio": -0.6819,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.15,
+          "tier": "standard",
+          "max_budget_usd": 6.3
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.15,
+          "starter_budget_usd": 3.15,
+          "max_budget_usd": 6.3,
+          "risk_tier": "standard",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "standard",
+            "score": 0.9001,
+            "starter_budget_usd": 3.15,
+            "max_budget_usd": 6.3,
+            "max_position_pct": 0.096,
+            "max_daily_loss_pct": 1.5999,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.60pct_or_return_non_positive",
+            "current_budget_usd": 3.15
+          }
+        }
+      },
+      {
+        "id": "Q100-013",
+        "strategy_base": "momentum",
+        "strategy_name": "momentum_q100_013",
+        "params": {
+          "short_window": 3,
+          "long_window": 15,
+          "volume_mult": 1.5
+        },
+        "pair": "SOL-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "nrt",
+        "region_rationale": "Japan open overlap",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.78)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "SOL-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": false,
+        "retuned_params": null,
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.2651,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.2387,
+          "sharpe": -0.9945,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.3717,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.2387,
+            "sharpe_ratio": -4.5363,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.78,
+          "tier": "high",
+          "max_budget_usd": 7.56
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.78,
+          "starter_budget_usd": 3.78,
+          "max_budget_usd": 7.56,
+          "risk_tier": "high",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "high",
+            "score": 0.9857,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "max_position_pct": 0.0994,
+            "max_daily_loss_pct": 1.5143,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.51pct_or_return_non_positive",
+            "current_budget_usd": 3.78
+          }
+        }
+      },
+      {
+        "id": "Q100-037",
+        "strategy_base": "momentum",
+        "strategy_name": "momentum_q100_037",
+        "params": {
+          "short_window": 3,
+          "long_window": 15,
+          "volume_mult": 1.5
+        },
+        "pair": "SOL-USD",
+        "market": "crypto_major",
+        "vol_bucket": "high_liquidity",
+        "target_region": "ord",
+        "region_rationale": "CME / derivatives proximity",
+        "status": "promoted_warm",
+        "gate_message": "Promoted to WARM (budget $3.78)",
+        "strict_profit_only": true,
+        "data_source": {
+          "pair": "SOL-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "local_fallback",
+          "candles": 73,
+          "notes": [
+            "public=0 local=73"
+          ]
+        },
+        "retuned": false,
+        "retuned_params": null,
+        "metrics": {
+          "candle_count": 73,
+          "return_pct": 0.2651,
+          "win_rate": 1.0,
+          "trades": 2,
+          "losses": 0,
+          "drawdown_pct": 0.2387,
+          "sharpe": -0.9945,
+          "final_open_position_blocked": false
+        },
+        "walkforward": {
+          "enabled": true,
+          "available": true,
+          "split_index": 40,
+          "in_sample_candles": 40,
+          "out_of_sample_candles": 33,
+          "in_sample": {
+            "candle_count": 40,
+            "total_return_pct": -0.3717,
+            "total_trades": 1,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.2387,
+            "sharpe_ratio": -4.5363,
+            "final_open_position_blocked": true
+          },
+          "out_of_sample": {
+            "candle_count": 33,
+            "total_return_pct": 0.0,
+            "total_trades": 0,
+            "win_rate": 0.0,
+            "losses": 0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "final_open_position_blocked": false
+          }
+        },
+        "budget": {
+          "starter_budget_usd": 3.78,
+          "tier": "high",
+          "max_budget_usd": 7.56
+        },
+        "risk_profile": {
+          "current_budget_usd": 3.78,
+          "starter_budget_usd": 3.78,
+          "max_budget_usd": 7.56,
+          "risk_tier": "high",
+          "governor": {
+            "approved": true,
+            "reasons": [],
+            "tier": "high",
+            "score": 0.9857,
+            "starter_budget_usd": 3.78,
+            "max_budget_usd": 7.56,
+            "max_position_pct": 0.0994,
+            "max_daily_loss_pct": 1.5143,
+            "kill_switch": "kill_if_drawdown_gt_5.00pct_or_daily_loss_gt_1.51pct_or_return_non_positive",
+            "current_budget_usd": 3.78
+          }
+        }
+      }
+    ],
+    "rejection_reasons_top": [
+      [
+        "Failed: trades 0 < 2, win_rate 0.00% < 55.00%, return 0.00% < 0.1%, monte_carlo p50 0.00% < 0.03%, risk_governor: non-positive return, risk_governor: monte_carlo gate failed",
+        29
+      ],
+      [
+        "Failed: return -0.14% < 0.1%, risk_governor: non-positive return",
+        6
+      ],
+      [
+        "Failed: return 0.04% < 0.1%",
+        4
+      ],
+      [
+        "Failed: return -0.04% < 0.1%, risk_governor: non-positive return",
+        4
+      ],
+      [
+        "Failed: return -0.11% < 0.1%, risk_governor: non-positive return",
+        3
+      ],
+      [
+        "Failed: return 0.01% < 0.1%",
+        3
+      ],
+      [
+        "Failed: return -0.35% < 0.1%, strict mode: backtest ended with underwater open position (loss close blocked), walkforward oos return -0.32% < 0.05%, risk_governor: non-positive return",
+        2
+      ],
+      [
+        "Failed: return 0.06% < 0.1%",
+        2
+      ],
+      [
+        "Failed: return -0.01% < 0.1%, risk_governor: non-positive return",
+        2
+      ],
+      [
+        "Failed: return 0.05% < 0.1%",
+        2
+      ]
+    ]
+  },
+  "pipeline": {
+    "stage_counts": {
+      "COLD": 244,
+      "WARM": 38
+    },
+    "failed_cold_reasons_top": [
+      [
+        "risk_governor: non-positive return",
+        160
+      ],
+      [
+        "risk_governor: monte_carlo gate failed",
+        110
+      ],
+      [
+        "return 0.00% < 0.1%",
+        89
+      ],
+      [
+        "trades 0 < 2",
+        85
+      ],
+      [
+        "win_rate 0.00% < 55.00%",
+        85
+      ],
+      [
+        "monte_carlo p50 0.00% < 0.03%",
+        61
+      ],
+      [
+        "monte_carlo trades 1 < 2",
+        49
+      ],
+      [
+        "walkforward oos trades 0 < 1",
+        40
+      ],
+      [
+        "walkforward oos return 0.00% < 0.05%",
+        40
+      ],
+      [
+        "return -0.04% < 0.1%",
+        13
+      ]
+    ]
+  },
+  "improvements_program": {
+    "total_items": 100,
+    "planned_items": 88,
+    "running_items": 12,
+    "sample_next": [
+      {
+        "id": "IMPR-004",
+        "category": "data_quality",
+        "title": "timestamp normalization optimization",
+        "hypothesis": "Improving timestamp normalization will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "monte_carlo_p05_return_pct",
+        "target": ">= -0.10%",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "medium",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-005",
+        "category": "data_quality",
+        "title": "coverage SLA enforcement optimization",
+        "hypothesis": "Improving coverage SLA enforcement will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "max_drawdown_pct",
+        "target": "<= 3.0%",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "medium",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-006",
+        "category": "data_quality",
+        "title": "data freshness alarms optimization",
+        "hypothesis": "Improving data freshness alarms will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "execution_slippage_bps",
+        "target": "<= 20",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "medium",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-007",
+        "category": "data_quality",
+        "title": "schema drift detection optimization",
+        "hypothesis": "Improving schema drift detection will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "data_coverage_ratio",
+        "target": ">= 0.98",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "medium",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-008",
+        "category": "data_quality",
+        "title": "feature null guards optimization",
+        "hypothesis": "Improving feature null guards will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "latency_p95_ms",
+        "target": "<= 250",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "low",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-009",
+        "category": "data_quality",
+        "title": "synthetic OHLC reconstruction optimization",
+        "hypothesis": "Improving synthetic OHLC reconstruction will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "daily_loss_events",
+        "target": "= 0",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "low",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-010",
+        "category": "data_quality",
+        "title": "pair-level quality scoring optimization",
+        "hypothesis": "Improving pair-level quality scoring will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "risk_budget_adherence",
+        "target": ">= 99%",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "low",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-014",
+        "category": "signal_engineering",
+        "title": "multi-horizon confluence optimization",
+        "hypothesis": "Improving multi-horizon confluence will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "monte_carlo_p05_return_pct",
+        "target": ">= -0.10%",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "medium",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-015",
+        "category": "signal_engineering",
+        "title": "microstructure filter optimization",
+        "hypothesis": "Improving microstructure filter will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "max_drawdown_pct",
+        "target": "<= 3.0%",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "medium",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-016",
+        "category": "signal_engineering",
+        "title": "trend persistence score optimization",
+        "hypothesis": "Improving trend persistence score will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "execution_slippage_bps",
+        "target": "<= 20",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "medium",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-017",
+        "category": "signal_engineering",
+        "title": "mean-reversion half-life optimization",
+        "hypothesis": "Improving mean-reversion half-life will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "data_coverage_ratio",
+        "target": ">= 0.98",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "medium",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-018",
+        "category": "signal_engineering",
+        "title": "adaptive stop distance optimization",
+        "hypothesis": "Improving adaptive stop distance will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "latency_p95_ms",
+        "target": "<= 250",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "low",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-019",
+        "category": "signal_engineering",
+        "title": "drawdown-aware throttling optimization",
+        "hypothesis": "Improving drawdown-aware throttling will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "daily_loss_events",
+        "target": "= 0",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "low",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-020",
+        "category": "signal_engineering",
+        "title": "signal decay model optimization",
+        "hypothesis": "Improving signal decay model will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "risk_budget_adherence",
+        "target": ">= 99%",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "low",
+        "status": "planned",
+        "owner": "codex"
+      },
+      {
+        "id": "IMPR-024",
+        "category": "execution_quality",
+        "title": "partial fill balancer optimization",
+        "hypothesis": "Improving partial fill balancer will increase risk-adjusted profitability under strict growth mode.",
+        "metric": "monte_carlo_p05_return_pct",
+        "target": ">= -0.10%",
+        "acceptance_test": "Must pass backtest + walk-forward + monte carlo + risk governor before promotion.",
+        "priority": "medium",
+        "status": "planned",
+        "owner": "codex"
+      }
+    ],
+    "status_snapshot": {
+      "counts": {
+        "planned": 88,
+        "running": 12,
+        "validated": 0,
+        "blocked": 0
+      },
+      "active_batches": [
+        {
+          "batch_id": "BATCH-20260213-033001",
+          "items": [
+            "IMPR-001",
+            "IMPR-002",
+            "IMPR-003",
+            "IMPR-011",
+            "IMPR-012",
+            "IMPR-013",
+            "IMPR-021",
+            "IMPR-022",
+            "IMPR-023",
+            "IMPR-031",
+            "IMPR-032",
+            "IMPR-033"
+          ],
+          "size": 12
+        }
+      ],
+      "quant_snapshot": {
+        "generated_at": "2026-02-13T03:32:35.777855+00:00",
+        "total": 100,
+        "promoted_warm": 18,
+        "promoted_rate_pct": 18.0,
+        "rejected_cold": 82,
+        "no_data": 0
+      }
+    },
+    "batch_config": {
+      "generated_at": "2026-02-13T03:32:54.290320+00:00",
+      "active": true,
+      "active_batch_id": "BATCH-20260213-033001",
+      "active_categories": [
+        "data_quality",
+        "execution_quality",
+        "portfolio_risk",
+        "signal_engineering"
+      ],
+      "running_item_ids": [
+        "IMPR-001",
+        "IMPR-002",
+        "IMPR-003",
+        "IMPR-011",
+        "IMPR-012",
+        "IMPR-013",
+        "IMPR-021",
+        "IMPR-022",
+        "IMPR-023",
+        "IMPR-031",
+        "IMPR-032",
+        "IMPR-033"
+      ],
+      "strategy_count_overrides": {
+        "mean_reversion": 11,
+        "momentum": 27,
+        "rsi": 18,
+        "vwap": 8,
+        "dip_buyer": 11,
+        "multi_timeframe": 19,
+        "accumulate_hold": 6
+      },
+      "priority_pairs": [
+        "SOL-USD",
+        "ETH-USD",
+        "BTC-USD"
+      ]
+    }
+  },
+  "asks_for_claude": [
+    {
+      "objective": "Reduce deterministic rejection causes without relaxing capital protection",
+      "focus": [
+        "reason-cluster analysis",
+        "parameter retuning",
+        "risk-aware promotion calibration"
+      ],
+      "priority": "medium"
+    }
+  ],
+  "acceptance_criteria": [
+    "Every proposed change includes deterministic pass/fail thresholds.",
+    "No recommendation bypasses walk-forward and risk checks.",
+    "Strategies with negative expected value remain blocked.",
+    "Output includes code-level changes and validation commands."
+  ]
+}

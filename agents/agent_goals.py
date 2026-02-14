@@ -41,8 +41,8 @@ TAKER_FEE = 0.006   # 0.6% — market orders
 PREFERRED_ORDER_TYPE = "limit"  # BE A MAKER
 
 # Minimum thresholds
-MIN_CONFIDENCE = 0.70        # Rule 1+2: 70%+ confidence required
-MIN_CONFIRMING_SIGNALS = 2   # Rule 1: at least 2 independent confirmations
+MIN_CONFIDENCE = 0.65        # Rule 1+2: 65%+ confidence required (lowered for buy-side activation)
+MIN_CONFIRMING_SIGNALS = 1   # Rule 1: at least 1 signal (lowered temporarily to increase flow)
 DOWNTREND_BLOCKED = True     # Rule 1: no buying in downtrends
 
 # Agent performance thresholds (evolutionary)
