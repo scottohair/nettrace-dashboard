@@ -1,6 +1,6 @@
 # Quant Company Roadmap
 
-Updated: 2026-02-14T20:04:28.076360+00:00
+Updated: 2026-02-14T21:21:45.634249+00:00
 
 ## WIN Objective
 - WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.
@@ -15,10 +15,10 @@ Updated: 2026-02-14T20:04:28.076360+00:00
 - HF live ready: True
 
 ## Profit Targets
-- Daily PnL: $-0.92
+- Daily PnL: $-2.21
 - Next target: $1,000.00
-- Target progress: -0.09%
-- Required run-rate: $254.98/hour
+- Target progress: -0.22%
+- Required run-rate: $379.98/hour
 - Budget escalator: de_escalate x0.80
 - Realized close gate: passed=True reason=passed
 
@@ -44,7 +44,7 @@ Updated: 2026-02-14T20:04:28.076360+00:00
 
 ## Profit Task Queue
 - Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.
-- Current run-rate gap: need $254.98/hour to hit next daily target $1,000.00.
+- Current run-rate gap: need $379.98/hour to hit next daily target $1,000.00.
 - Deploy primary execution to region order: ewr -> nrt -> sin.
 - Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.
 - Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.

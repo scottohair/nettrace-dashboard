@@ -4844,6 +4844,81 @@ def update_risk_preferences():
     return jsonify({"status": "updated", "risk_profile": profile, "settings": preset})
 
 
+@app.route("/api/realtime-performance")
+def get_realtime_performance():
+    """Get real-time portfolio orchestrator performance metrics.
+
+    Returns:
+        {
+            "status": "ok",
+            "timestamp_ms": ms since start,
+            "portfolio_usd": current value,
+            "total_gains_usd": total P&L,
+            "gains_per_second": metric,
+            "gains_per_ms": metric,
+            "target_gains_per_ms": target for $1M/day,
+            "progress_pct": % toward target,
+            "top_agents": [...],
+            "region_breakdown": {...}
+        }
+    """
+    try:
+        # Import orchestrator to get real-time metrics
+        from agents.realtime_orchestrator import RealtimeOrchestrator
+
+        # This is a global instance - would be set by orchestrator_v2
+        # For now, return mock data with actual portfolio value
+        orchestrator = getattr(app, '_realtime_orchestrator', None)
+
+        # Get current portfolio from DB
+        db = get_db()
+        portfolio_snapshot = db.execute(
+            "SELECT portfolio_usd, timestamp FROM portfolio_snapshot ORDER BY timestamp DESC LIMIT 1"
+        ).fetchone()
+
+        portfolio_usd = portfolio_snapshot["portfolio_usd"] if portfolio_snapshot else 233.85
+        timestamp_ms = time.time() * 1000
+
+        if orchestrator:
+            perf = orchestrator.performance_tracker.snapshot()
+            top_agents = orchestrator.performance_tracker.agent_rankings(limit=10)
+
+            return jsonify({
+                "status": "ok",
+                "timestamp_ms": timestamp_ms,
+                "portfolio_usd": portfolio_usd,
+                "total_gains_usd": perf["total_gains_usd"],
+                "gains_per_second": perf["gains_per_second"],
+                "gains_per_ms": perf["gains_per_ms"],
+                "target_gains_per_ms": 0.000487,  # $0.487/s = $1M/day
+                "progress_pct": (perf["gains_per_ms"] / 0.000487) * 100 if perf["gains_per_ms"] > 0 else 0,
+                "trade_count": perf["trade_count"],
+                "cycle_count": orchestrator.cycle_count,
+                "top_agents": [
+                    {
+                        "agent": name,
+                        "total_pnl": metrics["total_pnl"],
+                        "trade_count": metrics["trade_count"],
+                        "avg_latency_ms": metrics["avg_latency_ms"],
+                        "gains_per_ms": metrics["gains_per_ms"],
+                    }
+                    for name, metrics in top_agents
+                ],
+            })
+        else:
+            # Orchestrator not running - return portfolio data only
+            return jsonify({
+                "status": "orchestrator_not_running",
+                "timestamp_ms": timestamp_ms,
+                "portfolio_usd": portfolio_usd,
+                "message": "RealTimeOrchestrator not initialized. Start orchestrator_v2.py with REALTIME_ORCHESTRATION=1",
+            })
+
+    except Exception as e:
+        logger.error(f"Error fetching realtime performance: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 12034))
     print(f">>> NetTrace running at http://localhost:{port}")

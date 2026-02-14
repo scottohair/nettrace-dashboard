@@ -169,7 +169,7 @@ class TestStrikeTeamExitValidation(unittest.TestCase):
                     },
                 )
             self.assertTrue(plan["active"])
-            self.assertIn(plan["trigger"], {"buy_throttle", "sell_completion_rate_low"})
+            self.assertIn(plan["trigger"], {"buy_throttle", "sell_completion_rate_low", "balance_sell_recovery"})
             self.assertGreaterEqual(float(plan["sell_size_usd"]), 15.0)
 
     def test_execute_blocks_sell_without_inventory(self):
@@ -194,6 +194,34 @@ class TestStrikeTeamExitValidation(unittest.TestCase):
                 )
             self.assertIsNone(result)
             self.assertEqual(team.sell_no_inventory_blocked, 1)
+
+    def test_execute_blocks_buy_when_global_balance_gate_unhealthy(self):
+        with patch.object(st, "EXECUTION_HEALTH_GATE", False), patch.object(
+            st,
+            "_global_buy_sell_balance_state",
+            return_value={
+                "allow_buy": False,
+                "mode": "sell_recovery",
+                "reason": "balance_buy_sell_ratio_high:3.0>1.2",
+                "buy_size_factor": 1.0,
+            },
+        ):
+            team = st.StrikeTeam()
+            result = team.execute(
+                "BTC-USD",
+                {
+                    "approved": True,
+                    "direction": "BUY",
+                    "size_usd": 5.0,
+                    "entry_price": 100.0,
+                    "take_profit": 102.0,
+                    "confidence": 0.9,
+                    "confirming_signals": 3,
+                    "regime": "neutral",
+                },
+            )
+            self.assertIsNone(result)
+            self.assertEqual(team.balance_growth_blocked, 1)
 
     def test_arbitrage_scout_filters_by_basis_regime(self):
         st._reset_arbitrage_basis_state()

@@ -9516,3 +9516,307 @@
 2026-02-14 15:05:31,177 [latency_arb] INFO === LATENCY ARB SCAN ===
 2026-02-14 15:05:41,219 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
 2026-02-14 15:05:41,222 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:06:11,227 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:06:11,463 [latency_arb] ERROR Failed to fetch NetTrace signals: HTTP Error 401: UNAUTHORIZED
+2026-02-14 15:06:11,466 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:06:41,472 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:06:41,585 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:07:11,613 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:07:11,673 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:07:41,696 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:07:41,756 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:08:11,782 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:08:11,876 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:08:41,931 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:08:41,995 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:09:12,022 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:09:12,138 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:09:42,164 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:09:42,248 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:10:12,285 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:10:12,379 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:10:42,410 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:10:42,505 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:11:12,528 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:11:12,594 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:11:42,619 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:11:42,692 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:12:12,717 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:12:12,781 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:12:42,812 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:12:42,902 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:13:12,926 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:13:12,983 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:13:43,022 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:13:43,136 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:14:13,161 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:14:13,224 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:14:43,247 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:14:43,305 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:15:13,327 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:15:13,386 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:15:43,411 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:15:43,469 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:16:13,496 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:16:13,803 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:16:43,835 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:16:43,903 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:17:13,923 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:17:13,996 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:17:44,027 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:17:44,114 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:18:14,138 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:18:14,194 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:18:44,218 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:18:44,296 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:19:14,319 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:19:14,985 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:19:45,010 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:19:45,305 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:20:15,328 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:20:18,991 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:20:49,015 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:20:54,423 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:21:24,447 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:21:34,490 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:21:34,491 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:22:04,496 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:22:05,305 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:22:35,329 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:22:38,981 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:23:09,008 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:23:19,055 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:23:19,057 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:23:49,060 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:23:58,103 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:24:28,132 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:24:38,176 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:24:38,178 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:25:08,181 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:25:18,216 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:25:18,217 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:25:48,222 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:25:55,302 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:26:25,326 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:26:32,437 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:27:02,460 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:27:03,071 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:27:33,096 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:27:43,131 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:27:43,134 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:28:13,136 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:28:23,190 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:28:23,193 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:28:53,198 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:29:03,285 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:29:03,287 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:29:33,292 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:29:33,370 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:30:03,402 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:30:03,482 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:30:33,511 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:30:33,576 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:31:03,605 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:31:03,669 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:31:33,694 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:31:33,763 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:32:03,789 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:32:03,874 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:32:33,906 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:32:33,983 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:33:04,010 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:33:04,075 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:33:34,100 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:33:34,254 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:34:04,280 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:34:04,404 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:34:34,445 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:34:34,502 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:35:04,530 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:35:04,593 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:35:34,622 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:35:34,694 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:36:04,722 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:36:04,792 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:36:34,817 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:36:34,879 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:37:04,902 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:37:04,961 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:37:34,986 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:37:35,060 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:38:05,087 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:38:05,321 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:38:35,356 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:38:45,398 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:38:45,399 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:39:15,409 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:39:25,446 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:39:25,447 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:39:55,452 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:40:03,003 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:40:33,032 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:40:43,067 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:40:43,069 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:41:13,109 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:41:18,446 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:41:48,477 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:41:57,819 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:42:27,857 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:42:36,054 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:43:06,086 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:43:06,534 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:43:36,563 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:43:46,602 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:43:46,603 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:44:16,608 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:44:26,645 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:44:26,646 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:44:56,648 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:45:06,678 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:45:06,679 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:45:36,689 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:45:46,720 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:45:46,720 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:46:16,730 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:46:22,599 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:46:52,625 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:46:53,799 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:47:23,824 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:47:26,388 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:47:56,411 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:48:03,083 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:48:33,108 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:48:43,143 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:48:43,143 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:49:13,153 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:49:21,005 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:49:51,024 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:49:53,338 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:50:23,363 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:50:33,399 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:50:33,400 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:51:03,410 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:51:13,442 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:51:13,443 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:51:43,453 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:51:53,484 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:51:53,484 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:52:23,490 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:52:33,523 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:52:33,524 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:53:03,535 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:53:13,569 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:53:13,570 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:53:43,580 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:53:53,610 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:53:53,611 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:54:23,617 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:54:32,287 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:55:02,310 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:55:11,253 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:55:41,276 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:55:51,308 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:55:51,308 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:56:21,317 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:56:31,349 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:56:31,349 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:57:01,354 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:57:10,926 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:57:40,949 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:57:48,452 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 15:58:18,471 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:58:28,501 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:58:28,501 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:58:58,511 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:59:08,544 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:59:08,544 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 15:59:38,548 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 15:59:48,579 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 15:59:48,579 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:00:18,585 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:00:28,616 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:00:28,617 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:00:58,627 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:01:08,662 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:01:08,663 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:01:38,668 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:01:48,704 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:01:48,704 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:02:18,707 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:02:28,735 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:02:28,736 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:02:58,741 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:03:08,771 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:03:08,772 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:07:37,014 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:07:41,817 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:08:11,829 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:08:21,859 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:08:21,860 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:08:51,865 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:08:55,894 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:09:25,913 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:09:35,892 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:10:05,905 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:10:15,934 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:10:15,935 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:10:45,940 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:10:55,969 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:10:55,970 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:11:25,973 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:11:35,171 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:12:05,191 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:12:15,224 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:12:15,225 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:12:45,230 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:12:55,259 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:12:55,261 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:13:25,266 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:13:35,300 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:13:35,301 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:14:05,307 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:14:15,368 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:14:15,371 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:14:45,372 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:14:55,429 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:14:55,433 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:15:25,444 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:15:35,514 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:15:35,536 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:16:05,538 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:16:12,624 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:16:42,821 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:16:52,542 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:17:22,689 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:17:31,588 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:18:01,711 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:18:07,823 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:18:37,899 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:18:45,671 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:19:15,845 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:19:21,434 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:19:51,625 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:20:01,672 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:20:01,675 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:20:31,677 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:20:41,737 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:20:41,747 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:21:11,772 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:21:21,932 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:21:21,937 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:21:51,940 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:22:02,007 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:22:02,011 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:22:32,021 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:22:42,067 [latency_arb] ERROR Failed to fetch NetTrace signals: The read operation timed out
+2026-02-14 16:22:42,070 [latency_arb] INFO No actionable signals from NetTrace
+2026-02-14 16:23:12,071 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:23:23,114 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:23:53,341 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:24:00,462 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:24:30,665 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:24:38,225 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:25:08,383 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:25:16,477 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)
+2026-02-14 16:25:46,734 [latency_arb] INFO === LATENCY ARB SCAN ===
+2026-02-14 16:25:50,380 [latency_arb] INFO Fetched 50 signals from NetTrace (confidence >= 70%)

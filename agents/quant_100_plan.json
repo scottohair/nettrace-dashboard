@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-14T20:05:00.824619+00:00",
+  "generated_at": "2026-02-14T20:57:19.652964+00:00",
   "config": {
     "idea_count": 1000,
     "hours": 168,
@@ -41,11 +41,11 @@
       "BTC-USD",
       "LINK-USD",
       "DOGE-USD",
-      "AVAX-USD",
       "XRP-USD",
       "ADA-USD",
       "LTC-USD",
-      "BCH-USD"
+      "BCH-USD",
+      "AVAX-USD"
     ]
   },
   "batch_config": {
@@ -126,160 +126,140 @@
         "pair": "BTC-USD",
         "market": "crypto_major",
         "vol_bucket": "high_liquidity",
-        "candle_count": 243,
+        "candle_count": 2016,
         "data_source": {
           "pair": "BTC-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 243,
-          "notes": [
-            "public=0 local=243"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "ETH-USD",
         "market": "crypto_major",
         "vol_bucket": "high_liquidity",
-        "candle_count": 197,
+        "candle_count": 2016,
         "data_source": {
           "pair": "ETH-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 197,
-          "notes": [
-            "public=0 local=197"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "SOL-USD",
         "market": "crypto_major",
         "vol_bucket": "high_liquidity",
-        "candle_count": 197,
+        "candle_count": 2016,
         "data_source": {
           "pair": "SOL-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 197,
-          "notes": [
-            "public=0 local=197"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "LINK-USD",
         "market": "crypto_alt",
         "vol_bucket": "medium_liquidity",
-        "candle_count": 110,
+        "candle_count": 2016,
         "data_source": {
           "pair": "LINK-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 110,
-          "notes": [
-            "public=0 local=110"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "DOGE-USD",
         "market": "crypto_alt",
         "vol_bucket": "high_beta",
-        "candle_count": 102,
+        "candle_count": 2016,
         "data_source": {
           "pair": "DOGE-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 102,
-          "notes": [
-            "public=0 local=102"
-          ]
-        }
-      },
-      {
-        "pair": "AVAX-USD",
-        "market": "crypto_alt",
-        "vol_bucket": "medium_liquidity",
-        "candle_count": 100,
-        "data_source": {
-          "pair": "AVAX-USD",
-          "granularity_seconds": 300,
-          "hours": 168,
-          "source": "local_fallback",
-          "candles": 100,
-          "notes": [
-            "public=0 local=100"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "XRP-USD",
         "market": "crypto_alt",
         "vol_bucket": "high_beta",
-        "candle_count": 91,
+        "candle_count": 2016,
         "data_source": {
           "pair": "XRP-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 91,
-          "notes": [
-            "public=0 local=91"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "ADA-USD",
         "market": "crypto_alt",
         "vol_bucket": "medium_liquidity",
-        "candle_count": 91,
+        "candle_count": 2016,
         "data_source": {
           "pair": "ADA-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 91,
-          "notes": [
-            "public=0 local=91"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "LTC-USD",
         "market": "crypto_alt",
         "vol_bucket": "medium_liquidity",
-        "candle_count": 91,
+        "candle_count": 2016,
         "data_source": {
           "pair": "LTC-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 91,
-          "notes": [
-            "public=0 local=91"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "BCH-USD",
         "market": "crypto_alt",
         "vol_bucket": "medium_liquidity",
-        "candle_count": 91,
+        "candle_count": 2016,
         "data_source": {
           "pair": "BCH-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 91,
-          "notes": [
-            "public=0 local=91"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
+        }
+      },
+      {
+        "pair": "AVAX-USD",
+        "market": "crypto_alt",
+        "vol_bucket": "medium_liquidity",
+        "candle_count": 2010,
+        "data_source": {
+          "pair": "AVAX-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "coinbase_public",
+          "candles": 2010,
+          "notes": []
         }
       }
     ],
@@ -289,160 +269,140 @@
         "pair": "BTC-USD",
         "market": "crypto_major",
         "vol_bucket": "high_liquidity",
-        "candle_count": 243,
+        "candle_count": 2016,
         "data_source": {
           "pair": "BTC-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 243,
-          "notes": [
-            "public=0 local=243"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "ETH-USD",
         "market": "crypto_major",
         "vol_bucket": "high_liquidity",
-        "candle_count": 197,
+        "candle_count": 2016,
         "data_source": {
           "pair": "ETH-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 197,
-          "notes": [
-            "public=0 local=197"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "SOL-USD",
         "market": "crypto_major",
         "vol_bucket": "high_liquidity",
-        "candle_count": 197,
+        "candle_count": 2016,
         "data_source": {
           "pair": "SOL-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 197,
-          "notes": [
-            "public=0 local=197"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "LINK-USD",
         "market": "crypto_alt",
         "vol_bucket": "medium_liquidity",
-        "candle_count": 110,
+        "candle_count": 2016,
         "data_source": {
           "pair": "LINK-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 110,
-          "notes": [
-            "public=0 local=110"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "DOGE-USD",
         "market": "crypto_alt",
         "vol_bucket": "high_beta",
-        "candle_count": 102,
+        "candle_count": 2016,
         "data_source": {
           "pair": "DOGE-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 102,
-          "notes": [
-            "public=0 local=102"
-          ]
-        }
-      },
-      {
-        "pair": "AVAX-USD",
-        "market": "crypto_alt",
-        "vol_bucket": "medium_liquidity",
-        "candle_count": 100,
-        "data_source": {
-          "pair": "AVAX-USD",
-          "granularity_seconds": 300,
-          "hours": 168,
-          "source": "local_fallback",
-          "candles": 100,
-          "notes": [
-            "public=0 local=100"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "XRP-USD",
         "market": "crypto_alt",
         "vol_bucket": "high_beta",
-        "candle_count": 91,
+        "candle_count": 2016,
         "data_source": {
           "pair": "XRP-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 91,
-          "notes": [
-            "public=0 local=91"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "ADA-USD",
         "market": "crypto_alt",
         "vol_bucket": "medium_liquidity",
-        "candle_count": 91,
+        "candle_count": 2016,
         "data_source": {
           "pair": "ADA-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 91,
-          "notes": [
-            "public=0 local=91"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "LTC-USD",
         "market": "crypto_alt",
         "vol_bucket": "medium_liquidity",
-        "candle_count": 91,
+        "candle_count": 2016,
         "data_source": {
           "pair": "LTC-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 91,
-          "notes": [
-            "public=0 local=91"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
         }
       },
       {
         "pair": "BCH-USD",
         "market": "crypto_alt",
         "vol_bucket": "medium_liquidity",
-        "candle_count": 91,
+        "candle_count": 2016,
         "data_source": {
           "pair": "BCH-USD",
           "granularity_seconds": 300,
           "hours": 168,
-          "source": "local_fallback",
-          "candles": 91,
-          "notes": [
-            "public=0 local=91"
-          ]
+          "source": "coinbase_public",
+          "candles": 2016,
+          "notes": []
+        }
+      },
+      {
+        "pair": "AVAX-USD",
+        "market": "crypto_alt",
+        "vol_bucket": "medium_liquidity",
+        "candle_count": 2010,
+        "data_source": {
+          "pair": "AVAX-USD",
+          "granularity_seconds": 300,
+          "hours": 168,
+          "source": "coinbase_public",
+          "candles": 2010,
+          "notes": []
         }
       }
     ]
@@ -543,9 +503,9 @@
         "window": 16,
         "num_std": 2.4
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -560,9 +520,9 @@
         "window": 20,
         "num_std": 1.6
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -577,7 +537,7 @@
         "window": 20,
         "num_std": 2.0
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -594,7 +554,7 @@
         "window": 20,
         "num_std": 2.4
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -611,7 +571,7 @@
         "window": 24,
         "num_std": 1.6
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -713,9 +673,9 @@
         "window": 8,
         "num_std": 1.024
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -730,9 +690,9 @@
         "window": 8,
         "num_std": 1.38
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -747,7 +707,7 @@
         "window": 13,
         "num_std": 1.776
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -764,7 +724,7 @@
         "window": 15,
         "num_std": 1.264
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -781,7 +741,7 @@
         "window": 22,
         "num_std": 1.68
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -883,9 +843,9 @@
         "window": 55,
         "num_std": 2.28
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -900,9 +860,9 @@
         "window": 62,
         "num_std": 2.856
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -917,7 +877,7 @@
         "window": 64,
         "num_std": 1.984
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -934,7 +894,7 @@
         "window": 71,
         "num_std": 2.58
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -951,7 +911,7 @@
         "window": 78,
         "num_std": 3.216
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -1053,9 +1013,9 @@
         "window": 42,
         "num_std": 2.544
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -1070,9 +1030,9 @@
         "window": 44,
         "num_std": 1.776
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -1087,7 +1047,7 @@
         "window": 51,
         "num_std": 2.32
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -1104,7 +1064,7 @@
         "window": 58,
         "num_std": 2.904
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -1121,7 +1081,7 @@
         "window": 61,
         "num_std": 2.016
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -1223,9 +1183,9 @@
         "window": 25,
         "num_std": 1.568
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -1240,9 +1200,9 @@
         "window": 32,
         "num_std": 2.06
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -1257,7 +1217,7 @@
         "window": 39,
         "num_std": 2.592
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -1274,7 +1234,7 @@
         "window": 41,
         "num_std": 1.808
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -1291,7 +1251,7 @@
         "window": 48,
         "num_std": 2.36
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -1393,9 +1353,9 @@
         "window": 81,
         "num_std": 2.96
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -1410,9 +1370,9 @@
         "window": 8,
         "num_std": 3.672
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -1427,7 +1387,7 @@
         "window": 90,
         "num_std": 2.528
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -1444,7 +1404,7 @@
         "window": 8,
         "num_std": 0.84
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -1461,7 +1421,7 @@
         "window": 8,
         "num_std": 1.128
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -1563,9 +1523,9 @@
         "window": 8,
         "num_std": 3.36
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -1580,9 +1540,9 @@
         "window": 70,
         "num_std": 2.32
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -1597,7 +1557,7 @@
         "window": 8,
         "num_std": 3.72
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -1614,7 +1574,7 @@
         "window": 8,
         "num_std": 2.56
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -1631,7 +1591,7 @@
         "window": 8,
         "num_std": 0.88
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -1733,9 +1693,9 @@
         "window": 8,
         "num_std": 2.74
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -1750,9 +1710,9 @@
         "window": 8,
         "num_std": 3.408
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -1767,7 +1727,7 @@
         "window": 8,
         "num_std": 2.352
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -1784,7 +1744,7 @@
         "window": 8,
         "num_std": 3.04
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -1801,7 +1761,7 @@
         "window": 8,
         "num_std": 3.768
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -1903,9 +1863,9 @@
         "window": 8,
         "num_std": 1.584
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -1920,9 +1880,9 @@
         "window": 8,
         "num_std": 1.136
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -1937,7 +1897,7 @@
         "window": 8,
         "num_std": 1.52
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -1954,7 +1914,7 @@
         "window": 8,
         "num_std": 1.944
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -1971,7 +1931,7 @@
         "window": 8,
         "num_std": 2.384
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -2073,9 +2033,9 @@
         "window": 8,
         "num_std": 1.26
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -2090,9 +2050,9 @@
         "window": 9,
         "num_std": 1.632
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -2107,7 +2067,7 @@
         "window": 8,
         "num_std": 1.168
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -2124,7 +2084,7 @@
         "window": 8,
         "num_std": 1.56
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -2141,7 +2101,7 @@
         "window": 10,
         "num_std": 1.992
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -2243,9 +2203,9 @@
         "window": 10,
         "num_std": 0.96
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -2260,9 +2220,9 @@
         "window": 17,
         "num_std": 1.3
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -2277,7 +2237,7 @@
         "window": 24,
         "num_std": 1.68
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -2294,7 +2254,7 @@
         "window": 8,
         "num_std": 1.2
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -2311,7 +2271,7 @@
         "window": 15,
         "num_std": 1.6
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -2413,9 +2373,9 @@
         "window": 14,
         "num_std": 2.2
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -2430,9 +2390,9 @@
         "window": 21,
         "num_std": 2.76
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -2447,7 +2407,7 @@
         "window": 25,
         "num_std": 0.992
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -2464,7 +2424,7 @@
         "window": 32,
         "num_std": 1.34
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -2481,7 +2441,7 @@
         "window": 39,
         "num_std": 1.728
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -2583,9 +2543,9 @@
         "window": 35,
         "num_std": 2.448
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -2600,9 +2560,9 @@
         "window": 22,
         "num_std": 1.712
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -2617,7 +2577,7 @@
         "window": 29,
         "num_std": 2.24
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -2634,7 +2594,7 @@
         "window": 36,
         "num_std": 2.808
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -2651,7 +2611,7 @@
         "window": 20,
         "num_std": 1.952
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -2753,9 +2713,9 @@
         "window": 43,
         "num_std": 1.98
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -2770,9 +2730,9 @@
         "window": 50,
         "num_std": 2.496
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -2787,7 +2747,7 @@
         "window": 34,
         "num_std": 1.744
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -2804,7 +2764,7 @@
         "window": 41,
         "num_std": 2.28
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -2821,7 +2781,7 @@
         "window": 48,
         "num_std": 2.856
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -2923,9 +2883,9 @@
         "window": 47,
         "num_std": 3.576
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -2940,9 +2900,9 @@
         "window": 8,
         "num_std": 2.02
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -2957,7 +2917,7 @@
         "window": 8,
         "num_std": 2.544
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -2974,7 +2934,7 @@
         "window": 49,
         "num_std": 1.776
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -2991,7 +2951,7 @@
         "window": 56,
         "num_std": 2.32
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -3093,9 +3053,9 @@
         "window": 55,
         "num_std": 2.92
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -3110,9 +3070,9 @@
         "window": 62,
         "num_std": 3.624
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -3127,7 +3087,7 @@
         "window": 46,
         "num_std": 2.496
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -3144,7 +3104,7 @@
         "window": 53,
         "num_std": 0.8
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -3161,7 +3121,7 @@
         "window": 60,
         "num_std": 1.08
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -3263,9 +3223,9 @@
         "window": 60,
         "num_std": 2.288
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -3280,9 +3240,9 @@
         "window": 67,
         "num_std": 2.96
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -3297,7 +3257,7 @@
         "window": 61,
         "num_std": 2.528
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -3314,7 +3274,7 @@
         "window": 68,
         "num_std": 0.84
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -3331,7 +3291,7 @@
         "window": 75,
         "num_std": 1.128
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -3433,9 +3393,9 @@
         "window": 26,
         "num_std": 3.36
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -3450,9 +3410,9 @@
         "window": 8,
         "num_std": 2.32
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -3467,7 +3427,7 @@
         "window": 74,
         "num_std": 0.864
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -3484,7 +3444,7 @@
         "window": 81,
         "num_std": 1.18
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -3501,7 +3461,7 @@
         "window": 72,
         "num_std": 1.104
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -3603,9 +3563,9 @@
         "window": 12,
         "num_std": 0.92
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -3620,9 +3580,9 @@
         "window": 19,
         "num_std": 1.224
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -3637,7 +3597,7 @@
         "window": 85,
         "num_std": 1.376
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -3654,7 +3614,7 @@
         "window": 92,
         "num_std": 1.82
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -3671,7 +3631,7 @@
         "window": 8,
         "num_std": 2.304
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -3773,9 +3733,9 @@
         "window": 12,
         "num_std": 1.992
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -3790,9 +3750,9 @@
         "window": 8,
         "num_std": 1.648
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -3807,7 +3767,7 @@
         "window": 8,
         "num_std": 2.16
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -3824,7 +3784,7 @@
         "window": 8,
         "num_std": 2.712
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -3841,7 +3801,7 @@
         "window": 8,
         "num_std": 1.3
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -3943,9 +3903,9 @@
         "window": 25,
         "num_std": 2.4
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -3960,9 +3920,9 @@
         "window": 8,
         "num_std": 2.2
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -3977,7 +3937,7 @@
         "window": 10,
         "num_std": 2.76
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -3994,7 +3954,7 @@
         "window": 8,
         "num_std": 1.92
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -4011,7 +3971,7 @@
         "window": 8,
         "num_std": 2.5
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -4113,9 +4073,9 @@
         "window": 51,
         "num_std": 1.94
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -4130,9 +4090,9 @@
         "window": 8,
         "num_std": 2.448
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -4147,7 +4107,7 @@
         "window": 24,
         "num_std": 1.712
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -4164,7 +4124,7 @@
         "window": 31,
         "num_std": 2.24
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -4181,7 +4141,7 @@
         "window": 38,
         "num_std": 2.808
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -4283,9 +4243,9 @@
         "window": 8,
         "num_std": 3.528
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -4300,9 +4260,9 @@
         "window": 11,
         "num_std": 1.504
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -4317,7 +4277,7 @@
         "window": 19,
         "num_std": 1.98
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -4334,7 +4294,7 @@
         "window": 26,
         "num_std": 2.496
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -4351,7 +4311,7 @@
         "window": 57,
         "num_std": 1.744
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -4453,9 +4413,9 @@
         "window": 22,
         "num_std": 2.224
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -4470,9 +4430,9 @@
         "window": 29,
         "num_std": 2.88
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -4487,7 +4447,7 @@
         "window": 36,
         "num_std": 3.576
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -4504,7 +4464,7 @@
         "window": 8,
         "num_std": 2.464
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -4521,7 +4481,7 @@
         "window": 9,
         "num_std": 3.18
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -4623,9 +4583,9 @@
         "window": 8,
         "num_std": 2.62
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -4640,9 +4600,9 @@
         "window": 8,
         "num_std": 3.264
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -4657,7 +4617,7 @@
         "window": 50,
         "num_std": 2.256
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -4674,7 +4634,7 @@
         "window": 57,
         "num_std": 2.92
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -4691,7 +4651,7 @@
         "window": 64,
         "num_std": 3.624
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -4793,9 +4753,9 @@
         "window": 29,
         "num_std": 1.44
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -4810,9 +4770,9 @@
         "window": 38,
         "num_std": 2.048
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -4827,7 +4787,7 @@
         "window": 8,
         "num_std": 2.288
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -4844,7 +4804,7 @@
         "window": 8,
         "num_std": 2.96
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -4861,7 +4821,7 @@
         "window": 14,
         "num_std": 3.672
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -4963,9 +4923,9 @@
         "window": 27,
         "num_std": 1.072
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -4980,9 +4940,9 @@
         "window": 35,
         "num_std": 1.44
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -4997,7 +4957,7 @@
         "window": 42,
         "num_std": 1.848
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -5014,7 +4974,7 @@
         "window": 13,
         "num_std": 2.56
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -5031,7 +4991,7 @@
         "window": 20,
         "num_std": 0.88
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -5133,9 +5093,9 @@
         "window": 48,
         "num_std": 1.78
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -5150,9 +5110,9 @@
         "window": 55,
         "num_std": 2.256
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -5167,7 +5127,7 @@
         "window": 13,
         "num_std": 1.224
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -5184,7 +5144,7 @@
         "window": 26,
         "num_std": 0.896
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -5201,7 +5161,7 @@
         "window": 33,
         "num_std": 1.22
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -5303,9 +5263,9 @@
         "window": 68,
         "num_std": 2.664
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -5320,9 +5280,9 @@
         "window": 13,
         "num_std": 0.928
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -5337,7 +5297,7 @@
         "window": 19,
         "num_std": 1.26
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -5354,7 +5314,7 @@
         "window": 26,
         "num_std": 1.632
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -5371,7 +5331,7 @@
         "window": 39,
         "num_std": 1.168
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -5473,9 +5433,9 @@
         "window": 81,
         "num_std": 3.072
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -5490,9 +5450,9 @@
         "window": 25,
         "num_std": 1.2
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -5507,7 +5467,7 @@
         "window": 32,
         "num_std": 1.6
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -5524,7 +5484,7 @@
         "window": 39,
         "num_std": 2.04
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -5541,7 +5501,7 @@
         "window": 52,
         "num_std": 1.44
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -5643,9 +5603,9 @@
         "window": 87,
         "num_std": 2.8
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -5660,9 +5620,9 @@
         "window": 94,
         "num_std": 3.48
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -5677,7 +5637,7 @@
         "window": 38,
         "num_std": 1.472
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -5694,7 +5654,7 @@
         "window": 8,
         "num_std": 1.94
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -5711,7 +5671,7 @@
         "window": 8,
         "num_std": 1.712
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -5819,9 +5779,9 @@
         "long_window": 30,
         "volume_mult": 1.5
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -5837,9 +5797,9 @@
         "long_window": 15,
         "volume_mult": 1.2
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -5855,7 +5815,7 @@
         "long_window": 15,
         "volume_mult": 1.5
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -5873,7 +5833,7 @@
         "long_window": 20,
         "volume_mult": 1.2
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -5891,7 +5851,7 @@
         "long_window": 20,
         "volume_mult": 1.5
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -5999,9 +5959,9 @@
         "long_window": 20,
         "volume_mult": 1.5
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -6017,9 +5977,9 @@
         "long_window": 30,
         "volume_mult": 1.2
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -6035,7 +5995,7 @@
         "long_window": 30,
         "volume_mult": 1.5
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -6053,7 +6013,7 @@
         "long_window": 15,
         "volume_mult": 1.2
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -6071,7 +6031,7 @@
         "long_window": 15,
         "volume_mult": 1.5
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -6179,9 +6139,9 @@
         "long_window": 7,
         "volume_mult": 1.095
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -6197,9 +6157,9 @@
         "long_window": 9,
         "volume_mult": 1.0
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -6215,7 +6175,7 @@
         "long_window": 16,
         "volume_mult": 1.245
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -6233,7 +6193,7 @@
         "long_window": 10,
         "volume_mult": 1.056
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -6251,7 +6211,7 @@
         "long_window": 17,
         "volume_mult": 1.395
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -6359,9 +6319,9 @@
         "long_window": 59,
         "volume_mult": 1.845
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -6377,9 +6337,9 @@
         "long_window": 6,
         "volume_mult": 1.536
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -6395,7 +6355,7 @@
         "long_window": 12,
         "volume_mult": 1.995
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -6413,7 +6373,7 @@
         "long_window": 18,
         "volume_mult": 1.656
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -6431,7 +6391,7 @@
         "long_window": 25,
         "volume_mult": 2.145
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -6539,9 +6499,9 @@
         "long_window": 40,
         "volume_mult": 1.0
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -6557,9 +6517,9 @@
         "long_window": 13,
         "volume_mult": 1.02
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -6575,7 +6535,7 @@
         "long_window": 20,
         "volume_mult": 1.35
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -6593,7 +6553,7 @@
         "long_window": 21,
         "volume_mult": 1.14
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -6611,7 +6571,7 @@
         "long_window": 28,
         "volume_mult": 1.5
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -6719,9 +6679,9 @@
         "long_window": 70,
         "volume_mult": 1.95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -6737,9 +6697,9 @@
         "long_window": 65,
         "volume_mult": 1.62
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -6755,7 +6715,7 @@
         "long_window": 72,
         "volume_mult": 2.1
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -6773,7 +6733,7 @@
         "long_window": 18,
         "volume_mult": 1.74
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -6791,7 +6751,7 @@
         "long_window": 25,
         "volume_mult": 2.25
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -6899,9 +6859,9 @@
         "long_window": 7,
         "volume_mult": 1.0
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -6917,9 +6877,9 @@
         "long_window": 13,
         "volume_mult": 1.185
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -6935,7 +6895,7 @@
         "long_window": 26,
         "volume_mult": 1.224
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -6953,7 +6913,7 @@
         "long_window": 33,
         "volume_mult": 1.605
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -6971,7 +6931,7 @@
         "long_window": 34,
         "volume_mult": 1.344
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -7079,9 +7039,9 @@
         "oversold": 30,
         "overbought": 75
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -7097,9 +7057,9 @@
         "oversold": 35,
         "overbought": 65
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -7115,7 +7075,7 @@
         "oversold": 35,
         "overbought": 70
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -7133,7 +7093,7 @@
         "oversold": 35,
         "overbought": 75
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -7151,7 +7111,7 @@
         "oversold": 25,
         "overbought": 65
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -7259,9 +7219,9 @@
         "oversold": 35,
         "overbought": 65
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -7277,9 +7237,9 @@
         "oversold": 35,
         "overbought": 70
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -7295,7 +7255,7 @@
         "oversold": 35,
         "overbought": 75
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -7313,7 +7273,7 @@
         "oversold": 25,
         "overbought": 65
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -7331,7 +7291,7 @@
         "oversold": 25,
         "overbought": 70
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -7439,9 +7399,9 @@
         "oversold": 35,
         "overbought": 70
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -7457,9 +7417,9 @@
         "oversold": 35,
         "overbought": 75
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -7475,7 +7435,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -7493,7 +7453,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -7511,7 +7471,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -7619,9 +7579,9 @@
         "oversold": 29,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -7637,9 +7597,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -7655,7 +7615,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -7673,7 +7633,7 @@
         "oversold": 45,
         "overbought": 64
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -7691,7 +7651,7 @@
         "oversold": 45,
         "overbought": 76
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -7799,9 +7759,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -7817,9 +7777,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -7835,7 +7795,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -7853,7 +7813,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -7871,7 +7831,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -7979,9 +7939,9 @@
         "oversold": 13,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -7997,9 +7957,9 @@
         "oversold": 20,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -8015,7 +7975,7 @@
         "oversold": 27,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -8033,7 +7993,7 @@
         "oversold": 28,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -8051,7 +8011,7 @@
         "oversold": 34,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -8159,9 +8119,9 @@
         "oversold": 45,
         "overbought": 89
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -8177,9 +8137,9 @@
         "oversold": 45,
         "overbought": 86
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -8195,7 +8155,7 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -8213,7 +8173,7 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -8231,7 +8191,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -8339,9 +8299,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -8357,9 +8317,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -8375,7 +8335,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -8393,7 +8353,7 @@
         "oversold": 11,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -8411,7 +8371,7 @@
         "oversold": 18,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -8519,9 +8479,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -8537,9 +8497,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -8555,7 +8515,7 @@
         "oversold": 45,
         "overbought": 57
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -8573,7 +8533,7 @@
         "oversold": 45,
         "overbought": 69
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -8591,7 +8551,7 @@
         "oversold": 5,
         "overbought": 81
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -8699,9 +8659,9 @@
         "oversold": 28,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -8717,9 +8677,9 @@
         "oversold": 7,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -8735,7 +8695,7 @@
         "oversold": 14,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -8753,7 +8713,7 @@
         "oversold": 21,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -8771,7 +8731,7 @@
         "oversold": 7,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -8879,9 +8839,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -8897,9 +8857,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -8915,7 +8875,7 @@
         "oversold": 45,
         "overbought": 61
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -8933,7 +8893,7 @@
         "oversold": 45,
         "overbought": 73
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -8951,7 +8911,7 @@
         "oversold": 5,
         "overbought": 70
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -9059,9 +9019,9 @@
         "oversold": 34,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -9077,9 +9037,9 @@
         "oversold": 41,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -9095,7 +9055,7 @@
         "oversold": 20,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -9113,7 +9073,7 @@
         "oversold": 27,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -9131,7 +9091,7 @@
         "oversold": 34,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -9239,9 +9199,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -9257,9 +9217,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -9275,7 +9235,7 @@
         "oversold": 45,
         "overbought": 65
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -9293,7 +9253,7 @@
         "oversold": 45,
         "overbought": 62
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -9311,7 +9271,7 @@
         "oversold": 45,
         "overbought": 74
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -9419,9 +9379,9 @@
         "oversold": 40,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -9437,9 +9397,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -9455,7 +9415,7 @@
         "oversold": 33,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -9473,7 +9433,7 @@
         "oversold": 40,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -9491,7 +9451,7 @@
         "oversold": 40,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -9599,9 +9559,9 @@
         "oversold": 45,
         "overbought": 75
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -9617,9 +9577,9 @@
         "oversold": 45,
         "overbought": 87
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -9635,7 +9595,7 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -9653,7 +9613,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -9671,7 +9631,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -9779,9 +9739,9 @@
         "oversold": 45,
         "overbought": 70
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -9797,9 +9757,9 @@
         "oversold": 45,
         "overbought": 67
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -9815,7 +9775,7 @@
         "oversold": 45,
         "overbought": 79
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -9833,7 +9793,7 @@
         "oversold": 45,
         "overbought": 91
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -9851,7 +9811,7 @@
         "oversold": 45,
         "overbought": 88
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -9959,9 +9919,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -9977,9 +9937,9 @@
         "oversold": 10,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -9995,7 +9955,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -10013,7 +9973,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -10031,7 +9991,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -10139,9 +10099,9 @@
         "oversold": 45,
         "overbought": 80
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -10157,9 +10117,9 @@
         "oversold": 45,
         "overbought": 92
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -10175,7 +10135,7 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -10193,7 +10153,7 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -10211,7 +10171,7 @@
         "oversold": 16,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -10319,9 +10279,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -10337,9 +10297,9 @@
         "oversold": 9,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -10355,7 +10315,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -10373,7 +10333,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -10391,7 +10351,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -10499,9 +10459,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -10517,9 +10477,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -10535,7 +10495,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -10553,7 +10513,7 @@
         "oversold": 29,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -10571,7 +10531,7 @@
         "oversold": 36,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -10679,9 +10639,9 @@
         "oversold": 22,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -10697,9 +10657,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -10715,7 +10675,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -10733,7 +10693,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -10751,7 +10711,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -10859,9 +10819,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -10877,9 +10837,9 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -10895,7 +10855,7 @@
         "oversold": 42,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -10913,7 +10873,7 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -10931,7 +10891,7 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -11039,9 +10999,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -11057,9 +11017,9 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -11075,7 +11035,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -11093,7 +11053,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -11111,7 +11071,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -11219,9 +11179,9 @@
         "oversold": 41,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -11237,9 +11197,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -11255,7 +11215,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -11273,7 +11233,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -11291,7 +11251,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -11399,9 +11359,9 @@
         "oversold": 19,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -11417,9 +11377,9 @@
         "oversold": 12,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -11435,7 +11395,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -11453,7 +11413,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -11471,7 +11431,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -11579,9 +11539,9 @@
         "oversold": 5,
         "overbought": 62
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -11597,9 +11557,9 @@
         "oversold": 18,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -11615,7 +11575,7 @@
         "oversold": 26,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -11633,7 +11593,7 @@
         "oversold": 32,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -11651,7 +11611,7 @@
         "oversold": 11,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -11759,9 +11719,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -11777,9 +11737,9 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -11795,7 +11755,7 @@
         "oversold": 21,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -11813,7 +11773,7 @@
         "oversold": 28,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -11831,7 +11791,7 @@
         "oversold": 35,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -11939,9 +11899,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -11957,9 +11917,9 @@
         "oversold": 24,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -11975,7 +11935,7 @@
         "oversold": 31,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -11993,7 +11953,7 @@
         "oversold": 38,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -12011,7 +11971,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -12119,9 +12079,9 @@
         "oversold": 12,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -12137,9 +12097,9 @@
         "oversold": 19,
         "overbought": 67
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -12155,7 +12115,7 @@
         "oversold": 5,
         "overbought": 64
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -12173,7 +12133,7 @@
         "oversold": 5,
         "overbought": 76
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -12191,7 +12151,7 @@
         "oversold": 5,
         "overbought": 88
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -12299,9 +12259,9 @@
         "oversold": 30,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -12317,9 +12277,9 @@
         "oversold": 44,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -12335,7 +12295,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -12353,7 +12313,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -12371,7 +12331,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -12479,9 +12439,9 @@
         "oversold": 5,
         "overbought": 89
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -12497,9 +12457,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -12515,7 +12475,7 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -12533,7 +12493,7 @@
         "oversold": 43,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -12551,7 +12511,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -12659,9 +12619,9 @@
         "oversold": 38,
         "overbought": 81
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -12677,9 +12637,9 @@
         "oversold": 45,
         "overbought": 93
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -12695,7 +12655,7 @@
         "oversold": 5,
         "overbought": 90
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -12713,7 +12673,7 @@
         "oversold": 9,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -12731,7 +12691,7 @@
         "oversold": 16,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -12839,9 +12799,9 @@
         "oversold": 45,
         "overbought": 61
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -12857,9 +12817,9 @@
         "oversold": 45,
         "overbought": 73
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -12875,7 +12835,7 @@
         "oversold": 5,
         "overbought": 85
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -12893,7 +12853,7 @@
         "oversold": 44,
         "overbought": 82
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -12911,7 +12871,7 @@
         "oversold": 45,
         "overbought": 94
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -13019,9 +12979,9 @@
         "oversold": 23,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -13037,9 +12997,9 @@
         "oversold": 8,
         "overbought": 56
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -13055,7 +13015,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -13073,7 +13033,7 @@
         "oversold": 5,
         "overbought": 65
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -13091,7 +13051,7 @@
         "oversold": 5,
         "overbought": 77
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -13199,9 +13159,9 @@
         "oversold": 28,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -13217,9 +13177,9 @@
         "oversold": 34,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -13235,7 +13195,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -13253,7 +13213,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -13271,7 +13231,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -13379,9 +13339,9 @@
         "oversold": 5,
         "overbought": 66
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -13397,9 +13357,9 @@
         "oversold": 5,
         "overbought": 78
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -13415,7 +13375,7 @@
         "oversold": 5,
         "overbought": 90
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -13433,7 +13393,7 @@
         "oversold": 5,
         "overbought": 87
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -13451,7 +13411,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -13559,9 +13519,9 @@
         "oversold": 45,
         "overbought": 61
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -13577,9 +13537,9 @@
         "oversold": 20,
         "overbought": 58
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -13595,7 +13555,7 @@
         "oversold": 27,
         "overbought": 69
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -13613,7 +13573,7 @@
         "oversold": 34,
         "overbought": 82
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -13631,7 +13591,7 @@
         "oversold": 5,
         "overbought": 79
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -13739,9 +13699,9 @@
         "oversold": 13,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -13757,9 +13717,9 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -13775,7 +13735,7 @@
         "oversold": 45,
         "overbought": 62
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -13793,7 +13753,7 @@
         "oversold": 45,
         "overbought": 74
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -13811,7 +13771,7 @@
         "oversold": 33,
         "overbought": 71
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -13919,9 +13879,9 @@
         "oversold": 9,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -13937,9 +13897,9 @@
         "oversold": 16,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -13955,7 +13915,7 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -13973,7 +13933,7 @@
         "oversold": 19,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -13991,7 +13951,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -14099,9 +14059,9 @@
         "oversold": 17,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -14117,9 +14077,9 @@
         "oversold": 24,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -14135,7 +14095,7 @@
         "oversold": 31,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -14153,7 +14113,7 @@
         "oversold": 15,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -14171,7 +14131,7 @@
         "oversold": 29,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -14279,9 +14239,9 @@
         "oversold": 10,
         "overbought": 58
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -14297,9 +14257,9 @@
         "oversold": 5,
         "overbought": 67
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -14315,7 +14275,7 @@
         "oversold": 5,
         "overbought": 76
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -14333,7 +14293,7 @@
         "oversold": 5,
         "overbought": 88
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -14351,7 +14311,7 @@
         "oversold": 30,
         "overbought": 95
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -14459,9 +14419,9 @@
         "oversold": 9,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -14477,9 +14437,9 @@
         "oversold": 16,
         "overbought": 59
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -14495,7 +14455,7 @@
         "oversold": 23,
         "overbought": 71
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -14513,7 +14473,7 @@
         "oversold": 5,
         "overbought": 68
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -14531,7 +14491,7 @@
         "oversold": 5,
         "overbought": 80
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -14639,9 +14599,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -14657,9 +14617,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -14675,7 +14635,7 @@
         "oversold": 5,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -14693,7 +14653,7 @@
         "oversold": 45,
         "overbought": 63
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -14711,7 +14671,7 @@
         "oversold": 22,
         "overbought": 60
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -14819,9 +14779,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -14837,9 +14797,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -14855,7 +14815,7 @@
         "oversold": 10,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -14873,7 +14833,7 @@
         "oversold": 17,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -14891,7 +14851,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -14999,9 +14959,9 @@
         "oversold": 13,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -15017,9 +14977,9 @@
         "oversold": 11,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -15035,7 +14995,7 @@
         "oversold": 18,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -15053,7 +15013,7 @@
         "oversold": 16,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -15071,7 +15031,7 @@
         "oversold": 23,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -15179,9 +15139,9 @@
         "oversold": 17,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -15197,9 +15157,9 @@
         "oversold": 24,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -15215,7 +15175,7 @@
         "oversold": 31,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -15233,7 +15193,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -15251,7 +15211,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -15359,9 +15319,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -15377,9 +15337,9 @@
         "oversold": 39,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -15395,7 +15355,7 @@
         "oversold": 30,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -15413,7 +15373,7 @@
         "oversold": 37,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -15431,7 +15391,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -15539,9 +15499,9 @@
         "oversold": 43,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -15557,9 +15517,9 @@
         "oversold": 6,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -15575,7 +15535,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -15593,7 +15553,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -15611,7 +15571,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -15719,9 +15679,9 @@
         "oversold": 19,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -15737,9 +15697,9 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -15755,7 +15715,7 @@
         "oversold": 10,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -15773,7 +15733,7 @@
         "oversold": 17,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -15791,7 +15751,7 @@
         "oversold": 24,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -15899,9 +15859,9 @@
         "oversold": 18,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -15917,9 +15877,9 @@
         "oversold": 25,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -15935,7 +15895,7 @@
         "oversold": 32,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -15953,7 +15913,7 @@
         "oversold": 9,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -15971,7 +15931,7 @@
         "oversold": 16,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -16079,9 +16039,9 @@
         "oversold": 26,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -16097,9 +16057,9 @@
         "oversold": 33,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -16115,7 +16075,7 @@
         "oversold": 31,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -16133,7 +16093,7 @@
         "oversold": 45,
         "overbought": 60
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -16151,7 +16111,7 @@
         "oversold": 5,
         "overbought": 60
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -16259,9 +16219,9 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -16277,9 +16237,9 @@
         "oversold": 7,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -16295,7 +16255,7 @@
         "oversold": 42,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -16313,7 +16273,7 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -16331,7 +16291,7 @@
         "oversold": 5,
         "overbought": 61
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -16439,9 +16399,9 @@
         "oversold": 6,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -16457,9 +16417,9 @@
         "oversold": 13,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -16475,7 +16435,7 @@
         "oversold": 20,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -16493,7 +16453,7 @@
         "oversold": 45,
         "overbought": 65
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -16511,7 +16471,7 @@
         "oversold": 5,
         "overbought": 62
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -16619,9 +16579,9 @@
         "oversold": 21,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -16637,9 +16597,9 @@
         "oversold": 5,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -16655,7 +16615,7 @@
         "oversold": 19,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -16673,7 +16633,7 @@
         "oversold": 26,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -16691,7 +16651,7 @@
         "oversold": 33,
         "overbought": 57
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -16799,9 +16759,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -16817,9 +16777,9 @@
         "oversold": 20,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -16835,7 +16795,7 @@
         "oversold": 27,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -16853,7 +16813,7 @@
         "oversold": 34,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -16871,7 +16831,7 @@
         "oversold": 18,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -16979,9 +16939,9 @@
         "oversold": 45,
         "overbought": 79
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -16997,9 +16957,9 @@
         "oversold": 5,
         "overbought": 91
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -17015,7 +16975,7 @@
         "oversold": 5,
         "overbought": 88
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -17033,7 +16993,7 @@
         "oversold": 8,
         "overbought": 95
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -17051,7 +17011,7 @@
         "oversold": 33,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -17159,9 +17119,9 @@
         "oversold": 5,
         "overbought": 80
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -17177,9 +17137,9 @@
         "oversold": 5,
         "overbought": 92
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -17195,7 +17155,7 @@
         "oversold": 21,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -17213,7 +17173,7 @@
         "oversold": 9,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -17231,7 +17191,7 @@
         "oversold": 37,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -17339,9 +17299,9 @@
         "oversold": 22,
         "overbought": 55
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -17357,9 +17317,9 @@
         "oversold": 5,
         "overbought": 64
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "sin",
       "region_rationale": "Asia night session",
       "run_tag": "batch_20260213_033001",
@@ -17375,7 +17335,7 @@
         "oversold": 45,
         "overbought": 85
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -17393,7 +17353,7 @@
         "oversold": 7,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -17411,7 +17371,7 @@
         "oversold": 14,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -17519,9 +17479,9 @@
         "oversold": 45,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -17537,9 +17497,9 @@
         "oversold": 13,
         "overbought": 55
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
       "region_rationale": "US-East / Coinbase core",
       "run_tag": "batch_20260213_033001",
@@ -17555,7 +17515,7 @@
         "oversold": 20,
         "overbought": 55
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -17573,7 +17533,7 @@
         "oversold": 27,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -17591,7 +17551,7 @@
         "oversold": 41,
         "overbought": 60
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -17699,9 +17659,9 @@
         "oversold": 17,
         "overbought": 95
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -17717,9 +17677,9 @@
         "oversold": 23,
         "overbought": 95
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "fra",
       "region_rationale": "EU low-latency routing",
       "run_tag": "batch_20260213_033001",
@@ -17735,7 +17695,7 @@
         "oversold": 30,
         "overbought": 95
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -17753,7 +17713,7 @@
         "oversold": 7,
         "overbought": 55
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",
@@ -17771,7 +17731,7 @@
         "oversold": 26,
         "overbought": 55
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "bom",
@@ -17879,9 +17839,9 @@
         "bb_window": 16,
         "bb_std": 2.0
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "nrt",
       "region_rationale": "Japan open overlap",
       "run_tag": "batch_20260213_033001",
@@ -17897,9 +17857,9 @@
         "bb_window": 16,
         "bb_std": 2.2
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "bom",
       "region_rationale": "India / MENA overlap",
       "run_tag": "batch_20260213_033001",
@@ -17915,7 +17875,7 @@
         "bb_window": 20,
         "bb_std": 1.8
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ewr",
@@ -17933,7 +17893,7 @@
         "bb_window": 20,
         "bb_std": 2.0
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "ord",
@@ -17951,7 +17911,7 @@
         "bb_window": 20,
         "bb_std": 2.2
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
@@ -18059,9 +18019,9 @@
         "bb_window": 16,
         "bb_std": 2.2
       },
-      "pair": "AVAX-USD",
+      "pair": "XRP-USD",
       "market": "crypto_alt",
-      "vol_bucket": "medium_liquidity",
+      "vol_bucket": "high_beta",
       "target_region": "ord",
       "region_rationale": "CME / derivatives proximity",
       "run_tag": "batch_20260213_033001",
@@ -18077,9 +18037,9 @@
         "bb_window": 20,
         "bb_std": 1.8
       },
-      "pair": "XRP-USD",
+      "pair": "ADA-USD",
       "market": "crypto_alt",
-      "vol_bucket": "high_beta",
+      "vol_bucket": "medium_liquidity",
       "target_region": "lhr",
       "region_rationale": "EU liquidity overlap",
       "run_tag": "batch_20260213_033001",
@@ -18095,7 +18055,7 @@
         "bb_window": 20,
         "bb_std": 2.0
       },
-      "pair": "ADA-USD",
+      "pair": "LTC-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "fra",
@@ -18113,7 +18073,7 @@
         "bb_window": 20,
         "bb_std": 2.2
       },
-      "pair": "LTC-USD",
+      "pair": "BCH-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "sin",
@@ -18131,7 +18091,7 @@
         "bb_window": 24,
         "bb_std": 1.8
       },
-      "pair": "BCH-USD",
+      "pair": "AVAX-USD",
       "market": "crypto_alt",
       "vol_bucket": "medium_liquidity",
       "target_region": "nrt",

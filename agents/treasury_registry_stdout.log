@@ -1151,3 +1151,33 @@
 2026-02-14 14:59:25,468 [treasury_registry] INFO cycle=6 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=235.14
 2026-02-14 15:04:25,499 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
 2026-02-14 15:04:26,355 [treasury_registry] INFO cycle=7 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=235.21
+2026-02-14 15:09:26,465 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:09:27,304 [treasury_registry] INFO cycle=8 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=234.44
+2026-02-14 15:14:27,502 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:14:28,230 [treasury_registry] INFO cycle=9 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=234.16
+2026-02-14 15:19:28,330 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:19:29,125 [treasury_registry] INFO cycle=10 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=234.11
+2026-02-14 15:24:29,200 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:24:30,090 [treasury_registry] INFO cycle=11 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=234.09
+2026-02-14 15:29:30,156 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:29:30,943 [treasury_registry] INFO cycle=12 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=234.10
+2026-02-14 15:34:31,079 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:34:31,881 [treasury_registry] INFO cycle=13 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.90
+2026-02-14 15:39:32,228 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:39:33,030 [treasury_registry] INFO cycle=14 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.86
+2026-02-14 15:44:33,832 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:44:34,620 [treasury_registry] INFO cycle=15 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.92
+2026-02-14 15:49:35,772 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:49:36,522 [treasury_registry] INFO cycle=16 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.92
+2026-02-14 15:54:37,569 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:54:38,279 [treasury_registry] INFO cycle=17 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.95
+2026-02-14 15:59:39,480 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:59:40,157 [treasury_registry] INFO cycle=18 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.96
+2026-02-14 16:08:39,349 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:08:39,995 [treasury_registry] INFO cycle=19 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.94
+2026-02-14 16:13:40,196 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:13:40,978 [treasury_registry] INFO cycle=20 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.94
+2026-02-14 16:18:41,675 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:18:42,998 [treasury_registry] INFO cycle=21 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.87
+2026-02-14 16:23:44,656 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:23:46,399 [treasury_registry] INFO cycle=22 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=233.83

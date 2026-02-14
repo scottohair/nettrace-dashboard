@@ -4133,3 +4133,52 @@
 2026-02-14 15:04:45,947 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
 2026-02-14 15:05:51,458 [ORCH] INFO Wallet: $1.40 across 4 chains
 2026-02-14 15:05:51,460 [ORCH] INFO Portfolio: $236.56 | Cash: $202.50 | Held: $15.12 | Bridge: $0.00 | Day P&L: $-0.90 | DD: 26.7% | Agents: 29
+2026-02-14 15:07:32,119 [ORCH] WARNING Agent 'sniper' exited with code -15
+2026-02-14 15:07:32,121 [ORCH] INFO Restarting agent 'sniper'...
+2026-02-14 15:07:32,176 [ORCH] INFO Started agent 'sniper' (PID 35167): High-confidence stacked-signal sniper (90%+ conf)
+2026-02-14 15:10:04,181 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:11:09,793 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:11:09,795 [ORCH] INFO Portfolio: $235.67 | Cash: $161.68 | Held: $71.69 | Bridge: $0.00 | Day P&L: $-1.79 | DD: 27.0% | Agents: 29
+2026-02-14 15:15:12,099 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:16:16,452 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:16:16,453 [ORCH] INFO Portfolio: $235.58 | Cash: $185.15 | Held: $48.13 | Bridge: $0.00 | Day P&L: $-1.88 | DD: 27.0% | Agents: 29
+2026-02-14 15:20:18,944 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:21:23,957 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:21:23,959 [ORCH] INFO Portfolio: $235.46 | Cash: $195.32 | Held: $37.84 | Bridge: $0.00 | Day P&L: $-2.00 | DD: 27.0% | Agents: 29
+2026-02-14 15:23:35,639 [ORCH] WARNING Terminated stray PID 40352 (single_root:mcp_opportunity)
+2026-02-14 15:25:36,511 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:26:41,407 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:26:41,409 [ORCH] INFO Portfolio: $235.50 | Cash: $195.32 | Held: $37.88 | Bridge: $0.00 | Day P&L: $-1.96 | DD: 27.0% | Agents: 29
+2026-02-14 15:30:47,624 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:31:51,549 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:31:51,550 [ORCH] INFO Portfolio: $235.35 | Cash: $167.79 | Held: $19.41 | Bridge: $0.00 | Day P&L: $-2.11 | DD: 27.1% | Agents: 29
+2026-02-14 15:35:54,096 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:36:58,717 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:36:58,718 [ORCH] INFO Portfolio: $235.26 | Cash: $171.06 | Held: $15.98 | Bridge: $0.00 | Day P&L: $-2.20 | DD: 27.1% | Agents: 29
+2026-02-14 15:41:01,157 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:42:06,048 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:42:06,049 [ORCH] INFO Portfolio: $235.30 | Cash: $181.11 | Held: $5.89 | Bridge: $0.00 | Day P&L: $-2.16 | DD: 27.1% | Agents: 29
+2026-02-14 15:46:10,212 [ORCH] WARNING Integration guard BLOCKED: ['trading_lock_allows_rollout']
+2026-02-14 15:47:14,099 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:47:14,102 [ORCH] INFO Portfolio: $235.33 | Cash: $181.11 | Held: $5.89 | Bridge: $0.00 | Day P&L: $-2.13 | DD: 27.1% | Agents: 29
+2026-02-14 15:51:22,088 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:52:28,391 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:52:28,392 [ORCH] INFO Portfolio: $235.32 | Cash: $181.11 | Held: $5.89 | Bridge: $0.00 | Day P&L: $-2.14 | DD: 27.1% | Agents: 29
+2026-02-14 15:56:39,746 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 15:57:43,159 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 15:57:43,160 [ORCH] INFO Portfolio: $235.35 | Cash: $181.11 | Held: $5.89 | Bridge: $0.00 | Day P&L: $-2.11 | DD: 27.1% | Agents: 29
+2026-02-14 16:01:50,508 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 16:02:54,627 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 16:02:54,629 [ORCH] INFO Portfolio: $235.33 | Cash: $196.93 | Held: $5.89 | Bridge: $0.00 | Day P&L: $-2.13 | DD: 27.1% | Agents: 29
+2026-02-14 16:07:33,059 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 16:08:43,477 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 16:08:43,478 [ORCH] INFO Portfolio: $235.35 | Cash: $202.40 | Held: $5.89 | Bridge: $0.00 | Day P&L: $-2.11 | DD: 27.1% | Agents: 29
+2026-02-14 16:12:52,454 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 16:14:05,131 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 16:14:05,136 [ORCH] INFO Portfolio: $235.34 | Cash: $202.40 | Held: $17.85 | Bridge: $0.00 | Day P&L: $-2.12 | DD: 27.1% | Agents: 29
+2026-02-14 16:18:22,795 [ORCH] WARNING Integration guard BLOCKED: ['trading_lock_allows_rollout']
+2026-02-14 16:19:35,558 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 16:19:35,562 [ORCH] INFO Portfolio: $235.25 | Cash: $214.30 | Held: $5.88 | Bridge: $0.00 | Day P&L: $-2.21 | DD: 27.1% | Agents: 29
+2026-02-14 16:23:52,591 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 16:25:07,179 [ORCH] INFO Wallet: $1.40 across 4 chains
+2026-02-14 16:25:07,187 [ORCH] INFO Portfolio: $235.20 | Cash: $214.30 | Held: $5.88 | Bridge: $0.00 | Day P&L: $-2.26 | DD: 27.1% | Agents: 29

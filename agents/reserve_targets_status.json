@@ -1,62 +1,62 @@
 {
-  "updated_at": "2026-02-14T19:55:05.123921+00:00",
-  "portfolio_total_usd": 235.16,
+  "updated_at": "2026-02-14T21:22:23.208093+00:00",
+  "portfolio_total_usd": 233.85,
   "targets": [
     {
       "asset": "USDC",
       "target_pct": 35.0,
-      "target_usd": 82.31,
-      "actual_usd": 129.77,
-      "gap_usd": -47.46
+      "target_usd": 81.85,
+      "actual_usd": 135.67,
+      "gap_usd": -53.82
     },
     {
       "asset": "BTC",
       "target_pct": 20.0,
-      "target_usd": 47.03,
+      "target_usd": 46.77,
       "actual_usd": 0.0,
-      "gap_usd": 47.03
-    },
-    {
-      "asset": "ETH",
-      "target_pct": 12.0,
-      "target_usd": 28.22,
-      "actual_usd": 7.88,
-      "gap_usd": 20.34
+      "gap_usd": 46.77
     },
     {
       "asset": "USD",
       "target_pct": 25.0,
-      "target_usd": 58.79,
-      "actual_usd": 72.73,
-      "gap_usd": -13.94
+      "target_usd": 58.46,
+      "actual_usd": 78.63,
+      "gap_usd": -20.17
+    },
+    {
+      "asset": "ETH",
+      "target_pct": 12.0,
+      "target_usd": 28.06,
+      "actual_usd": 17.82,
+      "gap_usd": 10.24
     },
     {
       "asset": "MKD",
       "target_pct": 2.0,
-      "target_usd": 4.7,
+      "target_usd": 4.68,
       "actual_usd": 0.0,
-      "gap_usd": 4.7
+      "gap_usd": 4.68
     },
     {
       "asset": "KRW",
       "target_pct": 2.0,
-      "target_usd": 4.7,
+      "target_usd": 4.68,
       "actual_usd": 0.0,
-      "gap_usd": 4.7
+      "gap_usd": 4.68
     },
     {
       "asset": "EUR",
       "target_pct": 2.0,
-      "target_usd": 4.7,
+      "target_usd": 4.68,
       "actual_usd": 0.0,
-      "gap_usd": 4.7
+      "gap_usd": 4.68
     },
     {
       "asset": "GBP",
       "target_pct": 2.0,
-      "target_usd": 4.7,
+      "target_usd": 4.68,
       "actual_usd": 0.0,
-      "gap_usd": 4.7
+      "gap_usd": 4.68
     }
   ]
 }

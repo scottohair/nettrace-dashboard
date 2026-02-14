@@ -29798,3 +29798,1181 @@
 2026-02-14 15:05:35,860 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
 2026-02-14 15:05:37,863 [coordinator] INFO CYCLE 14 COMPLETE in 27.7s
 2026-02-14 15:05:37,864 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:07:38,354 [coordinator] INFO ============================================================
+2026-02-14 15:07:38,355 [coordinator] INFO CYCLE 15 STARTING at 2026-02-14 20:07:38 UTC
+2026-02-14 15:07:38,355 [coordinator] INFO ============================================================
+2026-02-14 15:07:38,355 [research_agent] INFO ResearchAgent cycle 15 starting
+2026-02-14 15:07:41,175 [research_agent] INFO ResearchAgent published memo (msg_id=6441) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:07:41,175 [coordinator] INFO   [research] 2.8s — 6 price pairs gathered
+2026-02-14 15:07:43,180 [strategy_agent] INFO StrategyAgent cycle 15 starting
+2026-02-14 15:07:43,200 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:07:43,200 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:07:43,200 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:07:43,200 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:07:43,200 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:07:43,200 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:07:43,213 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:07:43,213 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:07:45,214 [risk_agent] INFO RiskAgent cycle 15 starting
+2026-02-14 15:07:45,223 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:07:45,779 [risk_agent] INFO Portfolio: $151.38 | Cash: $129.77 | Exposure: 14%
+2026-02-14 15:07:45,780 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6443)
+2026-02-14 15:07:45,780 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:07:45,780 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:07:47,784 [execution_agent] INFO ExecutionAgent cycle 15 starting (mode=queue)
+2026-02-14 15:07:47,791 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:07:49,796 [learning_agent] INFO LearningAgent cycle 15 starting
+2026-02-14 15:07:50,034 [learning_agent] INFO LearningAgent: portfolio=$151.38 | Sharpe=-2.62 | DD=47.0% | trades=0 | recommendations=1 (msg_id=6445)
+2026-02-14 15:07:50,034 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:07:50,035 [coordinator] INFO   [learning] 0.2s — portfolio=$151.38 Sharpe=-2.62
+2026-02-14 15:07:52,046 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 15 starting
+2026-02-14 15:07:52,081 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6446): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:07:52,081 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:07:54,087 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 15 starting
+2026-02-14 15:07:54,109 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6447,6448): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:07:54,110 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:07:56,111 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 15 starting
+2026-02-14 15:07:56,134 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6449): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:07:56,134 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:07:58,143 [coordinator] INFO CYCLE 15 COMPLETE in 19.8s
+2026-02-14 15:07:58,144 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:09:58,633 [coordinator] INFO ============================================================
+2026-02-14 15:09:58,635 [coordinator] INFO CYCLE 16 STARTING at 2026-02-14 20:09:58 UTC
+2026-02-14 15:09:58,635 [coordinator] INFO ============================================================
+2026-02-14 15:09:58,636 [research_agent] INFO ResearchAgent cycle 16 starting
+2026-02-14 15:10:01,815 [research_agent] INFO ResearchAgent published memo (msg_id=6452) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:10:01,815 [coordinator] INFO   [research] 3.2s — 6 price pairs gathered
+2026-02-14 15:10:03,820 [strategy_agent] INFO StrategyAgent cycle 16 starting
+2026-02-14 15:10:03,845 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:10:03,846 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:10:03,846 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:10:03,846 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:10:03,846 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:10:03,846 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:10:03,862 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:10:03,862 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:10:05,868 [risk_agent] INFO RiskAgent cycle 16 starting
+2026-02-14 15:10:05,876 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:10:06,452 [risk_agent] INFO Portfolio: $202.35 | Cash: $129.77 | Exposure: 36%
+2026-02-14 15:10:06,453 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6454)
+2026-02-14 15:10:06,453 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:10:06,453 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:10:08,457 [execution_agent] INFO ExecutionAgent cycle 16 starting (mode=queue)
+2026-02-14 15:10:08,464 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:10:10,470 [learning_agent] INFO LearningAgent cycle 16 starting
+2026-02-14 15:10:10,712 [learning_agent] INFO LearningAgent: portfolio=$202.35 | Sharpe=-2.62 | DD=29.1% | trades=0 | recommendations=1 (msg_id=6456)
+2026-02-14 15:10:10,712 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:10:10,712 [coordinator] INFO   [learning] 0.2s — portfolio=$202.35 Sharpe=-2.62
+2026-02-14 15:10:12,717 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 16 starting
+2026-02-14 15:10:12,737 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6457): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:10:12,737 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:10:14,742 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 16 starting
+2026-02-14 15:10:14,761 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6458,6459): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:10:14,761 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:10:16,767 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 16 starting
+2026-02-14 15:10:16,793 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6460): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:10:16,793 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:10:18,798 [coordinator] INFO CYCLE 16 COMPLETE in 20.2s
+2026-02-14 15:10:18,798 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:12:19,296 [coordinator] INFO ============================================================
+2026-02-14 15:12:19,297 [coordinator] INFO CYCLE 17 STARTING at 2026-02-14 20:12:19 UTC
+2026-02-14 15:12:19,297 [coordinator] INFO ============================================================
+2026-02-14 15:12:19,297 [research_agent] INFO ResearchAgent cycle 17 starting
+2026-02-14 15:12:21,963 [research_agent] INFO ResearchAgent published memo (msg_id=6461) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:12:21,964 [coordinator] INFO   [research] 2.7s — 6 price pairs gathered
+2026-02-14 15:12:23,969 [strategy_agent] INFO StrategyAgent cycle 17 starting
+2026-02-14 15:12:24,002 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:12:24,002 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:12:24,002 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:12:24,002 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:12:24,002 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:12:24,002 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:12:24,025 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:12:24,025 [coordinator] INFO   [strategy] 0.1s — 0 proposals generated
+2026-02-14 15:12:26,036 [risk_agent] INFO RiskAgent cycle 17 starting
+2026-02-14 15:12:26,045 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:12:26,648 [risk_agent] INFO Portfolio: $202.38 | Cash: $129.77 | Exposure: 36%
+2026-02-14 15:12:26,649 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6463)
+2026-02-14 15:12:26,649 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:12:26,649 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:12:28,652 [execution_agent] INFO ExecutionAgent cycle 17 starting (mode=queue)
+2026-02-14 15:12:28,663 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:12:30,668 [learning_agent] INFO LearningAgent cycle 17 starting
+2026-02-14 15:12:30,855 [learning_agent] INFO LearningAgent: portfolio=$202.38 | Sharpe=-2.62 | DD=29.1% | trades=0 | recommendations=1 (msg_id=6465)
+2026-02-14 15:12:30,855 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:12:30,855 [coordinator] INFO   [learning] 0.2s — portfolio=$202.38 Sharpe=-2.62
+2026-02-14 15:12:32,874 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 17 starting
+2026-02-14 15:12:32,902 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6466): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:12:32,902 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:12:34,908 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 17 starting
+2026-02-14 15:12:34,933 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6467,6468): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:12:34,933 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:12:36,940 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 17 starting
+2026-02-14 15:12:36,969 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6469): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:12:36,969 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:12:38,971 [coordinator] INFO CYCLE 17 COMPLETE in 19.7s
+2026-02-14 15:12:38,974 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:14:39,424 [coordinator] INFO ============================================================
+2026-02-14 15:14:39,425 [coordinator] INFO CYCLE 18 STARTING at 2026-02-14 20:14:39 UTC
+2026-02-14 15:14:39,425 [coordinator] INFO ============================================================
+2026-02-14 15:14:39,425 [research_agent] INFO ResearchAgent cycle 18 starting
+2026-02-14 15:14:42,155 [research_agent] INFO ResearchAgent published memo (msg_id=6472) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:14:42,155 [coordinator] INFO   [research] 2.7s — 6 price pairs gathered
+2026-02-14 15:14:44,160 [strategy_agent] INFO StrategyAgent cycle 18 starting
+2026-02-14 15:14:44,183 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:14:44,183 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:14:44,183 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:14:44,183 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:14:44,183 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:14:44,183 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:14:44,199 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:14:44,199 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:14:46,200 [risk_agent] INFO RiskAgent cycle 18 starting
+2026-02-14 15:14:46,208 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:14:46,744 [risk_agent] INFO Portfolio: $178.77 | Cash: $129.77 | Exposure: 27%
+2026-02-14 15:14:46,745 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6474)
+2026-02-14 15:14:46,745 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:14:46,745 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 15:14:48,751 [execution_agent] INFO ExecutionAgent cycle 18 starting (mode=queue)
+2026-02-14 15:14:48,761 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:14:50,764 [learning_agent] INFO LearningAgent cycle 18 starting
+2026-02-14 15:14:50,960 [learning_agent] INFO LearningAgent: portfolio=$178.77 | Sharpe=-2.62 | DD=37.4% | trades=0 | recommendations=1 (msg_id=6476)
+2026-02-14 15:14:50,960 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:14:50,960 [coordinator] INFO   [learning] 0.2s — portfolio=$178.77 Sharpe=-2.62
+2026-02-14 15:14:52,963 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 18 starting
+2026-02-14 15:14:52,988 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6477): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:14:52,988 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:14:54,993 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 18 starting
+2026-02-14 15:14:55,016 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6478,6479): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:14:55,017 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:14:57,026 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 18 starting
+2026-02-14 15:14:57,052 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6480): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:14:57,052 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:14:59,057 [coordinator] INFO CYCLE 18 COMPLETE in 19.6s
+2026-02-14 15:14:59,057 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:16:59,453 [coordinator] INFO ============================================================
+2026-02-14 15:16:59,454 [coordinator] INFO CYCLE 19 STARTING at 2026-02-14 20:16:59 UTC
+2026-02-14 15:16:59,454 [coordinator] INFO ============================================================
+2026-02-14 15:16:59,454 [research_agent] INFO ResearchAgent cycle 19 starting
+2026-02-14 15:17:02,408 [research_agent] INFO ResearchAgent published memo (msg_id=6481) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:17:02,408 [coordinator] INFO   [research] 3.0s — 6 price pairs gathered
+2026-02-14 15:17:04,413 [strategy_agent] INFO StrategyAgent cycle 19 starting
+2026-02-14 15:17:04,437 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:17:04,437 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:17:04,437 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:17:04,437 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:17:04,437 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:17:04,437 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:17:04,451 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:17:04,451 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:17:06,456 [risk_agent] INFO RiskAgent cycle 19 starting
+2026-02-14 15:17:06,464 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:17:07,149 [risk_agent] INFO Portfolio: $171.76 | Cash: $132.94 | Exposure: 23%
+2026-02-14 15:17:07,150 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6483)
+2026-02-14 15:17:07,150 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:17:07,150 [coordinator] INFO   [risk] 0.7s — 0/1 approved
+2026-02-14 15:17:09,155 [execution_agent] INFO ExecutionAgent cycle 19 starting (mode=queue)
+2026-02-14 15:17:09,164 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:17:11,164 [learning_agent] INFO LearningAgent cycle 19 starting
+2026-02-14 15:17:11,350 [learning_agent] INFO LearningAgent: portfolio=$171.76 | Sharpe=-2.62 | DD=39.9% | trades=0 | recommendations=1 (msg_id=6485)
+2026-02-14 15:17:11,350 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:17:11,350 [coordinator] INFO   [learning] 0.2s — portfolio=$171.76 Sharpe=-2.62
+2026-02-14 15:17:13,355 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 19 starting
+2026-02-14 15:17:13,380 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6486): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:17:13,380 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:17:15,384 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 19 starting
+2026-02-14 15:17:15,410 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6487,6488): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:17:15,411 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:17:17,413 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 19 starting
+2026-02-14 15:17:17,436 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6489): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:17:17,436 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:17:19,441 [coordinator] INFO CYCLE 19 COMPLETE in 20.0s
+2026-02-14 15:17:19,441 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:19:19,907 [coordinator] INFO ============================================================
+2026-02-14 15:19:19,908 [coordinator] INFO CYCLE 20 STARTING at 2026-02-14 20:19:19 UTC
+2026-02-14 15:19:19,908 [coordinator] INFO ============================================================
+2026-02-14 15:19:19,908 [research_agent] INFO ResearchAgent cycle 20 starting
+2026-02-14 15:19:28,049 [research_agent] INFO ResearchAgent published memo (msg_id=6492) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:19:28,049 [coordinator] INFO   [research] 8.1s — 6 price pairs gathered
+2026-02-14 15:19:30,054 [strategy_agent] INFO StrategyAgent cycle 20 starting
+2026-02-14 15:19:30,078 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:19:30,078 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:19:30,078 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:19:30,078 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:19:30,078 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:19:30,078 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:19:30,093 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:19:30,093 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:19:32,098 [risk_agent] INFO RiskAgent cycle 20 starting
+2026-02-14 15:19:32,109 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:19:32,663 [risk_agent] INFO Portfolio: $171.73 | Cash: $132.94 | Exposure: 23%
+2026-02-14 15:19:32,663 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6494)
+2026-02-14 15:19:32,663 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:19:32,664 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:19:34,668 [execution_agent] INFO ExecutionAgent cycle 20 starting (mode=queue)
+2026-02-14 15:19:34,681 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:19:36,686 [learning_agent] INFO LearningAgent cycle 20 starting
+2026-02-14 15:19:36,856 [learning_agent] INFO LearningAgent: portfolio=$171.73 | Sharpe=-2.62 | DD=39.9% | trades=0 | recommendations=1 (msg_id=6496)
+2026-02-14 15:19:36,856 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:19:36,856 [coordinator] INFO   [learning] 0.2s — portfolio=$171.73 Sharpe=-2.62
+2026-02-14 15:19:38,860 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 20 starting
+2026-02-14 15:19:38,890 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6497): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:19:38,890 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:19:40,896 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 20 starting
+2026-02-14 15:19:40,926 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6498,6499): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:19:40,926 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:19:42,930 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 20 starting
+2026-02-14 15:19:42,957 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6500): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:19:42,957 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:19:44,963 [coordinator] INFO CYCLE 20 COMPLETE in 25.1s
+2026-02-14 15:19:44,974 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:21:45,331 [coordinator] INFO ============================================================
+2026-02-14 15:21:45,332 [coordinator] INFO CYCLE 21 STARTING at 2026-02-14 20:21:45 UTC
+2026-02-14 15:21:45,332 [coordinator] INFO ============================================================
+2026-02-14 15:21:45,332 [research_agent] INFO ResearchAgent cycle 21 starting
+2026-02-14 15:21:55,740 [research_agent] INFO ResearchAgent published memo (msg_id=6501) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:21:55,740 [coordinator] INFO   [research] 10.4s — 6 price pairs gathered
+2026-02-14 15:21:57,746 [strategy_agent] INFO StrategyAgent cycle 21 starting
+2026-02-14 15:21:57,772 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:21:57,772 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:21:57,772 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:21:57,772 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:21:57,772 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:21:57,772 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:21:57,793 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:21:57,793 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:21:59,798 [risk_agent] INFO RiskAgent cycle 21 starting
+2026-02-14 15:21:59,807 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:22:00,373 [risk_agent] INFO Portfolio: $171.67 | Cash: $132.94 | Exposure: 23%
+2026-02-14 15:22:00,374 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6503)
+2026-02-14 15:22:00,374 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:22:00,374 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:22:02,380 [execution_agent] INFO ExecutionAgent cycle 21 starting (mode=queue)
+2026-02-14 15:22:02,393 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:22:04,399 [learning_agent] INFO LearningAgent cycle 21 starting
+2026-02-14 15:22:04,587 [learning_agent] INFO LearningAgent: portfolio=$171.68 | Sharpe=-2.62 | DD=39.9% | trades=0 | recommendations=1 (msg_id=6505)
+2026-02-14 15:22:04,587 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:22:04,588 [coordinator] INFO   [learning] 0.2s — portfolio=$171.68 Sharpe=-2.62
+2026-02-14 15:22:06,593 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 21 starting
+2026-02-14 15:22:06,624 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6506): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:22:06,624 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:22:08,629 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 21 starting
+2026-02-14 15:22:08,657 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6507,6508): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:22:08,658 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:22:10,663 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 21 starting
+2026-02-14 15:22:10,689 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6509): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:22:10,690 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:22:12,695 [coordinator] INFO CYCLE 21 COMPLETE in 27.4s
+2026-02-14 15:22:12,696 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:24:13,142 [coordinator] INFO ============================================================
+2026-02-14 15:24:13,143 [coordinator] INFO CYCLE 22 STARTING at 2026-02-14 20:24:13 UTC
+2026-02-14 15:24:13,143 [coordinator] INFO ============================================================
+2026-02-14 15:24:13,143 [research_agent] INFO ResearchAgent cycle 22 starting
+2026-02-14 15:24:23,818 [research_agent] INFO ResearchAgent published memo (msg_id=6510) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:24:23,818 [coordinator] INFO   [research] 10.7s — 6 price pairs gathered
+2026-02-14 15:24:25,820 [strategy_agent] INFO StrategyAgent cycle 22 starting
+2026-02-14 15:24:25,852 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:24:25,853 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:24:25,853 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:24:25,853 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:24:25,853 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:24:25,853 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:24:25,874 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:24:25,874 [coordinator] INFO   [strategy] 0.1s — 0 proposals generated
+2026-02-14 15:24:27,881 [risk_agent] INFO RiskAgent cycle 22 starting
+2026-02-14 15:24:27,891 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:24:28,505 [risk_agent] INFO Portfolio: $171.72 | Cash: $132.94 | Exposure: 23%
+2026-02-14 15:24:28,506 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6512)
+2026-02-14 15:24:28,506 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:24:28,506 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:24:30,511 [execution_agent] INFO ExecutionAgent cycle 22 starting (mode=queue)
+2026-02-14 15:24:30,526 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:24:32,537 [learning_agent] INFO LearningAgent cycle 22 starting
+2026-02-14 15:24:32,742 [learning_agent] INFO LearningAgent: portfolio=$171.72 | Sharpe=-2.62 | DD=39.9% | trades=0 | recommendations=1 (msg_id=6514)
+2026-02-14 15:24:32,742 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:24:32,742 [coordinator] INFO   [learning] 0.2s — portfolio=$171.72 Sharpe=-2.62
+2026-02-14 15:24:34,748 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 22 starting
+2026-02-14 15:24:34,776 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6515): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:24:34,776 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:24:36,782 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 22 starting
+2026-02-14 15:24:36,811 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6516,6517): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:24:36,811 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:24:38,817 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 22 starting
+2026-02-14 15:24:38,855 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6518): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:24:38,855 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:24:40,860 [coordinator] INFO CYCLE 22 COMPLETE in 27.7s
+2026-02-14 15:24:40,861 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:26:41,297 [coordinator] INFO ============================================================
+2026-02-14 15:26:41,297 [coordinator] INFO CYCLE 23 STARTING at 2026-02-14 20:26:41 UTC
+2026-02-14 15:26:41,297 [coordinator] INFO ============================================================
+2026-02-14 15:26:41,297 [research_agent] INFO ResearchAgent cycle 23 starting
+2026-02-14 15:26:47,005 [research_agent] INFO ResearchAgent published memo (msg_id=6521) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:26:47,006 [coordinator] INFO   [research] 5.7s — 6 price pairs gathered
+2026-02-14 15:26:49,013 [strategy_agent] INFO StrategyAgent cycle 23 starting
+2026-02-14 15:26:49,042 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:26:49,042 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:26:49,042 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:26:49,042 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:26:49,042 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:26:49,043 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:26:49,057 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:26:49,057 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:26:51,063 [risk_agent] INFO RiskAgent cycle 23 starting
+2026-02-14 15:26:51,071 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:26:51,581 [risk_agent] INFO Portfolio: $171.72 | Cash: $132.94 | Exposure: 23%
+2026-02-14 15:26:51,582 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6523)
+2026-02-14 15:26:51,582 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:26:51,582 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 15:26:53,587 [execution_agent] INFO ExecutionAgent cycle 23 starting (mode=queue)
+2026-02-14 15:26:53,596 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:26:55,597 [learning_agent] INFO LearningAgent cycle 23 starting
+2026-02-14 15:26:55,790 [learning_agent] INFO LearningAgent: portfolio=$171.72 | Sharpe=-2.62 | DD=39.9% | trades=0 | recommendations=1 (msg_id=6525)
+2026-02-14 15:26:55,790 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:26:55,790 [coordinator] INFO   [learning] 0.2s — portfolio=$171.72 Sharpe=-2.62
+2026-02-14 15:26:57,795 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 23 starting
+2026-02-14 15:26:57,830 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6526): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:26:57,830 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:26:59,836 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 23 starting
+2026-02-14 15:26:59,866 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6527,6528): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:26:59,866 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:27:01,867 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 23 starting
+2026-02-14 15:27:01,897 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6529): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:27:01,897 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:27:03,900 [coordinator] INFO CYCLE 23 COMPLETE in 22.6s
+2026-02-14 15:27:03,900 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:29:04,348 [coordinator] INFO ============================================================
+2026-02-14 15:29:04,349 [coordinator] INFO CYCLE 24 STARTING at 2026-02-14 20:29:04 UTC
+2026-02-14 15:29:04,349 [coordinator] INFO ============================================================
+2026-02-14 15:29:04,349 [research_agent] INFO ResearchAgent cycle 24 starting
+2026-02-14 15:29:07,420 [research_agent] INFO ResearchAgent published memo (msg_id=6530) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:29:07,420 [coordinator] INFO   [research] 3.1s — 6 price pairs gathered
+2026-02-14 15:29:09,431 [strategy_agent] INFO StrategyAgent cycle 24 starting
+2026-02-14 15:29:09,456 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:29:09,457 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:29:09,457 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:29:09,457 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:29:09,457 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:29:09,457 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:29:09,475 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:29:09,475 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:29:11,481 [risk_agent] INFO RiskAgent cycle 24 starting
+2026-02-14 15:29:11,495 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:29:12,062 [risk_agent] INFO Portfolio: $171.72 | Cash: $132.94 | Exposure: 23%
+2026-02-14 15:29:12,063 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6532)
+2026-02-14 15:29:12,063 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:29:12,063 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:29:14,076 [execution_agent] INFO ExecutionAgent cycle 24 starting (mode=queue)
+2026-02-14 15:29:14,094 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:29:16,100 [learning_agent] INFO LearningAgent cycle 24 starting
+2026-02-14 15:29:16,302 [learning_agent] INFO LearningAgent: portfolio=$171.72 | Sharpe=-2.62 | DD=39.9% | trades=0 | recommendations=1 (msg_id=6534)
+2026-02-14 15:29:16,302 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:29:16,302 [coordinator] INFO   [learning] 0.2s — portfolio=$171.72 Sharpe=-2.62
+2026-02-14 15:29:18,307 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 24 starting
+2026-02-14 15:29:18,336 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6535): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:29:18,337 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:29:20,342 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 24 starting
+2026-02-14 15:29:20,368 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6536,6537): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:29:20,368 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:29:22,374 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 24 starting
+2026-02-14 15:29:22,408 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6538): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:29:22,408 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:29:24,413 [coordinator] INFO CYCLE 24 COMPLETE in 20.1s
+2026-02-14 15:29:24,417 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:31:24,885 [coordinator] INFO ============================================================
+2026-02-14 15:31:24,886 [coordinator] INFO CYCLE 25 STARTING at 2026-02-14 20:31:24 UTC
+2026-02-14 15:31:24,886 [coordinator] INFO ============================================================
+2026-02-14 15:31:24,886 [research_agent] INFO ResearchAgent cycle 25 starting
+2026-02-14 15:31:27,965 [research_agent] INFO ResearchAgent published memo (msg_id=6541) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:31:27,966 [coordinator] INFO   [research] 3.1s — 6 price pairs gathered
+2026-02-14 15:31:29,971 [strategy_agent] INFO StrategyAgent cycle 25 starting
+2026-02-14 15:31:30,000 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:31:30,000 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:31:30,000 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:31:30,000 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:31:30,001 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:31:30,001 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:31:30,019 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:31:30,019 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:31:32,023 [risk_agent] INFO RiskAgent cycle 25 starting
+2026-02-14 15:31:32,033 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:31:32,631 [risk_agent] INFO Portfolio: $199.10 | Cash: $132.94 | Exposure: 33%
+2026-02-14 15:31:32,633 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6543)
+2026-02-14 15:31:32,633 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:31:32,633 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:31:34,638 [execution_agent] INFO ExecutionAgent cycle 25 starting (mode=queue)
+2026-02-14 15:31:34,654 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:31:36,655 [learning_agent] INFO LearningAgent cycle 25 starting
+2026-02-14 15:31:36,855 [learning_agent] INFO LearningAgent: portfolio=$199.10 | Sharpe=-2.62 | DD=30.3% | trades=0 | recommendations=1 (msg_id=6545)
+2026-02-14 15:31:36,855 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:31:36,855 [coordinator] INFO   [learning] 0.2s — portfolio=$199.10 Sharpe=-2.62
+2026-02-14 15:31:38,860 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 25 starting
+2026-02-14 15:31:38,887 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6546): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:31:38,887 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:31:40,896 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 25 starting
+2026-02-14 15:31:40,937 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6547,6548): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:31:40,937 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:31:42,945 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 25 starting
+2026-02-14 15:31:42,981 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6549): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:31:42,981 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:31:44,986 [coordinator] INFO CYCLE 25 COMPLETE in 20.1s
+2026-02-14 15:31:44,986 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:33:45,392 [coordinator] INFO ============================================================
+2026-02-14 15:33:45,394 [coordinator] INFO CYCLE 26 STARTING at 2026-02-14 20:33:45 UTC
+2026-02-14 15:33:45,394 [coordinator] INFO ============================================================
+2026-02-14 15:33:45,394 [research_agent] INFO ResearchAgent cycle 26 starting
+2026-02-14 15:33:48,383 [research_agent] INFO ResearchAgent published memo (msg_id=6550) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:33:48,383 [coordinator] INFO   [research] 3.0s — 6 price pairs gathered
+2026-02-14 15:33:50,388 [strategy_agent] INFO StrategyAgent cycle 26 starting
+2026-02-14 15:33:50,416 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:33:50,416 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:33:50,416 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:33:50,416 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:33:50,416 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:33:50,416 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:33:50,431 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:33:50,431 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:33:52,436 [risk_agent] INFO RiskAgent cycle 26 starting
+2026-02-14 15:33:52,449 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:33:52,985 [risk_agent] INFO Portfolio: $199.04 | Cash: $132.94 | Exposure: 33%
+2026-02-14 15:33:52,986 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6552)
+2026-02-14 15:33:52,986 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:33:52,986 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 15:33:54,992 [execution_agent] INFO ExecutionAgent cycle 26 starting (mode=queue)
+2026-02-14 15:33:55,007 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:33:57,012 [learning_agent] INFO LearningAgent cycle 26 starting
+2026-02-14 15:33:57,215 [learning_agent] INFO LearningAgent: portfolio=$199.04 | Sharpe=-2.62 | DD=30.3% | trades=0 | recommendations=1 (msg_id=6554)
+2026-02-14 15:33:57,215 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:33:57,215 [coordinator] INFO   [learning] 0.2s — portfolio=$199.04 Sharpe=-2.62
+2026-02-14 15:33:59,220 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 26 starting
+2026-02-14 15:33:59,252 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6555): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:33:59,253 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:34:01,255 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 26 starting
+2026-02-14 15:34:01,286 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6556,6557): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:34:01,286 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:34:03,289 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 26 starting
+2026-02-14 15:34:03,323 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6558): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:34:03,323 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:34:05,328 [coordinator] INFO CYCLE 26 COMPLETE in 19.9s
+2026-02-14 15:34:05,328 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:36:05,693 [coordinator] INFO ============================================================
+2026-02-14 15:36:05,694 [coordinator] INFO CYCLE 27 STARTING at 2026-02-14 20:36:05 UTC
+2026-02-14 15:36:05,694 [coordinator] INFO ============================================================
+2026-02-14 15:36:05,694 [research_agent] INFO ResearchAgent cycle 27 starting
+2026-02-14 15:36:08,440 [research_agent] INFO ResearchAgent published memo (msg_id=6561) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:36:08,440 [coordinator] INFO   [research] 2.7s — 6 price pairs gathered
+2026-02-14 15:36:10,442 [strategy_agent] INFO StrategyAgent cycle 27 starting
+2026-02-14 15:36:10,472 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:36:10,472 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:36:10,473 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:36:10,473 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:36:10,473 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:36:10,473 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:36:10,491 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:36:10,491 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:36:12,499 [risk_agent] INFO RiskAgent cycle 27 starting
+2026-02-14 15:36:12,510 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:36:13,130 [risk_agent] INFO Portfolio: $195.77 | Cash: $132.94 | Exposure: 32%
+2026-02-14 15:36:13,130 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6563)
+2026-02-14 15:36:13,131 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:36:13,131 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:36:15,134 [execution_agent] INFO ExecutionAgent cycle 27 starting (mode=queue)
+2026-02-14 15:36:15,147 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:36:17,152 [learning_agent] INFO LearningAgent cycle 27 starting
+2026-02-14 15:36:17,347 [learning_agent] INFO LearningAgent: portfolio=$195.77 | Sharpe=-2.62 | DD=31.5% | trades=0 | recommendations=1 (msg_id=6565)
+2026-02-14 15:36:17,347 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:36:17,347 [coordinator] INFO   [learning] 0.2s — portfolio=$195.77 Sharpe=-2.62
+2026-02-14 15:36:19,352 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 27 starting
+2026-02-14 15:36:19,381 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6566): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:36:19,381 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:36:21,386 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 27 starting
+2026-02-14 15:36:21,417 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6567,6568): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:36:21,417 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:36:23,422 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 27 starting
+2026-02-14 15:36:23,449 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6569): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:36:23,449 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:36:25,454 [coordinator] INFO CYCLE 27 COMPLETE in 19.8s
+2026-02-14 15:36:25,455 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:38:25,931 [coordinator] INFO ============================================================
+2026-02-14 15:38:25,931 [coordinator] INFO CYCLE 28 STARTING at 2026-02-14 20:38:25 UTC
+2026-02-14 15:38:25,931 [coordinator] INFO ============================================================
+2026-02-14 15:38:25,931 [research_agent] INFO ResearchAgent cycle 28 starting
+2026-02-14 15:38:36,505 [research_agent] INFO ResearchAgent published memo (msg_id=6570) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:38:36,505 [coordinator] INFO   [research] 10.6s — 6 price pairs gathered
+2026-02-14 15:38:38,515 [strategy_agent] INFO StrategyAgent cycle 28 starting
+2026-02-14 15:38:38,552 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:38:38,552 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:38:38,552 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:38:38,552 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:38:38,552 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:38:38,552 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:38:38,568 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:38:38,568 [coordinator] INFO   [strategy] 0.1s — 0 proposals generated
+2026-02-14 15:38:40,574 [risk_agent] INFO RiskAgent cycle 28 starting
+2026-02-14 15:38:40,586 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:38:41,177 [risk_agent] INFO Portfolio: $195.76 | Cash: $132.94 | Exposure: 32%
+2026-02-14 15:38:41,178 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6572)
+2026-02-14 15:38:41,178 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:38:41,178 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:38:43,184 [execution_agent] INFO ExecutionAgent cycle 28 starting (mode=queue)
+2026-02-14 15:38:43,198 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:38:45,208 [learning_agent] INFO LearningAgent cycle 28 starting
+2026-02-14 15:38:45,375 [learning_agent] INFO LearningAgent: portfolio=$195.76 | Sharpe=-2.62 | DD=31.5% | trades=0 | recommendations=1 (msg_id=6574)
+2026-02-14 15:38:45,375 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:38:45,375 [coordinator] INFO   [learning] 0.2s — portfolio=$195.76 Sharpe=-2.62
+2026-02-14 15:38:47,385 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 28 starting
+2026-02-14 15:38:47,422 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6575): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:38:47,422 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:38:49,432 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 28 starting
+2026-02-14 15:38:49,463 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6576,6577): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:38:49,463 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:38:51,473 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 28 starting
+2026-02-14 15:38:51,510 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6578): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:38:51,510 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:38:53,511 [coordinator] INFO CYCLE 28 COMPLETE in 27.6s
+2026-02-14 15:38:53,511 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:40:54,185 [coordinator] INFO ============================================================
+2026-02-14 15:40:54,186 [coordinator] INFO CYCLE 29 STARTING at 2026-02-14 20:40:54 UTC
+2026-02-14 15:40:54,186 [coordinator] INFO ============================================================
+2026-02-14 15:40:54,186 [research_agent] INFO ResearchAgent cycle 29 starting
+2026-02-14 15:41:04,962 [research_agent] INFO ResearchAgent published memo (msg_id=6581) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:41:04,963 [coordinator] INFO   [research] 10.8s — 6 price pairs gathered
+2026-02-14 15:41:06,970 [strategy_agent] INFO StrategyAgent cycle 29 starting
+2026-02-14 15:41:07,008 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:41:07,008 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:41:07,008 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:41:07,008 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:41:07,008 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:41:07,008 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:41:07,023 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:41:07,023 [coordinator] INFO   [strategy] 0.1s — 0 proposals generated
+2026-02-14 15:41:09,034 [risk_agent] INFO RiskAgent cycle 29 starting
+2026-02-14 15:41:09,049 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:41:09,582 [risk_agent] INFO Portfolio: $193.32 | Cash: $135.67 | Exposure: 30%
+2026-02-14 15:41:09,583 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6583)
+2026-02-14 15:41:09,583 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:41:09,583 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 15:41:11,585 [execution_agent] INFO ExecutionAgent cycle 29 starting (mode=queue)
+2026-02-14 15:41:11,602 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:41:13,613 [learning_agent] INFO LearningAgent cycle 29 starting
+2026-02-14 15:41:13,836 [learning_agent] INFO LearningAgent: portfolio=$188.42 | Sharpe=-2.62 | DD=34.0% | trades=0 | recommendations=1 (msg_id=6585)
+2026-02-14 15:41:13,836 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:41:13,836 [coordinator] INFO   [learning] 0.2s — portfolio=$188.42 Sharpe=-2.62
+2026-02-14 15:41:15,846 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 29 starting
+2026-02-14 15:41:15,884 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6586): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:41:15,884 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:41:17,894 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 29 starting
+2026-02-14 15:41:17,923 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6587,6588): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:41:17,923 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:41:19,933 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 29 starting
+2026-02-14 15:41:19,960 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6589): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:41:19,960 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:41:21,970 [coordinator] INFO CYCLE 29 COMPLETE in 27.8s
+2026-02-14 15:41:21,970 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:43:22,699 [coordinator] INFO ============================================================
+2026-02-14 15:43:22,700 [coordinator] INFO CYCLE 30 STARTING at 2026-02-14 20:43:22 UTC
+2026-02-14 15:43:22,700 [coordinator] INFO ============================================================
+2026-02-14 15:43:22,700 [research_agent] INFO ResearchAgent cycle 30 starting
+2026-02-14 15:43:33,180 [research_agent] INFO ResearchAgent published memo (msg_id=6590) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:43:33,180 [coordinator] INFO   [research] 10.5s — 6 price pairs gathered
+2026-02-14 15:43:35,191 [strategy_agent] INFO StrategyAgent cycle 30 starting
+2026-02-14 15:43:35,218 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:43:35,218 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:43:35,218 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:43:35,218 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:43:35,218 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:43:35,218 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:43:35,237 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:43:35,237 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:43:37,243 [risk_agent] INFO RiskAgent cycle 30 starting
+2026-02-14 15:43:37,254 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:43:37,806 [risk_agent] INFO Portfolio: $188.46 | Cash: $135.67 | Exposure: 28%
+2026-02-14 15:43:37,806 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6592)
+2026-02-14 15:43:37,806 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:43:37,806 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:43:39,809 [execution_agent] INFO ExecutionAgent cycle 30 starting (mode=queue)
+2026-02-14 15:43:39,821 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:43:41,831 [learning_agent] INFO LearningAgent cycle 30 starting
+2026-02-14 15:43:41,958 [learning_agent] INFO LearningAgent: portfolio=$188.46 | Sharpe=-2.62 | DD=34.0% | trades=0 | recommendations=1 (msg_id=6594)
+2026-02-14 15:43:41,958 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:43:41,958 [coordinator] INFO   [learning] 0.1s — portfolio=$188.46 Sharpe=-2.62
+2026-02-14 15:43:43,968 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 30 starting
+2026-02-14 15:43:43,999 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6595): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:43:43,999 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:43:46,009 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 30 starting
+2026-02-14 15:43:46,040 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6596,6597): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:43:46,040 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:43:48,042 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 30 starting
+2026-02-14 15:43:48,068 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6598): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:43:48,068 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:43:50,078 [coordinator] INFO CYCLE 30 COMPLETE in 27.4s
+2026-02-14 15:43:50,089 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:45:50,887 [coordinator] INFO ============================================================
+2026-02-14 15:45:50,887 [coordinator] INFO CYCLE 31 STARTING at 2026-02-14 20:45:50 UTC
+2026-02-14 15:45:50,887 [coordinator] INFO ============================================================
+2026-02-14 15:45:50,888 [research_agent] INFO ResearchAgent cycle 31 starting
+2026-02-14 15:46:01,359 [research_agent] INFO ResearchAgent published memo (msg_id=6601) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:46:01,359 [coordinator] INFO   [research] 10.5s — 6 price pairs gathered
+2026-02-14 15:46:03,369 [strategy_agent] INFO StrategyAgent cycle 31 starting
+2026-02-14 15:46:03,388 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:46:03,388 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:46:03,388 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:46:03,388 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:46:03,388 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:46:03,388 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:46:03,399 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:46:03,399 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:46:05,402 [risk_agent] INFO RiskAgent cycle 31 starting
+2026-02-14 15:46:05,407 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:46:05,900 [risk_agent] INFO Portfolio: $188.48 | Cash: $135.67 | Exposure: 28%
+2026-02-14 15:46:05,900 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6603)
+2026-02-14 15:46:05,900 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:46:05,900 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 15:46:07,910 [execution_agent] INFO ExecutionAgent cycle 31 starting (mode=queue)
+2026-02-14 15:46:07,916 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:46:09,927 [learning_agent] INFO LearningAgent cycle 31 starting
+2026-02-14 15:46:10,096 [learning_agent] INFO LearningAgent: portfolio=$188.48 | Sharpe=-2.62 | DD=34.0% | trades=0 | recommendations=1 (msg_id=6605)
+2026-02-14 15:46:10,096 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:46:10,096 [coordinator] INFO   [learning] 0.2s — portfolio=$188.48 Sharpe=-2.62
+2026-02-14 15:46:12,107 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 31 starting
+2026-02-14 15:46:12,128 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6606): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:46:12,128 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:46:14,136 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 31 starting
+2026-02-14 15:46:14,155 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6607,6608): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:46:14,155 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:46:16,164 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 31 starting
+2026-02-14 15:46:16,181 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6609): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:46:16,181 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:46:18,191 [coordinator] INFO CYCLE 31 COMPLETE in 27.3s
+2026-02-14 15:46:18,191 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:48:19,013 [coordinator] INFO ============================================================
+2026-02-14 15:48:19,013 [coordinator] INFO CYCLE 32 STARTING at 2026-02-14 20:48:19 UTC
+2026-02-14 15:48:19,013 [coordinator] INFO ============================================================
+2026-02-14 15:48:19,014 [research_agent] INFO ResearchAgent cycle 32 starting
+2026-02-14 15:48:28,505 [research_agent] INFO ResearchAgent published memo (msg_id=6610) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 15:48:28,506 [coordinator] INFO   [research] 9.5s — 6 price pairs gathered
+2026-02-14 15:48:30,516 [strategy_agent] INFO StrategyAgent cycle 32 starting
+2026-02-14 15:48:30,534 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:48:30,534 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:48:30,534 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:48:30,534 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:48:30,534 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:48:30,534 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:48:30,546 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:48:30,546 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:48:32,553 [risk_agent] INFO RiskAgent cycle 32 starting
+2026-02-14 15:48:32,560 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:48:33,106 [risk_agent] INFO Portfolio: $188.48 | Cash: $135.67 | Exposure: 28%
+2026-02-14 15:48:33,106 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6612)
+2026-02-14 15:48:33,106 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:48:33,106 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 15:48:35,116 [execution_agent] INFO ExecutionAgent cycle 32 starting (mode=queue)
+2026-02-14 15:48:35,123 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:48:37,133 [learning_agent] INFO LearningAgent cycle 32 starting
+2026-02-14 15:48:37,243 [learning_agent] INFO LearningAgent: portfolio=$188.48 | Sharpe=-2.62 | DD=34.0% | trades=0 | recommendations=1 (msg_id=6614)
+2026-02-14 15:48:37,243 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:48:37,244 [coordinator] INFO   [learning] 0.1s — portfolio=$188.48 Sharpe=-2.62
+2026-02-14 15:48:39,254 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 32 starting
+2026-02-14 15:48:39,272 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6615): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:48:39,272 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:48:41,277 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 32 starting
+2026-02-14 15:48:41,295 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6616,6617): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:48:41,295 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:48:43,305 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 32 starting
+2026-02-14 15:48:43,322 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6618): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:48:43,322 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:48:45,333 [coordinator] INFO CYCLE 32 COMPLETE in 26.3s
+2026-02-14 15:48:45,333 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:50:46,214 [coordinator] INFO ============================================================
+2026-02-14 15:50:46,214 [coordinator] INFO CYCLE 33 STARTING at 2026-02-14 20:50:46 UTC
+2026-02-14 15:50:46,214 [coordinator] INFO ============================================================
+2026-02-14 15:50:46,215 [research_agent] INFO ResearchAgent cycle 33 starting
+2026-02-14 15:50:56,638 [research_agent] INFO ResearchAgent published memo (msg_id=6621) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:50:56,638 [coordinator] INFO   [research] 10.4s — 6 price pairs gathered
+2026-02-14 15:50:58,648 [strategy_agent] INFO StrategyAgent cycle 33 starting
+2026-02-14 15:50:58,666 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:50:58,666 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:50:58,666 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:50:58,667 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:50:58,667 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:50:58,667 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:50:58,679 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:50:58,679 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:51:00,685 [risk_agent] INFO RiskAgent cycle 33 starting
+2026-02-14 15:51:00,695 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:51:01,198 [risk_agent] INFO Portfolio: $188.48 | Cash: $135.67 | Exposure: 28%
+2026-02-14 15:51:01,198 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6623)
+2026-02-14 15:51:01,198 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:51:01,198 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 15:51:03,208 [execution_agent] INFO ExecutionAgent cycle 33 starting (mode=queue)
+2026-02-14 15:51:03,215 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:51:05,225 [learning_agent] INFO LearningAgent cycle 33 starting
+2026-02-14 15:51:05,378 [learning_agent] INFO LearningAgent: portfolio=$188.48 | Sharpe=-2.62 | DD=34.0% | trades=0 | recommendations=1 (msg_id=6625)
+2026-02-14 15:51:05,379 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:51:05,379 [coordinator] INFO   [learning] 0.2s — portfolio=$188.48 Sharpe=-2.62
+2026-02-14 15:51:07,389 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 33 starting
+2026-02-14 15:51:07,406 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6626): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:51:07,406 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:51:09,416 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 33 starting
+2026-02-14 15:51:09,434 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6627,6628): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:51:09,434 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:51:11,435 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 33 starting
+2026-02-14 15:51:11,453 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6629): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:51:11,453 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:51:13,463 [coordinator] INFO CYCLE 33 COMPLETE in 27.2s
+2026-02-14 15:51:13,464 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:53:14,266 [coordinator] INFO ============================================================
+2026-02-14 15:53:14,267 [coordinator] INFO CYCLE 34 STARTING at 2026-02-14 20:53:14 UTC
+2026-02-14 15:53:14,267 [coordinator] INFO ============================================================
+2026-02-14 15:53:14,267 [research_agent] INFO ResearchAgent cycle 34 starting
+2026-02-14 15:53:24,714 [research_agent] INFO ResearchAgent published memo (msg_id=6630) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:53:24,714 [coordinator] INFO   [research] 10.4s — 6 price pairs gathered
+2026-02-14 15:53:26,724 [strategy_agent] INFO StrategyAgent cycle 34 starting
+2026-02-14 15:53:26,742 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:53:26,742 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:53:26,742 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:53:26,742 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:53:26,742 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:53:26,742 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:53:26,754 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:53:26,754 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:53:28,760 [risk_agent] INFO RiskAgent cycle 34 starting
+2026-02-14 15:53:28,766 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:53:29,245 [risk_agent] INFO Portfolio: $188.48 | Cash: $135.67 | Exposure: 28%
+2026-02-14 15:53:29,245 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6632)
+2026-02-14 15:53:29,245 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:53:29,245 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 15:53:31,255 [execution_agent] INFO ExecutionAgent cycle 34 starting (mode=queue)
+2026-02-14 15:53:31,262 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:53:33,267 [learning_agent] INFO LearningAgent cycle 34 starting
+2026-02-14 15:53:33,384 [learning_agent] INFO LearningAgent: portfolio=$188.48 | Sharpe=-2.62 | DD=34.0% | trades=0 | recommendations=1 (msg_id=6634)
+2026-02-14 15:53:33,384 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:53:33,384 [coordinator] INFO   [learning] 0.1s — portfolio=$188.48 Sharpe=-2.62
+2026-02-14 15:53:35,393 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 34 starting
+2026-02-14 15:53:35,411 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6635): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:53:35,411 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:53:37,419 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 34 starting
+2026-02-14 15:53:37,442 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6636,6637): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:53:37,442 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:53:39,452 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 34 starting
+2026-02-14 15:53:39,470 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6638): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:53:39,471 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 15:53:41,472 [coordinator] INFO CYCLE 34 COMPLETE in 27.2s
+2026-02-14 15:53:41,472 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:55:42,398 [coordinator] INFO ============================================================
+2026-02-14 15:55:42,398 [coordinator] INFO CYCLE 35 STARTING at 2026-02-14 20:55:42 UTC
+2026-02-14 15:55:42,398 [coordinator] INFO ============================================================
+2026-02-14 15:55:42,398 [research_agent] INFO ResearchAgent cycle 35 starting
+2026-02-14 15:55:52,704 [research_agent] INFO ResearchAgent published memo (msg_id=6641) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:55:52,704 [coordinator] INFO   [research] 10.3s — 6 price pairs gathered
+2026-02-14 15:55:54,714 [strategy_agent] INFO StrategyAgent cycle 35 starting
+2026-02-14 15:55:54,729 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:55:54,729 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:55:54,729 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:55:54,729 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:55:54,729 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:55:54,729 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:55:54,739 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:55:54,739 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:55:56,747 [risk_agent] INFO RiskAgent cycle 35 starting
+2026-02-14 15:55:56,752 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:55:57,269 [risk_agent] INFO Portfolio: $188.50 | Cash: $135.67 | Exposure: 28%
+2026-02-14 15:55:57,270 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6643)
+2026-02-14 15:55:57,270 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:55:57,270 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 15:55:59,270 [execution_agent] INFO ExecutionAgent cycle 35 starting (mode=queue)
+2026-02-14 15:55:59,275 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:56:01,285 [learning_agent] INFO LearningAgent cycle 35 starting
+2026-02-14 15:56:01,413 [learning_agent] INFO LearningAgent: portfolio=$188.50 | Sharpe=-2.62 | DD=34.0% | trades=0 | recommendations=1 (msg_id=6645)
+2026-02-14 15:56:01,413 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:56:01,413 [coordinator] INFO   [learning] 0.1s — portfolio=$188.50 Sharpe=-2.62
+2026-02-14 15:56:03,423 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 35 starting
+2026-02-14 15:56:03,439 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6646): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:56:03,439 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:56:05,448 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 35 starting
+2026-02-14 15:56:05,464 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6647,6648): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:56:05,464 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:56:07,465 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 35 starting
+2026-02-14 15:56:07,480 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6649): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:56:07,480 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:56:09,489 [coordinator] INFO CYCLE 35 COMPLETE in 27.1s
+2026-02-14 15:56:09,489 [coordinator] INFO Next cycle in 120s...
+2026-02-14 15:58:10,296 [coordinator] INFO ============================================================
+2026-02-14 15:58:10,297 [coordinator] INFO CYCLE 36 STARTING at 2026-02-14 20:58:10 UTC
+2026-02-14 15:58:10,297 [coordinator] INFO ============================================================
+2026-02-14 15:58:10,297 [research_agent] INFO ResearchAgent cycle 36 starting
+2026-02-14 15:58:20,599 [research_agent] INFO ResearchAgent published memo (msg_id=6650) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 15:58:20,599 [coordinator] INFO   [research] 10.3s — 6 price pairs gathered
+2026-02-14 15:58:22,609 [strategy_agent] INFO StrategyAgent cycle 36 starting
+2026-02-14 15:58:22,627 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:58:22,627 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:58:22,627 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:58:22,627 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:58:22,628 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:58:22,628 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 15:58:22,638 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 15:58:22,639 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 15:58:24,649 [risk_agent] INFO RiskAgent cycle 36 starting
+2026-02-14 15:58:24,654 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 15:58:25,151 [risk_agent] INFO Portfolio: $188.50 | Cash: $135.67 | Exposure: 28%
+2026-02-14 15:58:25,152 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6652)
+2026-02-14 15:58:25,152 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 15:58:25,152 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 15:58:27,162 [execution_agent] INFO ExecutionAgent cycle 36 starting (mode=queue)
+2026-02-14 15:58:27,167 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 15:58:29,168 [learning_agent] INFO LearningAgent cycle 36 starting
+2026-02-14 15:58:29,276 [learning_agent] INFO LearningAgent: portfolio=$188.50 | Sharpe=-2.62 | DD=34.0% | trades=0 | recommendations=1 (msg_id=6654)
+2026-02-14 15:58:29,276 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 15:58:29,276 [coordinator] INFO   [learning] 0.1s — portfolio=$188.50 Sharpe=-2.62
+2026-02-14 15:58:31,286 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 36 starting
+2026-02-14 15:58:31,303 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6655): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 15:58:31,303 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 15:58:33,313 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 36 starting
+2026-02-14 15:58:33,329 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6656,6657): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 15:58:33,329 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 15:58:35,340 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 36 starting
+2026-02-14 15:58:35,356 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6658): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:58:35,356 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 15:58:37,366 [coordinator] INFO CYCLE 36 COMPLETE in 27.1s
+2026-02-14 15:58:37,366 [coordinator] INFO Next cycle in 120s...
+2026-02-14 16:00:38,168 [coordinator] INFO ============================================================
+2026-02-14 16:00:38,169 [coordinator] INFO CYCLE 37 STARTING at 2026-02-14 21:00:38 UTC
+2026-02-14 16:00:38,169 [coordinator] INFO ============================================================
+2026-02-14 16:00:38,169 [research_agent] INFO ResearchAgent cycle 37 starting
+2026-02-14 16:00:48,440 [research_agent] INFO ResearchAgent published memo (msg_id=6661) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 16:00:48,440 [coordinator] INFO   [research] 10.3s — 6 price pairs gathered
+2026-02-14 16:00:50,443 [strategy_agent] INFO StrategyAgent cycle 37 starting
+2026-02-14 16:00:50,460 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:00:50,460 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:00:50,460 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:00:50,460 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:00:50,460 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:00:50,460 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:00:50,471 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 16:00:50,471 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 16:00:52,481 [risk_agent] INFO RiskAgent cycle 37 starting
+2026-02-14 16:00:52,486 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 16:00:53,086 [risk_agent] INFO Portfolio: $172.60 | Cash: $135.67 | Exposure: 21%
+2026-02-14 16:00:53,087 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6663)
+2026-02-14 16:00:53,087 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 16:00:53,087 [coordinator] INFO   [risk] 0.6s — 0/1 approved
+2026-02-14 16:00:55,097 [execution_agent] INFO ExecutionAgent cycle 37 starting (mode=queue)
+2026-02-14 16:00:55,103 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 16:00:57,113 [learning_agent] INFO LearningAgent cycle 37 starting
+2026-02-14 16:00:57,246 [learning_agent] INFO LearningAgent: portfolio=$172.60 | Sharpe=-2.62 | DD=39.6% | trades=0 | recommendations=1 (msg_id=6665)
+2026-02-14 16:00:57,247 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 16:00:57,247 [coordinator] INFO   [learning] 0.1s — portfolio=$172.60 Sharpe=-2.62
+2026-02-14 16:00:59,253 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 37 starting
+2026-02-14 16:00:59,271 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6666): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 16:00:59,271 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 16:01:01,273 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 37 starting
+2026-02-14 16:01:01,289 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6667,6668): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 16:01:01,289 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 16:01:03,296 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 37 starting
+2026-02-14 16:01:03,313 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6669): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 16:01:03,313 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 16:01:05,319 [coordinator] INFO CYCLE 37 COMPLETE in 27.2s
+2026-02-14 16:01:05,319 [coordinator] INFO Next cycle in 120s...
+2026-02-14 16:03:06,153 [coordinator] INFO ============================================================
+2026-02-14 16:03:06,154 [coordinator] INFO CYCLE 38 STARTING at 2026-02-14 21:03:06 UTC
+2026-02-14 16:03:06,155 [coordinator] INFO ============================================================
+2026-02-14 16:03:06,155 [research_agent] INFO ResearchAgent cycle 38 starting
+2026-02-14 16:07:15,236 [research_agent] INFO ResearchAgent published memo (msg_id=6670) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 16:07:15,236 [coordinator] INFO   [research] 249.1s — 6 price pairs gathered
+2026-02-14 16:07:17,241 [strategy_agent] INFO StrategyAgent cycle 38 starting
+2026-02-14 16:07:17,256 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:07:17,256 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:07:17,256 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:07:17,256 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:07:17,256 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:07:17,256 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:07:17,267 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 16:07:17,267 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 16:07:19,272 [risk_agent] INFO RiskAgent cycle 38 starting
+2026-02-14 16:07:19,278 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 16:07:19,813 [risk_agent] INFO Portfolio: $167.24 | Cash: $135.67 | Exposure: 19%
+2026-02-14 16:07:19,814 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6672)
+2026-02-14 16:07:19,814 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 16:07:19,814 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 16:07:21,819 [execution_agent] INFO ExecutionAgent cycle 38 starting (mode=queue)
+2026-02-14 16:07:21,824 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 16:07:23,829 [learning_agent] INFO LearningAgent cycle 38 starting
+2026-02-14 16:07:23,982 [learning_agent] INFO LearningAgent: portfolio=$167.25 | Sharpe=-2.62 | DD=41.4% | trades=0 | recommendations=1 (msg_id=6674)
+2026-02-14 16:07:23,983 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 16:07:23,983 [coordinator] INFO   [learning] 0.2s — portfolio=$167.25 Sharpe=-2.62
+2026-02-14 16:07:25,988 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 38 starting
+2026-02-14 16:07:26,004 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6675): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 16:07:26,004 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 16:07:28,009 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 38 starting
+2026-02-14 16:07:28,025 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6676,6677): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 16:07:28,025 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 16:07:30,030 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 38 starting
+2026-02-14 16:07:30,046 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6678): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:07:30,046 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:07:32,051 [coordinator] INFO CYCLE 38 COMPLETE in 265.9s
+2026-02-14 16:07:32,051 [coordinator] INFO Next cycle in 120s...
+2026-02-14 16:09:32,506 [coordinator] INFO ============================================================
+2026-02-14 16:09:32,507 [coordinator] INFO CYCLE 39 STARTING at 2026-02-14 21:09:32 UTC
+2026-02-14 16:09:32,507 [coordinator] INFO ============================================================
+2026-02-14 16:09:32,507 [research_agent] INFO ResearchAgent cycle 39 starting
+2026-02-14 16:09:43,078 [research_agent] INFO ResearchAgent published memo (msg_id=6679) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 16:09:43,078 [coordinator] INFO   [research] 10.6s — 6 price pairs gathered
+2026-02-14 16:09:45,083 [strategy_agent] INFO StrategyAgent cycle 39 starting
+2026-02-14 16:09:45,100 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:09:45,100 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:09:45,100 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:09:45,100 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:09:45,100 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:09:45,100 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:09:45,111 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 16:09:45,111 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 16:09:47,116 [risk_agent] INFO RiskAgent cycle 39 starting
+2026-02-14 16:09:47,122 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 16:09:47,612 [risk_agent] INFO Portfolio: $167.21 | Cash: $135.67 | Exposure: 19%
+2026-02-14 16:09:47,613 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6681)
+2026-02-14 16:09:47,613 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 16:09:47,613 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 16:09:49,618 [execution_agent] INFO ExecutionAgent cycle 39 starting (mode=queue)
+2026-02-14 16:09:49,624 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 16:09:51,629 [learning_agent] INFO LearningAgent cycle 39 starting
+2026-02-14 16:09:51,816 [learning_agent] INFO LearningAgent: portfolio=$167.21 | Sharpe=-2.62 | DD=41.5% | trades=0 | recommendations=1 (msg_id=6685)
+2026-02-14 16:09:51,816 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 16:09:51,816 [coordinator] INFO   [learning] 0.2s — portfolio=$167.21 Sharpe=-2.62
+2026-02-14 16:09:53,817 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 39 starting
+2026-02-14 16:09:53,839 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6686): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 16:09:53,839 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 16:09:55,844 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 39 starting
+2026-02-14 16:09:55,861 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6687,6688): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 16:09:55,861 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 16:09:57,867 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 39 starting
+2026-02-14 16:09:57,884 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6689): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 16:09:57,884 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 16:09:59,889 [coordinator] INFO CYCLE 39 COMPLETE in 27.4s
+2026-02-14 16:09:59,889 [coordinator] INFO Next cycle in 120s...
+2026-02-14 16:12:00,375 [coordinator] INFO ============================================================
+2026-02-14 16:12:00,377 [coordinator] INFO CYCLE 40 STARTING at 2026-02-14 21:12:00 UTC
+2026-02-14 16:12:00,377 [coordinator] INFO ============================================================
+2026-02-14 16:12:00,377 [research_agent] INFO ResearchAgent cycle 40 starting
+2026-02-14 16:12:10,924 [research_agent] INFO ResearchAgent published memo (msg_id=6690) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 16:12:10,925 [coordinator] INFO   [research] 10.5s — 6 price pairs gathered
+2026-02-14 16:12:12,928 [strategy_agent] INFO StrategyAgent cycle 40 starting
+2026-02-14 16:12:12,944 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:12:12,944 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:12:12,944 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:12:12,944 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:12:12,944 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:12:12,944 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:12:12,954 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 16:12:12,954 [coordinator] INFO   [strategy] 0.0s — 0 proposals generated
+2026-02-14 16:12:14,956 [risk_agent] INFO RiskAgent cycle 40 starting
+2026-02-14 16:12:14,962 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 16:12:15,475 [risk_agent] INFO Portfolio: $167.19 | Cash: $135.67 | Exposure: 19%
+2026-02-14 16:12:15,475 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6692)
+2026-02-14 16:12:15,475 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 16:12:15,475 [coordinator] INFO   [risk] 0.5s — 0/1 approved
+2026-02-14 16:12:17,480 [execution_agent] INFO ExecutionAgent cycle 40 starting (mode=queue)
+2026-02-14 16:12:17,486 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 16:12:19,488 [learning_agent] INFO LearningAgent cycle 40 starting
+2026-02-14 16:12:19,589 [learning_agent] INFO LearningAgent: portfolio=$167.19 | Sharpe=-2.62 | DD=41.5% | trades=0 | recommendations=1 (msg_id=6694)
+2026-02-14 16:12:19,589 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 16:12:19,589 [coordinator] INFO   [learning] 0.1s — portfolio=$167.19 Sharpe=-2.62
+2026-02-14 16:12:21,594 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 40 starting
+2026-02-14 16:12:21,611 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6695): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 16:12:21,611 [coordinator] INFO   [algorithm_optimizer] 0.0s — min_conf=0.64 pair_biases=0
+2026-02-14 16:12:23,616 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 40 starting
+2026-02-14 16:12:23,632 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6696,6697): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 16:12:23,632 [coordinator] INFO   [quant_optimizer] 0.0s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 16:12:25,637 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 40 starting
+2026-02-14 16:12:25,653 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6698): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:12:25,654 [coordinator] INFO   [dashboard_optimizer] 0.0s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:12:27,659 [coordinator] INFO CYCLE 40 COMPLETE in 27.3s
+2026-02-14 16:12:27,664 [coordinator] INFO Next cycle in 120s...
+2026-02-14 16:14:28,153 [coordinator] INFO ============================================================
+2026-02-14 16:14:28,155 [coordinator] INFO CYCLE 41 STARTING at 2026-02-14 21:14:28 UTC
+2026-02-14 16:14:28,156 [coordinator] INFO ============================================================
+2026-02-14 16:14:28,156 [research_agent] INFO ResearchAgent cycle 41 starting
+2026-02-14 16:14:39,799 [research_agent] INFO ResearchAgent published memo (msg_id=6699) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 16:14:39,801 [coordinator] INFO   [research] 11.6s — 6 price pairs gathered
+2026-02-14 16:14:41,819 [strategy_agent] INFO StrategyAgent cycle 41 starting
+2026-02-14 16:14:41,964 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:14:41,965 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:14:41,965 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:14:41,965 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:14:41,965 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:14:41,965 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:14:42,065 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 16:14:42,067 [coordinator] INFO   [strategy] 0.2s — 0 proposals generated
+2026-02-14 16:14:44,076 [risk_agent] INFO RiskAgent cycle 41 starting
+2026-02-14 16:14:44,100 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 16:14:44,823 [risk_agent] INFO Portfolio: $167.21 | Cash: $135.67 | Exposure: 19%
+2026-02-14 16:14:44,825 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6701)
+2026-02-14 16:14:44,826 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 16:14:44,826 [coordinator] INFO   [risk] 0.7s — 0/1 approved
+2026-02-14 16:14:46,831 [execution_agent] INFO ExecutionAgent cycle 41 starting (mode=queue)
+2026-02-14 16:14:46,877 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 16:14:48,886 [learning_agent] INFO LearningAgent cycle 41 starting
+2026-02-14 16:14:49,273 [learning_agent] INFO LearningAgent: portfolio=$167.21 | Sharpe=-2.62 | DD=41.5% | trades=0 | recommendations=1 (msg_id=6703)
+2026-02-14 16:14:49,274 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 16:14:49,274 [coordinator] INFO   [learning] 0.4s — portfolio=$167.21 Sharpe=-2.62
+2026-02-14 16:14:51,281 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 41 starting
+2026-02-14 16:14:51,373 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6704): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 16:14:51,373 [coordinator] INFO   [algorithm_optimizer] 0.1s — min_conf=0.64 pair_biases=0
+2026-02-14 16:14:53,375 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 41 starting
+2026-02-14 16:14:53,469 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6705,6706): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 16:14:53,469 [coordinator] INFO   [quant_optimizer] 0.1s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 16:14:55,473 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 41 starting
+2026-02-14 16:14:55,596 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6707): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 16:14:55,596 [coordinator] INFO   [dashboard_optimizer] 0.1s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 16:14:57,606 [coordinator] INFO CYCLE 41 COMPLETE in 29.5s
+2026-02-14 16:14:57,606 [coordinator] INFO Next cycle in 120s...
+2026-02-14 16:16:58,191 [coordinator] INFO ============================================================
+2026-02-14 16:16:58,198 [coordinator] INFO CYCLE 42 STARTING at 2026-02-14 21:16:58 UTC
+2026-02-14 16:16:58,198 [coordinator] INFO ============================================================
+2026-02-14 16:16:58,198 [research_agent] INFO ResearchAgent cycle 42 starting
+2026-02-14 16:17:09,331 [research_agent] INFO ResearchAgent published memo (msg_id=6710) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 16:17:09,332 [coordinator] INFO   [research] 11.1s — 6 price pairs gathered
+2026-02-14 16:17:11,335 [strategy_agent] INFO StrategyAgent cycle 42 starting
+2026-02-14 16:17:11,422 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:17:11,423 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:17:11,424 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:17:11,424 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:17:11,424 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:17:11,425 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:17:11,484 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 16:17:11,485 [coordinator] INFO   [strategy] 0.2s — 0 proposals generated
+2026-02-14 16:17:13,490 [risk_agent] INFO RiskAgent cycle 42 starting
+2026-02-14 16:17:13,509 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 16:17:14,300 [risk_agent] INFO Portfolio: $167.19 | Cash: $135.67 | Exposure: 19%
+2026-02-14 16:17:14,302 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6712)
+2026-02-14 16:17:14,302 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 16:17:14,302 [coordinator] INFO   [risk] 0.8s — 0/1 approved
+2026-02-14 16:17:16,303 [execution_agent] INFO ExecutionAgent cycle 42 starting (mode=queue)
+2026-02-14 16:17:16,335 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 16:17:18,342 [learning_agent] INFO LearningAgent cycle 42 starting
+2026-02-14 16:17:18,692 [learning_agent] INFO LearningAgent: portfolio=$167.20 | Sharpe=-2.62 | DD=41.5% | trades=0 | recommendations=1 (msg_id=6714)
+2026-02-14 16:17:18,692 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 16:17:18,692 [coordinator] INFO   [learning] 0.3s — portfolio=$167.20 Sharpe=-2.62
+2026-02-14 16:17:20,697 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 42 starting
+2026-02-14 16:17:20,789 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6715): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 16:17:20,790 [coordinator] INFO   [algorithm_optimizer] 0.1s — min_conf=0.64 pair_biases=0
+2026-02-14 16:17:22,799 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 42 starting
+2026-02-14 16:17:22,987 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6716,6717): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 16:17:22,987 [coordinator] INFO   [quant_optimizer] 0.2s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 16:17:24,995 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 42 starting
+2026-02-14 16:17:25,081 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6718): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:17:25,088 [coordinator] INFO   [dashboard_optimizer] 0.1s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:17:27,095 [coordinator] INFO CYCLE 42 COMPLETE in 28.9s
+2026-02-14 16:17:27,098 [coordinator] INFO Next cycle in 120s...
+2026-02-14 16:19:27,770 [coordinator] INFO ============================================================
+2026-02-14 16:19:27,797 [coordinator] INFO CYCLE 43 STARTING at 2026-02-14 21:19:27 UTC
+2026-02-14 16:19:27,807 [coordinator] INFO ============================================================
+2026-02-14 16:19:27,811 [research_agent] INFO ResearchAgent cycle 43 starting
+2026-02-14 16:19:39,136 [research_agent] INFO ResearchAgent published memo (msg_id=6719) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 16:19:39,136 [coordinator] INFO   [research] 11.3s — 6 price pairs gathered
+2026-02-14 16:19:41,142 [strategy_agent] INFO StrategyAgent cycle 43 starting
+2026-02-14 16:19:41,294 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:19:41,294 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:19:41,295 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:19:41,295 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:19:41,295 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:19:41,295 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:19:41,368 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 16:19:41,368 [coordinator] INFO   [strategy] 0.2s — 0 proposals generated
+2026-02-14 16:19:43,373 [risk_agent] INFO RiskAgent cycle 43 starting
+2026-02-14 16:19:43,421 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 16:19:44,297 [risk_agent] INFO Portfolio: $155.23 | Cash: $135.67 | Exposure: 13%
+2026-02-14 16:19:44,300 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6721)
+2026-02-14 16:19:44,301 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 16:19:44,301 [coordinator] INFO   [risk] 0.9s — 0/1 approved
+2026-02-14 16:19:46,310 [execution_agent] INFO ExecutionAgent cycle 43 starting (mode=queue)
+2026-02-14 16:19:46,376 [coordinator] INFO   [execution] 0.1s — 0 trades processed
+2026-02-14 16:19:48,387 [learning_agent] INFO LearningAgent cycle 43 starting
+2026-02-14 16:19:48,765 [learning_agent] INFO LearningAgent: portfolio=$155.23 | Sharpe=-2.62 | DD=45.6% | trades=0 | recommendations=1 (msg_id=6723)
+2026-02-14 16:19:48,766 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 16:19:48,766 [coordinator] INFO   [learning] 0.4s — portfolio=$155.23 Sharpe=-2.62
+2026-02-14 16:19:50,769 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 43 starting
+2026-02-14 16:19:50,874 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6724): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 16:19:50,874 [coordinator] INFO   [algorithm_optimizer] 0.1s — min_conf=0.64 pair_biases=0
+2026-02-14 16:19:52,876 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 43 starting
+2026-02-14 16:19:52,988 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6725,6726): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 16:19:52,988 [coordinator] INFO   [quant_optimizer] 0.1s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 16:19:54,993 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 43 starting
+2026-02-14 16:19:55,089 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6727): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:19:55,089 [coordinator] INFO   [dashboard_optimizer] 0.1s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:19:57,094 [coordinator] INFO CYCLE 43 COMPLETE in 29.3s
+2026-02-14 16:19:57,095 [coordinator] INFO Next cycle in 120s...
+2026-02-14 16:21:58,160 [coordinator] INFO ============================================================
+2026-02-14 16:21:58,166 [coordinator] INFO CYCLE 44 STARTING at 2026-02-14 21:21:58 UTC
+2026-02-14 16:21:58,166 [coordinator] INFO ============================================================
+2026-02-14 16:21:58,167 [research_agent] INFO ResearchAgent cycle 44 starting
+2026-02-14 16:22:09,915 [research_agent] INFO ResearchAgent published memo (msg_id=6730) with 6 price pairs, 0 signals, fear_greed=9
+2026-02-14 16:22:09,926 [coordinator] INFO   [research] 11.8s — 6 price pairs gathered
+2026-02-14 16:22:11,932 [strategy_agent] INFO StrategyAgent cycle 44 starting
+2026-02-14 16:22:12,027 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:22:12,027 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:22:12,027 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:22:12,028 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:22:12,028 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:22:12,028 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:22:12,082 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 16:22:12,082 [coordinator] INFO   [strategy] 0.2s — 0 proposals generated
+2026-02-14 16:22:14,086 [risk_agent] INFO RiskAgent cycle 44 starting
+2026-02-14 16:22:14,106 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 16:22:14,864 [risk_agent] INFO Portfolio: $155.22 | Cash: $135.67 | Exposure: 13%
+2026-02-14 16:22:14,869 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6732)
+2026-02-14 16:22:14,869 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 16:22:14,869 [coordinator] INFO   [risk] 0.8s — 0/1 approved
+2026-02-14 16:22:16,878 [execution_agent] INFO ExecutionAgent cycle 44 starting (mode=queue)
+2026-02-14 16:22:16,909 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 16:22:18,915 [learning_agent] INFO LearningAgent cycle 44 starting
+2026-02-14 16:22:19,290 [learning_agent] INFO LearningAgent: portfolio=$155.22 | Sharpe=-2.62 | DD=45.7% | trades=0 | recommendations=1 (msg_id=6734)
+2026-02-14 16:22:19,293 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 16:22:19,293 [coordinator] INFO   [learning] 0.4s — portfolio=$155.22 Sharpe=-2.62
+2026-02-14 16:22:21,304 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 44 starting
+2026-02-14 16:22:21,437 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6735): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 16:22:21,437 [coordinator] INFO   [algorithm_optimizer] 0.1s — min_conf=0.64 pair_biases=0
+2026-02-14 16:22:23,448 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 44 starting
+2026-02-14 16:22:23,534 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6736,6737): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 16:22:23,534 [coordinator] INFO   [quant_optimizer] 0.1s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 16:22:25,540 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 44 starting
+2026-02-14 16:22:25,667 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6738): posture=DEFENSIVE focus_pairs=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:22:25,668 [coordinator] INFO   [dashboard_optimizer] 0.1s — posture=DEFENSIVE focus=SOL-USD,ETH-USD,BTC-USD
+2026-02-14 16:22:27,668 [coordinator] INFO CYCLE 44 COMPLETE in 29.5s
+2026-02-14 16:22:27,669 [coordinator] INFO Next cycle in 120s...
+2026-02-14 16:24:29,259 [coordinator] INFO ============================================================
+2026-02-14 16:24:29,266 [coordinator] INFO CYCLE 45 STARTING at 2026-02-14 21:24:29 UTC
+2026-02-14 16:24:29,267 [coordinator] INFO ============================================================
+2026-02-14 16:24:29,267 [research_agent] INFO ResearchAgent cycle 45 starting
+2026-02-14 16:24:38,969 [research_agent] INFO ResearchAgent published memo (msg_id=6739) with 6 price pairs, 20 signals, fear_greed=9
+2026-02-14 16:24:38,970 [coordinator] INFO   [research] 9.7s — 6 price pairs gathered
+2026-02-14 16:24:41,003 [strategy_agent] INFO StrategyAgent cycle 45 starting
+2026-02-14 16:24:41,437 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:24:41,438 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:24:41,438 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:24:41,438 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:24:41,438 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:24:41,439 [strategy_agent] INFO Overall Sharpe negative (-2.62), reducing all signals
+2026-02-14 16:24:41,611 [strategy_agent] INFO No proposals generated — all signals below threshold
+2026-02-14 16:24:41,611 [coordinator] INFO   [strategy] 0.6s — 0 proposals generated
+2026-02-14 16:24:43,723 [risk_agent] INFO RiskAgent cycle 45 starting
+2026-02-14 16:24:43,797 [risk_agent] INFO Quant overrides: min_conf=0.71 max_trade=$3.50 max_trades=1 blocked=0
+2026-02-14 16:24:44,614 [risk_agent] INFO Portfolio: $155.18 | Cash: $135.67 | Exposure: 13%
+2026-02-14 16:24:44,622 [risk_agent] INFO HOLD: HOLD NONE conf=0.00 — No trade proposed (msg_id=6741)
+2026-02-14 16:24:44,622 [risk_agent] INFO RiskAgent: 0 approved, 1 total this cycle
+2026-02-14 16:24:44,622 [coordinator] INFO   [risk] 0.9s — 0/1 approved
+2026-02-14 16:24:46,626 [execution_agent] INFO ExecutionAgent cycle 45 starting (mode=queue)
+2026-02-14 16:24:46,673 [coordinator] INFO   [execution] 0.0s — 0 trades processed
+2026-02-14 16:24:48,676 [learning_agent] INFO LearningAgent cycle 45 starting
+2026-02-14 16:24:49,077 [learning_agent] INFO LearningAgent: portfolio=$155.18 | Sharpe=-2.62 | DD=45.7% | trades=0 | recommendations=1 (msg_id=6743)
+2026-02-14 16:24:49,077 [learning_agent] INFO   Insight: WARNING: Sharpe ratio -2.62 is negative — reduce all positions
+2026-02-14 16:24:49,078 [coordinator] INFO   [learning] 0.4s — portfolio=$155.18 Sharpe=-2.62
+2026-02-14 16:24:51,083 [algorithm_optimizer_agent] INFO AlgorithmOptimizerAgent cycle 45 starting
+2026-02-14 16:24:51,189 [algorithm_optimizer_agent] INFO Algorithm tuning published (msg_id=6744): min_conf=0.64 size_mult=0.68x pair_biases=0
+2026-02-14 16:24:51,189 [coordinator] INFO   [algorithm_optimizer] 0.1s — min_conf=0.64 pair_biases=0
+2026-02-14 16:24:53,194 [quant_optimizer_agent] INFO QuantOptimizerAgent cycle 45 starting
+2026-02-14 16:24:53,290 [quant_optimizer_agent] INFO Quant optimization published (msg_ids=6745,6746): posture=DEFENSIVE top_pairs=3 blocked=0
+2026-02-14 16:24:53,290 [coordinator] INFO   [quant_optimizer] 0.1s — posture=DEFENSIVE ranked_pairs=3
+2026-02-14 16:24:55,298 [dashboard_optimizer_agent] INFO DashboardOptimizerAgent cycle 45 starting
+2026-02-14 16:24:55,395 [dashboard_optimizer_agent] INFO Dashboard optimization published (msg_id=6747): posture=DEFENSIVE focus_pairs=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 16:24:55,396 [coordinator] INFO   [dashboard_optimizer] 0.1s — posture=DEFENSIVE focus=BTC-USD,ETH-USD,SOL-USD
+2026-02-14 16:24:57,404 [coordinator] INFO CYCLE 45 COMPLETE in 28.1s
+2026-02-14 16:24:57,409 [coordinator] INFO Next cycle in 120s...

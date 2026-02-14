@@ -705,3 +705,19 @@
 2026-02-14 14:49:40,031 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
 2026-02-14 14:50:21,675 [flywheel] INFO cycle=65 decision=GO quant_run=False pnl_today=+47.9364 total=$235.25 lock=OFF
 2026-02-14 14:55:05,136 [flywheel] INFO cycle=66 decision=GO quant_run=False pnl_today=+47.9364 total=$235.16 lock=OFF
+2026-02-14 15:08:38,784 [flywheel] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 15:08:38,793 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 15:08:38,805 [flywheel] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 15:08:38,807 [flywheel] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 15:08:38,808 [flywheel] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 15:08:38,809 [flywheel] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 15:08:38,916 [flywheel] INFO cycle=67 decision=GO quant_run=True pnl_today=+47.9364 total=$12.26 lock=OFF
+2026-02-14 15:14:16,243 [flywheel] INFO cycle=67 decision=GO quant_run=True pnl_today=+47.9364 total=$234.16 lock=OFF
+2026-02-14 15:16:27,151 [flywheel] INFO cycle=67 decision=GO quant_run=True pnl_today=+47.9364 total=$234.13 lock=OFF
+2026-02-14 15:18:46,098 [flywheel] INFO cycle=68 decision=GO quant_run=False pnl_today=+47.9364 total=$234.11 lock=OFF
+2026-02-14 15:23:36,505 [flywheel] INFO cycle=69 decision=GO quant_run=False pnl_today=+47.9364 total=$234.09 lock=OFF
+2026-02-14 15:42:59,910 [flywheel] INFO cycle=70 decision=NO_GO quant_run=True pnl_today=+47.9364 total=$233.91 lock=ON
+2026-02-14 15:47:49,816 [flywheel] INFO cycle=71 decision=GO quant_run=False pnl_today=+47.9364 total=$233.92 lock=OFF
+2026-02-14 15:52:47,414 [flywheel] INFO cycle=72 decision=GO quant_run=False pnl_today=+47.9364 total=$233.90 lock=OFF
+2026-02-14 16:16:38,170 [flywheel] INFO cycle=73 decision=NO_GO quant_run=True pnl_today=+47.9364 total=$233.93 lock=ON
+2026-02-14 16:22:23,361 [flywheel] INFO cycle=74 decision=GO quant_run=False pnl_today=+47.9364 total=$233.85 lock=OFF

@@ -13662,3 +13662,24 @@
 2026-02-14 15:03:10,100 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.02659013 @ $88.4 (post_only=True)
 2026-02-14 15:03:10,277 [mean_reversion] INFO ENTER ETH/SOL: BUY_A/SELL_B | z=-2.45 | $4.70 | ratio=23.6519 (mean=23.6793)
 2026-02-14 15:05:28,910 [mean_reversion] INFO EXIT ETH/SOL: z crossed zero to 1.14 | z=-2.45→1.14 | pnl=$-0.0296 | held=138s
+2026-02-14 15:19:39,441 [mean_reversion] INFO BTC/ETH: z=1.79 ratio=33.4938 mean=33.4640 obs=40 
+2026-02-14 15:19:39,441 [mean_reversion] INFO ETH/SOL: z=1.45 ratio=23.7162 mean=23.6892 obs=40 
+2026-02-14 15:19:39,441 [mean_reversion] INFO BTC/SOL: z=1.82 ratio=794.4993 mean=792.7650 obs=40 
+2026-02-14 15:19:39,441 [mean_reversion] INFO LINK/AVAX: z=-1.16 ratio=0.9519 mean=0.9544 obs=40 
+2026-02-14 15:31:11,845 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00131333 @ $2085.16 (post_only=True)
+2026-02-14 15:31:12,541 [mean_reversion] INFO ENTER ETH/SOL: SELL_A/BUY_B | z=2.06 | $5.47 | ratio=23.7429 (mean=23.6965)
+2026-02-14 15:42:51,123 [mean_reversion] INFO BTC/ETH: z=0.83 ratio=33.4944 mean=33.4760 obs=60 
+2026-02-14 15:42:51,123 [mean_reversion] INFO ETH/SOL: z=1.46 ratio=23.7461 mean=23.7051 obs=60 POSITION
+2026-02-14 15:42:51,123 [mean_reversion] INFO BTC/SOL: z=1.32 ratio=795.4061 mean=793.5666 obs=60 
+2026-02-14 15:42:51,123 [mean_reversion] INFO LINK/AVAX: z=-0.61 ratio=0.9526 mean=0.9538 obs=60 
+2026-02-14 15:49:38,320 [mean_reversion] INFO MR ETH/SOL: z=0.08 reverted but pnl=$-0.0360 < $0 — waiting for breakeven
+2026-02-14 15:55:23,103 [mean_reversion] INFO MR ETH/SOL: z=0.03 reverted but pnl=$-0.0358 < $0 — waiting for breakeven
+2026-02-14 15:56:32,001 [mean_reversion] INFO MR ETH/SOL: z=-0.03 reverted but pnl=$-0.0355 < $0 — waiting for breakeven
+2026-02-14 15:57:41,051 [mean_reversion] INFO MR ETH/SOL: z=0.14 reverted but pnl=$-0.0365 < $0 — waiting for breakeven
+2026-02-14 15:59:58,880 [mean_reversion] INFO MR ETH/SOL: z=0.01 reverted but pnl=$-0.0357 < $0 — waiting for breakeven
+2026-02-14 16:01:09,312 [mean_reversion] INFO MR ETH/SOL: z=-0.01 reverted but pnl=$-0.0356 < $0 — waiting for breakeven
+2026-02-14 16:02:20,416 [mean_reversion] INFO EXIT ETH/SOL: z crossed zero to -0.30 | z=2.06→-0.30 | pnl=$-0.0339 | held=1867s
+2026-02-14 16:09:52,261 [mean_reversion] INFO BTC/ETH: z=0.20 ratio=33.4890 mean=33.4841 obs=80 
+2026-02-14 16:09:52,261 [mean_reversion] INFO ETH/SOL: z=1.08 ratio=23.7370 mean=23.7089 obs=80 
+2026-02-14 16:09:52,261 [mean_reversion] INFO BTC/SOL: z=0.72 ratio=794.8559 mean=793.8892 obs=80 
+2026-02-14 16:09:52,261 [mean_reversion] INFO LINK/AVAX: z=0.18 ratio=0.9540 mean=0.9536 obs=80 

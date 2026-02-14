@@ -395,12 +395,23 @@ def _is_no_go_for_warm_bootstrap(decision):
     reasons = decision.get("reasons")
     if not isinstance(reasons, list):
         return False
+    def _is_execution_health_blocker(reason):
+        value = str(reason).strip()
+        return (
+            value.startswith("execution_health_not_green")
+            or value == "execution_health_status_missing"
+        )
+
     return any(
-        str(r).strip() in {
-            "no_hot_promotions",
-            "warm_runtime_not_hot_eligible",
-            "warm_promotion_runner_no_hot",
-        }
+        (
+            str(r).strip() in {
+                "no_hot_promotions",
+                "warm_runtime_not_hot_eligible",
+                "warm_promotion_runner_no_hot",
+                "critical_audit_failures_present",
+            }
+            or _is_execution_health_blocker(r)
+        )
         for r in reasons
     )
 
@@ -426,6 +437,15 @@ def _warm_runner_env_overrides(decision):
             "WARM_EVIDENCE_NON_CANDLE_MIN_BARS": str(max(1, WARM_EVIDENCE_NO_GO_MIN_BARS)),
             "WARM_EVIDENCE_NON_CANDLE_FALLBACK": "1",
             "WARM_MIN_EVIDENCE_CANDLES": str(max(1, int(WARM_EVIDENCE_NO_GO_MIN_CANDLES))),
+            "REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION": "0",
+            "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_EGRESS": "1",
+            "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_TELEMETRY": "1",
+            "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD": str(
+                float(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_BUDGET_USD)
+            ),
+            "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_STRATEGIES": str(
+                int(EXECUTION_HEALTH_WARM_BOOTSTRAP_MAX_STRATEGIES)
+            ),
         }
 
     return {}

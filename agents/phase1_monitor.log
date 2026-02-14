@@ -56,3 +56,21 @@
 2026-02-14 15:04:34,276 [phase1_monitor] INFO sentiment_leech: No P&L yet, skipping escalation check
 2026-02-14 15:04:34,276 [phase1_monitor] INFO === CYCLE COMPLETE ===
 
+2026-02-14 15:34:34,296 [phase1_monitor] INFO === 30-MIN MONITORING CYCLE ===
+2026-02-14 15:34:34,297 [phase1_monitor] INFO sentiment_leech:
+2026-02-14 15:34:34,297 [phase1_monitor] INFO   Trades: 0
+2026-02-14 15:34:34,297 [phase1_monitor] INFO   P&L: $0.00
+2026-02-14 15:34:34,297 [phase1_monitor] INFO   Win Rate: 0.0%
+2026-02-14 15:34:34,298 [phase1_monitor] INFO   Sharpe: 0.000
+2026-02-14 15:34:34,298 [phase1_monitor] INFO sentiment_leech: No P&L yet, skipping escalation check
+2026-02-14 15:34:34,298 [phase1_monitor] INFO === CYCLE COMPLETE ===
+
+2026-02-14 16:08:32,550 [phase1_monitor] INFO === 30-MIN MONITORING CYCLE ===
+2026-02-14 16:08:32,551 [phase1_monitor] INFO sentiment_leech:
+2026-02-14 16:08:32,552 [phase1_monitor] INFO   Trades: 0
+2026-02-14 16:08:32,552 [phase1_monitor] INFO   P&L: $0.00
+2026-02-14 16:08:32,552 [phase1_monitor] INFO   Win Rate: 0.0%
+2026-02-14 16:08:32,552 [phase1_monitor] INFO   Sharpe: 0.000
+2026-02-14 16:08:32,552 [phase1_monitor] INFO sentiment_leech: No P&L yet, skipping escalation check
+2026-02-14 16:08:32,552 [phase1_monitor] INFO === CYCLE COMPLETE ===
+

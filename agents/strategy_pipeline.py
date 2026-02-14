@@ -65,6 +65,8 @@ WARM_TO_HOT = {
 # Adaptive HOT gating for sparse but multi-window evidence.
 WARM_ADAPTIVE_GATING = os.environ.get("WARM_ADAPTIVE_GATING", "1").lower() not in ("0", "false", "no")
 WARM_SPARSE_MIN_TRADES = int(os.environ.get("WARM_SPARSE_MIN_TRADES", "2"))
+WARM_SPARSE_TRADE_BASED_EVIDENCE_ENABLED = os.environ.get("WARM_SPARSE_TRADE_BASED_EVIDENCE_ENABLED", "1").lower() not in ("0", "false", "no")
+WARM_SPARSE_TRADE_BASED_MIN_TRADES = max(1, int(os.environ.get("WARM_SPARSE_TRADE_BASED_MIN_TRADES", "2")))
 WARM_SPARSE_MIN_WIN_RATE = float(os.environ.get("WARM_SPARSE_MIN_WIN_RATE", "0.58"))
 WARM_SPARSE_MIN_RETURN_PCT = float(os.environ.get("WARM_SPARSE_MIN_RETURN_PCT", "0.03"))
 WARM_SPARSE_MAX_DRAWDOWN_PCT = float(os.environ.get("WARM_SPARSE_MAX_DRAWDOWN_PCT", "2.50"))
@@ -3240,6 +3242,16 @@ class StrategyValidator:
     def _warm_evidence_windows(paper_metrics):
         evidence = paper_metrics.get("evidence", {}) if isinstance(paper_metrics.get("evidence"), dict) else {}
         raw_windows = evidence.get("windows", [])
+        fallback_min_trades = int(WARM_SPARSE_TRADE_BASED_MIN_TRADES)
+        if (
+            WARM_SPARSE_TRADE_BASED_EVIDENCE_ENABLED
+            and not raw_windows
+            and not evidence.get("source")
+            and int(paper_metrics.get("total_trades", 0) or 0) >= fallback_min_trades
+        ):
+            # Synthetic evidence windows to allow adaptive sparse gating when strategy
+            # runtime evidence is present but sparse metadata is missing.
+            raw_windows = [int(fallback_min_trades), max(24, int(fallback_min_trades) * 2)]
         windows = []
         if isinstance(raw_windows, (list, tuple)):
             for value in raw_windows:

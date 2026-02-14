@@ -1,0 +1,9 @@
+2026-02-14 17:06:35,370 [ORCH] INFO Fast C engine loaded (80ns/signal)
+2026-02-14 17:06:35,370 [ORCH] INFO Starting RealtimeOrchestrator (mock_mode=True, target_cycle=100.0ms)
+2026-02-14 17:08:47,881 [ORCH] INFO CreativeAgentBridge initialized for test
+2026-02-14 17:08:53,183 [ORCH] INFO Fast C engine loaded (80ns/signal)
+2026-02-14 17:08:53,184 [ORCH] INFO CreativeAgentBridge initialized for test_agent_1
+2026-02-14 17:08:53,184 [ORCH] INFO CreativeAgentBridge initialized for test_agent_2
+2026-02-14 17:08:53,184 [ORCH] INFO test_agent_1 → BTC-USD BUY (confidence=0.85, urgency=high)
+2026-02-14 17:08:53,184 [ORCH] INFO test_agent_2 → ETH-USD SELL (confidence=0.75, urgency=medium)
+2026-02-14 17:08:53,184 [ORCH] INFO Starting RealtimeOrchestrator (mock_mode=True, target_cycle=100.0ms)

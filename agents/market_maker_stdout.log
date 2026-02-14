@@ -8379,3 +8379,227 @@
 2026-02-14 15:03:45,267 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070334 @ $2132.67 (post_only=True)
 2026-02-14 15:03:45,582 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069651 @ $2153.58 (post_only=True)
 2026-02-14 15:03:45,780 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2090.86 (inventory=4.2%)
+2026-02-14 15:06:22,026 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01683555 @ $89.09 (post_only=True)
+2026-02-14 15:06:22,308 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01675262 @ $89.53 (post_only=True)
+2026-02-14 15:06:22,602 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.0166705 @ $89.97 (post_only=True)
+2026-02-14 15:06:22,901 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01650865 @ $90.86 (post_only=True)
+2026-02-14 15:06:23,090 [grid_harvester] INFO GRID SOL-USDC: 4 orders placed around $88.22 (inventory=7.9%)
+2026-02-14 15:07:36,673 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00071112 @ $2109.32 (post_only=True)
+2026-02-14 15:07:36,939 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070762 @ $2119.77 (post_only=True)
+2026-02-14 15:07:37,260 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070415 @ $2130.21 (post_only=True)
+2026-02-14 15:07:37,541 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069731 @ $2151.09 (post_only=True)
+2026-02-14 15:07:37,719 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2088.44 (inventory=10.2%)
+2026-02-14 15:11:41,597 [grid_harvester] INFO Status: cycle=30 fills=0 round_trips=0 pnl=$0.0000 open=0
+2026-02-14 15:24:32,858 [grid_harvester] INFO Status: cycle=40 fills=0 round_trips=0 pnl=$0.0000 open=0
+2026-02-14 15:29:29,335 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00071216 @ $2106.24 (post_only=True)
+2026-02-14 15:29:29,660 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070865 @ $2116.67 (post_only=True)
+2026-02-14 15:29:29,942 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070518 @ $2127.1 (post_only=True)
+2026-02-14 15:29:30,273 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069833 @ $2147.95 (post_only=True)
+2026-02-14 15:29:30,478 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2085.39 (inventory=12.5%)
+2026-02-14 15:29:34,034 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01689684 @ $88.77 (post_only=True)
+2026-02-14 15:29:34,321 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01681361 @ $89.21 (post_only=True)
+2026-02-14 15:29:34,641 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01673119 @ $89.65 (post_only=True)
+2026-02-14 15:29:34,949 [exchange] INFO Placing LIMIT SELL: SOL-USDC 0.01656875 @ $90.53 (post_only=True)
+2026-02-14 15:29:35,147 [grid_harvester] INFO GRID SOL-USDC: 4 orders placed around $87.90 (inventory=5.9%)
+2026-02-14 15:34:37,039 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00071254 @ $2105.13 (post_only=True)
+2026-02-14 15:34:37,312 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070903 @ $2115.55 (post_only=True)
+2026-02-14 15:34:37,602 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070555 @ $2125.98 (post_only=True)
+2026-02-14 15:34:37,957 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.0006987 @ $2146.82 (post_only=True)
+2026-02-14 15:34:38,127 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2084.30 (inventory=19.6%)
+2026-02-14 15:37:24,165 [grid_harvester] INFO Status: cycle=50 fills=0 round_trips=0 pnl=$0.0000 open=4
+2026-02-14 15:39:46,152 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00071205 @ $2106.59 (post_only=True)
+2026-02-14 15:39:46,505 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070854 @ $2117.02 (post_only=True)
+2026-02-14 15:39:46,796 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070506 @ $2127.44 (post_only=True)
+2026-02-14 15:39:47,107 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069822 @ $2148.3 (post_only=True)
+2026-02-14 15:39:47,278 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2085.73 (inventory=19.4%)
+2026-02-14 15:43:33,270 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:33,271 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:33,273 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:33,274 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:37,530 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:37,532 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:37,533 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:37,534 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:39,672 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:39,673 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:39,674 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:39,674 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:41,803 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:41,804 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:41,805 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:41,806 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:44,524 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:44,525 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:44,526 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:44,527 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:48,254 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00071179 @ $2107.35 (post_only=True)
+2026-02-14 15:44:48,554 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070828 @ $2117.79 (post_only=True)
+2026-02-14 15:44:48,817 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070481 @ $2128.22 (post_only=True)
+2026-02-14 15:44:49,102 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069796 @ $2149.08 (post_only=True)
+2026-02-14 15:44:49,260 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2086.49 (inventory=19.4%)
+2026-02-14 15:44:51,376 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:51,377 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:51,378 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:51,379 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:53,512 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:53,513 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:53,514 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:53,514 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:55,630 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:55,631 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:55,632 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:55,633 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:45:58,332 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:45:58,333 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:45:58,334 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:45:58,335 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:02,608 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:02,609 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:02,610 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:02,611 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:04,730 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:04,731 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:04,732 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:04,733 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:06,853 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:06,854 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:06,856 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:06,857 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:09,581 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:09,582 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:09,583 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:09,584 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:13,832 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:13,833 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:13,834 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:13,835 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:15,945 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:15,945 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:15,946 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:15,948 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:18,061 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:18,062 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:18,063 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:18,064 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:49:51,552 [grid_harvester] INFO Status: cycle=60 fills=0 round_trips=0 pnl=$0.0000 open=4
+2026-02-14 15:50:57,113 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00071142 @ $2108.44 (post_only=True)
+2026-02-14 15:50:57,432 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070792 @ $2118.87 (post_only=True)
+2026-02-14 15:50:57,718 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070445 @ $2129.31 (post_only=True)
+2026-02-14 15:50:57,997 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069761 @ $2150.19 (post_only=True)
+2026-02-14 15:50:58,160 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2087.57 (inventory=19.4%)
+2026-02-14 15:56:03,380 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00071139 @ $2108.52 (post_only=True)
+2026-02-14 15:56:03,671 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070789 @ $2118.95 (post_only=True)
+2026-02-14 15:56:03,941 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070442 @ $2129.39 (post_only=True)
+2026-02-14 15:56:04,211 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069758 @ $2150.27 (post_only=True)
+2026-02-14 15:56:04,389 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2087.64 (inventory=19.4%)
+2026-02-14 16:01:08,681 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00071014 @ $2112.24 (post_only=True)
+2026-02-14 16:01:08,974 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070664 @ $2122.7 (post_only=True)
+2026-02-14 16:01:09,327 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070318 @ $2133.16 (post_only=True)
+2026-02-14 16:01:09,609 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069635 @ $2154.07 (post_only=True)
+2026-02-14 16:01:09,771 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2091.34 (inventory=13.5%)
+2026-02-14 16:02:37,332 [grid_harvester] INFO Status: cycle=70 fills=0 round_trips=0 pnl=$0.0000 open=4
+2026-02-14 16:07:43,339 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070862 @ $2116.76 (post_only=True)
+2026-02-14 16:07:43,628 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070513 @ $2127.24 (post_only=True)
+2026-02-14 16:07:43,901 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070168 @ $2137.72 (post_only=True)
+2026-02-14 16:07:44,183 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069486 @ $2158.67 (post_only=True)
+2026-02-14 16:07:44,350 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2095.81 (inventory=11.3%)
+2026-02-14 16:12:52,148 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070944 @ $2114.33 (post_only=True)
+2026-02-14 16:12:52,467 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070594 @ $2124.8 (post_only=True)
+2026-02-14 16:12:52,733 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070248 @ $2135.27 (post_only=True)
+2026-02-14 16:12:53,018 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069566 @ $2156.2 (post_only=True)
+2026-02-14 16:12:53,201 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2093.40 (inventory=11.3%)
+2026-02-14 16:16:43,558 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:43,572 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:43,577 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:43,579 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:47,969 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:47,976 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:47,989 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:48,000 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:50,147 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:50,156 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:50,164 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:50,170 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:52,329 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:52,332 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:52,338 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:52,341 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:55,407 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:55,413 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:55,424 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:55,430 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:59,231 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:59,239 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:59,255 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:59,262 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:59,410 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070937 @ $2114.54 (post_only=True)
+2026-02-14 16:17:59,766 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070587 @ $2125.0 (post_only=True)
+2026-02-14 16:18:00,186 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070241 @ $2135.47 (post_only=True)
+2026-02-14 16:18:00,528 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069559 @ $2156.41 (post_only=True)
+2026-02-14 16:18:00,724 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2093.61 (inventory=6.0%)
+2026-02-14 16:18:02,879 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:02,888 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:02,892 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:02,903 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:05,051 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:05,054 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:05,061 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:05,064 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:07,202 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:07,204 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:07,207 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:07,211 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:10,204 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:10,213 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:10,233 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:10,237 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:14,537 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:14,547 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:14,563 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:14,569 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:16,733 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:16,738 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:16,740 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:16,741 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:18,875 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:18,877 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:18,887 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:18,890 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:20,902 [grid_harvester] INFO Status: cycle=80 fills=0 round_trips=0 pnl=$0.0000 open=4
+2026-02-14 16:20:21,879 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:21,894 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:21,934 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:21,971 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:26,281 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:26,295 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:26,302 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:26,308 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:28,473 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:28,478 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:28,487 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:28,490 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:30,665 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:30,670 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:30,674 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:30,680 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:34,070 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:34,073 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:34,074 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:34,076 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:38,500 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:38,504 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:38,523 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:38,531 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:40,704 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:40,709 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:40,714 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:40,722 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:42,878 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:42,882 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:42,908 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:42,913 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:24:12,246 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00071149 @ $2108.24 (post_only=True)
+2026-02-14 16:24:12,848 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070798 @ $2118.68 (post_only=True)
+2026-02-14 16:24:13,262 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00070451 @ $2129.12 (post_only=True)
+2026-02-14 16:24:13,725 [exchange] INFO Placing LIMIT SELL: ETH-USDC 0.00069767 @ $2149.99 (post_only=True)
+2026-02-14 16:24:13,937 [grid_harvester] INFO GRID ETH-USDC: 4 orders placed around $2087.38 (inventory=6.0%)

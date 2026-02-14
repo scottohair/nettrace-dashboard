@@ -83,3 +83,10 @@
 2026-02-14 14:44:24,139 [fly_migration] INFO cycle=2 regions=7 primary=ewr runtime=local
 2026-02-14 14:54:24,143 [fly_migration] INFO cycle=3 regions=7 primary=ewr runtime=local
 2026-02-14 15:04:24,161 [fly_migration] INFO cycle=4 regions=7 primary=ewr runtime=local
+2026-02-14 15:14:24,168 [fly_migration] INFO cycle=5 regions=7 primary=ewr runtime=local
+2026-02-14 15:24:24,175 [fly_migration] INFO cycle=6 regions=7 primary=ewr runtime=local
+2026-02-14 15:34:24,196 [fly_migration] INFO cycle=7 regions=7 primary=ewr runtime=local
+2026-02-14 15:44:24,217 [fly_migration] INFO cycle=8 regions=7 primary=ewr runtime=local
+2026-02-14 15:54:24,236 [fly_migration] INFO cycle=9 regions=7 primary=ewr runtime=local
+2026-02-14 16:08:22,484 [fly_migration] INFO cycle=10 regions=7 primary=ewr runtime=local
+2026-02-14 16:18:22,511 [fly_migration] INFO cycle=11 regions=7 primary=ewr runtime=local

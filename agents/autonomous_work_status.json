@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T20:04:11.446452+00:00",
+  "updated_at": "2026-02-14T21:23:36.964928+00:00",
   "agent": "autonomous_work_manager",
   "duplex_available": true,
   "queue_size": 80,
@@ -176,8 +176,8 @@
       "title": "USD/USDC treasury capture optimization 136 for DOT-USD",
       "status": "dispatched",
       "priority_score": 100.0,
-      "dispatch_count": 1,
-      "trace_id": "1318e5f51eae4e9c15cf3a65",
+      "dispatch_count": 2,
+      "trace_id": "18efb889a8d5cc102f8c8ac1",
       "verification_reason": "not_checked"
     },
     {
@@ -185,8 +185,8 @@
       "title": "USD/USDC treasury capture optimization 135 for BCH-USD",
       "status": "dispatched",
       "priority_score": 100.0,
-      "dispatch_count": 1,
-      "trace_id": "21ce340ef166eb29502c929a",
+      "dispatch_count": 2,
+      "trace_id": "88a6f818918ab226888ab562",
       "verification_reason": "not_checked"
     },
     {
@@ -362,13 +362,13 @@
     }
   ],
   "win_1000_snapshot": {
-    "updated_at": "2026-02-14T11:46:22.237102+00:00",
+    "updated_at": "2026-02-14T21:16:31.875995+00:00",
     "tasks_total": 1000,
     "worked_through_count": 1000,
     "status_counts": {
       "completed": 520,
-      "in_progress": 220,
-      "pending": 260,
+      "in_progress": 480,
+      "pending": 0,
       "blocked": 0
     },
     "priority_counts": {

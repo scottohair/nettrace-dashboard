@@ -908,3 +908,122 @@
 2026-02-14 15:04:17,978 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
 2026-02-14 15:04:55,148 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
 2026-02-14 15:04:58,516 [mcp_opportunity] INFO cycle=13 go_live=True opportunities=0 top=n/a
+2026-02-14 15:06:48,013 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:06:49,558 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:06:52,907 [mcp_opportunity] INFO cycle=14 go_live=True opportunities=0 top=n/a
+2026-02-14 15:08:38,494 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:08:38,651 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:08:38,690 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 15:09:18,445 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:09:18,950 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:09:22,102 [mcp_opportunity] INFO cycle=15 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 15:11:48,711 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:11:49,127 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:11:52,852 [mcp_opportunity] INFO cycle=16 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 15:14:07,081 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:14:07,482 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:14:10,447 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 15:14:18,457 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:14:18,916 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:14:22,021 [mcp_opportunity] INFO cycle=17 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 15:16:22,864 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:16:23,245 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:16:26,188 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 15:16:48,507 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:16:48,973 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:16:52,111 [mcp_opportunity] INFO cycle=18 go_live=True opportunities=12 top=quant_bias:BTC-USDC
+2026-02-14 15:18:41,702 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:18:42,114 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:18:45,127 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=0 top=n/a
+2026-02-14 15:19:18,648 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:19:37,860 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:19:41,170 [mcp_opportunity] INFO cycle=19 go_live=True opportunities=0 top=n/a
+2026-02-14 15:21:48,551 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:22:08,321 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:22:11,654 [mcp_opportunity] INFO cycle=20 go_live=True opportunities=0 top=n/a
+2026-02-14 15:23:11,609 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:24:18,112 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:24:50,437 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:24:53,698 [mcp_opportunity] INFO cycle=21 go_live=True opportunities=0 top=n/a
+2026-02-14 15:26:48,095 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:26:48,596 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:26:51,886 [mcp_opportunity] INFO cycle=22 go_live=True opportunities=0 top=n/a
+2026-02-14 15:29:18,408 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:29:19,796 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:29:22,974 [mcp_opportunity] INFO cycle=23 go_live=True opportunities=0 top=n/a
+2026-02-14 15:31:48,487 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:31:48,943 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:31:52,281 [mcp_opportunity] INFO cycle=24 go_live=True opportunities=0 top=n/a
+2026-02-14 15:34:18,841 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:34:19,349 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:34:22,659 [mcp_opportunity] INFO cycle=25 go_live=True opportunities=0 top=n/a
+2026-02-14 15:36:49,141 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:36:49,611 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:36:52,910 [mcp_opportunity] INFO cycle=26 go_live=True opportunities=0 top=n/a
+2026-02-14 15:39:19,624 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:39:51,310 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:39:54,606 [mcp_opportunity] INFO cycle=27 go_live=True opportunities=0 top=n/a
+2026-02-14 15:41:50,350 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:42:18,040 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:42:21,454 [mcp_opportunity] INFO cycle=28 go_live=True opportunities=0 top=n/a
+2026-02-14 15:42:39,102 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:42:56,178 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:42:58,989 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=0 top=n/a
+2026-02-14 15:44:20,177 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:44:52,469 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:44:55,641 [mcp_opportunity] INFO cycle=29 go_live=True opportunities=0 top=n/a
+2026-02-14 15:46:50,488 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:46:54,035 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:46:57,024 [mcp_opportunity] INFO cycle=30 go_live=True opportunities=0 top=n/a
+2026-02-14 15:47:21,183 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:47:45,985 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:47:49,048 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=0 top=n/a
+2026-02-14 15:49:21,134 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:49:51,464 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:49:54,414 [mcp_opportunity] INFO cycle=31 go_live=True opportunities=0 top=n/a
+2026-02-14 15:51:51,277 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:52:11,505 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:52:23,522 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:52:27,037 [mcp_opportunity] INFO cycle=32 go_live=True opportunities=0 top=n/a
+2026-02-14 15:52:43,766 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:52:46,649 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=0 top=n/a
+2026-02-14 15:54:21,847 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:55:01,971 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:55:05,007 [mcp_opportunity] INFO cycle=33 go_live=True opportunities=0 top=n/a
+2026-02-14 15:56:51,767 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:57:26,782 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:57:29,708 [mcp_opportunity] INFO cycle=34 go_live=True opportunities=0 top=n/a
+2026-02-14 15:59:22,524 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:59:54,750 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 15:59:58,208 [mcp_opportunity] INFO cycle=35 go_live=True opportunities=0 top=n/a
+2026-02-14 16:01:53,019 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:02:25,286 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:02:28,394 [mcp_opportunity] INFO cycle=36 go_live=True opportunities=0 top=n/a
+2026-02-14 16:08:21,220 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:08:51,086 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:08:54,301 [mcp_opportunity] INFO cycle=37 go_live=True opportunities=0 top=n/a
+2026-02-14 16:10:50,766 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:11:25,959 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:11:29,320 [mcp_opportunity] INFO cycle=38 go_live=True opportunities=0 top=n/a
+2026-02-14 16:13:20,728 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:13:53,033 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:13:57,907 [mcp_opportunity] INFO cycle=39 go_live=True opportunities=0 top=n/a
+2026-02-14 16:15:50,477 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:15:50,577 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:16:23,137 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:16:23,285 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:16:26,788 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=0 top=n/a
+2026-02-14 16:16:28,342 [mcp_opportunity] INFO cycle=40 go_live=True opportunities=0 top=n/a
+2026-02-14 16:18:20,893 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:18:59,844 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:19:05,021 [mcp_opportunity] INFO cycle=41 go_live=True opportunities=0 top=n/a
+2026-02-14 16:20:50,664 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:21:23,494 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:21:30,011 [mcp_opportunity] INFO cycle=42 go_live=True opportunities=0 top=n/a
+2026-02-14 16:21:46,092 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:22:18,774 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:22:22,122 [mcp_opportunity] INFO cycle=1 go_live=True opportunities=0 top=n/a
+2026-02-14 16:23:21,607 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:23:49,461 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 16:23:54,373 [mcp_opportunity] INFO cycle=43 go_live=True opportunities=0 top=n/a
+2026-02-14 16:25:52,085 [mcp_opportunity] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async

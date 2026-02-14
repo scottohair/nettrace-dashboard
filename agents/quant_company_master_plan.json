@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-02-14T20:04:28.076360+00:00",
-  "cycle": 6,
+  "updated_at": "2026-02-14T21:21:45.634249+00:00",
+  "cycle": 1,
   "win_objective": {
     "definition": "WIN = maximize mathematically validated, risk-governed realized gains with resource-efficient multi-path execution and treasury capture in USD/USDC.",
     "treasury_capture_assets": [
@@ -24,9 +24,9 @@
     ]
   },
   "portfolio_metrics": {
-    "daily_pnl_usd": -0.9200000000000159,
-    "total_value_usd": 236.54,
-    "drawdown_pct": 26.69
+    "daily_pnl_usd": -2.210000000000008,
+    "total_value_usd": 235.25,
+    "drawdown_pct": 27.09
   },
   "realized_close_evidence": {
     "source": "trader_db.agent_trades",
@@ -34,11 +34,17 @@
     "reason": "passed",
     "lookback_hours": 48,
     "window_hours": 4,
-    "positive_windows": 3,
+    "positive_windows": 4,
     "required_positive_windows": 3,
-    "total_closes": 23,
-    "total_net_pnl_usd": 8.959216,
+    "total_closes": 24,
+    "total_net_pnl_usd": 9.938219,
     "windows": [
+      {
+        "bucket_id": 122993,
+        "closes": 1,
+        "net_pnl_usd": 0.979004,
+        "positive_window": true
+      },
       {
         "bucket_id": 122992,
         "closes": 14,
@@ -70,11 +76,11 @@
     ],
     "completed_targets": [],
     "next_target_usd": 1000.0,
-    "daily_pnl_usd": -0.92,
-    "achievement_pct_to_next": -0.0009,
-    "shortfall_usd": 1000.92,
-    "day_elapsed_pct_utc": 0.8364,
-    "required_hourly_run_rate_usd": 254.98
+    "daily_pnl_usd": -2.21,
+    "achievement_pct_to_next": -0.0022,
+    "shortfall_usd": 1002.21,
+    "day_elapsed_pct_utc": 0.8901,
+    "required_hourly_run_rate_usd": 379.98
   },
   "budget_escalator": {
     "action": "de_escalate",
@@ -98,27 +104,27 @@
     "realized_evidence": {
       "passed": true,
       "reason": "passed",
-      "positive_windows": 3,
+      "positive_windows": 4,
       "required_positive_windows": 3,
-      "total_net_pnl_usd": 8.959216,
-      "total_closes": 23,
-      "recent_window_net_pnl_usd": 7.604561
+      "total_net_pnl_usd": 9.938219,
+      "total_closes": 24,
+      "recent_window_net_pnl_usd": 0.979004
     },
     "execution_health": {
       "green": true,
       "reason": "passed",
-      "updated_at": "2026-02-14T20:04:28.073922+00:00",
+      "updated_at": "2026-02-14T21:21:45.624045+00:00",
       "green_streak": 10,
       "recent_green_ratio": 1.0
     },
     "trade_flow": {
       "lookback_hours": 6,
       "buy_fills": 0,
-      "sell_fills": 23,
+      "sell_fills": 28,
       "sell_close_events": 0,
-      "sell_close_attempts": 199,
-      "sell_close_completions": 178,
-      "sell_close_completion_rate": 0.894472,
+      "sell_close_attempts": 205,
+      "sell_close_completions": 183,
+      "sell_close_completion_rate": 0.892683,
       "buy_sell_ratio": 0.0,
       "close_balance_ok": true,
       "close_balance_reason": "balanced_close_flow"
@@ -128,7 +134,7 @@
     "enabled": true,
     "green": true,
     "reason": "passed",
-    "updated_at": "2026-02-14T20:04:28.073922+00:00",
+    "updated_at": "2026-02-14T21:21:45.624045+00:00",
     "green_streak": 10,
     "recent_green_ratio": 1.0,
     "recent_samples": 10
@@ -136,11 +142,11 @@
   "trade_flow_metrics": {
     "lookback_hours": 6,
     "buy_fills": 0,
-    "sell_fills": 23,
+    "sell_fills": 28,
     "sell_close_events": 0,
-    "sell_close_attempts": 199,
-    "sell_close_completions": 178,
-    "sell_close_completion_rate": 0.894472,
+    "sell_close_attempts": 205,
+    "sell_close_completions": 183,
+    "sell_close_completion_rate": 0.892683,
     "buy_sell_ratio": 0.0,
     "close_balance_ok": true,
     "close_balance_reason": "balanced_close_flow"
@@ -201,7 +207,7 @@
       "ok": 0,
       "total": 4
     },
-    "flywheel_cycle": 66,
+    "flywheel_cycle": 73,
     "deployment_optimizer": {
       "score": 0.5233,
       "hf_live_ready": true,
@@ -213,7 +219,7 @@
       "priority_actions": [
         "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
         "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
-        "Top recent Coinbase failures: 9x API down | 8x <urlopen error [Errno 1] Operation not permitted> | [Errno 1] Operation not permitted | errno 1 | 6x Server Error",
+        "Top recent Coinbase failures: 12x <urlopen error [Errno 1] Operation not permitted> | [Errno 1] Operation not permitted | errno 1 | 6x API down | 4x Server Error",
         "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
       ],
       "region_ranking": [
@@ -260,73 +266,73 @@
     "quant_priority_pairs": [
       {
         "pair": "BCH-USD",
-        "return_pct": -0.6769,
+        "return_pct": -0.7686,
         "win_rate": 1.0,
-        "trades": 9
+        "trades": 14
       },
       {
-        "pair": "BCH-USD",
-        "return_pct": -0.4261,
-        "win_rate": 1.0,
-        "trades": 6
-      },
-      {
-        "pair": "DOGE-USD",
-        "return_pct": -0.5612,
+        "pair": "XRP-USD",
+        "return_pct": -0.0271,
         "win_rate": 1.0,
         "trades": 6
       },
       {
         "pair": "XRP-USD",
-        "return_pct": -0.9246,
-        "win_rate": 1.0,
-        "trades": 10
-      },
-      {
-        "pair": "LTC-USD",
-        "return_pct": -0.657,
-        "win_rate": 1.0,
-        "trades": 6
-      },
-      {
-        "pair": "XRP-USD",
-        "return_pct": -0.8251,
+        "return_pct": -0.3317,
         "win_rate": 1.0,
         "trades": 8
       },
       {
         "pair": "BCH-USD",
-        "return_pct": -0.4249,
+        "return_pct": -0.4271,
+        "win_rate": 1.0,
+        "trades": 8
+      },
+      {
+        "pair": "LTC-USD",
+        "return_pct": -0.4061,
         "win_rate": 1.0,
         "trades": 4
       },
       {
-        "pair": "DOGE-USD",
-        "return_pct": -0.8004,
-        "win_rate": 1.0,
-        "trades": 8
-      },
-      {
-        "pair": "BCH-USD",
-        "return_pct": -0.9035,
-        "win_rate": 1.0,
-        "trades": 10
-      },
-      {
-        "pair": "LINK-USD",
-        "return_pct": -0.6317,
+        "pair": "LTC-USD",
+        "return_pct": -0.4587,
         "win_rate": 1.0,
         "trades": 6
       },
       {
+        "pair": "LTC-USD",
+        "return_pct": -0.4229,
+        "win_rate": 1.0,
+        "trades": 4
+      },
+      {
+        "pair": "LTC-USD",
+        "return_pct": -0.3911,
+        "win_rate": 1.0,
+        "trades": 4
+      },
+      {
+        "pair": "LINK-USD",
+        "return_pct": -0.5091,
+        "win_rate": 1.0,
+        "trades": 6
+      },
+      {
+        "pair": "LTC-USD",
+        "return_pct": -0.3858,
+        "win_rate": 1.0,
+        "trades": 4
+      },
+      {
         "pair": "BCH-USD",
-        "return_pct": -0.7963,
+        "return_pct": -0.6594,
         "win_rate": 1.0,
         "trades": 8
       },
       {
-        "pair": "XRP-USD",
-        "return_pct": -0.6818,
+        "pair": "LTC-USD",
+        "return_pct": -0.6033,
         "win_rate": 1.0,
         "trades": 6
       }
@@ -429,7 +435,7 @@
   },
   "profit_task_queue": [
     "Raise realized close frequency: prioritize strategies with deterministic exits and net-positive close expectancy.",
-    "Current run-rate gap: need $254.98/hour to hit next daily target $1,000.00.",
+    "Current run-rate gap: need $379.98/hour to hit next daily target $1,000.00.",
     "Deploy primary execution to region order: ewr -> nrt -> sin.",
     "Run base-10 and hexadecimal radix feature experiments on microstructure deltas; promote only if out-of-sample realized PnL improves.",
     "Apply network-stack tuning (DNS resilience, timeout policy, socket path efficiency) to reduce execution latency variance.",

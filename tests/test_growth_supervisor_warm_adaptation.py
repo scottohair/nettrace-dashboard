@@ -121,8 +121,75 @@ def test_warm_adaptation_enabled_on_no_hot_no_go(tmp_path, monkeypatch):
     assert overrides.get("WARM_EVIDENCE_DATA_MODE") == "non_candle"
     assert overrides.get("WARM_EVIDENCE_NON_CANDLE_STRICT_MODE") == "0"
     assert overrides.get("WARM_MIN_EVIDENCE_CANDLES") == "9"
+    assert overrides.get("REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION") == "0"
+    assert overrides.get("EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_EGRESS") == "1"
+    assert overrides.get("EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_TELEMETRY") == "1"
+    assert "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_BUDGET_USD" in overrides
+    assert "EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_MAX_STRATEGIES" in overrides
     assert "--hours" in args
     assert "1" in args  # adaptive short horizon for micro budget/no-go
+
+
+def test_warm_adaptation_enabled_on_execution_health_no_go(tmp_path, monkeypatch):
+    monkeypatch.setattr(gs, "REPORT_PATH", Path(tmp_path) / "growth_go_no_go_report.json")
+    _write(
+        gs.REPORT_PATH,
+        _report(
+            {
+                "go_live": False,
+                "reasons": ["execution_health_not_green:egress_blocked", "warm_runtime_not_hot_eligible"],
+            }
+        ),
+    )
+    _write(
+        Path(tmp_path) / "profit_safety_audit.json",
+        {
+            "metrics": {
+                "pipeline": {
+                    "total_funded_budget": 1.0,
+                    "funded_strategy_count": 1,
+                }
+            }
+        },
+    )
+    monkeypatch.setattr(gs, "AUDIT_PATH", Path(tmp_path) / "profit_safety_audit.json")
+    monkeypatch.setattr(gs, "WARM_EVIDENCE_AGGRESSIVE_MODE", True)
+    monkeypatch.setattr(gs, "WARM_EVIDENCE_NO_GO_DATA_MODE", "non_candle")
+    monkeypatch.setattr(gs, "WARM_EVIDENCE_NO_GO_MIN_BARS", 4)
+    monkeypatch.setattr(gs, "WARM_EVIDENCE_NO_GO_MIN_CANDLES", 9)
+    monkeypatch.setattr(gs, "WARM_EVIDENCE_AGGRESSIVE_BUDGET_CAP", 3.0)
+    monkeypatch.setattr(gs, "WARM_EVIDENCE_AGGRESSIVE_STRATEGY_CAP", 2)
+    monkeypatch.setattr(gs, "WARM_EVIDENCE_AGGRESSIVE_MAX_AGE_SECONDS", 60 * 60)
+    monkeypatch.setattr(
+        gs,
+        "evaluate_execution_health",
+        lambda refresh=True, probe_http=None, write_status=True: {"green": True, "reason": "ok"},
+    )
+
+    invocations = []
+
+    def fake_run_py(script_name, *args, **kwargs):
+        invocations.append((script_name, kwargs.get("env_overrides", {})))
+        return {
+            "cmd": [],
+            "returncode": 0,
+            "stdout_tail": "",
+            "stderr_tail": "",
+        }
+
+    monkeypatch.setattr(gs, "_run_py", fake_run_py)
+    gs.run_cycle(
+        quant_run=False,
+        collector_interval_seconds=10,
+        warm_hours=12,
+        warm_granularity="5min",
+    )
+
+    runtime_calls = [call for call in invocations if call[0] == "warm_runtime_collector.py"]
+    assert len(runtime_calls) == 1
+    overrides = runtime_calls[0][1]
+    assert overrides.get("REALIZED_CLOSE_REQUIRED_FOR_HOT_PROMOTION") == "0"
+    assert overrides.get("EXECUTION_HEALTH_PROMOTION_BOOTSTRAP_ALLOW_EGRESS") == "1"
 
 
 def test_warm_adaptation_accepts_legacy_report_schema(tmp_path, monkeypatch):

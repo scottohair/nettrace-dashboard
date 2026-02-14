@@ -74,7 +74,7 @@ else:
         validator.db.close()
 
 
-    def test_sparse_mature_performance_failure_is_rejected(monkeypatch, tmp_path):
+def test_sparse_mature_performance_failure_is_rejected(monkeypatch, tmp_path):
         monkeypatch.setattr(sp, "PIPELINE_DB", str(tmp_path / "pipeline.db"))
         monkeypatch.setattr(sp, "TRADER_DB", str(tmp_path / "trader.db"))
         monkeypatch.setattr(sp, "WARM_ADAPTIVE_GATING", True)
@@ -106,6 +106,38 @@ else:
         assert "return_below_min" in assessment["reason_codes"]
         assert "sharpe_below_min" in assessment["reason_codes"]
         validator.db.close()
+
+
+def test_trade_based_sparse_metadata_enables_adaptive_path(monkeypatch, tmp_path):
+    monkeypatch.setattr(sp, "PIPELINE_DB", str(tmp_path / "pipeline.db"))
+    monkeypatch.setattr(sp, "TRADER_DB", str(tmp_path / "trader.db"))
+    monkeypatch.setattr(sp, "WARM_ADAPTIVE_GATING", True)
+    monkeypatch.setattr(sp, "WARM_SPARSE_TRADE_BASED_EVIDENCE_ENABLED", True)
+    monkeypatch.setattr(sp, "WARM_SPARSE_TRADE_BASED_MIN_TRADES", 2)
+    monkeypatch.setattr(sp, "WARM_SPARSE_MIN_RETURN_PCT", 0.03)
+    monkeypatch.setattr(sp, "WARM_SPARSE_MIN_SHARPE", 0.0)
+    monkeypatch.setattr(sp, "WARM_MIN_EVIDENCE_WINDOWS", 2)
+
+    validator = sp.StrategyValidator()
+    metrics = _base_metrics()
+    metrics.update(
+        {
+            "total_trades": 12,
+            "runtime_seconds": 9000,
+            "win_rate": 0.70,
+            "total_return_pct": 0.18,
+            "max_drawdown_pct": 1.35,
+            "sharpe_ratio": 0.10,
+            "evidence": {},
+        }
+    )
+
+    assessment = validator.evaluate_warm_metrics_detail(metrics)
+    assert assessment["criteria_mode"] == "adaptive_sparse"
+    assert assessment["criteria"]["min_return_pct"] == 0.03
+    assert assessment["criteria"]["min_trades"] == 2
+    assert assessment["passed"] is True
+    validator.db.close()
 
 
     def test_insufficient_trade_runtime_evidence_stays_collecting(monkeypatch, tmp_path):

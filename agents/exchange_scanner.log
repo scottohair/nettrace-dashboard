@@ -3406,3 +3406,155 @@
 2026-02-14 15:05:59,886 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
 2026-02-14 15:06:00,194 [exchange_scanner] INFO Crypto: BTC=$69,911.15 ETH=$2,089.89 SOL=$88.22
 2026-02-14 15:06:00,194 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 370ms
+2026-02-14 15:08:00,199 [exchange_scanner] INFO --- Scan cycle 18 ---
+2026-02-14 15:08:00,274 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:08:00,690 [exchange_scanner] INFO Crypto: BTC=$69,892.23 ETH=$2,088.61 SOL=$88.16
+2026-02-14 15:08:00,691 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 490ms
+2026-02-14 15:10:00,696 [exchange_scanner] INFO --- Scan cycle 19 ---
+2026-02-14 15:10:00,770 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:10:01,110 [exchange_scanner] INFO Crypto: BTC=$69,787.99 ETH=$2,084.30 SOL=$87.88
+2026-02-14 15:10:01,111 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 414ms
+2026-02-14 15:12:01,114 [exchange_scanner] INFO --- Scan cycle 20 ---
+2026-02-14 15:12:01,179 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:12:01,492 [exchange_scanner] INFO Crypto: BTC=$69,801.07 ETH=$2,084.82 SOL=$87.94
+2026-02-14 15:12:01,493 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 378ms
+2026-02-14 15:12:01,495 [exchange_scanner] INFO STATUS: 0 active signals | 8 prices tracked | 0 daily signals
+2026-02-14 15:14:01,500 [exchange_scanner] INFO --- Scan cycle 21 ---
+2026-02-14 15:14:01,554 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:14:01,923 [exchange_scanner] INFO Crypto: BTC=$69,801.07 ETH=$2,084.82 SOL=$87.94
+2026-02-14 15:14:01,924 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 423ms
+2026-02-14 15:16:01,929 [exchange_scanner] INFO --- Scan cycle 22 ---
+2026-02-14 15:16:01,985 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:16:02,357 [exchange_scanner] INFO Crypto: BTC=$69,833.51 ETH=$2,086.14 SOL=$87.97
+2026-02-14 15:16:02,358 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 428ms
+2026-02-14 15:18:02,365 [exchange_scanner] INFO --- Scan cycle 23 ---
+2026-02-14 15:18:02,421 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:18:02,774 [exchange_scanner] INFO Crypto: BTC=$69,825.24 ETH=$2,085.53 SOL=$87.95
+2026-02-14 15:18:02,775 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 409ms
+2026-02-14 15:20:02,780 [exchange_scanner] INFO --- Scan cycle 24 ---
+2026-02-14 15:20:02,842 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:20:03,213 [exchange_scanner] INFO Crypto: BTC=$69,800.46 ETH=$2,083.89 SOL=$87.86
+2026-02-14 15:20:03,214 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 433ms
+2026-02-14 15:22:03,220 [exchange_scanner] INFO --- Scan cycle 25 ---
+2026-02-14 15:22:03,284 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:22:03,601 [exchange_scanner] INFO Crypto: BTC=$69,752.01 ETH=$2,081.88 SOL=$87.78
+2026-02-14 15:22:03,602 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 381ms
+2026-02-14 15:24:03,607 [exchange_scanner] INFO --- Scan cycle 26 ---
+2026-02-14 15:24:03,668 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:24:04,020 [exchange_scanner] INFO Crypto: BTC=$69,854.21 ETH=$2,084.41 SOL=$87.88
+2026-02-14 15:24:04,021 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 413ms
+2026-02-14 15:26:04,026 [exchange_scanner] INFO --- Scan cycle 27 ---
+2026-02-14 15:26:04,087 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:26:04,436 [exchange_scanner] INFO Crypto: BTC=$69,854.27 ETH=$2,084.54 SOL=$87.86
+2026-02-14 15:26:04,436 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 410ms
+2026-02-14 15:28:04,441 [exchange_scanner] INFO --- Scan cycle 28 ---
+2026-02-14 15:28:04,503 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:28:04,883 [exchange_scanner] INFO Crypto: BTC=$69,833.52 ETH=$2,084.72 SOL=$87.88
+2026-02-14 15:28:04,883 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 442ms
+2026-02-14 15:30:04,889 [exchange_scanner] INFO --- Scan cycle 29 ---
+2026-02-14 15:30:04,960 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:30:05,318 [exchange_scanner] INFO Crypto: BTC=$69,833.52 ETH=$2,084.72 SOL=$87.88
+2026-02-14 15:30:05,319 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 429ms
+2026-02-14 15:32:05,325 [exchange_scanner] INFO --- Scan cycle 30 ---
+2026-02-14 15:32:05,394 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:32:05,733 [exchange_scanner] INFO Crypto: BTC=$69,833.52 ETH=$2,084.78 SOL=$87.88
+2026-02-14 15:32:05,734 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 405ms
+2026-02-14 15:32:05,736 [exchange_scanner] INFO STATUS: 0 active signals | 8 prices tracked | 0 daily signals
+2026-02-14 15:34:05,741 [exchange_scanner] INFO --- Scan cycle 31 ---
+2026-02-14 15:34:05,814 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:34:06,133 [exchange_scanner] INFO Crypto: BTC=$69,773.73 ETH=$2,083.33 SOL=$87.69
+2026-02-14 15:34:06,133 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 391ms
+2026-02-14 15:36:06,164 [exchange_scanner] INFO --- Scan cycle 32 ---
+2026-02-14 15:36:06,218 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:36:06,517 [exchange_scanner] INFO Crypto: BTC=$69,816.96 ETH=$2,083.97 SOL=$87.75
+2026-02-14 15:36:06,517 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 353ms
+2026-02-14 15:38:06,524 [exchange_scanner] INFO --- Scan cycle 33 ---
+2026-02-14 15:38:06,586 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:38:06,901 [exchange_scanner] INFO Crypto: BTC=$69,796.80 ETH=$2,083.52 SOL=$87.70
+2026-02-14 15:38:06,901 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 375ms
+2026-02-14 15:40:06,912 [exchange_scanner] INFO --- Scan cycle 34 ---
+2026-02-14 15:40:06,986 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:40:07,341 [exchange_scanner] INFO Crypto: BTC=$69,796.80 ETH=$2,083.52 SOL=$87.70
+2026-02-14 15:40:07,342 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 429ms
+2026-02-14 15:42:07,347 [exchange_scanner] INFO --- Scan cycle 35 ---
+2026-02-14 15:42:07,413 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:42:07,705 [exchange_scanner] INFO Crypto: BTC=$69,894.99 ETH=$2,086.60 SOL=$87.91
+2026-02-14 15:42:07,706 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 358ms
+2026-02-14 15:44:07,717 [exchange_scanner] INFO --- Scan cycle 36 ---
+2026-02-14 15:44:07,776 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:44:08,046 [exchange_scanner] INFO Crypto: BTC=$69,898.29 ETH=$2,086.45 SOL=$87.86
+2026-02-14 15:44:08,047 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 329ms
+2026-02-14 15:46:08,058 [exchange_scanner] INFO --- Scan cycle 37 ---
+2026-02-14 15:46:08,118 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:46:08,433 [exchange_scanner] INFO Crypto: BTC=$69,922.12 ETH=$2,087.05 SOL=$87.92
+2026-02-14 15:46:08,434 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 376ms
+2026-02-14 15:48:08,445 [exchange_scanner] INFO --- Scan cycle 38 ---
+2026-02-14 15:48:08,495 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:48:08,826 [exchange_scanner] INFO Crypto: BTC=$69,968.68 ETH=$2,087.24 SOL=$87.98
+2026-02-14 15:48:08,827 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 382ms
+2026-02-14 15:50:08,830 [exchange_scanner] INFO --- Scan cycle 39 ---
+2026-02-14 15:50:08,886 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:50:09,167 [exchange_scanner] INFO Crypto: BTC=$69,956.01 ETH=$2,087.01 SOL=$88.03
+2026-02-14 15:50:09,167 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 337ms
+2026-02-14 15:52:09,178 [exchange_scanner] INFO --- Scan cycle 40 ---
+2026-02-14 15:52:09,235 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:52:09,563 [exchange_scanner] INFO Crypto: BTC=$69,926.40 ETH=$2,087.20 SOL=$87.97
+2026-02-14 15:52:09,564 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 385ms
+2026-02-14 15:52:09,566 [exchange_scanner] INFO STATUS: 0 active signals | 8 prices tracked | 0 daily signals
+2026-02-14 15:54:09,577 [exchange_scanner] INFO --- Scan cycle 41 ---
+2026-02-14 15:54:09,625 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:54:09,903 [exchange_scanner] INFO Crypto: BTC=$69,955.79 ETH=$2,087.70 SOL=$88.03
+2026-02-14 15:54:09,904 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 327ms
+2026-02-14 15:56:09,915 [exchange_scanner] INFO --- Scan cycle 42 ---
+2026-02-14 15:56:09,962 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:56:10,293 [exchange_scanner] INFO Crypto: BTC=$69,956.76 ETH=$2,087.78 SOL=$88.06
+2026-02-14 15:56:10,293 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 378ms
+2026-02-14 15:58:10,296 [exchange_scanner] INFO --- Scan cycle 43 ---
+2026-02-14 15:58:10,342 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 15:58:10,625 [exchange_scanner] INFO Crypto: BTC=$69,970.13 ETH=$2,087.72 SOL=$88.06
+2026-02-14 15:58:10,626 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 329ms
+2026-02-14 16:00:10,637 [exchange_scanner] INFO --- Scan cycle 44 ---
+2026-02-14 16:00:10,683 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:00:10,971 [exchange_scanner] INFO Crypto: BTC=$69,982.01 ETH=$2,088.80 SOL=$88.09
+2026-02-14 16:00:10,971 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 334ms
+2026-02-14 16:02:10,982 [exchange_scanner] INFO --- Scan cycle 45 ---
+2026-02-14 16:02:11,031 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:02:11,296 [exchange_scanner] INFO Crypto: BTC=$70,122.01 ETH=$2,089.34 SOL=$88.16
+2026-02-14 16:02:11,296 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 313ms
+2026-02-14 16:08:09,534 [exchange_scanner] INFO --- Scan cycle 46 ---
+2026-02-14 16:08:09,584 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:08:09,886 [exchange_scanner] INFO Crypto: BTC=$70,158.01 ETH=$2,095.68 SOL=$88.33
+2026-02-14 16:08:09,886 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 351ms
+2026-02-14 16:10:09,892 [exchange_scanner] INFO --- Scan cycle 47 ---
+2026-02-14 16:10:09,940 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:10:10,209 [exchange_scanner] INFO Crypto: BTC=$70,152.32 ETH=$2,094.43 SOL=$88.23
+2026-02-14 16:10:10,209 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 316ms
+2026-02-14 16:12:10,213 [exchange_scanner] INFO --- Scan cycle 48 ---
+2026-02-14 16:12:10,257 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:12:10,525 [exchange_scanner] INFO Crypto: BTC=$70,128.99 ETH=$2,093.45 SOL=$88.11
+2026-02-14 16:12:10,525 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 312ms
+2026-02-14 16:14:10,533 [exchange_scanner] INFO --- Scan cycle 49 ---
+2026-02-14 16:14:10,633 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:14:11,303 [exchange_scanner] INFO Crypto: BTC=$70,164.04 ETH=$2,094.26 SOL=$88.20
+2026-02-14 16:14:11,306 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 770ms
+2026-02-14 16:16:11,310 [exchange_scanner] INFO --- Scan cycle 50 ---
+2026-02-14 16:16:11,432 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:16:11,887 [exchange_scanner] INFO Crypto: BTC=$70,185.01 ETH=$2,094.24 SOL=$88.19
+2026-02-14 16:16:11,895 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 579ms
+2026-02-14 16:16:11,900 [exchange_scanner] INFO STATUS: 0 active signals | 8 prices tracked | 0 daily signals
+2026-02-14 16:18:11,904 [exchange_scanner] INFO --- Scan cycle 51 ---
+2026-02-14 16:18:12,005 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:18:12,467 [exchange_scanner] INFO Crypto: BTC=$70,151.32 ETH=$2,094.01 SOL=$88.20
+2026-02-14 16:18:12,469 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 563ms
+2026-02-14 16:20:12,476 [exchange_scanner] INFO --- Scan cycle 52 ---
+2026-02-14 16:20:12,600 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:20:13,103 [exchange_scanner] INFO Crypto: BTC=$70,111.55 ETH=$2,092.32 SOL=$88.19
+2026-02-14 16:20:13,106 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 626ms
+2026-02-14 16:22:13,121 [exchange_scanner] INFO --- Scan cycle 53 ---
+2026-02-14 16:22:13,212 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:22:13,756 [exchange_scanner] INFO Crypto: BTC=$70,106.01 ETH=$2,091.24 SOL=$88.14
+2026-02-14 16:22:13,758 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 626ms
+2026-02-14 16:24:13,767 [exchange_scanner] INFO --- Scan cycle 54 ---
+2026-02-14 16:24:13,855 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 16:24:14,298 [exchange_scanner] INFO Crypto: BTC=$70,030.23 ETH=$2,086.91 SOL=$87.88
+2026-02-14 16:24:14,302 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 532ms

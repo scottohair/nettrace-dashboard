@@ -19,13 +19,13 @@
       "name": "quant_validation_has_signal",
       "passed": true,
       "required": true,
-      "details": "promoted=0 rejected=82 no_data=0"
+      "details": "promoted=0 rejected=861 no_data=0"
     },
     {
       "name": "claude_bundle_metadata_present",
       "passed": true,
       "required": true,
-      "details": "bundle_id=bundle-284-1a44d29d75c2 sequence=284"
+      "details": "bundle_id=bundle-319-97b3a17dae2b sequence=319"
     },
     {
       "name": "claude_duplex_traceable",
@@ -45,7 +45,7 @@
     "Require realized close PnL evidence before any HOT budget increase.",
     "Promote only strategies with trace-linked Claude directive lineage."
   ],
-  "checked_at": "2026-02-14T20:04:45.946838+00:00",
+  "checked_at": "2026-02-14T21:23:52.588351+00:00",
   "guard_enabled": true,
   "guard_fail_open": false,
   "guarded_agents": [

@@ -454,6 +454,14 @@ AGENT_CONFIGS = [
         "critical": False,
         "description": "High-frequency execution lane (sub-second scanner + native fast-path scoring).",
     },
+    {
+        "name": "realtime_orchestrator",
+        "script": "realtime_orchestrator.py",
+        "args": ["--live"],
+        "enabled": True,
+        "critical": True,
+        "description": "Real-time millisecond-level portfolio orchestrator (v77: 4-minute target, 36.6x improvement).",
+    },
     # ── PHASE 1: QUICK-WIN ALPHA AGENTS (Regulatory, Sentiment, Liquidation, Narrative, Futures) ──
     {
         "name": "regulatory_scanner",

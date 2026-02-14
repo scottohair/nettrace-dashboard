@@ -7523,3 +7523,614 @@
 2026-02-14 15:05:10,531 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
 2026-02-14 15:05:10,821 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5327 @ $1.1857) | conf=69.1% | eurc_usdc_arb
 2026-02-14 15:05:11,164 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.114%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:06:11,172 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:06:11,227 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:06:11,228 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:06:11,316 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.3% | EURC underpriced: $1.1845 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:06:11,384 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:06:11,385 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:06:11,573 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5328 @ $1.1856) | conf=69.3% | eurc_usdc_arb
+2026-02-14 15:06:11,876 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.114%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:07:11,878 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:07:11,951 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:07:11,952 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:07:12,065 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.3% | EURC underpriced: $1.1845 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:07:12,157 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:07:12,159 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:07:12,333 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5328 @ $1.1856) | conf=69.3% | eurc_usdc_arb
+2026-02-14 15:07:12,665 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.114%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:08:12,668 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:08:12,723 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:08:12,724 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:08:12,818 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:08:12,913 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:08:12,915 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:08:13,115 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:08:13,431 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:09:13,437 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:09:13,499 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:09:13,500 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:09:13,622 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:09:13,721 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:09:13,723 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:09:13,906 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:09:14,318 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.116%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:10:14,323 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:10:14,384 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:10:14,392 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:10:14,517 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:10:14,573 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:10:14,575 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:10:14,761 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:10:15,099 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.116%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:11:15,106 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:11:15,172 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:11:15,172 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:11:15,252 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:11:15,317 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:11:15,318 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:11:15,503 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:11:15,827 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.116%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:12:15,840 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:12:15,898 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:12:15,898 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:12:15,977 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:12:16,059 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:12:16,059 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:12:16,309 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:12:16,629 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.116%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:13:16,651 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:13:16,753 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:13:16,753 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:13:16,860 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:13:16,944 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:13:16,945 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:13:17,115 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:13:17,422 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.116%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:14:17,431 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:14:17,500 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:14:17,501 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:14:17,582 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:14:17,667 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:14:17,668 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:14:17,839 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:14:18,233 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.116%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:15:18,239 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:15:18,292 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:15:18,293 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:15:18,372 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:15:18,478 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:15:18,479 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:15:18,646 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:15:18,943 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.118%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:16:18,949 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:16:19,005 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:16:19,005 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:16:19,141 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:16:19,213 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:16:19,214 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:16:19,392 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:16:19,707 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.115%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:17:19,721 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:17:19,796 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:17:19,797 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:17:19,950 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:17:20,040 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:17:20,042 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:17:20,290 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:17:20,593 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.117%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:18:20,600 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:18:20,677 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:18:20,678 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:18:20,756 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:18:20,825 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:18:20,828 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:18:21,019 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:18:21,315 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.117%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:19:21,321 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:19:21,377 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:19:21,377 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:19:21,474 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:19:21,533 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:19:21,535 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:19:21,776 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:19:22,166 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.117%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:20:22,172 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:20:22,226 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:20:22,227 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:20:22,327 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:20:22,385 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:20:22,386 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:20:22,567 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:20:22,882 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.117%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:21:22,888 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:21:22,951 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:21:22,952 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:21:23,058 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:21:23,129 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:21:23,131 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:21:23,318 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:21:23,629 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.117%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:22:23,636 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:22:23,721 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:22:23,721 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:22:23,824 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:22:23,898 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:22:23,899 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:22:24,109 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:22:24,396 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.114%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:23:24,402 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:23:24,465 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:23:24,466 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:23:24,550 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:23:24,639 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:23:24,641 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:23:24,843 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:23:25,236 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.114%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:24:25,242 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:24:25,299 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:24:25,300 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:24:25,384 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:24:25,444 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:24:25,448 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:24:25,675 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:24:26,093 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.114%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:25:26,099 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:25:26,159 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:25:26,159 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:25:26,279 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:25:26,350 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:25:26,351 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:25:26,545 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:25:26,851 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:26:26,854 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:26:26,907 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:26:26,908 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:26:27,017 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:26:27,115 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:26:27,116 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:26:27,335 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:26:27,646 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:27:27,660 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:27:27,716 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:27:27,717 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:27:27,824 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:27:27,889 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:27:27,890 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:27:28,072 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:27:28,388 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:28:28,399 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:28:28,469 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:28:28,470 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:28:28,556 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:28:28,705 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:28:28,706 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:28:28,951 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:28:29,267 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:29:29,273 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:29:29,354 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:29:29,355 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:29:29,438 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:29:29,550 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:29:29,551 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:29:29,730 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:29:30,184 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:30:30,192 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:30:30,264 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:30:30,265 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:30:30,338 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:30:30,423 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:30:30,424 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:30:30,613 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:30:30,914 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:31:30,922 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:31:30,982 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:31:30,983 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:31:31,079 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:31:31,152 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:31:31,154 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:31:31,341 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:31:31,662 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:32:31,669 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:32:31,738 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:32:31,739 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:32:31,846 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:32:31,910 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:32:31,910 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:32:32,092 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:32:32,415 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:33:32,422 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:33:32,502 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:33:32,503 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:33:32,592 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:33:32,692 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:33:32,693 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:33:32,878 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:33:33,197 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:34:33,221 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:34:33,272 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:34:33,273 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:34:33,400 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:34:33,486 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:34:33,488 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:34:33,660 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:34:34,050 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:35:34,061 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:35:34,114 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:35:34,115 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:35:34,225 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:35:34,306 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:35:34,306 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:35:34,487 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 15:35:34,837 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:36:34,843 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:36:34,899 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:36:34,901 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:36:35,002 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:36:35,076 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:36:35,078 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:36:35,252 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 15:36:35,548 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:37:35,555 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:37:35,617 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:37:35,619 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:37:35,727 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:37:35,851 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:37:35,852 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:37:36,030 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 15:37:36,317 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:38:36,335 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:38:36,393 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:38:36,395 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:38:36,489 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:38:36,584 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:38:36,587 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:38:36,748 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 15:38:37,037 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:39:37,049 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:39:37,108 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:39:37,109 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:39:37,192 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:39:37,277 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:39:37,278 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:39:37,451 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 15:39:37,856 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:40:37,867 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:40:37,941 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:40:37,942 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:40:38,029 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:40:38,117 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:40:38,124 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:40:38,343 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:40:38,752 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:41:38,764 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:41:38,821 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:41:38,822 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:41:38,924 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:41:39,007 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 15:41:39,008 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:41:39,187 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:41:39,512 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:42:39,519 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:42:39,588 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:42:39,589 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:42:39,683 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:42:39,751 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:42:39,752 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:42:39,948 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:42:40,239 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:43:40,251 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:43:40,307 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:43:40,308 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:43:40,412 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:43:40,473 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:43:40,474 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:43:40,656 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:43:40,656 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:43:40,657 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:40,675 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:44:40,731 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:44:40,732 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:44:40,836 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:44:40,896 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:44:40,897 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:44:41,076 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:44:41,076 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:44:41,077 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:45:41,088 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:45:41,133 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:45:41,134 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:45:41,212 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:45:41,285 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:45:41,285 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:45:41,435 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:45:41,435 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:45:41,436 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:41,442 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:46:41,489 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:46:41,490 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:46:41,563 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:46:41,643 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:46:41,643 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:46:41,807 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:46:41,807 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:46:41,808 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:41,814 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:47:41,863 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:47:41,865 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:47:41,967 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:47:42,030 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:47:42,031 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:47:42,189 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:47:42,189 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:47:42,190 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 15:48:42,200 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:48:42,249 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:48:42,250 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:48:42,344 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:48:42,417 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:48:42,418 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:48:42,586 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:48:42,975 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:49:42,987 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:49:43,039 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:49:43,040 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:49:43,107 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:49:43,164 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:49:43,164 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:49:43,311 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:49:43,592 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:50:43,604 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:50:43,654 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:50:43,655 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:50:43,752 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.3% | EURC underpriced: $1.1845 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:50:43,824 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:50:43,824 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:50:43,985 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5328 @ $1.1856) | conf=69.3% | eurc_usdc_arb
+2026-02-14 15:50:44,250 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:51:44,262 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:51:44,309 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:51:44,310 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:51:44,379 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.3% | EURC underpriced: $1.1845 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:51:44,439 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:51:44,440 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:51:44,597 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5328 @ $1.1856) | conf=69.3% | eurc_usdc_arb
+2026-02-14 15:51:44,901 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:52:44,912 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:52:44,958 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:52:44,959 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:52:45,055 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.3% | EURC underpriced: $1.1845 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:52:45,125 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:52:45,126 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:52:45,291 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5328 @ $1.1856) | conf=69.3% | eurc_usdc_arb
+2026-02-14 15:52:45,575 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:53:45,587 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:53:45,642 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:53:45,644 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:53:45,722 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.3% | EURC underpriced: $1.1845 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:53:45,773 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:53:45,774 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:53:45,952 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5328 @ $1.1856) | conf=69.3% | eurc_usdc_arb
+2026-02-14 15:53:46,322 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:54:46,333 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:54:46,384 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:54:46,385 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:54:46,469 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.3% | EURC underpriced: $1.1845 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:54:46,524 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:54:46,525 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:54:46,717 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5328 @ $1.1856) | conf=69.3% | eurc_usdc_arb
+2026-02-14 15:54:46,989 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:55:46,999 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:55:47,051 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:55:47,052 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:55:47,129 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:55:47,210 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:55:47,211 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:55:47,379 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 15:55:47,666 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:56:47,672 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:56:47,717 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:56:47,718 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:56:47,828 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:56:47,885 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:56:47,885 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:56:48,048 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:56:48,364 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:57:48,375 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:57:48,424 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:57:48,425 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:57:48,494 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:57:48,570 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:57:48,571 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:57:48,757 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:57:49,032 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:58:49,043 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:58:49,085 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:58:49,086 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:58:49,186 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 15:58:49,260 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:58:49,262 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:58:49,420 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 15:58:49,784 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 15:59:49,791 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 15:59:49,837 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 15:59:49,838 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 15:59:49,907 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 15:59:49,980 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 15:59:49,980 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 15:59:50,136 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 15:59:50,425 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:00:50,437 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:00:50,483 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:00:50,484 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:00:50,551 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:00:50,629 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 16:00:50,630 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:00:50,831 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:00:51,101 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:01:51,113 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:01:51,161 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:01:51,162 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:01:51,257 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:01:51,320 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 16:01:51,320 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:01:51,461 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:01:51,736 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:02:51,741 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:02:51,791 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:02:51,792 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:02:51,877 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.5% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 16:02:51,938 [forex_agent] INFO   [DAI-USDC] DAI spread -0.010% below threshold
+2026-02-14 16:02:51,939 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:02:52,096 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5329 @ $1.1856) | conf=69.5% | eurc_usdc_arb
+2026-02-14 16:02:52,362 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:07:50,598 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:07:50,752 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:07:50,753 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:07:50,829 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 16:07:50,881 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:07:50,881 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:07:51,117 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 16:07:51,758 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.111%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:08:51,765 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:08:51,813 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:08:51,814 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:08:51,883 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 16:08:51,939 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:08:51,940 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:08:52,099 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 16:08:52,370 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:09:52,376 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:09:52,424 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:09:52,425 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:09:52,523 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.7% | EURC underpriced: $1.1844 vs fair $1.1866 (spread -0.19%)
+2026-02-14 16:09:52,601 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:09:52,601 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:09:52,806 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5330 @ $1.1855) | conf=69.7% | eurc_usdc_arb
+2026-02-14 16:09:53,074 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:10:53,080 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:10:53,129 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:10:53,131 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:10:53,229 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:10:53,281 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:10:53,282 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:10:53,443 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:10:53,708 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.112%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:11:53,714 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:11:53,759 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:11:53,760 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:11:53,855 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:11:53,920 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:11:53,921 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:11:54,068 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:11:54,322 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.113%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:12:54,329 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:12:54,385 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:12:54,386 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:12:54,461 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:12:54,513 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:12:54,514 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:12:54,674 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:12:55,134 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.113%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:13:55,143 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:13:55,291 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:13:55,301 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:13:55,466 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:13:55,608 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:13:55,611 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:13:55,952 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:13:56,633 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.113%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:14:56,646 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:14:56,732 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:14:56,736 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:14:56,874 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:14:56,985 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:14:56,989 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:14:57,234 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:14:57,655 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.113%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:15:57,703 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:15:57,929 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:15:57,937 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:15:58,076 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:15:58,209 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:15:58,222 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:15:58,467 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:15:58,960 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.113%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:16:58,976 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:16:59,092 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:16:59,105 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:16:59,240 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:16:59,335 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:16:59,339 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:16:59,560 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:16:59,561 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:16:59,566 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:17:59,576 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:17:59,669 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:17:59,672 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:17:59,804 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:17:59,920 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:17:59,924 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:18:00,247 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:18:00,248 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:18:00,261 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:00,270 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:19:00,389 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:19:00,395 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:19:00,541 [forex_agent] INFO   [EURC-USDC] BUY | conf=69.9% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:19:00,636 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:19:00,639 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:19:00,857 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5331 @ $1.1855) | conf=69.9% | eurc_usdc_arb
+2026-02-14 16:19:00,858 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:19:00,864 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:00,869 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:20:00,970 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:20:00,973 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:20:01,133 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:20:01,268 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:20:01,270 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:20:01,528 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 16:20:01,529 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:20:01,536 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:01,554 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:21:01,666 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:21:01,671 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:21:01,810 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:21:01,957 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:21:01,960 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:21:02,304 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 16:21:02,305 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:21:02,310 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:22:02,321 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:22:02,395 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:22:02,397 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:22:02,522 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:22:02,601 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:22:02,604 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:22:02,808 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 16:22:02,808 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:22:02,811 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_124
+2026-02-14 16:23:02,822 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:23:02,914 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:23:02,922 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:23:03,041 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:23:03,164 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:23:03,167 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:23:03,426 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 16:23:03,956 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.115%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:24:03,969 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:24:04,074 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:24:04,105 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:24:04,212 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:24:04,338 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:24:04,341 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:24:04,576 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 16:24:04,967 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.115%; signal_confidence 0.00% < min 70.00%
+2026-02-14 16:25:04,979 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 16:25:05,118 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 16:25:05,121 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 16:25:05,261 [forex_agent] INFO   [EURC-USDC] BUY | conf=70.1% | EURC underpriced: $1.1843 vs fair $1.1866 (spread -0.20%)
+2026-02-14 16:25:05,393 [forex_agent] INFO   [DAI-USDC] DAI spread -0.005% below threshold
+2026-02-14 16:25:05,408 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 16:25:05,703 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5332 @ $1.1854) | conf=70.1% | eurc_usdc_arb
+2026-02-14 16:25:06,492 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.115%; signal_confidence 0.00% < min 70.00%

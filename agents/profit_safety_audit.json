@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-14T19:54:50.978718+00:00",
+  "generated_at": "2026-02-14T21:21:43.370350+00:00",
   "overall_pass": true,
   "checks": [
     {
@@ -20,21 +20,21 @@
       "name": "Active Profit Pipeline",
       "passed": true,
       "severity": "high",
-      "detail": "Quant promoted WARM=0, Quant retained HOT passed=0, Quant retained WARM passed=0, Quant funded promoted=0, Pipeline promoted HOT=3788, Pipeline promoted HOT (24h)=3709, Pipeline funded strategies=13",
+      "detail": "Quant promoted WARM=0, Quant retained HOT passed=0, Quant retained WARM passed=0, Quant funded promoted=0, Pipeline promoted HOT=3794, Pipeline promoted HOT (24h)=3715, Pipeline funded strategies=13",
       "remediation": "Increase positive OOS candidates and keep only funded strategies with robust gate metrics."
     },
     {
       "name": "Live Profit Evidence",
       "passed": true,
       "severity": "critical",
-      "detail": "Promoted HOT events(all-time)=3788, promoted HOT events(24h)=3709, funded HOT strategies=12, retained HOT passed=0",
+      "detail": "Promoted HOT events(all-time)=3794, promoted HOT events(24h)=3715, funded HOT strategies=13, retained HOT passed=0",
       "remediation": "Run WARM strategies through runtime gate and promote only if paper PnL remains positive over required window."
     },
     {
       "name": "WARM Promotion Feed",
       "passed": true,
       "severity": "high",
-      "detail": "WARM stage count=25, HOT stage count=3144, Quant implementable=0",
+      "detail": "WARM stage count=19, HOT stage count=3150, Quant implementable=0",
       "remediation": "Keep WARM candidate feed non-empty by refreshing/rotating quant-validated candidates."
     },
     {
@@ -64,27 +64,27 @@
       "retained_warm_passed": 0,
       "retained_hot_passed": 0,
       "implementable_count": 0,
-      "rejected_cold": 82,
+      "rejected_cold": 861,
       "no_data": 0,
       "funded_promoted": 0,
       "funded_with_oos_trades": 0
     },
     "pipeline": {
       "stage_counts": {
-        "COLD": 8028,
-        "HOT": 3144,
-        "WARM": 25
+        "COLD": 8456,
+        "HOT": 3150,
+        "WARM": 19
       },
-      "promoted_hot_events": 3788,
-      "promoted_hot_events_recent_24h": 3709,
+      "promoted_hot_events": 3794,
+      "promoted_hot_events_recent_24h": 3715,
       "killed_events": 0,
       "max_pair_share": 0.3894,
       "total_funded_budget": 14.74,
       "funded_strategy_count": 13,
-      "funded_hot_strategy_count": 12,
-      "funded_warm_strategy_count": 1,
-      "hot_stage_count": 3144,
-      "warm_stage_count": 25,
+      "funded_hot_strategy_count": 13,
+      "funded_warm_strategy_count": 0,
+      "hot_stage_count": 3150,
+      "warm_stage_count": 19,
       "funded_with_oos_trades": 13
     }
   }
