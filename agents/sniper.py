@@ -1406,11 +1406,10 @@ class Sniper:
             return False
 
         if direction == "BUY":
-            # Fear & Greed circuit breaker — NEVER buy in extreme fear
+            # Fear & Greed — log but don't block (maker orders + throttle protect us now)
             fg_val = self._get_fear_greed_value()
             if fg_val is not None and fg_val < 15:
-                logger.info("SNIPER: %s BUY BLOCKED — Extreme Fear (F&G=%d), preserving cash", pair, fg_val)
-                return False
+                logger.info("SNIPER: %s BUY in Extreme Fear (F&G=%d) — proceeding with maker order", pair, fg_val)
 
             health_ok, health_reason = self._execution_health_allows_buy()
             if not health_ok:
