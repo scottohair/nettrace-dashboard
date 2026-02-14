@@ -66,3 +66,11 @@
 2026-02-14 05:21:56,362 [fly_migration] INFO cycle=42 regions=7 primary=ewr runtime=local
 2026-02-14 05:31:56,374 [fly_migration] INFO cycle=43 regions=7 primary=ewr runtime=local
 2026-02-14 05:41:56,385 [fly_migration] INFO cycle=44 regions=7 primary=ewr runtime=local
+2026-02-14 05:47:42,369 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-14 05:47:42,371 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local
+2026-02-14 05:51:56,400 [fly_migration] INFO cycle=45 regions=7 primary=ewr runtime=local
+2026-02-14 06:01:56,410 [fly_migration] INFO cycle=46 regions=7 primary=ewr runtime=local
+2026-02-14 06:11:56,437 [fly_migration] INFO cycle=47 regions=7 primary=ewr runtime=local
+2026-02-14 06:21:56,454 [fly_migration] INFO cycle=48 regions=7 primary=ewr runtime=local
+2026-02-14 06:23:12,771 [fly_migration] INFO starting fly migration controller loop interval=600s
+2026-02-14 06:23:12,774 [fly_migration] INFO cycle=1 regions=7 primary=ewr runtime=local

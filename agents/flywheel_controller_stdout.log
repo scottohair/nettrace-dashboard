@@ -407,3 +407,7 @@
 2026-02-13 22:31:58,491 [flywheel] INFO cycle=57 decision=GO quant_run=False pnl_today=+19.8000 total=$12.26 lock=OFF
 2026-02-13 22:32:34,185 [flywheel] INFO received signal 15; stopping flywheel...
 2026-02-13 22:32:34,639 [flywheel] INFO flywheel stopped
+2026-02-14 05:47:02,049 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-14 05:48:26,523 [flywheel] INFO received signal 15; stopping flywheel...
+2026-02-14 06:22:31,439 [flywheel] INFO flywheel started interval=240s quant_every=3 bench_every=12 claude_updates=True team_loop=True
+2026-02-14 06:24:51,595 [flywheel] INFO cycle=58 decision=NO_GO quant_run=True pnl_today=+39.9884 total=$241.04 lock=ON

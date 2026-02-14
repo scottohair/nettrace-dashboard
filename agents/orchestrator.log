@@ -3755,3 +3755,155 @@
 2026-02-14 01:38:20,366 [ORCH] INFO Starting capital from DB: $322.66
 2026-02-14 01:38:21,818 [ORCH] INFO Starting capital from DB: $322.66
 2026-02-14 01:38:23,425 [ORCH] INFO Starting capital from DB: $322.66
+2026-02-14 05:46:49,689 [ORCH] INFO Starting capital from DB: $322.66
+2026-02-14 05:46:49,690 [ORCH] INFO Orchestrator V2 starting (PID 69062)
+2026-02-14 05:46:49,691 [ORCH] INFO PID 69062 written to /Users/scott/src/quant/agents/orchestrator.pid
+2026-02-14 05:46:50,187 [ORCH] ERROR Startup preflight BLOCKED: execution_health_not_green:egress_blocked
+2026-02-14 05:46:50,192 [ORCH] INFO Stopping all agents: orchestrator_exit
+2026-02-14 05:46:50,193 [ORCH] INFO Orchestrator V2 shutdown complete
+2026-02-14 05:46:54,844 [ORCH] INFO Starting capital from DB: $322.66
+2026-02-14 05:46:54,844 [ORCH] INFO Orchestrator V2 starting (PID 69138)
+2026-02-14 05:46:54,845 [ORCH] INFO PID 69138 written to /Users/scott/src/quant/agents/orchestrator.pid
+2026-02-14 05:46:55,340 [ORCH] INFO Starting all agents...
+2026-02-14 05:46:55,784 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 05:46:55,896 [ORCH] INFO Started agent 'sniper' (PID 69197): High-confidence stacked-signal sniper (90%+ conf)
+2026-02-14 05:46:57,908 [ORCH] INFO Started agent 'exit_manager' (PID 69259): Centralized exit manager to drive SELL-close completion and realized PnL evidence.
+2026-02-14 05:46:59,923 [ORCH] INFO Started agent 'meta_engine' (PID 69305): Autonomous strategy evolution engine
+2026-02-14 05:47:01,938 [ORCH] INFO Started agent 'flywheel_controller' (PID 69368): Always-on growth flywheel: quant cycles, audit gating, reserve targets, and Claude updates
+2026-02-14 05:47:03,952 [ORCH] INFO Started agent 'capital_allocator' (PID 69422): Treasury management — principle protection + profit allocation
+2026-02-14 05:47:05,970 [ORCH] INFO Started agent 'forex_arb' (PID 69468): Forex correlation + stablecoin arb
+2026-02-14 05:47:07,991 [ORCH] INFO Started agent 'latency_arb' (PID 69497): Latency-based arb using Fly.io proximity signals
+2026-02-14 05:47:10,026 [ORCH] INFO Started agent 'momentum_scalper' (PID 69502): Short-timeframe momentum scalper (1-5min)
+2026-02-14 05:47:12,041 [ORCH] INFO Started agent 'exchange_scanner' (PID 69523): Multi-exchange correlation scanner (CME, ICE, NYMEX, LSE, etc.)
+2026-02-14 05:47:14,057 [ORCH] INFO Started agent 'candle_aggregator' (PID 69552): Continuously aggregates homogeneous multi-market candles and maintains 1000+ live data points for quant consumers.
+2026-02-14 05:47:16,068 [ORCH] INFO Started agent 'advanced_team' (PID 69585): 8-agent research/strategy/risk/execution/learning/optimization team
+2026-02-14 05:47:18,082 [ORCH] INFO Started agent 'claude_quant' (PID 69588): Claude Quant 100 validator + pipeline promotion + budgeting
+2026-02-14 05:47:20,101 [ORCH] INFO Started agent 'claude_stager' (PID 69611): Stages strategy/framework/message context for Claude ingestion
+2026-02-14 05:47:22,118 [ORCH] INFO Started agent 'autonomous_work' (PID 69650): Persistent autonomous work queue: dispatches prioritized tasks to clawd.bot/Claude duplex and tracks ACK/completion.
+2026-02-14 05:47:24,134 [ORCH] INFO Started agent 'amicoin' (PID 69680): AmiCoin Network simulation agent (isolated, not counted in real holdings)
+2026-02-14 05:47:26,143 [ORCH] INFO Started agent 'market_maker' (PID 69685): Spread collection via limit orders (BUY below bid, SELL above ask). No directional bet — profits from liquidity provision in any regime.
+2026-02-14 05:47:28,163 [ORCH] INFO Started agent 'mean_reversion' (PID 69692): Statistical arb on correlated pairs (BTC/ETH, ETH/SOL). Trades z-score deviations — deterministic, no confidence needed.
+2026-02-14 05:47:30,178 [ORCH] INFO Started agent 'arb_scanner' (PID 69736): Cross-exchange price arb (5 exchanges). DETERMINISTIC: spread > fees = trade. No confidence gate.
+2026-02-14 05:47:32,190 [ORCH] INFO Started agent 'oil_market' (PID 69762): Oil regime proxy + spread signal agent (paper-first, IBKR live optional).
+2026-02-14 05:47:34,201 [ORCH] INFO Started agent 'multi_hop_arb' (PID 69785): Advanced deterministic multi-hop arbitrage route engine with no-loss gating.
+2026-02-14 05:47:36,221 [ORCH] INFO Started agent 'mcp_opportunity' (PID 69816): MCP/web opportunity scanner and ranking engine; publishes exit hints + Claude digests.
+2026-02-14 05:47:38,234 [ORCH] INFO Started agent 'treasury_registry' (PID 69879): Treasury wallet/connector retrievability registry and reserve state snapshots.
+2026-02-14 05:47:40,246 [ORCH] INFO Started agent 'deployment_optimizer' (PID 69906): Latency + credential + DNS aware region deployment optimizer and migration planner.
+2026-02-14 05:47:42,265 [ORCH] INFO Started agent 'fly_migration' (PID 69933): Fly migration control plane for quant agents + clawdbot instances across regions.
+2026-02-14 05:47:44,287 [ORCH] INFO Started agent 'quant_company' (PID 69971): Company control plane: migration strategy, market strategy, GTM readiness, and target tracking.
+2026-02-14 05:47:46,312 [ORCH] INFO Started agent 'hf_execution' (PID 69981): High-frequency execution lane (sub-second scanner + native fast-path scoring).
+2026-02-14 05:47:48,335 [ORCH] INFO Started agent 'sentiment_leech' (PID 69987): Contrarian sentiment trading: buy fear (FGI<40), sell greed (FGI>80)
+2026-02-14 05:47:50,350 [ORCH] INFO Started agent 'phase1_executor' (PID 69991): Execute pending signals from Phase 1 agents (sentiment, regulatory, liquidation, narrative, futures)
+2026-02-14 05:47:52,364 [ORCH] INFO Started agent 'phase1_monitor' (PID 69995): Monitor Phase 1 performance + auto-escalate winners (30-min cycles, Sharpe > 0.5)
+2026-02-14 05:47:54,370 [ORCH] INFO Started 29/29 agents
+2026-02-14 05:47:54,438 [ORCH] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:47:54,440 [ORCH] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:54,442 [ORCH] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:54,445 [ORCH] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:54,445 [ORCH] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:47:54,446 [ORCH] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:47:56,450 [ORCH] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 05:47:56,451 [ORCH] WARNING Live balances unavailable; using fallback portfolio snapshot $252.19
+2026-02-14 05:47:56,457 [ORCH] ERROR Failed to get ethereum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:56,458 [ORCH] ERROR Failed to get base balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:56,460 [ORCH] ERROR Failed to get arbitrum balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:56,461 [ORCH] ERROR Failed to get polygon balances: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:56,461 [ORCH] INFO Wallet: $0.00 across 4 chains
+2026-02-14 05:47:56,463 [ORCH] INFO Portfolio: $252.19 | Cash: $114.65 | Held: $11.52 | Bridge: $0.00 | Day P&L: $+0.00 | DD: 21.8% | Agents: 27
+2026-02-14 05:47:56,463 [ORCH] WARNING Agent 'exchange_scanner' exited with code 1
+2026-02-14 05:47:56,466 [ORCH] INFO Restarting agent 'exchange_scanner'...
+2026-02-14 05:47:56,474 [ORCH] INFO Started agent 'exchange_scanner' (PID 70007): Multi-exchange correlation scanner (CME, ICE, NYMEX, LSE, etc.)
+2026-02-14 05:47:56,476 [ORCH] WARNING Agent 'oil_market' exited with code 1
+2026-02-14 05:47:56,477 [ORCH] INFO Restarting agent 'oil_market'...
+2026-02-14 05:47:56,488 [ORCH] INFO Started agent 'oil_market' (PID 70009): Oil regime proxy + spread signal agent (paper-first, IBKR live optional).
+2026-02-14 05:48:10,347 [ORCH] INFO Received signal 2, shutting down...
+2026-02-14 05:48:26,493 [ORCH] INFO Stopping all agents: orchestrator_exit
+2026-02-14 05:48:26,495 [ORCH] INFO Stopping agent 'sniper' (PID 69197): orchestrator_exit
+2026-02-14 05:48:26,506 [ORCH] INFO Stopping agent 'exit_manager' (PID 69259): orchestrator_exit
+2026-02-14 05:48:26,517 [ORCH] INFO Stopping agent 'meta_engine' (PID 69305): orchestrator_exit
+2026-02-14 05:48:26,522 [ORCH] INFO Stopping agent 'flywheel_controller' (PID 69368): orchestrator_exit
+2026-02-14 05:48:36,531 [ORCH] INFO Stopping agent 'capital_allocator' (PID 69422): orchestrator_exit
+2026-02-14 05:48:36,538 [ORCH] INFO Stopping agent 'forex_arb' (PID 69468): orchestrator_exit
+2026-02-14 05:48:36,544 [ORCH] INFO Stopping agent 'latency_arb' (PID 69497): orchestrator_exit
+2026-02-14 05:48:36,549 [ORCH] INFO Stopping agent 'momentum_scalper' (PID 69502): orchestrator_exit
+2026-02-14 05:48:36,556 [ORCH] INFO Stopping agent 'candle_aggregator' (PID 69552): orchestrator_exit
+2026-02-14 05:48:36,576 [ORCH] INFO Stopping agent 'advanced_team' (PID 69585): orchestrator_exit
+2026-02-14 05:48:36,814 [ORCH] INFO Stopping agent 'claude_quant' (PID 69588): orchestrator_exit
+2026-02-14 05:48:37,104 [ORCH] INFO Stopping agent 'claude_stager' (PID 69611): orchestrator_exit
+2026-02-14 05:48:37,820 [ORCH] INFO Stopping agent 'autonomous_work' (PID 69650): orchestrator_exit
+2026-02-14 05:48:38,643 [ORCH] INFO Stopping agent 'amicoin' (PID 69680): orchestrator_exit
+2026-02-14 05:48:40,019 [ORCH] INFO Stopping agent 'market_maker' (PID 69685): orchestrator_exit
+2026-02-14 05:48:40,034 [ORCH] INFO Stopping agent 'mean_reversion' (PID 69692): orchestrator_exit
+2026-02-14 05:48:40,041 [ORCH] INFO Stopping agent 'arb_scanner' (PID 69736): orchestrator_exit
+2026-02-14 05:48:40,057 [ORCH] INFO Stopping agent 'multi_hop_arb' (PID 69785): orchestrator_exit
+2026-02-14 05:48:40,075 [ORCH] INFO Stopping agent 'mcp_opportunity' (PID 69816): orchestrator_exit
+2026-02-14 05:48:40,116 [ORCH] INFO Stopping agent 'treasury_registry' (PID 69879): orchestrator_exit
+2026-02-14 05:48:40,134 [ORCH] INFO Stopping agent 'deployment_optimizer' (PID 69906): orchestrator_exit
+2026-02-14 05:48:40,141 [ORCH] INFO Stopping agent 'fly_migration' (PID 69933): orchestrator_exit
+2026-02-14 05:48:40,148 [ORCH] INFO Stopping agent 'quant_company' (PID 69971): orchestrator_exit
+2026-02-14 05:48:40,155 [ORCH] INFO Stopping agent 'hf_execution' (PID 69981): orchestrator_exit
+2026-02-14 05:48:40,167 [ORCH] INFO Stopping agent 'sentiment_leech' (PID 69987): orchestrator_exit
+2026-02-14 05:48:40,171 [ORCH] INFO Stopping agent 'phase1_executor' (PID 69991): orchestrator_exit
+2026-02-14 05:48:40,177 [ORCH] INFO Stopping agent 'phase1_monitor' (PID 69995): orchestrator_exit
+2026-02-14 05:48:40,184 [ORCH] INFO Orchestrator V2 shutdown complete
+2026-02-14 06:22:23,559 [ORCH] INFO Starting capital from DB: $322.66
+2026-02-14 06:22:23,559 [ORCH] INFO Orchestrator V2 starting (PID 80427)
+2026-02-14 06:22:23,560 [ORCH] INFO PID 80427 written to /Users/scott/src/quant/agents/orchestrator.pid
+2026-02-14 06:22:23,708 [ORCH] INFO Starting all agents...
+2026-02-14 06:22:23,860 [ORCH] INFO Integration guard READY (guarded_agents=['flywheel_controller'])
+2026-02-14 06:22:24,049 [ORCH] WARNING Terminated stray PID 82669 (single_root:capital_allocator)
+2026-02-14 06:22:24,086 [ORCH] WARNING Terminated stray PID 82671 (single_root:forex_arb)
+2026-02-14 06:22:24,122 [ORCH] WARNING Terminated stray PID 82673 (single_root:latency_arb)
+2026-02-14 06:22:24,159 [ORCH] WARNING Terminated stray PID 82690 (single_root:momentum_scalper)
+2026-02-14 06:22:24,197 [ORCH] WARNING Terminated stray PID 82698 (single_root:exchange_scanner)
+2026-02-14 06:22:24,278 [ORCH] WARNING Terminated stray PID 82703 (single_root:advanced_team)
+2026-02-14 06:22:24,318 [ORCH] WARNING Terminated stray PID 82707 (single_root:claude_quant)
+2026-02-14 06:22:24,360 [ORCH] WARNING Terminated stray PID 82709 (single_root:claude_stager)
+2026-02-14 06:22:24,410 [ORCH] WARNING Terminated stray PID 82711 (single_root:autonomous_work)
+2026-02-14 06:22:24,465 [ORCH] WARNING Terminated stray PID 82732 (single_root:amicoin)
+2026-02-14 06:22:24,515 [ORCH] WARNING Terminated stray PID 82734 (single_root:market_maker)
+2026-02-14 06:22:24,557 [ORCH] WARNING Terminated stray PID 82736 (single_root:mean_reversion)
+2026-02-14 06:22:24,603 [ORCH] WARNING Terminated stray PID 82738 (single_root:arb_scanner)
+2026-02-14 06:22:24,642 [ORCH] WARNING Terminated stray PID 82740 (single_root:oil_market)
+2026-02-14 06:22:24,684 [ORCH] WARNING Terminated stray PID 82748 (single_root:multi_hop_arb)
+2026-02-14 06:22:24,719 [ORCH] WARNING Terminated stray PID 82750 (single_root:mcp_opportunity)
+2026-02-14 06:22:24,757 [ORCH] WARNING Terminated stray PID 82752 (single_root:treasury_registry)
+2026-02-14 06:22:24,794 [ORCH] WARNING Terminated stray PID 82754 (single_root:deployment_optimizer)
+2026-02-14 06:22:24,837 [ORCH] WARNING Terminated stray PID 82756 (single_root:fly_migration)
+2026-02-14 06:22:24,880 [ORCH] WARNING Terminated stray PID 82761 (single_root:quant_company)
+2026-02-14 06:22:24,930 [ORCH] WARNING Terminated stray PID 82778 (single_root:hf_execution)
+2026-02-14 06:22:25,119 [ORCH] INFO Started agent 'sniper' (PID 80475): High-confidence stacked-signal sniper (90%+ conf)
+2026-02-14 06:22:27,165 [ORCH] INFO Started agent 'exit_manager' (PID 80485): Centralized exit manager to drive SELL-close completion and realized PnL evidence.
+2026-02-14 06:22:29,212 [ORCH] INFO Started agent 'meta_engine' (PID 80488): Autonomous strategy evolution engine
+2026-02-14 06:22:31,277 [ORCH] INFO Started agent 'flywheel_controller' (PID 80507): Always-on growth flywheel: quant cycles, audit gating, reserve targets, and Claude updates
+2026-02-14 06:22:33,326 [ORCH] INFO Started agent 'capital_allocator' (PID 80519): Treasury management — principle protection + profit allocation
+2026-02-14 06:22:35,381 [ORCH] INFO Started agent 'forex_arb' (PID 80562): Forex correlation + stablecoin arb
+2026-02-14 06:22:37,442 [ORCH] INFO Started agent 'latency_arb' (PID 80576): Latency-based arb using Fly.io proximity signals
+2026-02-14 06:22:39,501 [ORCH] INFO Started agent 'momentum_scalper' (PID 80578): Short-timeframe momentum scalper (1-5min)
+2026-02-14 06:22:41,566 [ORCH] INFO Started agent 'exchange_scanner' (PID 80592): Multi-exchange correlation scanner (CME, ICE, NYMEX, LSE, etc.)
+2026-02-14 06:22:43,624 [ORCH] INFO Started agent 'candle_aggregator' (PID 80613): Continuously aggregates homogeneous multi-market candles and maintains 1000+ live data points for quant consumers.
+2026-02-14 06:22:45,682 [ORCH] INFO Started agent 'advanced_team' (PID 80618): 8-agent research/strategy/risk/execution/learning/optimization team
+2026-02-14 06:22:47,730 [ORCH] INFO Started agent 'claude_quant' (PID 80620): Claude Quant 100 validator + pipeline promotion + budgeting
+2026-02-14 06:22:49,797 [ORCH] INFO Started agent 'claude_stager' (PID 80625): Stages strategy/framework/message context for Claude ingestion
+2026-02-14 06:22:51,880 [ORCH] INFO Started agent 'autonomous_work' (PID 80644): Persistent autonomous work queue: dispatches prioritized tasks to clawd.bot/Claude duplex and tracks ACK/completion.
+2026-02-14 06:22:53,967 [ORCH] INFO Started agent 'amicoin' (PID 80657): AmiCoin Network simulation agent (isolated, not counted in real holdings)
+2026-02-14 06:22:56,033 [ORCH] INFO Started agent 'market_maker' (PID 80659): Spread collection via limit orders (BUY below bid, SELL above ask). No directional bet — profits from liquidity provision in any regime.
+2026-02-14 06:22:58,104 [ORCH] INFO Started agent 'mean_reversion' (PID 80675): Statistical arb on correlated pairs (BTC/ETH, ETH/SOL). Trades z-score deviations — deterministic, no confidence needed.
+2026-02-14 06:23:00,186 [ORCH] INFO Started agent 'arb_scanner' (PID 80678): Cross-exchange price arb (5 exchanges). DETERMINISTIC: spread > fees = trade. No confidence gate.
+2026-02-14 06:23:02,257 [ORCH] INFO Started agent 'oil_market' (PID 80695): Oil regime proxy + spread signal agent (paper-first, IBKR live optional).
+2026-02-14 06:23:04,323 [ORCH] INFO Started agent 'multi_hop_arb' (PID 80702): Advanced deterministic multi-hop arbitrage route engine with no-loss gating.
+2026-02-14 06:23:06,404 [ORCH] INFO Started agent 'mcp_opportunity' (PID 80731): MCP/web opportunity scanner and ranking engine; publishes exit hints + Claude digests.
+2026-02-14 06:23:08,528 [ORCH] INFO Started agent 'treasury_registry' (PID 80734): Treasury wallet/connector retrievability registry and reserve state snapshots.
+2026-02-14 06:23:10,598 [ORCH] INFO Started agent 'deployment_optimizer' (PID 80736): Latency + credential + DNS aware region deployment optimizer and migration planner.
+2026-02-14 06:23:12,669 [ORCH] INFO Started agent 'fly_migration' (PID 80741): Fly migration control plane for quant agents + clawdbot instances across regions.
+2026-02-14 06:23:14,753 [ORCH] INFO Started agent 'quant_company' (PID 80761): Company control plane: migration strategy, market strategy, GTM readiness, and target tracking.
+2026-02-14 06:23:16,832 [ORCH] INFO Started agent 'hf_execution' (PID 80771): High-frequency execution lane (sub-second scanner + native fast-path scoring).
+2026-02-14 06:23:18,915 [ORCH] INFO Started agent 'sentiment_leech' (PID 80773): Contrarian sentiment trading: buy fear (FGI<40), sell greed (FGI>80)
+2026-02-14 06:23:21,026 [ORCH] INFO Started agent 'phase1_executor' (PID 80777): Execute pending signals from Phase 1 agents (sentiment, regulatory, liquidation, narrative, futures)
+2026-02-14 06:23:23,112 [ORCH] INFO Started agent 'phase1_monitor' (PID 80796): Monitor Phase 1 performance + auto-escalate winners (30-min cycles, Sharpe > 0.5)
+2026-02-14 06:23:25,116 [ORCH] INFO Started 29/29 agents
+2026-02-14 06:23:27,738 [ORCH] INFO Wallet: $1.41 across 4 chains
+2026-02-14 06:23:27,740 [ORCH] INFO Portfolio: $242.47 | Cash: $214.32 | Held: $18.25 | Bridge: $0.00 | Day P&L: $+0.00 | DD: 24.9% | Agents: 29
+2026-02-14 06:24:57,794 [ORCH] WARNING Agent 'sniper' exited with code -15
+2026-02-14 06:24:57,797 [ORCH] INFO Restarting agent 'sniper'...
+2026-02-14 06:24:57,866 [ORCH] INFO Started agent 'sniper' (PID 81230): High-confidence stacked-signal sniper (90%+ conf)

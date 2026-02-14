@@ -1,14 +1,18 @@
 {
-  "cycle": 190,
-  "updated_at": "2026-02-14T10:43:22.483908+00:00",
+  "cycle": 2,
+  "updated_at": "2026-02-14T11:25:21.900007+00:00",
   "risk_posture": "DEFENSIVE",
-  "focus_pairs": [],
+  "focus_pairs": [
+    "ETH-USD",
+    "SOL-USD",
+    "BTC-USD"
+  ],
   "agent_status": [
     {
       "agent": "algorithm_optimizer",
       "label": "Algorithm Optimizer",
       "state": "active",
-      "detail": "min_conf=0.66"
+      "detail": "min_conf=0.64"
     },
     {
       "agent": "quant_optimizer",
@@ -20,29 +24,31 @@
       "agent": "dashboard_optimizer",
       "label": "Dashboard Optimizer",
       "state": "active",
-      "detail": "focus=none"
+      "detail": "focus=ETH-USD, SOL-USD, BTC-USD"
     }
   ],
   "algorithm_recommendations": [
-    "Global min confidence -> 0.66",
+    "Global min confidence -> 0.64",
     "Global size multiplier -> 0.68x"
   ],
   "quant_recommendations": [
-    "Posture=DEFENSIVE min_conf=0.73 max_trade=$3.50"
+    "Top alpha: ETH-USD (+0.054) 24h=+7.5%",
+    "Posture=DEFENSIVE min_conf=0.71 max_trade=$3.50"
   ],
   "dashboard_recommendations": [
     "Risk posture: DEFENSIVE",
-    "Confidence floor: 0.73",
+    "Confidence floor: 0.71",
     "Max trade: $3.50"
   ],
   "next_actions": [
-    "Global min confidence -> 0.66",
+    "Global min confidence -> 0.64",
     "Global size multiplier -> 0.68x",
-    "Posture=DEFENSIVE min_conf=0.73 max_trade=$3.50"
+    "Top alpha: ETH-USD (+0.054) 24h=+7.5%",
+    "Posture=DEFENSIVE min_conf=0.71 max_trade=$3.50"
   ],
   "learning_snapshot": {
     "sharpe_ratio": -2.6171,
-    "max_drawdown_pct": 65.13,
+    "max_drawdown_pct": 71.54,
     "total_trades": 0
   },
   "source": "dashboard_optimizer"

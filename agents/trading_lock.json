@@ -1,13 +1,18 @@
 {
-  "locked": false,
-  "reason": "Manual unlock: network restored, egress_blocked condition was stale",
-  "source": "manual_fix",
-  "set_at": "2026-02-14T05:15:00.000000+00:00",
+  "locked": true,
+  "reason": "NO_GO: growth_supervisor_failed_rc_-9",
+  "source": "flywheel_controller",
+  "set_at": "2026-02-14T11:24:50.974926+00:00",
   "metadata": {
-    "event": "MANUAL_UNLOCK",
-    "previous_lock_reason": "Startup preflight blocked: execution_health_not_green:egress_blocked",
-    "previous_lock_source": "orchestrator_v2",
-    "previous_lock_set_at": "2026-02-14T04:03:28.311972+00:00",
-    "fix_notes": "egress_blocked was stale; DNS resolves, Coinbase API returns 401 (auth required = reachable)"
-  }
+    "decision": {
+      "decision": "NO_GO",
+      "go_live": false,
+      "reasons": [
+        "growth_supervisor_failed_rc_-9"
+      ]
+    },
+    "set_at": "2026-02-14T11:24:50.974888+00:00"
+  },
+  "epoch": 1771068290.974931,
+  "pid": 80507
 }

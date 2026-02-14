@@ -97,6 +97,12 @@ REALIZED_MIN_POSITIVE_WINDOWS = int(os.environ.get("QUANT_COMPANY_REALIZED_MIN_P
 REALIZED_WINDOW_HOURS = int(os.environ.get("QUANT_COMPANY_REALIZED_WINDOW_HOURS", "4"))
 REALIZED_MIN_CLOSES_PER_WINDOW = int(os.environ.get("QUANT_COMPANY_REALIZED_MIN_CLOSES_PER_WINDOW", "1"))
 REALIZED_MIN_NET_PNL_USD = float(os.environ.get("QUANT_COMPANY_REALIZED_MIN_NET_PNL_USD", "0.01"))
+REALIZED_NEGATIVE_WINDOW_STREAK_FOR_DEESCALATE = int(
+    os.environ.get("QUANT_COMPANY_REALIZED_NEG_WINDOW_STREAK", "2")
+)
+REALIZED_WINDOW_STREAK_REQUIRED_FOR_DEESCALATE = max(
+    1, int(REALIZED_NEGATIVE_WINDOW_STREAK_FOR_DEESCALATE or 0)
+)
 EXECUTION_HEALTH_ESCALATION_GATE = os.environ.get(
     "EXECUTION_HEALTH_ESCALATION_GATE", "1"
 ).lower() not in ("0", "false", "no")
@@ -616,6 +622,15 @@ def _budget_escalator(progress, metrics, target, realized, execution_health=None
     buy_sell_ratio = float(flow.get("buy_sell_ratio", 0.0) or 0.0)
     close_balance_ok = bool(flow.get("close_balance_ok", True))
     close_balance_reason = str(flow.get("close_balance_reason", "") or "").strip()
+    recent_windows = (realized or {}).get("windows", []) if isinstance((realized or {}).get("windows", []), list) else []
+    recent_negative_streak = 0
+    for window in recent_windows:
+        if not isinstance(window, dict):
+            continue
+        if float((window).get("net_pnl_usd", 0.0) or 0.0) <= 0.0:
+            recent_negative_streak += 1
+        else:
+            break
 
     action = "hold"
     factor = 1.0
@@ -648,10 +663,16 @@ def _budget_escalator(progress, metrics, target, realized, execution_health=None
         reason = close_balance_reason or (
             f"buy_sell_imbalance:{buy_sell_ratio:.2f}>{float(TRADE_FLOW_MAX_BUY_SELL_RATIO):.2f}"
         )
-    elif float((realized or {}).get("windows", [{}])[0].get("net_pnl_usd", 0.0) or 0.0) <= 0.0:
+    elif (
+        recent_negative_streak >= REALIZED_WINDOW_STREAK_REQUIRED_FOR_DEESCALATE
+        and len(recent_windows) >= REALIZED_WINDOW_STREAK_REQUIRED_FOR_DEESCALATE
+    ):
         action = "de_escalate"
         factor = 0.92
-        reason = "recent_realized_window_non_positive"
+        reason = (
+            f"recent_realized_window_negative_streak:"
+            f"{recent_negative_streak}>={REALIZED_WINDOW_STREAK_REQUIRED_FOR_DEESCALATE}"
+        )
     elif go_live and alpha >= 0.70 and pnl >= 0:
         action = "escalate"
         gap_ratio = _clamp(float(target.get("achievement_pct_to_next", 0.0) or 0.0), 0.0, 1.5)

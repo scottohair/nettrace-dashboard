@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-02-14T10:42:36.554953+00:00",
-  "cycle": 87,
+  "updated_at": "2026-02-14T11:23:09.422364+00:00",
+  "cycle": 1,
   "wallets": [
     {
       "address": "0x2Efbef64bdFc6D80E835B8312e051444716299aC",
@@ -73,9 +73,9 @@
     }
   ],
   "portfolio": {
-    "total_usd": 0.0,
-    "available_cash": 0.0,
-    "held_in_orders": 0.0,
+    "total_usd": 241.08,
+    "available_cash": 214.32,
+    "held_in_orders": 10.25,
     "source": "agent_tools"
   },
   "reserve_targets": {

@@ -13471,3 +13471,34 @@
 2026-02-14 01:09:24,513 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 47s, reason=egress_blocked)
 2026-02-14 01:09:24,513 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 47s, reason=egress_blocked)
 2026-02-14 01:09:24,514 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 47s, reason=egress_blocked)
+2026-02-14 05:47:28,239 [mean_reversion] INFO Mean Reversion Agent starting | Pairs: ['BTC/ETH', 'ETH/SOL', 'BTC/SOL', 'LINK/AVAX'] | Z-entry: 2.0 | Z-exit: 0.2
+2026-02-14 05:47:28,384 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:47:28,385 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:28,386 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:28,388 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:28,389 [exchange] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:47:28,389 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:47:28,390 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 05:47:28,391 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 05:47:28,392 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 05:47:30,396 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 05:47:30,398 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 05:47:30,400 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 05:47:30,400 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 05:47:32,406 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 05:47:32,406 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 05:47:32,407 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 05:47:32,407 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 05:47:34,410 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 113s, reason=egress_blocked)
+2026-02-14 05:47:34,410 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 113s, reason=egress_blocked)
+2026-02-14 05:47:34,411 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 113s, reason=egress_blocked)
+2026-02-14 05:47:34,411 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 113s, reason=egress_blocked)
+2026-02-14 05:48:36,420 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 51s, reason=egress_blocked)
+2026-02-14 05:48:36,422 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 51s, reason=egress_blocked)
+2026-02-14 05:48:36,428 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 51s, reason=egress_blocked)
+2026-02-14 05:48:36,435 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 51s, reason=egress_blocked)
+2026-02-14 05:48:38,439 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 05:48:38,440 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 05:48:38,441 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 05:48:38,442 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 06:22:58,189 [mean_reversion] INFO Mean Reversion Agent starting | Pairs: ['BTC/ETH', 'ETH/SOL', 'BTC/SOL', 'LINK/AVAX'] | Z-entry: 2.0 | Z-exit: 0.2

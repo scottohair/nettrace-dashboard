@@ -1,11 +1,8 @@
 {
-  "updated_at": "2026-02-14T10:43:14.531450+00:00",
-  "green": false,
-  "reason": "telemetry_samples_low:0<3",
-  "reasons": [
-    "telemetry_samples_low:0<3",
-    "reconcile_status_stale"
-  ],
+  "updated_at": "2026-02-14T11:25:51.124707+00:00",
+  "green": true,
+  "reason": "passed",
+  "reasons": [],
   "dns_degraded": false,
   "egress_blocked": false,
   "components": {
@@ -41,33 +38,52 @@
           "host": "api.coinbase.com",
           "ok": true,
           "ips": [
+            "2606:4700:440a::ac40:98f1",
+            "2a06:98c1:3105::6812:230f",
             "104.18.35.15",
             "172.64.152.241"
           ],
-          "error": "system_dns_failed_host_map_recovered:[Errno 8] nodename nor servname provided, or not known",
-          "resolver_source": "host_map",
-          "latency_ms": 156.757
+          "error": "",
+          "resolver_source": "system",
+          "latency_ms": 11.232
         },
         {
           "host": "api.exchange.coinbase.com",
           "ok": true,
           "ips": [
-            "104.18.36.178",
-            "172.64.151.78"
+            "2a06:98c1:3103::6812:24b2",
+            "2a06:98c1:310d::ac40:974e",
+            "172.64.151.78",
+            "104.18.36.178"
           ],
-          "error": "system_dns_failed_host_map_recovered:[Errno 8] nodename nor servname provided, or not known",
-          "resolver_source": "host_map",
-          "latency_ms": 156.873
+          "error": "",
+          "resolver_source": "system",
+          "latency_ms": 6.863
         }
       ]
     },
     "api_probe": {
-      "enabled": false,
+      "enabled": true,
       "green": true,
-      "rows": []
+      "rows": [
+        {
+          "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+          "ok": true,
+          "status": 200,
+          "error": "",
+          "latency_ms": 70.891
+        },
+        {
+          "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+          "ok": true,
+          "status": 200,
+          "error": "",
+          "latency_ms": 77.909
+        }
+      ]
     },
     "telemetry": {
-      "green": false,
+      "green": true,
       "degraded": false,
       "degraded_reasons": [],
       "bypass_enabled": false,
@@ -87,12 +103,12 @@
       "snapshot": {
         "venue": "coinbase",
         "window_minutes": 30,
-        "samples": 0,
-        "success_rate": 0.0,
+        "samples": 103,
+        "success_rate": 1.0,
         "failure_rate": 0.0,
-        "p50_latency_ms": 0.0,
-        "p90_latency_ms": 0.0,
-        "p99_latency_ms": 0.0,
+        "p50_latency_ms": 88.516,
+        "p90_latency_ms": 107.332,
+        "p99_latency_ms": 150.993,
         "dns_failures_excluded": 0
       },
       "recovery_override": false,
@@ -100,41 +116,30 @@
       "recovery_min_samples": 2,
       "recovery_min_success_rate": 0.6,
       "recovery_max_failure_rate": 0.4,
-      "recovery_snapshot": {
-        "venue": "coinbase",
-        "window_minutes": 3,
-        "samples": 0,
-        "success_rate": 0.0,
-        "failure_rate": 0.0,
-        "p50_latency_ms": 0.0,
-        "p90_latency_ms": 0.0,
-        "p99_latency_ms": 0.0,
-        "dns_failures_excluded": 0
-      }
+      "recovery_snapshot": {}
     },
     "reconcile": {
-      "green": false,
+      "green": true,
       "max_age_seconds": 900,
       "allow_stale_no_pending": true,
       "stale_no_pending_grace_seconds": 3600,
       "stale_no_activity_grace_seconds": 7200,
-      "stale_grace_applied": false,
-      "age_seconds": 19703.037,
+      "stale_grace_applied": true,
+      "age_seconds": 96.993,
       "summary": {
-        "checked": 0,
-        "updated": 0,
-        "filled": 0,
+        "checked": 3,
+        "updated": 2,
+        "filled": 2,
         "partial": 0,
         "cancelled": 0,
         "failed": 0,
         "expired": 0,
         "early_exit_reason": "",
-        "close_attempts": 86,
-        "close_completions": 84,
-        "close_failures": 2,
+        "close_attempts": 3,
+        "close_completions": 2,
+        "close_failures": 1,
         "close_failure_reasons": {
-          "terminal_cancelled": 1,
-          "terminal_failed": 1
+          "not_completed_pending": 1
         },
         "close_gate_passed": true,
         "close_gate_reason": "sell_close_completion_observed"
@@ -144,8 +149,8 @@
       "enabled": false,
       "green": true,
       "reason": "gate_disabled",
-      "path": "/Users/scott/src/quant/tests/../agents/candle_feed_latest.json",
-      "aggregator_status_path": "/Users/scott/src/quant/tests/../agents/candle_aggregator_status.json",
+      "path": "/Users/scott/src/quant/agents/candle_feed_latest.json",
+      "aggregator_status_path": "/Users/scott/src/quant/agents/candle_aggregator_status.json",
       "feed_exists": false,
       "aggregator_status_exists": false,
       "age_seconds": null,

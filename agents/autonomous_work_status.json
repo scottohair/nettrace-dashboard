@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-02-14T10:42:55.966017+00:00",
+  "updated_at": "2026-02-14T11:25:53.051700+00:00",
   "agent": "autonomous_work_manager",
   "duplex_available": true,
   "queue_size": 85,
   "queue_target_size": 80,
   "max_outstanding": 12,
   "dispatch_per_cycle": 4,
-  "last_from_claude_id": 996,
+  "last_from_claude_id": 1315,
   "counts": {
     "queued": 71,
     "dispatched": 0,
@@ -31,12 +31,12 @@
   },
   "feedback": {
     "available": true,
-    "ingested": 0,
+    "ingested": 6,
     "acked": 0,
     "claimed": 0,
     "completed": 0,
     "completion_waiting_verification": 0,
-    "last_from_claude_id": 996
+    "last_from_claude_id": 1315
   },
   "dispatch": {
     "available": true,
@@ -362,7 +362,7 @@
     }
   ],
   "win_1000_snapshot": {
-    "updated_at": "2026-02-14T03:31:58.419768+00:00",
+    "updated_at": "2026-02-14T11:24:50.933718+00:00",
     "tasks_total": 1000,
     "worked_through_count": 1000,
     "status_counts": {

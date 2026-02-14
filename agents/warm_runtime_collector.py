@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import os
 import sqlite3
 import statistics
 import sys
@@ -41,6 +42,19 @@ FACTORIES = {
 }
 
 EVIDENCE_CANDLE_WINDOWS = [30, 42, 54, 66, 78, 96, 120, 144, 168]
+WARM_MIN_EVIDENCE_CANDLES = max(1, int(os.environ.get("WARM_MIN_EVIDENCE_CANDLES", "24")))
+WARM_EVIDENCE_DATA_MODE = str(
+    os.environ.get("WARM_EVIDENCE_DATA_MODE", "candle")
+).lower().strip()
+WARM_EVIDENCE_NON_CANDLE_MIN_BARS = max(
+    1, int(os.environ.get("WARM_EVIDENCE_NON_CANDLE_MIN_BARS", str(WARM_MIN_EVIDENCE_CANDLES)))
+)
+WARM_EVIDENCE_NON_CANDLE_STRICT_MODE = os.environ.get(
+    "WARM_EVIDENCE_NON_CANDLE_STRICT_MODE", "0"
+).lower() not in ("0", "false", "no")
+WARM_EVIDENCE_NON_CANDLE_FALLBACK = os.environ.get(
+    "WARM_EVIDENCE_NON_CANDLE_FALLBACK", "1"
+).lower() not in ("0", "false", "no")
 
 
 def _utc_now():
@@ -55,6 +69,81 @@ def _safe_json(text, default):
     except Exception:
         pass
     return default
+
+
+def _normalize_evidence_mode():
+    mode = str(WARM_EVIDENCE_DATA_MODE or "candle").lower().strip()
+    if mode in {"candle", "non_candle", "hybrid"}:
+        return mode
+    return "candle"
+
+
+def _warm_evidence_rows(prices, pair, granularity, hours):
+    granularity_seconds = 300 if granularity == "5min" else 3600
+    mode = _normalize_evidence_mode()
+    if mode == "candle":
+        if granularity == "5min":
+            candles = prices.get_5min_candles(pair, hours=hours)
+            source_meta = prices.get_cache_meta(pair, str(granularity_seconds), hours)
+        else:
+            candles = prices.get_candles(pair, hours=hours)
+            source_meta = prices.get_cache_meta(pair, str(granularity_seconds), hours)
+        source_meta["mode"] = "candle"
+        return candles, source_meta, None
+
+    if mode == "non_candle":
+        rows = prices.get_non_candle_rows(
+            pair, hours=hours, granularity_seconds=granularity_seconds
+        )
+        source_meta = {
+            "mode": "non_candle_local",
+            "source": "non_candle_local",
+            "pair": pair,
+            "granularity_seconds": int(granularity_seconds),
+            "hours": int(hours),
+            "candles": int(len(rows)),
+            "notes": ["local_non_candle_evidence"],
+        }
+        if len(rows) < WARM_EVIDENCE_NON_CANDLE_MIN_BARS:
+            if WARM_EVIDENCE_NON_CANDLE_STRICT_MODE:
+                return (
+                    rows,
+                    source_meta,
+                    f"insufficient_non_candle_rows:{len(rows)}<{WARM_EVIDENCE_NON_CANDLE_MIN_BARS}",
+                )
+            if WARM_EVIDENCE_NON_CANDLE_FALLBACK:
+                if granularity == "5min":
+                    candles = prices.get_5min_candles(pair, hours=hours)
+                    source_meta = prices.get_cache_meta(pair, str(granularity_seconds), hours)
+                else:
+                    candles = prices.get_candles(pair, hours=hours)
+                    source_meta = prices.get_cache_meta(pair, str(granularity_seconds), hours)
+                source_meta["mode"] = "non_candle_fallback"
+                return candles, source_meta, None
+        return rows, source_meta, None
+
+    rows = prices.get_non_candle_rows(
+        pair, hours=hours, granularity_seconds=granularity_seconds
+    )
+    source_meta = {
+        "mode": "non_candle_hybrid",
+        "source": "non_candle_local",
+        "pair": pair,
+        "granularity_seconds": int(granularity_seconds),
+        "hours": int(hours),
+        "candles": int(len(rows)),
+        "notes": ["local_non_candle_preference"],
+    }
+    if len(rows) >= WARM_EVIDENCE_NON_CANDLE_MIN_BARS:
+        return rows, source_meta, None
+    if granularity == "5min":
+        candles = prices.get_5min_candles(pair, hours=hours)
+        source_meta = prices.get_cache_meta(pair, str(granularity_seconds), hours)
+    else:
+        candles = prices.get_candles(pair, hours=hours)
+        source_meta = prices.get_cache_meta(pair, str(granularity_seconds), hours)
+    source_meta["mode"] = "hybrid_fallback"
+    return candles, source_meta, None
 
 
 def _base_name(name):
@@ -291,21 +380,29 @@ def collect_once(hours=168, granularity="5min", interval_seconds=300, promote=Fa
             continue
 
         strategy = FACTORIES[base](**params)
-        if granularity == "5min":
-            candles = prices.get_5min_candles(pair, hours=hours)
-            granularity_seconds = 300
-        else:
-            candles = prices.get_candles(pair, hours=hours)
-            granularity_seconds = 3600
-
-        source_meta = prices.get_cache_meta(pair, str(granularity_seconds), hours)
-        if len(candles) < 30:
+        granularity_seconds = 300 if granularity == "5min" else 3600
+        candles, source_meta, forced_skip = _warm_evidence_rows(
+            prices, pair, granularity, hours
+        )
+        if forced_skip:
             results.append(
                 {
                     "strategy_name": strategy_name,
                     "pair": pair,
                     "status": "skipped",
-                    "reason": f"insufficient_candles:{len(candles)}",
+                    "reason": forced_skip,
+                    "data_source": source_meta,
+                }
+            )
+            continue
+
+        if len(candles) < WARM_MIN_EVIDENCE_CANDLES:
+            results.append(
+                {
+                    "strategy_name": strategy_name,
+                    "pair": pair,
+                    "status": "skipped",
+                    "reason": f"insufficient_candles:{len(candles)}<{WARM_MIN_EVIDENCE_CANDLES}",
                     "data_source": source_meta,
                 }
             )

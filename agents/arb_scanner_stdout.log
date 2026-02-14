@@ -136,3 +136,9 @@
 2026-02-14 05:11:39,163 [arb_scanner] INFO Status: cycle=1480 opportunities=0 trades=0
 2026-02-14 05:22:26,666 [arb_scanner] INFO Status: cycle=1520 opportunities=0 trades=0
 2026-02-14 05:33:14,226 [arb_scanner] INFO Status: cycle=1560 opportunities=0 trades=0
+2026-02-14 05:44:05,991 [arb_scanner] INFO Status: cycle=1600 opportunities=0 trades=0
+2026-02-14 05:47:30,290 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%
+2026-02-14 05:55:00,391 [arb_scanner] INFO Status: cycle=1640 opportunities=0 trades=0
+2026-02-14 06:05:52,139 [arb_scanner] INFO Status: cycle=1680 opportunities=0 trades=0
+2026-02-14 06:16:41,823 [arb_scanner] INFO Status: cycle=1720 opportunities=0 trades=0
+2026-02-14 06:23:00,345 [arb_scanner] INFO Arbitrage Scanner starting | Pairs: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'AVAX-USD', 'LINK-USD', 'DOGE-USD'] | Min spread: 1.20%

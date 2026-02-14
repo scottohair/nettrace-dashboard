@@ -790,3 +790,111 @@ def futures_arbitrage():
         return jsonify({"opportunities": opportunities}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# ============================================================================
+# DEPLOYMENT & AUTONOMY MONITORING ENDPOINTS
+# ============================================================================
+
+@api_v1.route("/deploy/status")
+@verify_api_key
+@require_tier("enterprise", "enterprise_pro")
+def deploy_status():
+    """Get current deployment status."""
+    try:
+        from pathlib import Path
+        from agents.deploy_controller import DeployController
+
+        controller = DeployController()
+        status = controller.get_status()
+
+        if not status:
+            # Return status from deploy_status.json if available
+            status_path = Path(__file__).parent / "agents" / "deploy_status.json"
+            if status_path.exists():
+                with open(status_path) as f:
+                    status = json.load(f)
+            else:
+                status = {"status": "unknown", "message": "No deployment status available"}
+
+        return jsonify(status), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/deploy/history")
+@verify_api_key
+@require_tier("enterprise", "enterprise_pro")
+def deploy_history():
+    """Get deployment history (last N deployments)."""
+    try:
+        limit, limit_error = parse_int_query_param("limit", 20, max_value=100)
+        if limit_error:
+            return limit_error
+
+        history_path = Path(__file__).parent / "agents" / "deploy_history.jsonl"
+        history = []
+
+        if history_path.exists():
+            with open(history_path) as f:
+                for line in f:
+                    if line.strip():
+                        history.append(json.loads(line))
+
+        # Return last N records in reverse order (most recent first)
+        history = list(reversed(history[-limit:]))
+
+        return jsonify({
+            "total": len(history),
+            "limit": limit,
+            "records": history
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/deploy/audit-trail")
+@verify_api_key
+@require_tier("enterprise", "enterprise_pro")
+def deploy_audit_trail():
+    """Get deployment audit trail including webhooks and alerts."""
+    try:
+        limit, limit_error = parse_int_query_param("limit", 50, max_value=500)
+        if limit_error:
+            return limit_error
+
+        from agents.webhook_notifier import get_audit_trail
+
+        trail = get_audit_trail(limit=limit)
+
+        return jsonify({
+            "total": len(trail),
+            "records": trail
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_v1.route("/autonomy/status")
+@verify_api_key
+@require_tier("enterprise", "enterprise_pro")
+def autonomy_status():
+    """Get status of all autonomous systems."""
+    try:
+        autonomy_state_path = Path(__file__).parent / "agents" / "autonomy_state.json"
+
+        if autonomy_state_path.exists():
+            with open(autonomy_state_path) as f:
+                state = json.load(f)
+        else:
+            state = {
+                "deployment_in_progress": False,
+                "param_optimization_active": False,
+                "strategy_discovery_active": False,
+                "hardstop_triggered": False,
+                "last_update": datetime.now(timezone.utc).isoformat()
+            }
+
+        return jsonify(state), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

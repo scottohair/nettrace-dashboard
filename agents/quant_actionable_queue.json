@@ -1,7 +1,1908 @@
 {
-  "generated_at": "2026-02-14T05:01:31.209431+00:00",
+  "generated_at": "2026-02-14T10:51:49.506530+00:00",
   "source_results_file": "/Users/scott/src/quant/agents/quant_100_results.json",
   "idea_count": 1000,
-  "queue_size": 0,
-  "queue": []
+  "queue_size": 100,
+  "queue": [
+    {
+      "rank": 1,
+      "id": "Q1000-batch_20260213_033001-0981",
+      "strategy_name": "dip_buyer_q1000_0981_batch_20260213_033001",
+      "strategy_base": "dip_buyer",
+      "pair": "BTC-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 118.731836,
+      "return_pct": 15.6433,
+      "walkforward_oos_return_pct": 16.0068,
+      "trades": 4,
+      "execution_shortfall_bps": 12.4272,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.1,
+        "max_budget_usd": 0.1,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 2,
+      "id": "Q1000-batch_20260213_033001-0984",
+      "strategy_name": "dip_buyer_q1000_0984_batch_20260213_033001",
+      "strategy_base": "dip_buyer",
+      "pair": "BTC-USD",
+      "target_region": "fra",
+      "expected_gain_score": 118.731836,
+      "return_pct": 15.6433,
+      "walkforward_oos_return_pct": 16.0068,
+      "trades": 4,
+      "execution_shortfall_bps": 12.4272,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.1,
+        "max_budget_usd": 0.1,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 3,
+      "id": "Q1000-batch_20260213_033001-0112",
+      "strategy_name": "mean_reversion_q1000_0112_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 20.676608,
+      "return_pct": 1.6967,
+      "walkforward_oos_return_pct": 2.0009,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6806,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 4,
+      "id": "Q1000-batch_20260213_033001-0097",
+      "strategy_name": "mean_reversion_q1000_0097_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 20.282451,
+      "return_pct": 1.6038,
+      "walkforward_oos_return_pct": 1.9735,
+      "trades": 6,
+      "execution_shortfall_bps": 10.0364,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 5,
+      "id": "Q1000-batch_20260213_033001-0007",
+      "strategy_name": "mean_reversion_q1000_0007_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 6,
+      "id": "Q1000-batch_20260213_033001-0010",
+      "strategy_name": "mean_reversion_q1000_0010_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 7,
+      "id": "Q1000-batch_20260213_033001-0013",
+      "strategy_name": "mean_reversion_q1000_0013_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 8,
+      "id": "Q1000-batch_20260213_033001-0022",
+      "strategy_name": "mean_reversion_q1000_0022_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 9,
+      "id": "Q1000-batch_20260213_033001-0025",
+      "strategy_name": "mean_reversion_q1000_0025_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 10,
+      "id": "Q1000-batch_20260213_033001-0028",
+      "strategy_name": "mean_reversion_q1000_0028_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 11,
+      "id": "Q1000-batch_20260213_033001-0034",
+      "strategy_name": "mean_reversion_q1000_0034_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 12,
+      "id": "Q1000-batch_20260213_033001-0037",
+      "strategy_name": "mean_reversion_q1000_0037_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 13,
+      "id": "Q1000-batch_20260213_033001-0040",
+      "strategy_name": "mean_reversion_q1000_0040_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 14,
+      "id": "Q1000-batch_20260213_033001-0043",
+      "strategy_name": "mean_reversion_q1000_0043_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 15,
+      "id": "Q1000-batch_20260213_033001-0046",
+      "strategy_name": "mean_reversion_q1000_0046_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 16,
+      "id": "Q1000-batch_20260213_033001-0049",
+      "strategy_name": "mean_reversion_q1000_0049_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 17,
+      "id": "Q1000-batch_20260213_033001-0052",
+      "strategy_name": "mean_reversion_q1000_0052_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 18,
+      "id": "Q1000-batch_20260213_033001-0055",
+      "strategy_name": "mean_reversion_q1000_0055_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 19,
+      "id": "Q1000-batch_20260213_033001-0058",
+      "strategy_name": "mean_reversion_q1000_0058_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 20,
+      "id": "Q1000-batch_20260213_033001-0061",
+      "strategy_name": "mean_reversion_q1000_0061_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 21,
+      "id": "Q1000-batch_20260213_033001-0064",
+      "strategy_name": "mean_reversion_q1000_0064_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 22,
+      "id": "Q1000-batch_20260213_033001-0067",
+      "strategy_name": "mean_reversion_q1000_0067_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 23,
+      "id": "Q1000-batch_20260213_033001-0121",
+      "strategy_name": "mean_reversion_q1000_0121_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 24,
+      "id": "Q1000-batch_20260213_033001-0127",
+      "strategy_name": "mean_reversion_q1000_0127_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 25,
+      "id": "Q1000-batch_20260213_033001-0130",
+      "strategy_name": "mean_reversion_q1000_0130_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 26,
+      "id": "Q1000-batch_20260213_033001-0133",
+      "strategy_name": "mean_reversion_q1000_0133_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 27,
+      "id": "Q1000-batch_20260213_033001-0136",
+      "strategy_name": "mean_reversion_q1000_0136_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 28,
+      "id": "Q1000-batch_20260213_033001-0139",
+      "strategy_name": "mean_reversion_q1000_0139_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 29,
+      "id": "Q1000-batch_20260213_033001-0142",
+      "strategy_name": "mean_reversion_q1000_0142_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 30,
+      "id": "Q1000-batch_20260213_033001-0145",
+      "strategy_name": "mean_reversion_q1000_0145_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 31,
+      "id": "Q1000-batch_20260213_033001-0154",
+      "strategy_name": "mean_reversion_q1000_0154_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 32,
+      "id": "Q1000-batch_20260213_033001-0157",
+      "strategy_name": "mean_reversion_q1000_0157_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 33,
+      "id": "Q1000-batch_20260213_033001-0160",
+      "strategy_name": "mean_reversion_q1000_0160_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 34,
+      "id": "Q1000-batch_20260213_033001-0163",
+      "strategy_name": "mean_reversion_q1000_0163_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 35,
+      "id": "Q1000-batch_20260213_033001-0166",
+      "strategy_name": "mean_reversion_q1000_0166_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 36,
+      "id": "Q1000-batch_20260213_033001-0169",
+      "strategy_name": "mean_reversion_q1000_0169_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 37,
+      "id": "Q1000-batch_20260213_033001-0172",
+      "strategy_name": "mean_reversion_q1000_0172_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 38,
+      "id": "Q1000-batch_20260213_033001-0175",
+      "strategy_name": "mean_reversion_q1000_0175_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 39,
+      "id": "Q1000-batch_20260213_033001-0178",
+      "strategy_name": "mean_reversion_q1000_0178_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 40,
+      "id": "Q1000-batch_20260213_033001-0181",
+      "strategy_name": "mean_reversion_q1000_0181_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 41,
+      "id": "Q1000-batch_20260213_033001-0184",
+      "strategy_name": "mean_reversion_q1000_0184_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 42,
+      "id": "Q1000-batch_20260213_033001-0202",
+      "strategy_name": "mean_reversion_q1000_0202_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 43,
+      "id": "Q1000-batch_20260213_033001-0205",
+      "strategy_name": "mean_reversion_q1000_0205_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 44,
+      "id": "Q1000-batch_20260213_033001-0220",
+      "strategy_name": "mean_reversion_q1000_0220_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 45,
+      "id": "Q1000-batch_20260213_033001-0223",
+      "strategy_name": "mean_reversion_q1000_0223_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 46,
+      "id": "Q1000-batch_20260213_033001-0229",
+      "strategy_name": "mean_reversion_q1000_0229_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 47,
+      "id": "Q1000-batch_20260213_033001-0235",
+      "strategy_name": "mean_reversion_q1000_0235_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 48,
+      "id": "Q1000-batch_20260213_033001-0238",
+      "strategy_name": "mean_reversion_q1000_0238_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 49,
+      "id": "Q1000-batch_20260213_033001-0244",
+      "strategy_name": "mean_reversion_q1000_0244_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 50,
+      "id": "Q1000-batch_20260213_033001-0250",
+      "strategy_name": "mean_reversion_q1000_0250_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 51,
+      "id": "Q1000-batch_20260213_033001-0253",
+      "strategy_name": "mean_reversion_q1000_0253_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 52,
+      "id": "Q1000-batch_20260213_033001-0256",
+      "strategy_name": "mean_reversion_q1000_0256_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 53,
+      "id": "Q1000-batch_20260213_033001-0262",
+      "strategy_name": "mean_reversion_q1000_0262_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 54,
+      "id": "Q1000-batch_20260213_033001-0265",
+      "strategy_name": "mean_reversion_q1000_0265_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 55,
+      "id": "Q1000-batch_20260213_033001-0268",
+      "strategy_name": "mean_reversion_q1000_0268_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 56,
+      "id": "Q1000-batch_20260213_033001-0274",
+      "strategy_name": "mean_reversion_q1000_0274_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 57,
+      "id": "Q1000-batch_20260213_033001-0277",
+      "strategy_name": "mean_reversion_q1000_0277_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 58,
+      "id": "Q1000-batch_20260213_033001-0280",
+      "strategy_name": "mean_reversion_q1000_0280_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 59,
+      "id": "Q1000-batch_20260213_033001-0283",
+      "strategy_name": "mean_reversion_q1000_0283_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 60,
+      "id": "Q1000-batch_20260213_033001-0286",
+      "strategy_name": "mean_reversion_q1000_0286_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 61,
+      "id": "Q1000-batch_20260213_033001-0289",
+      "strategy_name": "mean_reversion_q1000_0289_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 62,
+      "id": "Q1000-batch_20260213_033001-0292",
+      "strategy_name": "mean_reversion_q1000_0292_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 63,
+      "id": "Q1000-batch_20260213_033001-0295",
+      "strategy_name": "mean_reversion_q1000_0295_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 64,
+      "id": "Q1000-batch_20260213_033001-0298",
+      "strategy_name": "mean_reversion_q1000_0298_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 65,
+      "id": "Q1000-batch_20260213_033001-0304",
+      "strategy_name": "mean_reversion_q1000_0304_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 66,
+      "id": "Q1000-batch_20260213_033001-0307",
+      "strategy_name": "mean_reversion_q1000_0307_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.969186,
+      "return_pct": 1.5917,
+      "walkforward_oos_return_pct": 1.8998,
+      "trades": 6,
+      "execution_shortfall_bps": 9.6477,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 67,
+      "id": "Q1000-batch_20260213_033001-0115",
+      "strategy_name": "mean_reversion_q1000_0115_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.684503,
+      "return_pct": 1.4867,
+      "walkforward_oos_return_pct": 1.9103,
+      "trades": 6,
+      "execution_shortfall_bps": 10.5567,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 68,
+      "id": "Q1000-batch_20260213_033001-0310",
+      "strategy_name": "mean_reversion_q1000_0310_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 19.650962,
+      "return_pct": 1.4823,
+      "walkforward_oos_return_pct": 1.904,
+      "trades": 6,
+      "execution_shortfall_bps": 10.5569,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 69,
+      "id": "Q1000-batch_20260213_033001-0301",
+      "strategy_name": "mean_reversion_q1000_0301_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.411646,
+      "return_pct": 1.4498,
+      "walkforward_oos_return_pct": 1.864,
+      "trades": 6,
+      "execution_shortfall_bps": 10.0197,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 70,
+      "id": "Q1000-batch_20260213_033001-0991",
+      "strategy_name": "multi_timeframe_q1000_0991_batch_20260213_033001",
+      "strategy_base": "multi_timeframe",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 19.0645,
+      "return_pct": 1.4444,
+      "walkforward_oos_return_pct": 1.7168,
+      "trades": 4,
+      "execution_shortfall_bps": 8.4548,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 71,
+      "id": "Q1000-batch_20260213_033001-1000",
+      "strategy_name": "multi_timeframe_q1000_1000_batch_20260213_033001",
+      "strategy_base": "multi_timeframe",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 19.064479,
+      "return_pct": 1.4444,
+      "walkforward_oos_return_pct": 1.7168,
+      "trades": 4,
+      "execution_shortfall_bps": 8.4548,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 72,
+      "id": "Q1000-batch_20260213_033001-0994",
+      "strategy_name": "multi_timeframe_q1000_0994_batch_20260213_033001",
+      "strategy_base": "multi_timeframe",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 19.064407,
+      "return_pct": 1.4444,
+      "walkforward_oos_return_pct": 1.7168,
+      "trades": 4,
+      "execution_shortfall_bps": 8.4548,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 73,
+      "id": "Q1000-batch_20260213_033001-0985",
+      "strategy_name": "multi_timeframe_q1000_0985_batch_20260213_033001",
+      "strategy_base": "multi_timeframe",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 19.064388,
+      "return_pct": 1.4444,
+      "walkforward_oos_return_pct": 1.7168,
+      "trades": 4,
+      "execution_shortfall_bps": 8.4548,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 74,
+      "id": "Q1000-batch_20260213_033001-0997",
+      "strategy_name": "multi_timeframe_q1000_0997_batch_20260213_033001",
+      "strategy_base": "multi_timeframe",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 19.064346,
+      "return_pct": 1.4444,
+      "walkforward_oos_return_pct": 1.7168,
+      "trades": 4,
+      "execution_shortfall_bps": 8.4548,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 75,
+      "id": "Q1000-batch_20260213_033001-0190",
+      "strategy_name": "mean_reversion_q1000_0190_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 18.939436,
+      "return_pct": 1.3858,
+      "walkforward_oos_return_pct": 1.7797,
+      "trades": 6,
+      "execution_shortfall_bps": 10.0211,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 76,
+      "id": "Q1000-batch_20260213_033001-0241",
+      "strategy_name": "mean_reversion_q1000_0241_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 18.853019,
+      "return_pct": 1.3546,
+      "walkforward_oos_return_pct": 1.7924,
+      "trades": 6,
+      "execution_shortfall_bps": 10.0978,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 77,
+      "id": "Q1000-batch_20260213_033001-0100",
+      "strategy_name": "mean_reversion_q1000_0100_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 18.851874,
+      "return_pct": 1.393,
+      "walkforward_oos_return_pct": 1.7544,
+      "trades": 6,
+      "execution_shortfall_bps": 10.1071,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 78,
+      "id": "Q1000-batch_20260213_033001-0883",
+      "strategy_name": "rsi_q1000_0883_batch_20260213_033001",
+      "strategy_base": "rsi",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 18.81895,
+      "return_pct": 1.3665,
+      "walkforward_oos_return_pct": 1.6431,
+      "trades": 4,
+      "execution_shortfall_bps": 9.0455,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 79,
+      "id": "Q1000-batch_20260213_033001-0019",
+      "strategy_name": "mean_reversion_q1000_0019_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 18.796516,
+      "return_pct": 1.3695,
+      "walkforward_oos_return_pct": 1.7439,
+      "trades": 6,
+      "execution_shortfall_bps": 10.094,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 80,
+      "id": "Q1000-batch_20260213_033001-0988",
+      "strategy_name": "multi_timeframe_q1000_0988_batch_20260213_033001",
+      "strategy_base": "multi_timeframe",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 18.768022,
+      "return_pct": 1.4348,
+      "walkforward_oos_return_pct": 1.6933,
+      "trades": 4,
+      "execution_shortfall_bps": 9.0416,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 81,
+      "id": "Q1000-batch_20260213_033001-0217",
+      "strategy_name": "mean_reversion_q1000_0217_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 18.761501,
+      "return_pct": 1.3616,
+      "walkforward_oos_return_pct": 1.7481,
+      "trades": 6,
+      "execution_shortfall_bps": 10.0219,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 82,
+      "id": "Q1000-batch_20260213_033001-0193",
+      "strategy_name": "mean_reversion_q1000_0193_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 18.745856,
+      "return_pct": 1.3513,
+      "walkforward_oos_return_pct": 1.7713,
+      "trades": 6,
+      "execution_shortfall_bps": 10.1854,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 83,
+      "id": "Q1000-batch_20260213_033001-0148",
+      "strategy_name": "mean_reversion_q1000_0148_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 18.65622,
+      "return_pct": 1.3473,
+      "walkforward_oos_return_pct": 1.7292,
+      "trades": 6,
+      "execution_shortfall_bps": 10.022,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 84,
+      "id": "Q1000-batch_20260213_033001-0004",
+      "strategy_name": "mean_reversion_q1000_0004_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 18.519963,
+      "return_pct": 1.3408,
+      "walkforward_oos_return_pct": 1.6723,
+      "trades": 6,
+      "execution_shortfall_bps": 10.1068,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 85,
+      "id": "Q1000-batch_20260213_033001-0562",
+      "strategy_name": "rsi_q1000_0562_batch_20260213_033001",
+      "strategy_base": "rsi",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 18.4883,
+      "return_pct": 1.3472,
+      "walkforward_oos_return_pct": 1.5792,
+      "trades": 4,
+      "execution_shortfall_bps": 9.807,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 86,
+      "id": "Q1000-batch_20260213_033001-0520",
+      "strategy_name": "rsi_q1000_0520_batch_20260213_033001",
+      "strategy_base": "rsi",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 18.47306,
+      "return_pct": 1.3584,
+      "walkforward_oos_return_pct": 1.6204,
+      "trades": 4,
+      "execution_shortfall_bps": 9.2158,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 87,
+      "id": "Q1000-batch_20260213_033001-0319",
+      "strategy_name": "momentum_q1000_0319_batch_20260213_033001",
+      "strategy_base": "momentum",
+      "pair": "SOL-USD",
+      "target_region": "fra",
+      "expected_gain_score": 18.45856,
+      "return_pct": 1.138,
+      "walkforward_oos_return_pct": 1.804,
+      "trades": 4,
+      "execution_shortfall_bps": 11.418,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 88,
+      "id": "Q1000-batch_20260213_033001-0199",
+      "strategy_name": "mean_reversion_q1000_0199_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 18.455686,
+      "return_pct": 1.3201,
+      "walkforward_oos_return_pct": 1.6934,
+      "trades": 6,
+      "execution_shortfall_bps": 10.0227,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 89,
+      "id": "Q1000-batch_20260213_033001-0187",
+      "strategy_name": "mean_reversion_q1000_0187_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 18.450291,
+      "return_pct": 1.3092,
+      "walkforward_oos_return_pct": 1.706,
+      "trades": 6,
+      "execution_shortfall_bps": 10.0144,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 90,
+      "id": "Q1000-batch_20260213_033001-0076",
+      "strategy_name": "mean_reversion_q1000_0076_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 18.419938,
+      "return_pct": 1.3153,
+      "walkforward_oos_return_pct": 1.687,
+      "trades": 6,
+      "execution_shortfall_bps": 10.0229,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 91,
+      "id": "Q1000-batch_20260213_033001-0463",
+      "strategy_name": "rsi_q1000_0463_batch_20260213_033001",
+      "strategy_base": "rsi",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 18.325689,
+      "return_pct": 1.3419,
+      "walkforward_oos_return_pct": 1.5986,
+      "trades": 4,
+      "execution_shortfall_bps": 9.1693,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 92,
+      "id": "Q1000-batch_20260213_033001-0439",
+      "strategy_name": "rsi_q1000_0439_batch_20260213_033001",
+      "strategy_base": "rsi",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 18.32529,
+      "return_pct": 1.3419,
+      "walkforward_oos_return_pct": 1.5985,
+      "trades": 4,
+      "execution_shortfall_bps": 9.1693,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 93,
+      "id": "Q1000-batch_20260213_033001-0031",
+      "strategy_name": "mean_reversion_q1000_0031_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 18.310644,
+      "return_pct": 1.2733,
+      "walkforward_oos_return_pct": 1.7249,
+      "trades": 6,
+      "execution_shortfall_bps": 10.5276,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 94,
+      "id": "Q1000-batch_20260213_033001-0232",
+      "strategy_name": "mean_reversion_q1000_0232_batch_20260213_033001",
+      "strategy_base": "mean_reversion",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 18.278168,
+      "return_pct": 1.296,
+      "walkforward_oos_return_pct": 1.6618,
+      "trades": 6,
+      "execution_shortfall_bps": 10.0236,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 95,
+      "id": "Q1000-batch_20260213_033001-0316",
+      "strategy_name": "momentum_q1000_0316_batch_20260213_033001",
+      "strategy_base": "momentum",
+      "pair": "SOL-USD",
+      "target_region": "ewr",
+      "expected_gain_score": 18.247422,
+      "return_pct": 1.1003,
+      "walkforward_oos_return_pct": 1.7968,
+      "trades": 4,
+      "execution_shortfall_bps": 10.5879,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 96,
+      "id": "Q1000-batch_20260213_033001-0322",
+      "strategy_name": "momentum_q1000_0322_batch_20260213_033001",
+      "strategy_base": "momentum",
+      "pair": "SOL-USD",
+      "target_region": "bom",
+      "expected_gain_score": 18.247422,
+      "return_pct": 1.1003,
+      "walkforward_oos_return_pct": 1.7968,
+      "trades": 4,
+      "execution_shortfall_bps": 10.5879,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 97,
+      "id": "Q1000-batch_20260213_033001-0325",
+      "strategy_name": "momentum_q1000_0325_batch_20260213_033001",
+      "strategy_base": "momentum",
+      "pair": "SOL-USD",
+      "target_region": "lhr",
+      "expected_gain_score": 18.247422,
+      "return_pct": 1.1003,
+      "walkforward_oos_return_pct": 1.7968,
+      "trades": 4,
+      "execution_shortfall_bps": 10.5879,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 98,
+      "id": "Q1000-batch_20260213_033001-0328",
+      "strategy_name": "momentum_q1000_0328_batch_20260213_033001",
+      "strategy_base": "momentum",
+      "pair": "SOL-USD",
+      "target_region": "nrt",
+      "expected_gain_score": 18.247422,
+      "return_pct": 1.1003,
+      "walkforward_oos_return_pct": 1.7968,
+      "trades": 4,
+      "execution_shortfall_bps": 10.5879,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 99,
+      "id": "Q1000-batch_20260213_033001-0331",
+      "strategy_name": "momentum_q1000_0331_batch_20260213_033001",
+      "strategy_base": "momentum",
+      "pair": "SOL-USD",
+      "target_region": "ord",
+      "expected_gain_score": 18.247422,
+      "return_pct": 1.1003,
+      "walkforward_oos_return_pct": 1.7968,
+      "trades": 4,
+      "execution_shortfall_bps": 10.5879,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    },
+    {
+      "rank": 100,
+      "id": "Q1000-batch_20260213_033001-0334",
+      "strategy_name": "momentum_q1000_0334_batch_20260213_033001",
+      "strategy_base": "momentum",
+      "pair": "SOL-USD",
+      "target_region": "sin",
+      "expected_gain_score": 18.247422,
+      "return_pct": 1.1003,
+      "walkforward_oos_return_pct": 1.7968,
+      "trades": 4,
+      "execution_shortfall_bps": 10.5879,
+      "status": "retained_hot_passed",
+      "budget": {
+        "starter_budget_usd": 0.0,
+        "max_budget_usd": 0.0,
+        "tier": "shadow"
+      }
+    }
+  ]
 }

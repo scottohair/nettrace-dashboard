@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-02-14T10:59:50.874187+00:00",
+  "accounts": {
+    "deribit": {
+      "success": false,
+      "error": "Gateway agent failed; falling back to embedded: Error: Pass --to <E.164>, --session-id, or --agent to choose a session\nError: Pass --to <E.164>, --session-id, or --agent to choose a session\n"
+    },
+    "twitter": {
+      "success": false,
+      "error": "Gateway agent failed; falling back to embedded: Error: Pass --to <E.164>, --session-id, or --agent to choose a session\nError: Pass --to <E.164>, --session-id, or --agent to choose a session\n"
+    },
+    "google_trends": {
+      "success": true,
+      "note": "pytrends ready to use",
+      "setup": "Already installed in codebase",
+      "created_at": "2026-02-14T11:00:01.717893+00:00"
+    }
+  }
+}

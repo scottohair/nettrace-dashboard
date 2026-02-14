@@ -1006,6 +1006,41 @@ class Sniper:
         evidence["avg_pnl_per_close_usd"] = round(float(total_pnl / total_closed) if total_closed > 0 else 0.0, 8)
         return evidence
 
+    def _shared_buy_cost_basis(self, pair):
+        aliases = self._pair_aliases(pair)
+        if not aliases or not TRADER_DB_PATH.exists():
+            return 0.0
+        marks = ",".join("?" for _ in aliases)
+        conn = None
+        try:
+            conn = sqlite3.connect(str(TRADER_DB_PATH))
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                f"""
+                SELECT
+                  COALESCE(SUM(COALESCE(quantity, 0)), 0) AS buy_qty,
+                  COALESCE(SUM(COALESCE(total_usd, 0)), 0) AS buy_usd
+                FROM agent_trades
+                WHERE pair IN ({marks})
+                  AND UPPER(COALESCE(side, ''))='BUY'
+                  AND LOWER(COALESCE(status, '')) IN ('filled', 'closed', 'executed', 'partial_filled', 'partially_filled', 'settled')
+                """,
+                tuple(aliases),
+            ).fetchone()
+            qty = float((row["buy_qty"] if row else 0.0) or 0.0)
+            usd = float((row["buy_usd"] if row else 0.0) or 0.0)
+            if qty > 0.0 and usd > 0.0:
+                return float(usd / qty)
+        except Exception:
+            return 0.0
+        finally:
+            try:
+                if conn is not None:
+                    conn.close()
+            except Exception:
+                pass
+        return 0.0
+
     def _close_evidence_for_pair(self, pair, force_refresh=False):
         key = self._normalize_pair(pair)
         ttl = max(10, int(CONFIG.get("close_evidence_cache_seconds", 90) or 90))
@@ -2619,6 +2654,8 @@ class Sniper:
         pnl = None
         if side == "SELL" and status == "filled":
             buy_price = self._latest_filled_buy_price_any(pair, fallback_price=0.0)
+            if buy_price <= 0.0:
+                buy_price = self._shared_buy_cost_basis(pair)
             if buy_price > 0:
                 fees = effective_notional * max(0.0, float(CONFIG.get("round_trip_fee_pct", 0.008) or 0.008))
                 pnl = ((effective_price - buy_price) / buy_price) * effective_notional - fees

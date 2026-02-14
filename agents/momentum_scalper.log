@@ -35857,3 +35857,268 @@
 2026-02-14 01:09:12,359 [momentum_scalper] INFO   DOGE-USD: NONE conf=0.0% | Insufficient candles (0)
 2026-02-14 01:09:12,364 [momentum_scalper] INFO   FET-USD: NONE conf=0.0% | Insufficient candles (0)
 2026-02-14 01:09:12,370 [momentum_scalper] INFO   LINK-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:10,188 [momentum_scalper] INFO Momentum Scalper starting — scanning every 15s, max hold 300s
+2026-02-14 05:47:10,190 [momentum_scalper] INFO Pairs: BTC-USD, ETH-USD, SOL-USD, DOGE-USD, FET-USD, LINK-USD
+2026-02-14 05:47:10,191 [momentum_scalper] INFO EMA 3/8 | volume spike 1x
+2026-02-14 05:47:10,192 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 05:47:10,219 [momentum_scalper] INFO   BTC-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:10,220 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:10,222 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:10,223 [momentum_scalper] INFO   DOGE-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:10,228 [momentum_scalper] INFO   FET-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:10,229 [momentum_scalper] INFO   LINK-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:25,236 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 05:47:25,239 [momentum_scalper] INFO   BTC-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:25,240 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:25,241 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:25,242 [momentum_scalper] INFO   DOGE-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:25,243 [momentum_scalper] INFO   FET-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:25,246 [momentum_scalper] INFO   LINK-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:40,248 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 05:47:40,252 [momentum_scalper] INFO   BTC-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:40,253 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:40,254 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:40,254 [momentum_scalper] INFO   DOGE-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:40,255 [momentum_scalper] INFO   FET-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:40,255 [momentum_scalper] INFO   LINK-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:55,261 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 05:47:55,264 [momentum_scalper] INFO   BTC-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:55,267 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:55,269 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:55,270 [momentum_scalper] INFO   DOGE-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:55,271 [momentum_scalper] INFO   FET-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:47:55,272 [momentum_scalper] INFO   LINK-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:10,277 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 05:48:10,281 [momentum_scalper] INFO   BTC-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:10,283 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:10,284 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:10,285 [momentum_scalper] INFO   DOGE-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:10,286 [momentum_scalper] INFO   FET-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:10,286 [momentum_scalper] INFO   LINK-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:25,292 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 05:48:25,295 [momentum_scalper] INFO   BTC-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:25,296 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:25,297 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:25,297 [momentum_scalper] INFO   DOGE-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:25,298 [momentum_scalper] INFO   FET-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 05:48:25,298 [momentum_scalper] INFO   LINK-USD: NONE conf=0.0% | Insufficient candles (0)
+2026-02-14 06:22:39,612 [momentum_scalper] INFO Momentum Scalper starting — scanning every 15s, max hold 300s
+2026-02-14 06:22:39,612 [momentum_scalper] INFO Pairs: BTC-USD, ETH-USD, SOL-USD, DOGE-USD, FET-USD, LINK-USD
+2026-02-14 06:22:39,612 [momentum_scalper] INFO EMA 3/8 | volume spike 1x
+2026-02-14 06:22:39,612 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:22:39,674 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=65.7% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.0906% | fast=69973.93 slow=69940.73
+2026-02-14 06:22:39,720 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | vol=0.1x (need 1.5x) | accel=-0.0718% (need >0)
+2026-02-14 06:22:39,756 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:22:39,803 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:22:39,843 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:22:39,886 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:22:40,496 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.94 (0.000056 @ $70435.52) | conf=65.7% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.0906% | fast=69973.93 slow=69940.73
+2026-02-14 06:22:40,833 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.054% < required 1.403%; venue_failure_rate 96.18% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:22:41,381 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.185918 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:22:41,709 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.146% < required 1.403%; venue_failure_rate 95.80% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:22:42,357 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.266609 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:22:42,672 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.187% < required 1.403%; venue_failure_rate 95.42% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:22:43,170 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $4.11 (0.455604 @ $9.03) | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:22:43,480 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.119% < required 1.403%; venue_failure_rate 95.04% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:22:58,483 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:22:58,533 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=65.7% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.0906% | fast=69973.93 slow=69940.73
+2026-02-14 06:22:58,570 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | vol=0.1x (need 1.5x) | accel=-0.0718% (need >0)
+2026-02-14 06:22:58,606 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:22:58,649 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:22:58,687 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:22:58,723 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:22:59,224 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.94 (0.000056 @ $70326.18) | conf=65.7% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.0906% | fast=69973.93 slow=69940.73
+2026-02-14 06:22:59,486 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.054% < required 1.403%; venue_failure_rate 93.35% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:00,014 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.130504 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:23:00,248 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.146% < required 1.403%; venue_failure_rate 92.43% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:00,931 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.246377 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:23:01,186 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.187% < required 1.404%; venue_failure_rate 91.69% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:01,779 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $4.11 (0.455376 @ $9.02) | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:23:02,024 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.119% < required 1.404%; venue_failure_rate 91.41% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:17,030 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:23:17,075 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=65.7% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.0906% | fast=69973.93 slow=69940.73
+2026-02-14 06:23:17,112 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | vol=0.1x (need 1.5x) | accel=-0.0718% (need >0)
+2026-02-14 06:23:17,147 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:23:17,187 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:23:17,230 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:23:17,263 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:23:17,866 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.94 (0.000056 @ $70280.64) | conf=65.7% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.0906% | fast=69973.93 slow=69940.73
+2026-02-14 06:23:18,120 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.054% < required 1.408%; venue_failure_rate 86.60% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:18,621 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.122874 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:23:18,858 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.146% < required 1.408%; venue_failure_rate 86.35% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:19,526 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.226180 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:23:19,754 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.187% < required 1.408%; venue_failure_rate 85.83% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:20,308 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $4.11 (0.455427 @ $9.02) | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:23:20,558 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.119% < required 1.408%; venue_failure_rate 85.32% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:35,560 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:23:35,613 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=65.7% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.0906% | fast=69973.93 slow=69940.73
+2026-02-14 06:23:35,674 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | vol=0.1x (need 1.5x) | accel=-0.0718% (need >0)
+2026-02-14 06:23:35,766 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:23:35,806 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:23:35,848 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:23:35,910 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:23:36,530 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.94 (0.000056 @ $70278.03) | conf=65.7% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.0906% | fast=69973.93 slow=69940.73
+2026-02-14 06:23:36,782 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.054% < required 1.408%; venue_failure_rate 81.49% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:37,347 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.172528 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:23:37,606 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.146% < required 1.408%; venue_failure_rate 80.74% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:38,354 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.226180 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:23:38,603 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.187% < required 1.409%; venue_failure_rate 80.25% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:39,226 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $4.11 (0.455705 @ $9.02) | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:23:39,495 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.119% < required 1.409%; venue_failure_rate 79.53% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:54,504 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:23:54,556 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:23:54,595 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | vol=0.1x (need 1.5x) | accel=-0.0718% (need >0)
+2026-02-14 06:23:54,633 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:23:54,681 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:23:54,720 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:23:54,758 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:23:55,298 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.85 (0.000055 @ $70293.55) | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:23:55,554 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.198% < required 1.409%; venue_failure_rate 74.67% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:56,084 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.046735 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:23:56,359 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.146% < required 1.409%; venue_failure_rate 74.22% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:57,072 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.206019 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:23:57,311 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.187% < required 1.409%; venue_failure_rate 73.76% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:57,894 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $4.11 (0.455427 @ $9.03) | conf=68.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.8x spike=False | accel=0.1114% | fast=8.98 slow=8.97
+2026-02-14 06:23:58,142 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.211% < required 1.409%; venue_failure_rate 73.31% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:13,149 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:24:13,194 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:24:13,239 [momentum_scalper] INFO   ETH-USD: NONE conf=0.0% | vol=0.1x (need 1.5x) | accel=-0.0718% (need >0)
+2026-02-14 06:24:13,273 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:24:13,310 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:24:13,342 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:24:13,406 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:24:14,031 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.85 (0.000055 @ $70313.75) | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:24:14,307 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.198% < required 1.409%; venue_failure_rate 67.14% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:14,891 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.141956 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:24:15,187 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.146% < required 1.409%; venue_failure_rate 66.72% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:15,889 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.206019 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:24:16,199 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.187% < required 1.409%; venue_failure_rate 65.98% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:16,832 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $3.94 (0.436396 @ $9.03) | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:24:17,124 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.211% < required 1.409%; venue_failure_rate 65.29% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:32,130 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:24:32,182 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:24:32,238 [momentum_scalper] INFO   >>> BUY SIGNAL: ETH-USD | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:24:32,280 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:24:32,318 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:24:32,357 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:24:32,397 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:24:32,991 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.85 (0.000055 @ $70293.06) | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:24:33,237 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.198% < required 1.407%; venue_failure_rate 59.57% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:33,759 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY ETH-USD | $3.96 (0.001886 @ $2100.89) | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:24:34,080 [momentum_scalper] WARNING SCALPER BUY FAILED: ETH-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.169% < required 1.405%; venue_failure_rate 59.11% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:34,671 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.140047 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:24:34,898 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.146% < required 1.403%; venue_failure_rate 58.73% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:35,532 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.206019 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:24:35,787 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.187% < required 1.401%; venue_failure_rate 58.43% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:36,376 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $3.94 (0.436227 @ $9.03) | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:24:36,623 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | LIMIT BUY blocked by no-loss policy: expected_edge 0.211% < required 1.400%; venue_failure_rate 58.10% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:51,630 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:24:51,673 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:24:51,716 [momentum_scalper] INFO   >>> BUY SIGNAL: ETH-USD | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:24:51,752 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:24:51,796 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:24:51,841 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:24:51,879 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:24:52,389 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.85 (0.000055 @ $70295.56) | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:24:52,390 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:24:52,393 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:24:52,899 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY ETH-USD | $3.96 (0.001885 @ $2100.18) | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:24:52,899 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:24:52,904 [momentum_scalper] WARNING SCALPER BUY FAILED: ETH-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:24:53,464 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.098095 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:24:53,464 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:24:53,466 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:24:54,032 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.199306 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:24:54,032 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:24:54,034 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:24:54,548 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $3.94 (0.436420 @ $9.03) | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:24:54,549 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:24:54,550 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:09,554 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:25:09,594 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:25:09,640 [momentum_scalper] INFO   >>> BUY SIGNAL: ETH-USD | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:25:09,692 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:25:09,729 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:25:09,770 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:25:09,811 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:25:10,350 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.85 (0.000055 @ $70267.49) | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:25:10,350 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:10,354 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:10,932 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY ETH-USD | $3.96 (0.001885 @ $2099.04) | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:25:10,933 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:10,937 [momentum_scalper] WARNING SCALPER BUY FAILED: ETH-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:11,560 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.098095 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:25:11,560 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:11,562 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:12,333 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.199306 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:25:12,333 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:12,339 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:12,932 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $3.94 (0.436372 @ $9.02) | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:25:12,932 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:12,934 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:27,947 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:25:28,064 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:25:28,120 [momentum_scalper] INFO   >>> BUY SIGNAL: ETH-USD | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:25:28,162 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:25:28,205 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:25:28,251 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:25:28,294 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:25:28,960 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.85 (0.000055 @ $70250.66) | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:25:28,961 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:28,965 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:29,603 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY ETH-USD | $3.96 (0.001886 @ $2097.97) | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:25:29,604 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:29,607 [momentum_scalper] WARNING SCALPER BUY FAILED: ETH-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:30,132 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.143865 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:25:30,132 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:30,135 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:30,814 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.206019 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:25:30,814 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:30,816 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:31,350 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $3.94 (0.436372 @ $9.02) | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:25:31,351 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:31,354 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:46,358 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:25:46,420 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:25:46,458 [momentum_scalper] INFO   >>> BUY SIGNAL: ETH-USD | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:25:46,500 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:25:46,547 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:25:46,587 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:25:46,623 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:25:47,201 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.85 (0.000055 @ $70251.66) | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:25:47,201 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:47,204 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:47,653 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY ETH-USD | $3.96 (0.001887 @ $2097.82) | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:25:47,654 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:47,655 [momentum_scalper] WARNING SCALPER BUY FAILED: ETH-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:48,132 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.138138 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:25:48,133 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:48,135 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:48,721 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.206019 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:25:48,721 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:48,723 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:49,300 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $3.94 (0.436710 @ $9.02) | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:25:49,300 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:49,304 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:04,309 [momentum_scalper] INFO === MOMENTUM SCALPER SCAN === (positions: 0)
+2026-02-14 06:26:04,356 [momentum_scalper] INFO   >>> BUY SIGNAL: BTC-USD | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:26:04,406 [momentum_scalper] INFO   >>> BUY SIGNAL: ETH-USD | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:26:04,449 [momentum_scalper] INFO   SOL-USD: NONE conf=0.0% | vol=0.4x (need 1.5x) | accel=-0.5174% (need >0)
+2026-02-14 06:26:04,488 [momentum_scalper] INFO   >>> BUY SIGNAL: DOGE-USD | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:26:04,523 [momentum_scalper] INFO   >>> BUY SIGNAL: FET-USD | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:26:04,557 [momentum_scalper] INFO   >>> BUY SIGNAL: LINK-USD | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:26:05,154 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY BTC-USD | $3.85 (0.000055 @ $70181.00) | conf=64.2% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0574% | fast=70283.11 slow=70164.03
+2026-02-14 06:26:05,155 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:05,159 [momentum_scalper] WARNING SCALPER BUY FAILED: BTC-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:05,666 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY ETH-USD | $3.96 (0.001887 @ $2096.19) | conf=66.0% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.1x spike=False | accel=0.1034% | fast=2099.86 slow=2096.51
+2026-02-14 06:26:05,667 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:05,671 [momentum_scalper] WARNING SCALPER BUY FAILED: ETH-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:06,181 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY DOGE-USD | $3.81 (38.124781 @ $0.10) | conf=63.5% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.3x spike=False | accel=0.0403% | fast=0.10 slow=0.10
+2026-02-14 06:26:06,182 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:06,184 [momentum_scalper] WARNING SCALPER BUY FAILED: DOGE-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:06,789 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY FET-USD | $4.01 (23.206019 @ $0.17) | conf=66.8% | 2-of-3 vote (2/3): EMA=ABOVE | vol=0.2x spike=False | accel=0.1165% | fast=0.17 slow=0.17
+2026-02-14 06:26:06,789 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:06,791 [momentum_scalper] WARNING SCALPER BUY FAILED: FET-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:07,345 [momentum_scalper] INFO SCALPER EXECUTE: LIMIT BUY LINK-USD | $3.94 (0.436759 @ $9.01) | conf=65.6% | 2-of-3 vote (2/3): EMA=ABOVE | vol=1.0x spike=False | accel=0.0443% | fast=9.02 slow=9.00
+2026-02-14 06:26:07,346 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:26:07,349 [momentum_scalper] WARNING SCALPER BUY FAILED: LINK-USD | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9

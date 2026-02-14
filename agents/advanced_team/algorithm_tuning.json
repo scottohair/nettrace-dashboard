@@ -1,7 +1,7 @@
 {
-  "cycle": 190,
-  "timestamp": "2026-02-14T10:43:18.414006+00:00",
-  "min_confidence": 0.66,
+  "cycle": 2,
+  "timestamp": "2026-02-14T11:25:17.839689+00:00",
+  "min_confidence": 0.64,
   "size_multiplier": 0.675,
   "pair_bias": {},
   "factor_weight_overrides": {
@@ -15,7 +15,7 @@
   "disabled_signal_families": [],
   "blocked_pairs": [],
   "recommendations": [
-    "Global min confidence -> 0.66",
+    "Global min confidence -> 0.64",
     "Global size multiplier -> 0.68x"
   ],
   "source": "algorithm_optimizer"

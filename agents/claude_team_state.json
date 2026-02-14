@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-02-14T07:32:38.975263+00:00",
-  "cycle": 2,
+  "updated_at": "2026-02-14T11:24:51.195409+00:00",
+  "cycle": 1,
   "priority_pairs": [
     "BTC-USD",
     "ETH-USD",
@@ -8,30 +8,28 @@
     "AVAX-USD",
     "LINK-USD",
     "DOGE-USD",
-    "XRP-USD",
-    "BCH-USD",
-    "ADA-USD"
+    "XRP-USD"
   ],
   "summary": {
     "total": 100,
     "promoted": 0,
-    "rejected": 81,
+    "rejected": 80,
     "no_data": 0
   },
   "directive_digest": {
     "total": 200,
     "from_codex": 0,
-    "high_priority": 94,
+    "high_priority": 113,
     "target_role_counts": {
       "opus": 0,
       "sonnet": 0
     },
     "topic_hits": {
-      "realized_pnl": 35,
-      "budget": 35,
+      "realized_pnl": 26,
+      "budget": 26,
       "risk": 0,
       "execution": 0,
-      "quant": 54
+      "quant": 88
     }
   },
   "roles": {

@@ -3250,3 +3250,43 @@
 2026-02-14 01:07:32,056 [exchange_scanner] INFO --- Scan cycle 79 ---
 2026-02-14 01:07:32,072 [exchange_scanner] WARNING Could not fetch gold price from any source
 2026-02-14 01:07:32,115 [exchange_scanner] INFO Scan complete: 5 sources | 0 prices | 0 signals | 0 errors | 57ms
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/exchange_scanner.py", line 1111, in <module>
+    main()
+    ~~~~^^
+  File "/Users/scott/src/quant/agents/exchange_scanner.py", line 1087, in main
+    scanner = ExchangeScanner()
+  File "/Users/scott/src/quant/agents/exchange_scanner.py", line 465, in __init__
+    self.db = ScannerDB()
+              ~~~~~~~~~^^
+  File "/Users/scott/src/quant/agents/exchange_scanner.py", line 312, in __init__
+    self.db.execute("PRAGMA journal_mode=WAL")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: disk I/O error
+Traceback (most recent call last):
+  File "/Users/scott/src/quant/agents/exchange_scanner.py", line 1111, in <module>
+    main()
+    ~~~~^^
+  File "/Users/scott/src/quant/agents/exchange_scanner.py", line 1087, in main
+    scanner = ExchangeScanner()
+  File "/Users/scott/src/quant/agents/exchange_scanner.py", line 465, in __init__
+    self.db = ScannerDB()
+              ~~~~~~~~~^^
+  File "/Users/scott/src/quant/agents/exchange_scanner.py", line 312, in __init__
+    self.db.execute("PRAGMA journal_mode=WAL")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: disk I/O error
+2026-02-14 06:22:41,696 [exchange_scanner] INFO ExchangeScanner initialized | DB=/Users/scott/src/quant/agents/exchange_scanner.db
+2026-02-14 06:22:41,696 [exchange_scanner] INFO ======================================================================
+2026-02-14 06:22:41,697 [exchange_scanner] INFO Exchange Scanner starting — continuous mode
+2026-02-14 06:22:41,697 [exchange_scanner] INFO Scan interval: 120s | Crypto pairs: ['BTC-USDC', 'ETH-USDC', 'SOL-USDC']
+2026-02-14 06:22:41,697 [exchange_scanner] INFO Exchanges configured: 10
+2026-02-14 06:22:41,697 [exchange_scanner] INFO ======================================================================
+2026-02-14 06:22:41,697 [exchange_scanner] INFO --- Scan cycle 1 ---
+2026-02-14 06:22:41,755 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 06:22:42,099 [exchange_scanner] INFO Crypto: BTC=$70,322.35 ETH=$2,101.05 SOL=$86.94
+2026-02-14 06:22:42,105 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 408ms
+2026-02-14 06:24:42,112 [exchange_scanner] INFO --- Scan cycle 2 ---
+2026-02-14 06:24:42,182 [exchange_scanner] INFO Forex: EUR/USD=1.1866 GBP/USD=1.3636 USD/JPY=152.90 DXY~96.65
+2026-02-14 06:24:42,504 [exchange_scanner] INFO Crypto: BTC=$70,310.15 ETH=$2,100.66 SOL=$87.05
+2026-02-14 06:24:42,507 [exchange_scanner] INFO Scan complete: 5 sources | 9 prices | 0 signals | 0 errors | 394ms

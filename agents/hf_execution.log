@@ -21164,3 +21164,261 @@
 2026-02-14 01:09:23,059 [hf_execution] INFO cycle=10442 no_signals
 2026-02-14 01:09:23,957 [hf_execution] INFO cycle=10443 no_signals
 2026-02-14 01:09:24,851 [hf_execution] INFO cycle=10444 no_signals
+2026-02-14 05:47:46,438 [hf_execution] INFO starting hf_execution loop interval=900ms execute_live=False stateless=True
+2026-02-14 05:47:46,509 [hf_execution] INFO cycle=1 no_signals
+2026-02-14 05:47:47,396 [hf_execution] INFO cycle=2 no_signals
+2026-02-14 05:47:48,286 [hf_execution] INFO cycle=3 no_signals
+2026-02-14 05:47:49,196 [hf_execution] INFO cycle=4 no_signals
+2026-02-14 05:47:50,093 [hf_execution] INFO cycle=5 no_signals
+2026-02-14 05:47:51,018 [hf_execution] INFO cycle=6 no_signals
+2026-02-14 05:47:51,905 [hf_execution] INFO cycle=7 no_signals
+2026-02-14 05:47:52,796 [hf_execution] INFO cycle=8 no_signals
+2026-02-14 05:47:53,722 [hf_execution] INFO cycle=9 no_signals
+2026-02-14 05:47:54,618 [hf_execution] INFO cycle=10 no_signals
+2026-02-14 05:47:55,530 [hf_execution] INFO cycle=11 no_signals
+2026-02-14 05:47:56,441 [hf_execution] INFO cycle=12 no_signals
+2026-02-14 05:47:57,353 [hf_execution] INFO cycle=13 no_signals
+2026-02-14 05:47:58,236 [hf_execution] INFO cycle=14 no_signals
+2026-02-14 05:47:59,124 [hf_execution] INFO cycle=15 no_signals
+2026-02-14 05:48:00,053 [hf_execution] INFO cycle=16 no_signals
+2026-02-14 05:48:00,935 [hf_execution] INFO cycle=17 no_signals
+2026-02-14 05:48:01,872 [hf_execution] INFO cycle=18 no_signals
+2026-02-14 05:48:02,750 [hf_execution] INFO cycle=19 no_signals
+2026-02-14 05:48:03,649 [hf_execution] INFO cycle=20 no_signals
+2026-02-14 05:48:04,585 [hf_execution] INFO cycle=21 no_signals
+2026-02-14 05:48:05,453 [hf_execution] INFO cycle=22 no_signals
+2026-02-14 05:48:06,370 [hf_execution] INFO cycle=23 no_signals
+2026-02-14 05:48:07,270 [hf_execution] INFO cycle=24 no_signals
+2026-02-14 05:48:08,176 [hf_execution] INFO cycle=25 no_signals
+2026-02-14 05:48:09,076 [hf_execution] INFO cycle=26 no_signals
+2026-02-14 05:48:09,960 [hf_execution] INFO cycle=27 no_signals
+2026-02-14 05:48:10,882 [hf_execution] INFO cycle=28 no_signals
+2026-02-14 05:48:11,770 [hf_execution] INFO cycle=29 no_signals
+2026-02-14 05:48:12,692 [hf_execution] INFO cycle=30 no_signals
+2026-02-14 05:48:13,575 [hf_execution] INFO cycle=31 no_signals
+2026-02-14 05:48:14,492 [hf_execution] INFO cycle=32 no_signals
+2026-02-14 05:48:15,392 [hf_execution] INFO cycle=33 no_signals
+2026-02-14 05:48:16,279 [hf_execution] INFO cycle=34 no_signals
+2026-02-14 05:48:17,219 [hf_execution] INFO cycle=35 no_signals
+2026-02-14 05:48:18,085 [hf_execution] INFO cycle=36 no_signals
+2026-02-14 05:48:18,994 [hf_execution] INFO cycle=37 no_signals
+2026-02-14 05:48:19,899 [hf_execution] INFO cycle=38 no_signals
+2026-02-14 05:48:20,818 [hf_execution] INFO cycle=39 no_signals
+2026-02-14 05:48:21,745 [hf_execution] INFO cycle=40 no_signals
+2026-02-14 05:48:22,606 [hf_execution] INFO cycle=41 no_signals
+2026-02-14 05:48:23,522 [hf_execution] INFO cycle=42 no_signals
+2026-02-14 05:48:24,425 [hf_execution] INFO cycle=43 no_signals
+2026-02-14 05:48:25,312 [hf_execution] INFO cycle=44 no_signals
+2026-02-14 05:48:26,236 [hf_execution] INFO cycle=45 no_signals
+2026-02-14 05:48:27,344 [hf_execution] INFO cycle=46 no_signals
+2026-02-14 05:48:28,083 [hf_execution] INFO cycle=47 no_signals
+2026-02-14 05:48:28,940 [hf_execution] INFO cycle=48 no_signals
+2026-02-14 05:48:30,137 [hf_execution] INFO cycle=49 no_signals
+2026-02-14 05:48:30,812 [hf_execution] INFO cycle=50 no_signals
+2026-02-14 05:48:31,659 [hf_execution] INFO cycle=51 no_signals
+2026-02-14 05:48:32,558 [hf_execution] INFO cycle=52 no_signals
+2026-02-14 05:48:33,488 [hf_execution] INFO cycle=53 no_signals
+2026-02-14 05:48:34,395 [hf_execution] INFO cycle=54 no_signals
+2026-02-14 05:48:35,315 [hf_execution] INFO cycle=55 no_signals
+2026-02-14 05:48:36,170 [hf_execution] INFO cycle=56 no_signals
+2026-02-14 05:48:37,091 [hf_execution] INFO cycle=57 no_signals
+2026-02-14 05:48:38,013 [hf_execution] INFO cycle=58 no_signals
+2026-02-14 05:48:38,904 [hf_execution] INFO cycle=59 no_signals
+2026-02-14 05:48:40,021 [hf_execution] INFO cycle=60 no_signals
+2026-02-14 06:23:17,035 [hf_execution] INFO starting hf_execution loop interval=900ms execute_live=False stateless=True
+2026-02-14 06:23:17,232 [hf_execution] INFO cycle=1 no_signals
+2026-02-14 06:23:18,147 [hf_execution] INFO cycle=2 no_signals
+2026-02-14 06:23:19,061 [hf_execution] INFO cycle=3 no_signals
+2026-02-14 06:23:19,924 [hf_execution] INFO cycle=4 no_signals
+2026-02-14 06:23:20,863 [hf_execution] INFO cycle=5 no_signals
+2026-02-14 06:23:21,751 [hf_execution] INFO cycle=6 no_signals
+2026-02-14 06:23:22,628 [hf_execution] INFO cycle=7 no_signals
+2026-02-14 06:23:23,549 [hf_execution] INFO cycle=8 no_signals
+2026-02-14 06:23:24,454 [hf_execution] INFO cycle=9 no_signals
+2026-02-14 06:23:25,341 [hf_execution] INFO cycle=10 no_signals
+2026-02-14 06:23:26,252 [hf_execution] INFO cycle=11 no_signals
+2026-02-14 06:23:27,236 [hf_execution] INFO cycle=12 pair=SOL-USD side=HOLD edge=0.008% conf=0.48 spread=0.011%
+2026-02-14 06:23:28,106 [hf_execution] INFO cycle=13 pair=SOL-USD side=HOLD edge=0.014% conf=0.48 spread=0.011%
+2026-02-14 06:23:28,966 [hf_execution] INFO cycle=14 pair=SOL-USD side=HOLD edge=0.018% conf=0.48 spread=0.011%
+2026-02-14 06:23:29,879 [hf_execution] INFO cycle=15 pair=SOL-USD side=HOLD edge=0.022% conf=0.49 spread=0.011%
+2026-02-14 06:23:30,881 [hf_execution] INFO cycle=16 pair=SOL-USD side=HOLD edge=0.026% conf=0.49 spread=0.011%
+2026-02-14 06:23:31,714 [hf_execution] INFO cycle=17 pair=SOL-USD side=HOLD edge=0.021% conf=0.49 spread=0.011%
+2026-02-14 06:23:32,667 [hf_execution] INFO cycle=18 pair=SOL-USD side=HOLD edge=0.017% conf=0.48 spread=0.011%
+2026-02-14 06:23:33,498 [hf_execution] INFO cycle=19 pair=SOL-USD side=HOLD edge=0.011% conf=0.48 spread=0.011%
+2026-02-14 06:23:34,410 [hf_execution] INFO cycle=20 pair=SOL-USD side=HOLD edge=0.006% conf=0.47 spread=0.011%
+2026-02-14 06:23:35,311 [hf_execution] INFO cycle=21 pair=SOL-USD side=HOLD edge=0.001% conf=0.47 spread=0.011%
+2026-02-14 06:23:36,276 [hf_execution] INFO cycle=22 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:37,129 [hf_execution] INFO cycle=23 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:38,057 [hf_execution] INFO cycle=24 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:38,939 [hf_execution] INFO cycle=25 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:39,863 [hf_execution] INFO cycle=26 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:23:40,737 [hf_execution] INFO cycle=27 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:23:41,651 [hf_execution] INFO cycle=28 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:23:42,589 [hf_execution] INFO cycle=29 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:43,444 [hf_execution] INFO cycle=30 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:44,350 [hf_execution] INFO cycle=31 pair=SOL-USD side=HOLD edge=0.001% conf=0.47 spread=0.011%
+2026-02-14 06:23:45,255 [hf_execution] INFO cycle=32 pair=SOL-USD side=HOLD edge=0.011% conf=0.48 spread=0.011%
+2026-02-14 06:23:46,146 [hf_execution] INFO cycle=33 pair=SOL-USD side=HOLD edge=0.020% conf=0.48 spread=0.011%
+2026-02-14 06:23:47,124 [hf_execution] INFO cycle=34 pair=SOL-USD side=HOLD edge=0.015% conf=0.48 spread=0.011%
+2026-02-14 06:23:47,950 [hf_execution] INFO cycle=35 pair=SOL-USD side=HOLD edge=0.009% conf=0.48 spread=0.011%
+2026-02-14 06:23:48,831 [hf_execution] INFO cycle=36 pair=SOL-USD side=HOLD edge=0.002% conf=0.47 spread=0.011%
+2026-02-14 06:23:49,767 [hf_execution] INFO cycle=37 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:50,660 [hf_execution] INFO cycle=38 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:51,622 [hf_execution] INFO cycle=39 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:52,500 [hf_execution] INFO cycle=40 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:53,383 [hf_execution] INFO cycle=41 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:54,269 [hf_execution] INFO cycle=42 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:55,209 [hf_execution] INFO cycle=43 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:56,117 [hf_execution] INFO cycle=44 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:57,024 [hf_execution] INFO cycle=45 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:57,906 [hf_execution] INFO cycle=46 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:58,812 [hf_execution] INFO cycle=47 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:23:59,714 [hf_execution] INFO cycle=48 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:00,632 [hf_execution] INFO cycle=49 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:01,523 [hf_execution] INFO cycle=50 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:02,441 [hf_execution] INFO cycle=51 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:03,317 [hf_execution] INFO cycle=52 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:04,222 [hf_execution] INFO cycle=53 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:05,126 [hf_execution] INFO cycle=54 pair=SOL-USD side=HOLD edge=0.003% conf=0.47 spread=0.011%
+2026-02-14 06:24:06,023 [hf_execution] INFO cycle=55 pair=SOL-USD side=HOLD edge=0.007% conf=0.48 spread=0.011%
+2026-02-14 06:24:06,980 [hf_execution] INFO cycle=56 pair=SOL-USD side=HOLD edge=0.010% conf=0.48 spread=0.011%
+2026-02-14 06:24:07,831 [hf_execution] INFO cycle=57 pair=SOL-USD side=HOLD edge=0.009% conf=0.48 spread=0.011%
+2026-02-14 06:24:08,774 [hf_execution] INFO cycle=58 pair=SOL-USD side=HOLD edge=0.007% conf=0.48 spread=0.011%
+2026-02-14 06:24:09,628 [hf_execution] INFO cycle=59 pair=SOL-USD side=HOLD edge=0.007% conf=0.48 spread=0.011%
+2026-02-14 06:24:10,529 [hf_execution] INFO cycle=60 pair=SOL-USD side=HOLD edge=0.008% conf=0.48 spread=0.011%
+2026-02-14 06:24:11,432 [hf_execution] INFO cycle=61 pair=SOL-USD side=HOLD edge=0.009% conf=0.48 spread=0.011%
+2026-02-14 06:24:12,394 [hf_execution] INFO cycle=62 pair=SOL-USD side=HOLD edge=0.009% conf=0.48 spread=0.011%
+2026-02-14 06:24:13,258 [hf_execution] INFO cycle=63 pair=SOL-USD side=HOLD edge=0.009% conf=0.48 spread=0.011%
+2026-02-14 06:24:14,264 [hf_execution] INFO cycle=64 pair=SOL-USD side=HOLD edge=0.006% conf=0.48 spread=0.011%
+2026-02-14 06:24:15,175 [hf_execution] INFO cycle=65 pair=SOL-USD side=HOLD edge=0.002% conf=0.47 spread=0.011%
+2026-02-14 06:24:15,943 [hf_execution] INFO cycle=66 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:16,911 [hf_execution] INFO cycle=67 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:17,818 [hf_execution] INFO cycle=68 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:18,790 [hf_execution] INFO cycle=69 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:19,566 [hf_execution] INFO cycle=70 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:20,607 [hf_execution] INFO cycle=71 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:21,416 [hf_execution] INFO cycle=72 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:22,295 [hf_execution] INFO cycle=73 pair=SOL-USD side=HOLD edge=0.004% conf=0.47 spread=0.011%
+2026-02-14 06:24:23,199 [hf_execution] INFO cycle=74 pair=SOL-USD side=HOLD edge=0.003% conf=0.47 spread=0.011%
+2026-02-14 06:24:24,106 [hf_execution] INFO cycle=75 pair=SOL-USD side=HOLD edge=0.004% conf=0.47 spread=0.011%
+2026-02-14 06:24:25,012 [hf_execution] INFO cycle=76 pair=SOL-USD side=HOLD edge=0.005% conf=0.47 spread=0.011%
+2026-02-14 06:24:25,934 [hf_execution] INFO cycle=77 pair=SOL-USD side=HOLD edge=0.005% conf=0.47 spread=0.011%
+2026-02-14 06:24:26,793 [hf_execution] INFO cycle=78 pair=SOL-USD side=HOLD edge=0.005% conf=0.47 spread=0.011%
+2026-02-14 06:24:27,708 [hf_execution] INFO cycle=79 pair=SOL-USD side=HOLD edge=0.003% conf=0.47 spread=0.011%
+2026-02-14 06:24:28,643 [hf_execution] INFO cycle=80 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:29,522 [hf_execution] INFO cycle=81 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:30,430 [hf_execution] INFO cycle=82 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:31,341 [hf_execution] INFO cycle=83 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:32,241 [hf_execution] INFO cycle=84 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:33,150 [hf_execution] INFO cycle=85 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:34,030 [hf_execution] INFO cycle=86 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:34,937 [hf_execution] INFO cycle=87 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:35,870 [hf_execution] INFO cycle=88 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:36,744 [hf_execution] INFO cycle=89 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:37,685 [hf_execution] INFO cycle=90 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:38,576 [hf_execution] INFO cycle=91 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:39,491 [hf_execution] INFO cycle=92 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:40,407 [hf_execution] INFO cycle=93 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:41,248 [hf_execution] INFO cycle=94 pair=SOL-USD side=HOLD edge=0.002% conf=0.47 spread=0.011%
+2026-02-14 06:24:42,244 [hf_execution] INFO cycle=95 pair=SOL-USD side=HOLD edge=0.006% conf=0.48 spread=0.011%
+2026-02-14 06:24:43,093 [hf_execution] INFO cycle=96 pair=SOL-USD side=HOLD edge=0.011% conf=0.48 spread=0.011%
+2026-02-14 06:24:43,993 [hf_execution] INFO cycle=97 pair=SOL-USD side=HOLD edge=0.009% conf=0.48 spread=0.011%
+2026-02-14 06:24:44,915 [hf_execution] INFO cycle=98 pair=SOL-USD side=HOLD edge=0.007% conf=0.48 spread=0.011%
+2026-02-14 06:24:45,845 [hf_execution] INFO cycle=99 pair=SOL-USD side=HOLD edge=0.003% conf=0.47 spread=0.011%
+2026-02-14 06:24:46,726 [hf_execution] INFO cycle=100 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:47,583 [hf_execution] INFO cycle=101 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:48,530 [hf_execution] INFO cycle=102 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:49,413 [hf_execution] INFO cycle=103 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:50,348 [hf_execution] INFO cycle=104 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:51,234 [hf_execution] INFO cycle=105 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:52,087 [hf_execution] INFO cycle=106 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:52,986 [hf_execution] INFO cycle=107 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:53,923 [hf_execution] INFO cycle=108 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:54,807 [hf_execution] INFO cycle=109 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:55,715 [hf_execution] INFO cycle=110 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:56,606 [hf_execution] INFO cycle=111 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:57,526 [hf_execution] INFO cycle=112 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:58,450 [hf_execution] INFO cycle=113 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:24:59,333 [hf_execution] INFO cycle=114 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:00,343 [hf_execution] INFO cycle=115 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:01,134 [hf_execution] INFO cycle=116 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:02,042 [hf_execution] INFO cycle=117 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:02,951 [hf_execution] INFO cycle=118 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:03,859 [hf_execution] INFO cycle=119 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:04,791 [hf_execution] INFO cycle=120 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:05,664 [hf_execution] INFO cycle=121 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:06,565 [hf_execution] INFO cycle=122 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:07,514 [hf_execution] INFO cycle=123 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:08,416 [hf_execution] INFO cycle=124 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:09,310 [hf_execution] INFO cycle=125 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:10,210 [hf_execution] INFO cycle=126 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:11,074 [hf_execution] INFO cycle=127 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:12,049 [hf_execution] INFO cycle=128 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.011%
+2026-02-14 06:25:12,911 [hf_execution] INFO cycle=129 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:13,805 [hf_execution] INFO cycle=130 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:14,696 [hf_execution] INFO cycle=131 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:15,615 [hf_execution] INFO cycle=132 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:16,539 [hf_execution] INFO cycle=133 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:17,399 [hf_execution] INFO cycle=134 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:18,344 [hf_execution] INFO cycle=135 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:19,216 [hf_execution] INFO cycle=136 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:20,116 [hf_execution] INFO cycle=137 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:20,997 [hf_execution] INFO cycle=138 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:21,938 [hf_execution] INFO cycle=139 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:22,824 [hf_execution] INFO cycle=140 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:23,726 [hf_execution] INFO cycle=141 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:24,681 [hf_execution] INFO cycle=142 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:25,629 [hf_execution] INFO cycle=143 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:26,431 [hf_execution] INFO cycle=144 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:27,390 [hf_execution] INFO cycle=145 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:28,280 [hf_execution] INFO cycle=146 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:29,276 [hf_execution] INFO cycle=147 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:30,053 [hf_execution] INFO cycle=148 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:31,032 [hf_execution] INFO cycle=149 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:31,892 [hf_execution] INFO cycle=150 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:32,780 [hf_execution] INFO cycle=151 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:33,711 [hf_execution] INFO cycle=152 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:34,582 [hf_execution] INFO cycle=153 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:35,560 [hf_execution] INFO cycle=154 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:36,431 [hf_execution] INFO cycle=155 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:37,292 [hf_execution] INFO cycle=156 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:38,211 [hf_execution] INFO cycle=157 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:39,092 [hf_execution] INFO cycle=158 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:40,009 [hf_execution] INFO cycle=159 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:40,900 [hf_execution] INFO cycle=160 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:41,773 [hf_execution] INFO cycle=161 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:42,733 [hf_execution] INFO cycle=162 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:43,612 [hf_execution] INFO cycle=163 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:44,542 [hf_execution] INFO cycle=164 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:45,425 [hf_execution] INFO cycle=165 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:46,308 [hf_execution] INFO cycle=166 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:47,226 [hf_execution] INFO cycle=167 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:48,128 [hf_execution] INFO cycle=168 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:49,039 [hf_execution] INFO cycle=169 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:49,912 [hf_execution] INFO cycle=170 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:50,813 [hf_execution] INFO cycle=171 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:51,759 [hf_execution] INFO cycle=172 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:52,661 [hf_execution] INFO cycle=173 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:53,541 [hf_execution] INFO cycle=174 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:54,477 [hf_execution] INFO cycle=175 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:55,340 [hf_execution] INFO cycle=176 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:56,232 [hf_execution] INFO cycle=177 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:57,166 [hf_execution] INFO cycle=178 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:58,028 [hf_execution] INFO cycle=179 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:58,957 [hf_execution] INFO cycle=180 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:25:59,874 [hf_execution] INFO cycle=181 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:00,810 [hf_execution] INFO cycle=182 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:01,685 [hf_execution] INFO cycle=183 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:02,615 [hf_execution] INFO cycle=184 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:03,490 [hf_execution] INFO cycle=185 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:04,382 [hf_execution] INFO cycle=186 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:05,292 [hf_execution] INFO cycle=187 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:06,203 [hf_execution] INFO cycle=188 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:07,096 [hf_execution] INFO cycle=189 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:07,977 [hf_execution] INFO cycle=190 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:08,899 [hf_execution] INFO cycle=191 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:09,805 [hf_execution] INFO cycle=192 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:10,717 [hf_execution] INFO cycle=193 pair=SOL-USD side=HOLD edge=0.000% conf=0.47 spread=0.012%
+2026-02-14 06:26:11,612 [hf_execution] INFO cycle=194 pair=SOL-USD side=HOLD edge=0.004% conf=0.47 spread=0.012%
+2026-02-14 06:26:12,533 [hf_execution] INFO cycle=195 pair=SOL-USD side=HOLD edge=0.012% conf=0.48 spread=0.012%
+2026-02-14 06:26:13,423 [hf_execution] INFO cycle=196 pair=SOL-USD side=HOLD edge=0.019% conf=0.48 spread=0.012%

@@ -1,0 +1,15 @@
+{
+  "deployment_in_progress": false,
+  "param_optimization_active": false,
+  "strategy_discovery_active": false,
+  "hardstop_triggered": false,
+  "available_capital_usd": 0.0,
+  "reserved_capital": {
+    "exits": 0.0,
+    "live_trades": 0.0,
+    "param_testing": 0.0
+  },
+  "active_backtests": 0,
+  "max_concurrent_backtests": 3,
+  "last_update": "2026-02-14T00:00:00Z"
+}

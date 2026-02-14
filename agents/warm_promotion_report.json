@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-02-14T10:33:14.153824+00:00",
+  "generated_at": "2026-02-14T11:24:59.275515+00:00",
   "config": {
-    "hours": 168,
+    "hours": 1,
     "granularity": "5min",
     "promote": true,
     "criteria": {
@@ -14,1748 +14,761 @@
     }
   },
   "summary": {
-    "warm_checked": 22,
+    "warm_checked": 44,
     "promoted_hot": 0,
     "eligible_hot": 0,
     "collecting": 0,
-    "rejected": 20,
-    "not_ready": 22,
-    "skipped": 0
+    "rejected": 0,
+    "not_ready": 0,
+    "skipped": 44
   },
   "results": [
     {
-      "strategy_name": "momentum_q100_017",
+      "strategy_name": "momentum",
+      "pair": "BTC-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "BTC-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0311_batch_20260213_033001",
       "pair": "ETH-USD",
-      "strategy_base": "momentum",
-      "params": {
-        "short_window": 2,
-        "long_window": 26,
-        "volume_mult": 1.5
-      },
-      "status": "not_ready",
-      "message": "Not ready (eligible_hot): near_miss_override; realized_close_evidence_required:closed_trades 0 < 10, realized_close_gate_failed:closed_trades 0 < 10",
-      "reasons": [
-        "Not ready (eligible_hot): near_miss_override; realized_close_evidence_required:closed_trades 0 < 10, realized_close_gate_failed:closed_trades 0 < 10"
-      ],
-      "reason_codes": [],
-      "gate_decision": "eligible_hot",
-      "gate_decision_reason": "near_miss_override",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [
-        "near_miss_override:sharpe_gap<=0.3,drawdown_excess<=0.4,return_shortfall<=0.06"
-      ],
-      "paper_metrics": {
-        "strategy": "momentum_q100_017",
-        "pair": "ETH-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 120,
-        "win_rate": 1.0,
-        "total_return_pct": 0.131274,
-        "max_drawdown_pct": 3.0476,
-        "sharpe_ratio": 0.461184,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 7,
-          "active_windows": [
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "ETH-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0314_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0320_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0326_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0329_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0332_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0338_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0341_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0344_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0350_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0353_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0356_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0359_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0362_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0365_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0368_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0371_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0374_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0377_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q1000_0380_batch_20260213_033001",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q100_017",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "momentum_q100_022",
       "pair": "ETH-USD",
-      "strategy_base": "momentum",
-      "params": {
-        "short_window": 4,
-        "long_window": 11,
-        "volume_mult": 1.2
-      },
-      "status": "not_ready",
-      "message": "Not ready (eligible_hot): near_miss_override; realized_close_evidence_required:closed_trades 0 < 10, realized_close_gate_failed:closed_trades 0 < 10",
-      "reasons": [
-        "Not ready (eligible_hot): near_miss_override; realized_close_evidence_required:closed_trades 0 < 10, realized_close_gate_failed:closed_trades 0 < 10"
-      ],
-      "reason_codes": [],
-      "gate_decision": "eligible_hot",
-      "gate_decision_reason": "near_miss_override",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [
-        "near_miss_override:sharpe_gap<=0.3,drawdown_excess<=0.4,return_shortfall<=0.06"
-      ],
-      "paper_metrics": {
-        "strategy": "momentum_q100_022",
-        "pair": "ETH-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 350,
-        "win_rate": 1.0,
-        "total_return_pct": 0.169189,
-        "max_drawdown_pct": 3.2757,
-        "sharpe_ratio": 0.503892,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 7,
-          "active_windows": [
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "ETH-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
+      }
+    },
+    {
+      "strategy_name": "momentum_q100_032",
+      "pair": "ETH-USD",
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
+      "data_source": {
+        "pair": "ETH-USD",
+        "granularity_seconds": 300,
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "rsi_q100_042",
       "pair": "ETH-USD",
-      "strategy_base": "rsi",
-      "params": {
-        "period": 7,
-        "oversold": 35,
-        "overbought": 65
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -0.27% < 0.1%",
-        "drawdown 3.45% > 3.0%",
-        "sharpe -0.49 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "rsi_q100_042",
-        "pair": "ETH-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 195,
-        "win_rate": 1.0,
-        "total_return_pct": -0.269401,
-        "max_drawdown_pct": 3.4459,
-        "sharpe_ratio": -0.486,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 10,
-          "active_windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "ETH-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "vwap_q100_064_batch_20260213_033001",
       "pair": "LINK-USD",
-      "strategy_base": "vwap",
-      "params": {
-        "deviation_pct": 0.007
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -0.75% < 0.1%",
-        "sharpe -0.28 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "vwap_q100_064_batch_20260213_033001",
-        "pair": "LINK-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 94,
-        "win_rate": 1.0,
-        "total_return_pct": -0.748695,
-        "max_drawdown_pct": 2.8113,
-        "sharpe_ratio": -0.280835,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 1,
-          "active_windows": [
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "LINK-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "dip_buyer_q100_062",
       "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "params": {
-        "dip_threshold": 0.01,
-        "recovery_target": 0.015,
-        "lookback": 4
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -1.56% < 0.1%",
-        "drawdown 3.45% > 3.0%",
-        "sharpe -0.50 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_062",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 263,
-        "win_rate": 1.0,
-        "total_return_pct": -1.555904,
-        "max_drawdown_pct": 3.4544,
-        "sharpe_ratio": -0.500205,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 1,
-          "active_windows": [
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "dip_buyer_q100_063",
       "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "params": {
-        "dip_threshold": 0.004,
-        "recovery_target": 0.006,
-        "lookback": 2
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -0.75% < 0.1%",
-        "drawdown 4.85% > 3.0%",
-        "sharpe -0.33 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_063",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 295,
-        "win_rate": 1.0,
-        "total_return_pct": -0.7456,
-        "max_drawdown_pct": 4.852,
-        "sharpe_ratio": -0.32769,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 2,
-          "active_windows": [
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "dip_buyer_q100_065",
       "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "params": {
-        "dip_threshold": 0.01,
-        "recovery_target": 0.02,
-        "lookback": 4
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -1.40% < 0.1%",
-        "drawdown 3.29% > 3.0%",
-        "sharpe -0.45 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_065",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 262,
-        "win_rate": 1.0,
-        "total_return_pct": -1.403028,
-        "max_drawdown_pct": 3.2903,
-        "sharpe_ratio": -0.445538,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 1,
-          "active_windows": [
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "dip_buyer_q100_067",
       "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "params": {
-        "dip_threshold": 0.01,
-        "recovery_target": 0.015,
-        "lookback": 6
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -1.11% < 0.1%",
-        "drawdown 4.80% > 3.0%",
-        "sharpe -0.26 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_067",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 276,
-        "win_rate": 1.0,
-        "total_return_pct": -1.105802,
-        "max_drawdown_pct": 4.8014,
-        "sharpe_ratio": -0.255184,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 1,
-          "active_windows": [
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "dip_buyer_q100_068",
       "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "params": {
-        "dip_threshold": 0.01,
-        "recovery_target": 0.025,
-        "lookback": 4
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -1.30% < 0.1%",
-        "drawdown 3.19% > 3.0%",
-        "sharpe -0.42 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_068",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 259,
-        "win_rate": 1.0,
-        "total_return_pct": -1.304487,
-        "max_drawdown_pct": 3.1881,
-        "sharpe_ratio": -0.416701,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 1,
-          "active_windows": [
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "dip_buyer_q100_070",
       "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "params": {
-        "dip_threshold": 0.01,
-        "recovery_target": 0.02,
-        "lookback": 6
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -1.06% < 0.1%",
-        "drawdown 4.75% > 3.0%",
-        "sharpe -0.24 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_070",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 250,
-        "win_rate": 1.0,
-        "total_return_pct": -1.060704,
-        "max_drawdown_pct": 4.754,
-        "sharpe_ratio": -0.242548,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 1,
-          "active_windows": [
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "dip_buyer_q100_071",
       "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "params": {
-        "dip_threshold": 0.010499999999999999,
-        "recovery_target": 0.01275,
-        "lookback": 4
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -1.34% < 0.1%",
-        "drawdown 3.22% > 3.0%",
-        "sharpe -0.46 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_071",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 254,
-        "win_rate": 1.0,
-        "total_return_pct": -1.336045,
-        "max_drawdown_pct": 3.2185,
-        "sharpe_ratio": -0.456434,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 1,
-          "active_windows": [
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "dip_buyer_q100_073",
       "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "params": {
-        "dip_threshold": 0.004,
-        "recovery_target": 0.006,
-        "lookback": 2
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -0.75% < 0.1%",
-        "drawdown 4.85% > 3.0%",
-        "sharpe -0.33 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_073",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 276,
-        "win_rate": 1.0,
-        "total_return_pct": -0.7456,
-        "max_drawdown_pct": 4.852,
-        "sharpe_ratio": -0.32769,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 2,
-          "active_windows": [
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "dip_buyer_q100_074",
       "pair": "SOL-USD",
-      "strategy_base": "dip_buyer",
-      "params": {
-        "dip_threshold": 0.010499999999999999,
-        "recovery_target": 0.017,
-        "lookback": 4
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -1.34% < 0.1%",
-        "drawdown 3.22% > 3.0%",
-        "sharpe -0.46 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "dip_buyer_q100_074",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 253,
-        "win_rate": 1.0,
-        "total_return_pct": -1.336045,
-        "max_drawdown_pct": 3.2185,
-        "sharpe_ratio": -0.456434,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 1,
-          "active_windows": [
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "mean_reversion_q100_003",
       "pair": "SOL-USD",
-      "strategy_base": "mean_reversion",
-      "params": {
-        "window": 8,
-        "num_std": 2.4
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -0.24% < 0.1%",
-        "drawdown 4.17% > 3.0%",
-        "sharpe -0.51 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "mean_reversion_q100_003",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 171,
-        "win_rate": 1.0,
-        "total_return_pct": -0.244818,
-        "max_drawdown_pct": 4.1728,
-        "sharpe_ratio": -0.5086,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 10,
-          "active_windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "multi_timeframe_q100_076",
       "pair": "SOL-USD",
-      "strategy_base": "multi_timeframe",
-      "params": {
-        "rsi_period": 10,
-        "bb_window": 16,
-        "bb_std": 1.8
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return 0.04% < 0.1%",
-        "drawdown 4.60% > 3.0%",
-        "sharpe -0.35 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "multi_timeframe_q100_076",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 242,
-        "win_rate": 1.0,
-        "total_return_pct": 0.042852,
-        "max_drawdown_pct": 4.6007,
-        "sharpe_ratio": -0.347991,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 6,
-          "active_windows": [
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "multi_timeframe_q100_079",
       "pair": "SOL-USD",
-      "strategy_base": "multi_timeframe",
-      "params": {
-        "rsi_period": 10,
-        "bb_window": 20,
-        "bb_std": 1.8
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return 0.04% < 0.1%",
-        "drawdown 4.22% > 3.0%",
-        "sharpe -0.32 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "multi_timeframe_q100_079",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 234,
-        "win_rate": 1.0,
-        "total_return_pct": 0.043025,
-        "max_drawdown_pct": 4.2209,
-        "sharpe_ratio": -0.3243,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 6,
-          "active_windows": [
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "multi_timeframe_q100_080",
       "pair": "SOL-USD",
-      "strategy_base": "multi_timeframe",
-      "params": {
-        "rsi_period": 10,
-        "bb_window": 20,
-        "bb_std": 2.0
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return 0.04% < 0.1%",
-        "drawdown 4.11% > 3.0%",
-        "sharpe -0.30 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "multi_timeframe_q100_080",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 226,
-        "win_rate": 1.0,
-        "total_return_pct": 0.042239,
-        "max_drawdown_pct": 4.1085,
-        "sharpe_ratio": -0.3044,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 6,
-          "active_windows": [
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "multi_timeframe_q100_085",
       "pair": "SOL-USD",
-      "strategy_base": "multi_timeframe",
-      "params": {
-        "rsi_period": 12,
-        "bb_window": 16,
-        "bb_std": 1.55
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return 0.03% < 0.1%",
-        "drawdown 4.59% > 3.0%",
-        "sharpe -0.38 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "multi_timeframe_q100_085",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 291,
-        "win_rate": 1.0,
-        "total_return_pct": 0.026603,
-        "max_drawdown_pct": 4.5876,
-        "sharpe_ratio": -0.3815,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 6,
-          "active_windows": [
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "multi_timeframe_q100_086",
       "pair": "SOL-USD",
-      "strategy_base": "multi_timeframe",
-      "params": {
-        "rsi_period": 12,
-        "bb_window": 16,
-        "bb_std": 1.75
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return 0.05% < 0.1%",
-        "drawdown 4.47% > 3.0%",
-        "sharpe -0.35 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "multi_timeframe_q100_086",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 248,
-        "win_rate": 1.0,
-        "total_return_pct": 0.051,
-        "max_drawdown_pct": 4.472,
-        "sharpe_ratio": -0.348082,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 6,
-          "active_windows": [
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "multi_timeframe_q100_088",
       "pair": "SOL-USD",
-      "strategy_base": "multi_timeframe",
-      "params": {
-        "rsi_period": 12,
-        "bb_window": 20,
-        "bb_std": 1.55
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return 0.05% < 0.1%",
-        "drawdown 4.18% > 3.0%",
-        "sharpe -0.34 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "multi_timeframe_q100_088",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 247,
-        "win_rate": 1.0,
-        "total_return_pct": 0.051966,
-        "max_drawdown_pct": 4.1849,
-        "sharpe_ratio": -0.3421,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 6,
-          "active_windows": [
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "multi_timeframe_q100_089",
       "pair": "SOL-USD",
-      "strategy_base": "multi_timeframe",
-      "params": {
-        "rsi_period": 12,
-        "bb_window": 20,
-        "bb_std": 1.75
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return 0.05% < 0.1%",
-        "drawdown 4.13% > 3.0%",
-        "sharpe -0.34 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "multi_timeframe_q100_089",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 225,
-        "win_rate": 1.0,
-        "total_return_pct": 0.05118,
-        "max_drawdown_pct": 4.1304,
-        "sharpe_ratio": -0.3426,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 6,
-          "active_windows": [
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     },
     {
       "strategy_name": "rsi_q100_043",
       "pair": "SOL-USD",
-      "strategy_base": "rsi",
-      "params": {
-        "period": 6,
-        "oversold": 45,
-        "overbought": 60
-      },
-      "status": "rejected",
-      "message": "performance_or_risk_gate_failed",
-      "reasons": [
-        "return -0.23% < 0.1%",
-        "drawdown 4.18% > 3.0%",
-        "sharpe -0.50 < 0.5"
-      ],
-      "reason_codes": [
-        "return_below_min",
-        "drawdown_above_max",
-        "sharpe_below_min"
-      ],
-      "gate_decision": "rejected",
-      "gate_decision_reason": "performance_or_risk_gate_failed",
-      "criteria": {
-        "min_trades": 10,
-        "min_win_rate": 0.55,
-        "min_return_pct": 0.1,
-        "max_drawdown_pct": 3.0,
-        "min_runtime_seconds": 3600,
-        "min_sharpe": 0.5
-      },
-      "criteria_mode": "baseline",
-      "criteria_adjustments": [],
-      "paper_metrics": {
-        "strategy": "rsi_q100_043",
-        "pair": "SOL-USD",
-        "runtime_seconds": 604800,
-        "total_trades": 184,
-        "win_rate": 1.0,
-        "total_return_pct": -0.232177,
-        "max_drawdown_pct": 4.1794,
-        "sharpe_ratio": -0.5,
-        "losses": 0,
-        "var95_loss_pct": 0.0,
-        "es97_5_loss_pct": 0.0,
-        "evidence": {
-          "window_count": 10,
-          "windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "active_window_count": 10,
-          "active_windows": [
-            30,
-            42,
-            54,
-            66,
-            78,
-            96,
-            120,
-            144,
-            168,
-            2016
-          ],
-          "source": "multi_window_replay",
-          "canonical_window": 2016
-        }
-      },
+      "status": "skipped",
+      "reason": "insufficient_candles:12<24",
       "data_source": {
         "pair": "SOL-USD",
         "granularity_seconds": 300,
-        "hours": 168,
-        "source": "coinbase_public",
-        "candles": 2016,
-        "notes": []
+        "hours": 1,
+        "source": "local_fallback",
+        "candles": 12,
+        "notes": [
+          "public=0 local=12"
+        ],
+        "mode": "candle"
       }
     }
   ]

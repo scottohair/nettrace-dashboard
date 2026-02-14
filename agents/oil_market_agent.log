@@ -232,3 +232,6 @@
 2026-02-14 01:04:32,096 [oil_market] INFO cycle=52 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
 2026-02-14 01:07:31,750 [oil_market] WARNING live snapshot unavailable, using fallback: <urlopen error [Errno 8] nodename nor servname provided, or not known>
 2026-02-14 01:07:31,756 [oil_market] INFO cycle=53 side=HOLD edge=0.082% conf=0.39 policy=False exec=none
+2026-02-14 06:23:02,425 [oil_market] INFO starting oil_market_agent loop interval=180s execute_live=False
+2026-02-14 06:23:02,812 [oil_market] INFO cycle=1 side=HOLD edge=0.115% conf=0.43 policy=False exec=none
+2026-02-14 06:26:02,809 [oil_market] INFO cycle=2 side=HOLD edge=0.115% conf=0.43 policy=False exec=none

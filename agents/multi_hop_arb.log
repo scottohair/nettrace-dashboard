@@ -545,3 +545,47 @@
 2026-02-14 05:41:01,369 [multi_hop_arb] INFO cycle=216 assets=6 approved_candidates=0 best_edge=n/a
 2026-02-14 05:43:01,420 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
 2026-02-14 05:43:01,428 [multi_hop_arb] INFO cycle=217 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 05:45:01,359 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 05:45:01,362 [multi_hop_arb] INFO cycle=218 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 05:47:01,237 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 05:47:01,240 [multi_hop_arb] INFO cycle=219 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 05:47:34,305 [multi_hop_arb] INFO starting multi_hop_arb loop interval=120s execute_live=False
+2026-02-14 05:47:34,335 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 05:47:34,338 [multi_hop_arb] INFO cycle=1 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 05:49:01,277 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 05:49:01,283 [multi_hop_arb] INFO cycle=220 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 05:51:01,656 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 05:51:01,659 [multi_hop_arb] INFO cycle=221 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 05:53:01,445 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 05:53:01,449 [multi_hop_arb] INFO cycle=222 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 05:55:01,235 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 05:55:01,238 [multi_hop_arb] INFO cycle=223 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 05:57:00,942 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 05:57:00,944 [multi_hop_arb] INFO cycle=224 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 05:59:00,666 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 05:59:00,668 [multi_hop_arb] INFO cycle=225 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:01:00,297 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:01:00,299 [multi_hop_arb] INFO cycle=226 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:03:00,682 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:03:00,687 [multi_hop_arb] INFO cycle=227 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:05:00,450 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:05:00,452 [multi_hop_arb] INFO cycle=228 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:07:00,181 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:07:00,183 [multi_hop_arb] INFO cycle=229 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:09:00,295 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:09:00,302 [multi_hop_arb] INFO cycle=230 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:10:59,925 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:10:59,927 [multi_hop_arb] INFO cycle=231 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:12:59,638 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:12:59,641 [multi_hop_arb] INFO cycle=232 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:14:59,295 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:14:59,298 [multi_hop_arb] INFO cycle=233 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:16:59,031 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:16:59,033 [multi_hop_arb] INFO cycle=234 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:18:58,718 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:18:58,721 [multi_hop_arb] INFO cycle=235 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:20:58,449 [multi_hop_arb] WARNING live quote book sparse; using cached quote book
+2026-02-14 06:20:58,455 [multi_hop_arb] INFO cycle=236 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:23:04,477 [multi_hop_arb] INFO starting multi_hop_arb loop interval=120s execute_live=False
+2026-02-14 06:23:06,991 [multi_hop_arb] INFO cycle=1 assets=6 approved_candidates=0 best_edge=n/a
+2026-02-14 06:25:06,933 [multi_hop_arb] INFO cycle=2 assets=6 approved_candidates=0 best_edge=n/a

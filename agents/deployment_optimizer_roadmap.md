@@ -1,6 +1,6 @@
 # Deployment Optimizer Roadmap
 
-Updated: 2026-02-14T10:42:39.181595+00:00
+Updated: 2026-02-14T11:23:10.846308+00:00
 
 ## Summary
 - Runtime region: local
@@ -8,7 +8,7 @@ Updated: 2026-02-14T10:42:39.181595+00:00
 - Live HF ready: False
 
 ## Venue Readiness
-- coinbase: live_ready=False dns_ok=False creds=True reason=requires_dns+credentials+healthy_telemetry
+- coinbase: live_ready=False dns_ok=True creds=True reason=requires_dns+credentials+healthy_telemetry
 - fix: live_ready=False dns_ok=True creds=False reason=requires_gateway_url+dns+timeout
 - ibkr: live_ready=False dns_ok=True creds=False reason=requires_host_port+health
 
@@ -22,10 +22,8 @@ Updated: 2026-02-14T10:42:39.181595+00:00
 - bom: score=0.150 role=DGCX + India Market Monitor (Mumbai)
 
 ## Priority Actions
-- Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.
 - Stabilize Coinbase API health before live budget escalation (improve retries + region routing).
 - Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.
 - Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.
-- Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com
-- Top recent Coinbase failures: 16x <urlopen error [Errno 8] nodename nor servname provided, or not known> | 14x fallback_spot_unavailable
+- Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>
 - Start continuous traceroute sampling to venue hosts for region-level routing evidence.

@@ -22,6 +22,10 @@ def _base_target():
     return {"achievement_pct_to_next": 0.2}
 
 
+def _low_alpha_progress():
+    return {"go_live": True, "alpha_score": 0.55}
+
+
 def _base_realized():
     return {
         "passed": True,
@@ -39,7 +43,7 @@ def test_budget_escalator_requires_health_streak(monkeypatch):
     monkeypatch.setattr(qca, "EXECUTION_HEALTH_GREEN_STREAK_REQUIRED", 3)
     monkeypatch.setattr(qca, "EXECUTION_HEALTH_MIN_GREEN_RATIO", 0.5)
     result = qca._budget_escalator(
-        _base_progress(),
+        _low_alpha_progress(),
         _base_metrics(),
         _base_target(),
         _base_realized(),
@@ -49,6 +53,50 @@ def test_budget_escalator_requires_health_streak(monkeypatch):
     )
     assert result["action"] == "de_escalate"
     assert "execution_health_streak_low" in result["reason"]
+
+
+def test_budget_escalator_requires_consecutive_negative_windows(monkeypatch):
+    monkeypatch.setattr(qca, "EXECUTION_HEALTH_ESCALATION_GATE", False)
+    monkeypatch.setattr(qca, "REALIZED_WINDOW_STREAK_REQUIRED_FOR_DEESCALATE", 2)
+    result_single_loss = qca._budget_escalator(
+        _low_alpha_progress(),
+        _base_metrics(),
+        _base_target(),
+        {
+            "passed": True,
+            "reason": "passed",
+            "positive_windows": 3,
+            "required_positive_windows": 3,
+            "total_net_pnl_usd": 1.25,
+            "total_closes": 8,
+            "windows": [{"net_pnl_usd": -0.12}, {"net_pnl_usd": 0.30}],
+        },
+        execution_health={},
+        trade_flow={"close_balance_ok": True, "buy_sell_ratio": 1.0},
+        prev_status={},
+    )
+    assert result_single_loss["action"] == "hold"
+    assert "recent_realized_window_negative_streak" not in result_single_loss["reason"]
+
+    result_double_loss = qca._budget_escalator(
+        _base_progress(),
+        _base_metrics(),
+        _base_target(),
+        {
+            "passed": True,
+            "reason": "passed",
+            "positive_windows": 1,
+            "required_positive_windows": 3,
+            "total_net_pnl_usd": -0.2,
+            "total_closes": 8,
+            "windows": [{"net_pnl_usd": -0.12}, {"net_pnl_usd": -0.05}],
+        },
+        execution_health={},
+        trade_flow={"close_balance_ok": True, "buy_sell_ratio": 1.0},
+        prev_status={},
+    )
+    assert result_double_loss["action"] == "de_escalate"
+    assert "recent_realized_window_negative_streak" in result_double_loss["reason"]
 
 
 def test_budget_escalator_blocks_on_buy_sell_imbalance(monkeypatch):

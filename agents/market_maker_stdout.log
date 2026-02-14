@@ -7962,3 +7962,41 @@
 2026-02-14 01:09:20,139 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 45s, reason=egress_blocked)
 2026-02-14 01:09:22,145 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 43s, reason=egress_blocked)
 2026-02-14 01:09:24,147 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 41s, reason=egress_blocked)
+2026-02-14 05:47:26,207 [grid_harvester] INFO Grid Harvester starting | Pairs: ['BTC-USDC', 'ETH-USDC', 'SOL-USDC', 'AVAX-USDC', 'LINK-USDC'] | Order size: $1.50 | Cycle: 60s
+2026-02-14 05:47:26,209 [grid_harvester] INFO Buy levels: ['-1.0%', '-1.5%', '-2.0%', '-3.0%'] | Sell levels: ['+1.0%', '+1.5%', '+2.0%', '+3.0%']
+2026-02-14 05:47:26,373 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:47:26,374 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:26,375 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:26,377 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:26,377 [exchange] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:47:26,378 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:47:26,379 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 05:47:28,384 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 117s, reason=egress_blocked)
+2026-02-14 05:47:30,387 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 115s, reason=egress_blocked)
+2026-02-14 05:47:32,389 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 113s, reason=egress_blocked)
+2026-02-14 05:47:34,395 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 111s, reason=egress_blocked)
+2026-02-14 05:48:36,402 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 05:48:36,404 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 49s, reason=egress_blocked)
+2026-02-14 05:48:38,409 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 47s, reason=egress_blocked)
+2026-02-14 06:22:56,123 [grid_harvester] INFO Grid Harvester starting | Pairs: ['BTC-USDC', 'ETH-USDC', 'SOL-USDC', 'AVAX-USDC', 'LINK-USDC'] | Order size: $1.50 | Cycle: 60s
+2026-02-14 06:22:56,124 [grid_harvester] INFO Buy levels: ['-1.0%', '-1.5%', '-2.0%', '-3.0%'] | Sell levels: ['+1.0%', '+1.5%', '+2.0%', '+3.0%']
+2026-02-14 06:25:28,311 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:28,313 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:28,315 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:28,316 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:30,423 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:30,425 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:30,426 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:30,428 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:32,533 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:32,537 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:32,539 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:32,541 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:34,659 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:34,663 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:34,665 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:34,667 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:36,773 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:36,775 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:36,776 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:36,777 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9

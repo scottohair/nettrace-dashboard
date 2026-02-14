@@ -146,3 +146,14 @@
 2026-02-14 05:27:18,270 [quant_company] INFO cycle=70 alpha=0.57 migration=0.70 gtm=0.70 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
 2026-02-14 05:33:18,932 [quant_company] INFO cycle=71 alpha=0.57 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
 2026-02-14 05:39:19,610 [quant_company] INFO cycle=72 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 05:45:20,152 [quant_company] INFO cycle=73 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 05:47:44,436 [quant_company] INFO starting quant_company_agent loop interval=360s
+2026-02-14 05:47:44,661 [quant_company] INFO cycle=1 alpha=0.61 migration=0.70 gtm=0.93 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 05:51:20,826 [quant_company] INFO cycle=74 alpha=0.61 migration=0.70 gtm=0.93 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 05:57:21,478 [quant_company] INFO cycle=75 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 06:03:22,178 [quant_company] INFO cycle=76 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 06:09:22,896 [quant_company] INFO cycle=77 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 06:15:23,581 [quant_company] INFO cycle=78 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 06:21:24,244 [quant_company] INFO cycle=79 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate
+2026-02-14 06:23:14,977 [quant_company] INFO starting quant_company_agent loop interval=360s
+2026-02-14 06:23:15,115 [quant_company] INFO cycle=1 alpha=0.59 migration=0.70 gtm=0.95 deploy=0.31 hf_live=False daily_pnl=$0.00 next_target=$1000.00 budget=de_escalate

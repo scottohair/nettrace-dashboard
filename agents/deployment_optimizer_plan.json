@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-02-14T10:42:39.181595+00:00",
-  "cycle": 87,
+  "updated_at": "2026-02-14T11:23:10.846308+00:00",
+  "cycle": 1,
   "summary": {
     "runtime_region": "local",
     "deployment_score": 0.31,
@@ -24,27 +24,28 @@
   "dns_probes": {
     "api.coinbase.com": {
       "host": "api.coinbase.com",
-      "ok": false,
-      "latency_ms": 0.387,
-      "error": "[Errno 8] nodename nor servname provided, or not known"
+      "ok": true,
+      "latency_ms": 4.881,
+      "error": ""
     },
     "api.exchange.coinbase.com": {
       "host": "api.exchange.coinbase.com",
-      "ok": false,
-      "latency_ms": 1.488,
-      "error": "[Errno 8] nodename nor servname provided, or not known"
+      "ok": true,
+      "latency_ms": 0.464,
+      "error": ""
     }
   },
   "telemetry": {
     "coinbase": {
       "venue": "coinbase",
       "window_minutes": 60,
-      "samples": 2000,
-      "success_rate": 0.0105,
-      "failure_rate": 0.9895,
-      "p50_latency_ms": 22.335,
-      "p90_latency_ms": 59.43,
-      "p99_latency_ms": 164.764
+      "samples": 1067,
+      "success_rate": 0.119,
+      "failure_rate": 0.881,
+      "p50_latency_ms": 21.236,
+      "p90_latency_ms": 80.864,
+      "p99_latency_ms": 107.868,
+      "dns_failures_excluded": 933
     },
     "ibkr": {
       "venue": "ibkr",
@@ -54,7 +55,8 @@
       "failure_rate": 0.0,
       "p50_latency_ms": 0.0,
       "p90_latency_ms": 0.0,
-      "p99_latency_ms": 0.0
+      "p99_latency_ms": 0.0,
+      "dns_failures_excluded": 0
     },
     "etrade": {
       "venue": "etrade",
@@ -64,7 +66,8 @@
       "failure_rate": 0.0,
       "p50_latency_ms": 0.0,
       "p90_latency_ms": 0.0,
-      "p99_latency_ms": 0.0
+      "p99_latency_ms": 0.0,
+      "dns_failures_excluded": 0
     },
     "fix": {
       "venue": "fix",
@@ -74,17 +77,18 @@
       "failure_rate": 0.0,
       "p50_latency_ms": 0.0,
       "p90_latency_ms": 0.0,
-      "p99_latency_ms": 0.0
+      "p99_latency_ms": 0.0,
+      "dns_failures_excluded": 0
     }
   },
   "venue_readiness": {
     "coinbase": {
       "live_ready": false,
-      "dns_ok": false,
+      "dns_ok": true,
       "credentials_present": true,
-      "success_rate": 0.0105,
-      "samples": 2000,
-      "p90_latency_ms": 59.43,
+      "success_rate": 0.119,
+      "samples": 1067,
+      "p90_latency_ms": 80.864,
       "reason": "requires_dns+credentials+healthy_telemetry"
     },
     "fix": {
@@ -185,12 +189,10 @@
     "available": true
   },
   "priority_actions": [
-    "Fix DNS resolution for api.coinbase.com/api.exchange.coinbase.com in execution runtime.",
     "Stabilize Coinbase API health before live budget escalation (improve retries + region routing).",
     "Deploy FIX gateway and set FIX_GATEWAY_URL as live fallback route.",
     "Set IBKR_HOST/IBKR_PORT (and gateway process) for futures/equity routing.",
-    "Add redundant DNS resolvers and egress checks; unresolved hosts: api.coinbase.com, api.exchange.coinbase.com",
-    "Top recent Coinbase failures: 16x <urlopen error [Errno 8] nodename nor servname provided, or not known> | 14x fallback_spot_unavailable",
+    "Top recent Coinbase failures: 15x fallback_spot_unavailable | 15x <urlopen error [Errno 8] nodename nor servname provided, or not known>",
     "Start continuous traceroute sampling to venue hosts for region-level routing evidence."
   ],
   "source_manifest_regions": [

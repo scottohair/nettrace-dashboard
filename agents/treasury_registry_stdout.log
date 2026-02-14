@@ -1041,3 +1041,78 @@
 2026-02-14 05:42:36,548 [treasury_registry] ERROR Circuit breaker OPEN — 87 consecutive failures, pausing for 120s (reason=egress_blocked)
 2026-02-14 05:42:36,550 [treasury_registry] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
 2026-02-14 05:42:36,556 [treasury_registry] INFO cycle=87 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=0.00
+2026-02-14 05:47:36,626 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:47:36,628 [treasury_registry] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 05:47:36,658 [treasury_registry] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:47:36,669 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:36,679 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:36,681 [treasury_registry] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:36,684 [treasury_registry] ERROR Circuit breaker OPEN — 88 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:47:36,685 [treasury_registry] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:47:36,687 [treasury_registry] INFO cycle=88 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=0.00
+2026-02-14 05:47:38,372 [treasury_registry] INFO starting treasury_registry_agent loop interval=300s
+2026-02-14 05:47:38,373 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:47:38,425 [treasury_registry] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:47:38,426 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:38,426 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:47:38,429 [treasury_registry] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:38,430 [treasury_registry] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:47:38,430 [treasury_registry] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:47:38,433 [treasury_registry] INFO cycle=1 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=0.00
+2026-02-14 05:52:36,658 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:52:36,660 [treasury_registry] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 05:52:36,670 [treasury_registry] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:52:36,679 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:52:36,692 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:52:36,695 [treasury_registry] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:52:36,697 [treasury_registry] ERROR Circuit breaker OPEN — 89 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:52:36,698 [treasury_registry] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:52:36,704 [treasury_registry] INFO cycle=89 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=0.00
+2026-02-14 05:57:36,718 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 05:57:36,720 [treasury_registry] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 05:57:36,734 [treasury_registry] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:57:36,745 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:57:36,755 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:57:36,758 [treasury_registry] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:57:36,762 [treasury_registry] ERROR Circuit breaker OPEN — 90 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:57:36,763 [treasury_registry] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:57:36,769 [treasury_registry] INFO cycle=90 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=0.00
+2026-02-14 06:02:36,875 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 06:02:36,877 [treasury_registry] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 06:02:36,888 [treasury_registry] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 06:02:36,897 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:02:36,908 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:02:36,911 [treasury_registry] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 06:02:36,912 [treasury_registry] ERROR Circuit breaker OPEN — 91 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 06:02:36,913 [treasury_registry] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 06:02:36,916 [treasury_registry] INFO cycle=91 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=0.00
+2026-02-14 06:07:36,963 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 06:07:36,965 [treasury_registry] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 06:07:36,980 [treasury_registry] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 06:07:36,990 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:07:37,003 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:07:37,008 [treasury_registry] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 06:07:37,010 [treasury_registry] ERROR Circuit breaker OPEN — 92 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 06:07:37,010 [treasury_registry] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 06:07:37,016 [treasury_registry] INFO cycle=92 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=0.00
+2026-02-14 06:12:37,127 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 06:12:37,129 [treasury_registry] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 06:12:37,148 [treasury_registry] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 06:12:37,159 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:12:37,172 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:12:37,175 [treasury_registry] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 06:12:37,177 [treasury_registry] ERROR Circuit breaker OPEN — 93 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 06:12:37,177 [treasury_registry] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 06:12:37,181 [treasury_registry] INFO cycle=93 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=0.00
+2026-02-14 06:17:37,304 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 06:17:37,305 [treasury_registry] INFO Circuit breaker HALF-OPEN — health gate passed (health_gate_not_required)
+2026-02-14 06:17:37,314 [treasury_registry] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 06:17:37,322 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:17:37,329 [treasury_registry] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 06:17:37,331 [treasury_registry] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 06:17:37,332 [treasury_registry] ERROR Circuit breaker OPEN — 94 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 06:17:37,334 [treasury_registry] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 06:17:37,338 [treasury_registry] INFO cycle=94 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=0.00
+2026-02-14 06:23:08,732 [treasury_registry] INFO starting treasury_registry_agent loop interval=300s
+2026-02-14 06:23:08,733 [treasury_registry] ERROR Neither ib_async nor ib_insync installed — run: pip install ib_async
+2026-02-14 06:23:09,423 [treasury_registry] INFO cycle=1 wallets=4 connectors_ready=1/4 retrievability=0.76 total_usd=241.08

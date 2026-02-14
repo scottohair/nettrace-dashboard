@@ -2320,3 +2320,42 @@ when serializing dict item 'route_hint'
 2026-02-13 22:31:13,863 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
 2026-02-13 22:31:57,051 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 76s, reason=egress_blocked)
 2026-02-13 22:31:57,052 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 76s, reason=egress_blocked)
+2026-02-14 05:46:57,999 [exit_manager] INFO EXIT_MGR: Position monitor started (base interval=30s)
+2026-02-14 05:46:58,051 [exchange] WARNING Coinbase DNS failover engaged: host=api.coinbase.com mode=system_then_fallback trigger=dns_exception candidates=2
+2026-02-14 05:46:58,051 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=104.18.35.15 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:46:58,052 [exchange] WARNING Coinbase DNS failover candidate failed: host=api.coinbase.com ip=172.64.152.241 trigger=dns_exception err=<urlopen error [Errno 1] Operation not permitted>
+2026-02-14 05:46:58,054 [exchange] ERROR Coinbase request hit egress failure; skipping remaining retries: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:46:58,054 [exchange] ERROR Circuit breaker OPEN — 1 consecutive failures, pausing for 120s (reason=egress_blocked)
+2026-02-14 05:46:58,055 [exchange] ERROR Coinbase request failed after 3 attempts: {'error': '<urlopen error [Errno 8] nodename nor servname provided, or not known>', 'dns_fallback_error': '<urlopen error [Errno 1] Operation not permitted>'}
+2026-02-14 05:46:58,055 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 05:46:58,056 [exit_manager] INFO EXIT_MGR: No holdings found on Coinbase for auto-discovery
+2026-02-14 05:46:58,056 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 05:46:58,056 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 119s, reason=egress_blocked)
+2026-02-14 05:47:41,204 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 76s, reason=egress_blocked)
+2026-02-14 05:47:41,205 [exchange] WARNING Circuit breaker OPEN — skipping API call (retry in 76s, reason=egress_blocked)
+2026-02-14 06:22:27,256 [exit_manager] INFO EXIT_MGR: Position monitor started (base interval=30s)
+2026-02-14 06:22:27,390 [exit_manager] INFO EXIT_MGR: Registered new position SOL-USD: entry=$77.84, amount=0.00000001
+2026-02-14 06:22:27,390 [exit_manager] INFO EXIT_MGR: Registered new position ETH-USD: entry=$1910.15, amount=0.00000000
+2026-02-14 06:22:27,390 [exit_manager] INFO EXIT_MGR: Registered new position FET-USD: entry=$0.16, amount=0.03296301
+2026-02-14 06:22:27,390 [exit_manager] INFO EXIT_MGR: Registered new position BTC-USD: entry=$65379.99, amount=0.00000001
+2026-02-14 06:22:27,390 [exit_manager] INFO EXIT_MGR: Registered new position FET-USDC: entry=$0.16, amount=0.03296301
+2026-02-14 06:22:27,390 [exit_manager] INFO EXIT_MGR: Registered new position BTC-USDC: entry=$65875.27, amount=0.00000001
+2026-02-14 06:22:27,390 [exit_manager] INFO EXIT_MGR: Registered new position ETH-USDC: entry=$1930.55, amount=0.00000000
+2026-02-14 06:22:27,390 [exit_manager] INFO EXIT_MGR: Registered new position SOL-USDC: entry=$77.73, amount=0.00000001
+2026-02-14 06:22:27,390 [exit_manager] INFO EXIT_MGR: Loaded 8 positions from sniper_trades
+2026-02-14 06:22:27,914 [exit_manager] INFO EXIT_MGR: SOL-USD value $0.00 below dust threshold $0.75, untracking
+2026-02-14 06:22:27,914 [exit_manager] INFO EXIT_MGR: Unregistered position SOL-USD
+2026-02-14 06:22:27,952 [exit_manager] INFO EXIT_MGR: ETH-USD value $0.00 below dust threshold $0.75, untracking
+2026-02-14 06:22:27,953 [exit_manager] INFO EXIT_MGR: Unregistered position ETH-USD
+2026-02-14 06:22:27,996 [exit_manager] INFO EXIT_MGR: FET-USD value $0.01 below dust threshold $0.75, untracking
+2026-02-14 06:22:27,996 [exit_manager] INFO EXIT_MGR: Unregistered position FET-USD
+2026-02-14 06:22:28,037 [exit_manager] INFO EXIT_MGR: BTC-USD value $0.00 below dust threshold $0.75, untracking
+2026-02-14 06:22:28,037 [exit_manager] INFO EXIT_MGR: Unregistered position BTC-USD
+2026-02-14 06:22:28,037 [exit_manager] INFO EXIT_MGR: FET-USDC value $0.01 below dust threshold $0.75, untracking
+2026-02-14 06:22:28,037 [exit_manager] INFO EXIT_MGR: Unregistered position FET-USDC
+2026-02-14 06:22:28,037 [exit_manager] INFO EXIT_MGR: BTC-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 06:22:28,037 [exit_manager] INFO EXIT_MGR: Unregistered position BTC-USDC
+2026-02-14 06:22:28,037 [exit_manager] INFO EXIT_MGR: ETH-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 06:22:28,038 [exit_manager] INFO EXIT_MGR: Unregistered position ETH-USDC
+2026-02-14 06:22:28,038 [exit_manager] INFO EXIT_MGR: SOL-USDC value $0.00 below dust threshold $0.75, untracking
+2026-02-14 06:22:28,038 [exit_manager] INFO EXIT_MGR: Unregistered position SOL-USDC

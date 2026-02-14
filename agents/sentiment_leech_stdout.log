@@ -1,0 +1,7 @@
+2026-02-14 05:47:48,424 [sentiment_leech] INFO Starting sentiment leech loop (interval=900s)
+2026-02-14 05:47:48,425 [sentiment_leech] INFO Starting sentiment scan...
+2026-02-14 05:47:48,452 [sentiment_leech] ERROR Failed to fetch https://api.alternative.me/fng/?limit=1&format=json: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:48,452 [sentiment_leech] WARNING Failed to fetch Fear & Greed Index
+2026-02-14 06:23:19,077 [sentiment_leech] INFO Starting sentiment leech loop (interval=900s)
+2026-02-14 06:23:19,077 [sentiment_leech] INFO Starting sentiment scan...
+2026-02-14 06:23:19,201 [sentiment_leech] INFO Fear & Greed Index: 9, Sentiment: -0.82

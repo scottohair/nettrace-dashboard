@@ -4528,3 +4528,49 @@
 2026-02-13 22:31:15,918 [meta_engine_bus] INFO Published meta_engine_evolution to bus (msg_id=4263, cycle=1)
 2026-02-13 22:31:15,919 [meta_engine] INFO === EVOLUTION CYCLE COMPLETE ===
 
+2026-02-14 05:47:00,045 [meta_engine] INFO Meta-Engine starting — autonomous strategy evolution
+2026-02-14 05:47:00,046 [meta_engine] INFO ML Framework: numpy
+2026-02-14 05:47:00,046 [meta_engine] INFO Compute nodes: ['local', 'm1max', 'm2ultra']
+2026-02-14 05:47:00,048 [meta_engine] INFO === META-ENGINE EVOLUTION CYCLE ===
+2026-02-14 05:47:00,049 [meta_engine] ERROR fire_losing_strategies error: no such column: strategy_name
+2026-02-14 05:47:00,049 [meta_engine] INFO Step 1: Researching alpha ideas...
+2026-02-14 05:47:00,070 [meta_engine] INFO   Fear & Greed: 50 (Neutral)
+2026-02-14 05:47:00,071 [meta_engine] INFO   Trending: 0 coins
+2026-02-14 05:47:00,071 [meta_engine] INFO   Gas: {}
+2026-02-14 05:47:00,072 [meta_engine] INFO   Ideas: 0
+2026-02-14 05:47:00,072 [meta_engine] INFO Step 2: Analyzing exchange network graph...
+2026-02-14 05:47:00,073 [meta_engine] INFO   Graph: 0 nodes, 0 edges
+2026-02-14 05:47:00,073 [meta_engine] INFO Step 3: Running ML predictions...
+2026-02-14 05:47:00,074 [meta_engine] INFO Step 4: Evaluating agent pool...
+2026-02-14 05:47:00,075 [meta_engine] INFO Step 5: Generating strategy candidates...
+2026-02-14 05:47:00,076 [meta_engine] INFO Step 6: Executing high-confidence predictions...
+2026-02-14 05:47:00,077 [meta_engine] INFO Step 6: 0 live trades executed, paper trades updated
+2026-02-14 05:47:00,078 [meta_engine] INFO Published evolution summary to message bus (cycle=1)
+2026-02-14 05:47:00,079 [meta_engine_bus] INFO Published meta_engine_evolution to bus (msg_id=5994, cycle=1)
+2026-02-14 05:47:00,080 [meta_engine] INFO === EVOLUTION CYCLE COMPLETE ===
+
+2026-02-14 06:22:29,321 [meta_engine] INFO Meta-Engine starting — autonomous strategy evolution
+2026-02-14 06:22:29,321 [meta_engine] INFO ML Framework: numpy
+2026-02-14 06:22:29,321 [meta_engine] INFO Compute nodes: ['local', 'm1max', 'm2ultra']
+2026-02-14 06:22:29,322 [meta_engine] INFO === META-ENGINE EVOLUTION CYCLE ===
+2026-02-14 06:22:29,323 [meta_engine] ERROR fire_losing_strategies error: no such column: strategy_name
+2026-02-14 06:22:29,323 [meta_engine] INFO Step 1: Researching alpha ideas...
+2026-02-14 06:22:29,733 [meta_engine] INFO   Fear & Greed: 9 (Extreme Fear)
+2026-02-14 06:22:29,733 [meta_engine] INFO   Trending: 10 coins
+2026-02-14 06:22:29,734 [meta_engine] INFO   Gas: {'ethereum': 0.05, 'base': 0.01, 'arbitrum': 0.02}
+2026-02-14 06:22:29,734 [meta_engine] INFO   Ideas: 3
+2026-02-14 06:22:29,735 [meta_engine] INFO Step 2: Analyzing exchange network graph...
+2026-02-14 06:22:29,766 [meta_engine] INFO   Graph: 0 nodes, 0 edges
+2026-02-14 06:22:29,766 [meta_engine] INFO Step 3: Running ML predictions...
+2026-02-14 06:22:29,799 [meta_engine] INFO   ML ETH-USD: BUY (conf=60.0%, framework=numpy)
+2026-02-14 06:22:29,836 [meta_engine] INFO   ML BTC-USD: BUY (conf=60.0%, framework=numpy)
+2026-02-14 06:22:29,876 [meta_engine] INFO   ML SOL-USD: BUY (conf=60.0%, framework=numpy)
+2026-02-14 06:22:29,876 [meta_engine] INFO Step 4: Evaluating agent pool...
+2026-02-14 06:22:29,877 [meta_engine] INFO Step 5: Generating strategy candidates...
+2026-02-14 06:22:29,879 [meta_engine] INFO HIRED agent: contrarian_8149 (strategy: contrarian)
+2026-02-14 06:22:29,879 [meta_engine] INFO Step 6: Executing high-confidence predictions...
+2026-02-14 06:22:29,989 [meta_engine] INFO Step 6: 0 live trades executed, paper trades updated
+2026-02-14 06:22:29,990 [meta_engine] INFO Published evolution summary to message bus (cycle=1)
+2026-02-14 06:22:29,991 [meta_engine_bus] INFO Published meta_engine_evolution to bus (msg_id=6149, cycle=1)
+2026-02-14 06:22:29,991 [meta_engine] INFO === EVOLUTION CYCLE COMPLETE ===
+

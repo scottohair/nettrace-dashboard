@@ -190,6 +190,14 @@ def _parse_failover_host_map(raw):
     return out
 
 
+def _default_dns_failover_host_map():
+    """Bootstrap host/IP map used when env does not provide one."""
+    return {
+        "api.coinbase.com": ["104.18.35.15", "172.64.152.241"],
+        "api.exchange.coinbase.com": ["104.18.36.178", "172.64.151.78"],
+    }
+
+
 def _iso_age_seconds(ts_text):
     text = str(ts_text or "").strip()
     if not text:
@@ -271,6 +279,8 @@ COINBASE_DNS_FAILOVER_PROFILE = str(
 COINBASE_DNS_FAILOVER_HOST_MAP = _parse_failover_host_map(
     _env_json_dict("COINBASE_DNS_FAILOVER_HOST_MAP_JSON")
 )
+if not COINBASE_DNS_FAILOVER_HOST_MAP:
+    COINBASE_DNS_FAILOVER_HOST_MAP = _parse_failover_host_map(_default_dns_failover_host_map())
 COINBASE_DNS_FALLBACK_IPS = _parse_ip_list(os.environ.get("COINBASE_DNS_FALLBACK_IPS", ""))
 COINBASE_DNS_PUBLIC_RESOLVER_ENABLED = _env_flag("COINBASE_DNS_PUBLIC_RESOLVER_ENABLED", "1")
 COINBASE_DNS_PUBLIC_RESOLVERS = _parse_public_dns_resolvers(
@@ -284,6 +294,15 @@ COINBASE_DNS_PUBLIC_RESOLVER_MAX_IPS = _env_int("COINBASE_DNS_PUBLIC_RESOLVER_MA
 COINBASE_DNS_CACHE_TTL_SECONDS = _env_int("COINBASE_DNS_CACHE_TTL_SECONDS", 900)
 COINBASE_DNS_FAILOVER_MAX_CANDIDATES = _env_int("COINBASE_DNS_FAILOVER_MAX_CANDIDATES", 8)
 COINBASE_DNS_DEGRADED_TTL_SECONDS = _env_int("COINBASE_DNS_DEGRADED_TTL_SECONDS", 180)
+COINBASE_DNS_STATUS_HOST_MAP_ENABLED = _env_flag("COINBASE_DNS_STATUS_HOST_MAP_ENABLED", "1")
+COINBASE_DNS_STATUS_HOST_MAP_CACHE_SECONDS = _env_int(
+    "COINBASE_DNS_STATUS_HOST_MAP_CACHE_SECONDS",
+    60,
+)
+COINBASE_DNS_STATUS_HOST_MAP_MAX_AGE_SECONDS = _env_int(
+    "COINBASE_DNS_STATUS_HOST_MAP_MAX_AGE_SECONDS",
+    900,
+)
 
 COINBASE_CIRCUIT_FAIL_THRESHOLD = _env_int("COINBASE_CIRCUIT_FAIL_THRESHOLD", 3)
 COINBASE_CIRCUIT_OPEN_SECONDS = _env_int("COINBASE_CIRCUIT_OPEN_SECONDS", 30)
@@ -717,6 +736,7 @@ class CoinbaseTrader:
     _dns_degraded_until = 0.0
     _dns_degraded_reason = ""
     _execution_health_cache = {"ts": 0.0, "payload": {}}
+    _dns_status_host_map_cache = {"ts": 0.0, "map": {}}
     _dns_override_lock = threading.Lock()
 
     @staticmethod
@@ -813,9 +833,14 @@ class CoinbaseTrader:
         egress_needles = (
             "operation not permitted",
             "network is unreachable",
+            "no route to host",
+            "host is down",
+            "cannot assign requested address",
             "permission denied",
             "errno 1",
             "errno 101",
+            "errno 65",
+            "errno 51",
             "errno 13",
         )
         return any(n in text for n in egress_needles)
@@ -846,12 +871,68 @@ class CoinbaseTrader:
         host_s = str(host or "").strip().lower()
         if not host_s:
             return []
+        has_explicit_host_map = (
+            host_s in COINBASE_DNS_FAILOVER_HOST_MAP
+            or "*" in COINBASE_DNS_FAILOVER_HOST_MAP
+        )
         picked = []
         if host_s in COINBASE_DNS_FAILOVER_HOST_MAP:
             picked.extend(COINBASE_DNS_FAILOVER_HOST_MAP.get(host_s, ()))
         if "*" in COINBASE_DNS_FAILOVER_HOST_MAP:
             picked.extend(COINBASE_DNS_FAILOVER_HOST_MAP.get("*", ()))
+        if has_explicit_host_map:
+            return [str(ip).strip() for ip in picked if str(ip or "").strip()]
+        status_map = cls._status_host_map()
+        if host_s in status_map:
+            picked.extend(status_map.get(host_s, ()))
+        if "*" in status_map:
+            picked.extend(status_map.get("*", ()))
         return [str(ip).strip() for ip in picked if str(ip or "").strip()]
+
+    @classmethod
+    def _status_host_map(cls):
+        if not COINBASE_DNS_STATUS_HOST_MAP_ENABLED:
+            return {}
+        now = time.time()
+        cache_ttl = max(5, int(COINBASE_DNS_STATUS_HOST_MAP_CACHE_SECONDS))
+        with cls._dns_override_lock:
+            cached = cls._dns_status_host_map_cache.get("map", {})
+            ts = float(cls._dns_status_host_map_cache.get("ts", 0.0) or 0.0)
+            if cached and (now - ts) <= cache_ttl:
+                return dict(cached)
+
+        status_path = Path(COINBASE_CIRCUIT_REOPEN_HEALTH_PATH)
+        mapped = {}
+        try:
+            payload = _read_json_file(status_path)
+            if not isinstance(payload, dict):
+                payload = {}
+            updated_age = _iso_age_seconds(payload.get("updated_at"))
+            max_age = max(30, int(COINBASE_DNS_STATUS_HOST_MAP_MAX_AGE_SECONDS))
+            if updated_age is not None and updated_age <= max_age:
+                components = payload.get("components", {}) if isinstance(payload.get("components"), dict) else {}
+                dns_payload = components.get("dns", {}) if isinstance(components.get("dns"), dict) else {}
+                rows = dns_payload.get("rows", []) if isinstance(dns_payload.get("rows"), list) else []
+                raw_map = {}
+                for row in rows:
+                    if not isinstance(row, dict):
+                        continue
+                    host = str(row.get("host", "") or "").strip().lower()
+                    if not host:
+                        continue
+                    ips = row.get("ips", [])
+                    if not isinstance(ips, (list, tuple)):
+                        ips = [ips]
+                    cleaned = [str(ip).strip() for ip in ips if str(ip or "").strip()]
+                    if cleaned:
+                        raw_map[host] = cleaned
+                mapped = _parse_failover_host_map(raw_map)
+        except Exception:
+            mapped = {}
+
+        with cls._dns_override_lock:
+            cls._dns_status_host_map_cache = {"ts": now, "map": dict(mapped)}
+        return dict(mapped)
 
     @classmethod
     def _mark_dns_degraded(cls, reason):

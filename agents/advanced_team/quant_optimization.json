@@ -1,19 +1,48 @@
 {
-  "cycle": 190,
-  "timestamp": "2026-02-14T10:43:20.449847+00:00",
-  "pair_alpha": {},
-  "ranking": [],
+  "cycle": 2,
+  "timestamp": "2026-02-14T11:25:19.869438+00:00",
+  "pair_alpha": {
+    "BTC-USD": 0.0388,
+    "BTC-USDC": 0.0388,
+    "ETH-USD": 0.0541,
+    "ETH-USDC": 0.0541,
+    "SOL-USD": 0.0444,
+    "SOL-USDC": 0.0444
+  },
+  "ranking": [
+    {
+      "pair": "ETH-USD",
+      "alpha": 0.0541,
+      "change_24h_pct": 7.54,
+      "range_pct": 8.47
+    },
+    {
+      "pair": "SOL-USD",
+      "alpha": 0.0444,
+      "change_24h_pct": 8.39,
+      "range_pct": 10.96
+    },
+    {
+      "pair": "BTC-USD",
+      "alpha": 0.0388,
+      "change_24h_pct": 5.17,
+      "range_pct": 6.05
+    }
+  ],
   "risk_overrides": {
     "risk_posture": "DEFENSIVE",
-    "min_confidence": 0.73,
+    "min_confidence": 0.71,
     "max_trade_usd": 3.5,
     "max_trades_per_cycle": 1,
     "blocked_pairs": [],
-    "size_multiplier": 0.75
+    "size_multiplier": 0.75,
+    "data_quality_penalty": 0.0,
+    "data_quality_mode": "normal"
   },
   "size_multiplier": 0.75,
   "recommendations": [
-    "Posture=DEFENSIVE min_conf=0.73 max_trade=$3.50"
+    "Top alpha: ETH-USD (+0.054) 24h=+7.5%",
+    "Posture=DEFENSIVE min_conf=0.71 max_trade=$3.50"
   ],
   "source": "quant_optimizer"
 }

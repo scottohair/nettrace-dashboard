@@ -1,0 +1,45 @@
+# Trading Agent Sandbox - Isolated execution environment
+# Minimal Python container with security restrictions
+
+FROM python:3.11-slim
+
+# Security: Run as non-root user
+RUN useradd -m -u 1000 -s /bin/bash trader && \
+    mkdir -p /app /data && \
+    chown -R trader:trader /app /data
+
+# Install minimal dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python packages for trading agents
+RUN pip install --no-cache-dir \
+    numpy==1.26.4 \
+    pandas==2.2.0 \
+    requests==2.31.0 \
+    websocket-client==1.7.0
+
+WORKDIR /app
+
+# Copy agent code (read-only mount in production)
+COPY --chown=trader:trader agents/ /app/agents/
+
+# Switch to non-root user
+USER trader
+
+# Resource limits (enforced by Docker runtime):
+# - Memory: 512MB (--memory=512m)
+# - CPU: 0.5 cores (--cpus=0.5)
+# - Network: restricted via --network=sandbox-net
+# - Filesystem: read-only via --read-only
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python3 -c "import sys; sys.exit(0)"
+
+# Default command: run agent with strategy ID
+ENTRYPOINT ["python3", "-u"]
+CMD ["agents/sandbox_runner.py"]

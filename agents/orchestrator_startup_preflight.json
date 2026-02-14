@@ -1,21 +1,19 @@
 {
   "enabled": true,
-  "fail_open": false,
+  "fail_open": true,
   "require_green": true,
   "max_age_seconds": 240,
-  "checked_at": "2026-02-14T06:38:23.425756+00:00",
+  "checked_at": "2026-02-14T11:22:23.560576+00:00",
   "status_available": true,
   "green": false,
-  "passed": false,
-  "reason": "execution_health_not_green:egress_blocked",
-  "updated_at": "2026-02-14T06:38:24.174211+00:00",
-  "age_seconds": 0.001,
-  "egress_blocked": true,
-  "payload_reason": "egress_blocked",
+  "passed": true,
+  "reason": "startup_preflight_fail_open",
+  "updated_at": "2026-02-14T11:22:23.706428+00:00",
+  "age_seconds": 0.002,
+  "egress_blocked": false,
+  "payload_reason": "candle_feed_stale:2046.2s>360.0s",
   "payload_reasons": [
-    "egress_blocked",
-    "api_probe_failed",
-    "telemetry_samples_low:0<3",
-    "candle_feed_stale:9304.9s>360.0s"
-  ]
+    "candle_feed_stale:2046.2s>360.0s"
+  ],
+  "pass_override_reason": "execution_health_not_green:candle_feed_stale:2046.2s>360.0s"
 }

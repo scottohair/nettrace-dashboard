@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-14T03:31:58.419768+00:00",
+  "updated_at": "2026-02-14T11:24:50.933718+00:00",
   "tasks_total": 1000,
   "worked_through_count": 1000,
   "status_counts": {
@@ -21,9 +21,9 @@
     "realized_ok": true,
     "hf_live_ready": false,
     "coinbase_ready": false,
-    "dns_coinbase_ok": false,
+    "dns_coinbase_ok": true,
     "creds_coinbase": true,
-    "run_rate_usd_per_hour": 48.86,
+    "run_rate_usd_per_hour": 79.29,
     "top_regions": [
       "ewr",
       "nrt",
@@ -44,7 +44,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418844+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.930975+00:00",
       "notes": [],
       "priority_rank": 1
     },
@@ -60,7 +60,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418901+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931289+00:00",
       "notes": [],
       "priority_rank": 2
     },
@@ -76,7 +76,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418902+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931294+00:00",
       "notes": [],
       "priority_rank": 3
     },
@@ -92,7 +92,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418904+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931296+00:00",
       "notes": [],
       "priority_rank": 4
     },
@@ -108,7 +108,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418905+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931299+00:00",
       "notes": [],
       "priority_rank": 5
     },
@@ -124,7 +124,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418906+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931301+00:00",
       "notes": [],
       "priority_rank": 6
     },
@@ -140,7 +140,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418906+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931302+00:00",
       "notes": [],
       "priority_rank": 7
     },
@@ -156,7 +156,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418907+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931304+00:00",
       "notes": [],
       "priority_rank": 8
     },
@@ -172,7 +172,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418908+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931306+00:00",
       "notes": [],
       "priority_rank": 9
     },
@@ -188,7 +188,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418909+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931308+00:00",
       "notes": [],
       "priority_rank": 10
     },
@@ -204,7 +204,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418910+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931310+00:00",
       "notes": [],
       "priority_rank": 11
     },
@@ -220,7 +220,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418911+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931312+00:00",
       "notes": [],
       "priority_rank": 12
     },
@@ -236,7 +236,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418912+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931314+00:00",
       "notes": [],
       "priority_rank": 13
     },
@@ -252,7 +252,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418912+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931315+00:00",
       "notes": [],
       "priority_rank": 14
     },
@@ -268,7 +268,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418913+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931317+00:00",
       "notes": [],
       "priority_rank": 15
     },
@@ -284,7 +284,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418914+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931319+00:00",
       "notes": [],
       "priority_rank": 16
     },
@@ -300,7 +300,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418915+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931321+00:00",
       "notes": [],
       "priority_rank": 17
     },
@@ -316,7 +316,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418916+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931322+00:00",
       "notes": [],
       "priority_rank": 18
     },
@@ -332,7 +332,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418917+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931324+00:00",
       "notes": [],
       "priority_rank": 19
     },
@@ -348,7 +348,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418917+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931326+00:00",
       "notes": [],
       "priority_rank": 20
     },
@@ -364,7 +364,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418918+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931327+00:00",
       "notes": [],
       "priority_rank": 21
     },
@@ -380,7 +380,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418919+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931329+00:00",
       "notes": [],
       "priority_rank": 22
     },
@@ -396,7 +396,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418920+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931331+00:00",
       "notes": [],
       "priority_rank": 23
     },
@@ -412,7 +412,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418921+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931333+00:00",
       "notes": [],
       "priority_rank": 24
     },
@@ -428,7 +428,7 @@
       "worked_through": true,
       "blocked_reason": "hf_live_not_ready",
       "acceptance": "Positive OOS + Monte Carlo + realized close-profit evidence where applicable.",
-      "last_reviewed_at": "2026-02-14T03:31:58.418922+00:00",
+      "last_reviewed_at": "2026-02-14T11:24:50.931335+00:00",
       "notes": [],
       "priority_rank": 25
     }

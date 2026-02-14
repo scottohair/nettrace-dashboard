@@ -6992,3 +6992,52 @@
 2026-02-14 01:08:28,780 [forex_agent] WARNING Forex rate fetch failed: <urlopen error [Errno 8] nodename nor servname provided, or not known>
 2026-02-14 01:08:28,786 [forex_agent] WARNING Forex rate fetch failed: <urlopen error [Errno 8] nodename nor servname provided, or not known>
 2026-02-14 01:08:28,798 [forex_agent] INFO No actionable signals this scan (0 below threshold)
+2026-02-14 05:47:06,084 [forex_agent] INFO Forex Agent starting — scanning every 60s
+2026-02-14 05:47:06,086 [forex_agent] INFO Pairs: ['EURC-USDC', 'DAI-USDC'] | Correlation: ['BTC-USDC', 'ETH-USDC']
+2026-02-14 05:47:06,086 [forex_agent] INFO Min spread: 0.1% | Max trade: $5.00 | Min confidence: 55%
+2026-02-14 05:47:06,087 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 05:47:06,111 [forex_agent] WARNING Forex rate fetch failed: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:06,112 [forex_agent] WARNING Forex rate fetch failed: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:06,112 [forex_agent] WARNING Forex rate fetch failed: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:47:06,114 [forex_agent] INFO No actionable signals this scan (0 below threshold)
+2026-02-14 05:48:06,116 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 05:48:06,120 [forex_agent] WARNING Forex rate fetch failed: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:48:06,121 [forex_agent] WARNING Forex rate fetch failed: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:48:06,121 [forex_agent] WARNING Forex rate fetch failed: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+2026-02-14 05:48:06,122 [forex_agent] INFO No actionable signals this scan (0 below threshold)
+2026-02-14 06:22:35,491 [forex_agent] INFO Forex Agent starting — scanning every 60s
+2026-02-14 06:22:35,491 [forex_agent] INFO Pairs: ['EURC-USDC', 'DAI-USDC'] | Correlation: ['BTC-USDC', 'ETH-USDC']
+2026-02-14 06:22:35,491 [forex_agent] INFO Min spread: 0.1% | Max trade: $5.00 | Min confidence: 55%
+2026-02-14 06:22:35,491 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 06:22:35,621 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 06:22:35,622 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 06:22:35,684 [forex_agent] INFO   [EURC-USDC] BUY | conf=67.6% | EURC underpriced: $1.1848 vs fair $1.1866 (spread -0.15%)
+2026-02-14 06:22:35,770 [forex_agent] INFO   [DAI-USDC] DAI spread -0.015% below threshold
+2026-02-14 06:22:35,771 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 06:22:35,941 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5320 @ $1.1860) | conf=67.6% | eurc_usdc_arb
+2026-02-14 06:22:36,365 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.403%; venue_failure_rate 96.57% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:23:36,370 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 06:23:36,423 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 06:23:36,424 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 06:23:36,511 [forex_agent] INFO   [EURC-USDC] BUY | conf=67.8% | EURC underpriced: $1.1848 vs fair $1.1866 (spread -0.16%)
+2026-02-14 06:23:36,570 [forex_agent] INFO   [DAI-USDC] DAI spread -0.015% below threshold
+2026-02-14 06:23:36,572 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 06:23:36,754 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5321 @ $1.1860) | conf=67.8% | eurc_usdc_arb
+2026-02-14 06:23:37,026 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.408%; venue_failure_rate 81.16% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:24:37,030 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 06:24:37,076 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 06:24:37,077 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 06:24:37,131 [forex_agent] INFO   [EURC-USDC] BUY | conf=68.2% | EURC underpriced: $1.1847 vs fair $1.1866 (spread -0.16%)
+2026-02-14 06:24:37,189 [forex_agent] INFO   [DAI-USDC] DAI spread -0.015% below threshold
+2026-02-14 06:24:37,190 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 06:24:37,322 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5323 @ $1.1859) | conf=68.2% | eurc_usdc_arb
+2026-02-14 06:24:37,574 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | LIMIT BUY blocked by no-loss policy: expected_edge 0.000% < required 1.398%; venue_failure_rate 57.68% > max 20.00%; signal_confidence 0.00% < min 70.00%
+2026-02-14 06:25:37,586 [forex_agent] INFO === FOREX AGENT SCAN ===
+2026-02-14 06:25:37,626 [forex_agent] INFO EUR/USD: 1.1866
+2026-02-14 06:25:37,628 [forex_agent] INFO GBP/USD: 1.3636
+2026-02-14 06:25:37,707 [forex_agent] INFO   [EURC-USDC] BUY | conf=68.2% | EURC underpriced: $1.1847 vs fair $1.1866 (spread -0.16%)
+2026-02-14 06:25:37,799 [forex_agent] INFO   [DAI-USDC] DAI spread -0.015% below threshold
+2026-02-14 06:25:37,800 [forex_agent] INFO >>> 1 ACTIONABLE signals (of 1 total)
+2026-02-14 06:25:37,929 [forex_agent] INFO FOREX EXECUTE: LIMIT BUY EURC-USDC | $3.00 (2.5323 @ $1.1859) | conf=68.2% | eurc_usdc_arb
+2026-02-14 06:25:37,930 [exchange] ERROR Limit order blocked: Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9
+2026-02-14 06:25:37,932 [forex_agent] WARNING FOREX ORDER FAILED: EURC-USDC BUY | Trading locked by flywheel_controller: NO_GO: growth_supervisor_failed_rc_-9

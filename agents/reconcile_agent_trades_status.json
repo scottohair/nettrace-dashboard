@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-02-14T05:14:51.439386+00:00",
-  "max_orders": 120,
-  "lookback_hours": 96,
+  "updated_at": "2026-02-14T11:24:14.131626+00:00",
+  "max_orders": 180,
+  "lookback_hours": 168,
   "reconcile_statuses": [
     "accepted",
     "ack_ok",
@@ -10,32 +10,30 @@
     "placed"
   ],
   "summary": {
-    "checked": 0,
-    "updated": 0,
-    "filled": 0,
+    "checked": 3,
+    "updated": 2,
+    "filled": 2,
     "partial": 0,
     "cancelled": 0,
     "failed": 0,
     "expired": 0,
     "early_exit_reason": "",
-    "close_attempts": 86,
-    "close_completions": 84,
-    "close_failures": 2,
+    "close_attempts": 3,
+    "close_completions": 2,
+    "close_failures": 1,
     "close_failure_reasons": {
-      "terminal_cancelled": 1,
-      "terminal_failed": 1
+      "not_completed_pending": 1
     },
     "close_gate_passed": true,
     "close_gate_reason": "sell_close_completion_observed"
   },
   "close_reconciliation": {
-    "attempts": 86,
-    "completions": 84,
-    "failures": 2,
-    "completion_rate": 0.976744,
+    "attempts": 3,
+    "completions": 2,
+    "failures": 1,
+    "completion_rate": 0.666667,
     "failure_reasons": {
-      "terminal_cancelled": 1,
-      "terminal_failed": 1
+      "not_completed_pending": 1
     },
     "gate_passed": true,
     "gate_reason": "sell_close_completion_observed"

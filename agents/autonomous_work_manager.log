@@ -14841,3 +14841,26 @@
 2026-02-14 05:42:46,528 [autonomous_work] INFO STRIKE base: blocked BUY BTC-USD due to hard execution health condition (telemetry_samples_low:0<3)
 2026-02-14 05:42:46,529 [autonomous_work] INFO STRIKE base: blocked SELL BTC-USD — no tracked inventory (source=test)
 2026-02-14 05:42:55,967 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:45:56,702 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:47:22,202 [autonomous_work] INFO autonomous work manager started interval=180s target=80 outstanding=12
+2026-02-14 05:47:22,378 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:48:37,821 [autonomous_work] INFO received signal 15, stopping...
+2026-02-14 05:48:38,607 [autonomous_work] INFO autonomous work manager stopped
+2026-02-14 05:48:57,546 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:51:58,350 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:54:59,080 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 05:57:59,764 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:01:00,485 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:04:01,262 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:07:01,954 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:10:02,680 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:13:03,717 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:16:04,441 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:19:05,164 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:22:05,847 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:22:24,412 [autonomous_work] INFO received signal 15, stopping...
+2026-02-14 06:22:24,900 [autonomous_work] INFO autonomous work manager stopped
+2026-02-14 06:22:52,000 [autonomous_work] INFO autonomous work manager started interval=180s target=80 outstanding=12
+2026-02-14 06:22:52,192 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:24:50,751 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0
+2026-02-14 06:25:53,053 [autonomous_work] INFO queue=85 dispatched=0 acked=0 completed=0 stale=0

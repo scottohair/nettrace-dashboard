@@ -1,7 +1,7 @@
 {
   "region": "ewr",
   "is_primary": true,
-  "running": true,
+  "running": false,
   "uptime_seconds": 0,
   "agents": {},
   "control": {
@@ -79,5 +79,5 @@
     "error": "not_collected"
   },
   "status_file": "/Users/scott/src/quant/agents/fly_agent_runner_status.json",
-  "timestamp": "2026-02-14T10:43:12.562482+00:00"
+  "timestamp": "2026-02-14T11:17:53.749226+00:00"
 }

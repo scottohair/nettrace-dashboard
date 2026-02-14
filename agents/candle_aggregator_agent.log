@@ -3,3 +3,14 @@
 2026-02-13 22:55:11,162 [candle_agg_agent] INFO starting candle aggregator loop interval=20s target_points=1000 since_hours=48
 2026-02-13 22:55:15,486 [candle_agg_agent] INFO starting candle aggregator loop interval=20s target_points=1000 since_hours=48
 2026-02-13 23:03:19,312 [candle_agg_agent] INFO refresh ok points=3332 target=1000 achieved=True pairs=14 tf=4
+2026-02-14 05:47:14,359 [candle_agg_agent] INFO starting candle aggregator loop interval=20s target_points=1000 since_hours=48
+2026-02-14 05:47:15,143 [candle_agg_agent] INFO refresh ok points=3484 target=1000 achieved=True pairs=14 tf=4
+2026-02-14 05:47:35,860 [candle_agg_agent] INFO refresh ok points=3484 target=1000 achieved=True pairs=14 tf=4
+2026-02-14 05:47:56,623 [candle_agg_agent] INFO refresh ok points=3484 target=1000 achieved=True pairs=14 tf=4
+2026-02-14 05:48:17,509 [candle_agg_agent] INFO refresh ok points=3484 target=1000 achieved=True pairs=14 tf=4
+2026-02-14 06:22:43,880 [candle_agg_agent] INFO starting candle aggregator loop interval=20s target_points=1000 since_hours=48
+2026-02-14 06:23:03,475 [candle_agg_agent] INFO refresh ok points=9130 target=1000 achieved=True pairs=48 tf=4
+2026-02-14 06:23:44,112 [candle_agg_agent] INFO refresh ok points=10031 target=1000 achieved=True pairs=48 tf=4
+2026-02-14 06:24:24,904 [candle_agg_agent] INFO refresh ok points=10057 target=1000 achieved=True pairs=48 tf=4
+2026-02-14 06:25:04,525 [candle_agg_agent] INFO refresh ok points=10075 target=1000 achieved=True pairs=48 tf=4
+2026-02-14 06:25:43,892 [candle_agg_agent] INFO refresh ok points=10128 target=1000 achieved=True pairs=48 tf=4
