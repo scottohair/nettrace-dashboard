@@ -225,6 +225,7 @@ class ExitManager:
         self._cycle_index = 0
         self._last_cycle_latency_ms = 0.0
         self._fear_greed_cache = (0, 1.0)  # (timestamp, multiplier)
+        self._cycle_cache = {}  # per-cycle cache: cleared at start of each monitor cycle
         self._last_hints = {}
         self._improvements = load_or_create_registry(EXIT_IMPROVEMENTS_FILE)
         self._toolset = {
@@ -531,14 +532,37 @@ class ExitManager:
         self._fear_greed_cache = (now, multiplier)
         return multiplier
 
+    def _get_price_cached(self, pair):
+        """Get price with per-cycle caching to avoid redundant API calls."""
+        cache_key = f"price:{pair}"
+        if cache_key in self._cycle_cache:
+            return self._cycle_cache[cache_key]
+        price = _get_price(pair)
+        self._cycle_cache[cache_key] = price
+        return price
+
+    def _estimate_portfolio_value_cached(self):
+        """Estimate portfolio value with per-cycle caching."""
+        cache_key = "portfolio_value"
+        if cache_key in self._cycle_cache:
+            return self._cycle_cache[cache_key]
+        value = self._estimate_portfolio_value()
+        self._cycle_cache[cache_key] = value
+        return value
+
     def _get_dynamic_params(self, pair):
         """Get all dynamic exit parameters from risk_controller and market state.
 
         Returns a dict of computed thresholds -- NOTHING hardcoded.
         Every value derives from portfolio size, volatility, and trend.
         """
+        # Check per-cycle cache first
+        cache_key = f"params:{pair}"
+        if cache_key in self._cycle_cache:
+            return self._cycle_cache[cache_key]
+
         # Get portfolio value and risk params
-        portfolio_value = self._estimate_portfolio_value()
+        portfolio_value = self._estimate_portfolio_value_cached()
         if _risk_ctrl:
             risk_params = _risk_ctrl.get_risk_params(portfolio_value, pair)
             volatility = risk_params["volatility"]
@@ -657,7 +681,9 @@ class ExitManager:
             # Loss limits
             "max_position_loss_usd": round(max_position_loss_usd, 2),
         }
-        return self._apply_mcp_overrides(pair, params)
+        result = self._apply_mcp_overrides(pair, params)
+        self._cycle_cache[cache_key] = result
+        return result
 
     def has_exit_plan(self, pair):
         """Return True only when dynamic exit thresholds are valid for a pair."""
@@ -676,7 +702,10 @@ class ExitManager:
             return False
 
     def _estimate_portfolio_value(self):
-        """Estimate total portfolio value from Coinbase holdings."""
+        """Estimate total portfolio value from Coinbase holdings.
+
+        Uses _get_price_cached when available to avoid redundant price lookups.
+        """
         try:
             trader = self._get_trader()
             if not trader:
@@ -689,7 +718,10 @@ class ExitManager:
                 if cur in ("USDC", "USD"):
                     total += bal
                 elif bal > 0:
-                    price = _get_price(f"{cur}-USDC")
+                    # Use cycle cache when available
+                    price = self._get_price_cached(f"{cur}-USDC")
+                    if not price:
+                        price = self._get_price_cached(f"{cur}-USD")
                     if price:
                         total += bal * price
             return max(1.0, total)
@@ -997,7 +1029,7 @@ class ExitManager:
                     self.unregister_position(pair)
                 return False
 
-        portfolio_value = self._estimate_portfolio_value()
+        portfolio_value = self._estimate_portfolio_value_cached()
         if _risk_ctrl:
             approved, rc_reason, _adj_size = _risk_ctrl.approve_trade(
                 "exit_manager", pair, "SELL", sell_value_usd, portfolio_value)
@@ -1311,6 +1343,7 @@ class ExitManager:
         while self._running:
             cycle_started = time.perf_counter()
             self._cycle_index += 1
+            self._cycle_cache = {}  # Clear per-cycle cache
             try:
                 # Also sync with actual holdings periodically
                 holdings = self._get_holdings_map()
@@ -1319,8 +1352,8 @@ class ExitManager:
                 else:
                     self._consecutive_api_failures = 0
 
-                # Compute portfolio value once for concentration checks
-                portfolio_value = self._estimate_portfolio_value()
+                # Compute portfolio value once for concentration checks (cached for cycle)
+                portfolio_value = self._estimate_portfolio_value_cached()
 
                 # Check each tracked position
                 with self._lock:
@@ -1335,11 +1368,11 @@ class ExitManager:
                     if base_currency in QUOTE_CURRENCIES or held_amount <= 0:
                         continue
                     try:
-                        # Try common pair formats
+                        # Try common pair formats (cached)
                         pair = None
                         for suffix in ("-USDC", "-USD"):
                             test_pair = f"{base_currency}{suffix}"
-                            p = _get_price(test_pair)
+                            p = self._get_price_cached(test_pair)
                             if p and p > 0:
                                 pair = test_pair
                                 current_price = p
@@ -1385,8 +1418,8 @@ class ExitManager:
                         # Update held amount to match reality
                         pos.held_amount = actual_held
 
-                        # Get current price
-                        current_price = _get_price(pair)
+                        # Get current price (cached per cycle)
+                        current_price = self._get_price_cached(pair)
                         if not current_price:
                             logger.debug("EXIT_MGR: Cannot get price for %s, skipping", pair)
                             self._consecutive_api_failures += 1
@@ -1410,7 +1443,9 @@ class ExitManager:
                             pair, pos.entry_price, pos.entry_time,
                             current_price, actual_held, pos.trade_id)
 
-                        params = self._get_dynamic_params(pair)
+                        # _get_dynamic_params was already called inside check_exit;
+                        # pull from cycle cache (no additional API calls)
+                        params = self._cycle_cache.get(f"params:{pair}", {})
                         profit_pct = pos.profit_pct(current_price)
                         drawdown_pct = pos.drawdown_from_peak_pct(current_price)
                         hold_hours = pos.hold_duration_hours()

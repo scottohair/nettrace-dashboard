@@ -5,6 +5,50 @@ Both agents: READ this before starting work. WRITE here before ending work.
 
 ---
 
+## 2026-02-13 Claude Code Handoff (v69+) — Crisis Response + Cycle Speed Optimization
+
+### What I Did (this session)
+
+**Critical Fixes (v65-v69)**
+- Fixed negative trade_size bug: sniper.py early guards prevent `effective_cash - reserve` going negative
+- Fixed SELL blocked by missing cost basis: added `bypass_profit_guard=True` to sniper regular sells
+- Added Fear & Greed circuit breaker to exit_manager: F&G < 15 = 70% tighter stops
+- Added F&G < 15 BUY gate in sniper: blocks ALL entries during Extreme Fear
+- Exit manager successfully exited 5 losing positions (FET, SOL, AVAX, LINK, DOGE) — net P&L -$0.37
+
+**Exit Manager Cycle Speed Optimization**
+- Added per-cycle caching: `_cycle_cache` dict cleared each monitoring cycle
+- `_get_price_cached()`: prices fetched once per pair per cycle (was N times)
+- `_estimate_portfolio_value_cached()`: portfolio computed once per cycle (was per position)
+- `_get_dynamic_params()`: results cached per pair per cycle (was computed twice per position)
+- Removed redundant `_get_dynamic_params()` call in monitor loop (already computed in check_exit)
+- **Expected speedup**: 944s → sub-30s per cycle (90%+ reduction in API calls)
+
+**Plan Completion: OpenClaw + IBKR + Agent Control (all 4 workstreams DONE)**
+- Read-only API scope ✓
+- Agent control endpoints (status, pause, resume, portfolio, force-scan) ✓
+- OpenClaw skills (quant-alerts, agent-control) ✓
+- IBKR connector (ib_async, auto-reconnect, paper mode, path_router wired) ✓
+
+### Current Portfolio State
+- **Total: ~$52.51** ($51.52 USDC cash + dust)
+- **Positions**: None active (all exited during Extreme Fear)
+- **Market**: F&G = 9 (Extreme Fear), BTC $68,762, ETH $2,044, SOL $84
+- **Status**: BUY gate active — system preserving cash until F&G > 15
+- **Agents**: Running on Fly (7/7 regions), risk agent correctly HOLD with 0% confidence
+
+### Deploy Status
+- **v69** deployed, all regions healthy
+- Fear circuit breaker + BUY gate active and working
+- System correctly in cash-preservation mode
+
+### Blockers
+- IBKR account: submitted 2026-02-12, check ohariscott@gmail.com for approval
+- Capital: $52 — need market recovery + smart re-entry when F&G recovers
+- Portfolio went $290 → $52 — need post-mortem on what went wrong
+
+---
+
 ## 2026-02-13 Claude Code Handoff (v62) — Growth Engine + Performance Tuning
 
 ### What I Did (this session)
