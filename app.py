@@ -131,6 +131,41 @@ socketio = SocketIO(app, async_mode="gevent", cors_allowed_origins="*")
 _trading_heartbeat_cache: dict = {}
 _trading_heartbeat_lock = threading.Lock()
 
+# Start real-time orchestrator on app initialization
+def _start_realtime_orchestrator():
+    """Start the real-time orchestrator subprocess for autonomous trading."""
+    try:
+        if os.environ.get("REALTIME_ORCHESTRATION", "").lower() in ("1", "true", "yes"):
+            import logging
+            logger = logging.getLogger("app")
+
+            # Start orchestrator as background subprocess
+            orch_cmd = [
+                "python3", "-u",
+                str(BASE_DIR / "agents" / "realtime_orchestrator.py"),
+                "--live"
+            ]
+            orch_env = os.environ.copy()
+            orch_env["PYTHONUNBUFFERED"] = "1"
+            orch_env["REALTIME_ORCHESTRATION"] = "1"
+
+            proc = subprocess.Popen(
+                orch_cmd,
+                cwd=str(BASE_DIR),
+                env=orch_env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            logger.info(f"Started RealtimeOrchestrator subprocess (PID: {proc.pid})")
+            app._orchestrator_process = proc
+    except Exception as e:
+        import logging
+        logger = logging.getLogger("app")
+        logger.warning(f"Could not start RealtimeOrchestrator: {e}")
+
+# Start orchestrator on app startup
+_start_realtime_orchestrator()
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"

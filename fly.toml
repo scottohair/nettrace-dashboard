@@ -6,6 +6,11 @@ primary_region = "ewr"
 [env]
   PORT = "8080"
   DB_PATH = "/data/traceroute.db"
+  # Phase 3: Real-Time Orchestration for autonomous trading
+  REALTIME_ORCHESTRATION = "1"
+  ORCH_CYCLE_TARGET_MS = "100"
+  ORCH_SIGNAL_TIMEOUT_MS = "50"
+  HF_INTERVAL_MS = "100"
   MAX_SCANS_PER_HOUR = "30"
   MAX_CONCURRENT_SCANS = "3"
   SCAN_INTERVAL = "600"
