@@ -354,12 +354,15 @@ class RealtimeOrchestrator:
         start_time_s = time.time()
 
         logger.info(f"Starting RealtimeOrchestrator (mock_mode={self.mock_mode}, target_cycle={CYCLE_TARGET_MS}ms)")
+        logger.info("Entering main orchestration loop...")
 
         while self.running:
             cycle_start_ms = time.time() * 1000
 
             try:
                 # 1. Collect signals from all agents (parallel, <50ms)
+                if self.cycle_count < 3:
+                    logger.info(f"[Cycle {self.cycle_count+1}] Collecting signals...")
                 signals = await self.signal_collector.collect_all(timeout_ms=SIGNAL_COLLECTION_TIMEOUT_MS)
                 collection_latency_ms = time.time() * 1000 - cycle_start_ms
 
@@ -500,12 +503,13 @@ class RealtimeOrchestrator:
             db_path = Path(__file__).parent.parent / "traceroute.db"
             conn = sqlite3.connect(str(db_path))
             cursor = conn.cursor()
-            cursor.execute("SELECT portfolio_usd FROM portfolio_snapshot ORDER BY timestamp DESC LIMIT 1")
+            # Query trading_snapshots for latest total_value_usd (user_id=2 for scott)
+            cursor.execute("SELECT total_value_usd FROM trading_snapshots WHERE user_id=2 ORDER BY recorded_at DESC LIMIT 1")
             result = cursor.fetchone()
             conn.close()
             return result[0] if result else 233.85
         except Exception as e:
-            logger.warning(f"Could not fetch portfolio value: {e}")
+            logger.debug(f"Could not fetch portfolio value: {e}")
             return 233.85
 
     def shutdown(self):
