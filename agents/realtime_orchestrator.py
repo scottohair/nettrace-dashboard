@@ -382,6 +382,9 @@ class RealtimeOrchestrator:
                 total_cycle_latency_ms = time.time() * 1000 - cycle_start_ms
                 self.performance_tracker.record(executed, total_cycle_latency_ms)
 
+                # 5b. Persist metrics to database for API consumption
+                self._persist_metrics_to_db(total_cycle_latency_ms, len(signals), len(executed))
+
                 # 6. Rebalance capital
                 if not self.mock_mode:
                     portfolio_value = self._get_portfolio_value()
@@ -496,6 +499,56 @@ class RealtimeOrchestrator:
                 })
 
         return executed
+
+    def _persist_metrics_to_db(self, cycle_latency_ms: float, signal_count: int, executed_count: int):
+        """Persist orchestrator metrics to database for API consumption."""
+        try:
+            db_path = Path(__file__).parent.parent / "traceroute.db"
+            conn = sqlite3.connect(str(db_path))
+            cursor = conn.cursor()
+
+            # Ensure table exists
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS orchestrator_metrics (
+                    id INTEGER PRIMARY KEY,
+                    cycle_count INTEGER,
+                    total_latency_ms REAL,
+                    avg_latency_ms REAL,
+                    total_gains_usd REAL,
+                    gains_per_second REAL,
+                    gains_per_ms REAL,
+                    trade_count INTEGER,
+                    cycle_signals INTEGER,
+                    cycle_executed INTEGER,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+            perf = self.performance_tracker.snapshot()
+            avg_latency = self.total_latency_ms / max(self.cycle_count, 1)
+
+            # Insert/update metrics
+            cursor.execute("""
+                INSERT OR REPLACE INTO orchestrator_metrics
+                (id, cycle_count, total_latency_ms, avg_latency_ms, total_gains_usd,
+                 gains_per_second, gains_per_ms, trade_count, cycle_signals, cycle_executed, updated_at)
+                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (
+                self.cycle_count,
+                self.total_latency_ms,
+                avg_latency,
+                perf["total_gains_usd"],
+                perf["gains_per_second"],
+                perf["gains_per_ms"],
+                perf["trade_count"],
+                signal_count,
+                executed_count
+            ))
+
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logger.debug(f"Could not persist metrics to DB: {e}")
 
     def _get_portfolio_value(self) -> float:
         """Get current portfolio value from DB."""

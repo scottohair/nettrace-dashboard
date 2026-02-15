@@ -4898,62 +4898,61 @@ def get_realtime_performance():
         }
     """
     try:
-        # Import orchestrator to get real-time metrics
-        from agents.realtime_orchestrator import RealtimeOrchestrator
-
-        # This is a global instance - would be set by orchestrator_v2
-        # For now, return mock data with actual portfolio value
-        orchestrator = getattr(app, '_realtime_orchestrator', None)
-
         # Get current portfolio from DB (with fallback)
         portfolio_usd = 233.85  # Default value
         try:
             db = get_db()
-            # Try to get from portfolio_snapshot if it exists
-            portfolio_snapshot = db.execute(
-                "SELECT portfolio_usd, timestamp FROM portfolio_snapshot ORDER BY timestamp DESC LIMIT 1"
+            # Try trading_snapshots for latest portfolio value
+            trading_snap = db.execute(
+                "SELECT total_value_usd FROM trading_snapshots WHERE user_id=2 ORDER BY recorded_at DESC LIMIT 1"
             ).fetchone()
-            if portfolio_snapshot:
-                portfolio_usd = portfolio_snapshot["portfolio_usd"]
+            if trading_snap:
+                portfolio_usd = trading_snap["total_value_usd"]
         except Exception:
-            # Table doesn't exist or query failed - use default
             pass
 
         timestamp_ms = time.time() * 1000
 
-        if orchestrator:
-            perf = orchestrator.performance_tracker.snapshot()
-            top_agents = orchestrator.performance_tracker.agent_rankings(limit=10)
+        # Try to read metrics from orchestrator_metrics table (written by realtime_orchestrator.py)
+        try:
+            db = get_db()
+            metrics = db.execute(
+                "SELECT cycle_count, avg_latency_ms, total_gains_usd, gains_per_second, "
+                "gains_per_ms, trade_count, cycle_signals, cycle_executed FROM orchestrator_metrics LIMIT 1"
+            ).fetchone()
 
-            return jsonify({
-                "status": "ok",
-                "timestamp_ms": timestamp_ms,
-                "portfolio_usd": portfolio_usd,
-                "total_gains_usd": perf["total_gains_usd"],
-                "gains_per_second": perf["gains_per_second"],
-                "gains_per_ms": perf["gains_per_ms"],
-                "target_gains_per_ms": 0.000487,  # $0.487/s = $1M/day
-                "progress_pct": (perf["gains_per_ms"] / 0.000487) * 100 if perf["gains_per_ms"] > 0 else 0,
-                "trade_count": perf["trade_count"],
-                "cycle_count": orchestrator.cycle_count,
-                "top_agents": [
-                    {
-                        "agent": name,
-                        "total_pnl": metrics["total_pnl"],
-                        "trade_count": metrics["trade_count"],
-                        "avg_latency_ms": metrics["avg_latency_ms"],
-                        "gains_per_ms": metrics["gains_per_ms"],
-                    }
-                    for name, metrics in top_agents
-                ],
-            })
-        else:
-            # Orchestrator not running - return portfolio data only
+            if metrics:
+                return jsonify({
+                    "status": "ok",
+                    "timestamp_ms": timestamp_ms,
+                    "portfolio_usd": portfolio_usd,
+                    "total_gains_usd": metrics["total_gains_usd"],
+                    "gains_per_second": metrics["gains_per_second"],
+                    "gains_per_ms": metrics["gains_per_ms"],
+                    "target_gains_per_ms": 0.000487,  # $0.487/s = $1M/day
+                    "progress_pct": (metrics["gains_per_ms"] / 0.000487) * 100 if metrics["gains_per_ms"] > 0 else 0,
+                    "trade_count": metrics["trade_count"],
+                    "cycle_count": metrics["cycle_count"],
+                    "avg_latency_ms": metrics["avg_latency_ms"],
+                    "cycle_signals": metrics["cycle_signals"],
+                    "cycle_executed": metrics["cycle_executed"],
+                })
+            else:
+                # Metrics table exists but no data yet
+                return jsonify({
+                    "status": "initializing",
+                    "timestamp_ms": timestamp_ms,
+                    "portfolio_usd": portfolio_usd,
+                    "message": "Orchestrator initializing... metrics will appear shortly",
+                })
+        except Exception as e:
+            # Metrics table doesn't exist or orchestrator not running
             return jsonify({
                 "status": "orchestrator_not_running",
                 "timestamp_ms": timestamp_ms,
                 "portfolio_usd": portfolio_usd,
-                "message": "RealTimeOrchestrator not initialized. Start orchestrator_v2.py with REALTIME_ORCHESTRATION=1",
+                "message": "RealtimeOrchestrator not yet running. Starting... check again in 10s",
+                "error_detail": str(e)
             })
 
     except Exception as e:
