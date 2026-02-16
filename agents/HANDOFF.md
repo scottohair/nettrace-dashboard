@@ -1,3 +1,28 @@
+## 2026-02-16 Claude Code Handoff — Coinbase Derivatives Trading Enabled
+
+- **What I did**:
+  - Wired perpetual futures execution through `CoinbaseDerivativesConnector` in `realtime_orchestrator.py`
+  - Fixed `ORCH_MAX_LEVERAGE` default from 5.0 to 3.0 to match connector hard cap
+  - Orchestrator now routes perp orders through `_orch_deriv.place_perp_order()` with GoalValidator gating
+  - Conservative launch: 1x leverage forced for all perp orders
+  - SELL direction uses `reduce_only=True`; spot fallback on any perp failure
+  - Added perp position monitoring to `exit_manager.py`: liquidation distance (<50%), margin health, unrealized loss (>1% portfolio), take profit (>2% gain)
+  - Enabled `PERP_TRADING_ENABLED=1` in `.env` with all safety params
+- **What's next**:
+  - Monitor first perp executions in `flywheel_controller_stdout.log`
+  - Codex: Consider adding perp-specific signal agents (funding rate arb, basis trades)
+  - Evaluate whether to increase leverage from 1x after stable operation (requires Scott approval)
+- **Blockers**: None
+- **Deploy status**: Changes ready for deploy. 4 independent safety gates on leverage (GoalValidator, connector, orchestrator cap, .env config)
+
+### Safety Gates Active (4 layers):
+1. `PERP_MAX_LEVERAGE=3.0` in .env (hard cap)
+2. `CoinbaseDerivativesConnector.place_perp_order()` rejects leverage > MAX_LEVERAGE
+3. `GoalValidator.should_trade_perp()` scales confidence threshold with leverage
+4. Orchestrator forces `leverage=1.0` for conservative launch
+
+---
+
 ## 2026-02-14 21:45 UTC Claude Code → Codex: v77 Phase 1 Complete ✅ READY FOR INTEGRATION
 
 ### 🎯 MISSION: v77 Real-Time Millisecond-Level Portfolio Orchestrator
@@ -83,6 +108,30 @@ cd ~/src/quant && /Users/scott/.fly/bin/flyctl deploy --remote-only
 **Blockers:** None. Everything compiles and tests pass.
 
 **Previous context:** See v76 handoff below for system state before orchestrator.
+
+---
+
+## 2026-02-15 03:55 UTC Codex → Claude: Derivatives flywheel hooks added
+- Added Coinbase perp discovery + ticker helper: `agents/exchange_connector.py` now has `list_products`, `list_perpetual_products`, `get_ticker`.
+- Realtime orchestrator now registers with `CreativeAgentBridge`, prefers perps when available (maps base→perp, executes on perp product_id, records `used_perp` flag).
+- In-process funding loop added inside realtime orchestrator (default on): scans FUTURE_PERPETUAL products and emits BUY/SELL via CreativeAgentBridge. Config: `ORCH_FUNDING_ENABLED`, `FUNDING_INTERVAL_S`, `FUNDING_THRESHOLD_PCT`.
+- Standalone `agents/derivatives_funding_agent.py` still exists but orchestrator_v2 entry is disabled to avoid double-running; in-process loop is the primary path.
+- Perp leverage guardrails: `COINBASE_PERP_MAX_LEVERAGE` (default 3.0x) and `COINBASE_PERP_MAX_NOTIONAL_USD` gates applied on CoinbaseTrader for all BUYs; blocks oversize perp orders before send.
+- Dynamic leverage + caps in executor: `ORCH_BASE_LEVERAGE` (1x), `ORCH_MAX_LEVERAGE` (5x), `ORCH_MAKER_OFFSET_BPS` (8 bps), per-asset/theme caps `ORCH_ASSET_PCT_CAP` (35%), `ORCH_ASSET_USD_CAP` (0=off), `ORCH_THEME_PCT_CAP` (30%), window `ORCH_NOTIONAL_WINDOW_S` (15m). Executor scales notional by confidence and blocks if caps exceeded; records usage per asset/theme.
+- Basis factory: funding loop also emits basis signals when perp vs spot deviates > max(5 bps, FUNDING_THRESHOLD_PCT), tagging `basis_factory` agent.
+
+### What’s next (please pick up)
+1) QC: run `python3 -m pytest tests/ -x -q` and `python3 agents/realtime_orchestrator.py --mock --duration 10` to ensure imports ok.  
+2) Confirm Coinbase CDP creds present; funding loop relies on `list_perpetual_products`.  
+3) Enhance perp mapping if Coinbase product_id naming differs (currently base split on '-').  
+4) Add leverage/notional caps for perps in `_execute_signals` (today $3/order) or introduce dedicated `DerivativesExecutor` if needed.  
+5) Deploy when green: `/Users/scott/.fly/bin/flyctl deploy --remote-only`.
+
+### Notes
+- Funding threshold envs: `FUNDING_INTERVAL_S` (default 60), `FUNDING_THRESHOLD_PCT` (default 0.02%).  
+- Perp preference toggle: `ORCH_PREFER_PERPS` (default on).  
+- Execution notional envs: `ORCH_ORDER_USD` (spot default $3), `ORCH_PERP_ORDER_USD` (perps default same). Still post_only maker; scale after live fill checks.
+- CreativeAgentBridge is in-process; funding loop runs inside orchestrator so signals flow. If you re-enable standalone funding agent, add IPC (e.g., POST /api/v1/signals/push).
 
 ---
 

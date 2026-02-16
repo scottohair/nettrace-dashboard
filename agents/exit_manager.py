@@ -103,6 +103,17 @@ except Exception as _rc_err:
     _risk_ctrl = None
     logger.error("RISK CONTROLLER FAILED TO LOAD: %s — exit_manager using fallback calculations", _rc_err)
 
+# Derivatives connector for perp position monitoring
+try:
+    from coinbase_derivatives_connector import CoinbaseDerivativesConnector
+    _deriv_connector = CoinbaseDerivativesConnector()
+except Exception:
+    try:
+        from agents.coinbase_derivatives_connector import CoinbaseDerivativesConnector
+        _deriv_connector = CoinbaseDerivativesConnector()
+    except Exception:
+        _deriv_connector = None
+
 
 def _fetch_json(url, headers=None, timeout=10):
     """HTTP GET JSON helper."""
@@ -1371,8 +1382,9 @@ class ExitManager:
                 MAX_CONCENTRATION_PCT = 0.25  # 25% max per asset
                 TARGET_CONCENTRATION_PCT = 0.18  # sell down to 18%
                 QUOTE_CURRENCIES = {"USDC", "USD"}
+                RESERVE_ASSETS = {"BTC", "USD", "USDC"}  # Treasury — never auto-sell
                 for base_currency, held_amount in holdings.items():
-                    if base_currency in QUOTE_CURRENCIES or held_amount <= 0:
+                    if base_currency in QUOTE_CURRENCIES or base_currency in RESERVE_ASSETS or held_amount <= 0:
                         continue
                     try:
                         # Try common pair formats (cached)
@@ -1405,6 +1417,65 @@ class ExitManager:
                                     "concentration_rebalance")
                     except Exception as e:
                         logger.error("EXIT_MGR: Concentration check error %s: %s", base_currency, e)
+
+                # === PERP POSITION MONITORING ===
+                # Check all open perpetual positions for emergency conditions
+                if _deriv_connector and _deriv_connector.enabled:
+                    try:
+                        perp_positions = _deriv_connector.get_positions()
+                        margin = _deriv_connector.margin_health()
+                        for ppos in perp_positions:
+                            ppid = ppos.get("product_id", "")
+                            psize = ppos.get("size", 0)
+                            if psize <= 0:
+                                continue
+
+                            # Check 1: Liquidation distance < 50% → emergency close
+                            liq_dist = _deriv_connector.liquidation_distance(ppid)
+                            if liq_dist is not None and liq_dist < 50.0:
+                                logger.warning(
+                                    "EXIT_MGR: PERP EMERGENCY CLOSE %s — liquidation distance %.1f%% < 50%%",
+                                    ppid, liq_dist)
+                                _deriv_connector.close_position(ppid)
+                                continue
+
+                            # Check 2: Margin health unhealthy → close position
+                            if not margin.get("healthy", True):
+                                logger.warning(
+                                    "EXIT_MGR: PERP MARGIN CLOSE %s — margin_ratio=%.2f, liq_buffer=%.1f%%",
+                                    ppid, margin.get("margin_ratio", 0), margin.get("liquidation_buffer_pct", 0))
+                                _deriv_connector.close_position(ppid)
+                                continue
+
+                            # Check 3: Unrealized loss > 1% of portfolio → close
+                            unrealized = ppos.get("unrealized_pnl", 0)
+                            if portfolio_value > 0 and unrealized < 0:
+                                loss_pct = abs(unrealized) / portfolio_value
+                                if loss_pct > 0.01:
+                                    logger.warning(
+                                        "EXIT_MGR: PERP LOSS CLOSE %s — unrealized $%.2f = %.2f%% of portfolio",
+                                        ppid, unrealized, loss_pct * 100)
+                                    _deriv_connector.close_position(ppid)
+                                    continue
+
+                            # Check 4: Take profit > 2% gain → close
+                            entry_px = ppos.get("entry_price", 0)
+                            mark_px = ppos.get("mark_price", 0)
+                            if entry_px > 0 and mark_px > 0:
+                                side = ppos.get("side", "LONG").upper()
+                                if side in ("LONG", "BUY"):
+                                    gain_pct = (mark_px - entry_px) / entry_px
+                                else:
+                                    gain_pct = (entry_px - mark_px) / entry_px
+                                if gain_pct >= 0.02:
+                                    logger.info(
+                                        "EXIT_MGR: PERP TAKE PROFIT %s — gain %.2f%% >= 2%%",
+                                        ppid, gain_pct * 100)
+                                    _deriv_connector.close_position(ppid)
+                                    continue
+
+                    except Exception as e:
+                        logger.error("EXIT_MGR: Perp monitoring error: %s", e)
 
                 for pair in pairs_to_check:
                     try:

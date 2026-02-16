@@ -29,7 +29,11 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import threading
-from collections import defaultdict
+from collections import defaultdict, deque
+import contextlib
+
+# Shared signal bridge for creative agents
+from creative_agent_bridge import CreativeAgentBridge
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -44,11 +48,27 @@ if _env_path.exists():
 
 # v77 Phase 3: Import Coinbase trading for live execution
 try:
-    from exchange_connector import CoinbaseTrader
+    from exchange_connector import CoinbaseTrader, PriceFeed
     COINBASE_AVAILABLE = True
 except Exception as e:
     COINBASE_AVAILABLE = False
     logger.warning(f"CoinbaseTrader unavailable: {e} - using mock execution")
+
+# Derivatives connector for margin health checks on perp orders
+try:
+    from coinbase_derivatives_connector import CoinbaseDerivativesConnector
+    _orch_deriv = CoinbaseDerivativesConnector()
+except Exception:
+    _orch_deriv = None
+
+# GoalValidator for perp trade gating
+try:
+    from agent_goals import GoalValidator
+except Exception:
+    try:
+        from agents.agent_goals import GoalValidator
+    except Exception:
+        GoalValidator = None
 
 logging.basicConfig(
     level=logging.INFO,
@@ -67,6 +87,19 @@ CYCLE_MAX_MS = float(os.environ.get("ORCH_CYCLE_MAX_MS", "500"))
 EXECUTION_LATENCY_TARGET_MS = float(os.environ.get("ORCH_EXEC_LATENCY_MS", "30"))
 SIGNAL_COLLECTION_TIMEOUT_MS = float(os.environ.get("ORCH_SIGNAL_TIMEOUT_MS", "50"))
 CAPITAL_REBALANCE_INTERVAL_S = int(os.environ.get("ORCH_CAPITAL_REBALANCE_S", "60"))
+PREFER_PERPS = os.environ.get("ORCH_PREFER_PERPS", "1").lower() in ("1", "true", "yes")
+FUNDING_ENABLED = os.environ.get("ORCH_FUNDING_ENABLED", "1").lower() in ("1", "true", "yes")
+FUNDING_INTERVAL_S = float(os.environ.get("FUNDING_INTERVAL_S", "60"))
+FUNDING_THRESHOLD_PCT = float(os.environ.get("FUNDING_THRESHOLD_PCT", "0.02"))  # 2 bps default
+ORDER_NOTIONAL_USD = float(os.environ.get("ORCH_ORDER_USD", "3.0"))
+PERP_ORDER_NOTIONAL_USD = float(os.environ.get("ORCH_PERP_ORDER_USD", str(ORDER_NOTIONAL_USD)))
+ORCH_MAX_LEVERAGE = float(os.environ.get("ORCH_MAX_LEVERAGE", "3.0"))
+ORCH_BASE_LEVERAGE = float(os.environ.get("ORCH_BASE_LEVERAGE", "1.0"))
+ORCH_MAKER_OFFSET_BPS = float(os.environ.get("ORCH_MAKER_OFFSET_BPS", "8.0"))  # 8 bps from mid
+ORCH_ASSET_PCT_CAP = float(os.environ.get("ORCH_ASSET_PCT_CAP", "0.35"))       # 35% of portfolio per asset
+ORCH_ASSET_USD_CAP = float(os.environ.get("ORCH_ASSET_USD_CAP", "0.0"))        # absolute cap; 0 disables
+ORCH_THEME_PCT_CAP = float(os.environ.get("ORCH_THEME_PCT_CAP", "0.30"))       # 30% per theme
+NOTIONAL_WINDOW_S = float(os.environ.get("ORCH_NOTIONAL_WINDOW_S", "900"))     # 15-minute rolling window
 
 # Urgency levels and priorities
 URGENCY_PRIORITIES = {
@@ -337,6 +370,10 @@ class RealtimeOrchestrator:
         self.cycle_count = 0
         self.total_latency_ms = 0.0
         self.running = False
+        self.perp_map = {}  # base -> perp product_id
+        self._background_tasks = []
+        self.asset_notional = defaultdict(deque)  # asset -> deque[(ts, usd)]
+        self.theme_notional = defaultdict(deque)  # theme -> deque[(ts, usd)]
 
         # v77 Phase 3: Initialize Coinbase trader for live execution
         self.trader = None
@@ -344,9 +381,124 @@ class RealtimeOrchestrator:
             try:
                 self.trader = CoinbaseTrader()
                 logger.info("CoinbaseTrader initialized for live execution")
+                if PREFER_PERPS:
+                    self._refresh_perp_mapping()
             except Exception as e:
                 logger.warning(f"Failed to initialize CoinbaseTrader: {e}")
                 self.trader = None
+
+        # Register with CreativeAgentBridge so creative agents can push signals directly
+        try:
+            CreativeAgentBridge.set_orchestrator(self)
+        except Exception:
+            logger.warning("CreativeAgentBridge unavailable; signals will queue locally")
+
+    def _start_background_tasks(self):
+        """Kick off background coroutines (funding scan, etc.)."""
+        if FUNDING_ENABLED and self.trader:
+            self._background_tasks.append(asyncio.create_task(self._funding_loop()))
+
+    # ------------------------------------------------------------------ #
+    # Derivatives helpers
+    def _refresh_perp_mapping(self):
+        """Build mapping base -> preferred perpetual product_id."""
+        if not self.trader or not hasattr(self.trader, "list_perpetual_products"):
+            return
+        try:
+            perps = self.trader.list_perpetual_products() or []
+        except Exception as e:
+            logger.warning(f"Failed to load perpetual products: {e}")
+            return
+
+        mapping = {}
+        for p in perps:
+            if not isinstance(p, dict):
+                continue
+            pid = str(p.get("product_id", "")).upper()
+            if not pid:
+                continue
+            base = (
+                str(p.get("base_currency_id") or p.get("base_currency") or pid.split("-")[0])
+                .replace("USDC", "")
+                .replace("USD", "")
+                .upper()
+            )
+            quote = str(p.get("quote_currency_id") or p.get("quote_currency") or "").upper()
+            # Prefer USD/USDC-settled perps
+            score = 0
+            if quote in {"USD", "USDC"}:
+                score += 2
+            if "PERP" in pid:
+                score += 1
+            prev = mapping.get(base)
+            if not prev or score > prev["score"]:
+                mapping[base] = {"pid": pid, "score": score}
+
+        self.perp_map = {k: v["pid"] for k, v in mapping.items()}
+        if self.perp_map:
+            logger.info(f"Perp mapping ready for {len(self.perp_map)} bases: {list(self.perp_map.keys())}")
+
+    def _perp_for_pair(self, pair: str) -> Optional[str]:
+        """Return perp product_id for a spot pair if available."""
+        if not PREFER_PERPS or not self.perp_map:
+            return None
+        if not pair:
+            return None
+        try:
+            base = str(pair).split("-")[0].upper()
+        except Exception:
+            return None
+        return self.perp_map.get(base)
+
+    # ------------------------------------------------------------------ #
+    # Notional caps and leverage
+    def _prune_window(self, dq: deque):
+        cutoff = time.time() - NOTIONAL_WINDOW_S
+        while dq and dq[0][0] < cutoff:
+            dq.popleft()
+
+    def _record_notional(self, asset: str, theme: str, notional_usd: float):
+        now = time.time()
+        dq_a = self.asset_notional[asset]
+        dq_t = self.theme_notional[theme]
+        dq_a.append((now, notional_usd))
+        dq_t.append((now, notional_usd))
+        self._prune_window(dq_a)
+        self._prune_window(dq_t)
+
+    def _notional_ok(self, asset: str, theme: str, request_usd: float, portfolio: float) -> Tuple[bool, str]:
+        dq_a = self.asset_notional[asset]
+        dq_t = self.theme_notional[theme]
+        self._prune_window(dq_a)
+        self._prune_window(dq_t)
+        asset_used = sum(v for _, v in dq_a)
+        theme_used = sum(v for _, v in dq_t)
+
+        if ORCH_ASSET_USD_CAP > 0 and asset_used + request_usd > ORCH_ASSET_USD_CAP:
+            return False, f"asset_usd_cap:{asset_used + request_usd:.2f}>{ORCH_ASSET_USD_CAP:.2f}"
+
+        if ORCH_ASSET_PCT_CAP > 0 and portfolio > 0:
+            if (asset_used + request_usd) > portfolio * ORCH_ASSET_PCT_CAP:
+                return False, f"asset_pct_cap:{(asset_used + request_usd)/portfolio:.2%}>{ORCH_ASSET_PCT_CAP:.0%}"
+
+        if ORCH_THEME_PCT_CAP > 0 and portfolio > 0:
+            if (theme_used + request_usd) > portfolio * ORCH_THEME_PCT_CAP:
+                return False, f"theme_pct_cap:{(theme_used + request_usd)/portfolio:.2%}>{ORCH_THEME_PCT_CAP:.0%}"
+
+        return True, ""
+
+    def _leverage_for_signal(self, confidence: float, perf_gains_ms: float) -> float:
+        base = max(1.0, ORCH_BASE_LEVERAGE)
+        max_lv = max(base, ORCH_MAX_LEVERAGE)
+        # Confidence-driven ramp: 0.6 -> base, 0.9 -> max
+        lvl = base
+        if confidence > 0.6:
+            frac = min(1.0, (confidence - 0.6) / 0.3)
+            lvl = base + frac * (max_lv - base)
+        # Downshift if performance negative
+        if perf_gains_ms < 0:
+            lvl = max(1.0, base * 0.5)
+        return max(1.0, min(max_lv, lvl))
 
     async def run(self, duration_s: Optional[float] = None):
         """Main orchestration loop."""
@@ -355,6 +507,7 @@ class RealtimeOrchestrator:
 
         logger.info(f"Starting RealtimeOrchestrator (mock_mode={self.mock_mode}, target_cycle={CYCLE_TARGET_MS}ms)")
         logger.info("Entering main orchestration loop...")
+        self._start_background_tasks()
 
         while self.running:
             cycle_start_ms = time.time() * 1000
@@ -420,6 +573,13 @@ class RealtimeOrchestrator:
             # Maintain target cycle time
             await asyncio.sleep(0.001)  # 1ms minimum sleep
 
+        # Shutdown background tasks
+        self.running = False
+        for task in self._background_tasks:
+            task.cancel()
+            with contextlib.suppress(Exception):
+                await task
+
     async def _execute_signals(self, routed_signals: Dict[str, List[Tuple[str, Dict, float]]]) -> List[Dict]:
         """Execute signals across multiple regions in parallel."""
         executed = []
@@ -431,48 +591,127 @@ class RealtimeOrchestrator:
             for agent_name, signal, score in top_signals:
                 pair = signal.get("pair")
                 direction = signal.get("direction", "HOLD").upper()
+                confidence = float(signal.get("confidence", 0.5))
+                theme = agent_name.split("_")[0] if agent_name else "unknown"
+
+                # Defaults for tracking (set properly in live path)
+                use_perp = False
+                exec_pair = pair
 
                 # v77 Phase 3: Execute live orders via Coinbase
                 if not self.mock_mode and self.trader and direction != "HOLD":
                     try:
-                        # Calculate order size (small for testing)
-                        order_usd = 3.0  # $3 per order (configurable)
+                        # Prefer perpetual if available (with margin health check)
+                        perp_pair = self._perp_for_pair(pair)
+                        use_perp = False
+                        if perp_pair and _orch_deriv and _orch_deriv.enabled:
+                            margin = _orch_deriv.margin_health()
+                            if direction == "SELL" or margin.get("can_open_new", False):
+                                # Gate through GoalValidator.should_trade_perp()
+                                margin_ratio = margin.get("margin_ratio", 0)
+                                if GoalValidator and hasattr(GoalValidator, "should_trade_perp"):
+                                    use_perp = GoalValidator.should_trade_perp(
+                                        confidence=confidence,
+                                        confirming_signals=int(signal.get("confirming_signals", 2)),
+                                        direction=direction,
+                                        market_regime=signal.get("market_regime", "neutral"),
+                                        leverage=1.0,  # Conservative launch: 1x only
+                                        margin_health=margin_ratio,
+                                    )
+                                else:
+                                    use_perp = confidence >= 0.70
+                                if not use_perp:
+                                    logger.info(f"GoalValidator blocked perp for {pair}, using spot")
+                            else:
+                                logger.info(f"Perp margin unhealthy, falling back to spot for {pair}")
+                        exec_pair = perp_pair if use_perp else pair
+
+                        # Portfolio + leverage
+                        portfolio_value = self._get_portfolio_value()
+                        perf = self.performance_tracker.snapshot()
+                        if use_perp:
+                            leverage = 1.0  # Conservative launch: force 1x for perps
+                        else:
+                            leverage = self._leverage_for_signal(confidence, perf.get("gains_per_ms", 0.0))
+                        base_order_usd = PERP_ORDER_NOTIONAL_USD if use_perp else ORDER_NOTIONAL_USD
+                        order_usd = base_order_usd * leverage
 
                         # Get current price from trader
-                        ticker = self.trader.get_ticker(pair)
+                        ticker = self.trader.get_ticker(exec_pair)
                         if not ticker or "price" not in ticker:
-                            logger.warning(f"Could not get price for {pair}, skipping")
-                            continue
+                            # Perp ticker may differ; fall back to spot price
+                            if use_perp:
+                                ticker = self.trader.get_ticker(pair)
+                            if not ticker or "price" not in ticker:
+                                logger.warning(f"Could not get price for {exec_pair}, skipping")
+                                continue
 
                         current_price = float(ticker["price"])
                         base_size = order_usd / current_price
 
-                        # Calculate limit price (slightly better than market)
-                        if direction == "BUY":
-                            # Buy 0.1% below market for maker fills
-                            limit_price = current_price * 0.999
-                        else:  # SELL
-                            # Sell 0.1% above market for maker fills
-                            limit_price = current_price * 1.001
+                        # Notional caps (asset/theme)
+                        asset = pair.split("-")[0] if pair else "UNKNOWN"
+                        allowed, reason = self._notional_ok(asset, theme, order_usd, portfolio_value)
+                        if not allowed:
+                            logger.info(f"Skip {exec_pair} by {agent_name}: cap {reason}")
+                            continue
 
-                        # Place limit order (post_only=True enforces maker fee 0.4%, not taker 1.2%)
-                        result = self.trader.place_limit_order(
-                            product_id=pair,
-                            side=direction,
-                            base_size=base_size,
-                            limit_price=limit_price,
-                            post_only=True,
-                            signal_confidence=signal.get("confidence", 0.5)
-                        )
+                        # Calculate limit price (slightly better than market)
+                        offset = ORCH_MAKER_OFFSET_BPS / 10000.0
+                        if direction == "BUY":
+                            limit_price = current_price * (1 - offset)
+                        else:  # SELL
+                            limit_price = current_price * (1 + offset)
+
+                        # Route through perp connector or spot
+                        if use_perp:
+                            reduce_only = (direction == "SELL")
+                            result = _orch_deriv.place_perp_order(
+                                product_id=exec_pair,
+                                side=direction,
+                                size=base_size,
+                                price=limit_price,
+                                leverage=1.0,
+                                post_only=True,
+                                reduce_only=reduce_only,
+                            )
+                            # If perp order fails, fall back to spot
+                            err = result.get("error_response", {})
+                            if err.get("error") in ("PERP_DISABLED", "MARGIN_UNHEALTHY", "LEVERAGE_CAP", "ORDER_ERROR"):
+                                logger.warning(f"Perp order failed ({err.get('error')}), falling back to spot for {pair}")
+                                use_perp = False
+                                exec_pair = pair
+                                result = self.trader.place_limit_order(
+                                    product_id=pair,
+                                    side=direction,
+                                    base_size=base_size,
+                                    limit_price=limit_price,
+                                    post_only=True,
+                                    signal_confidence=signal.get("confidence", 0.5)
+                                )
+                        else:
+                            # Place spot limit order (post_only=True enforces maker fee)
+                            result = self.trader.place_limit_order(
+                                product_id=exec_pair,
+                                side=direction,
+                                base_size=base_size,
+                                limit_price=limit_price,
+                                post_only=True,
+                                signal_confidence=signal.get("confidence", 0.5)
+                            )
 
                         # Check result
                         order_id = result.get("order_id") or result.get("id")
+                        if not order_id and "success_response" in result:
+                            order_id = result["success_response"].get("order_id")
                         if order_id:
+                            venue = "PERP" if use_perp else "SPOT"
                             logger.info(
-                                f"✅ Order placed: {direction} {pair} "
+                                f"✅ [{venue}] Order placed: {direction} {exec_pair} "
                                 f"size={base_size:.6f} @ ${limit_price:.2f} "
-                                f"(market=${current_price:.2f}) | agent={agent_name} | order_id={order_id}"
+                                f"(market=${current_price:.2f}) | agent={agent_name} | lev={leverage:.2f}x | order_id={order_id}"
                             )
+                            self._record_notional(asset, theme, order_usd)
                             pnl = 0.0  # Real PnL tracked by exit_manager
                         else:
                             error_msg = result.get("error_response", {}).get("message", "Unknown error")
@@ -491,6 +730,8 @@ class RealtimeOrchestrator:
                 executed.append({
                     "agent_name": agent_name,
                     "pair": pair,
+                    "product_id": exec_pair,
+                    "used_perp": use_perp,
                     "direction": direction,
                     "realized_pnl_usd": pnl,
                     "region": region,
@@ -499,6 +740,88 @@ class RealtimeOrchestrator:
                 })
 
         return executed
+
+    async def _funding_loop(self):
+        """Generate funding skew signals for perps."""
+        logger.info(f"Funding loop enabled (interval={FUNDING_INTERVAL_S}s, threshold={FUNDING_THRESHOLD_PCT}%)")
+        while self.running:
+            try:
+                perps = self.trader.list_perpetual_products() or []
+            except Exception as e:
+                logger.error(f"Funding loop: failed to list perps: {e}")
+                await asyncio.sleep(FUNDING_INTERVAL_S)
+                continue
+
+            for p in perps:
+                if not isinstance(p, dict):
+                    continue
+                pid = str(p.get("product_id", "")).upper()
+                if not pid:
+                    continue
+
+                def _to_pct(val):
+                    try:
+                        v = float(val)
+                        return v * 100.0 if abs(v) < 0.5 else v
+                    except Exception:
+                        return None
+
+                fr = (
+                    _to_pct(p.get("current_funding_rate"))
+                    or _to_pct(p.get("funding_rate"))
+                    or _to_pct(p.get("next_funding_rate"))
+                )
+                if fr is None or abs(fr) < FUNDING_THRESHOLD_PCT:
+                    continue
+
+                direction = "SELL" if fr > 0 else "BUY"
+                confidence = min(1.0, abs(fr) / 0.03)  # 3 bps → full confidence
+                urgency = "high" if abs(fr) >= 0.05 else "medium"
+                reasoning = f"Funding {fr:.3f}% -> {direction} perp to collect funding"
+
+                ok = CreativeAgentBridge.broadcast_signal(
+                    agent_name="derivatives_funding",
+                    pair=pid,
+                    direction=direction,
+                    confidence=confidence,
+                    urgency=urgency,
+                    reasoning=reasoning,
+                    region_hint=None,
+                    expected_hold_ms=3600 * 1000,
+                )
+                if ok:
+                    logger.info(f"Funding signal: {pid} {direction} fr={fr:.3f}% conf={confidence:.2f}")
+
+                # Basis arb signals (perp vs spot)
+                spot_pid = f"{p.get('base_currency_id', pid.split('-')[0])}-USD"
+                spot_price = PriceFeed.get_price(spot_pid) or PriceFeed.get_price(pid.replace("USDC", "USD"))
+                perp_price = p.get("price") or p.get("mark_price") or None
+                try:
+                    perp_price = float(perp_price) if perp_price is not None else None
+                except Exception:
+                    perp_price = None
+
+                if spot_price and perp_price:
+                    basis_pct = (perp_price - spot_price) / spot_price * 100.0
+                    basis_threshold = max(FUNDING_THRESHOLD_PCT, 0.05)  # at least 5 bps
+                    if abs(basis_pct) >= basis_threshold:
+                        basis_dir = "SELL" if basis_pct > 0 else "BUY"
+                        b_conf = min(1.0, abs(basis_pct) / 0.10)  # 10 bps → full confidence
+                        b_reason = f"Basis {basis_pct:.3f}% ({perp_price:.2f} vs {spot_price:.2f})"
+                        okb = CreativeAgentBridge.broadcast_signal(
+                            agent_name="basis_factory",
+                            pair=pid,
+                            direction=basis_dir,
+                            confidence=b_conf,
+                            urgency="high" if abs(basis_pct) > 0.1 else "medium",
+                            reasoning=b_reason,
+                            region_hint=None,
+                            expected_hold_ms=900_000,  # 15m target
+                        )
+                        if okb:
+                            logger.info(f"Basis signal: {pid} {basis_dir} basis={basis_pct:.3f}% conf={b_conf:.2f}")
+
+            await asyncio.sleep(FUNDING_INTERVAL_S)
 
     def _persist_metrics_to_db(self, cycle_latency_ms: float, signal_count: int, executed_count: int):
         """Persist orchestrator metrics to database for API consumption."""
