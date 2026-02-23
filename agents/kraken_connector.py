@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Kraken Authenticated API Connector — read-only data access.
+"""Kraken API Connector — data access and authenticated trading.
 
 Provides access to:
   - Funding rates (for liquidation hunting)
   - Open interest (for leverage estimation)
   - Order book depth (for execution planning)
   - Recent trades (for microstructure analysis)
+  - Authenticated trading (order placement, cancellation, balances)
 
-All read-only (no trading permissions).
+Trading is gated through GoalValidator (70% confidence, 2+ signals).
+BE A MAKER: limit orders by default (Kraken maker fee 0.16%).
 """
 
 import base64
@@ -16,19 +18,37 @@ import hmac
 import json
 import logging
 import os
+import sqlite3
 import time
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
+try:
+    from agent_goals import GoalValidator
+except ImportError:
+    GoalValidator = None
+
 logger = logging.getLogger("kraken_connector")
+
+# Load .env if present
+_env_path = Path(__file__).parent / ".env"
+if _env_path.exists():
+    for _line in _env_path.read_text().splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _v = _line.split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip().strip('"'))
 
 # Load credentials from environment (set via flyctl secrets)
 API_KEY = os.environ.get("KRAKEN_API_KEY", "")
 PRIVATE_KEY = os.environ.get("KRAKEN_PRIVATE_KEY", "")
 API_URL = "https://api.kraken.com"
 API_VERSION = "0"
+
+# Trade tracking database
+KRAKEN_TRADE_DB = Path(__file__).parent / "kraken_trades.db"
 
 # Kraken pair mappings
 KRAKEN_PAIRS = {
@@ -61,8 +81,29 @@ def _sign_request(endpoint: str, data: dict, nonce: str) -> tuple:
     return signature.digest(), postdata
 
 
+def _init_trade_db():
+    """Initialize Kraken trade tracking database."""
+    db = sqlite3.connect(str(KRAKEN_TRADE_DB))
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS kraken_trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pair TEXT NOT NULL,
+            side TEXT NOT NULL,
+            volume REAL NOT NULL,
+            price REAL,
+            order_type TEXT DEFAULT 'limit',
+            txid TEXT,
+            status TEXT DEFAULT 'pending',
+            confidence REAL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    db.commit()
+    return db
+
+
 class KrakenConnector:
-    """Read-only Kraken API access (data collection only)."""
+    """Kraken API connector — data access and authenticated trading."""
 
     @staticmethod
     def get_funding_rate(pair: str) -> dict:
@@ -193,26 +234,219 @@ class KrakenConnector:
             logger.error(f"Failed to get 24h volume for {pair}: {e}")
             return {"error": str(e)}
 
+    # =========================================================================
+    # Private (authenticated) API methods
+    # =========================================================================
+
+    @staticmethod
+    def _private_request(endpoint, data=None):
+        """Make authenticated POST to Kraken private API.
+
+        Uses existing _sign_request() for HMAC-SHA512 signing.
+        Returns parsed JSON response or error dict.
+        """
+        if not API_KEY or not PRIVATE_KEY:
+            return {"error": ["Kraken API keys not configured"]}
+        try:
+            url_path = f"/{API_VERSION}/private/{endpoint}"
+            url = f"{API_URL}{url_path}"
+            nonce = str(int(time.time() * 1000))
+            post_data = data or {}
+            post_data["nonce"] = nonce
+            sig, postdata = _sign_request(url_path, post_data, nonce)
+            headers = {
+                "API-Key": API_KEY,
+                "API-Sign": base64.b64encode(sig).decode(),
+                "Content-Type": "application/x-www-form-urlencoded",
+            }
+            req = urllib.request.Request(
+                url, data=postdata.encode(), headers=headers, method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                return json.loads(resp.read())
+        except Exception as e:
+            logger.error(f"Kraken private request {endpoint} failed: {e}")
+            return {"error": [str(e)]}
+
+    @staticmethod
+    def place_order(
+        pair: str,
+        side: str,
+        volume: float,
+        order_type: str = "limit",
+        price: float = None,
+        confidence: float = 0.70,
+    ) -> dict:
+        """Place an order on Kraken, gated through GoalValidator.
+
+        BE A MAKER: defaults to limit orders (0.16% fee vs 0.26% taker).
+
+        Args:
+            pair: Standard pair (e.g., "BTC-USD")
+            side: "buy" or "sell"
+            volume: Order size in base currency
+            order_type: "limit" (default, maker) or "market"
+            price: Required for limit orders
+            confidence: Signal confidence (0-1), must be >= 0.70
+
+        Returns:
+            dict with txid on success, error on failure
+        """
+        # GoalValidator gate
+        direction = side.upper()
+        if GoalValidator:
+            allowed = GoalValidator.should_trade(confidence, 2, direction, "neutral")
+            if not allowed:
+                logger.warning(
+                    "GoalValidator blocked %s %s (conf=%.2f)", direction, pair, confidence
+                )
+                return {"error": f"GoalValidator blocked: {direction} {pair} conf={confidence:.2f}"}
+        elif confidence < 0.70:
+            logger.warning("No GoalValidator, confidence %.2f < 0.70 — blocking", confidence)
+            return {"error": f"Confidence {confidence:.2f} below 0.70 threshold"}
+
+        # BE A MAKER: reject market orders unless explicitly requested
+        if order_type == "limit" and price is None:
+            return {"error": "Limit order requires price parameter"}
+
+        kraken_pair = _get_kraken_pair(pair.split("-")[0]) + "USD"
+
+        order_data = {
+            "pair": kraken_pair,
+            "type": side.lower(),  # buy or sell
+            "ordertype": order_type,
+            "volume": str(volume),
+        }
+        if price is not None:
+            order_data["price"] = str(price)
+
+        logger.info(
+            "Placing %s %s order: %s %.6f @ %s (conf=%.2f)",
+            order_type, side, pair, volume, price or "market", confidence,
+        )
+
+        result = KrakenConnector._private_request("AddOrder", order_data)
+
+        # Record trade in DB
+        txid = None
+        status = "error"
+        if result.get("result"):
+            txid_list = result["result"].get("txid", [])
+            txid = txid_list[0] if txid_list else None
+            status = "submitted"
+            logger.info("Order submitted: txid=%s", txid)
+
+        try:
+            db = _init_trade_db()
+            db.execute(
+                """INSERT INTO kraken_trades
+                   (pair, side, volume, price, order_type, txid, status, confidence)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (pair, side.lower(), volume, price, order_type, txid, status, confidence),
+            )
+            db.commit()
+            db.close()
+        except Exception as e:
+            logger.error("Failed to record trade in DB: %s", e)
+
+        return result
+
+    @staticmethod
+    def cancel_order(txid: str) -> dict:
+        """Cancel an open order by transaction ID.
+
+        Args:
+            txid: Kraken transaction ID to cancel
+
+        Returns:
+            dict with count of cancelled orders or error
+        """
+        logger.info("Cancelling order: txid=%s", txid)
+        result = KrakenConnector._private_request("CancelOrder", {"txid": txid})
+
+        if result.get("result"):
+            # Update DB status
+            try:
+                db = _init_trade_db()
+                db.execute(
+                    "UPDATE kraken_trades SET status='cancelled' WHERE txid=?",
+                    (txid,),
+                )
+                db.commit()
+                db.close()
+            except Exception as e:
+                logger.error("Failed to update cancelled trade in DB: %s", e)
+
+        return result
+
+    @staticmethod
+    def get_open_orders() -> dict:
+        """Get all open orders.
+
+        Returns:
+            dict with open orders keyed by txid, or error
+        """
+        return KrakenConnector._private_request("OpenOrders")
+
+    @staticmethod
+    def get_closed_orders() -> dict:
+        """Get closed orders (trade history).
+
+        Returns:
+            dict with closed orders keyed by txid, or error
+        """
+        return KrakenConnector._private_request("ClosedOrders")
+
+    @staticmethod
+    def get_trade_balance() -> dict:
+        """Get trade balance (equity, margin, free margin).
+
+        Returns:
+            dict with eb (equity balance), tb (trade balance),
+            m (margin), n (unrealized P&L), etc.
+        """
+        return KrakenConnector._private_request("TradeBalance")
+
+    @staticmethod
+    def get_account_balance() -> dict:
+        """Get all asset balances.
+
+        Returns:
+            dict with asset codes as keys and balances as values
+        """
+        return KrakenConnector._private_request("Balance")
+
+    @staticmethod
+    def get_positions() -> dict:
+        """Get open margin positions.
+
+        Returns:
+            dict with open positions keyed by txid, or error
+        """
+        return KrakenConnector._private_request("OpenPositions")
+
 
 def test_kraken_connection():
-    """Test that Kraken API is accessible."""
+    """Test that Kraken API is accessible (public endpoints only).
+
+    Works without API keys — tests the public orderbook endpoint.
+    """
     logger.info("Testing Kraken API connection...")
 
     if not API_KEY or not PRIVATE_KEY:
-        logger.error("Kraken credentials not set")
-        return False
+        logger.warning("Kraken API keys not set — testing public endpoint only")
 
     try:
         # Test public endpoint (no auth required)
         result = KrakenConnector.get_orderbook("BTC-USD", depth=5)
         if "error" not in result:
-            logger.info(f"✓ Kraken connection OK: {result['pair']} orderbook fetched")
+            logger.info("Kraken connection OK: %s orderbook fetched", result["pair"])
             return True
         else:
-            logger.error(f"✗ Kraken API error: {result['error']}")
+            logger.error("Kraken API error: %s", result["error"])
             return False
     except Exception as e:
-        logger.error(f"✗ Kraken connection failed: {e}")
+        logger.error("Kraken connection failed: %s", e)
         return False
 
 

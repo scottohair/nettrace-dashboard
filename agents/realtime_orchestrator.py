@@ -85,6 +85,18 @@ except Exception:
     except Exception:
         pass
 
+# Kraken connector for crypto trading
+KRAKEN_AVAILABLE = False
+try:
+    from kraken_connector import KrakenConnector
+    KRAKEN_AVAILABLE = True
+except Exception:
+    try:
+        from agents.kraken_connector import KrakenConnector
+        KRAKEN_AVAILABLE = True
+    except Exception:
+        pass
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [ORCH] %(levelname)s %(message)s",
@@ -121,6 +133,10 @@ ORCH_ETRADE_ENABLED = os.environ.get("ORCH_ETRADE_ENABLED", "0").lower() in ("1"
 ORCH_ETRADE_DRY_RUN = os.environ.get("ORCH_ETRADE_DRY_RUN", "1").lower() in ("1", "true", "yes")
 ETRADE_DEFAULT_ACCOUNT_ID = os.environ.get("ETRADE_DEFAULT_ACCOUNT_ID", "")
 ETRADE_TOKEN_REFRESH_INTERVAL_S = float(os.environ.get("ETRADE_TOKEN_REFRESH_S", "5400"))  # 90 min
+
+# Kraken crypto trading configuration
+ORCH_KRAKEN_ENABLED = os.environ.get("ORCH_KRAKEN_ENABLED", "0").lower() in ("1", "true", "yes")
+ORCH_KRAKEN_DRY_RUN = os.environ.get("ORCH_KRAKEN_DRY_RUN", "1").lower() in ("1", "true", "yes")
 
 # Location Alpha Mode — optimized for local execution near exchange matching engines
 # When enabled, assumes ~1ms to Coinbase vs 50ms+ from Fly.io remote regions
@@ -702,6 +718,15 @@ class RealtimeOrchestrator:
             except Exception as e:
                 logger.warning("Failed to initialize E*Trade: %s", e)
 
+        # Kraken crypto trading initialization
+        self.kraken_connector = None
+        if ORCH_KRAKEN_ENABLED and KRAKEN_AVAILABLE and not mock_mode:
+            try:
+                self.kraken_connector = KrakenConnector()
+                logger.info("KrakenConnector initialized (dry_run=%s)", ORCH_KRAKEN_DRY_RUN)
+            except Exception as e:
+                logger.warning("Failed to initialize KrakenConnector: %s", e)
+
         # Register with CreativeAgentBridge so creative agents can push signals directly
         try:
             CreativeAgentBridge.set_orchestrator(self)
@@ -1022,6 +1047,13 @@ class RealtimeOrchestrator:
                         executed.append(equity_result)
                     continue
 
+                # Route Kraken signals to dedicated handler
+                if signal.get("venue_hint") == "kraken":
+                    kraken_result = await self._execute_kraken_signal(agent_name, signal, score, region)
+                    if kraken_result:
+                        executed.append(kraken_result)
+                    continue
+
                 pair = signal.get("pair")
                 direction = signal.get("direction", "HOLD").upper()
                 confidence = float(signal.get("confidence", 0.5))
@@ -1307,6 +1339,94 @@ class RealtimeOrchestrator:
             "timestamp_ms": time.time() * 1000,
         }
 
+    async def _execute_kraken_signal(self, agent_name, signal, score, region):
+        """Execute a crypto signal via Kraken.
+
+        Returns execution result dict or None if skipped.
+        """
+        pair = signal.get("pair", "")
+        direction = signal.get("direction", "HOLD").upper()
+        confidence = float(signal.get("confidence", 0.5))
+
+        if direction == "HOLD":
+            return None
+
+        # Gate: GoalValidator
+        if GoalValidator:
+            regime = signal.get("market_regime", "neutral")
+            n_signals = max(1, int(signal.get("confirming_signals", 1)))
+            if not GoalValidator.should_trade(confidence, n_signals, direction, regime):
+                logger.debug("Kraken signal %s blocked by GoalValidator", pair)
+                return None
+
+        # Get Kraken price
+        price = None
+        try:
+            vol_data = KrakenConnector.get_24h_volume(pair)
+            price = vol_data.get("last_price")
+        except Exception:
+            pass
+
+        if not price or price <= 0:
+            return None
+
+        # Dynamic trade sizing
+        try:
+            from risk_controller import get_controller
+            rc = get_controller()
+            portfolio_value = self._get_portfolio_value()
+            risk_params = rc.get_risk_params(portfolio_value)
+            max_trade_usd = risk_params.get("max_trade_usd", 5.0)
+        except Exception:
+            max_trade_usd = ORDER_NOTIONAL_USD
+
+        volume = max_trade_usd / price
+        order_usd = volume * price
+        pnl = 0.0
+
+        # Execute via Kraken
+        if self.kraken_connector and not ORCH_KRAKEN_DRY_RUN:
+            try:
+                result = KrakenConnector.place_order(
+                    pair=pair, side=direction.lower(), volume=volume,
+                    order_type="limit", price=price, confidence=confidence,
+                )
+                txid = None
+                if result and "result" in result:
+                    txids = result["result"].get("txid", [])
+                    txid = txids[0] if txids else None
+                dry_tag = ""
+                logger.info(
+                    "[KRAKEN%s] %s %s x%.6f @ $%.2f ($%.2f) | agent=%s | txid=%s",
+                    dry_tag, direction, pair, volume, price, order_usd, agent_name, txid,
+                )
+            except Exception as e:
+                logger.error("Kraken execution error: %s", e)
+        elif ORCH_KRAKEN_DRY_RUN and self.kraken_connector:
+            dry_tag = " [DRY-RUN]"
+            logger.info(
+                "[KRAKEN%s] %s %s x%.6f @ $%.2f ($%.2f) | agent=%s | txid=%s",
+                dry_tag, direction, pair, volume, price, order_usd, agent_name, "dry-run",
+            )
+        elif self.mock_mode:
+            import random
+            pnl = random.uniform(-0.5, 1.5)
+            logger.info("[MOCK-KRAKEN] %s %s x%.6f @ $%.2f", direction, pair, volume, price)
+
+        return {
+            "agent_name": agent_name,
+            "pair": pair,
+            "product_id": pair,
+            "used_perp": False,
+            "direction": direction,
+            "realized_pnl_usd": pnl,
+            "region": region,
+            "score": score,
+            "market_type": "crypto",
+            "venue": "kraken",
+            "timestamp_ms": time.time() * 1000,
+        }
+
     async def _etrade_token_refresh_loop(self):
         """Refresh E*Trade OAuth token every 90 min to avoid 2h inactivity timeout."""
         logger.info("E*Trade token refresh loop started (interval=%.0fs)", ETRADE_TOKEN_REFRESH_INTERVAL_S)
@@ -1545,7 +1665,17 @@ class RealtimeOrchestrator:
             except Exception as e:
                 logger.debug("Could not fetch E*Trade balance: %s", e)
 
-        return crypto_value + etrade_value
+        # Add Kraken balance if available
+        kraken_value = 0.0
+        if self.kraken_connector:
+            try:
+                balance = KrakenConnector.get_trade_balance()
+                if "result" in balance:
+                    kraken_value = float(balance["result"].get("eb", 0))  # equivalent balance
+            except Exception as e:
+                logger.debug("Could not fetch Kraken balance: %s", e)
+
+        return crypto_value + etrade_value + kraken_value
 
     def shutdown(self):
         """Graceful shutdown."""

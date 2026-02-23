@@ -263,6 +263,7 @@ class ExitManager:
                 hold_duration_hours REAL,
                 peak_price REAL,
                 volatility REAL,
+                venue TEXT DEFAULT 'coinbase',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE IF NOT EXISTS position_snapshots (
@@ -307,15 +308,42 @@ class ExitManager:
         """)
         self._db.commit()
 
-    def _get_trader(self):
-        """Lazy-load CoinbaseTrader to avoid import issues at startup."""
-        if self._trader is None:
-            try:
-                from exchange_connector import CoinbaseTrader
-                self._trader = CoinbaseTrader()
-            except Exception as e:
-                logger.error("Failed to load CoinbaseTrader: %s", e)
-        return self._trader
+    def _get_trader(self, venue=None):
+        """Lazy-load trader for the specified venue."""
+        venue = venue or "coinbase"
+
+        if venue == "coinbase":
+            if self._trader is None:
+                try:
+                    from exchange_connector import CoinbaseTrader
+                    self._trader = CoinbaseTrader()
+                except Exception as e:
+                    logger.error("Failed to load CoinbaseTrader: %s", e)
+            return self._trader
+
+        elif venue == "kraken":
+            if not hasattr(self, '_kraken_trader') or self._kraken_trader is None:
+                try:
+                    from kraken_connector import KrakenConnector
+                    self._kraken_trader = KrakenConnector()
+                except Exception as e:
+                    logger.error("Failed to load KrakenConnector: %s", e)
+                    self._kraken_trader = None
+            return self._kraken_trader
+
+        elif venue == "etrade":
+            if not hasattr(self, '_etrade_trader') or self._etrade_trader is None:
+                try:
+                    from etrade_connector import ETradeAuth, ETradeTrader
+                    auth = ETradeAuth()
+                    if auth.is_authenticated:
+                        self._etrade_trader = ETradeTrader(auth=auth)
+                except Exception as e:
+                    logger.error("Failed to load ETradeTrader: %s", e)
+                    self._etrade_trader = None
+            return self._etrade_trader
+
+        return None
 
     def _active_improvement_counts(self):
         items = self._improvements.get("items", []) if isinstance(self._improvements, dict) else []
@@ -975,11 +1003,23 @@ class ExitManager:
     # TRADE EXECUTION
     # ==========================================
 
-    def execute_exit(self, pair, amount, reason, exit_type="manual"):
+    def execute_exit(self, pair, amount, reason, exit_type="manual", venue=None):
         """Execute a SELL with optimized exit routing and retry logic."""
-        trader = self._get_trader()
+        venue = venue or "coinbase"
+
+        # E*Trade market hours gate — never execute equity exits when market is closed
+        if venue == "etrade":
+            try:
+                from agent_goals import GoalValidator
+                if hasattr(GoalValidator, "is_equity_market_open") and not GoalValidator.is_equity_market_open():
+                    logger.info("Skipping E*Trade exit for %s: market closed", pair)
+                    return False
+            except Exception:
+                pass
+
+        trader = self._get_trader(venue=venue)
         if not trader:
-            logger.error("EXIT FAILED: No trader available for %s", pair)
+            logger.error("EXIT FAILED: No trader available for %s (venue=%s)", pair, venue)
             return False
 
         current_price = _get_price(pair)
@@ -1160,11 +1200,11 @@ class ExitManager:
 
         self._db.execute(
             "INSERT INTO exit_events (pair, exit_type, reason, entry_price, exit_price, "
-            "amount, pnl_usd, pnl_pct, hold_duration_hours, peak_price, volatility) "
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            "amount, pnl_usd, pnl_pct, hold_duration_hours, peak_price, volatility, venue) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             (pair, exit_type, reason, entry_price, current_price, amount,
              round(pnl_usd, 6), round(pnl_pct, 6), round(hold_hours, 3),
-             peak_price, round(vol, 6))
+             peak_price, round(vol, 6), venue)
         )
         self._db.commit()
         self._record_realized_sell_trade(

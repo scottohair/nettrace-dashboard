@@ -56,8 +56,8 @@ EQUITY_SCAN_INTERVAL_S = int(os.environ.get("EQUITY_SCAN_INTERVAL_S", "60"))
 
 # Crypto-correlated equity tickers
 CRYPTO_CORRELATED = {
-    "BTC": ["COIN", "MSTR", "RIOT", "MARA"],
-    "ETH": ["COIN"],
+    "BTC": ["COIN", "MSTR", "RIOT", "MARA", "BITO"],
+    "ETH": ["COIN", "ETHE"],
 }
 
 # Equity universe for momentum/mean-reversion signals
@@ -259,6 +259,71 @@ class EquitySignalAgent:
 
         return signals
 
+    # Sector ETFs for rotation scanning
+    SECTOR_ETFS = {"XLK": "Tech", "XLF": "Financials", "XLE": "Energy", "XLV": "Healthcare", "XLY": "Consumer"}
+
+    def scan_sector_rotation(self):
+        """Scan sector ETFs for relative strength crossovers."""
+        if not self.check_market_hours():
+            return []
+        signals = []
+        performances = {}
+        for etf in self.SECTOR_ETFS:
+            candles = _fetch_yahoo_chart(etf, interval="1d", range_str="3mo")
+            if len(candles) < 20:
+                continue
+            closes = [c["close"] for c in candles]
+            sma20 = _sma(closes, 20)
+            if sma20:
+                pct_above = (closes[-1] - sma20) / sma20
+                performances[etf] = pct_above
+
+        if len(performances) < 3:
+            return signals
+
+        sorted_sectors = sorted(performances.items(), key=lambda x: x[1], reverse=True)
+        # Top sector > 2% above SMA20 = BUY signal
+        top_etf, top_pct = sorted_sectors[0]
+        if top_pct > 0.02:
+            signals.append({"symbol": top_etf, "direction": "BUY",
+                "confidence": min(0.82, 0.70 + top_pct * 2),
+                "reasoning": f"Sector rotation: {self.SECTOR_ETFS[top_etf]} leading ({top_pct*100:.1f}% above SMA20)"})
+        # Bottom sector < -2% below SMA20 = SELL signal
+        bot_etf, bot_pct = sorted_sectors[-1]
+        if bot_pct < -0.02:
+            signals.append({"symbol": bot_etf, "direction": "SELL",
+                "confidence": min(0.78, 0.70 + abs(bot_pct) * 2),
+                "reasoning": f"Sector rotation: {self.SECTOR_ETFS[bot_etf]} lagging ({bot_pct*100:.1f}% below SMA20)"})
+
+        for sig in signals:
+            self._emit_signal(**sig)
+        return signals
+
+    def scan_volume_breakout(self):
+        """Detect volume breakouts on equity universe."""
+        if not self.check_market_hours():
+            return []
+        signals = []
+        for symbol in EQUITY_UNIVERSE:
+            candles = _fetch_yahoo_chart(symbol, interval="1d", range_str="1mo")
+            if len(candles) < 10:
+                continue
+            volumes = [c["volume"] for c in candles]
+            avg_vol = sum(volumes[:-1]) / len(volumes[:-1]) if len(volumes) > 1 else 0
+            today_vol = volumes[-1]
+            if avg_vol > 0 and today_vol > 2 * avg_vol:
+                closes = [c["close"] for c in candles]
+                price_change = (closes[-1] - closes[-2]) / closes[-2] if len(closes) >= 2 else 0
+                direction = "BUY" if price_change > 0 else "SELL"
+                vol_ratio = today_vol / avg_vol
+                confidence = min(0.85, 0.70 + (vol_ratio - 2) * 0.05)
+                signals.append({"symbol": symbol, "direction": direction,
+                    "confidence": confidence,
+                    "reasoning": f"Volume breakout: {vol_ratio:.1f}x avg volume, price {'+' if price_change > 0 else ''}{price_change*100:.1f}%"})
+        for sig in signals:
+            self._emit_signal(**sig)
+        return signals
+
     def _emit_signal(self, symbol, direction, confidence, urgency="medium", reasoning=""):
         """Push equity signal through the bridge."""
         pair = f"{symbol}-USD"
@@ -288,6 +353,8 @@ class EquitySignalAgent:
         logger.info("Running equity signal scan...")
         self.scan_momentum()
         self.scan_mean_reversion()
+        self.scan_sector_rotation()
+        self.scan_volume_breakout()
 
 
 def main():

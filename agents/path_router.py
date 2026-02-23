@@ -177,13 +177,29 @@ BRIDGES = {
     },
 }
 
+# Cross-venue CEX transfers (on-chain deposit/withdraw)
+CEX_TRANSFERS = {
+    ("coinbase", "kraken"): {
+        "name": "Coinbase→Kraken (on-chain)", "fee_pct": 0.0,
+        "gas_usd": 0.50, "latency_ms": 600_000,  # ~10 min on-chain
+        "min_amount_usd": 10.0,
+        "assets": ["BTC", "ETH", "SOL", "AVAX", "LINK"],
+    },
+    ("kraken", "coinbase"): {
+        "name": "Kraken→Coinbase (on-chain)", "fee_pct": 0.0,
+        "gas_usd": 0.50, "latency_ms": 600_000,
+        "min_amount_usd": 10.0,
+        "assets": ["BTC", "ETH", "SOL", "AVAX", "LINK"],
+    },
+}
+
 # Token equivalences across chains (same asset, different addresses)
 TOKEN_EQUIVALENCES = {
-    "ETH": ["ethereum:ETH", "base:ETH", "arbitrum:ETH", "polygon:WETH", "ibkr:ETH"],
+    "ETH": ["ethereum:ETH", "base:ETH", "arbitrum:ETH", "polygon:WETH", "ibkr:ETH", "kraken:ETH"],
     "USDC": ["ethereum:USDC", "base:USDC", "arbitrum:USDC", "polygon:USDC", "solana:USDC"],
-    "BTC": ["coinbase:BTC", "ibkr:BTC", "ethereum:WBTC", "arbitrum:WBTC"],
-    "SOL": ["coinbase:SOL", "solana:SOL"],
-    "USD": ["coinbase:USD", "ibkr:USD", "alpaca:USD", "etrade:USD"],
+    "BTC": ["coinbase:BTC", "ibkr:BTC", "kraken:BTC", "ethereum:WBTC", "arbitrum:WBTC"],
+    "SOL": ["coinbase:SOL", "kraken:SOL", "solana:SOL"],
+    "USD": ["coinbase:USD", "ibkr:USD", "alpaca:USD", "etrade:USD", "kraken:USD"],
 }
 
 
@@ -490,6 +506,32 @@ class PathRouter:
                            latency_ms=172_800_000, hops=2, slippage_pct=0,
                            venue="coinbase_transfer", action="transfer",
                            pair=f"{token}:coinbase→etrade")
+
+        # Add Kraken↔Coinbase cross-venue crypto transfer edges (on-chain)
+        for (src_venue, dst_venue), xfer in CEX_TRANSFERS.items():
+            for token in xfer["assets"]:
+                src_node = f"{src_venue}:{token}"
+                dst_node = f"{dst_venue}:{token}"
+                if not G.has_node(src_node):
+                    G.add_node(src_node)
+                if not G.has_node(dst_node):
+                    G.add_node(dst_node)
+                cost = self._compute_edge_cost(
+                    fee_pct=xfer["fee_pct"],
+                    gas_usd=xfer["gas_usd"],
+                    latency_ms=xfer["latency_ms"],
+                    hops=2,
+                    slippage_pct=0,
+                )
+                G.add_edge(
+                    src_node, dst_node,
+                    weight=cost, fee_pct=xfer["fee_pct"],
+                    gas_usd=xfer["gas_usd"],
+                    latency_ms=xfer["latency_ms"],
+                    hops=2, slippage_pct=0,
+                    venue=xfer["name"], action="transfer",
+                    pair=f"{token}:{src_venue}→{dst_venue}",
+                )
 
         logger.info("Built route graph: %d nodes, %d edges",
                      G.number_of_nodes(), G.number_of_edges())
