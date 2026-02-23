@@ -13,6 +13,8 @@ AGENTS = [
     {"name": "etrade_auth", "cmd": ["python3", "agents/etrade_auth_daemon.py"], "log": "agents/etrade_auth_daemon_stdout.log"},
     {"name": "kraken_signal", "cmd": ["python3", "agents/kraken_signal_agent.py"], "log": "agents/kraken_signal_stdout.log"},
     {"name": "equity_signal", "cmd": ["python3", "agents/equity_signal_agent.py"], "log": "agents/equity_signal_stdout.log"},
+    {"name": "kraken_equity_signal", "cmd": ["python3", "agents/kraken_equity_signal_agent.py"], "log": "agents/kraken_equity_signal_stdout.log"},
+    {"name": "nasdaqtrader_signal", "cmd": ["python3", "agents/nasdaqtrader_signal_agent.py"], "log": "agents/nasdaqtrader_signal_stdout.log"},
     {"name": "cross_venue_arb", "cmd": ["python3", "agents/cross_venue_arb_agent.py"], "log": "agents/cross_venue_arb_stdout.log"},
 ]
 

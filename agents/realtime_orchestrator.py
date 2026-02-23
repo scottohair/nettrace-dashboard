@@ -97,6 +97,18 @@ except Exception:
     except Exception:
         pass
 
+# Kraken stock/equity connector (commission-free US stocks)
+KRAKEN_STOCKS_AVAILABLE = False
+try:
+    from kraken_stock_connector import KrakenStockConnector, is_market_open as _kraken_is_market_open
+    KRAKEN_STOCKS_AVAILABLE = True
+except Exception:
+    try:
+        from agents.kraken_stock_connector import KrakenStockConnector, is_market_open as _kraken_is_market_open  # type: ignore[no-redef]
+        KRAKEN_STOCKS_AVAILABLE = True
+    except Exception:
+        pass
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [ORCH] %(levelname)s %(message)s",
@@ -137,6 +149,10 @@ ETRADE_TOKEN_REFRESH_INTERVAL_S = float(os.environ.get("ETRADE_TOKEN_REFRESH_S",
 # Kraken crypto trading configuration
 ORCH_KRAKEN_ENABLED = os.environ.get("ORCH_KRAKEN_ENABLED", "0").lower() in ("1", "true", "yes")
 ORCH_KRAKEN_DRY_RUN = os.environ.get("ORCH_KRAKEN_DRY_RUN", "1").lower() in ("1", "true", "yes")
+
+# Kraken Stocks/Equity trading configuration (commission-free)
+ORCH_KRAKEN_STOCKS_ENABLED = os.environ.get("ORCH_KRAKEN_STOCKS_ENABLED", "0").lower() in ("1", "true", "yes")
+ORCH_KRAKEN_STOCKS_DRY_RUN = os.environ.get("ORCH_KRAKEN_STOCKS_DRY_RUN", "1").lower() in ("1", "true", "yes")
 
 # Location Alpha Mode — optimized for local execution near exchange matching engines
 # When enabled, assumes ~1ms to Coinbase vs 50ms+ from Fly.io remote regions
@@ -320,6 +336,94 @@ class SignalCollector:
         self.signals = {}  # agent_name -> latest_signal
         self.signal_queue = asyncio.Queue()
         self.lock = threading.Lock()
+        self.ipc_enabled = os.environ.get("CREATIVE_SIGNAL_BUS_ENABLED", "1").lower() in ("1", "true", "yes")
+        self.ipc_path = Path(
+            os.environ.get(
+                "CREATIVE_SIGNAL_BUS_PATH",
+                str(Path(__file__).parent / "creative_signal_bus.jsonl"),
+            )
+        )
+        self.ipc_max_age_ms = float(os.environ.get("CREATIVE_SIGNAL_BUS_MAX_AGE_MS", "120000"))
+        self._ipc_offset = 0
+        self._ipc_remainder = ""
+        self._init_ipc_cursor()
+
+    def _init_ipc_cursor(self):
+        """Start tailing the IPC bus from EOF to avoid replaying stale history."""
+        if not self.ipc_enabled:
+            return
+        try:
+            if self.ipc_path.exists():
+                self._ipc_offset = int(self.ipc_path.stat().st_size)
+        except Exception:
+            self._ipc_offset = 0
+
+    def _ingest_ipc_signals(self) -> int:
+        """Ingest newly appended signals from the cross-process JSONL bus."""
+        if not self.ipc_enabled:
+            return 0
+        if not self.ipc_path.exists():
+            return 0
+
+        try:
+            size = int(self.ipc_path.stat().st_size)
+        except Exception:
+            return 0
+
+        # File was truncated/rotated.
+        if self._ipc_offset > size:
+            self._ipc_offset = 0
+            self._ipc_remainder = ""
+
+        try:
+            with self.ipc_path.open("r", encoding="utf-8", errors="ignore") as handle:
+                handle.seek(self._ipc_offset)
+                chunk = handle.read()
+                self._ipc_offset = handle.tell()
+        except Exception as e:
+            logger.debug("SignalCollector IPC read failed: %s", e)
+            return 0
+
+        if not chunk:
+            return 0
+
+        data = self._ipc_remainder + chunk
+        lines = data.splitlines(keepends=True)
+        complete = []
+        remainder = ""
+        for line in lines:
+            if line.endswith("\n") or line.endswith("\r"):
+                complete.append(line.rstrip("\r\n"))
+            else:
+                remainder = line
+        self._ipc_remainder = remainder
+
+        ingested = 0
+        now_ms = time.time() * 1000
+        for line in complete:
+            if not line:
+                continue
+            try:
+                payload = json.loads(line)
+            except Exception:
+                continue
+
+            agent_name = str(payload.get("agent_name") or "").strip()
+            signal = payload.get("signal")
+            if not agent_name or not isinstance(signal, dict):
+                continue
+
+            ts_ms = signal.get("timestamp_ms")
+            if ts_ms is None:
+                ts_ms = payload.get("timestamp_ms")
+            ts_ms = float(ts_ms) if ts_ms is not None else 0.0
+            if ts_ms > 0 and (now_ms - ts_ms) > self.ipc_max_age_ms:
+                continue
+
+            self.submit_signal(agent_name, signal)
+            ingested += 1
+
+        return ingested
 
     def submit_signal(self, agent_name: str, signal: Dict):
         """Submit signal from an agent to the queue."""
@@ -341,6 +445,10 @@ class SignalCollector:
         (no waiting) to minimize cycle latency.  Otherwise waits up to
         timeout_ms for signals to accumulate.
         """
+        ingested = self._ingest_ipc_signals()
+        if ingested > 0:
+            logger.debug("SignalCollector ingested %d IPC signal(s)", ingested)
+
         if LOCATION_ALPHA_ENABLED:
             # Fast path: return immediately if we have signals
             with self.lock:
@@ -727,6 +835,12 @@ class RealtimeOrchestrator:
             except Exception as e:
                 logger.warning("Failed to initialize KrakenConnector: %s", e)
 
+        # Kraken stocks/equity initialization (commission-free)
+        self._kraken_stocks_enabled = ORCH_KRAKEN_STOCKS_ENABLED and KRAKEN_STOCKS_AVAILABLE
+        self._kraken_stocks_dry_run = ORCH_KRAKEN_STOCKS_DRY_RUN
+        if self._kraken_stocks_enabled and not mock_mode:
+            logger.info("Kraken Stocks enabled (dry_run=%s)", self._kraken_stocks_dry_run)
+
         # Register with CreativeAgentBridge so creative agents can push signals directly
         try:
             CreativeAgentBridge.set_orchestrator(self)
@@ -1040,7 +1154,14 @@ class RealtimeOrchestrator:
             top_signals = signals[:5]
 
             for agent_name, signal, score in top_signals:
-                # Route equity signals to dedicated handler
+                # Route Kraken stock signals to commission-free handler
+                if signal.get("venue_hint") == "kraken_stock":
+                    ks_result = await self._execute_kraken_stock_signal(agent_name, signal, score, region)
+                    if ks_result:
+                        executed.append(ks_result)
+                    continue
+
+                # Route equity signals to dedicated handler (E*Trade)
                 if signal.get("market_type") == "equity":
                     equity_result = await self._execute_equity_signal(agent_name, signal, score, region)
                     if equity_result:
@@ -1387,6 +1508,23 @@ class RealtimeOrchestrator:
         # Execute via Kraken
         if self.kraken_connector and not ORCH_KRAKEN_DRY_RUN:
             try:
+                # Intelligent auto-funding: ensure Kraken has enough for this trade
+                try:
+                    from cross_venue_transfer import CrossVenueTransfer
+                    _xfer = CrossVenueTransfer()
+                    fund_result = _xfer.ensure_venue_funded(
+                        "kraken", "USDC", order_usd, trade_pair=pair,
+                    )
+                    _xfer.close()
+                    if fund_result.get("transferred", 0) > 0:
+                        logger.info(
+                            "[KRAKEN-FUND] Auto-funded $%.2f from %s for %s",
+                            fund_result["transferred"],
+                            fund_result.get("from_venue", "?"), pair,
+                        )
+                except Exception as e:
+                    logger.debug("Auto-funding check skipped: %s", e)
+
                 result = KrakenConnector.place_order(
                     pair=pair, side=direction.lower(), volume=volume,
                     order_type="limit", price=price, confidence=confidence,
@@ -1424,6 +1562,126 @@ class RealtimeOrchestrator:
             "score": score,
             "market_type": "crypto",
             "venue": "kraken",
+            "timestamp_ms": time.time() * 1000,
+        }
+
+    async def _execute_kraken_stock_signal(self, agent_name, signal, score, region):
+        """Execute equity signal via Kraken stock trading (commission-free).
+
+        Returns execution result dict or None if skipped.
+        """
+        if not self._kraken_stocks_enabled:
+            return None
+
+        pair = signal.get("pair", "")
+        symbol = pair.split("-")[0].upper() if pair else ""
+        direction = signal.get("direction", "HOLD").upper()
+        confidence = float(signal.get("confidence", 0.5))
+
+        if direction == "HOLD" or not symbol:
+            return None
+
+        if self._kraken_stocks_dry_run:
+            logger.info("[KRAKEN-STOCKS DRY-RUN] %s %s conf=%.2f", direction, symbol, confidence)
+            return {
+                "agent_name": agent_name,
+                "pair": pair,
+                "product_id": symbol,
+                "used_perp": False,
+                "direction": direction,
+                "realized_pnl_usd": 0.0,
+                "region": region,
+                "score": score,
+                "market_type": "equity",
+                "venue": "kraken_stock",
+                "v333_weight": signal.get("v333_weight", 0.0),
+                "timestamp_ms": time.time() * 1000,
+            }
+
+        pnl = 0.0
+        try:
+            if not KRAKEN_STOCKS_AVAILABLE:
+                logger.debug("KrakenStockConnector not available")
+                return None
+
+            # Get current quote for sizing
+            quote = KrakenStockConnector.get_stock_quote(symbol)
+            if quote.get("error"):
+                logger.warning("Kraken stock quote failed for %s: %s", symbol, quote["error"])
+                return None
+
+            price = float(quote.get("last_price", 0))
+            if price <= 0:
+                return None
+
+            # Dynamic sizing from risk controller
+            try:
+                from risk_controller import get_controller
+                rc = get_controller()
+                portfolio_value = self._get_portfolio_value()
+                risk_params = rc.get_risk_params(portfolio_value)
+                trade_usd = risk_params.get("max_trade_usd", 5.0)
+            except Exception:
+                trade_usd = ORDER_NOTIONAL_USD
+
+            shares = trade_usd / price
+
+            # Intelligent auto-funding before stock trade
+            try:
+                from cross_venue_transfer import CrossVenueTransfer
+                _xfer = CrossVenueTransfer()
+                fund_result = _xfer.ensure_venue_funded(
+                    "kraken", "USDC", trade_usd, trade_pair=pair,
+                )
+                _xfer.close()
+                if fund_result.get("transferred", 0) > 0:
+                    logger.info(
+                        "[KRAKEN-STOCK-FUND] Auto-funded $%.2f from %s for %s",
+                        fund_result["transferred"],
+                        fund_result.get("from_venue", "?"), symbol,
+                    )
+            except Exception as e:
+                logger.debug("Auto-funding check skipped: %s", e)
+
+            # Limit price with small offset for maker (BE A MAKER)
+            if direction == "BUY":
+                limit_price = price * 0.999   # Bid slightly below market
+            else:
+                limit_price = price * 1.001   # Ask slightly above market
+
+            result = KrakenStockConnector.place_stock_order(
+                symbol=symbol,
+                side=direction.lower(),
+                shares=round(shares, 6),
+                order_type="limit",
+                price=round(limit_price, 2),
+                confidence=confidence,
+            )
+
+            if result.get("result"):
+                txid = result["result"].get("txid", [None])[0]
+                logger.info(
+                    "Kraken stock order placed: %s %s %.4f shares @ $%.2f (txid=%s)",
+                    direction, symbol, shares, limit_price, txid,
+                )
+            elif result.get("error"):
+                logger.warning("Kraken stock order failed: %s", result["error"])
+
+        except Exception as e:
+            logger.error("Kraken stock execution error: %s", e, exc_info=True)
+
+        return {
+            "agent_name": agent_name,
+            "pair": pair,
+            "product_id": symbol,
+            "used_perp": False,
+            "direction": direction,
+            "realized_pnl_usd": pnl,
+            "region": region,
+            "score": score,
+            "market_type": "equity",
+            "venue": "kraken_stock",
+            "v333_weight": signal.get("v333_weight", 0.0),
             "timestamp_ms": time.time() * 1000,
         }
 

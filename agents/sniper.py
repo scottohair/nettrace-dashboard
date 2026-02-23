@@ -2,7 +2,7 @@
 """High-Confidence Sniper — stacked signal aggregator.
 
 Only trades when composite confidence >= 90% with 3+ confirming signals.
-Stacks 9 independent signal sources for maximum conviction:
+Stacks 10 independent signal sources for maximum conviction:
 
   1. NetTrace latency signals (exchange infrastructure changes)
   2. Fast Engine regime detection (SMA/RSI/BB/VWAP/ATR)
@@ -13,6 +13,7 @@ Stacks 9 independent signal sources for maximum conviction:
   7. Price momentum (4h trend)
   8. Uptick timing (buy-low-sell-high inflection)
   9. Meta-Engine ML predictions (RSI+momentum+SMA ensemble from meta_engine.db)
+  10. E*Trade risk pulse (equity lead-lag from SPY/QQQ/COIN/MSTR)
 
 Game Theory:
   - Only enters when the market is in a non-equilibrium state
@@ -33,6 +34,7 @@ import logging
 import os
 import re
 import sqlite3
+import subprocess
 import sys
 import threading
 import time
@@ -160,7 +162,7 @@ CONFIG = {
     "reserve_assets": ["BTC", "USD", "USDC"],  # Never sell these — treasury
     "primary_pairs": ["BTC-USD", "ETH-USD", "SOL-USD"],    # Priority allocation
     # Signal weights: quantitative signals DRIVE decisions, qualitative SUPPLEMENTS
-    # Quantitative: regime, arb, orderbook, rsi_extreme, momentum, latency
+    # Quantitative: regime, arb, orderbook, rsi_extreme, momentum, latency, etrade_pulse
     # Computational edge: latency (our private NetTrace data), meta_engine (ML ensemble)
     # Qualitative: fear_greed, uptick (accelerate but don't drive)
     "signal_weights": {
@@ -173,12 +175,16 @@ CONFIG = {
         # --- COMPUTATIONAL EDGE (private alpha) ---
         "latency": 0.15,       # NetTrace infrastructure monitoring — our unique edge
         "meta_engine": 0.10,   # ML ensemble predictions from evolution engine
+        "etrade_pulse": max(
+            0.0,
+            min(0.25, float(os.environ.get("SNIPER_ETRADE_PULSE_WEIGHT", "0.08"))),
+        ),  # E*Trade/US equity risk pulse lead-lag
         # --- QUALITATIVE (supplementary only) ---
         "fear_greed": 0.04,    # Sentiment — supplements, doesn't drive
         "uptick": 0.03,        # Simple bounce — supplements, doesn't drive
     },
     # Classify which signals are quantitative vs qualitative
-    "quant_signals": {"regime", "arb", "orderbook", "rsi_extreme", "momentum", "latency", "meta_engine"},
+    "quant_signals": {"regime", "arb", "orderbook", "rsi_extreme", "momentum", "latency", "meta_engine", "etrade_pulse"},
     "qual_signals": {"fear_greed", "uptick"},
     # Expected Value parameters (fees + slippage)
     # Perp maker: 0% buy + 0% sell; spot maker: 0.4% buy + 0.4% sell
@@ -205,10 +211,31 @@ CONFIG = {
         os.environ.get("SNIPER_EXECUTION_HEALTH_DEGRADED_TRADE_SIZE_FACTOR", "0.75")
     ),
     "execution_health_max_age_seconds": int(os.environ.get("SNIPER_EXECUTION_HEALTH_MAX_AGE_SECONDS", "300")),
+    "execution_health_auto_refresh_on_block": os.environ.get(
+        "SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_ON_BLOCK", "1"
+    ).lower() not in ("0", "false", "no"),
+    "execution_health_auto_refresh_cooldown_seconds": float(
+        os.environ.get("SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_COOLDOWN_SECONDS", "20")
+    ),
+    "execution_health_auto_refresh_timeout_seconds": float(
+        os.environ.get("SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_TIMEOUT_SECONDS", "30")
+    ),
+    "execution_health_auto_refresh_run_reconcile": os.environ.get(
+        "SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_RUN_RECONCILE", "1"
+    ).lower() not in ("0", "false", "no"),
+    "execution_health_auto_refresh_reconcile_max_orders": int(
+        os.environ.get("SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_RECONCILE_MAX_ORDERS", "120")
+    ),
+    "execution_health_auto_refresh_reconcile_lookback_hours": int(
+        os.environ.get("SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_RECONCILE_LOOKBACK_HOURS", "96")
+    ),
     "require_exit_manager_status_for_buy": os.environ.get("SNIPER_REQUIRE_EXIT_MANAGER_STATUS_FOR_BUY", "1").lower() not in ("0", "false", "no"),
     "exit_manager_status_max_age_seconds": int(os.environ.get("SNIPER_EXIT_MANAGER_STATUS_MAX_AGE_SECONDS", "300")),
     "require_close_flow_for_buy": os.environ.get("SNIPER_REQUIRE_CLOSE_FLOW_FOR_BUY", "0").lower() not in ("0", "false", "no"),
     "close_flow_status_max_age_seconds": int(os.environ.get("SNIPER_CLOSE_FLOW_STATUS_MAX_AGE_SECONDS", "300")),
+    "close_flow_stale_grace_seconds": int(
+        os.environ.get("SNIPER_CLOSE_FLOW_STALE_GRACE_SECONDS", "3600")
+    ),
     "close_flow_min_attempts": int(os.environ.get("SNIPER_CLOSE_FLOW_MIN_ATTEMPTS", "2")),
     "close_flow_min_completion_rate": float(os.environ.get("SNIPER_CLOSE_FLOW_MIN_COMPLETION_RATE", "0.40")),
     "close_flow_max_terminal_failures": int(os.environ.get("SNIPER_CLOSE_FLOW_MAX_TERMINAL_FAILURES", "3")),
@@ -748,6 +775,149 @@ class PriceMomentumSource(SignalSource):
             return {"direction": "NONE", "confidence": 0, "reason": str(e)}
 
 
+class ETradePulseSource(SignalSource):
+    """Signal: E*Trade equity risk pulse for cross-asset lead/lag.
+
+    Uses E*Trade quotes when authenticated, with built-in Yahoo fallback from
+    ETradePriceFeed. The pulse is a short-horizon risk-on/risk-off proxy that
+    can lead crypto moves during US market hours.
+    """
+
+    def __init__(self):
+        self.enabled = os.environ.get("SNIPER_ETRADE_SIGNAL_ENABLED", "1").lower() in ("1", "true", "yes")
+        self.lookback_seconds = max(20.0, float(os.environ.get("SNIPER_ETRADE_PULSE_LOOKBACK_SECONDS", "90")))
+        self.snapshot_ttl = max(1.0, float(os.environ.get("SNIPER_ETRADE_PULSE_SNAPSHOT_TTL", "5")))
+        self.min_move = max(0.0002, float(os.environ.get("SNIPER_ETRADE_PULSE_MIN_MOVE", "0.0012")))
+        self._lock = threading.Lock()
+        self._snapshot = {"ts": 0.0, "prices": {}}
+        self._history = {}  # symbol -> list[(ts, price)]
+        self._macro_symbols = ("SPY", "QQQ")
+        self._crypto_beta_symbols = ("COIN", "MSTR")
+        self._auth = None
+        self._feed = None
+
+        try:
+            from etrade_connector import ETradeAuth, ETradePriceFeed
+            self._auth = ETradeAuth(sandbox=False)
+            auth_for_feed = self._auth if self._auth and self._auth.is_authenticated else None
+            self._feed = ETradePriceFeed(auth=auth_for_feed)
+        except Exception as exc:
+            self.enabled = False
+            logger.info("E*Trade pulse source unavailable: %s", exc)
+
+    def _trim_history(self, symbol: str, now_ts: float) -> None:
+        rows = self._history.get(symbol) or []
+        if not rows:
+            return
+        cutoff = now_ts - max(300.0, self.lookback_seconds * 3.0)
+        kept = [row for row in rows if row[0] >= cutoff]
+        self._history[symbol] = kept[-256:]
+
+    def _append_price(self, symbol: str, price: float, now_ts: float) -> None:
+        if price <= 0:
+            return
+        rows = list(self._history.get(symbol) or [])
+        if rows and abs(rows[-1][1] - price) < 1e-12:
+            rows[-1] = (now_ts, price)
+        else:
+            rows.append((now_ts, price))
+        self._history[symbol] = rows[-256:]
+        self._trim_history(symbol, now_ts)
+
+    def _return_over_lookback(self, symbol: str, now_ts: float) -> float | None:
+        rows = self._history.get(symbol) or []
+        if len(rows) < 2:
+            return None
+        target_ts = now_ts - self.lookback_seconds
+        base = None
+        latest = rows[-1][1]
+        for ts, px in rows:
+            if ts >= target_ts:
+                base = px
+                break
+        if base is None:
+            base = rows[0][1]
+        if base <= 0 or latest <= 0:
+            return None
+        return (latest - base) / base
+
+    def _refresh_snapshot(self) -> dict[str, float]:
+        now_ts = time.time()
+        with self._lock:
+            if (now_ts - float(self._snapshot.get("ts", 0.0))) < self.snapshot_ttl:
+                cached = self._snapshot.get("prices") or {}
+                if isinstance(cached, dict) and cached:
+                    return dict(cached)
+            if not self._feed:
+                return {}
+            symbols = list(dict.fromkeys(self._macro_symbols + self._crypto_beta_symbols))
+            clean = {}
+            for sym in symbols:
+                val = self._feed.get_price(sym)
+                try:
+                    px = float(val or 0.0)
+                except Exception:
+                    px = 0.0
+                if px > 0:
+                    clean[sym] = px
+                    self._append_price(sym, px, now_ts)
+            self._snapshot = {"ts": now_ts, "prices": clean}
+            return dict(clean)
+
+    @staticmethod
+    def _avg(values):
+        data = [float(v) for v in values if v is not None]
+        if not data:
+            return None
+        return sum(data) / len(data)
+
+    def scan(self, pair, candles_1h=None, candles_1m=None):
+        if not self.enabled or not self._feed:
+            return {"direction": "NONE", "confidence": 0, "reason": "E*Trade pulse disabled"}
+
+        base = str(pair or "").upper().split("-", 1)[0]
+        if base in {"USDC", "USD"}:
+            return {"direction": "NONE", "confidence": 0, "reason": "Quote-only pair"}
+
+        prices = self._refresh_snapshot()
+        if not prices:
+            return {"direction": "NONE", "confidence": 0, "reason": "No E*Trade pulse prices"}
+
+        now_ts = time.time()
+        macro_ret = self._avg(self._return_over_lookback(sym, now_ts) for sym in self._macro_symbols)
+        beta_ret = self._avg(self._return_over_lookback(sym, now_ts) for sym in self._crypto_beta_symbols)
+        if macro_ret is None and beta_ret is None:
+            return {"direction": "NONE", "confidence": 0, "reason": "Pulse warmup"}
+
+        if macro_ret is None:
+            composite = float(beta_ret or 0.0)
+        elif beta_ret is None:
+            composite = float(macro_ret or 0.0)
+        else:
+            composite = float(macro_ret) * 0.65 + float(beta_ret) * 0.35
+
+        mag = abs(composite)
+        if mag < self.min_move:
+            return {
+                "direction": "NONE",
+                "confidence": 0,
+                "reason": f"E*Trade pulse flat ({composite * 100:.2f}%/{self.lookback_seconds:.0f}s)",
+            }
+
+        direction = "BUY" if composite > 0 else "SELL"
+        confidence = min(0.92, 0.56 + min(0.30, mag / 0.01))
+        m_txt = "n/a" if macro_ret is None else f"{macro_ret * 100:.2f}%"
+        b_txt = "n/a" if beta_ret is None else f"{beta_ret * 100:.2f}%"
+        return {
+            "direction": direction,
+            "confidence": confidence,
+            "reason": (
+                f"E*Trade pulse {direction}: macro={m_txt} beta={b_txt} "
+                f"composite={composite * 100:.2f}%/{self.lookback_seconds:.0f}s"
+            ),
+        }
+
+
 class MetaEngineSignalSource(SignalSource):
     """Signal: Meta-Engine ML predictions (RSI+momentum+SMA ensemble).
 
@@ -923,6 +1093,7 @@ class Sniper:
         self._profit_focus_cache = {"ts": 0.0, "pairs": []}
         self._balance_flow_cache = {"ts": 0.0, "state": {}}
         self._last_interval_logged = None
+        self._last_execution_health_autorefresh = 0.0
         self.sources = {
             "latency": LatencySignalSource(),
             "regime": RegimeSignalSource(),
@@ -933,6 +1104,7 @@ class Sniper:
             "momentum": PriceMomentumSource(),
             "uptick": UptickTimingSource(),
             "meta_engine": MetaEngineSignalSource(),
+            "etrade_pulse": ETradePulseSource(),
         }
 
     def _init_db(self):
@@ -981,6 +1153,34 @@ class Sniper:
     def _new_coinbase_trader():
         from exchange_connector import CoinbaseTrader
         return CoinbaseTrader()
+
+    _kraken = None
+
+    @staticmethod
+    def _new_kraken_trader():
+        """Lazy init KrakenConnector for multi-venue routing."""
+        if Sniper._kraken is None:
+            try:
+                from kraken_connector import KrakenConnector
+                Sniper._kraken = KrakenConnector
+                logger.info("Kraken trader initialized for multi-venue routing")
+            except Exception as e:
+                logger.warning("KrakenConnector not available: %s", e)
+        return Sniper._kraken
+
+    _smart_router = None
+
+    @staticmethod
+    def _get_smart_router():
+        """Lazy init SmartRouter for venue selection."""
+        if Sniper._smart_router is None:
+            try:
+                from smart_router import SmartRouter
+                Sniper._smart_router = SmartRouter()
+                logger.info("SmartRouter initialized for venue selection")
+            except Exception as e:
+                logger.warning("SmartRouter not available: %s", e)
+        return Sniper._smart_router
 
     def _latest_filled_buy_price(self, pair, fallback_price=0.0):
         """Get last filled BUY entry price for a pair, fallback to current price."""
@@ -2758,9 +2958,6 @@ class Sniper:
                 dt = dt.replace(tzinfo=timezone.utc)
             age = (datetime.now(timezone.utc) - dt).total_seconds()
             max_age = max(30, int(CONFIG.get("close_flow_status_max_age_seconds", 300) or 300))
-            if age > max_age:
-                return False, f"reconcile_status_stale:{int(age)}s>{max_age}s"
-
             summary = payload.get("summary", {}) if isinstance(payload.get("summary"), dict) else {}
             close = payload.get("close_reconciliation", {}) if isinstance(payload.get("close_reconciliation"), dict) else {}
             attempts = int(close.get("attempts", summary.get("close_attempts", 0)) or 0)
@@ -2771,6 +2968,20 @@ class Sniper:
                 completion_rate = float(completions) / float(max(1, attempts))
             gate_passed = bool(close.get("gate_passed", summary.get("close_gate_passed", True)))
             gate_reason = str(close.get("gate_reason", summary.get("close_gate_reason", "")) or "").strip()
+            stale_grace_seconds = max(
+                max_age,
+                int(CONFIG.get("close_flow_stale_grace_seconds", 3600) or 3600),
+            )
+            stale_gate_reasons = {"no_pending_sell_closes", "sell_close_completion_observed"}
+            if age > max_age:
+                stale_grace_ok = (
+                    gate_passed
+                    and gate_reason in stale_gate_reasons
+                    and age <= float(stale_grace_seconds)
+                )
+                if not stale_grace_ok:
+                    return False, f"reconcile_status_stale:{int(age)}s>{max_age}s"
+
             min_attempts = max(1, int(CONFIG.get("close_flow_min_attempts", 2) or 2))
             min_rate = max(0.0, min(1.0, float(CONFIG.get("close_flow_min_completion_rate", 0.40) or 0.40)))
             max_terminal_failures = max(0, int(CONFIG.get("close_flow_max_terminal_failures", 3) or 3))
@@ -2820,7 +3031,86 @@ class Sniper:
         except Exception:
             return cached_val
 
-    def _execution_health_allows_buy(self):
+    def _auto_refresh_execution_health(self, reason_hint=""):
+        if not bool(CONFIG.get("execution_health_auto_refresh_on_block", True)):
+            return False, "auto_refresh_disabled"
+        now_ts = time.time()
+        cooldown = max(
+            5.0,
+            float(CONFIG.get("execution_health_auto_refresh_cooldown_seconds", 20.0) or 20.0),
+        )
+        if (now_ts - float(self._last_execution_health_autorefresh)) < cooldown:
+            return False, "auto_refresh_cooldown"
+        self._last_execution_health_autorefresh = now_ts
+
+        cmd = [
+            sys.executable,
+            str(Path(__file__).parent / "execution_health_probe.py"),
+            "--refresh",
+            "--no-http-probe",
+        ]
+        if bool(CONFIG.get("execution_health_auto_refresh_run_reconcile", True)):
+            cmd.extend(
+                [
+                    "--run-reconcile",
+                    "--reconcile-max-orders",
+                    str(
+                        max(
+                            1,
+                            int(
+                                CONFIG.get(
+                                    "execution_health_auto_refresh_reconcile_max_orders",
+                                    120,
+                                )
+                                or 120
+                            ),
+                        )
+                    ),
+                    "--reconcile-lookback-hours",
+                    str(
+                        max(
+                            1,
+                            int(
+                                CONFIG.get(
+                                    "execution_health_auto_refresh_reconcile_lookback_hours",
+                                    96,
+                                )
+                                or 96
+                            ),
+                        )
+                    ),
+                ]
+            )
+        timeout_seconds = max(
+            10.0,
+            float(CONFIG.get("execution_health_auto_refresh_timeout_seconds", 30.0) or 30.0),
+        )
+        try:
+            proc = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=timeout_seconds,
+                check=False,
+            )
+            ok = int(proc.returncode) == 0
+            if ok:
+                logger.info(
+                    "SNIPER: execution-health auto-refresh succeeded (reason=%s)",
+                    reason_hint or "unknown",
+                )
+                return True, "auto_refresh_ok"
+            logger.warning(
+                "SNIPER: execution-health auto-refresh failed rc=%s stderr=%s",
+                proc.returncode,
+                str(proc.stderr or "").strip()[-240:],
+            )
+            return False, f"auto_refresh_failed_rc_{proc.returncode}"
+        except Exception as e:
+            logger.warning("SNIPER: execution-health auto-refresh error: %s", e)
+            return False, f"auto_refresh_error:{e}"
+
+    def _execution_health_allows_buy(self, _allow_refresh=True):
         """Buy when health is green, stale-safe, or allowed degraded telemetry."""
         if not bool(CONFIG.get("require_execution_health_for_buy", True)):
             return True, "gate_disabled"
@@ -2845,6 +3135,20 @@ class Sniper:
                 return False, f"execution_health_blocked:egress_blocked:{fail_reason}"
             hard_block_prefixes = ("dns_", "reconcile_", "api_probe_failed", "candle_feed")
             if any(any(r.startswith(prefix) for r in reasons) for prefix in hard_block_prefixes):
+                if (
+                    _allow_refresh
+                    and bool(CONFIG.get("execution_health_auto_refresh_on_block", True))
+                    and any(r.startswith("reconcile_") for r in reasons)
+                ):
+                    refreshed, refresh_reason = self._auto_refresh_execution_health(
+                        reason_hint=fail_reason
+                    )
+                    if refreshed:
+                        return self._execution_health_allows_buy(_allow_refresh=False)
+                    logger.info(
+                        "SNIPER: execution-health auto-refresh skipped/failed (%s)",
+                        refresh_reason,
+                    )
                 return False, f"execution_health_not_green:{fail_reason}"
 
             if bool(CONFIG.get("execution_health_degraded_mode", True)) and reasons:
@@ -3353,23 +3657,77 @@ class Sniper:
                         signal["confirming_signals"])
 
             try:
+                venue_used = "coinbase"
                 if used_perp:
                     result = _deriv.place_perp_order(
                         exec_pair, "BUY", base_size, limit_price,
                         leverage=1.0, post_only=True,
                     )
+                    venue_used = "perp"
                 else:
-                    from exchange_connector import CoinbaseTrader
-                    trader = CoinbaseTrader()
-                    result = trader.place_limit_order(
-                        exec_pair, "BUY", base_size, limit_price, post_only=True,
-                        expected_edge_pct=signal["composite_confidence"] * 100,
-                        signal_confidence=signal["composite_confidence"],
-                        market_regime=signal.get("regime", "neutral"),
-                    )
+                    # ── Multi-venue routing: SmartRouter selects best venue ──
+                    best_venue = "coinbase"  # default
+                    router = self._get_smart_router()
+                    if router:
+                        try:
+                            quote = router.find_best_execution(pair, "BUY", trade_size)
+                            if quote and quote.get("venue") and "error" not in quote:
+                                best_venue = quote["venue"]
+                                logger.info("SmartRouter selected venue=%s for %s (savings=%.4f%%)",
+                                           best_venue, pair, quote.get("savings_vs_coinbase", 0))
+                        except Exception as e:
+                            logger.warning("SmartRouter failed, defaulting to coinbase: %s", e)
+
+                    if best_venue == "kraken":
+                        # Auto-fund Kraken if needed
+                        try:
+                            from cross_venue_transfer import CrossVenueTransfer
+                            _xfer = CrossVenueTransfer()
+                            _xfer.ensure_venue_funded("kraken", "USDC", notional_usd, trade_pair=pair)
+                            _xfer.close()
+                        except Exception:
+                            pass
+                        kraken = self._new_kraken_trader()
+                        if kraken:
+                            kraken_result = kraken.place_order(
+                                pair=pair,
+                                side="buy",
+                                volume=base_size,
+                                order_type="limit",
+                                price=limit_price,
+                                confidence=signal.get("composite_confidence", 0.7),
+                                oflags="post",  # BE A MAKER
+                            )
+                            # Extract order ID from Kraken response
+                            if kraken_result.get("result", {}).get("txid"):
+                                order_id = kraken_result["result"]["txid"][0]
+                                venue_used = "kraken"
+                                result = {
+                                    "success_response": {"order_id": order_id},
+                                    "order_id": order_id,
+                                    "venue": "kraken",
+                                }
+                            else:
+                                logger.error("Kraken order failed: %s", kraken_result.get("error"))
+                                best_venue = "coinbase"  # Fall back to Coinbase
+                        else:
+                            best_venue = "coinbase"  # KrakenConnector not available
+
+                    if best_venue != "kraken" or venue_used != "kraken":
+                        # Coinbase execution path (default / fallback)
+                        from exchange_connector import CoinbaseTrader
+                        trader = CoinbaseTrader()
+                        result = trader.place_limit_order(
+                            exec_pair, "BUY", base_size, limit_price, post_only=True,
+                            expected_edge_pct=signal["composite_confidence"] * 100,
+                            signal_confidence=signal["composite_confidence"],
+                            market_regime=signal.get("regime", "neutral"),
+                        )
+                        venue_used = "coinbase"
+
                 # Track cash committed this cycle so subsequent orders don't over-spend
                 self._cycle_cash_spent = getattr(self, '_cycle_cash_spent', 0.0) + trade_size
-                return self._process_order_result(result, exec_pair, "BUY", trade_size, price, signal)
+                return self._process_order_result(result, exec_pair, "BUY", trade_size, price, signal, venue=venue_used)
             except Exception as e:
                 logger.error("BUY execution error: %s", e, exc_info=True)
                 if _risk_ctrl:
@@ -3457,25 +3815,70 @@ class Sniper:
                         signal["composite_confidence"]*100, signal["confirming_signals"])
 
             try:
-                from exchange_connector import CoinbaseTrader
-                trader = CoinbaseTrader()
-                result = trader.place_limit_order(
-                    pair, "SELL", base_size, limit_price, post_only=True,
-                    bypass_profit_guard=True)
-                return self._process_order_result(result, pair, "SELL", trade_size, price, signal)
+                venue_used = "coinbase"
+
+                # ── Multi-venue routing for SELL ──
+                best_venue = "coinbase"  # default
+                router = self._get_smart_router()
+                if router:
+                    try:
+                        quote = router.find_best_execution(pair, "SELL", trade_size)
+                        if quote and quote.get("venue") and "error" not in quote:
+                            best_venue = quote["venue"]
+                            logger.info("SmartRouter selected venue=%s for SELL %s (savings=%.4f%%)",
+                                       best_venue, pair, quote.get("savings_vs_coinbase", 0))
+                    except Exception as e:
+                        logger.warning("SmartRouter SELL failed, defaulting to coinbase: %s", e)
+
+                if best_venue == "kraken":
+                    kraken = self._new_kraken_trader()
+                    if kraken:
+                        kraken_result = kraken.place_order(
+                            pair=pair,
+                            side="sell",
+                            volume=base_size,
+                            order_type="limit",
+                            price=limit_price,
+                            confidence=signal.get("composite_confidence", 0.7),
+                            oflags="post",  # BE A MAKER
+                        )
+                        if kraken_result.get("result", {}).get("txid"):
+                            order_id = kraken_result["result"]["txid"][0]
+                            venue_used = "kraken"
+                            result = {
+                                "success_response": {"order_id": order_id},
+                                "order_id": order_id,
+                                "venue": "kraken",
+                            }
+                        else:
+                            logger.error("Kraken SELL failed: %s", kraken_result.get("error"))
+                            best_venue = "coinbase"
+                    else:
+                        best_venue = "coinbase"
+
+                if best_venue != "kraken" or venue_used != "kraken":
+                    from exchange_connector import CoinbaseTrader
+                    trader = CoinbaseTrader()
+                    result = trader.place_limit_order(
+                        pair, "SELL", base_size, limit_price, post_only=True,
+                        bypass_profit_guard=True)
+                    venue_used = "coinbase"
+
+                return self._process_order_result(result, pair, "SELL", trade_size, price, signal, venue=venue_used)
             except Exception as e:
                 logger.error("SELL execution error: %s", e, exc_info=True)
                 return False
 
         return False
 
-    def _process_order_result(self, result, pair, side, trade_size, price, signal):
+    def _process_order_result(self, result, pair, side, trade_size, price, signal, venue="coinbase"):
         """Process order result and record trade."""
         payload = result if isinstance(result, dict) else {}
         order_id = None
         status = "failed"
         fill_data = {}
         fallback_used = False
+        venue_used = venue or "coinbase"
         pair = self._normalize_pair(pair)
         side = str(side or "").upper()
 
@@ -3630,7 +4033,7 @@ class Sniper:
                         side,
                         float(signal.get("composite_confidence", 0.0) or 0.0),
                         effective_notional,
-                        "coinbase",
+                        venue_used,
                         effective_price,
                         pnl,
                         status,
@@ -3648,7 +4051,7 @@ class Sniper:
                         side,
                         float(signal.get("composite_confidence", 0.0) or 0.0),
                         effective_notional,
-                        "coinbase",
+                        venue_used,
                         effective_price,
                         pnl,
                         status,

@@ -396,5 +396,299 @@ class TestNoKeysNoTrading(unittest.TestCase):
         self.assertIn("error", result)
 
 
+class TestAdvancedOrderTypes(unittest.TestCase):
+    """Test advanced Kraken order types."""
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    @patch("kraken_connector._init_trade_db")
+    def test_stop_loss_order(self, mock_db, mock_req):
+        """Stop-loss order sends correct params to Kraken API."""
+        from kraken_connector import KrakenConnector
+
+        mock_gv = MagicMock()
+        mock_gv.should_trade.return_value = True
+        mock_req.return_value = {"result": {"txid": ["STOP-123"]}}
+        mock_db.return_value = MagicMock()
+
+        with patch("kraken_connector.GoalValidator", mock_gv):
+            result = KrakenConnector.place_order(
+                pair="BTC-USD", side="sell", volume=0.001,
+                order_type="stop-loss", price=95000.0,
+                confidence=0.80
+            )
+        call_data = mock_req.call_args[0][1]
+        self.assertEqual(call_data["ordertype"], "stop-loss")
+        self.assertEqual(call_data["price"], "95000.0")
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    @patch("kraken_connector._init_trade_db")
+    def test_stop_loss_limit_order(self, mock_db, mock_req):
+        """Stop-loss-limit order maps price and price2 correctly."""
+        from kraken_connector import KrakenConnector
+
+        mock_gv = MagicMock()
+        mock_gv.should_trade.return_value = True
+        mock_req.return_value = {"result": {"txid": ["SLL-123"]}}
+        mock_db.return_value = MagicMock()
+
+        with patch("kraken_connector.GoalValidator", mock_gv):
+            result = KrakenConnector.place_order(
+                pair="BTC-USD", side="sell", volume=0.001,
+                order_type="stop-loss-limit", price=94500.0, stop_price=95000.0,
+                confidence=0.80
+            )
+        call_data = mock_req.call_args[0][1]
+        self.assertEqual(call_data["ordertype"], "stop-loss-limit")
+        self.assertEqual(call_data["price"], "94500.0")
+        self.assertEqual(call_data["price2"], "95000.0")
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    @patch("kraken_connector._init_trade_db")
+    def test_take_profit_order(self, mock_db, mock_req):
+        """Take-profit order sends correct params."""
+        from kraken_connector import KrakenConnector
+
+        mock_gv = MagicMock()
+        mock_gv.should_trade.return_value = True
+        mock_req.return_value = {"result": {"txid": ["TP-123"]}}
+        mock_db.return_value = MagicMock()
+
+        with patch("kraken_connector.GoalValidator", mock_gv):
+            result = KrakenConnector.place_order(
+                pair="BTC-USD", side="sell", volume=0.001,
+                order_type="take-profit", price=105000.0,
+                confidence=0.80
+            )
+        call_data = mock_req.call_args[0][1]
+        self.assertEqual(call_data["ordertype"], "take-profit")
+        self.assertEqual(call_data["price"], "105000.0")
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    @patch("kraken_connector._init_trade_db")
+    def test_trailing_stop_order(self, mock_db, mock_req):
+        """Trailing-stop order maps trailing_offset to price field."""
+        from kraken_connector import KrakenConnector
+
+        mock_gv = MagicMock()
+        mock_gv.should_trade.return_value = True
+        mock_req.return_value = {"result": {"txid": ["TS-123"]}}
+        mock_db.return_value = MagicMock()
+
+        with patch("kraken_connector.GoalValidator", mock_gv):
+            result = KrakenConnector.place_order(
+                pair="BTC-USD", side="sell", volume=0.001,
+                order_type="trailing-stop", trailing_offset=500.0,
+                confidence=0.80
+            )
+        call_data = mock_req.call_args[0][1]
+        self.assertEqual(call_data["ordertype"], "trailing-stop")
+        self.assertEqual(call_data["price"], "500.0")
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    @patch("kraken_connector._init_trade_db")
+    def test_iceberg_order(self, mock_db, mock_req):
+        """Iceberg order includes displayvol."""
+        from kraken_connector import KrakenConnector
+
+        mock_gv = MagicMock()
+        mock_gv.should_trade.return_value = True
+        mock_req.return_value = {"result": {"txid": ["ICE-123"]}}
+        mock_db.return_value = MagicMock()
+
+        with patch("kraken_connector.GoalValidator", mock_gv):
+            result = KrakenConnector.place_order(
+                pair="BTC-USD", side="buy", volume=1.0,
+                order_type="limit", price=95000.0,
+                visible_volume=0.1, confidence=0.80
+            )
+        call_data = mock_req.call_args[0][1]
+        self.assertEqual(call_data["displayvol"], "0.1")
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    @patch("kraken_connector._init_trade_db")
+    def test_conditional_close_order(self, mock_db, mock_req):
+        """Conditional close order maps to close[ordertype], close[price], close[price2]."""
+        from kraken_connector import KrakenConnector
+
+        mock_gv = MagicMock()
+        mock_gv.should_trade.return_value = True
+        mock_req.return_value = {"result": {"txid": ["CC-123"]}}
+        mock_db.return_value = MagicMock()
+
+        with patch("kraken_connector.GoalValidator", mock_gv):
+            result = KrakenConnector.place_order(
+                pair="BTC-USD", side="buy", volume=0.001,
+                order_type="limit", price=95000.0,
+                close_order={"ordertype": "stop-loss-limit", "price": "93000.0", "price2": "92500.0"},
+                confidence=0.80
+            )
+        call_data = mock_req.call_args[0][1]
+        self.assertEqual(call_data["close[ordertype]"], "stop-loss-limit")
+        self.assertEqual(call_data["close[price]"], "93000.0")
+        self.assertEqual(call_data["close[price2]"], "92500.0")
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    @patch("kraken_connector._init_trade_db")
+    def test_post_only_flag(self, mock_db, mock_req):
+        """oflags='post' is passed to API."""
+        from kraken_connector import KrakenConnector
+
+        mock_gv = MagicMock()
+        mock_gv.should_trade.return_value = True
+        mock_req.return_value = {"result": {"txid": ["PO-123"]}}
+        mock_db.return_value = MagicMock()
+
+        with patch("kraken_connector.GoalValidator", mock_gv):
+            result = KrakenConnector.place_order(
+                pair="BTC-USD", side="buy", volume=0.001,
+                order_type="limit", price=95000.0,
+                oflags="post", confidence=0.80
+            )
+        call_data = mock_req.call_args[0][1]
+        self.assertEqual(call_data["oflags"], "post")
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    @patch("kraken_connector._init_trade_db")
+    def test_ioc_time_in_force(self, mock_db, mock_req):
+        """timeinforce='IOC' is passed to API."""
+        from kraken_connector import KrakenConnector
+
+        mock_gv = MagicMock()
+        mock_gv.should_trade.return_value = True
+        mock_req.return_value = {"result": {"txid": ["IOC-123"]}}
+        mock_db.return_value = MagicMock()
+
+        with patch("kraken_connector.GoalValidator", mock_gv):
+            result = KrakenConnector.place_order(
+                pair="BTC-USD", side="buy", volume=0.001,
+                order_type="limit", price=95000.0,
+                timeinforce="IOC", confidence=0.80
+            )
+        call_data = mock_req.call_args[0][1]
+        self.assertEqual(call_data["timeinforce"], "IOC")
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    @patch("kraken_connector._init_trade_db")
+    def test_take_profit_limit_order(self, mock_db, mock_req):
+        """Take-profit-limit maps price (limit) and price2 (trigger)."""
+        from kraken_connector import KrakenConnector
+
+        mock_gv = MagicMock()
+        mock_gv.should_trade.return_value = True
+        mock_req.return_value = {"result": {"txid": ["TPL-123"]}}
+        mock_db.return_value = MagicMock()
+
+        with patch("kraken_connector.GoalValidator", mock_gv):
+            result = KrakenConnector.place_order(
+                pair="ETH-USD", side="sell", volume=1.0,
+                order_type="take-profit-limit", price=4000.0, stop_price=4100.0,
+                confidence=0.85
+            )
+        call_data = mock_req.call_args[0][1]
+        self.assertEqual(call_data["ordertype"], "take-profit-limit")
+        self.assertEqual(call_data["price"], "4000.0")
+        self.assertEqual(call_data["price2"], "4100.0")
+
+
+class TestDynamicFees(unittest.TestCase):
+    """Test get_fee_schedule method."""
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    def test_get_fee_schedule(self, mock_req):
+        """Fee schedule returns parsed maker/taker fees."""
+        from kraken_connector import KrakenConnector
+
+        mock_req.return_value = {
+            "error": [],
+            "result": {
+                "currency": "ZUSD",
+                "volume": "500.00",
+                "fees": {"XXBTZUSD": {"fee": "0.2600"}},
+                "fees_maker": {"XXBTZUSD": {"fee": "0.1600"}}
+            }
+        }
+        result = KrakenConnector.get_fee_schedule("BTC-USD")
+        self.assertIn("maker_fee", result)
+        self.assertIn("taker_fee", result)
+        self.assertEqual(result["maker_fee"], 0.16)
+        self.assertEqual(result["taker_fee"], 0.26)
+        self.assertEqual(result["volume_30d"], 500.0)
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    def test_fee_schedule_high_volume_tier(self, mock_req):
+        """Higher volume tier returns lower fees."""
+        from kraken_connector import KrakenConnector
+
+        mock_req.return_value = {
+            "error": [],
+            "result": {
+                "currency": "ZUSD",
+                "volume": "250000.00",
+                "fees": {"XXBTZUSD": {"fee": "0.2000"}},
+                "fees_maker": {"XXBTZUSD": {"fee": "0.1200"}}
+            }
+        }
+        result = KrakenConnector.get_fee_schedule("BTC-USD")
+        self.assertEqual(result["maker_fee"], 0.12)
+        self.assertEqual(result["taker_fee"], 0.20)
+        self.assertEqual(result["volume_30d"], 250000.0)
+
+    @patch("kraken_connector.API_KEY", "")
+    @patch("kraken_connector.PRIVATE_KEY", "")
+    def test_fee_schedule_no_keys(self):
+        """Fee schedule without API keys returns error."""
+        from kraken_connector import KrakenConnector
+
+        result = KrakenConnector.get_fee_schedule()
+        self.assertIn("error", result)
+
+    @patch("kraken_connector.API_KEY", "test_key")
+    @patch("kraken_connector.PRIVATE_KEY", "dGVzdF9wcml2YXRlX2tleQ==")
+    @patch("kraken_connector.KrakenConnector._private_request")
+    def test_fee_schedule_no_pair(self, mock_req):
+        """Fee schedule without pair calls TradeVolume with no pair param."""
+        from kraken_connector import KrakenConnector
+
+        mock_req.return_value = {
+            "error": [],
+            "result": {
+                "currency": "ZUSD",
+                "volume": "100.00",
+                "fees": {},
+                "fees_maker": {}
+            }
+        }
+        result = KrakenConnector.get_fee_schedule()
+        # Should still call _private_request with "TradeVolume"
+        mock_req.assert_called_once()
+        call_args = mock_req.call_args
+        self.assertEqual(call_args[0][0], "TradeVolume")
+        # With empty fees, should fall back to defaults
+        self.assertEqual(result["maker_fee"], 0.16)
+        self.assertEqual(result["taker_fee"], 0.26)
+
+
 if __name__ == "__main__":
     unittest.main()

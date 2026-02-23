@@ -50,21 +50,44 @@ API_VERSION = "0"
 # Trade tracking database
 KRAKEN_TRADE_DB = Path(__file__).parent / "kraken_trades.db"
 
-# Kraken pair mappings
+# Kraken pair mappings — these are the API pair parameter names (not asset codes)
+# Kraken uses "XBT" in pair names for Bitcoin (not "BTC" or "XXBT")
+# Result keys come back differently (e.g., "XXBTZUSD") — we handle that in lookups
 KRAKEN_PAIRS = {
-    "BTC": "XXBT",  # Bitcoin special case
-    "XDG": "XDG",   # Doge
-    "ETH": "XETH",
+    "BTC": "XBT",   # Bitcoin: API pair = XBTUSD, result key = XXBTZUSD
+    "ETH": "ETH",   # Ethereum: API pair = ETHUSD, result key = XETHZUSD
     "SOL": "SOL",
     "AVAX": "AVAX",
     "LINK": "LINK",
     "DOGE": "XDG",
+    "XDG": "XDG",
+    "XRP": "XRP",
+    "ADA": "ADA",
+    "DOT": "DOT",
 }
 
 
 def _get_kraken_pair(symbol: str) -> str:
-    """Map standard symbol to Kraken asset code."""
+    """Map standard symbol to Kraken API pair prefix (e.g., BTC -> XBT)."""
     return KRAKEN_PAIRS.get(symbol, symbol)
+
+
+def _first_result(result: dict, fallback_key: str = ""):
+    """Extract the first value from a Kraken result dict.
+
+    Kraken returns result keys that differ from query pair names
+    (e.g., query XBTUSD → result key XXBTZUSD). This helper grabs
+    whatever the first (and usually only) key is.
+    """
+    if not result or not isinstance(result, dict):
+        return {} if not fallback_key else []
+    # Try exact key first, then first available
+    if fallback_key and fallback_key in result:
+        return result[fallback_key]
+    for key in result:
+        if key != "last":  # skip metadata keys
+            return result[key]
+    return {} if not fallback_key else []
 
 
 def _sign_request(endpoint: str, data: dict, nonce: str) -> tuple:
@@ -165,11 +188,12 @@ class KrakenConnector:
                 return {"error": data["error"]}
 
             result = data.get("result", {})
+            book = _first_result(result)
             return {
                 "pair": pair,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-                "asks": result.get("asks", [])[:depth],  # [price, volume, timestamp]
-                "bids": result.get("bids", [])[:depth],
+                "asks": (book.get("asks", []) if isinstance(book, dict) else result.get("asks", []))[:depth],
+                "bids": (book.get("bids", []) if isinstance(book, dict) else result.get("bids", []))[:depth],
             }
 
         except Exception as e:
@@ -191,7 +215,8 @@ class KrakenConnector:
                 return {"error": data["error"]}
 
             result = data.get("result", {})
-            trades = result.get(kraken_pair, [])[-limit:]  # Most recent
+            trades_data = _first_result(result, kraken_pair)
+            trades = (trades_data if isinstance(trades_data, list) else [])[-limit:]
 
             return {
                 "pair": pair,
@@ -219,7 +244,7 @@ class KrakenConnector:
                 return {"error": data["error"]}
 
             result = data.get("result", {})
-            ticker = result.get(kraken_pair, {})
+            ticker = _first_result(result)
 
             return {
                 "pair": pair,
@@ -276,22 +301,52 @@ class KrakenConnector:
         order_type: str = "limit",
         price: float = None,
         confidence: float = 0.70,
+        # New advanced parameters:
+        stop_price: float = None,          # For stop-loss/take-profit trigger price
+        trailing_offset: float = None,     # Trailing stop offset in price units
+        close_order: dict = None,          # Conditional close: {"ordertype": "stop-loss-limit", "price": X, "price2": Y}
+        oflags: str = None,                # Order flags: "post" (post-only), "fcib" (fee in base), "fciq" (fee in quote)
+        timeinforce: str = None,           # "GTC", "IOC", "GTD"
+        visible_volume: float = None,      # Iceberg: visible portion of total volume
     ) -> dict:
         """Place an order on Kraken, gated through GoalValidator.
 
         BE A MAKER: defaults to limit orders (0.16% fee vs 0.26% taker).
 
+        Supports advanced order types:
+            - "limit"              — standard limit order
+            - "market"             — market order
+            - "stop-loss"          — stop price triggers market sell/buy
+            - "take-profit"        — take profit triggers market
+            - "stop-loss-limit"    — stop triggers limit order (price=limit, stop_price=trigger)
+            - "take-profit-limit"  — take profit triggers limit
+            - "trailing-stop"      — trailing stop offset
+            - "trailing-stop-limit"— trailing stop triggers limit
+
         Args:
             pair: Standard pair (e.g., "BTC-USD")
             side: "buy" or "sell"
             volume: Order size in base currency
-            order_type: "limit" (default, maker) or "market"
-            price: Required for limit orders
+            order_type: Order type (default "limit")
+            price: Limit price (or trigger price for stop/take-profit types)
             confidence: Signal confidence (0-1), must be >= 0.70
+            stop_price: Trigger price for stop-loss-limit / take-profit-limit
+            trailing_offset: Trailing stop offset in price units
+            close_order: Conditional close dict: {"ordertype": ..., "price": ..., "price2": ...}
+            oflags: Order flags: "post", "fcib", "fciq", "nompp" (comma-separated)
+            timeinforce: Time in force: "GTC", "IOC", "GTD"
+            visible_volume: Visible volume for iceberg orders
 
         Returns:
             dict with txid on success, error on failure
         """
+        # Order types that don't require a price param upfront
+        TRIGGER_ORDER_TYPES = {
+            "stop-loss", "take-profit", "trailing-stop",
+            "stop-loss-limit", "take-profit-limit", "trailing-stop-limit",
+            "market",
+        }
+
         # GoalValidator gate
         direction = side.upper()
         if GoalValidator:
@@ -305,7 +360,7 @@ class KrakenConnector:
             logger.warning("No GoalValidator, confidence %.2f < 0.70 — blocking", confidence)
             return {"error": f"Confidence {confidence:.2f} below 0.70 threshold"}
 
-        # BE A MAKER: reject market orders unless explicitly requested
+        # BE A MAKER: reject limit orders without price (but allow trigger types)
         if order_type == "limit" and price is None:
             return {"error": "Limit order requires price parameter"}
 
@@ -317,8 +372,55 @@ class KrakenConnector:
             "ordertype": order_type,
             "volume": str(volume),
         }
-        if price is not None:
-            order_data["price"] = str(price)
+
+        # ── Map advanced parameters to Kraken API fields ──
+        if order_type in ("stop-loss-limit", "take-profit-limit"):
+            # price = limit price, price2 = trigger (stop) price
+            if price is not None:
+                order_data["price"] = str(price)
+            if stop_price is not None:
+                order_data["price2"] = str(stop_price)
+        elif order_type in ("stop-loss", "take-profit"):
+            # price = trigger price
+            if price is not None:
+                order_data["price"] = str(price)
+        elif order_type == "trailing-stop":
+            # price = trailing offset (e.g., +100 means $100 from peak)
+            if trailing_offset is not None:
+                order_data["price"] = str(trailing_offset)
+        elif order_type == "trailing-stop-limit":
+            # price = trailing offset, price2 = limit offset
+            if trailing_offset is not None:
+                order_data["price"] = str(trailing_offset)
+            if price is not None and trailing_offset is not None:
+                # When both provided, price goes to price2 (limit), trailing to price
+                order_data["price"] = str(trailing_offset)
+                order_data["price2"] = str(price)
+        else:
+            # Standard limit/market
+            if price is not None:
+                order_data["price"] = str(price)
+
+        # Iceberg order: visible volume
+        if visible_volume is not None:
+            order_data["displayvol"] = str(visible_volume)
+
+        # Order flags (post-only, fee currency, etc.)
+        if oflags is not None:
+            order_data["oflags"] = oflags
+
+        # Time in force
+        if timeinforce is not None:
+            order_data["timeinforce"] = timeinforce
+
+        # Conditional close order
+        if close_order and isinstance(close_order, dict):
+            if close_order.get("ordertype"):
+                order_data["close[ordertype]"] = str(close_order["ordertype"])
+            if close_order.get("price"):
+                order_data["close[price]"] = str(close_order["price"])
+            if close_order.get("price2"):
+                order_data["close[price2]"] = str(close_order["price2"])
 
         logger.info(
             "Placing %s %s order: %s %.6f @ %s (conf=%.2f)",
@@ -350,6 +452,56 @@ class KrakenConnector:
             logger.error("Failed to record trade in DB: %s", e)
 
         return result
+
+    @staticmethod
+    def get_fee_schedule(pair: str = None) -> dict:
+        """Get current fee tier based on 30-day trading volume.
+
+        Uses Kraken TradeVolume API endpoint.
+
+        Args:
+            pair: Optional pair for pair-specific fee info (e.g., "BTC-USD")
+
+        Returns:
+            {"fee_tier": str, "maker_fee": float, "taker_fee": float, "volume_30d": float}
+            or {"error": ...} on failure.
+        """
+        data = {}
+        if pair:
+            kraken_pair = _get_kraken_pair(pair.split("-")[0]) + "USD"
+            data["pair"] = kraken_pair
+
+        result = KrakenConnector._private_request("TradeVolume", data if data else None)
+
+        if result.get("error") and result["error"]:
+            return {"error": result["error"]}
+
+        res = result.get("result", {})
+        volume_30d = float(res.get("volume", "0") or "0")
+        currency = res.get("currency", "ZUSD")
+
+        # Extract fee info — fees are keyed by the Kraken result pair name
+        maker_fee = 0.16  # default
+        taker_fee = 0.26  # default
+
+        fees = res.get("fees", {})
+        fees_maker = res.get("fees_maker", {})
+
+        # Get the first pair's fee data (or the specific pair if provided)
+        if fees:
+            first_fee = next(iter(fees.values()), {})
+            taker_fee = float(first_fee.get("fee", "0.26") or "0.26")
+
+        if fees_maker:
+            first_maker = next(iter(fees_maker.values()), {})
+            maker_fee = float(first_maker.get("fee", "0.16") or "0.16")
+
+        return {
+            "fee_tier": currency,
+            "maker_fee": maker_fee,
+            "taker_fee": taker_fee,
+            "volume_30d": volume_30d,
+        }
 
     @staticmethod
     def cancel_order(txid: str) -> dict:

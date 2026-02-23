@@ -58,6 +58,37 @@ LIQ_DEPTH_FAIL_BLOCK = os.environ.get(
 ).lower() not in ("0", "false", "no", "")
 FALLBACK_PORTFOLIO_USD = _env_float("RISK_CONTROLLER_FALLBACK_PORTFOLIO_USD", 1.0)
 SAFE_MIN_PORTFOLIO_USD = max(1.0, FALLBACK_PORTFOLIO_USD)
+RISK_PROFILE = str(
+    os.environ.get("RISK_PROFILE", os.environ.get("RISK_CONTROLLER_PROFILE", "legacy"))
+).strip().lower()
+MAX_OPEN_ORDERS_OVERRIDE = int(os.environ.get("RISK_CONTROLLER_MAX_OPEN_ORDERS", "0") or 0)
+
+SMART_PROFILE_PRESETS = {
+    "smart_safe": {
+        "trade_pct": 0.01,
+        "trade_cap_usd": 10.0,
+        "daily_loss_pct": 0.03,
+        "daily_loss_cap_usd": 20.0,
+        "open_orders_divisor_usd": 40.0,
+        "open_orders_cap": 6,
+    },
+    "smart_balanced": {
+        "trade_pct": 0.03,
+        "trade_cap_usd": 20.0,
+        "daily_loss_pct": 0.05,
+        "daily_loss_cap_usd": 35.0,
+        "open_orders_divisor_usd": 10.0,
+        "open_orders_cap": 25,
+    },
+    "smart_aggressive": {
+        "trade_pct": 0.05,
+        "trade_cap_usd": 35.0,
+        "daily_loss_pct": 0.08,
+        "daily_loss_cap_usd": 60.0,
+        "open_orders_divisor_usd": 8.0,
+        "open_orders_cap": 40,
+    },
+}
 
 
 class MarketState:
@@ -69,10 +100,17 @@ class MarketState:
         self._book_cache = {}  # pair -> (depth, timestamp, side)
 
     def get_price(self, pair, urgent=False):
-        """Get spot price with caching. Pass urgent=True to bypass cache."""
+        """Get spot price with caching. Pass urgent=True to bypass cache.
+
+        Tries Coinbase first, then falls back to Kraken public ticker.
+        """
         cache = self._price_cache.get(pair)
         if not urgent and cache and time.time() - cache[1] < CACHE_TTL:
             return cache[0]
+
+        price = None
+
+        # Primary: Coinbase
         try:
             # Use USD pair for data (more liquid)
             data_pair = pair.replace("-USDC", "-USD")
@@ -80,10 +118,28 @@ class MarketState:
             req = urllib.request.Request(url, headers={"User-Agent": "RiskController/1.0"})
             resp = urllib.request.urlopen(req, timeout=5)
             price = float(json.loads(resp.read())["data"]["amount"])
+        except Exception:
+            price = None
+
+        # Fallback: Kraken public ticker
+        if price is None or price <= 0:
+            try:
+                from kraken_connector import KrakenConnector
+                data_pair = pair.replace("-USDC", "-USD")
+                vol = KrakenConnector.get_24h_volume(data_pair)
+                if vol and not vol.get("error"):
+                    kraken_price = float(vol.get("last_price", 0))
+                    if kraken_price > 0:
+                        price = kraken_price
+                        logger.info("Price from Kraken fallback: %s = $%.2f", pair, price)
+            except Exception as e:
+                logger.debug("Kraken price fallback failed: %s", e)
+
+        if price is not None and price > 0:
             self._price_cache[pair] = (price, time.time())
             return price
-        except Exception:
-            return cache[0] if cache else None
+
+        return cache[0] if cache else None
 
     def get_candles(self, pair, granularity=300, limit=50):
         """Get recent candles for volatility/trend calculation."""
@@ -299,6 +355,25 @@ class RiskController:
                 trade_count INTEGER NOT NULL DEFAULT 0,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS perp_positions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_id TEXT NOT NULL,
+                agent TEXT,
+                side TEXT NOT NULL,
+                size REAL NOT NULL,
+                entry_price REAL,
+                leverage REAL DEFAULT 1.0,
+                unrealized_pnl REAL DEFAULT 0,
+                status TEXT DEFAULT 'open',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                closed_at TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS perp_daily_risk_state (
+                state_date TEXT PRIMARY KEY,
+                perp_daily_loss REAL NOT NULL DEFAULT 0,
+                perp_trade_count INTEGER NOT NULL DEFAULT 0,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         """)
         self._db.execute("PRAGMA journal_mode=WAL")
         self._db.execute("PRAGMA busy_timeout=5000")
@@ -421,6 +496,18 @@ class RiskController:
         if portfolio_value <= 0:
             return 0
 
+        preset = SMART_PROFILE_PRESETS.get(str(RISK_PROFILE or "").lower())
+        if preset:
+            base = float(portfolio_value) * float(preset["trade_pct"])
+            if volatility is not None:
+                # Keep smart profiles adaptive in turbulence.
+                vol_mult = 1.0 / (1.0 + max(0.0, float(volatility)) * 6.0)
+                base *= max(0.35, vol_mult)
+            if trend is not None and float(trend) < 0:
+                base *= max(0.25, 1.0 + float(trend) * 0.5)
+            base = min(base, float(preset["trade_cap_usd"]))
+            return max(1.0, round(base, 2))
+
         # Logarithmic scaling: larger portfolios trade proportionally less
         log_factor = max(0, math.log10(max(1, portfolio_value)))
         trade_fraction = log_factor * 0.03  # ~6.6% at $100, ~9% at $1000, ~12% at $10000
@@ -449,6 +536,12 @@ class RiskController:
         """
         if portfolio_value <= 0:
             return 1.00
+
+        preset = SMART_PROFILE_PRESETS.get(str(RISK_PROFILE or "").lower())
+        if preset:
+            raw = float(portfolio_value) * float(preset["daily_loss_pct"])
+            capped = min(raw, float(preset["daily_loss_cap_usd"]))
+            return max(1.0, round(capped, 2))
 
         log_factor = max(0, math.log10(max(1, portfolio_value)))
         loss_fraction = 0.03 + log_factor * 0.005
@@ -496,6 +589,21 @@ class RiskController:
             base -= vol_adj
 
         return max(0.10, min(0.30, base))
+
+    def max_open_orders(self, portfolio_value):
+        """Dynamic pending-order cap for BUY approvals."""
+        if MAX_OPEN_ORDERS_OVERRIDE > 0:
+            return max(1, int(MAX_OPEN_ORDERS_OVERRIDE))
+
+        preset = SMART_PROFILE_PRESETS.get(str(RISK_PROFILE or "").lower())
+        if preset:
+            divisor = max(1.0, float(preset["open_orders_divisor_usd"]))
+            cap = max(1, int(preset["open_orders_cap"]))
+            dynamic = int(float(portfolio_value) / divisor)
+            return max(1, min(cap, dynamic))
+
+        # Legacy profile keeps historical behavior (no explicit open-order cap).
+        return 0
 
     def kelly_fraction(self, win_rate, avg_win, avg_loss, downside_std=0.0):
         """Kelly Criterion optimal bet fraction.
@@ -650,6 +758,20 @@ class RiskController:
 
             # 5. Check total pending allocations across ALL agents (cross-process safe)
             # Stale rows are already expired above to prevent process-dead accumulation.
+            pending_count_row = cur.execute(
+                "SELECT COUNT(*) FROM pending_allocations WHERE status='pending'"
+            ).fetchone()
+            pending_count = int(pending_count_row[0] if pending_count_row else 0)
+            if direction == "BUY":
+                max_open_orders = self.max_open_orders(portfolio_value)
+                if max_open_orders > 0 and pending_count >= max_open_orders:
+                    self._db.rollback()
+                    return (
+                        False,
+                        f"Open-order cap reached ({pending_count}/{max_open_orders})",
+                        0,
+                    )
+
             row = cur.execute(
                 "SELECT COALESCE(SUM(size_usd), 0) FROM pending_allocations WHERE status='pending'"
             ).fetchone()
@@ -660,7 +782,7 @@ class RiskController:
 
             # 6. Rate limiting: max trades per day scales with portfolio
             # SELL/exit orders are EXEMPT — you must ALWAYS be able to exit a position
-            max_trades = max(50, int(math.log10(max(1, portfolio_value)) * 40))
+            max_trades = max(100, int(math.log10(max(1, portfolio_value)) * 80))
             if direction == "BUY" and self._trade_count_today >= max_trades:
                 self._db.rollback()
                 return False, f"Trade limit reached ({self._trade_count_today}/{max_trades})", 0
@@ -694,6 +816,109 @@ class RiskController:
                 pass
             logger.error("approve_trade error: %s", e)
             return False, f"Risk controller error: {e}", 0
+
+    # ==========================================
+    # PERPETUAL FUTURES RISK
+    # ==========================================
+
+    def get_perp_risk_params(self, portfolio_value, pair=None, leverage=1.0):
+        """Get dynamic risk parameters for perpetual futures trades.
+
+        Returns standard params plus perp-specific limits:
+        - max_perp_trade_usd: divided by leverage (notional exposure stays same)
+        - perp_daily_loss_limit: tighter than spot (1% vs 2%)
+        - max_perp_positions: hard cap on concurrent positions
+        """
+        # Start with standard spot params
+        params = self.get_risk_params(portfolio_value, pair)
+
+        lev = max(1.0, float(leverage or 1.0))
+
+        # Perp-specific: trade size divided by leverage (same effective exposure)
+        params["max_perp_trade_usd"] = round(params["max_trade_usd"] / lev, 2)
+
+        # Tighter daily loss limit for perps: fraction of spot daily loss
+        spot_daily_loss = self.max_daily_loss(portfolio_value)
+        params["perp_daily_loss_limit"] = max(1.00, round(spot_daily_loss * 0.5, 2))
+
+        # Position count cap
+        params["max_perp_positions"] = int(os.environ.get("PERP_MAX_POSITIONS", "5"))
+
+        # Leverage info
+        params["leverage"] = lev
+        params["effective_exposure"] = round(params["max_perp_trade_usd"] * lev, 2)
+
+        # Perp daily loss tracking
+        today = str(datetime.now(timezone.utc).date())
+        try:
+            row = self._db.execute(
+                "SELECT perp_daily_loss FROM perp_daily_risk_state WHERE state_date=?",
+                (today,)
+            ).fetchone()
+            params["perp_daily_loss_so_far"] = float(row["perp_daily_loss"]) if row else 0.0
+        except Exception:
+            params["perp_daily_loss_so_far"] = 0.0
+
+        return params
+
+    def approve_perp_trade(self, agent_name, pair, direction, size_usd,
+                           portfolio_value, leverage=1.0, margin_health=None):
+        """Approve a perpetual futures trade with additional leverage/margin gates.
+
+        Args:
+            agent_name: requesting agent
+            pair: trading pair (perp product_id)
+            direction: BUY or SELL
+            size_usd: requested trade size in USD (margin, not notional)
+            portfolio_value: current portfolio value
+            leverage: requested leverage
+            margin_health: dict from CoinbaseDerivativesConnector.margin_health()
+
+        Returns: (approved: bool, reason: str, adjusted_size: float)
+        """
+        direction = self._normalize_direction(direction)
+
+        # SELLs/closes always allowed (must be able to exit)
+        if direction == "SELL":
+            return self.approve_trade(agent_name, pair, direction, size_usd, portfolio_value)
+
+        lev = max(1.0, float(leverage or 1.0))
+        max_lev = float(os.environ.get("PERP_MAX_LEVERAGE", "3.0"))
+
+        # 1. Leverage cap
+        if lev > max_lev:
+            return False, f"LEVERAGE_CAP: {lev}x > {max_lev}x maximum", 0
+
+        # 2. Margin health gate
+        min_ratio = float(os.environ.get("PERP_MIN_MARGIN_HEALTH_RATIO", "2.0"))
+        if isinstance(margin_health, dict):
+            ratio = float(margin_health.get("margin_ratio", 0))
+            if ratio < min_ratio:
+                return False, f"MARGIN_UNHEALTHY: ratio {ratio:.2f} < {min_ratio:.2f}", 0
+            if not margin_health.get("can_open_new", False):
+                return False, f"MARGIN_BLOCKED: {margin_health.get('open_positions', '?')}/{margin_health.get('max_perp_positions', '?')} positions", 0
+
+        # 3. Perp daily loss check
+        perp_params = self.get_perp_risk_params(portfolio_value, pair, lev)
+        if perp_params.get("perp_daily_loss_so_far", 0) >= perp_params.get("perp_daily_loss_limit", 1):
+            return False, f"PERP_DAILY_LOSS: ${perp_params['perp_daily_loss_so_far']:.2f} >= limit ${perp_params['perp_daily_loss_limit']:.2f}", 0
+
+        # 4. Leverage-adjusted effective size for the standard approve_trade gate
+        # If we're buying $10 at 2x leverage, the effective exposure is $20
+        effective_size = size_usd * lev
+        # Cap at perp max trade size
+        max_perp_size = perp_params.get("max_perp_trade_usd", size_usd)
+        adjusted = min(size_usd, max_perp_size)
+
+        # 5. Delegate to standard approve_trade with effective exposure
+        approved, reason, adj = self.approve_trade(
+            agent_name, pair, direction, adjusted, portfolio_value
+        )
+
+        if approved:
+            reason = reason + f"|leverage={lev}x|effective_exposure=${adj * lev:.2f}"
+
+        return approved, reason, adj
 
     def resolve_allocation(self, agent_name, pair, trade_id=None):
         """Mark a pending allocation as resolved after trade completes or fails."""
@@ -839,6 +1064,7 @@ class RiskController:
             "max_daily_loss": self.max_daily_loss(portfolio_value),
             "min_reserve": self.min_reserve(portfolio_value, vol),
             "max_position_pct": self.max_position_pct(portfolio_value, vol),
+            "max_open_orders": self.max_open_orders(portfolio_value),
             "liquidity_depth_usd": round(float(book_depth_usd or 0.0), 2),
             "liquidity_cap_usd": round(float(liquidity_cap or 0.0), 2),
             "max_pair_position_usd": round(
@@ -847,8 +1073,13 @@ class RiskController:
             ),
             "daily_loss_so_far": round(self._daily_loss, 2),
             "trades_today": self._trade_count_today,
+            "pending_allocations": int(
+                (self._db.execute("SELECT COUNT(*) FROM pending_allocations WHERE status='pending'").fetchone() or [0])[0]
+                or 0
+            ),
             "can_buy": trend > -0.5,
             "regime": "UPTREND" if trend > 0.3 else "DOWNTREND" if trend < -0.3 else "RANGING",
+            "risk_profile": str(RISK_PROFILE or "legacy"),
         }
         return params
 

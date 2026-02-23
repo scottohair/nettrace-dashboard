@@ -493,6 +493,213 @@ class CapitalAllocator:
             self.pull_to_usd()
         self.push_to_dashboard()
 
+    # ------------------------------------------------------------------
+    # Cross-venue rebalancing
+    # ------------------------------------------------------------------
+    def rebalance_across_venues(self, target_weights=None, min_transfer_usd=5.0):
+        """Rebalance capital across trading venues (Coinbase, Kraken, E*Trade).
+
+        Gets balances from all venues and, if any venue is below its target
+        allocation by more than min_transfer_usd, triggers a transfer from
+        the highest-balance venue.
+
+        Args:
+            target_weights: Dict mapping venue name to weight (0-1).
+                Defaults to equal split: {"coinbase": 0.5, "kraken": 0.5}.
+                E*Trade is excluded from auto-rebalancing (ACH only).
+            min_transfer_usd: Minimum imbalance to trigger a transfer (default $5).
+
+        Returns:
+            dict: Rebalancing result with actions taken (or None if no action needed).
+        """
+        try:
+            from cross_venue_transfer import CrossVenueTransfer, CROSS_VENUE_MIN_RESERVE_USD
+        except ImportError:
+            try:
+                from agents.cross_venue_transfer import CrossVenueTransfer, CROSS_VENUE_MIN_RESERVE_USD
+            except ImportError:
+                logger.debug("CrossVenueTransfer not available for rebalancing")
+                return None
+
+        if target_weights is None:
+            target_weights = {"coinbase": 0.5, "kraken": 0.5}
+
+        xfer = CrossVenueTransfer()
+
+        try:
+            balances = xfer.get_venue_balances()
+        except Exception as e:
+            logger.warning("Cannot get venue balances for rebalancing: %s", e)
+            xfer.close()
+            return None
+
+        # Calculate USD-equivalent balance per venue (stablecoins + USD only)
+        venue_usd = {}
+        for venue in target_weights:
+            venue_bal = balances.get(venue, {})
+            if isinstance(venue_bal, dict) and venue_bal.get("error"):
+                logger.warning("Skipping %s in rebalance (error: %s)", venue, venue_bal["error"])
+                xfer.close()
+                return None
+            total = 0.0
+            if isinstance(venue_bal, dict):
+                for curr, val in venue_bal.items():
+                    if curr in ("USD", "USDC", "ZUSD"):
+                        total += float(val or 0)
+            venue_usd[venue] = total
+
+        total_across_venues = sum(venue_usd.values())
+        if total_across_venues <= 0:
+            logger.debug("No rebalanceable capital across venues ($0)")
+            xfer.close()
+            return None
+
+        # Calculate target amount per venue
+        targets = {v: total_across_venues * w for v, w in target_weights.items()}
+
+        # Find the most over-target and most under-target venues
+        deltas = {v: venue_usd.get(v, 0) - targets[v] for v in target_weights}
+
+        over_venue = max(deltas, key=lambda v: deltas[v])
+        under_venue = min(deltas, key=lambda v: deltas[v])
+
+        over_delta = deltas[over_venue]
+        under_delta = deltas[under_venue]
+
+        # Only rebalance if the under-target venue is below by more than min_transfer_usd
+        if abs(under_delta) < min_transfer_usd:
+            logger.debug(
+                "Venues balanced within $%.2f threshold (max delta: $%.2f)",
+                min_transfer_usd, abs(under_delta),
+            )
+            xfer.close()
+            return {"action": "none", "reason": "balanced", "deltas": deltas}
+
+        # Calculate transfer amount (half the imbalance to avoid oscillation)
+        transfer_amount = round(min(abs(under_delta), over_delta) / 2.0, 2)
+
+        # Ensure we respect minimum reserves
+        if venue_usd[over_venue] - transfer_amount < CROSS_VENUE_MIN_RESERVE_USD:
+            transfer_amount = max(
+                0, venue_usd[over_venue] - CROSS_VENUE_MIN_RESERVE_USD
+            )
+            transfer_amount = round(transfer_amount, 2)
+
+        if transfer_amount < min_transfer_usd:
+            logger.debug(
+                "Transfer amount $%.2f below minimum $%.2f after reserve check",
+                transfer_amount, min_transfer_usd,
+            )
+            xfer.close()
+            return {"action": "none", "reason": "below_minimum_after_reserve", "deltas": deltas}
+
+        logger.info(
+            "Rebalancing: transfer $%.2f from %s ($%.2f) to %s ($%.2f)",
+            transfer_amount, over_venue, venue_usd[over_venue],
+            under_venue, venue_usd[under_venue],
+        )
+
+        # Execute the transfer
+        asset = "USDC"  # Use USDC for cross-venue transfers
+        result = None
+        if over_venue == "coinbase" and under_venue == "kraken":
+            result = xfer.coinbase_to_kraken(asset, transfer_amount)
+        elif over_venue == "kraken" and under_venue == "coinbase":
+            result = xfer.kraken_to_coinbase(asset, transfer_amount)
+        else:
+            logger.info(
+                "No automated path for %s -> %s. Manual intervention needed.",
+                over_venue, under_venue,
+            )
+            xfer.close()
+            return {
+                "action": "manual_needed",
+                "from": over_venue,
+                "to": under_venue,
+                "amount": transfer_amount,
+                "deltas": deltas,
+            }
+
+        xfer.close()
+
+        if result and result.get("error"):
+            logger.warning("Rebalance transfer failed: %s", result["error"])
+            return {"action": "failed", "error": result["error"], "deltas": deltas}
+
+        return {
+            "action": "transferred",
+            "from": over_venue,
+            "to": under_venue,
+            "amount": transfer_amount,
+            "asset": asset,
+            "transfer_result": result,
+            "deltas": deltas,
+        }
+
+    # ------------------------------------------------------------------
+    # Kraken staking / earn integration
+    # ------------------------------------------------------------------
+    def allocate_to_staking(self):
+        """Move idle Kraken capital to staking for passive yield.
+
+        Only stakes from savings/subsavings accounts (never trading capital).
+        Runs after venue rebalancing to use freshly deposited funds.
+        """
+        try:
+            from kraken_staking_connector import KrakenStakingConnector, STAKING_ENABLED
+            if not STAKING_ENABLED:
+                return {"status": "disabled"}
+
+            results = KrakenStakingConnector.auto_stake_idle()
+            if results:
+                logger.info("Auto-staked %d assets on Kraken", len(results))
+            return {"staked": len(results), "details": results}
+        except ImportError:
+            return {"status": "connector_unavailable"}
+        except Exception as e:
+            logger.error("Staking allocation failed: %s", e)
+            return {"error": str(e)}
+
+    def sync_kraken_balances(self):
+        """Sync Kraken spot + staking + futures balances into treasury view."""
+        try:
+            from kraken_connector import KrakenConnector
+
+            balances = {"spot": {}, "staking": {}, "futures": {}}
+
+            # Spot balances
+            result = KrakenConnector.get_account_balance()
+            if result.get("result"):
+                for asset, bal in result["result"].items():
+                    bal_f = float(bal)
+                    if bal_f > 0:
+                        balances["spot"][asset] = bal_f
+
+            # Staking positions
+            try:
+                from kraken_staking_connector import KrakenStakingConnector
+                positions = KrakenStakingConnector.get_staking_positions()
+                balances["staking"] = positions
+            except ImportError:
+                pass
+
+            # Futures positions
+            try:
+                from kraken_futures_connector import KrakenFuturesConnector
+                if KrakenFuturesConnector().enabled:
+                    portfolio = KrakenFuturesConnector.get_portfolio_summary()
+                    if not portfolio.get("error"):
+                        balances["futures"] = portfolio
+            except ImportError:
+                pass
+
+            return balances
+        except ImportError:
+            return {"error": "KrakenConnector not available"}
+        except Exception as e:
+            logger.error("Kraken balance sync failed: %s", e)
+            return {"error": str(e)}
+
     def run_loop(self, interval=300):
         """Run allocation loop (every 5 minutes)."""
         logger.info("Capital Allocator starting (interval=%ds)", interval)

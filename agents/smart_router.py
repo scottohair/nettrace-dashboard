@@ -6,6 +6,7 @@ the lowest total cost (price + fees + gas + slippage).
 
 Venues:
   - Coinbase Advanced (CEX): 0.4% maker / 0.6% taker
+  - Kraken Spot (CEX): 0.16% maker / 0.26% taker
   - Uniswap V3 on Base (DEX): 0.05-0.3% fee, low gas
   - Uniswap V3 on Ethereum (DEX): 0.05-0.3% fee, higher gas
   - Jupiter on Solana (DEX): 0% platform fee, ~0.25% slippage
@@ -26,6 +27,29 @@ from pathlib import Path
 
 logger = logging.getLogger("smart_router")
 
+# ── Dynamic Kraken fee cache (refreshed every hour) ──
+_kraken_fee_cache = {"maker": 0.16, "taker": 0.26, "expires": 0}
+
+
+def _get_kraken_fees():
+    """Get dynamic Kraken fee tier (cached for 1 hour)."""
+    global _kraken_fee_cache
+    if time.time() < _kraken_fee_cache["expires"]:
+        return _kraken_fee_cache
+    try:
+        from kraken_connector import KrakenConnector
+        fees = KrakenConnector.get_fee_schedule()
+        if fees and not fees.get("error"):
+            _kraken_fee_cache = {
+                "maker": fees.get("maker_fee", 0.16),
+                "taker": fees.get("taker_fee", 0.26),
+                "expires": time.time() + 3600,
+            }
+    except Exception:
+        pass
+    return _kraken_fee_cache
+
+
 try:
     from execution_telemetry import venue_health_snapshot as _venue_health_snapshot
 except Exception:
@@ -42,6 +66,16 @@ except Exception:
         from agents.route_account_registry import RouteAccountRegistry  # type: ignore
     except Exception:
         RouteAccountRegistry = None
+
+# Known stock/ETF symbols (for equity venue routing)
+KNOWN_STOCK_SYMBOLS = {
+    "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA", "META",
+    "SPY", "QQQ", "IWM", "DIA",
+    "COIN", "MSTR", "MARA", "RIOT",
+    "XLK", "XLF", "XLE", "XLV", "XLY", "XLI", "XLB", "XLP", "XLU", "XLRE",
+    "AMD", "INTC", "NFLX", "GOOG", "JPM", "GS", "BAC",
+    "BITO", "ETHE",
+}
 
 # Gas price estimates (in USD) per chain — updated periodically
 DEFAULT_GAS_COSTS_USD = {
@@ -150,17 +184,28 @@ class SmartRouter:
         if cb_quote:
             venues.append(cb_quote)
 
-        # ── 2. Uniswap quotes (Base, then Ethereum) ──
+        # ── 2. Kraken quote ──
+        kraken_quote = self._get_kraken_quote(pair, side, amount_usd)
+        if kraken_quote:
+            venues.append(kraken_quote)
+
+        # ── 3. Uniswap quotes (Base, then Ethereum) ──
         for chain in ["base", "arbitrum", "ethereum"]:
             uni_quote = self._get_uniswap_quote(base_asset, side, amount_usd, chain)
             if uni_quote:
                 venues.append(uni_quote)
 
-        # ── 3. Jupiter quote (Solana — only for SOL/SPL tokens) ──
+        # ── 4. Jupiter quote (Solana — only for SOL/SPL tokens) ──
         if base_asset in ("SOL", "BONK", "JUP"):
             jup_quote = self._get_jupiter_quote(base_asset, side, amount_usd)
             if jup_quote:
                 venues.append(jup_quote)
+
+        # ── 5. Kraken Stock quote (equity symbols — commission-free) ──
+        if base_asset in KNOWN_STOCK_SYMBOLS:
+            ks_quote = self._get_kraken_stock_quote(base_asset, side, amount_usd)
+            if ks_quote:
+                venues.append(ks_quote)
 
         if not venues:
             return {"error": "No venues available", "pair": pair}
@@ -268,6 +313,50 @@ class SmartRouter:
             logger.debug("Coinbase quote failed: %s", e)
             return None
 
+    def _get_kraken_quote(self, pair, side, amount_usd):
+        """Get Kraken price + fee estimate."""
+        try:
+            try:
+                from kraken_connector import KrakenConnector
+            except Exception:
+                from agents.kraken_connector import KrakenConnector  # type: ignore
+
+            ticker = KrakenConnector.get_24h_volume(pair)
+            if not isinstance(ticker, dict) or "error" in ticker:
+                return None
+
+            price = float(ticker.get("last_price", 0) or 0)
+            volume_24h = float(ticker.get("volume_24h", 0) or 0)
+            if price <= 0:
+                return None
+
+            # Dynamic maker fee from Kraken TradeVolume API (cached hourly).
+            kraken_fees = _get_kraken_fees()
+            fee_pct = float(kraken_fees.get("maker", 0.16))
+            base_amount = amount_usd / price if price > 0 else 0.0
+
+            # Basic size-aware slippage proxy from participation ratio.
+            dollar_volume_24h = max(1.0, volume_24h * price)
+            participation = max(0.0, float(amount_usd or 0.0) / dollar_volume_24h)
+            slippage_pct = min(0.25, max(0.01, participation * 20.0))
+            total_cost_pct = fee_pct + slippage_pct
+
+            return {
+                "venue": "kraken",
+                "chain": "cex",
+                "price": price,
+                "amount_out": round(base_amount, 8) if side == "BUY" else round(amount_usd, 2),
+                "fee_pct": round(fee_pct, 4),
+                "gas_usd": 0,
+                "slippage_pct": round(slippage_pct, 4),
+                "total_cost_pct": round(total_cost_pct, 4),
+                "total_cost_usd": round(amount_usd * total_cost_pct / 100.0, 4),
+                "volume_24h": round(volume_24h, 4),
+            }
+        except Exception as e:
+            logger.debug("Kraken quote failed: %s", e)
+            return None
+
     def _get_uniswap_quote(self, base_asset, side, amount_usd, chain):
         """Get Uniswap quote on a specific chain."""
         if not self.dex:
@@ -357,6 +446,61 @@ class SmartRouter:
             }
         except Exception as e:
             logger.debug("Jupiter quote failed: %s", e)
+            return None
+
+    def _get_kraken_stock_quote(self, symbol, side, amount_usd):
+        """Get execution quote for stock on Kraken (commission-free).
+
+        Args:
+            symbol: Stock ticker (e.g., "AAPL", "SPY")
+            side: "BUY" or "SELL"
+            amount_usd: Dollar amount
+
+        Returns:
+            Venue quote dict or None if unavailable.
+        """
+        try:
+            try:
+                from kraken_stock_connector import KrakenStockConnector, is_market_open
+            except ImportError:
+                try:
+                    from agents.kraken_stock_connector import KrakenStockConnector, is_market_open  # type: ignore[no-redef]
+                except ImportError:
+                    return None
+
+            if not is_market_open():
+                return None  # Can't trade stocks outside market hours
+
+            quote = KrakenStockConnector.get_stock_quote(symbol)
+            if quote.get("error"):
+                return None
+
+            price = float(quote.get("last_price", 0))
+            if price <= 0:
+                return None
+
+            spread = float(quote.get("spread", 0))
+            spread_pct = (spread / price * 100) if price > 0 else 999
+
+            # Commission-free! Only spread cost
+            total_cost_pct = spread_pct / 2  # Half-spread for maker
+
+            shares = amount_usd / price if price > 0 else 0
+
+            return {
+                "venue": "kraken_stock",
+                "chain": "cex",
+                "price": price,
+                "amount_out": round(shares, 6) if side == "BUY" else round(amount_usd, 2),
+                "fee_pct": 0.0,  # Commission-free
+                "gas_usd": 0,
+                "slippage_pct": round(spread_pct / 2, 4),
+                "total_cost_pct": round(total_cost_pct, 4),
+                "total_cost_usd": round(amount_usd * total_cost_pct / 100, 4),
+                "commission_free": True,
+            }
+        except Exception as e:
+            logger.debug("Kraken stock quote failed for %s: %s", symbol, e)
             return None
 
     def _get_spot_price(self, symbol):
