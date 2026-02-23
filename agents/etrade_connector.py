@@ -36,6 +36,15 @@ from pathlib import Path
 
 logger = logging.getLogger("etrade")
 
+# Load .env early so ETRADE_CONSUMER_KEY/SECRET are available at import time
+_env_path = Path(__file__).parent / ".env"
+if _env_path.exists():
+    for _line in _env_path.read_text().splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _v = _line.split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip().strip('"'))
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
@@ -162,9 +171,19 @@ class ETradeAuth:
     """
 
     def __init__(self, consumer_key=None, consumer_secret=None, sandbox=False):
-        self.consumer_key = consumer_key or ETRADE_CONSUMER_KEY
-        self.consumer_secret = consumer_secret or ETRADE_CONSUMER_SECRET
         self.sandbox = sandbox
+        if consumer_key:
+            self.consumer_key = consumer_key
+        elif sandbox:
+            self.consumer_key = os.environ.get("ETRADE_SANDBOX_KEY", "") or ETRADE_CONSUMER_KEY
+        else:
+            self.consumer_key = ETRADE_CONSUMER_KEY
+        if consumer_secret:
+            self.consumer_secret = consumer_secret
+        elif sandbox:
+            self.consumer_secret = os.environ.get("ETRADE_SANDBOX_SECRET", "") or ETRADE_CONSUMER_SECRET
+        else:
+            self.consumer_secret = ETRADE_CONSUMER_SECRET
 
         self.base_url = ETRADE_SANDBOX_BASE if sandbox else ETRADE_PROD_BASE
         self.authorize_url = ETRADE_AUTH_BASE_SANDBOX if sandbox else ETRADE_AUTH_BASE_PROD
