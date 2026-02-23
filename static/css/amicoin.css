@@ -1,0 +1,620 @@
+/* NetTrace Quant Platform — AmiCoin ICO Page Styles */
+
+/* ── Keyframes ── */
+@keyframes gradientBorder {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes priceGlow {
+  0%, 100% { text-shadow: 0 0 12px #00d4ff44, 0 0 24px #00d4ff22; }
+  50%      { text-shadow: 0 0 20px #00d4ff66, 0 0 40px #00d4ff33; }
+}
+@keyframes coinSpin {
+  0%   { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes progressShimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes borderPulse {
+  0%, 100% { border-color: #a855f744; box-shadow: 0 0 20px #a855f711; }
+  50%      { border-color: #00d4ff44; box-shadow: 0 0 30px #00d4ff22; }
+}
+
+/* ── Hero Section ── */
+.ami-hero {
+  text-align: center;
+  padding: 32px 20px 24px;
+  margin-bottom: 16px;
+  position: relative;
+  background: var(--bg2);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.ami-hero::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #a855f7, #00d4ff, #00ff88, #fbbf24, #ef4444, #a855f7);
+  background-size: 300% 300%;
+  animation: gradientBorder 6s ease infinite;
+  z-index: -1;
+}
+.ami-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bg2);
+  border-radius: 8px;
+  z-index: -1;
+}
+.ami-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, #a855f711 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 80%, #00d4ff08 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 80%, #00ff8808 0%, transparent 50%);
+  z-index: 0;
+  pointer-events: none;
+}
+.ami-hero-content {
+  position: relative;
+  z-index: 1;
+}
+.ami-coin-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7, #00d4ff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 12px;
+  box-shadow: 0 0 30px #a855f744, 0 0 60px #00d4ff22;
+  animation: floatUp 4s ease-in-out infinite;
+  letter-spacing: -1px;
+}
+.ami-hero h1 {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, #a855f7, #00d4ff, #00ff88);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+.ami-hero .tagline {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.ami-live-price {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--blue);
+  animation: priceGlow 3s ease-in-out infinite;
+  margin-bottom: 4px;
+}
+.ami-price-change {
+  font-size: 12px;
+  font-weight: 600;
+}
+.ami-price-change.up { color: var(--green); }
+.ami-price-change.down { color: var(--red); }
+
+/* ── ICO Progress Bar ── */
+.ico-progress-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.ico-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.ico-progress-header .label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+}
+.ico-progress-header .pct {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.ico-bar-track {
+  width: 100%;
+  height: 10px;
+  background: var(--bg3);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  position: relative;
+}
+.ico-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #a855f7, #00d4ff, #00ff88);
+  background-size: 200% 100%;
+  animation: progressShimmer 3s linear infinite;
+  transition: width 0.8s ease;
+  position: relative;
+}
+.ico-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 8px #fff8;
+}
+.ico-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--muted);
+}
+.ico-stats .sold { color: var(--green); font-weight: 600; }
+.ico-stats .total { color: var(--text); }
+
+/* ── Buy Widget ── */
+.buy-widget {
+  background: var(--bg2);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  animation: borderPulse 4s ease-in-out infinite;
+}
+.buy-widget h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.buy-widget h3 .live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+.buy-field {
+  margin-bottom: 10px;
+}
+.buy-field label {
+  display: block;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.buy-field input,
+.buy-field select {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.buy-field input:focus,
+.buy-field select:focus {
+  border-color: var(--accent);
+}
+.buy-field input::placeholder { color: var(--muted); }
+.buy-estimate {
+  background: var(--bg3);
+  border: 1px solid #1e3a5f44;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.buy-estimate .est-label { font-size: 10px; color: var(--muted); }
+.buy-estimate .est-value { font-size: 14px; font-weight: 700; color: var(--green); }
+.buy-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #a855f7, #00d4ff);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+.buy-btn:hover {
+  box-shadow: 0 0 20px #a855f744, 0 0 40px #00d4ff22;
+  transform: translateY(-1px);
+}
+.buy-btn:active { transform: translateY(0); }
+.wallet-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #1e3a5f33;
+  font-size: 10px;
+}
+.wallet-status-bar .ws-label { color: var(--muted); }
+.wallet-status-bar .ws-addr { color: var(--accent); font-weight: 600; }
+.wallet-connect-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--accent-glow);
+  border-radius: 4px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.wallet-connect-btn:hover {
+  background: var(--accent-glow);
+}
+
+/* ── Token Info Grid ── */
+.token-info {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+.token-info h3 {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.token-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.token-info-item {
+  padding: 8px;
+  background: var(--bg3);
+  border-radius: 4px;
+}
+.token-info-item .ti-label {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.token-info-item .ti-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-all;
+}
+.token-info-item .ti-value.accent { color: var(--accent); }
+.token-info-item .ti-value.copyable {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.token-info-item .ti-value.copyable:hover { color: var(--accent); }
+
+/* ── Tokenomics Chart ── */
+.tokenomics-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.tokenomics-section h3 {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  text-align: center;
+}
+.tokenomics-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+.tokenomics-chart-container {
+  width: 200px;
+  height: 200px;
+  flex-shrink: 0;
+}
+.tokenomics-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tokenomics-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+}
+.tokenomics-legend-item .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.tokenomics-legend-item .name { color: var(--text); flex: 1; }
+.tokenomics-legend-item .pct { color: var(--muted); font-weight: 600; }
+
+/* ── Network Stats ── */
+.network-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.net-stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.net-stat-card:hover { border-color: var(--accent-glow); }
+.net-stat-card .ns-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.net-stat-card .ns-label {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+}
+
+/* ── Trading Widget ── */
+.trade-widget {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.trade-widget h3 {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.trade-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 12px;
+}
+.trade-tab {
+  flex: 1;
+  padding: 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 1px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.trade-tab:first-child { border-radius: 4px 0 0 4px; }
+.trade-tab:last-child { border-radius: 0 4px 4px 0; }
+.trade-tab.active-buy {
+  background: #00ff8822;
+  border-color: #00ff8844;
+  color: var(--green);
+}
+.trade-tab.active-sell {
+  background: #ef444422;
+  border-color: #ef444444;
+  color: var(--red);
+}
+.trade-form-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.trade-form-row .buy-field { flex: 1; }
+.trade-execute-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.trade-execute-btn.buy-mode {
+  background: #00ff8822;
+  color: var(--green);
+  border: 1px solid #00ff8844;
+}
+.trade-execute-btn.buy-mode:hover { background: #00ff8833; }
+.trade-execute-btn.sell-mode {
+  background: #ef444422;
+  color: var(--red);
+  border: 1px solid #ef444444;
+}
+.trade-execute-btn.sell-mode:hover { background: #ef444433; }
+
+/* ── Roadmap Timeline ── */
+.roadmap-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.roadmap-section h3 {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.roadmap-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+.roadmap-timeline::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--purple), var(--muted));
+}
+.roadmap-item {
+  position: relative;
+  padding: 0 0 20px 0;
+}
+.roadmap-item:last-child { padding-bottom: 0; }
+.roadmap-item::before {
+  content: '';
+  position: absolute;
+  left: -21px;
+  top: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg2);
+  border: 2px solid var(--muted);
+}
+.roadmap-item.completed::before {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 8px #00ff8844;
+}
+.roadmap-item.active::before {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  animation: pulse 2s infinite;
+}
+.roadmap-item .rm-phase {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.roadmap-item .rm-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.roadmap-item .rm-desc {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.roadmap-item .rm-date {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-style: italic;
+}
+
+/* ── Price Chart ── */
+.price-chart-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.price-chart-card h3 {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.price-chart-wrap {
+  height: 200px;
+  position: relative;
+}
+
+/* ── Layout Helpers ── */
+.ami-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.ami-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .network-stats { grid-template-columns: repeat(2, 1fr); }
+  .tokenomics-wrap { flex-direction: column; }
+}
+@media (max-width: 768px) {
+  .ami-grid-2, .ami-grid-3 { grid-template-columns: 1fr; }
+  .network-stats { grid-template-columns: 1fr 1fr; }
+  .ami-hero h1 { font-size: 22px; letter-spacing: 2px; }
+  .ami-live-price { font-size: 24px; }
+  .ami-coin-icon { width: 48px; height: 48px; font-size: 22px; }
+}
+@media (max-width: 480px) {
+  .network-stats { grid-template-columns: 1fr; }
+  .token-info-grid { grid-template-columns: 1fr; }
+}

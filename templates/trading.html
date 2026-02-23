@@ -1,318 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NetTrace Quant Platform</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
-<style>
-:root{
-  --bg:#0a0e17;--bg2:#0d1321;--bg3:#111827;--border:#1e3a5f;
-  --text:#c8d6e5;--muted:#5a6c7d;--green:#00ff88;--red:#ef4444;
-  --blue:#00d4ff;--gold:#fbbf24;--purple:#a855f7;
-}
-[data-theme="light"]{
-  --bg:#f0f2f5;--bg2:#ffffff;--bg3:#e8edf2;--border:#d0d7de;
-  --text:#1f2937;--muted:#6b7280;--green:#059669;--red:#dc2626;
-  --blue:#0369a1;--gold:#b45309;--purple:#7c3aed;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:var(--bg);color:var(--text);overflow-x:hidden}
-.header{background:linear-gradient(135deg,var(--bg2),#1a1a2e);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;height:50px}
-.header h1{font-size:14px;color:var(--blue);letter-spacing:1px;display:flex;align-items:center;gap:8px}
-.header h1 .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes glow{0%,100%{box-shadow:0 0 8px #00ff8844}50%{box-shadow:0 0 16px #00ff8888}}
-.nav-links{display:flex;gap:10px}
-.nav-links a{color:var(--muted);text-decoration:none;font-size:11px;padding:4px 8px;border:1px solid transparent;border-radius:4px;transition:all .2s}
-.nav-links a:hover,.nav-links a.active{color:var(--blue);border-color:var(--blue)44}
-.header-controls{display:flex;align-items:center;gap:10px}
-.theme-toggle{background:none;border:1px solid var(--border);color:var(--muted);padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-family:inherit}
-.theme-toggle:hover{color:var(--blue);border-color:var(--blue)}
-.ws-status{font-size:9px;padding:3px 8px;border-radius:3px;border:1px solid var(--border)}
-.ws-status.connected{color:var(--green);border-color:var(--green)44;background:var(--green)11}
-.ws-status.disconnected{color:var(--red);border-color:var(--red)44;background:var(--red)11}
-.container{max-width:1600px;margin:0 auto;padding:12px 16px}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
-.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px}
-.grid-23{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:12px}
-.card h3{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px}
-.card .big{font-size:24px;font-weight:700}
-.card .big.green{color:var(--green)}
-.card .big.red{color:var(--red)}
-.card .big.blue{color:var(--blue)}
-.card .big.gold{color:var(--gold)}
-.card .sub{font-size:10px;color:var(--muted);margin-top:2px}
-.section-header{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)33}
-table{width:100%;border-collapse:collapse;font-size:11px}
-th{text-align:left;padding:6px;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
-td{padding:6px;border-bottom:1px solid var(--bg3)}
-.badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700}
-.b-buy{background:#00ff8822;color:var(--green);border:1px solid #00ff8844}
-.b-sell{background:#ef444422;color:var(--red);border:1px solid #ef444444}
-.b-hot{background:#ef444422;color:var(--red)}.b-warm{background:#fbbf2422;color:var(--gold)}.b-cold{background:#3b82f622;color:#3b82f6}
-.b-up{background:#00ff8822;color:var(--green)}.b-down{background:#ef444422;color:var(--red)}.b-range{background:#00d4ff22;color:var(--blue)}
-.b-filled{background:#00d4ff22;color:var(--blue)}.b-failed{background:#ef444422;color:var(--red)}
-.pnl-pos{color:var(--green)}.pnl-neg{color:var(--red)}
-/* Ticker bar */
-.ticker-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:6px 20px;display:flex;gap:20px;overflow-x:auto;font-size:11px}
-.ticker-item{display:flex;gap:6px;align-items:center;white-space:nowrap}
-.ticker-item .symbol{color:var(--blue);font-weight:700}
-.ticker-item .price{color:var(--text)}
-.ticker-item .change{font-size:10px}
-/* Server map */
-.server-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
-.server-node{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;transition:all .3s;cursor:pointer}
-.server-node:hover{border-color:var(--blue);transform:translateY(-2px)}
-.server-node .region{font-size:10px;color:var(--blue);font-weight:700}
-.server-node .location{font-size:9px;color:var(--muted);margin-top:2px}
-.server-node .status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:4px;animation:glow 3s infinite}
-.server-node .latency{font-size:10px;color:var(--text);margin-top:4px}
-/* Agent pool */
-.agent-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;display:flex;align-items:center;gap:10px}
-.agent-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
-.agent-info{flex:1}.agent-info .name{font-size:11px;font-weight:700;color:var(--text)}.agent-info .role{font-size:9px;color:var(--muted)}
-.agent-pnl{font-size:14px;font-weight:700}
-/* Strategy pipeline */
-.pipeline-bar{display:flex;gap:4px;margin-bottom:8px}
-.pipeline-stage{flex:1;text-align:center;padding:6px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px}
-.pipeline-stage.cold{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644}
-.pipeline-stage.warm{background:#fbbf2422;color:var(--gold);border:1px solid #fbbf2444}
-.pipeline-stage.hot{background:#ef444422;color:var(--red);border:1px solid #ef444444}
-.strat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bg3);font-size:10px}
-/* Opportunities */
-.opp-card{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:6px}
-.opp-pair{font-size:12px;font-weight:700;color:var(--blue)}
-.opp-details{display:flex;gap:12px;margin-top:4px;font-size:10px;color:var(--muted)}
-.opp-vol{color:var(--purple);font-weight:600}.opp-profit{color:var(--green);font-weight:600}
-/* Claude optimization feed */
-.claude-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.claude-col{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px}
-.claude-col h4{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
-.claude-list{font-size:10px;color:var(--muted);line-height:1.4}
-.claude-list .item{padding:4px 0;border-bottom:1px solid var(--border)22}
-.claude-meta{display:flex;gap:10px;font-size:10px;color:var(--muted);margin-top:8px}
-.claude-pill{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px}
-.claude-def{background:#ef444422;color:var(--red);border:1px solid #ef444444}
-.claude-bal{background:#00d4ff22;color:var(--blue);border:1px solid #00d4ff44}
-.claude-off{background:#00ff8822;color:var(--green);border:1px solid #00ff8844}
-/* AmiCoin (simulation) */
-.amicoin-banner{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid #22d3ee55;background:#22d3ee11;border-radius:6px;margin-bottom:10px;font-size:10px}
-.amicoin-banner .flag{font-weight:700;color:#22d3ee}
-.ami-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px}
-.ami-stat{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px}
-.ami-stat .label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
-.ami-stat .value{font-size:14px;font-weight:700;color:var(--text);margin-top:2px}
-.ami-table{font-size:10px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.ami-head,.ami-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;padding:6px 8px}
-.ami-head{background:var(--bg3);color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-size:8px}
-.ami-row{border-top:1px solid var(--border)}
-.ami-row .sym{color:var(--blue);font-weight:700}
-.ami-wallet-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:6px 8px;border-top:1px solid var(--border);font-size:10px}
-.ami-checklist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.ami-check{font-size:9px;padding:3px 6px;border-radius:4px;border:1px solid var(--border);color:var(--muted)}
-.ami-check.ok{color:var(--green);border-color:#00ff8844;background:#00ff8811}
-.ami-check.no{color:var(--gold);border-color:#fbbf2444;background:#fbbf2411}
-/* Refresh */
-.refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.refresh-bar .info{font-size:10px;color:var(--muted)}
-.refresh-bar .btn{font-size:10px;color:var(--blue);cursor:pointer;border:1px solid var(--blue)44;padding:2px 8px;border-radius:3px;background:transparent;font-family:inherit}
-.refresh-bar .btn:hover{background:var(--blue)22}
-/* Connect Exchange modal */
-.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center}
-.modal-overlay.active{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:24px;max-width:480px;width:90%}
-.modal h2{font-size:14px;color:var(--blue);margin-bottom:16px;letter-spacing:1px}
-.modal label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;margin-top:12px}
-.modal input,.modal textarea,.modal select{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:4px;font-family:inherit;font-size:12px}
-.modal textarea{height:80px;resize:vertical}
-.modal input:focus,.modal textarea:focus,.modal select:focus{outline:none;border-color:var(--blue)}
-.modal .btn-row{display:flex;gap:8px;margin-top:16px}
-.modal .btn-primary{background:var(--blue)22;color:var(--blue);border:1px solid var(--blue)44;padding:8px 16px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700}
-.modal .btn-primary:hover{background:var(--blue)44}
-.modal .btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border);padding:8px 16px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:11px}
-.modal .btn-secondary:hover{color:var(--text)}
-.modal .warning{font-size:9px;color:var(--gold);margin-top:8px;padding:6px;background:var(--gold)11;border-radius:3px}
-/* Connected exchanges */
-.exchange-list{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.exchange-tag{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:10px}
-.exchange-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
-.exchange-tag .remove{color:var(--red);cursor:pointer;font-size:12px;margin-left:4px}
-.exchange-tag .remove:hover{color:#ff6b6b}
-.connect-btn{font-size:10px;color:var(--blue);cursor:pointer;border:1px dashed var(--blue)44;padding:4px 10px;border-radius:4px;background:transparent;font-family:inherit}
-.connect-btn:hover{background:var(--blue)11;border-style:solid}
-/* Wallet section */
-.wallet-chain{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg3);font-size:11px}
-.wallet-chain .chain-name{color:var(--blue);font-weight:700;min-width:80px}
-.wallet-chain .chain-balance{color:var(--text)}.wallet-chain .chain-usd{color:var(--green);margin-left:auto}
-/* Asset Pool */
-.pool-summary{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-.pool-stat{display:flex;flex-direction:column;gap:2px;padding:6px 10px;background:var(--bg3);border-radius:4px;min-width:90px}
-.pool-stat .label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
-.pool-stat .value{font-size:14px;font-weight:700}
-.pool-row{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--bg3);font-size:11px;transition:background .2s}
-.pool-row:hover{background:var(--bg3)}
-.pool-row .pool-asset{color:var(--blue);font-weight:700;min-width:50px}
-.pool-row .pool-venue{color:var(--muted);font-size:9px;min-width:70px}
-.pool-row .pool-amount{color:var(--text);min-width:90px;text-align:right}
-.pool-row .pool-usd{color:var(--green);min-width:70px;text-align:right;font-weight:600}
-.pool-row .pool-state{margin-left:auto}
-.state-badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:8px;font-weight:700;letter-spacing:0.5px}
-.state-available{background:#00ff8822;color:var(--green);border:1px solid #00ff8844}
-.state-in_transit{background:#fbbf2422;color:var(--gold);border:1px solid #fbbf2444;animation:pulse 2s infinite}
-.state-stuck{background:#ef444422;color:var(--red);border:1px solid #ef444444}
-.state-locked{background:#a855f722;color:var(--purple);border:1px solid #a855f744}
-.state-pending{background:#00d4ff22;color:var(--blue);border:1px solid #00d4ff44;animation:pulse 2s infinite}
-.state-reserved{background:#6b728022;color:var(--muted);border:1px solid #6b728044}
-.state-loss{background:#ef444433;color:var(--red);border:1px solid #ef444466;text-decoration:line-through}
-.state-error,.state-unavailable{background:#ef444411;color:var(--muted);border:1px solid #ef444422}
-.pool-eta{font-size:9px;color:var(--gold);margin-left:4px}
-.pool-note{font-size:9px;color:var(--muted);padding:2px 4px 2px 58px;border-bottom:1px solid var(--bg3)}
-.transition-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--bg3);font-size:10px}
-.transition-arrow{color:var(--gold);font-weight:700}
-.insight-bar{display:flex;gap:10px;padding:8px 0;font-size:10px;color:var(--muted);border-top:1px solid var(--border);margin-top:8px}
-.insight-bar .insight{display:flex;gap:4px}.insight-bar .insight-val{color:var(--blue);font-weight:600}
-/* Venue comparison */
-.venue-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bg3);font-size:10px}
-.venue-row .venue-name{color:var(--text);min-width:100px}.venue-row .venue-price{color:var(--blue)}
-.venue-row .venue-fee{color:var(--muted)}.venue-row .venue-best{color:var(--green);font-weight:700}
-/* LP Positions */
-.lp-position{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px}
-.lp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.lp-pair{font-size:12px;font-weight:700;color:var(--blue)}
-.lp-range{font-size:9px;color:var(--muted)}
-.lp-stats{display:flex;gap:16px;font-size:10px}
-.lp-stats .stat{display:flex;flex-direction:column;gap:2px}
-.lp-stats .stat-label{color:var(--muted);font-size:8px;text-transform:uppercase}
-.lp-stats .stat-value{font-weight:700}
-/* Treasury */
-.treasury-card{background:linear-gradient(135deg,var(--bg2),#635bff11);border:1px solid #635bff44;border-radius:8px;padding:14px}
-.treasury-card h3{color:#a78bfa}
-/* Fun zone */
-.fun-zone{background:linear-gradient(135deg,var(--bg2)88,#1a1a2e88);border:1px solid var(--gold)33;border-radius:8px;padding:12px;margin-top:12px}
-.fun-zone h3{font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:8px}
-.fun-item{font-size:10px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--bg3)}
-.fun-item .highlight{color:var(--gold)}
-/* Toast */
-.toast-container{position:fixed;top:60px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px}
-.toast{padding:10px 16px;border-radius:6px;font-size:11px;font-family:inherit;animation:toastIn .3s ease;max-width:340px;border:1px solid var(--border);background:var(--bg2);color:var(--text)}
-.toast-success{border-color:var(--green)66;background:var(--green)11;color:var(--green)}
-.toast-error{border-color:var(--red)66;background:var(--red)11;color:var(--red)}
-@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
-@media(max-width:1200px){.grid-4,.grid-5{grid-template-columns:repeat(2,1fr)}.grid-3,.grid-23{grid-template-columns:1fr}}
-@media(max-width:1200px){.claude-grid{grid-template-columns:1fr}.ami-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:768px){.grid-4,.grid-5,.grid-2{grid-template-columns:1fr}.ticker-bar{display:none}}
-/* Org context bar */
-.org-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px}
-.org-bar .org-name{color:var(--blue);font-weight:700;font-size:13px}
-.org-bar .org-controls{display:flex;align-items:center;gap:8px}
-.tier-badge{padding:2px 8px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.tier-free{color:var(--muted);border:1px solid var(--muted)44}
-.tier-pro{color:var(--blue);border:1px solid var(--blue)44;background:var(--blue)11}
-.tier-enterprise{color:var(--purple);border:1px solid var(--purple)44;background:var(--purple)11}
-.tier-enterprise_pro{color:var(--gold);border:1px solid var(--gold)44;background:var(--gold)11}
-.tier-government{color:var(--red);border:1px solid var(--red)44;background:var(--red)11}
-.role-badge{padding:2px 6px;border-radius:3px;font-size:8px;color:var(--muted);border:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
-.org-select{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:10px;font-family:inherit;cursor:pointer}
-/* Risk policy */
-.risk-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.risk-presets{display:flex;gap:4px}
-.risk-presets button{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:4px;font-size:10px;font-family:inherit;cursor:pointer;transition:all .2s}
-.risk-presets button:hover{border-color:var(--blue);color:var(--blue)}
-.risk-presets button.active{border-color:var(--green);color:var(--green);background:var(--green)11}
-.risk-values{display:flex;gap:12px;font-size:10px;color:var(--muted)}
-.risk-values span{color:var(--text)}
-/* Agent marketplace */
-.marketplace-section{margin-top:12px}
-.marketplace-tabs{display:flex;gap:4px;margin-bottom:10px}
-.marketplace-tabs button{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:4px 4px 0 0;font-size:10px;font-family:inherit;cursor:pointer;transition:all .2s}
-.marketplace-tabs button.active{border-color:var(--blue);color:var(--blue);border-bottom-color:var(--bg2);background:var(--bg2)}
-.agent-status-pending{color:var(--gold)}
-.agent-status-approved{color:var(--blue)}
-.agent-status-active{color:var(--green)}
-.agent-status-suspended{color:var(--red)}
-.agent-status-fired{color:var(--muted);text-decoration:line-through}
-.action-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:2px 6px;border-radius:3px;font-size:8px;font-family:inherit;cursor:pointer;transition:all .2s}
-.action-btn:hover{border-color:var(--blue);color:var(--blue)}
-.action-btn.approve:hover{border-color:var(--green);color:var(--green)}
-.action-btn.reject:hover{border-color:var(--red);color:var(--red)}
-.action-btn.fire:hover{border-color:var(--red);color:var(--red);background:var(--red)11}
-/* Proposals */
-.proposal-pending{color:var(--gold)}
-.proposal-approved{color:var(--green)}
-.proposal-rejected{color:var(--red)}
-.proposal-executed{color:var(--blue)}
-.proposal-expired{color:var(--muted)}
-/* Leaderboard */
-.leaderboard-card{border:1px solid var(--gold)33}
-.leaderboard-card h3{color:var(--gold)}
-.rank-badge{display:inline-block;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font-size:9px;font-weight:700}
-.rank-1{background:var(--gold)33;color:var(--gold)}
-.rank-2{background:#c0c0c033;color:#c0c0c0}
-.rank-3{background:#cd7f3233;color:#cd7f32}
-/* Fees & billing */
-.fee-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.fee-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px}
-.fee-card h4{font-size:9px;text-transform:uppercase;color:var(--muted);letter-spacing:1px;margin-bottom:6px}
-.fee-card .fee-value{font-size:18px;font-weight:700;color:var(--green)}
-.fee-card .fee-sub{font-size:9px;color:var(--muted);margin-top:4px}
-.invoice-status-draft{color:var(--muted)}
-.invoice-status-sent{color:var(--gold)}
-.invoice-status-paid{color:var(--green)}
-.invoice-status-void{color:var(--red)}
-/* MCP info */
-.mcp-card{border:1px solid var(--purple)33;background:linear-gradient(135deg,var(--bg2),var(--purple)05)}
-.mcp-card h3{color:var(--purple)}
-.mcp-url{font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;margin:4px 0}
-.mcp-url code{color:var(--blue);word-break:break-all}
-.mcp-url .copy-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:2px 6px;border-radius:3px;font-size:8px;font-family:inherit;cursor:pointer}
-.mcp-url .copy-btn:hover{color:var(--blue);border-color:var(--blue)}
-.mcp-tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-.mcp-tool{font-size:8px;padding:2px 6px;border:1px solid var(--purple)33;border-radius:3px;color:var(--purple)}
-/* Register form */
-.register-form{display:none;margin-top:8px;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px}
-.register-form.show{display:block}
-.register-form input,.register-form select,.register-form textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:4px;font-size:10px;font-family:inherit;margin:4px 0}
-.register-form label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.collapsible-header{cursor:pointer;display:flex;align-items:center;justify-content:space-between}
-.collapsible-header::after{content:'>';font-size:10px;color:var(--muted);transition:transform .2s}
-.collapsible-header.expanded::after{transform:rotate(90deg)}
-.collapsible-body{display:none}
-.collapsible-body.show{display:block}
-@media(max-width:1200px){.fee-grid{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<div id="toast-container" class="toast-container"></div>
+{% extends "base.html" %}
 
-<div class="header">
-  <h1><span class="dot"></span> NETTRACE QUANT PLATFORM</h1>
-  <div class="nav-links">
-    <a href="/">Network</a>
-    <a href="/status">Status</a>
-    <a href="/trading" class="active">Trading</a>
-    <a href="#marketplace">Marketplace</a>
-    <a href="/playground">API</a>
-  </div>
-  <div class="header-controls">
-    <span id="wsStatus" class="ws-status disconnected">WS: offline</span>
-    <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
-  </div>
-</div>
+{% block title %}Trading — NetTrace{% endblock %}
 
+{% block head_css %}
+<link rel="stylesheet" href="/static/css/trading.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
+{% block head_scripts %}
+<script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+
+{% block logo %}NETTRACE QUANT PLATFORM{% endblock %}
+
+{% block before_content %}
 <!-- Live Ticker -->
 <div class="ticker-bar" id="tickerBar">
-  <div class="ticker-item"><span class="symbol">BTC</span><span class="price" id="tickBTC">--</span><span class="change" id="tickBTCc">--</span></div>
-  <div class="ticker-item"><span class="symbol">ETH</span><span class="price" id="tickETH">--</span><span class="change" id="tickETHc">--</span></div>
-  <div class="ticker-item"><span class="symbol">SOL</span><span class="price" id="tickSOL">--</span><span class="change" id="tickSOLc">--</span></div>
-  <div class="ticker-item"><span class="symbol">DOGE</span><span class="price" id="tickDOGE">--</span><span class="change" id="tickDOGEc">--</span></div>
-  <div class="ticker-item"><span class="symbol">XRP</span><span class="price" id="tickXRP">--</span><span class="change" id="tickXRPc">--</span></div>
-  <div class="ticker-item"><span class="symbol">AVAX</span><span class="price" id="tickAVAX">--</span><span class="change" id="tickAVAXc">--</span></div>
-  <div class="ticker-item"><span class="symbol">LINK</span><span class="price" id="tickLINK">--</span><span class="change" id="tickLINKc">--</span></div>
+  <div class="ticker-item"><span class="symbol">BTC</span> <span class="price">--</span> <span class="change">--</span></div>
+  <div class="ticker-item"><span class="symbol">ETH</span> <span class="price">--</span> <span class="change">--</span></div>
+  <div class="ticker-item"><span class="symbol">SOL</span> <span class="price">--</span> <span class="change">--</span></div>
+  <div class="ticker-item"><span class="symbol">DOGE</span> <span class="price">--</span> <span class="change">--</span></div>
+  <div class="ticker-item"><span class="symbol">XRP</span> <span class="price">--</span> <span class="change">--</span></div>
+  <div class="ticker-item"><span class="symbol">AVAX</span> <span class="price">--</span> <span class="change">--</span></div>
+  <div class="ticker-item"><span class="symbol">LINK</span> <span class="price">--</span> <span class="change">--</span></div>
 </div>
 
 <!-- Org Context Bar -->
@@ -326,13 +37,17 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     <select class="org-select" id="orgSelect" onchange="switchOrg(this.value)"></select>
   </div>
 </div>
+{% endblock %}
 
+{% block content %}
 <div class="container">
+
+  <!-- Refresh Bar -->
   <div class="refresh-bar">
     <span class="info" id="lastUpdate">Connecting...</span>
     <div style="display:flex;gap:6px">
       <span class="btn" onclick="refreshData()">Refresh</span>
-      <span class="btn" onclick="refreshWallet()">Wallet</span>
+      <span class="btn" onclick="refreshAssetPools()">Wallet</span>
     </div>
   </div>
 
@@ -345,36 +60,46 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     </div>
   </div>
 
-  <!-- Top-level KPIs -->
-  <div class="grid-5">
-    <div class="card">
+  <!-- Top-Level KPIs (7 cards) -->
+  <div class="kpi-grid-7">
+    <div class="card kpi-card">
       <h3>Portfolio Value</h3>
       <div class="big green" id="portfolioValue">$--</div>
       <div class="sub" id="portfolioChange">--</div>
     </div>
-    <div class="card">
+    <div class="card kpi-card">
       <h3>Today's P&amp;L</h3>
       <div class="big" id="dailyPnl">$0.00</div>
       <div class="sub" id="dailyPnlPct">--</div>
     </div>
-    <div class="card">
+    <div class="card kpi-card">
       <h3>Trades</h3>
       <div class="big blue" id="tradesToday">0</div>
       <div class="sub" id="tradesTotal">total: 0</div>
     </div>
-    <div class="card">
+    <div class="card kpi-card">
       <h3>Market Regime</h3>
       <div class="big" id="regimeBadge">--</div>
       <div class="sub" id="regimeRec">--</div>
     </div>
-    <div class="card">
+    <div class="card kpi-card">
       <h3>Active Agents</h3>
       <div class="big gold" id="agentCount">12</div>
       <div class="sub" id="agentCountSub">trading + optimization + Claude staging + quant + AmiCoin simulation</div>
     </div>
+    <div class="card kpi-card">
+      <h3>Win Rate</h3>
+      <div class="big green" id="winRateValue">--</div>
+      <div class="sub">all-time</div>
+    </div>
+    <div class="card kpi-card">
+      <h3>Sharpe Ratio</h3>
+      <div class="big accent" id="sharpeValue">--</div>
+      <div class="sub">risk-adjusted</div>
+    </div>
   </div>
 
-  <!-- Risk Policy -->
+  <!-- Risk Policy (Collapsible) -->
   <div class="card" style="margin-bottom:12px" id="riskPolicySection">
     <div class="collapsible-header" onclick="this.classList.toggle('expanded');this.nextElementSibling.classList.toggle('show')">
       <h3>Risk Policy</h3>
@@ -396,19 +121,21 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     </div>
   </div>
 
-  <!-- Main: Chart + Holdings + Strategy Pipeline -->
+  <!-- Main Grid: Portfolio Chart | Holdings | Strategy Pipeline -->
   <div class="grid-3">
     <div class="card">
       <h3>Portfolio Performance</h3>
-      <div style="position:relative;height:180px;width:100%">
+      <div class="chart-container">
         <canvas id="portfolioChart"></canvas>
       </div>
     </div>
     <div class="card">
       <h3>Holdings</h3>
-      <table>
+      <table class="holdings-table">
         <thead><tr><th>Asset</th><th>Amount</th><th>USD</th><th>%</th></tr></thead>
-        <tbody id="holdingsBody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">Loading...</td></tr></tbody>
+        <tbody id="holdingsBody">
+          <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">Loading...</td></tr>
+        </tbody>
       </table>
     </div>
     <div class="card">
@@ -420,6 +147,37 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
       </div>
       <div id="pipelineStrategies">
         <div class="strat-row"><span style="color:var(--muted)">Run backtests to populate...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meta-Engine Strategy Evolution Visualizer -->
+  <div class="section-header">Meta-Engine Strategy Evolution</div>
+  <div class="meta-engine-section">
+    <div class="grid-2">
+      <div class="card">
+        <div class="meta-engine-header">
+          <h3 style="margin-bottom:0">Strategy Landscape</h3>
+          <div class="meta-engine-stats">
+            <span>Strategies: <span class="stat-val" id="metaStrategyCount">0</span></span>
+            <span>Generation: <span class="stat-val" id="metaGeneration">0</span></span>
+            <span>Predictions: <span class="stat-val" id="metaPredictionCount">0</span></span>
+          </div>
+        </div>
+        <div class="sub" style="margin-bottom:6px">Top: <span id="metaTopAgent">--</span></div>
+        <div class="meta-scatter-container">
+          <canvas id="metaScatterChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Evolution Log</h3>
+        <div class="meta-evolution-log" id="metaEvoLog">
+          <div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">No evolution events yet</div>
+        </div>
+        <h3 style="margin-top:8px">Active Agents</h3>
+        <div class="meta-agents-grid" id="metaAgentsGrid">
+          <div style="text-align:center;padding:8px;color:var(--muted);font-size:10px">Loading meta-engine...</div>
+        </div>
       </div>
     </div>
   </div>
@@ -446,7 +204,7 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
   </div>
 
   <!-- Venue Comparison + State Transitions -->
-  <div class="grid-2" id="walletVenueSection">
+  <div class="grid-2">
     <div class="card">
       <h3>Venue Comparison (ETH-USDC)</h3>
       <div id="venueComparison">
@@ -461,7 +219,58 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     </div>
   </div>
 
-  <!-- LP Positions + Treasury -->
+  <!-- Wallet Balances + Treasury -->
+  <div class="grid-2">
+    <div class="card">
+      <h3>Wallet Balances</h3>
+      <div id="walletBalances">
+        <div class="wallet-chain">
+          <span class="chain-name">Status</span>
+          <span id="walletStatus" class="badge">Disconnected</span>
+        </div>
+        <div class="wallet-chain">
+          <span class="chain-name">Address</span>
+          <span id="walletAddress">Not connected</span>
+        </div>
+        <div class="wallet-chain">
+          <span class="chain-name">Chain</span>
+          <span id="walletChain">--</span>
+        </div>
+        <div class="wallet-chain">
+          <span class="chain-name">Balance</span>
+          <span id="walletBalance" class="chain-usd">--</span>
+        </div>
+      </div>
+      <div class="wallet-connect-actions">
+        <button class="btn btn-primary btn-sm" id="walletConnectBtn" onclick="Wallet.connectEVM()">Connect MetaMask</button>
+        <button class="btn btn-sm" onclick="Wallet.connectPhantom()">Phantom</button>
+        <button class="btn btn-danger btn-sm" id="walletDisconnectBtn" style="display:none" onclick="Wallet.disconnect()">Disconnect</button>
+      </div>
+    </div>
+    <div class="card treasury-card">
+      <h3>Treasury</h3>
+      <div id="treasuryInfo">
+        <div class="treasury-row">
+          <span class="label">Balance</span>
+          <span class="value" style="color:var(--green)" id="treasuryBalance">$0.00</span>
+        </div>
+        <div class="treasury-row">
+          <span class="label">Yield Earned</span>
+          <span class="value" style="color:var(--green)" id="treasuryYield">$0.00</span>
+        </div>
+        <div class="treasury-row">
+          <span class="label">Deployed Capital</span>
+          <span class="value" style="color:var(--blue)" id="treasuryDeployed">$0.00</span>
+        </div>
+        <div class="treasury-row">
+          <span class="label">ICO Reserves</span>
+          <span class="value" style="color:var(--purple)" id="treasuryIcoReserves">$0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LP Positions + Infrastructure World Map -->
   <div class="grid-2">
     <div class="card">
       <h3>LP Positions (Uniswap V3)</h3>
@@ -471,22 +280,10 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
         </div>
       </div>
     </div>
-    <div class="card treasury-card">
-      <h3>Treasury</h3>
-      <div id="treasuryInfo">
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-          <span style="color:var(--muted);font-size:10px">Balance</span>
-          <span style="font-size:14px;font-weight:700;color:var(--green)" id="treasuryBalance">$0.00</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-          <span style="color:var(--muted);font-size:10px">Yield Earned</span>
-          <span style="font-size:12px;color:var(--green)" id="treasuryYield">$0.00</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0">
-          <span style="color:var(--muted);font-size:10px">Deployed Capital</span>
-          <span style="font-size:12px;color:var(--blue)" id="treasuryDeployed">$0.00</span>
-        </div>
-      </div>
+    <div class="card">
+      <h3>Infrastructure — World Map</h3>
+      <div class="world-map-container" id="worldMap"></div>
+      <div class="server-grid" id="serverGrid" style="margin-top:8px"></div>
     </div>
   </div>
 
@@ -502,6 +299,108 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     </div>
   </div>
 
+  <!-- AmiCoin Summary Card -->
+  <div class="section-header">AmiCoin Network</div>
+  <div class="card amicoin-summary-card" id="amiCoinCard" style="margin-bottom:12px">
+    <h3><a href="/amicoin" style="color:#22d3ee;text-decoration:none">AmiCoin Network (Simulation Only) &rarr;</a></h3>
+    <div class="amicoin-summary-grid">
+      <div class="amicoin-stat">
+        <div class="label">Reserve Equity</div>
+        <div class="value" id="amiReserve">$--</div>
+      </div>
+      <div class="amicoin-stat">
+        <div class="label">Realized P&amp;L</div>
+        <div class="value" id="amiPnl">$--</div>
+      </div>
+      <div class="amicoin-stat">
+        <div class="label">Open Positions</div>
+        <div class="value" id="amiPositions">0</div>
+      </div>
+      <div class="amicoin-stat">
+        <div class="label">Go Live</div>
+        <div class="value" id="amiGoLive">Not Ready</div>
+      </div>
+    </div>
+    <div style="margin-top:6px;font-size:9px;color:var(--muted)">
+      <span style="color:var(--gold);font-weight:700">Excluded from real holdings and portfolio value</span>
+      &mdash; <a href="/amicoin" style="color:#22d3ee">View full AmiCoin dashboard</a>
+    </div>
+  </div>
+
+  <!-- Trades + Agent Pool -->
+  <div class="grid-23">
+    <div class="card">
+      <h3>Recent Trades</h3>
+      <table>
+        <thead><tr><th>Time</th><th>Pair</th><th>Side</th><th>Price</th><th>Size</th><th>Signal</th><th>Status</th></tr></thead>
+        <tbody id="tradesBody"></tbody>
+      </table>
+      <div id="noTrades" style="text-align:center;padding:16px;color:var(--muted);font-size:11px">
+        Waiting for proven strategies to reach HOT pipeline...
+      </div>
+    </div>
+    <div class="card">
+      <h3>Agent Pool</h3>
+      <div id="agentPool">
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#00ff8833">T</div>
+          <div class="agent-info"><div class="name">Live Trader</div><div class="role">Buy-only, 7 pairs, C engine signals</div></div>
+          <div class="agent-pnl pnl-pos" id="traderPnl">$0.00</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#00d4ff33">A</div>
+          <div class="agent-info"><div class="name">Arb Scanner</div><div class="role">5 exchanges, 15s cycles</div></div>
+          <div class="agent-pnl" style="color:var(--muted)" id="arbPnl">scanning</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#a855f733">C</div>
+          <div class="agent-info"><div class="name">C Engine</div><div class="role">80ns signals, 13ns arb checks</div></div>
+          <div class="agent-pnl" style="color:var(--purple)">active</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#fbbf2433">P</div>
+          <div class="agent-info"><div class="name">Strategy Pipeline</div><div class="role">COLD/WARM/HOT validation</div></div>
+          <div class="agent-pnl" style="color:var(--gold)">gating</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#635bff33">L</div>
+          <div class="agent-info"><div class="name">LP Provider</div><div class="role">Uniswap V3 concentrated liquidity</div></div>
+          <div class="agent-pnl" style="color:#a78bfa" id="lpPnl">--</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#22c55e33">AO</div>
+          <div class="agent-info"><div class="name">Algorithm Optimizer</div><div class="role">Dynamic confidence + factor tuning</div></div>
+          <div class="agent-pnl" style="color:var(--green)" id="algoAgentState">syncing</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#0ea5e933">QO</div>
+          <div class="agent-info"><div class="name">Quant Optimizer</div><div class="role">Pair alpha + risk posture overrides</div></div>
+          <div class="agent-pnl" style="color:var(--blue)" id="quantAgentState">syncing</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#f59e0b33">DO</div>
+          <div class="agent-info"><div class="name">Dashboard Optimizer</div><div class="role">Operator directives + UI feed</div></div>
+          <div class="agent-pnl" style="color:var(--gold)" id="dashAgentState">syncing</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#14b8a633">CQ</div>
+          <div class="agent-info"><div class="name">Claude Quant Agent</div><div class="role">Quant 100 validation, promotion, budgets</div></div>
+          <div class="agent-pnl" style="color:#14b8a6" id="quant100AgentState">booting</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#38bdf833">CS</div>
+          <div class="agent-info"><div class="name">Claude Stager</div><div class="role">Strategy + framework + message context</div></div>
+          <div class="agent-pnl" style="color:#38bdf8" id="claudeStagerState">booting</div>
+        </div>
+        <div class="agent-card" style="margin-bottom:6px">
+          <div class="agent-avatar" style="background:#22d3ee33">AMI</div>
+          <div class="agent-info"><div class="name">AmiCoin Agent</div><div class="role">10-coin simulation pool, reserve routing</div></div>
+          <div class="agent-pnl" style="color:#22d3ee" id="amicoinAgentState">booting</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Agent Marketplace -->
   <div class="section-header" id="marketplace">Agent Marketplace</div>
   <div class="marketplace-section">
@@ -511,14 +410,11 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
       <button onclick="showMarketplaceTab('register',this)">Register Agent</button>
     </div>
 
-    <!-- Agents Tab -->
+    <!-- Agents Tab (Profile Cards) -->
     <div class="card" id="tab-agents">
-      <table>
-        <thead><tr><th>Agent</th><th>Type</th><th>Stage</th><th>Status</th><th>Trades</th><th>Win%</th><th>PnL</th><th>Sharpe</th><th>Actions</th></tr></thead>
-        <tbody id="marketplaceAgentsBody">
-          <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px">No marketplace agents registered yet</td></tr>
-        </tbody>
-      </table>
+      <div class="agent-profile-grid" id="agentProfileGrid">
+        <div style="text-align:center;padding:24px;color:var(--muted);font-size:11px;grid-column:1/-1">No marketplace agents registered yet</div>
+      </div>
     </div>
 
     <!-- Proposals Tab -->
@@ -562,7 +458,7 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
   </div>
 
   <!-- Fees & Billing -->
-  <div class="section-header">Fees &amp; Billing</div>
+  <div class="section-header">Fees &amp; Billing (<a href="/billing" style="color:var(--accent)">full details &rarr;</a>)</div>
   <div class="fee-grid" style="margin-bottom:12px">
     <div class="fee-card">
       <h4>Current AUM</h4>
@@ -599,9 +495,18 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
   <!-- MCP Connection Info -->
   <div class="section-header">MCP Server (Agent Protocol)</div>
   <div class="card mcp-card" style="margin-bottom:12px">
-    <div class="mcp-url"><code>POST https://nettrace-dashboard.fly.dev/mcp/v1/message</code><button class="copy-btn" onclick="copyToClipboard('https://nettrace-dashboard.fly.dev/mcp/v1/message')">Copy</button></div>
-    <div class="mcp-url"><code>GET https://nettrace-dashboard.fly.dev/mcp/v1/sse</code><button class="copy-btn" onclick="copyToClipboard('https://nettrace-dashboard.fly.dev/mcp/v1/sse')">Copy</button></div>
-    <div class="mcp-url"><code>Auth: Bearer &lt;org-api-key&gt;</code><button class="copy-btn" onclick="copyToClipboard('')" id="mcpKeyCopyBtn">Copy Key</button></div>
+    <div class="mcp-url">
+      <code>POST https://nettrace-dashboard.fly.dev/mcp/v1/message</code>
+      <button class="copy-btn" onclick="copyToClipboard('https://nettrace-dashboard.fly.dev/mcp/v1/message')">Copy</button>
+    </div>
+    <div class="mcp-url">
+      <code>GET https://nettrace-dashboard.fly.dev/mcp/v1/sse</code>
+      <button class="copy-btn" onclick="copyToClipboard('https://nettrace-dashboard.fly.dev/mcp/v1/sse')">Copy</button>
+    </div>
+    <div class="mcp-url">
+      <code>Auth: Bearer &lt;org-api-key&gt;</code>
+      <button class="copy-btn" onclick="copyToClipboard('')" id="mcpKeyCopyBtn">Copy Key</button>
+    </div>
     <div class="mcp-tools">
       <span class="mcp-tool">market.signals</span>
       <span class="mcp-tool">market.latency</span>
@@ -615,172 +520,59 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
       <span class="mcp-tool">agent.status</span>
       <span class="mcp-tool">agent.heartbeat</span>
     </div>
-    <div style="margin-top:8px;font-size:9px;color:var(--muted)">JSON-RPC 2.0 over HTTP. <a href="/playground" style="color:var(--purple)">View full docs in API Playground</a></div>
-  </div>
-
-  <!-- AmiCoin Network -->
-  <div class="section-header">AmiCoin Network (Simulation Only)</div>
-  <div class="card" style="margin-bottom:12px">
-    <div class="amicoin-banner">
-      <span class="flag" id="amiNetworkMode">AmiCoin Network | simulation_only</span>
-      <span style="color:var(--gold);font-weight:700" id="amiNotCounted">Excluded from real holdings and portfolio value</span>
-    </div>
-    <div class="ami-grid">
-      <div class="ami-stat"><div class="label">Reserve Equity</div><div class="value" id="amiReserveEq">$--</div></div>
-      <div class="ami-stat"><div class="label">Liquid</div><div class="value" id="amiLiquid">$--</div></div>
-      <div class="ami-stat"><div class="label">Allocated</div><div class="value" id="amiAllocated">$--</div></div>
-      <div class="ami-stat"><div class="label">Realized P&L</div><div class="value" id="amiRealized">$--</div></div>
-      <div class="ami-stat"><div class="label">Open Positions</div><div class="value" id="amiOpenPos">0</div></div>
-      <div class="ami-stat"><div class="label">Go Live</div><div class="value" id="amiGoLive">Not Ready</div></div>
-    </div>
-    <h3 style="margin-top:4px">Coin Pool (10 Synthetic Coins)</h3>
-    <div id="amiCoins" class="ami-table">
-      <div class="ami-head"><span>Coin</span><span>Network</span><span>Price</span><span>24h</span><span>P&L</span></div>
-      <div class="ami-row"><span class="sym">--</span><span>--</span><span>--</span><span>--</span><span>--</span></div>
-    </div>
-    <h3 style="margin-top:8px">Network Wallets</h3>
-    <div id="amiWallets" class="ami-table">
-      <div class="ami-head" style="grid-template-columns:1fr 1fr 1fr 1fr"><span>Network</span><span>Reserve</span><span>Allocated</span><span>Address</span></div>
-      <div class="ami-wallet-row"><span>--</span><span>--</span><span>--</span><span>--</span></div>
-    </div>
-    <div class="ami-checklist" id="amiChecklist"></div>
-  </div>
-
-  <!-- Trades + Agents -->
-  <div class="grid-23">
-    <div class="card">
-      <h3>Recent Trades</h3>
-      <table>
-        <thead><tr><th>Time</th><th>Pair</th><th>Side</th><th>Price</th><th>Size</th><th>Signal</th><th>Status</th></tr></thead>
-        <tbody id="tradesBody"></tbody>
-      </table>
-      <div id="noTrades" style="text-align:center;padding:16px;color:var(--muted);font-size:11px">
-        Waiting for proven strategies to reach HOT pipeline...
-      </div>
-    </div>
-    <div class="card">
-      <h3>Agent Pool</h3>
-      <div id="agentPool">
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:var(--green)33">T</div>
-          <div class="agent-info"><div class="name">Live Trader</div><div class="role">Buy-only, 7 pairs, C engine signals</div></div>
-          <div class="agent-pnl pnl-pos" id="traderPnl">$0.00</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:var(--blue)33">A</div>
-          <div class="agent-info"><div class="name">Arb Scanner</div><div class="role">5 exchanges, 15s cycles</div></div>
-          <div class="agent-pnl" style="color:var(--muted)" id="arbPnl">scanning</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:var(--purple)33">C</div>
-          <div class="agent-info"><div class="name">C Engine</div><div class="role">80ns signals, 13ns arb checks</div></div>
-          <div class="agent-pnl" style="color:var(--purple)">active</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:var(--gold)33">P</div>
-          <div class="agent-info"><div class="name">Strategy Pipeline</div><div class="role">COLD/WARM/HOT validation</div></div>
-          <div class="agent-pnl" style="color:var(--gold)">gating</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:#635bff33">L</div>
-          <div class="agent-info"><div class="name">LP Provider</div><div class="role">Uniswap V3 concentrated liquidity</div></div>
-          <div class="agent-pnl" style="color:#a78bfa" id="lpPnl">--</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:#22c55e33">AO</div>
-          <div class="agent-info"><div class="name">Algorithm Optimizer</div><div class="role">Dynamic confidence + factor tuning</div></div>
-          <div class="agent-pnl" style="color:var(--green)" id="algoAgentState">syncing</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:#0ea5e933">QO</div>
-          <div class="agent-info"><div class="name">Quant Optimizer</div><div class="role">Pair alpha + risk posture overrides</div></div>
-          <div class="agent-pnl" style="color:var(--blue)" id="quantAgentState">syncing</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:#f59e0b33">DO</div>
-          <div class="agent-info"><div class="name">Dashboard Optimizer</div><div class="role">Operator directives + UI feed</div></div>
-          <div class="agent-pnl" style="color:var(--gold)" id="dashAgentState">syncing</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:#14b8a633">CQ</div>
-          <div class="agent-info"><div class="name">Claude Quant Agent</div><div class="role">Runs Quant 100 validation, promotion, and budgets</div></div>
-          <div class="agent-pnl" style="color:#14b8a6" id="quant100AgentState">booting</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:#38bdf833">CS</div>
-          <div class="agent-info"><div class="name">Claude Stager</div><div class="role">Stages strategy + framework + message context for Claude ingest</div></div>
-          <div class="agent-pnl" style="color:#38bdf8" id="claudeStagerState">booting</div>
-        </div>
-        <div class="agent-card" style="margin-bottom:6px">
-          <div class="agent-avatar" style="background:#22d3ee33">AMI</div>
-          <div class="agent-info"><div class="name">AmiCoin Agent</div><div class="role">10-coin simulation pool, reserve routing, go-live checklist</div></div>
-          <div class="agent-pnl" style="color:#22d3ee" id="amicoinAgentState">booting</div>
-        </div>
-      </div>
+    <div style="margin-top:8px;font-size:9px;color:var(--muted)">
+      JSON-RPC 2.0 over HTTP. <a href="/playground" style="color:var(--purple)">View full docs in API Playground</a>
     </div>
   </div>
 
-  <!-- Server Map -->
-  <div class="section-header">Server Infrastructure</div>
-  <div class="server-grid" id="serverGrid"></div>
-
-  <!-- Fun Zone -->
-  <div class="fun-zone">
-    <h3>Quant Lab / Exploration Zone</h3>
-    <div id="funItems">
-      <div class="fun-item">Next target: <span class="highlight">Limit order strategy (0.4% maker fee vs 0.6% taker)</span></div>
-      <div class="fun-item">Watching: <span class="highlight">E*Trade production API key approval</span> (pending)</div>
-      <div class="fun-item">Pipeline blocked <span class="highlight">21 losing strategies</span> from going live - protecting capital</div>
-      <div class="fun-item">C engine benchmark: <span class="highlight">80ns per signal, 13ns per arb check</span> (1000x faster than Python)</div>
-      <div class="fun-item">Future plays: <span class="highlight">NYC real estate arb, Macedonia property, commodity timing</span></div>
-      <div class="fun-item">LP target: <span class="highlight">Uniswap V3 USDC/ETH on Base — earn 0.3% on swaps through our range</span></div>
-    </div>
-  </div>
-
-  <!-- Sitemap -->
-  <footer style="margin-top:24px;padding:16px 0;border-top:1px solid var(--border);font-size:9px;color:var(--muted)">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:12px">
+  <!-- Footer -->
+  <footer class="trading-footer">
+    <div class="footer-grid">
       <div>
-        <div style="font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Platform</div>
-        <a href="/" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Network Map</a>
-        <a href="/status" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Status</a>
-        <a href="/trading" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Trading</a>
-        <a href="/playground" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">API Playground</a>
-        <a href="#marketplace" style="display:block;color:var(--muted);text-decoration:none;padding:2px 0">Marketplace</a>
+        <div class="footer-section-title">Platform</div>
+        <a href="/">Network Map</a>
+        <a href="/status">Status</a>
+        <a href="/trading">Trading</a>
+        <a href="/amicoin">AmiCoin</a>
+        <a href="/playground">API Playground</a>
+        <a href="/billing">Billing</a>
+        <a href="#marketplace">Marketplace</a>
       </div>
       <div>
-        <div style="font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Wallets</div>
-        <div style="padding:2px 0">EVM: <span id="footerEvmAddr" style="color:var(--text)">--</span></div>
-        <div style="padding:2px 0">Solana: <span id="footerSolAddr" style="color:var(--text)">--</span></div>
-        <div style="padding:2px 0">Chains: ETH, Base, Arb, Polygon, SOL</div>
+        <div class="footer-section-title">Wallets</div>
+        <div>EVM: <span id="footerEvmAddr" style="color:var(--text)">--</span></div>
+        <div>Solana: <span id="footerSolAddr" style="color:var(--text)">--</span></div>
+        <div>Chains: ETH, Base, Arb, Polygon, SOL</div>
       </div>
       <div>
-        <div style="font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Agents</div>
-        <div style="padding:2px 0">Grid Trader (BTC-USD)</div>
-        <div style="padding:2px 0">DEX Grid (WETH-USDC Base)</div>
-        <div style="padding:2px 0">Sniper (90%+ conf)</div>
-        <div style="padding:2px 0">Meta Engine + Gov Data</div>
-        <div style="padding:2px 0">Capital Allocator</div>
+        <div class="footer-section-title">Agents</div>
+        <div>Grid Trader (BTC-USD)</div>
+        <div>DEX Grid (WETH-USDC Base)</div>
+        <div>Sniper (90%+ conf)</div>
+        <div>Meta Engine + Gov Data</div>
+        <div>Capital Allocator</div>
       </div>
       <div>
-        <div style="font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Infrastructure</div>
-        <div style="padding:2px 0">Fly.io: 7 regions</div>
-        <div style="padding:2px 0">Local: M3 Air + M1 Max + M2 Ultra</div>
-        <div style="padding:2px 0">C Engine: 80ns/signal</div>
-        <div style="padding:2px 0">Path Router: 37 nodes, 75 edges</div>
-        <div style="padding:2px 0">MCP Server: 11 tools</div>
+        <div class="footer-section-title">Infrastructure</div>
+        <div>Fly.io: 7 regions</div>
+        <div>Local: M3 Air + M1 Max + M2 Ultra</div>
+        <div>C Engine: 80ns/signal</div>
+        <div>Path Router: 37 nodes, 75 edges</div>
+        <div>MCP Server: 11 tools</div>
       </div>
     </div>
-    <div style="text-align:center;padding-top:8px;border-top:1px solid var(--border)33">NetTrace Quant Platform v3.0 — B2B/D2C Platform | Running 24/7</div>
+    <div class="footer-copyright">NetTrace Quant Platform v3.0 — B2B/D2C Platform | Running 24/7</div>
   </footer>
 </div>
+{% endblock %}
 
+{% block modals %}
 <!-- Connect Exchange Modal -->
 <div class="modal-overlay" id="connectModal">
   <div class="modal">
     <h2>CONNECT EXCHANGE</h2>
     <label>Exchange / Wallet Type</label>
-    <select id="credExchange" onchange="updateCredFields()">
+    <select id="credExchange" onchange="_updateCredFields()">
       <option value="coinbase">Coinbase (CDP API)</option>
       <option value="metamask">MetaMask / Self-Custody Wallet</option>
     </select>
@@ -809,903 +601,13 @@ td{padding:6px;border-bottom:1px solid var(--bg3)}
     </div>
   </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script src="/static/js/wallet.js"></script>
+<script src="/static/js/trading.js"></script>
 <script>
-let portfolioChart = null;
-let socket = null;
-let wsConnected = false;
-let lastPrices = {};
-let lastHeartbeat = 0;         // Timestamp of last WS trading_update
-let refreshDataIntervalId = null;  // So we can switch polling speed
-
-const SERVERS = [
-  {region:'EWR',location:'Newark, NJ',status:'active'},
-  {region:'ORD',location:'Chicago, IL',status:'active'},
-  {region:'LHR',location:'London, UK',status:'active'},
-  {region:'FRA',location:'Frankfurt, DE',status:'active'},
-  {region:'NRT',location:'Tokyo, JP',status:'active'},
-  {region:'SIN',location:'Singapore',status:'active'},
-  {region:'BOM',location:'Mumbai, IN',status:'active'},
-  {region:'LOCAL',location:'M3 Air (host)',status:'active'},
-  {region:'M1MAX',location:'192.168.1.110',status:'standby'},
-  {region:'M2ULTRA',location:'192.168.1.106',status:'standby'},
-];
-
-// ── Toast ──
-function showToast(msg, type="success", duration=5000){
-  const c=document.getElementById("toast-container");
-  const t=document.createElement("div");
-  t.className="toast toast-"+type;
-  t.textContent=msg;
-  c.appendChild(t);
-  setTimeout(()=>{t.style.opacity="0";t.style.transition="opacity .3s";setTimeout(()=>t.remove(),300)},duration);
-}
-
-// ── Theme ──
-function toggleTheme(){
-  const html=document.documentElement;
-  const current=html.getAttribute("data-theme");
-  html.setAttribute("data-theme",current==="light"?"dark":"light");
-  localStorage.setItem("theme",current==="light"?"dark":"light");
-}
-(function(){const t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t)})();
-
-// ── WebSocket ──
-function setPollingRate(ms){
-  if(refreshDataIntervalId) clearInterval(refreshDataIntervalId);
-  refreshDataIntervalId=setInterval(refreshData,ms);
-}
-function connectWS(){
-  try{
-    socket=io({transports:["websocket","polling"]});
-    socket.on("connect",()=>{
-      wsConnected=true;
-      document.getElementById("wsStatus").textContent="LIVE";
-      document.getElementById("wsStatus").className="ws-status connected";
-      // WS is primary — slow down HTTP polling to 60s fallback
-      setPollingRate(60000);
-    });
-    socket.on("disconnect",()=>{
-      wsConnected=false;
-      document.getElementById("wsStatus").textContent="WS: offline";
-      document.getElementById("wsStatus").className="ws-status disconnected";
-      // WS down — increase HTTP polling to 15s as fallback
-      setPollingRate(15000);
-    });
-    // Live trading updates from agents (every 5 seconds via heartbeat)
-    socket.on("trading_update",d=>{
-      lastHeartbeat=Date.now();
-      if(d.portfolio_value) document.getElementById("portfolioValue").textContent="$"+d.portfolio_value.toFixed(2);
-      if(d.daily_pnl!==undefined){
-        const el=document.getElementById("dailyPnl");
-        el.textContent=(d.daily_pnl>=0?"+":"")+"$"+d.daily_pnl.toFixed(2);
-        el.className="big "+(d.daily_pnl>=0?"green":"red");
-      }
-      if(d.trades_today!==undefined) document.getElementById("tradesToday").textContent=d.trades_today;
-      if(d.trades_total!==undefined) document.getElementById("tradesTotal").textContent="total: "+d.trades_total;
-      // Update holdings table from heartbeat data
-      if(d.holdings && Object.keys(d.holdings).length>0){
-        const entries=Object.entries(d.holdings).sort((a,b)=>(b[1].usd_value||0)-(a[1].usd_value||0));
-        const total=entries.reduce((s,[,v])=>s+(v.usd_value||0),0);
-        const body=document.getElementById("holdingsBody");
-        if(body && entries.length){
-          body.innerHTML=entries.map(([cur,v])=>{
-            const pct=total>0?((v.usd_value/total)*100).toFixed(1):"0";
-            const amt=v.amount<0.001?v.amount.toExponential(3):v.amount.toFixed(6);
-            return`<tr><td><strong>${cur}</strong></td><td>${amt}</td><td class="pnl-pos">$${(v.usd_value||0).toFixed(2)}</td><td>${pct}%</td></tr>`;
-          }).join("");
-        }
-      }
-      // Show latest trade toast
-      if(d.latest_trade && d.latest_trade.pair){
-        const t=d.latest_trade;
-        showToast(`Trade: ${t.side} ${t.pair} @ $${(t.price||0).toFixed(2)}`,"success");
-      }
-      if(d.trade) showToast(`Trade: ${d.trade.side} ${d.trade.pair} @ $${d.trade.price}`,"success");
-      // Update status line with live timestamp
-      const src=d.source==="heartbeat"?"heartbeat":"snapshot";
-      document.getElementById("lastUpdate").textContent="LIVE ("+src+") | "+new Date().toLocaleTimeString();
-    });
-    socket.on("price_update",d=>{
-      if(d.prices) updateTicker(d.prices);
-    });
-  }catch(e){
-    console.log("WS connect failed:",e);
-  }
-}
-
-// ── Live Ticker ──
-async function fetchTicker(){
-  const pairs=["BTC-USD","ETH-USD","SOL-USD","DOGE-USD","XRP-USD","AVAX-USD","LINK-USD"];
-  for(const pair of pairs){
-    try{
-      const r=await fetch(`https://api.exchange.coinbase.com/products/${pair}/ticker`);
-      const d=await r.json();
-      const sym=pair.split("-")[0];
-      const price=parseFloat(d.price||0);
-      const prev=lastPrices[sym]||price;
-      const change=((price-prev)/prev*100);
-      lastPrices[sym]=price;
-      const el=document.getElementById("tick"+sym);
-      const cel=document.getElementById("tick"+sym+"c");
-      if(el){
-        el.textContent=price>100?"$"+price.toFixed(0):"$"+price.toFixed(4);
-        cel.textContent=(change>=0?"+":"")+change.toFixed(2)+"%";
-        cel.style.color=change>=0?"var(--green)":"var(--red)";
-      }
-    }catch(e){}
-  }
-}
-
-function updateTicker(prices){
-  for(const[sym,data] of Object.entries(prices)){
-    const el=document.getElementById("tick"+sym);
-    if(el && data.price) el.textContent="$"+data.price.toFixed(data.price>100?0:4);
-  }
-}
-
-// ── Chart ──
-function initChart(){
-  const ctx=document.getElementById("portfolioChart").getContext("2d");
-  portfolioChart=new Chart(ctx,{
-    type:"line",
-    data:{labels:[],datasets:[{label:"Portfolio ($)",data:[],borderColor:"var(--green)",backgroundColor:"rgba(0,255,136,0.08)",fill:true,tension:.3,pointRadius:1,borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"var(--muted)",font:{size:9},maxTicksLimit:10},grid:{color:"rgba(30,58,95,0.13)"}},y:{ticks:{color:"var(--muted)",font:{size:9},callback:v=>"$"+v.toFixed(2)},grid:{color:"rgba(30,58,95,0.13)"}}}}
-  });
-}
-
-function renderServers(){
-  document.getElementById("serverGrid").innerHTML=SERVERS.map(s=>`
-    <div class="server-node">
-      <div class="region"><span class="status-dot" style="${s.status==="standby"?"background:var(--gold);animation:none":""}"></span>${s.region}</div>
-      <div class="location">${s.location}</div>
-      <div class="latency">${s.status==="active"?"online":"standby"}</div>
-    </div>`).join("");
-}
-
-function renderClaudeInsights(insights){
-  const feed=document.getElementById("claudeFeed");
-  if(!feed) return;
-  if(!insights || Object.keys(insights).length===0){
-    feed.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">Waiting for optimizer cycles...</div>';
-    return;
-  }
-  const posture=(insights.risk_posture||"BALANCED").toUpperCase();
-  const postureClass=posture==="DEFENSIVE"?"claude-def":(posture==="OFFENSIVE"?"claude-off":"claude-bal");
-  const mkItems=(arr)=> (arr&&arr.length?arr.slice(0,4).map(x=>`<div class="item">${x}</div>`).join(""):'<div class="item">No updates</div>');
-  const focus=(insights.focus_pairs&&insights.focus_pairs.length)?insights.focus_pairs.join(", "):"none";
-  const snap=insights.learning_snapshot||{};
-  feed.innerHTML=`
-    <div class="claude-grid">
-      <div class="claude-col">
-        <h4>Algorithm</h4>
-        <div class="claude-list">${mkItems(insights.algorithm_recommendations)}</div>
-      </div>
-      <div class="claude-col">
-        <h4>Quant</h4>
-        <div class="claude-list">${mkItems(insights.quant_recommendations)}</div>
-      </div>
-      <div class="claude-col">
-        <h4>Dashboard</h4>
-        <div class="claude-list">${mkItems(insights.dashboard_recommendations)}</div>
-      </div>
-    </div>
-    <div class="claude-meta">
-      <span>Posture: <span class="claude-pill ${postureClass}">${posture}</span></span>
-      <span>Focus: <span style="color:var(--blue)">${focus}</span></span>
-      <span>Sharpe: <span style="color:var(--green)">${Number(snap.sharpe_ratio||0).toFixed(2)}</span></span>
-      <span>Drawdown: <span style="color:var(--gold)">${Number(snap.max_drawdown_pct||0).toFixed(2)}%</span></span>
-    </div>`;
-
-  const statusMap={};
-  (insights.agent_status||[]).forEach(s=>{statusMap[s.agent]=s});
-  const algo=statusMap.algorithm_optimizer;
-  const quant=statusMap.quant_optimizer;
-  const dash=statusMap.dashboard_optimizer;
-  if(algo) document.getElementById("algoAgentState").textContent=algo.detail||algo.state||"active";
-  if(quant) document.getElementById("quantAgentState").textContent=quant.detail||quant.state||"active";
-  if(dash) document.getElementById("dashAgentState").textContent=dash.detail||dash.state||"active";
-}
-
-function renderQuant100Status(summary, agent){
-  const el=document.getElementById("quant100AgentState");
-  if(!el) return;
-  const state=(agent&&agent.state)?agent.state:"idle";
-  const promoted=Number((summary&&summary.promoted_warm)||0);
-  const total=Number((summary&&summary.total)||0);
-  const noData=Number((summary&&summary.no_data)||0);
-  if(total>0){
-    if(noData===total){
-      el.textContent=`${state} | no data`;
-    }else{
-      el.textContent=`${state} | ${promoted}/${total} warm`;
-    }
-  }else{
-    el.textContent=state;
-  }
-}
-
-function renderClaudeIngest(ingest, stager, duplex){
-  const el=document.getElementById("claudeStagerState");
-  if(!el) return;
-  const summary=(ingest&&ingest.summary)?ingest.summary:{};
-  const state=(stager&&stager.state)?stager.state:"idle";
-  const pairs=Array.isArray(summary.focus_pairs)?summary.focus_pairs.length:0;
-  const adv=Number(summary.advanced_msgs||0);
-  const op=Number(summary.operator_msgs||0);
-  const totalMsgs=adv+op;
-  const toCount=Number((duplex&&duplex.to_count)||summary.duplex_to||0);
-  const fromCount=Number((duplex&&duplex.from_count)||summary.duplex_from||0);
-  el.textContent=`${state} | ${pairs} pairs | ${totalMsgs} msgs | duplex ${toCount}/${fromCount}`;
-}
-
-function renderAmiCoin(amicoin, agent){
-  const summary=(amicoin&&amicoin.summary)?amicoin.summary:{};
-  const pool=(amicoin&&amicoin.pool)?amicoin.pool:[];
-  const wallets=(amicoin&&amicoin.wallets)?amicoin.wallets:[];
-  const checklist=summary.go_live_checklist||{};
-
-  const networkName=summary.network_name||"AmiCoin Network";
-  const mode=summary.network_mode||"simulation_only";
-  document.getElementById("amiNetworkMode").textContent=`${networkName} | ${mode}`;
-  document.getElementById("amiNotCounted").textContent=(summary.counts_toward_portfolio===false||amicoin.excluded_from_portfolio)?
-    "Excluded from real holdings and portfolio value":"Counts toward portfolio";
-
-  const reserveEq=Number(summary.reserve_equity_usd||0);
-  const liquid=Number(summary.liquid_usd||0);
-  const allocated=Number(summary.allocated_usd||0);
-  const realized=Number(summary.realized_pnl_usd||0);
-  const openPos=Number(summary.open_positions||0);
-  document.getElementById("amiReserveEq").textContent="$"+reserveEq.toFixed(2);
-  document.getElementById("amiLiquid").textContent="$"+liquid.toFixed(2);
-  document.getElementById("amiAllocated").textContent="$"+allocated.toFixed(2);
-  document.getElementById("amiRealized").textContent=(realized>=0?"+$":"-$")+Math.abs(realized).toFixed(2);
-  document.getElementById("amiRealized").style.color=realized>=0?"var(--green)":"var(--red)";
-  document.getElementById("amiOpenPos").textContent=openPos;
-
-  const liveTxt=summary.go_live_ready?"Ready":"Not Ready";
-  document.getElementById("amiGoLive").textContent=liveTxt;
-  document.getElementById("amiGoLive").style.color=summary.go_live_ready?"var(--green)":"var(--gold)";
-
-  const coinBox=document.getElementById("amiCoins");
-  if(!pool.length){
-    coinBox.innerHTML='<div class="ami-head"><span>Coin</span><span>Network</span><span>Price</span><span>24h</span><span>P&L</span></div><div class="ami-row"><span class="sym">--</span><span>--</span><span>--</span><span>--</span><span>--</span></div>';
-  }else{
-    let html='<div class="ami-head"><span>Coin</span><span>Network</span><span>Price</span><span>24h</span><span>P&L</span></div>';
-    for(const c of pool){
-      const d=Number(c.day_change_pct||0);
-      const p=Number(c.realized_pnl_usd||0)+Number(c.unrealized_pnl_usd||0);
-      html+=`<div class="ami-row"><span class="sym">${c.symbol}</span><span>${c.network}</span><span>$${Number(c.price_usd||0).toFixed(5)}</span><span style="color:${d>=0?'var(--green)':'var(--red)'}">${d>=0?'+':''}${d.toFixed(2)}%</span><span style="color:${p>=0?'var(--green)':'var(--red)'}">${p>=0?'+':''}$${p.toFixed(2)}</span></div>`;
-    }
-    coinBox.innerHTML=html;
-  }
-
-  const walletBox=document.getElementById("amiWallets");
-  if(!wallets.length){
-    walletBox.innerHTML='<div class="ami-head" style="grid-template-columns:1fr 1fr 1fr 1fr"><span>Network</span><span>Reserve</span><span>Allocated</span><span>Address</span></div><div class="ami-wallet-row"><span>--</span><span>--</span><span>--</span><span>--</span></div>';
-  }else{
-    let html='<div class="ami-head" style="grid-template-columns:1fr 1fr 1fr 1fr"><span>Network</span><span>Reserve</span><span>Allocated</span><span>Address</span></div>';
-    for(const w of wallets){
-      const addr=(w.address||"--");
-      const short=addr.length>14?addr.slice(0,8)+"..."+addr.slice(-6):addr;
-      html+=`<div class="ami-wallet-row"><span>${w.network}</span><span>$${Number(w.reserve_usd||0).toFixed(2)}</span><span>$${Number(w.allocated_usd||0).toFixed(2)}</span><span title="${addr}">${short}</span></div>`;
-    }
-    walletBox.innerHTML=html;
-  }
-
-  const checks=[
-    ["Coinbase listen", checklist.coinbase_market_listening===true],
-    ["Coinbase listed", checklist.coinbase_listing===true],
-    ["DEX listed", checklist.dex_listing===true],
-    ["USDC route", checklist.conversion_routes&&checklist.conversion_routes.USDC===true],
-    ["BTC route", checklist.conversion_routes&&checklist.conversion_routes.BTC===true],
-    ["ETH route", checklist.conversion_routes&&checklist.conversion_routes.ETH===true],
-    ["SOL route", checklist.conversion_routes&&checklist.conversion_routes.SOL===true],
-  ];
-  document.getElementById("amiChecklist").innerHTML=checks.map(([label,ok])=>
-    `<span class="ami-check ${ok?'ok':'no'}">${ok?'READY':'PENDING'}: ${label}</span>`
-  ).join("");
-
-  const aState=document.getElementById("amicoinAgentState");
-  if(aState){
-    const s=(agent&&agent.state)?agent.state:"idle";
-    const cyc=(summary&&summary.cycles)?summary.cycles:0;
-    aState.textContent=`${s} | cycle ${cyc}`;
-  }
-}
-
-// ── Data Refresh ──
-async function refreshData(){
-  try{
-    const resp=await fetch("/api/trading-data");
-    const data=await resp.json();
-    if(data.error){document.getElementById("lastUpdate").textContent="Error: "+data.error;return}
-    const val=data.portfolio_value||0;
-    const cbVal=data.coinbase_value||0;
-    const walVal=data.wallet_value||0;
-    const stuckVal=data.stuck_value||0;
-    const transitVal=data.in_transit_value||0;
-    const pnl=data.daily_pnl||0;
-    document.getElementById("portfolioValue").textContent="$"+val.toFixed(2);
-    const breakdown=[];
-    if(cbVal>0)breakdown.push("CB: $"+cbVal.toFixed(2));
-    if(walVal>0)breakdown.push("Wallet: $"+walVal.toFixed(2));
-    if(stuckVal>0)breakdown.push("Stuck: $"+stuckVal.toFixed(2));
-    if(transitVal>0)breakdown.push("Transit: $"+transitVal.toFixed(2));
-    document.getElementById("portfolioChange").textContent=breakdown.length?breakdown.join(" + "):"--";
-    // Wallet addresses in footer
-    if(data.evm_address){document.getElementById("footerEvmAddr").textContent=data.evm_address.slice(0,6)+"..."+data.evm_address.slice(-4)}
-    if(data.solana_address){document.getElementById("footerSolAddr").textContent=data.solana_address.slice(0,6)+"..."+data.solana_address.slice(-4)}
-    const pnlEl=document.getElementById("dailyPnl");
-    pnlEl.textContent=(pnl>=0?"+":"")+"$"+pnl.toFixed(2);
-    pnlEl.className="big "+(pnl>=0?"green":"red");
-    document.getElementById("tradesToday").textContent=data.trades_today||0;
-    document.getElementById("tradesTotal").textContent="total: "+(data.trades_total||0);
-    document.getElementById("traderPnl").textContent=(pnl>=0?"+":"")+"$"+pnl.toFixed(2);
-    // Holdings
-    const holdings=data.holdings||{};
-    const entries=Object.entries(holdings).sort((a,b)=>b[1].usd_value-a[1].usd_value);
-    const total=entries.reduce((s,[,d])=>s+d.usd_value,0);
-    const body=document.getElementById("holdingsBody");
-    if(entries.length){
-      body.innerHTML=entries.map(([cur,d])=>{
-        const pct=total>0?((d.usd_value/total)*100).toFixed(1):"0";
-        const amt=d.amount<0.001?d.amount.toExponential(3):d.amount.toFixed(6);
-        return`<tr><td><strong>${cur}</strong></td><td>${amt}</td><td class="pnl-pos">$${d.usd_value.toFixed(2)}</td><td>${pct}%</td></tr>`;
-      }).join("");
-    }
-    // Trades
-    const trades=data.trades||[];
-    const tradesBody=document.getElementById("tradesBody");
-    const noTrades=document.getElementById("noTrades");
-    if(trades.length>0){
-      noTrades.style.display="none";
-      tradesBody.innerHTML=trades.slice(0,20).map(t=>{
-        const time=t.created_at?new Date(t.created_at).toLocaleTimeString():"--";
-        return`<tr><td>${time}</td><td>${t.pair}</td><td><span class="badge ${t.side==="BUY"?"b-buy":"b-sell"}">${t.side}</span></td><td>$${(t.price||0).toFixed(2)}</td><td>$${(t.total_usd||0).toFixed(2)}</td><td style="font-size:9px">${t.signal_type||"--"}</td><td><span class="badge ${t.status==="filled"?"b-filled":"b-failed"}">${t.status}</span></td></tr>`;
-      }).join("");
-    }
-    renderClaudeInsights(data.claude_insights||{});
-    renderQuant100Status(data.quant100_summary||{}, data.quant100_agent||{});
-    renderClaudeIngest(data.claude_ingest||{}, data.claude_stager||{}, data.claude_duplex||{});
-    renderAmiCoin(data.amicoin||{}, data.amicoin_agent||{});
-    // Chart
-    const snapshots=data.snapshots||[];
-    if(portfolioChart&&snapshots.length>0){
-      const sorted=snapshots.sort((a,b)=>new Date(a.recorded_at)-new Date(b.recorded_at));
-      portfolioChart.data.labels=sorted.map(s=>new Date(s.recorded_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}));
-      portfolioChart.data.datasets[0].data=sorted.map(s=>s.total_value_usd);
-      portfolioChart.update();
-    }
-    document.getElementById("lastUpdate").textContent="Live | "+new Date().toLocaleTimeString()+(data.snapshot_age?" | data: "+data.snapshot_age:"");
-  }catch(e){document.getElementById("lastUpdate").textContent="Error: "+e.message}
-}
-
-// ── Market Regime ──
-async function fetchRegimes(){
-  try{
-    const resp=await fetch("https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=3600");
-    const data=await resp.json();
-    if(data.length>20){
-      const closes=data.slice(0,20).map(c=>c[4]).reverse();
-      const sma=closes.reduce((a,b)=>a+b,0)/closes.length;
-      const price=closes[closes.length-1];
-      const regime=price>sma?"UPTREND":"DOWNTREND";
-      const badge=document.getElementById("regimeBadge");
-      badge.textContent=regime;
-      badge.className="big "+(regime==="UPTREND"?"green":"red");
-      document.getElementById("regimeRec").textContent=regime==="UPTREND"?"TRADE":"HOLD";
-    }
-  }catch(e){}
-}
-
-// ── Opportunities (live from Coinbase) ──
-async function fetchOpportunities(){
-  const pairs=["SHIB-USD","DOGE-USD","SOL-USD","AVAX-USD","ETH-USD","LINK-USD","XRP-USD","BTC-USD"];
-  const grid=document.getElementById("opportunitiesGrid");
-  const results=[];
-  for(const pair of pairs){
-    try{
-      const r=await fetch(`https://api.exchange.coinbase.com/products/${pair}/stats`);
-      const d=await r.json();
-      const open=parseFloat(d.open||0);
-      const last=parseFloat(d.last||0);
-      const high=parseFloat(d.high||0);
-      const low=parseFloat(d.low||0);
-      const change=open>0?((last-open)/open*100):0;
-      const vol=open>0?((high-low)/open*100):0;
-      const net=vol-1.2; // subtract round-trip fee
-      const regime=change>1?"UPTREND":change<-1?"DOWNTREND":"RANGING";
-      results.push({pair,vol,change,profit:net,regime});
-    }catch(e){}
-  }
-  results.sort((a,b)=>b.profit-a.profit);
-  grid.innerHTML=results.map(o=>{
-    const rc=o.regime==="UPTREND"?"b-up":o.regime==="DOWNTREND"?"b-down":"b-range";
-    const cc=o.change>=0?"pnl-pos":"pnl-neg";
-    return`<div class="opp-card"><div style="display:flex;justify-content:space-between;align-items:center"><span class="opp-pair">${o.pair}</span><span class="badge ${rc}">${o.regime}</span></div><div class="opp-details"><span>Vol: <span class="opp-vol">${o.vol.toFixed(1)}%</span></span><span>24h: <span class="${cc}">${o.change>=0?"+":""}${o.change.toFixed(1)}%</span></span><span>Net: <span class="opp-profit">${o.profit>0?"+":""}${o.profit.toFixed(1)}%</span></span></div></div>`;
-  }).join("");
-}
-
-// ── Asset Pools (replaces simple wallet view) ──
-async function refreshWallet(){ return refreshAssetPools(); }
-
-async function refreshAssetPools(){
-  try{
-    const r=await fetch("/api/asset-pools");
-    const d=await r.json();
-    if(d.error) return;
-
-    // Summary stats
-    const s=d.summary||{};
-    document.getElementById("poolTotal").textContent="$"+(s.total_usd||0).toFixed(2);
-    document.getElementById("poolAvailable").textContent="$"+(s.available_usd||0).toFixed(2);
-    document.getElementById("poolInTransit").textContent="$"+(s.in_transit_usd||0).toFixed(2);
-    document.getElementById("poolLocked").textContent="$"+(s.locked_usd||0).toFixed(2);
-    document.getElementById("poolStuck").textContent="$"+(s.stuck_usd||0).toFixed(2);
-    document.getElementById("poolCount").textContent=s.pool_count||0;
-
-    // Pool rows
-    const pools=d.pools||[];
-    const container=document.getElementById("poolRows");
-    if(pools.length===0){
-      container.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">No assets found</div>';
-      return;
-    }
-    // Sort: available first, then by USD value desc
-    const stateOrder={"available":0,"pending":1,"in_transit":2,"locked":3,"reserved":4,"stuck":5,"error":6,"unavailable":7};
-    pools.sort((a,b)=>(stateOrder[a.state]||9)-(stateOrder[b.state]||9)||(b.value_usd||0)-(a.value_usd||0));
-
-    let html="";
-    for(const p of pools){
-      if(p.state==="error"||p.state==="unavailable") continue; // skip RPC errors
-      const amt=p.amount<0.001&&p.amount>0?p.amount.toExponential(3):p.amount.toFixed(6);
-      const eta=p.eta_seconds?`<span class="pool-eta">ETA ${Math.ceil(p.eta_seconds/60)}m</span>`:"";
-      const addrTip=p.address?` title="${p.address}"`:"";
-      const txTip=p.tx_hash?` title="tx: ${p.tx_hash}"`:"";
-      html+=`<div class="pool-row"${txTip}>`;
-      html+=`<span class="pool-asset">${p.asset}</span>`;
-      html+=`<span class="pool-venue"${addrTip}>${p.venue}${p.chain&&p.chain!==p.venue?" ("+p.chain+")":""}</span>`;
-      html+=`<span class="pool-amount">${amt}</span>`;
-      html+=`<span class="pool-usd">$${(p.value_usd||0).toFixed(2)}</span>`;
-      html+=`<span class="pool-state"><span class="state-badge state-${p.state}">${p.state.replace("_"," ").toUpperCase()}</span>${eta}</span>`;
-      html+=`</div>`;
-      // Show note for stuck/in_transit
-      const note=p.metadata?.note;
-      if(note){
-        html+=`<div class="pool-note">${note}</div>`;
-      }
-    }
-    container.innerHTML=html;
-
-    // Learning insights
-    const insights=d.learning_insights||{};
-    const insightBar=document.getElementById("poolInsights");
-    if(Object.keys(insights).length>0){
-      insightBar.style.display="flex";
-      if(insights.avg_bridge_time_s) document.getElementById("insightBridgeTime").textContent=Math.round(insights.avg_bridge_time_s)+"s";
-      if(insights.avg_bridge_cost_usd) document.getElementById("insightBridgeCost").textContent="$"+insights.avg_bridge_cost_usd.toFixed(4);
-      const tc=insights.transition_counts||{};
-      const total=Object.values(tc).reduce((a,b)=>a+b,0);
-      document.getElementById("insightTransitions").textContent=total;
-    }
-
-    // State transitions feed
-    const transitions=d.transitions||[];
-    const feed=document.getElementById("transitionFeed");
-    if(transitions.length>0){
-      feed.innerHTML=transitions.slice(0,15).map(t=>{
-        const time=t.created_at?new Date(t.created_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"}):"--";
-        const cost=t.cost_usd>0?` <span style="color:var(--red)">-$${t.cost_usd.toFixed(4)}</span>`:"";
-        const dur=t.duration_seconds?` <span style="color:var(--muted)">(${Math.round(t.duration_seconds)}s)</span>`:"";
-        return`<div class="transition-row">
-          <span style="color:var(--muted);min-width:60px">${time}</span>
-          <span style="color:var(--blue);font-weight:700;min-width:40px">${t.asset}</span>
-          <span class="state-badge state-${t.from_state}" style="font-size:7px">${t.from_state}</span>
-          <span class="transition-arrow">&rarr;</span>
-          <span class="state-badge state-${t.to_state}" style="font-size:7px">${t.to_state}</span>
-          <span style="color:var(--muted);font-size:9px">${t.venue}${cost}${dur}</span>
-        </div>`;
-      }).join("");
-    }
-  }catch(e){
-    console.log("Asset pools error:",e);
-  }
-}
-
-// ── Venue Comparison ──
-async function fetchVenueComparison(){
-  try{
-    const r=await fetch("/api/venue-comparison?token_in=ETH&token_out=USDC&amount=0.1");
-    const d=await r.json();
-    const vc=document.getElementById("venueComparison");
-    if(d.venues&&d.venues.length>0){
-      vc.innerHTML=d.venues.map((v,i)=>`
-        <div class="venue-row">
-          <span class="venue-name">${v.venue}</span>
-          <span class="venue-price">$${(v.amount_out||0).toFixed(2)}</span>
-          <span class="venue-fee">${(v.fee_pct||0).toFixed(2)}% fee</span>
-          ${i===0?'<span class="venue-best">BEST</span>':""}
-        </div>`).join("");
-    }else{
-      vc.innerHTML='<div style="text-align:center;padding:8px;color:var(--muted);font-size:10px">No venue data yet</div>';
-    }
-  }catch(e){
-    document.getElementById("venueComparison").innerHTML='<div style="text-align:center;padding:8px;color:var(--muted);font-size:10px">Venue API offline</div>';
-  }
-}
-
-// ── Treasury ──
-async function fetchTreasury(){
-  try{
-    const r=await fetch("/api/treasury/balance");
-    const d=await r.json();
-    if(d.balance!==undefined) document.getElementById("treasuryBalance").textContent="$"+d.balance.toFixed(2);
-    if(d.yield_earned!==undefined) document.getElementById("treasuryYield").textContent="$"+d.yield_earned.toFixed(2);
-    if(d.deployed!==undefined) document.getElementById("treasuryDeployed").textContent="$"+d.deployed.toFixed(2);
-  }catch(e){}
-}
-
-// ── Credential management ──
-function showConnectModal(){document.getElementById("connectModal").classList.add("active");updateCredFields()}
-function hideConnectModal(){document.getElementById("connectModal").classList.remove("active")}
-function updateCredFields(){
-  const exchange=document.getElementById("credExchange").value;
-  document.getElementById("coinbaseFields").style.display=exchange==="coinbase"?"block":"none";
-  document.getElementById("walletFields").style.display=exchange!=="coinbase"?"block":"none";
-}
-
-async function saveCredential(){
-  const exchange=document.getElementById("credExchange").value;
-  let payload={exchange};
-  if(exchange==="coinbase"){
-    payload.api_key_id=document.getElementById("credApiKeyId").value.trim();
-    payload.api_secret=document.getElementById("credApiSecret").value.trim();
-    if(!payload.api_key_id||!payload.api_secret){alert("API Key ID and Private Key are required");return}
-  }else{
-    payload.exchange="metamask";
-    payload.wallet_address=document.getElementById("credWalletAddr").value.trim();
-    payload.chain=document.getElementById("credChain").value;
-    if(!payload.wallet_address){alert("Wallet address is required");return}
-  }
-  try{
-    const resp=await fetch("/api/credentials",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    const result=await resp.json();
-    if(result.ok){hideConnectModal();loadCredentials();showToast("Exchange connected","success")}
-    else{alert(result.error||"Failed to save")}
-  }catch(e){alert("Error: "+e.message)}
-}
-
-async function removeCredential(id){
-  if(!confirm("Disconnect this exchange?"))return;
-  try{await fetch(`/api/credentials/${id}`,{method:"DELETE"});loadCredentials()}catch(e){}
-}
-
-async function loadCredentials(){
-  try{
-    const resp=await fetch("/api/credentials");
-    const data=await resp.json();
-    const list=document.getElementById("exchangeList");
-    if(data.credentials&&data.credentials.length>0){
-      list.innerHTML=data.credentials.map(c=>`
-        <div class="exchange-tag"><span class="dot"></span><span>${c.exchange.toUpperCase()}</span><span class="remove" onclick="removeCredential(${c.id})">&times;</span></div>
-      `).join("");
-      // Load wallet balances if wallet connected
-      const hasWallet=data.credentials.some(c=>c.exchange==="metamask"||c.exchange==="wallet");
-      if(hasWallet) refreshWallet();
-    }else{
-      list.innerHTML='<span style="font-size:10px;color:var(--muted)">No exchanges connected</span>';
-    }
-  }catch(e){}
-}
-
-// ── Org Context ──
-let currentOrgSlug = null;
-const userOrgs = JSON.parse('{{ user_orgs|default("[]")|e }}');
-
-function loadOrgs(){
-  const bar = document.getElementById("orgBar");
-  const sel = document.getElementById("orgSelect");
-  if(!userOrgs||userOrgs.length===0){bar.style.display="none";return}
-  bar.style.display="flex";
-  sel.innerHTML=userOrgs.map(o=>`<option value="${o.slug}">${o.name}</option>`).join("");
-  switchOrg(userOrgs[0].slug);
-}
-
-function switchOrg(slug){
-  currentOrgSlug=slug;
-  const org=userOrgs.find(o=>o.slug===slug);
-  if(!org)return;
-  document.getElementById("orgName").textContent=org.name;
-  document.getElementById("orgTierBadge").textContent=org.tier.replace("_"," ");
-  document.getElementById("orgTierBadge").className="tier-badge tier-"+org.tier;
-  document.getElementById("orgRoleBadge").textContent=org.role;
-  // Reload org-scoped data
-  loadAgents();loadProposals();loadRiskPolicy();loadAum();loadFeePreview();loadInvoices();
-}
-
-// ── Agent Marketplace ──
-function showMarketplaceTab(tab,btn){
-  document.querySelectorAll(".marketplace-tabs button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  ["agents","proposals","register"].forEach(t=>{
-    document.getElementById("tab-"+t).style.display=t===tab?"block":"none";
-  });
-}
-
-async function loadAgents(){
-  if(!currentOrgSlug)return;
-  try{
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/agents`);
-    const d=await r.json();
-    const body=document.getElementById("marketplaceAgentsBody");
-    if(d.agents&&d.agents.length>0){
-      body.innerHTML=d.agents.map(a=>{
-        const stage=a.pipeline_stage||"COLD";
-        const stageCls=stage==="HOT"?"b-hot":stage==="WARM"?"b-warm":"b-cold";
-        const statusCls="agent-status-"+(a.status||"pending");
-        const actions=(a.status==="pending"?`<button class="action-btn approve" onclick="updateAgentStatus(${a.id},'approved')">Approve</button> `:"")+
-          (a.status==="active"||a.status==="approved"?`<button class="action-btn reject" onclick="updateAgentStatus(${a.id},'suspended')">Suspend</button> `:"")+
-          (a.status!=="fired"?`<button class="action-btn fire" onclick="updateAgentStatus(${a.id},'fired')">Fire</button>`:"");
-        return `<tr>
-          <td>${a.agent_name}</td>
-          <td>${a.agent_type||"--"}</td>
-          <td><span class="badge ${stageCls}">${stage}</span></td>
-          <td><span class="${statusCls}">${a.status}</span></td>
-          <td>${a.total_trades||0}</td>
-          <td>${a.win_rate?a.win_rate.toFixed(1)+"%":"--"}</td>
-          <td class="${(a.total_pnl||0)>=0?"pnl-pos":"pnl-neg"}">$${(a.total_pnl||0).toFixed(2)}</td>
-          <td>${a.sharpe_ratio?a.sharpe_ratio.toFixed(2):"--"}</td>
-          <td>${actions}</td>
-        </tr>`;
-      }).join("");
-      // Update KPI count
-      const active=d.agents.filter(a=>a.status==="active"||a.status==="approved").length;
-      const total=11+active; // 11 internal + marketplace active
-      document.getElementById("agentCount").textContent=total;
-      const stages=d.agents.reduce((acc,a)=>{acc[a.pipeline_stage||"COLD"]=(acc[a.pipeline_stage||"COLD"]||0)+1;return acc},{});
-      document.getElementById("agentCountSub").textContent=
-        `11 internal + ${active} marketplace (${stages.COLD||0}C/${stages.WARM||0}W/${stages.HOT||0}H)`;
-    }else{
-      body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px">No marketplace agents registered yet</td></tr>';
-    }
-  }catch(e){console.log("loadAgents error:",e)}
-}
-
-async function registerAgent(){
-  if(!currentOrgSlug)return showToast("No org selected","error");
-  const name=document.getElementById("regAgentName").value.trim();
-  const desc=document.getElementById("regAgentDesc").value.trim();
-  const type=document.getElementById("regAgentType").value;
-  if(!name){showToast("Agent name is required","error");return}
-  try{
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/agents`,{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({agent_name:name,strategy_description:desc,agent_type:type})
-    });
-    const d=await r.json();
-    if(d.error){showToast(d.error,"error");return}
-    showToast(`Agent "${name}" registered`,"success");
-    document.getElementById("regAgentName").value="";
-    document.getElementById("regAgentDesc").value="";
-    loadAgents();
-    showMarketplaceTab("agents",document.querySelector(".marketplace-tabs button"));
-  }catch(e){showToast("Registration failed: "+e.message,"error")}
-}
-
-async function updateAgentStatus(agentId,status){
-  if(!currentOrgSlug)return;
-  try{
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/agents/${agentId}/status`,{
-      method:"PUT",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({status})
-    });
-    const d=await r.json();
-    if(d.error){showToast(d.error,"error");return}
-    showToast(`Agent ${status}`,"success");
-    loadAgents();
-  }catch(e){showToast("Status update failed","error")}
-}
-
-// ── Trade Proposals ──
-async function loadProposals(){
-  if(!currentOrgSlug)return;
-  try{
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/proposals?limit=20`);
-    const d=await r.json();
-    const body=document.getElementById("proposalsBody");
-    if(d.proposals&&d.proposals.length>0){
-      body.innerHTML=d.proposals.map(p=>{
-        const statusCls="proposal-"+(p.status||"pending");
-        const actions=p.status==="pending"?
-          `<button class="action-btn approve" onclick="reviewProposal(${p.id},'approve')">Approve</button> `+
-          `<button class="action-btn reject" onclick="reviewProposal(${p.id},'reject')">Reject</button>`:"";
-        const time=p.created_at?new Date(p.created_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"--";
-        return `<tr>
-          <td>${time}</td>
-          <td>${p.agent_name||"Agent #"+p.agent_id}</td>
-          <td>${p.pair||"--"}</td>
-          <td><span class="badge ${p.direction==="BUY"?"b-buy":"b-sell"}">${p.direction||"--"}</span></td>
-          <td>${p.confidence?(p.confidence*100).toFixed(0)+"%":"--"}</td>
-          <td>$${(p.size_usd||0).toFixed(2)}</td>
-          <td><span class="${statusCls}">${p.status}</span></td>
-          <td>${actions}</td>
-        </tr>`;
-      }).join("");
-    }else{
-      body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:16px">No trade proposals yet</td></tr>';
-    }
-  }catch(e){console.log("loadProposals error:",e)}
-}
-
-async function reviewProposal(proposalId,action){
-  if(!currentOrgSlug)return;
-  const reason=action==="reject"?prompt("Rejection reason (optional):",""):"";
-  try{
-    const payload={action};
-    if(reason)payload.reason=reason;
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/proposals/${proposalId}/review`,{
-      method:"PUT",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(payload)
-    });
-    const d=await r.json();
-    if(d.error){showToast(d.error,"error");return}
-    showToast(`Proposal ${action}d`,"success");
-    loadProposals();
-  }catch(e){showToast("Review failed","error")}
-}
-
-// ── Risk Policy ──
-async function loadRiskPolicy(){
-  if(!currentOrgSlug)return;
-  try{
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/risk-policy`);
-    const d=await r.json();
-    if(d.policy){
-      const p=d.policy;
-      document.getElementById("riskMaxDailyLoss").textContent=(p.max_daily_loss_pct||3)+"%";
-      document.getElementById("riskMaxPosition").textContent=(p.max_position_pct||5)+"%";
-      document.getElementById("riskMinConfidence").textContent=(p.min_confidence_pct||70)+"%";
-      document.getElementById("riskMinSignals").textContent=p.min_signals||2;
-      // Highlight active preset
-      document.querySelectorAll(".risk-presets button").forEach(btn=>{
-        btn.classList.toggle("active",btn.textContent.toLowerCase()===p.risk_profile);
-      });
-    }
-  }catch(e){console.log("loadRiskPolicy error:",e)}
-}
-
-async function setRiskPreset(profile){
-  if(!currentOrgSlug)return;
-  try{
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/risk-policy`,{
-      method:"PUT",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({risk_profile:profile})
-    });
-    const d=await r.json();
-    if(d.error){showToast(d.error,"error");return}
-    showToast(`Risk profile: ${profile}`,"success");
-    loadRiskPolicy();
-  }catch(e){showToast("Risk update failed","error")}
-}
-
-// ── Fees & Billing ──
-async function loadAum(){
-  if(!currentOrgSlug)return;
-  try{
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/aum?days=30`);
-    const d=await r.json();
-    if(d.snapshots&&d.snapshots.length>0){
-      const latest=d.snapshots[d.snapshots.length-1];
-      document.getElementById("feeAum").textContent="$"+(latest.aum||0).toFixed(2);
-      document.getElementById("feeHwm").textContent="$"+(latest.hwm||0).toFixed(2);
-      document.getElementById("feeGains").textContent="$"+(latest.gains||0).toFixed(2);
-    }
-  }catch(e){console.log("loadAum error:",e)}
-}
-
-async function loadFeePreview(){
-  if(!currentOrgSlug)return;
-  try{
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/fees/preview`,{method:"POST"});
-    const d=await r.json();
-    if(d.total_to_date!==undefined){
-      document.getElementById("feeTotalMtd").textContent="$"+d.total_to_date.toFixed(2);
-      document.getElementById("feeSub").textContent="$"+(d.subscription||0);
-      document.getElementById("feePerf").textContent="$"+(d.performance_fee_to_date||0).toFixed(2);
-      document.getElementById("feeMgmt").textContent="$"+(d.management_fee_to_date||0).toFixed(2);
-      document.getElementById("feeTier").textContent=(d.tier||"--").replace("_"," ");
-      const tierDescs={free:"Paper trading only",pro:"3 agents, 5% perf fee",enterprise:"10 agents, 10% perf fee",enterprise_pro:"Unlimited, 20% perf fee, 2% mgmt"};
-      document.getElementById("feeTierDesc").textContent=tierDescs[d.tier]||"";
-    }
-  }catch(e){console.log("loadFeePreview error:",e)}
-}
-
-async function loadInvoices(){
-  if(!currentOrgSlug)return;
-  try{
-    const r=await fetch(`/api/v1/orgs/${currentOrgSlug}/fees?limit=6`);
-    const d=await r.json();
-    const body=document.getElementById("invoicesBody");
-    if(d.invoices&&d.invoices.length>0){
-      body.innerHTML=d.invoices.map(inv=>{
-        const statusCls="invoice-status-"+(inv.status||"draft");
-        return `<tr>
-          <td>${inv.period_start?inv.period_start.substring(0,10):"--"} — ${inv.period_end?inv.period_end.substring(0,10):"--"}</td>
-          <td>${inv.type||"combined"}</td>
-          <td>$${(inv.amount_usd||0).toFixed(2)}</td>
-          <td><span class="${statusCls}">${inv.status}</span></td>
-          <td>${inv.created_at?new Date(inv.created_at).toLocaleDateString():""}</td>
-        </tr>`;
-      }).join("");
-    }else{
-      body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px">No invoices yet</td></tr>';
-    }
-  }catch(e){console.log("loadInvoices error:",e)}
-}
-
-// ── Marketplace Leaderboard ──
-async function loadLeaderboard(){
-  try{
-    const r=await fetch("/api/v1/marketplace/leaderboard?limit=20");
-    const d=await r.json();
-    const body=document.getElementById("leaderboardBody");
-    if(d.leaderboard&&d.leaderboard.length>0){
-      body.innerHTML=d.leaderboard.map((a,i)=>{
-        const rank=i+1;
-        const rankCls=rank<=3?"rank-"+rank:"";
-        const stage=a.pipeline_stage||"COLD";
-        const stageCls=stage==="HOT"?"b-hot":stage==="WARM"?"b-warm":"b-cold";
-        return `<tr>
-          <td><span class="rank-badge ${rankCls}">${rank}</span></td>
-          <td>${a.agent_name}</td>
-          <td>${a.agent_type||"--"}</td>
-          <td><span class="badge ${stageCls}">${stage}</span></td>
-          <td>${a.org_name||"--"}</td>
-          <td>${a.total_trades||0}</td>
-          <td>${a.win_rate?a.win_rate.toFixed(1)+"%":"--"}</td>
-          <td class="${(a.total_pnl||0)>=0?"pnl-pos":"pnl-neg"}">$${(a.total_pnl||0).toFixed(2)}</td>
-          <td>${a.sharpe_ratio?a.sharpe_ratio.toFixed(2):"--"}</td>
-          <td>${a.max_drawdown?a.max_drawdown.toFixed(1)+"%":"--"}</td>
-        </tr>`;
-      }).join("");
-    }else{
-      body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:16px">No agents on leaderboard yet</td></tr>';
-    }
-  }catch(e){console.log("loadLeaderboard error:",e)}
-}
-
-// ── Clipboard ──
-function copyToClipboard(text){
-  navigator.clipboard.writeText(text).then(()=>showToast("Copied!","success",2000)).catch(()=>{});
-}
-
-// ── Init ──
-initChart();
-renderServers();
-connectWS();
-refreshData();
-fetchRegimes();
-fetchTicker();
-fetchOpportunities();
-fetchVenueComparison();
-fetchTreasury();
-loadCredentials();
-refreshAssetPools();
-loadOrgs();
-loadLeaderboard();
-
-// Refresh intervals
-refreshDataIntervalId=setInterval(refreshData,60000); // Trading data every 60s (WS is primary, this is fallback)
-setInterval(fetchTicker,10000);       // Prices every 10s
-setInterval(refreshAssetPools,30000); // Asset pools every 30s
-setInterval(fetchRegimes,300000);     // Regime every 5m
-setInterval(fetchOpportunities,60000);// Opportunities every 1m
-setInterval(fetchVenueComparison,30000); // Venues every 30s
-setInterval(fetchTreasury,60000);     // Treasury every 1m
-setInterval(loadProposals,15000);     // Proposals every 15s
-setInterval(loadAgents,30000);        // Agents every 30s
-setInterval(loadLeaderboard,60000);   // Leaderboard every 1m
+const USER_ORGS = {{ user_orgs | safe }};
+document.addEventListener('DOMContentLoaded', function() { init(); });
 </script>
-</body>
-</html>
+{% endblock %}

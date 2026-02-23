@@ -1,0 +1,73 @@
+/* NetTrace Quant Platform — Theme System */
+/* Dark theme (default) + Light theme + Accent color customization */
+
+:root,
+[data-theme="dark"] {
+  --bg: #0a0e17;
+  --bg2: #0d1321;
+  --bg3: #111827;
+  --border: #1e3a5f;
+  --text: #c8d6e5;
+  --muted: #5a6c7d;
+  --green: #00ff88;
+  --red: #ef4444;
+  --blue: #00d4ff;
+  --gold: #fbbf24;
+  --purple: #a855f7;
+  --accent: #00d4ff;
+  --accent-glow: #00d4ff44;
+  --accent-bg: #00d4ff11;
+  --header-gradient-end: #1a1a2e;
+}
+
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --bg2: #ffffff;
+  --bg3: #e8edf2;
+  --border: #d0d7de;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --green: #059669;
+  --red: #dc2626;
+  --blue: #0369a1;
+  --gold: #b45309;
+  --purple: #7c3aed;
+  --accent: #0369a1;
+  --accent-glow: #0369a144;
+  --accent-bg: #0369a111;
+  --header-gradient-end: #e2e8f0;
+}
+
+/* Accent color presets */
+[data-accent="cyan"] {
+  --accent: #00d4ff;
+  --accent-glow: #00d4ff44;
+  --accent-bg: #00d4ff11;
+}
+[data-accent="green"] {
+  --accent: #00ff88;
+  --accent-glow: #00ff8844;
+  --accent-bg: #00ff8811;
+}
+[data-accent="purple"] {
+  --accent: #a855f7;
+  --accent-glow: #a855f744;
+  --accent-bg: #a855f711;
+}
+[data-accent="gold"] {
+  --accent: #fbbf24;
+  --accent-glow: #fbbf2444;
+  --accent-bg: #fbbf2411;
+}
+[data-accent="red"] {
+  --accent: #ef4444;
+  --accent-glow: #ef444444;
+  --accent-bg: #ef444411;
+}
+
+/* Light theme accent overrides */
+[data-theme="light"][data-accent="cyan"] { --accent: #0369a1; --accent-glow: #0369a144; --accent-bg: #0369a111; }
+[data-theme="light"][data-accent="green"] { --accent: #059669; --accent-glow: #05966944; --accent-bg: #05966911; }
+[data-theme="light"][data-accent="purple"] { --accent: #7c3aed; --accent-glow: #7c3aed44; --accent-bg: #7c3aed11; }
+[data-theme="light"][data-accent="gold"] { --accent: #b45309; --accent-glow: #b4530944; --accent-bg: #b4530911; }
+[data-theme="light"][data-accent="red"] { --accent: #dc2626; --accent-glow: #dc262644; --accent-bg: #dc262611; }

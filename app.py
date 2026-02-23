@@ -1281,6 +1281,7 @@ def index():
         except Exception:
             pass
     return render_template("index.html",
+                           active_page="network",
                            stripe_pk=STRIPE_PUBLISHABLE_KEY,
                            price_id=STRIPE_PRICE_ID,
                            stripe_live=bool(stripe.api_key and STRIPE_PRICE_ID),
@@ -2297,7 +2298,7 @@ def status_index():
             "rtt": r["total_rtt"], "hops": r["hop_count"],
             "last_scan": r["created_at"]
         })
-    return render_template("status.html", categories=categories, total=len(rows))
+    return render_template("status.html", active_page="status", categories=categories, total=len(rows))
 
 
 @app.route("/status/<path:host>")
@@ -2445,7 +2446,7 @@ def _widget_svg(label, value, color):
 @app.route("/playground")
 def api_playground():
     """Interactive API playground — try endpoints before signing up."""
-    return render_template("playground.html")
+    return render_template("playground.html", active_page="playground")
 
 
 # ---------------------------------------------------------------------------
@@ -2548,6 +2549,22 @@ def trading_dashboard():
     except Exception:
         pass
     return render_template("trading.html", user_orgs=json.dumps(user_orgs))
+
+
+@app.route("/billing")
+@login_required
+def billing_page():
+    """Billing & subscription management page."""
+    return render_template("billing.html",
+                           stripe_pk=STRIPE_PUBLISHABLE_KEY,
+                           stripe_live=bool(stripe.api_key and STRIPE_PRICE_ID),
+                           crypto_live=bool(COINBASE_COMMERCE_API_KEY))
+
+
+@app.route("/amicoin")
+def amicoin_page():
+    """AmiCoin ICO page — token info, trading widget, tokenomics."""
+    return render_template("amicoin.html")
 
 
 @app.route("/api/trading-data")

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-accent="cyan">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}NetTrace Quant Platform{% endblock %}</title>
+<link rel="stylesheet" href="/static/css/themes.css">
+<link rel="stylesheet" href="/static/css/base.css">
+{% block head_css %}{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+{% block head_scripts %}{% endblock %}
+<script src="/static/js/core.js"></script>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Notification History Drawer -->
+<div id="notifDrawer" class="notif-drawer">
+  <h3>
+    Notifications
+    <button class="btn-sm btn" onclick="Toast.toggleDrawer()">Close</button>
+  </h3>
+  <div id="notifList"></div>
+</div>
+
+<!-- Past Due Banner -->
+<div id="past-due-banner" class="past-due-banner hidden">Payment issue detected. <a href="/billing" style="color:#f59e0b;text-decoration:underline">Update payment method</a></div>
+
+<!-- Header -->
+<div class="header">
+  <h1><span class="dot"></span> {% block logo %}NETTRACE{% endblock %}</h1>
+  <div class="nav-links">
+    <a href="/" {% if active_page == 'network' %}class="active"{% endif %}>Network</a>
+    <a href="/status" {% if active_page == 'status' %}class="active"{% endif %}>Status</a>
+    <a href="/trading" id="nav-trading" {% if active_page == 'trading' %}class="active"{% endif %}>Trading</a>
+    <a href="/amicoin" {% if active_page == 'amicoin' %}class="active"{% endif %}>AmiCoin</a>
+    <a href="/billing" id="nav-billing" {% if active_page == 'billing' %}class="active"{% endif %}>Billing</a>
+    <a href="/playground" {% if active_page == 'playground' %}class="active"{% endif %}>API</a>
+  </div>
+  <div class="header-controls">
+    <div class="accent-picker">
+      <span class="accent-dot" data-accent="cyan" onclick="Theme.setAccent('cyan')"></span>
+      <span class="accent-dot" data-accent="green" onclick="Theme.setAccent('green')"></span>
+      <span class="accent-dot" data-accent="purple" onclick="Theme.setAccent('purple')"></span>
+      <span class="accent-dot" data-accent="gold" onclick="Theme.setAccent('gold')"></span>
+      <span class="accent-dot" data-accent="red" onclick="Theme.setAccent('red')"></span>
+    </div>
+    <button class="notif-btn" onclick="Toast.toggleDrawer()">
+      Alerts <span class="notif-count" style="display:none">0</span>
+    </button>
+    <span id="wsStatus" class="ws-status disconnected">WS: offline</span>
+    <button class="theme-toggle" onclick="Theme.toggle()">Theme</button>
+    <div class="user-area">
+      <span id="user-badge" class="user-badge hidden"></span>
+      <span id="sub-badge" class="sub-badge hidden">PRO</span>
+      <button id="btn-settings" class="btn hidden" onclick="if(typeof showSettings==='function')showSettings()">Settings</button>
+      <button id="btn-auth" class="btn btn-primary" onclick="if(typeof showAuth==='function')showAuth()">Sign In</button>
+    </div>
+  </div>
+</div>
+
+{% block before_content %}{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block modals %}{% endblock %}
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

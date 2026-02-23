@@ -1,54 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>API Playground — NetTrace Financial Network Intelligence</title>
-<meta name="description" content="Try the NetTrace API live. Query latency data for 100+ financial endpoints including Binance, Coinbase, NYSE, and more.">
+{% extends "base.html" %}
+{% block title %}API Playground — NetTrace Financial Network Intelligence{% endblock %}
+{% block head_css %}
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'SF Mono','Fira Code','Consolas',monospace;background:#0a0e17;color:#c8d6e5;min-height:100vh}
-.header{background:linear-gradient(135deg,#0d1321,#1a1a2e);border-bottom:1px solid #1e3a5f;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
-.header h1{font-size:16px;color:#00d4ff}
-.header a{color:#5a6c7d;text-decoration:none;font-size:12px}
-.container{max-width:900px;margin:0 auto;padding:24px}
-h2{font-size:20px;color:#fff;margin-bottom:8px}
-.subtitle{color:#5a6c7d;font-size:13px;margin-bottom:24px}
+.pg-container{max-width:900px;margin:0 auto;padding:24px}
+.pg-container h2{font-size:20px;color:var(--text);margin-bottom:8px}
+.subtitle{color:var(--muted);font-size:13px;margin-bottom:24px}
 .endpoint-list{margin-bottom:24px}
-.endpoint{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:14px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
-.endpoint:hover{border-color:#00d4ff}
-.endpoint .method{color:#00ff88;font-weight:700;font-size:12px;display:inline-block;width:40px}
-.endpoint .path{color:#fff;font-size:13px}
-.endpoint .desc{color:#5a6c7d;font-size:11px;margin-top:4px}
-.endpoint .tier{float:right;font-size:10px;padding:2px 8px;border-radius:3px;background:#1e3a5f;color:#5a6c7d}
-.tier.free{color:#00ff88;background:#00ff8815}
-.tier.pro{color:#00d4ff;background:#00d4ff15}
-.tier.ent{color:#ffaa00;background:#ffaa0015}
-.try-box{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:20px;margin:24px 0}
-.try-box h3{font-size:13px;color:#00d4ff;margin-bottom:12px}
+.endpoint{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+.endpoint:hover{border-color:var(--accent)}
+.endpoint .method{color:var(--green);font-weight:700;font-size:12px;display:inline-block;width:40px}
+.endpoint .method.post{color:var(--gold)}
+.endpoint .path{color:var(--text);font-size:13px}
+.endpoint .desc{color:var(--muted);font-size:11px;margin-top:4px}
+.endpoint .tier{float:right;font-size:10px;padding:2px 8px;border-radius:3px;background:var(--bg3);color:var(--muted)}
+.tier.free{color:var(--green);background:#00ff8815}
+.tier.pro{color:var(--blue);background:#00d4ff15}
+.tier.ent{color:var(--gold);background:#ffaa0015}
+.api-section-title{color:var(--purple);font-size:11px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid var(--border);padding-top:12px}
+.api-section-title.gold{color:var(--gold)}
+.api-section-title.green{color:var(--green)}
+.try-box{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px;margin:24px 0}
+.try-box h3{font-size:13px;color:var(--accent);margin-bottom:12px}
 .input-row{display:flex;gap:8px;margin-bottom:12px}
-.input-row input,.input-row select{flex:1;padding:8px 12px;background:#0a0e17;border:1px solid #1e3a5f;border-radius:4px;color:#c8d6e5;font-family:inherit;font-size:12px}
-.input-row button{padding:8px 20px;background:#00d4ff22;border:1px solid #00d4ff;color:#00d4ff;border-radius:4px;cursor:pointer;font-family:inherit;font-size:12px}
-.input-row button:hover{background:#00d4ff33}
-#result{background:#0a0e17;border:1px solid #1e3a5f;border-radius:4px;padding:12px;font-size:11px;max-height:400px;overflow-y:auto;white-space:pre-wrap;display:none}
-.cta{text-align:center;padding:32px;background:#0d132188;border:1px solid #1e3a5f;border-radius:8px;margin-top:32px}
-.cta h3{color:#fff;font-size:18px;margin-bottom:6px}
-.cta p{color:#5a6c7d;font-size:12px;margin-bottom:12px}
-.cta a{display:inline-block;padding:8px 20px;background:#00d4ff22;border:1px solid #00d4ff;color:#00d4ff;border-radius:4px;text-decoration:none;font-size:12px}
+.input-row input,.input-row select{flex:1;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:inherit;font-size:12px}
+.input-row input:focus{border-color:var(--accent);outline:none}
+.input-row button{padding:8px 20px;background:var(--accent-bg);border:1px solid var(--accent);color:var(--accent);border-radius:4px;cursor:pointer;font-family:inherit;font-size:12px}
+.input-row button:hover{background:var(--accent-glow)}
+#result{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:12px;font-size:11px;max-height:400px;overflow-y:auto;white-space:pre-wrap;display:none;color:var(--text)}
+.pg-cta{text-align:center;padding:32px;background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:8px;margin-top:32px}
+.pg-cta h3{color:var(--text);font-size:18px;margin-bottom:6px}
+.pg-cta p{color:var(--muted);font-size:12px;margin-bottom:12px}
+.pg-cta a{display:inline-block;padding:8px 20px;background:var(--accent-bg);border:1px solid var(--accent);color:var(--accent);border-radius:4px;text-decoration:none;font-size:12px}
 .pricing-row{display:flex;gap:16px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.price-card{background:#0d1321;border:1px solid #1e3a5f;border-radius:6px;padding:16px;text-align:center;min-width:140px}
-.price-card .tier-name{color:#00d4ff;font-size:12px;text-transform:uppercase;letter-spacing:1px}
-.price-card .price{color:#fff;font-size:22px;font-weight:700;margin:6px 0}
-.price-card .price small{font-size:11px;color:#5a6c7d}
-.price-card .feat{color:#5a6c7d;font-size:10px}
+.price-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center;min-width:140px}
+.price-card .tier-name{color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:1px}
+.price-card .price{color:var(--text);font-size:22px;font-weight:700;margin:6px 0}
+.price-card .price small{font-size:11px;color:var(--muted)}
+.price-card .feat{color:var(--muted);font-size:10px}
+@media(max-width:768px){.input-row{flex-direction:column}.pricing-row{flex-direction:column;align-items:center}}
 </style>
-</head>
-<body>
-<div class="header">
-  <h1>API Playground</h1>
-  <a href="/">&larr; Dashboard</a>
-</div>
-<div class="container">
+{% endblock %}
+{% block content %}
+<div class="pg-container">
   <h2>Try the NetTrace API</h2>
   <p class="subtitle">Live endpoints — no signup required for demo data</p>
   <div class="endpoint-list">
@@ -84,15 +77,18 @@ h2{font-size:20px;color:#fff;margin-bottom:8px}
       <span class="method">GET</span><span class="path">/api/v1/compare</span><span class="tier pro">pro+</span>
       <div class="desc">Head-to-head latency comparison between exchanges</div>
     </div>
+    <div class="endpoint" onclick="tryEndpoint('/api/v1/meta-engine/status')">
+      <span class="method">GET</span><span class="path">/api/v1/meta-engine/status</span><span class="tier pro">pro+</span>
+      <div class="desc">Meta-engine strategy evolution status</div>
+    </div>
 
-    <!-- Organizations API -->
-    <h3 style="color:#a855f7;font-size:11px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid #1e3a5f33;padding-top:12px">Organizations API</h3>
+    <h3 class="api-section-title">Organizations API</h3>
     <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs')">
       <span class="method">GET</span><span class="path">/api/v1/orgs</span><span class="tier free">free</span>
       <div class="desc">List your organizations</div>
     </div>
     <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs')">
-      <span class="method" style="color:#fbbf24">POST</span><span class="path">/api/v1/orgs</span><span class="tier pro">pro+</span>
+      <span class="method method post">POST</span><span class="path">/api/v1/orgs</span><span class="tier pro">pro+</span>
       <div class="desc">Create a new organization</div>
     </div>
     <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/portfolio')">
@@ -104,8 +100,7 @@ h2{font-size:20px;color:#fff;margin-bottom:8px}
       <div class="desc">Get risk policy for org</div>
     </div>
 
-    <!-- Agent Marketplace API -->
-    <h3 style="color:#fbbf24;font-size:11px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid #1e3a5f33;padding-top:12px">Agent Marketplace API</h3>
+    <h3 class="api-section-title gold">Agent Marketplace API</h3>
     <div class="endpoint" onclick="tryEndpoint('/api/v1/marketplace/leaderboard')">
       <span class="method">GET</span><span class="path">/api/v1/marketplace/leaderboard</span><span class="tier free">free</span>
       <div class="desc">Agent rankings across all organizations</div>
@@ -115,7 +110,7 @@ h2{font-size:20px;color:#fff;margin-bottom:8px}
       <div class="desc">List registered agents for an organization</div>
     </div>
     <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/agents')">
-      <span class="method" style="color:#fbbf24">POST</span><span class="path">/api/v1/orgs/{slug}/agents</span><span class="tier pro">pro+</span>
+      <span class="method method post">POST</span><span class="path">/api/v1/orgs/{slug}/agents</span><span class="tier pro">pro+</span>
       <div class="desc">Register a new agent</div>
     </div>
     <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/proposals')">
@@ -123,19 +118,17 @@ h2{font-size:20px;color:#fff;margin-bottom:8px}
       <div class="desc">List trade proposals</div>
     </div>
 
-    <!-- MCP Server -->
-    <h3 style="color:#a855f7;font-size:11px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid #1e3a5f33;padding-top:12px">MCP Server (Agent Protocol)</h3>
+    <h3 class="api-section-title">MCP Server (Agent Protocol)</h3>
     <div class="endpoint" onclick="tryEndpoint('/mcp/v1/')">
       <span class="method">GET</span><span class="path">/mcp/v1/</span><span class="tier free">open</span>
       <div class="desc">MCP server info — capabilities and available tools</div>
     </div>
     <div class="endpoint">
-      <span class="method" style="color:#fbbf24">POST</span><span class="path">/mcp/v1/message</span><span class="tier pro">pro+</span>
+      <span class="method method post">POST</span><span class="path">/mcp/v1/message</span><span class="tier pro">pro+</span>
       <div class="desc">JSON-RPC 2.0 tool calls — 11 tools (market.signals, trade.propose, agent.register, ...)</div>
     </div>
 
-    <!-- Fees & Billing -->
-    <h3 style="color:#00ff88;font-size:11px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid #1e3a5f33;padding-top:12px">Fees &amp; Billing</h3>
+    <h3 class="api-section-title green">Fees &amp; Billing</h3>
     <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/aum')">
       <span class="method">GET</span><span class="path">/api/v1/orgs/{slug}/aum</span><span class="tier free">free</span>
       <div class="desc">AUM snapshots + high water mark history</div>
@@ -145,7 +138,7 @@ h2{font-size:20px;color:#fff;margin-bottom:8px}
       <div class="desc">Invoice history</div>
     </div>
     <div class="endpoint" onclick="tryEndpoint('/api/v1/orgs/my-org/fees/preview')">
-      <span class="method" style="color:#fbbf24">POST</span><span class="path">/api/v1/orgs/{slug}/fees/preview</span><span class="tier pro">pro+</span>
+      <span class="method method post">POST</span><span class="path">/api/v1/orgs/{slug}/fees/preview</span><span class="tier pro">pro+</span>
       <div class="desc">Preview next fee calculation (subscription + performance + management)</div>
     </div>
   </div>
@@ -158,19 +151,21 @@ h2{font-size:20px;color:#fff;margin-bottom:8px}
     </div>
     <div id="result"></div>
   </div>
-  <div class="cta">
+  <div class="pg-cta">
     <h3>Ready for Production?</h3>
     <p>Get an API key and start integrating financial network intelligence into your stack.</p>
     <div class="pricing-row">
       <div class="price-card"><div class="tier-name">Free</div><div class="price">$0<small>/mo</small></div><div class="feat">100 calls/day &middot; 1 agent &middot; Paper only</div></div>
       <div class="price-card"><div class="tier-name">Pro</div><div class="price">$249<small>/mo</small></div><div class="feat">10K calls/day &middot; 3 agents &middot; 5% perf fee</div></div>
       <div class="price-card"><div class="tier-name">Enterprise</div><div class="price">$2,499<small>/mo</small></div><div class="feat">Unlimited &middot; 10 agents &middot; 10% perf fee &middot; MCP</div></div>
-      <div class="price-card"><div class="tier-name" style="color:#f59e0b">Enterprise Pro</div><div class="price" style="color:#f59e0b">$50K<small>/mo</small></div><div class="feat">Everything &middot; Unlimited agents &middot; 20% perf fee</div></div>
+      <div class="price-card"><div class="tier-name" style="color:var(--gold)">Enterprise Pro</div><div class="price" style="color:var(--gold)">$50K<small>/mo</small></div><div class="feat">Everything &middot; Unlimited agents &middot; 20% perf fee</div></div>
     </div>
     <br>
     <a href="/">Sign Up Free</a>
   </div>
 </div>
+{% endblock %}
+{% block scripts %}
 <script>
 function tryEndpoint(path) {
   document.getElementById('urlInput').value = path;
@@ -190,5 +185,4 @@ function runRequest() {
     .catch(e => { el.textContent = 'Error: ' + e.message; });
 }
 </script>
-</body>
-</html>
+{% endblock %}

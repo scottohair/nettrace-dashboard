@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}AmiCoin — NetTrace{% endblock %}
+{% block head_css %}<link rel="stylesheet" href="/static/css/amicoin.css">{% endblock %}
+{% block content %}
+<div class="container">
+
+  <!-- Hero Section -->
+  <div class="ami-hero">
+    <div class="ami-hero-bg"></div>
+    <div class="ami-hero-content">
+      <div class="ami-coin-icon">A</div>
+      <h1>AMICOIN</h1>
+      <div class="tagline">The AI-Powered Trading Token</div>
+      <div class="ami-live-price" id="amiPrice">$0.0420</div>
+      <div class="ami-price-change up" id="amiChange">+12.4% (24h)</div>
+    </div>
+  </div>
+
+  <!-- ICO Progress -->
+  <div class="ico-progress-section">
+    <div class="ico-progress-header">
+      <span class="label">ICO Progress</span>
+      <span class="pct" id="icoPct">34.8%</span>
+    </div>
+    <div class="ico-bar-track">
+      <div class="ico-bar-fill" id="icoBarFill" style="width:34.8%"></div>
+    </div>
+    <div class="ico-stats">
+      <span>Sold: <span class="sold" id="icoSold">347,500,000 AMI</span></span>
+      <span>Total: <span class="total" id="icoTotal">1,000,000,000 AMI</span></span>
+    </div>
+  </div>
+
+  <!-- Buy Widget + Token Info -->
+  <div class="ami-grid-2">
+
+    <!-- Buy Widget -->
+    <div class="buy-widget">
+      <h3><span class="live-dot"></span> Buy AmiCoin</h3>
+
+      <!-- Wallet Connection -->
+      <div class="wallet-status-bar">
+        <span class="ws-label">Wallet:</span>
+        <span class="ws-addr" id="walletAddress">Not connected</span>
+        <button class="wallet-connect-btn" id="walletConnectBtn" onclick="AmiCoinPage.connectWallet()">Connect</button>
+        <button class="wallet-connect-btn" id="walletDisconnectBtn" style="display:none" onclick="Wallet.disconnect()">Disconnect</button>
+      </div>
+
+      <div class="buy-field">
+        <label>Amount (USD)</label>
+        <input type="number" id="buyAmount" placeholder="100.00" min="1" step="0.01">
+      </div>
+
+      <div class="buy-field">
+        <label>Network</label>
+        <select id="chainSelect">
+          <option value="evm">Ethereum (ERC-20)</option>
+          <option value="evm-base">Base</option>
+          <option value="evm-arb">Arbitrum</option>
+          <option value="solana">Solana (SPL)</option>
+          <option value="polygon">Polygon</option>
+        </select>
+      </div>
+
+      <div class="buy-estimate">
+        <span class="est-label">Estimated Tokens</span>
+        <span class="est-value" id="tokenEstimate">0 AMI</span>
+      </div>
+
+      <button class="buy-btn" onclick="AmiCoinPage.handleBuy()">Buy AmiCoin</button>
+    </div>
+
+    <!-- Token Info -->
+    <div class="token-info">
+      <h3>Token Information</h3>
+      <div class="token-info-grid">
+        <div class="token-info-item">
+          <div class="ti-label">Contract Address</div>
+          <div class="ti-value copyable" onclick="copyToClipboard('TBD')" title="Click to copy">TBD</div>
+        </div>
+        <div class="token-info-item">
+          <div class="ti-label">Token Symbol</div>
+          <div class="ti-value accent">AMI</div>
+        </div>
+        <div class="token-info-item">
+          <div class="ti-label">Total Supply</div>
+          <div class="ti-value">1,000,000,000</div>
+        </div>
+        <div class="token-info-item">
+          <div class="ti-label">Circulating Supply</div>
+          <div class="ti-value">347,500,000</div>
+        </div>
+        <div class="token-info-item">
+          <div class="ti-label">Market Cap</div>
+          <div class="ti-value accent">$42,000,000</div>
+        </div>
+        <div class="token-info-item">
+          <div class="ti-label">Network</div>
+          <div class="ti-value">Multi-Chain (TBD)</div>
+        </div>
+        <div class="token-info-item">
+          <div class="ti-label">Token Standard</div>
+          <div class="ti-value">ERC-20 / SPL</div>
+        </div>
+        <div class="token-info-item">
+          <div class="ti-label">ICO Price</div>
+          <div class="ti-value accent">$0.0420</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Price Chart -->
+  <div class="price-chart-card">
+    <h3>AMI/USD Price History</h3>
+    <div class="price-chart-wrap">
+      <canvas id="priceChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Tokenomics -->
+  <div class="tokenomics-section">
+    <h3>Tokenomics</h3>
+    <div class="tokenomics-wrap">
+      <div class="tokenomics-chart-container">
+        <canvas id="tokenomicsChart"></canvas>
+      </div>
+      <div id="tokenomicsLegend" class="tokenomics-legend"></div>
+    </div>
+  </div>
+
+  <!-- Network Stats -->
+  <div class="section-header">Network Statistics</div>
+  <div id="networkStats" class="network-stats">
+    <div class="net-stat-card"><div class="ns-value">--</div><div class="ns-label">Active Pools</div></div>
+    <div class="net-stat-card"><div class="ns-value">--</div><div class="ns-label">Connected Wallets</div></div>
+    <div class="net-stat-card"><div class="ns-value">--</div><div class="ns-label">Engine Cycles</div></div>
+    <div class="net-stat-card"><div class="ns-value">--</div><div class="ns-label">Profitable Trades</div></div>
+  </div>
+
+  <!-- Trading Widget + Roadmap -->
+  <div class="ami-grid-2">
+
+    <!-- Trading Widget -->
+    <div class="trade-widget">
+      <h3>Trade AmiCoin</h3>
+      <div class="trade-tabs">
+        <button class="trade-tab active-buy" data-mode="buy">Buy</button>
+        <button class="trade-tab" data-mode="sell">Sell</button>
+      </div>
+      <div class="trade-form-row">
+        <div class="buy-field">
+          <label>Price (USD)</label>
+          <input type="number" id="tradePrice" value="0.0420" step="0.0001">
+        </div>
+        <div class="buy-field">
+          <label>Amount (AMI)</label>
+          <input type="number" id="tradeAmount" placeholder="1000" min="1">
+        </div>
+      </div>
+      <button id="tradeExecuteBtn" class="trade-execute-btn buy-mode" onclick="AmiCoinPage.handleTrade()">Buy AMI</button>
+    </div>
+
+    <!-- Roadmap -->
+    <div class="roadmap-section">
+      <h3>Roadmap</h3>
+      <div id="roadmapTimeline" class="roadmap-timeline">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/wallet.js"></script>
+<script src="/static/js/amicoin.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => AmiCoinPage.init());</script>
+{% endblock %}

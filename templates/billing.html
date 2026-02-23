@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Billing — NetTrace{% endblock %}
+{% block head_css %}<link rel="stylesheet" href="/static/css/billing.css">{% endblock %}
+{% block content %}
+<div class="container">
+
+  <!-- Section: Current Plan -->
+  <div class="section-header">Current Plan</div>
+  <div id="plan-hero" class="plan-hero">
+    <div class="plan-info">
+      <div class="plan-name c-free">LOADING...</div>
+      <div class="plan-status"><span class="skeleton" style="width:120px;height:14px;display:inline-block"></span></div>
+    </div>
+    <div class="plan-price"><span class="skeleton" style="width:80px;height:28px;display:inline-block"></span></div>
+  </div>
+
+  <!-- Section: Usage Dashboard -->
+  <div class="section-header">Usage This Month</div>
+  <div class="usage-section">
+    <div id="usage-grid" class="usage-grid">
+      <div class="usage-card"><h4>API Calls</h4><div class="skeleton" style="height:6px;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
+      <div class="usage-card"><h4>Signals</h4><div class="skeleton" style="height:6px;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
+      <div class="usage-card"><h4>Agents</h4><div class="skeleton" style="height:6px;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
+    </div>
+    <div class="usage-chart-card">
+      <h4>API Usage Over Time</h4>
+      <div class="usage-chart-wrap">
+        <canvas id="usageChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Plans -->
+  <div class="section-header">Available Plans</div>
+  <div id="plans-grid" class="plans-grid">
+    <div class="plan-card"><div class="skeleton" style="height:300px"></div></div>
+    <div class="plan-card"><div class="skeleton" style="height:300px"></div></div>
+    <div class="plan-card"><div class="skeleton" style="height:300px"></div></div>
+    <div class="plan-card"><div class="skeleton" style="height:300px"></div></div>
+  </div>
+
+  <!-- Section: Payment & Invoices -->
+  <div class="billing-bottom-grid">
+    <!-- Payment Method -->
+    <div>
+      <div class="section-header">Payment Method</div>
+      <div id="payment-method" class="payment-card">
+        <h3>Payment Method</h3>
+        <div class="payment-method-display">
+          <div class="payment-icon">--</div>
+          <div class="payment-details">
+            <div class="pm-label">Loading...</div>
+            <div class="pm-sub skeleton" style="height:12px;width:180px;margin-top:4px"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Subscription Actions -->
+      <div class="section-header">Actions</div>
+      <div id="billing-actions" class="billing-actions">
+        <span class="skeleton" style="height:32px;width:120px;display:inline-block;border-radius:4px"></span>
+      </div>
+    </div>
+
+    <!-- Invoice History -->
+    <div>
+      <div class="section-header">Invoice History</div>
+      <div class="invoices-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Date</th>
+              <th>Plan</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="invoice-body">
+            <tr><td colspan="5"><div class="skeleton" style="height:14px;margin:4px 0"></div></td></tr>
+            <tr><td colspan="5"><div class="skeleton" style="height:14px;margin:4px 0"></div></td></tr>
+            <tr><td colspan="5"><div class="skeleton" style="height:14px;margin:4px 0"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://js.stripe.com/v3/"></script>
+<script src="/static/js/billing.js"></script>
+<script>
+const STRIPE_PK = "{{ stripe_pk }}";
+document.addEventListener('DOMContentLoaded', () => BillingPage.init());
+</script>
+{% endblock %}
