@@ -50,16 +50,30 @@ if _env_path.exists():
 VENUES = {
     # CEX venues
     "coinbase": {
-        "type": "cex", "maker_fee": 0.004, "taker_fee": 0.006,
+        "type": "cex", "maker_fee": 0.004, "taker_fee": 0.008,  # Intro 2 tier
         "latency_ms": 50, "min_order_usd": 1.0,
         "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "MATIC-USD",
                   "AVAX-USD", "LINK-USD", "DOT-USD", "ADA-USD"],
+    },
+    "coinbase_perp": {
+        "type": "cex", "maker_fee": 0.0000, "taker_fee": 0.0003,
+        "latency_ms": 50, "min_order_usd": 10.0,
+        "pairs": [],  # populated dynamically from CoinbaseDerivativesConnector
+        "leverage": True, "max_leverage": 3.0,
     },
     "alpaca": {
         "type": "cex", "maker_fee": 0.0, "taker_fee": 0.0,  # Commission-free!
         "latency_ms": 30, "min_order_usd": 1.0,
         "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD",
                   "AAPL-USD", "TSLA-USD", "SPY-USD", "QQQ-USD"],
+    },
+    "etrade": {
+        "type": "cex", "maker_fee": 0.0, "taker_fee": 0.0,  # Commission-free
+        "latency_ms": 200, "min_order_usd": 1.0,
+        "pairs": ["AAPL-USD", "TSLA-USD", "SPY-USD", "QQQ-USD",
+                  "COIN-USD", "MSTR-USD", "RIOT-USD", "MARA-USD",
+                  "AMZN-USD", "NVDA-USD", "MSFT-USD", "GOOGL-USD",
+                  "META-USD", "AMD-USD"],
     },
     "ibkr": {
         "type": "cex", "maker_fee": 0.001, "taker_fee": 0.002,  # Very low
@@ -169,7 +183,7 @@ TOKEN_EQUIVALENCES = {
     "USDC": ["ethereum:USDC", "base:USDC", "arbitrum:USDC", "polygon:USDC", "solana:USDC"],
     "BTC": ["coinbase:BTC", "ibkr:BTC", "ethereum:WBTC", "arbitrum:WBTC"],
     "SOL": ["coinbase:SOL", "solana:SOL"],
-    "USD": ["coinbase:USD", "ibkr:USD", "alpaca:USD"],
+    "USD": ["coinbase:USD", "ibkr:USD", "alpaca:USD", "etrade:USD"],
 }
 
 
@@ -456,6 +470,26 @@ class PathRouter:
                            latency_ms=86_400_000, hops=2, slippage_pct=0,
                            venue="alpaca_transfer", action="transfer",
                            pair=f"{token}:alpaca→ibkr")
+
+        # Add E*Trade↔Coinbase cross-venue edges (ACH transfer, ~2 days)
+        for token in ["USD"]:
+            etrade_node = f"etrade:{token}"
+            cb_node = f"coinbase:{token}"
+            if G.has_node(etrade_node) and G.has_node(cb_node):
+                xfer_cost = self._compute_edge_cost(
+                    fee_pct=0, gas_usd=0, latency_ms=172_800_000,  # ~2 days ACH
+                    hops=2, slippage_pct=0,
+                )
+                G.add_edge(etrade_node, cb_node,
+                           weight=xfer_cost, fee_pct=0, gas_usd=0,
+                           latency_ms=172_800_000, hops=2, slippage_pct=0,
+                           venue="etrade_transfer", action="transfer",
+                           pair=f"{token}:etrade→coinbase")
+                G.add_edge(cb_node, etrade_node,
+                           weight=xfer_cost, fee_pct=0, gas_usd=0,
+                           latency_ms=172_800_000, hops=2, slippage_pct=0,
+                           venue="coinbase_transfer", action="transfer",
+                           pair=f"{token}:coinbase→etrade")
 
         logger.info("Built route graph: %d nodes, %d edges",
                      G.number_of_nodes(), G.number_of_edges())

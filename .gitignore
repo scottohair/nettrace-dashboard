@@ -7,5 +7,6 @@ agents/.env
 agents/trader.db
 agents/agents.db
 agents/.etrade_tokens.json
+agents/.etrade_request_token.json
 agents/etrade_trades.db
 agents/etrade.log

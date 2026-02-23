@@ -5,8 +5,9 @@ Transforms portfolio management from batch (daily) to real-time (ms-level) by:
   1. Collecting signals from all 31 agents in real-time
   2. Scoring and ranking signals using C fast_engine (80ns/signal)
   3. Routing trades across 7 Fly.io regions for cross-region arbitrage
-  4. Tracking gains/second and gains/ms metrics
+  4. Tracking gains/second, gains/ms, and gains/ns metrics
   5. Continuously rebalancing capital (not 4x/day batches)
+  6. Location-alpha mode for sub-second local execution (~1ms to Coinbase)
 
 Target: 50% portfolio growth in 4 minutes (~$0.000487/ms for $233.85 portfolio)
 Current: $0.00001332/ms
@@ -15,6 +16,7 @@ Gap: 36.6x improvement needed
 Usage:
   python3 realtime_orchestrator.py --mock --duration 60    # Local testing
   python3 realtime_orchestrator.py --live                  # Production mode
+  python3 realtime_orchestrator.py --live --location-alpha # Local low-latency mode
 """
 
 import asyncio
@@ -31,6 +33,7 @@ from typing import Dict, List, Tuple, Optional
 import threading
 from collections import defaultdict, deque
 import contextlib
+import urllib.request
 
 # Shared signal bridge for creative agents
 from creative_agent_bridge import CreativeAgentBridge
@@ -70,6 +73,18 @@ except Exception:
     except Exception:
         GoalValidator = None
 
+# E*Trade connector for equity trading (Phase 1: E*Trade integration)
+ETRADE_AVAILABLE = False
+try:
+    from etrade_connector import ETradeAuth, ETradeTrader, ETradePriceFeed
+    ETRADE_AVAILABLE = True
+except Exception:
+    try:
+        from agents.etrade_connector import ETradeAuth, ETradeTrader, ETradePriceFeed
+        ETRADE_AVAILABLE = True
+    except Exception:
+        pass
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [ORCH] %(levelname)s %(message)s",
@@ -101,6 +116,32 @@ ORCH_ASSET_USD_CAP = float(os.environ.get("ORCH_ASSET_USD_CAP", "0.0"))        #
 ORCH_THEME_PCT_CAP = float(os.environ.get("ORCH_THEME_PCT_CAP", "0.30"))       # 30% per theme
 NOTIONAL_WINDOW_S = float(os.environ.get("ORCH_NOTIONAL_WINDOW_S", "900"))     # 15-minute rolling window
 
+# E*Trade equity trading configuration
+ORCH_ETRADE_ENABLED = os.environ.get("ORCH_ETRADE_ENABLED", "0").lower() in ("1", "true", "yes")
+ORCH_ETRADE_DRY_RUN = os.environ.get("ORCH_ETRADE_DRY_RUN", "1").lower() in ("1", "true", "yes")
+ETRADE_DEFAULT_ACCOUNT_ID = os.environ.get("ETRADE_DEFAULT_ACCOUNT_ID", "")
+ETRADE_TOKEN_REFRESH_INTERVAL_S = float(os.environ.get("ETRADE_TOKEN_REFRESH_S", "5400"))  # 90 min
+
+# Location Alpha Mode — optimized for local execution near exchange matching engines
+# When enabled, assumes ~1ms to Coinbase vs 50ms+ from Fly.io remote regions
+LOCATION_ALPHA_ENABLED = os.environ.get("ORCH_LOCATION_ALPHA", "0").lower() in ("1", "true", "yes")
+LOCATION_ALPHA_CYCLE_MS = float(os.environ.get("ORCH_LOCATION_ALPHA_CYCLE_MS", "25"))         # 25ms cycle target when local
+LOCATION_ALPHA_SIGNAL_TIMEOUT_MS = float(os.environ.get("ORCH_LOCATION_ALPHA_SIGNAL_MS", "10"))  # 10ms signal scan
+LOCATION_ALPHA_EXEC_LATENCY_MS = float(os.environ.get("ORCH_LOCATION_ALPHA_EXEC_MS", "5"))    # 5ms execution target
+LOCATION_ALPHA_SCAN_INTERVAL_MS = float(os.environ.get("ORCH_LOCATION_ALPHA_SCAN_MS", "15"))   # signal scan frequency
+LOCATION_ALPHA_LATENCY_PROBE_S = float(os.environ.get("ORCH_LOCATION_ALPHA_PROBE_S", "30"))    # latency probe interval
+LOCATION_ALPHA_EXEC_WINDOW_S = float(os.environ.get("ORCH_LOCATION_ALPHA_WINDOW_S", "5"))      # 3-7 second execution window
+COINBASE_API_HOST = os.environ.get("COINBASE_API_HOST", "api.coinbase.com")
+
+# Apply location_alpha overrides to base config if enabled
+if LOCATION_ALPHA_ENABLED:
+    CYCLE_TARGET_MS = LOCATION_ALPHA_CYCLE_MS
+    SIGNAL_COLLECTION_TIMEOUT_MS = LOCATION_ALPHA_SIGNAL_TIMEOUT_MS
+    EXECUTION_LATENCY_TARGET_MS = LOCATION_ALPHA_EXEC_LATENCY_MS
+
+# Gains/ms persistence — write to flywheel_status.json for other agents
+GAINS_MS_PERSIST_INTERVAL_CYCLES = int(os.environ.get("ORCH_GAINS_MS_PERSIST_CYCLES", "5"))  # persist every N cycles
+
 # Urgency levels and priorities
 URGENCY_PRIORITIES = {
     "critical": 0,    # <100ms window
@@ -114,20 +155,29 @@ REGIONS = ["ewr", "ord", "lhr", "fra", "nrt", "sin", "bom"]
 
 
 class PerformanceTracker:
-    """Real-time performance tracking: gains/second, gains/ms."""
+    """Real-time performance tracking: gains/second, gains/ms, gains/ns."""
 
     def __init__(self):
-        self.start_time_ms = time.time() * 1000
+        self.start_time_ns = time.time_ns()
+        self.start_time_ms = self.start_time_ns / 1_000_000
         self.total_gains_usd = 0.0
         self.trade_history = []  # (timestamp_ms, pnl_usd, agent_name, latency_ms)
         self.lock = threading.Lock()
+        # Per-cycle tracking for granular gains/ms and gains/ns
+        self.cycle_history = deque(maxlen=1000)  # last 1000 cycles
+        self.last_cycle_gains_ms = 0.0
+        self.last_cycle_gains_ns = 0.0
+        self.peak_gains_ms = 0.0
+        self.peak_gains_ns = 0.0
 
     def record(self, executed_signals: List[Dict], cycle_latency_ms: float):
         """Record executed trades and update metrics."""
         with self.lock:
+            cycle_pnl = 0.0
             for trade in executed_signals:
                 pnl = trade.get("realized_pnl_usd", 0.0)
                 self.total_gains_usd += pnl
+                cycle_pnl += pnl
                 self.trade_history.append({
                     "timestamp_ms": time.time() * 1000,
                     "pnl_usd": pnl,
@@ -135,17 +185,49 @@ class PerformanceTracker:
                     "latency_ms": cycle_latency_ms,
                 })
 
+            # Per-cycle gains/ms and gains/ns
+            cycle_latency_ns = cycle_latency_ms * 1_000_000
+            self.last_cycle_gains_ms = cycle_pnl / max(cycle_latency_ms, 0.001) if cycle_latency_ms > 0 else 0.0
+            self.last_cycle_gains_ns = cycle_pnl / max(cycle_latency_ns, 1.0) if cycle_latency_ns > 0 else 0.0
+            if self.last_cycle_gains_ms > self.peak_gains_ms:
+                self.peak_gains_ms = self.last_cycle_gains_ms
+            if self.last_cycle_gains_ns > self.peak_gains_ns:
+                self.peak_gains_ns = self.last_cycle_gains_ns
+
+            self.cycle_history.append({
+                "timestamp_ms": time.time() * 1000,
+                "cycle_pnl_usd": cycle_pnl,
+                "cycle_latency_ms": cycle_latency_ms,
+                "cycle_latency_ns": cycle_latency_ns,
+                "cycle_gains_ms": self.last_cycle_gains_ms,
+                "cycle_gains_ns": self.last_cycle_gains_ns,
+                "executed_count": len(executed_signals),
+            })
+
     def gains_per_second(self) -> float:
         """Calculate gains/second since start."""
-        with self.lock:
-            runtime_s = (time.time() * 1000 - self.start_time_ms) / 1000.0
-            return self.total_gains_usd / max(runtime_s, 1.0)
+        runtime_s = (time.time() * 1000 - self.start_time_ms) / 1000.0
+        return self.total_gains_usd / max(runtime_s, 1.0)
 
     def gains_per_ms(self) -> float:
         """Calculate gains/millisecond (target metric)."""
+        runtime_ms = time.time() * 1000 - self.start_time_ms
+        return self.total_gains_usd / max(runtime_ms, 1.0)
+
+    def gains_per_ns(self) -> float:
+        """Calculate gains/nanosecond (high-resolution metric)."""
+        runtime_ns = time.time_ns() - self.start_time_ns
+        return self.total_gains_usd / max(runtime_ns, 1)
+
+    def rolling_gains_per_ms(self, window_cycles: int = 50) -> float:
+        """Calculate rolling gains/ms over the last N cycles."""
         with self.lock:
-            runtime_ms = time.time() * 1000 - self.start_time_ms
-            return self.total_gains_usd / max(runtime_ms, 1.0)
+            if not self.cycle_history:
+                return 0.0
+            recent = list(self.cycle_history)[-window_cycles:]
+            total_pnl = sum(c["cycle_pnl_usd"] for c in recent)
+            total_ms = sum(c["cycle_latency_ms"] for c in recent)
+            return total_pnl / max(total_ms, 0.001)
 
     def agent_scoreboard(self, agent_name: Optional[str] = None, limit: int = 10) -> Dict:
         """Performance attribution by agent."""
@@ -190,15 +272,28 @@ class PerformanceTracker:
             return rankings[:limit]
 
     def snapshot(self) -> Dict:
-        """Get current performance snapshot."""
+        """Get current performance snapshot with gains/ms, gains/ns, per-cycle metrics."""
         with self.lock:
-            runtime_ms = time.time() * 1000 - self.start_time_ms
+            now_ns = time.time_ns()
+            runtime_ms = (now_ns - self.start_time_ns) / 1_000_000
+            runtime_ns = now_ns - self.start_time_ns
+            cumulative_gains_ms = self.total_gains_usd / max(runtime_ms, 0.001)
+            cumulative_gains_ns = self.total_gains_usd / max(runtime_ns, 1)
+
             return {
                 "runtime_ms": runtime_ms,
+                "runtime_ns": runtime_ns,
                 "total_gains_usd": self.total_gains_usd,
-                "gains_per_second": self.gains_per_second(),
-                "gains_per_ms": self.gains_per_ms(),
+                "gains_per_second": self.total_gains_usd / max(runtime_ms / 1000.0, 1.0),
+                "gains_per_ms": cumulative_gains_ms,
+                "gains_per_ns": cumulative_gains_ns,
+                "cycle_gains_ms": self.last_cycle_gains_ms,
+                "cycle_gains_ns": self.last_cycle_gains_ns,
+                "peak_gains_ms": self.peak_gains_ms,
+                "peak_gains_ns": self.peak_gains_ns,
+                "rolling_50_gains_ms": self.rolling_gains_per_ms(50),
                 "trade_count": len(self.trade_history),
+                "cycle_count": len(self.cycle_history),
             }
 
 
@@ -224,14 +319,27 @@ class SignalCollector:
                      f"(confidence={signal['confidence']:.2f}, urgency={signal['urgency']})")
 
     async def collect_all(self, timeout_ms: float = 50) -> Dict[str, Dict]:
-        """Collect all current signals with timeout."""
-        try:
-            await asyncio.wait_for(
-                asyncio.sleep(timeout_ms / 1000.0),
-                timeout=timeout_ms / 1000.0
-            )
-        except asyncio.TimeoutError:
-            pass
+        """Collect all current signals with timeout.
+
+        In location_alpha mode, returns immediately if signals are available
+        (no waiting) to minimize cycle latency.  Otherwise waits up to
+        timeout_ms for signals to accumulate.
+        """
+        if LOCATION_ALPHA_ENABLED:
+            # Fast path: return immediately if we have signals
+            with self.lock:
+                if self.signals:
+                    return dict(self.signals)
+            # Brief yield to allow other coroutines to submit signals
+            await asyncio.sleep(max(0.0005, timeout_ms / 1000.0))
+        else:
+            try:
+                await asyncio.wait_for(
+                    asyncio.sleep(timeout_ms / 1000.0),
+                    timeout=timeout_ms / 1000.0
+                )
+            except asyncio.TimeoutError:
+                pass
 
         with self.lock:
             return dict(self.signals)
@@ -249,17 +357,132 @@ class SignalScorer:
         except Exception as e:
             logger.warning(f"Fast engine unavailable: {e}, using Python fallback")
 
+        self.v333_enabled = str(os.environ.get("ORCH_V333_ALPHA_ENABLED", "1")).lower() in ("1", "true", "yes")
+        self.v333_use_quantum = str(os.environ.get("ORCH_V333_USE_QUANTUM", "0")).lower() in ("1", "true", "yes")
+        self.v333_max_positions = max(1, int(os.environ.get("ORCH_V333_MAX_POSITIONS", "12")))
+        self.v333_constraints = {
+            "max_asset_weight": float(os.environ.get("ORCH_V333_MAX_ASSET_WEIGHT", "0.35")),
+            "max_bucket_weight": float(os.environ.get("ORCH_V333_MAX_BUCKET_WEIGHT", "0.45")),
+            "max_region_weight": float(os.environ.get("ORCH_V333_MAX_REGION_WEIGHT", "0.60")),
+        }
+        self._v333_optimize = None
+        self._v333_ready = False
+        if self.v333_enabled:
+            try:
+                import importlib.util
+                peak_alpha_path = Path(__file__).resolve().parent.parent / "v333_peak_alpha.py"
+                spec = importlib.util.spec_from_file_location("v333_peak_alpha_runtime", str(peak_alpha_path))
+                if spec and spec.loader:
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+                    self._v333_optimize = getattr(module, "optimize_signals_for_peak_alpha", None)
+                    self._v333_ready = callable(self._v333_optimize)
+            except Exception as e:
+                logger.warning(f"v333 peak alpha unavailable: {e}")
+
+        if self._v333_ready:
+            logger.info(
+                "v333 peak alpha enabled "
+                f"(quantum={self.v333_use_quantum}, max_positions={self.v333_max_positions})"
+            )
+
     def score_signals(self, signals: Dict[str, Dict]) -> List[Tuple[str, Dict, float]]:
         """Score all signals and return (agent_name, signal, score) tuples."""
-        scored = []
-
+        baseline = []
         for agent_name, signal in signals.items():
             score = self._score_single(signal)
-            scored.append((agent_name, signal, score))
+            baseline.append((agent_name, signal, score))
 
-        # Sort by score descending
-        scored.sort(key=lambda x: x[2], reverse=True)
-        return scored
+        if not baseline:
+            return []
+
+        if not (self.v333_enabled and self._v333_ready and self._v333_optimize):
+            baseline.sort(key=lambda x: x[2], reverse=True)
+            return baseline
+
+        try:
+            signal_lookup = {}
+            payload = []
+            for idx, (agent_name, signal, base_score) in enumerate(baseline):
+                pair = str(signal.get("pair", "")).strip().upper()
+                if not pair:
+                    continue
+                signal_id = f"{agent_name}:{idx}:{pair}"
+                signal_lookup[signal_id] = (agent_name, signal, base_score)
+                edge_bps = signal.get("edge_bps", base_score * 100.0)
+                latency_ms = signal.get("latency_ms", signal.get("expected_latency_ms", 100.0))
+                volatility = signal.get("volatility", signal.get("risk_volatility", 0.05))
+                correlation_bucket = signal.get("correlation_bucket", pair.split("-")[0].lower())
+                region_bucket = signal.get("region_bucket", signal.get("region_hint", "global"))
+
+                payload.append(
+                    {
+                        "signal_id": signal_id,
+                        "pair": pair,
+                        "direction": str(signal.get("direction", "BUY")).upper(),
+                        "edge_bps": edge_bps,
+                        "confidence": float(signal.get("confidence", 0.5)),
+                        "latency_ms": float(latency_ms),
+                        "volatility": float(volatility),
+                        "correlation_bucket": str(correlation_bucket),
+                        "region_bucket": str(region_bucket),
+                    }
+                )
+
+            if not payload:
+                baseline.sort(key=lambda x: x[2], reverse=True)
+                return baseline
+
+            result = self._v333_optimize(
+                signals=payload,
+                max_positions=min(self.v333_max_positions, len(payload)),
+                use_quantum=self.v333_use_quantum,
+                constraints=self.v333_constraints,
+            )
+
+            selected = result.get("selected") or []
+            selected_ids = []
+            selected_score = {}
+            selected_weight = {}
+            for row in selected:
+                sid = str(row.get("signal_id", "")).strip()
+                if not sid or sid not in signal_lookup:
+                    continue
+                selected_ids.append(sid)
+                try:
+                    selected_score[sid] = float(row.get("score", 0.0))
+                except (TypeError, ValueError):
+                    selected_score[sid] = 0.0
+                try:
+                    selected_weight[sid] = max(0.0, float(row.get("weight", 0.0)))
+                except (TypeError, ValueError):
+                    selected_weight[sid] = 0.0
+
+            scored = []
+            seen = set()
+            for sid in selected_ids:
+                agent_name, signal, base_score = signal_lookup[sid]
+                signal["v333_weight"] = selected_weight.get(sid, 0.0)
+                signal["v333_selected"] = True
+                signal["v333_method"] = result.get("method", "local_annealing")
+                composite = max(base_score, base_score * 0.35 + selected_score.get(sid, 0.0))
+                scored.append((agent_name, signal, composite))
+                seen.add(sid)
+
+            for sid, (agent_name, signal, base_score) in signal_lookup.items():
+                if sid in seen:
+                    continue
+                signal["v333_weight"] = 0.0
+                signal["v333_selected"] = False
+                signal["v333_method"] = result.get("method", "local_annealing")
+                scored.append((agent_name, signal, base_score * 0.5))
+
+            scored.sort(key=lambda x: x[2], reverse=True)
+            return scored
+        except Exception as e:
+            logger.warning(f"v333 scoring fallback to baseline: {e}")
+            baseline.sort(key=lambda x: x[2], reverse=True)
+            return baseline
 
     def _score_single(self, signal: Dict) -> float:
         """Score a single signal (0.0-1.0)."""
@@ -357,11 +580,78 @@ class ContinuousCapitalManager:
         self.last_rebalance_s = current_time_s
 
 
+class CoinbaseLatencyProbe:
+    """Real-time latency tracking to Coinbase API for location_alpha mode."""
+
+    def __init__(self, host: str = None):
+        self.host = host or COINBASE_API_HOST
+        self.lock = threading.Lock()
+        self.latency_history = deque(maxlen=500)
+        self.last_probe_time = 0.0
+        self.last_latency_ms = 0.0
+        self.avg_latency_ms = 0.0
+        self.min_latency_ms = float("inf")
+        self.max_latency_ms = 0.0
+        self.probe_count = 0
+
+    def probe(self) -> float:
+        """Measure round-trip latency to Coinbase API (HTTP HEAD, no body).
+
+        Returns latency in milliseconds.
+        """
+        url = f"https://{self.host}/api/v3/brokerage/time"
+        start_ns = time.time_ns()
+        try:
+            req = urllib.request.Request(url, method="GET")
+            req.add_header("User-Agent", "NetTrace-LatencyProbe/1.0")
+            with urllib.request.urlopen(req, timeout=2) as resp:
+                resp.read()
+        except Exception:
+            # Even on error, measure the round-trip time
+            pass
+        end_ns = time.time_ns()
+        latency_ms = (end_ns - start_ns) / 1_000_000
+
+        with self.lock:
+            self.last_latency_ms = latency_ms
+            self.last_probe_time = time.time()
+            self.probe_count += 1
+            self.latency_history.append({
+                "timestamp_ms": time.time() * 1000,
+                "latency_ms": latency_ms,
+            })
+            if latency_ms < self.min_latency_ms:
+                self.min_latency_ms = latency_ms
+            if latency_ms > self.max_latency_ms:
+                self.max_latency_ms = latency_ms
+            # Running average
+            if self.probe_count == 1:
+                self.avg_latency_ms = latency_ms
+            else:
+                self.avg_latency_ms = self.avg_latency_ms * 0.9 + latency_ms * 0.1
+
+        return latency_ms
+
+    def snapshot(self) -> Dict:
+        """Get latency probe snapshot."""
+        with self.lock:
+            return {
+                "host": self.host,
+                "last_latency_ms": round(self.last_latency_ms, 3),
+                "avg_latency_ms": round(self.avg_latency_ms, 3),
+                "min_latency_ms": round(self.min_latency_ms, 3) if self.min_latency_ms < float("inf") else 0.0,
+                "max_latency_ms": round(self.max_latency_ms, 3),
+                "probe_count": self.probe_count,
+                "last_probe_at": self.last_probe_time,
+            }
+
+
 class RealtimeOrchestrator:
     """Main orchestrator: coordinates all agents at millisecond precision."""
 
-    def __init__(self, mock_mode: bool = False):
+    def __init__(self, mock_mode: bool = False, location_alpha: bool = False):
         self.mock_mode = mock_mode
+        self.location_alpha = location_alpha or LOCATION_ALPHA_ENABLED
         self.signal_collector = SignalCollector()
         self.signal_scorer = SignalScorer()
         self.router = CrossRegionRouter()
@@ -374,6 +664,8 @@ class RealtimeOrchestrator:
         self._background_tasks = []
         self.asset_notional = defaultdict(deque)  # asset -> deque[(ts, usd)]
         self.theme_notional = defaultdict(deque)  # theme -> deque[(ts, usd)]
+        self.latency_probe = CoinbaseLatencyProbe() if self.location_alpha else None
+        self._gains_ms_persist_counter = 0
 
         # v77 Phase 3: Initialize Coinbase trader for live execution
         self.trader = None
@@ -387,6 +679,29 @@ class RealtimeOrchestrator:
                 logger.warning(f"Failed to initialize CoinbaseTrader: {e}")
                 self.trader = None
 
+        # E*Trade equity trading initialization
+        self.etrade_trader = None
+        self.etrade_price_feed = None
+        self.etrade_auth = None
+        self.etrade_account_id = ETRADE_DEFAULT_ACCOUNT_ID or None
+        if ORCH_ETRADE_ENABLED and ETRADE_AVAILABLE and not mock_mode:
+            try:
+                self.etrade_auth = ETradeAuth()
+                if self.etrade_auth.is_authenticated:
+                    self.etrade_trader = ETradeTrader(auth=self.etrade_auth)
+                    self.etrade_price_feed = ETradePriceFeed(auth=self.etrade_auth)
+                    # Resolve default account if not set
+                    if not self.etrade_account_id:
+                        accounts = self.etrade_trader.get_accounts()
+                        if accounts:
+                            self.etrade_account_id = accounts[0].get("accountIdKey")
+                    logger.info("E*Trade initialized (dry_run=%s, account=%s)",
+                                ORCH_ETRADE_DRY_RUN, self.etrade_account_id)
+                else:
+                    logger.warning("E*Trade auth not authenticated — run etrade_connector.py auth first")
+            except Exception as e:
+                logger.warning("Failed to initialize E*Trade: %s", e)
+
         # Register with CreativeAgentBridge so creative agents can push signals directly
         try:
             CreativeAgentBridge.set_orchestrator(self)
@@ -394,18 +709,23 @@ class RealtimeOrchestrator:
             logger.warning("CreativeAgentBridge unavailable; signals will queue locally")
 
     def _start_background_tasks(self):
-        """Kick off background coroutines (funding scan, etc.)."""
+        """Kick off background coroutines (funding scan, latency probe, etc.)."""
         if FUNDING_ENABLED and self.trader:
             self._background_tasks.append(asyncio.create_task(self._funding_loop()))
+        if self.location_alpha and self.latency_probe:
+            self._background_tasks.append(asyncio.create_task(self._latency_probe_loop()))
+        if self.etrade_auth and self.etrade_auth.is_authenticated:
+            self._background_tasks.append(asyncio.create_task(self._etrade_token_refresh_loop()))
 
     # ------------------------------------------------------------------ #
     # Derivatives helpers
     def _refresh_perp_mapping(self):
         """Build mapping base -> preferred perpetual product_id."""
-        if not self.trader or not hasattr(self.trader, "list_perpetual_products"):
+        list_fn = getattr(self.trader, "list_perp_products", None) or getattr(self.trader, "list_perpetual_products", None)
+        if not self.trader or not list_fn:
             return
         try:
-            perps = self.trader.list_perpetual_products() or []
+            perps = list_fn() or []
         except Exception as e:
             logger.warning(f"Failed to load perpetual products: {e}")
             return
@@ -487,56 +807,138 @@ class RealtimeOrchestrator:
 
         return True, ""
 
-    def _leverage_for_signal(self, confidence: float, perf_gains_ms: float) -> float:
-        base = max(1.0, ORCH_BASE_LEVERAGE)
-        max_lv = max(base, ORCH_MAX_LEVERAGE)
-        # Confidence-driven ramp: 0.6 -> base, 0.9 -> max
-        lvl = base
-        if confidence > 0.6:
-            frac = min(1.0, (confidence - 0.6) / 0.3)
-            lvl = base + frac * (max_lv - base)
-        # Downshift if performance negative
-        if perf_gains_ms < 0:
-            lvl = max(1.0, base * 0.5)
-        return max(1.0, min(max_lv, lvl))
+    def _leverage_for_signal(
+        self,
+        confidence: float,
+        n_signals: int = 1,
+        n_regions: int = 1,
+        margin_health_ok: bool = False,
+        recent_pnl_positive: bool = False,
+    ) -> float:
+        """Leverage ladder per Location-Alpha directive Section 4.1.
+
+        Tiers (evaluated top-down, first match wins):
+          3.0x  -- confidence >= 0.90, >=2 signals, >=2 regions,
+                   healthy margin, positive recent realized PnL
+          2.2x  -- confidence >= 0.85, >=2 signals, >=2 regions,
+                   healthy margin
+          1.5x  -- confidence >= 0.78, >=2 confirming signals
+          1.0x  -- everything else (low confidence or single-region)
+
+        Always capped by min(ORCH_MAX_LEVERAGE, PERP_MAX_LEVERAGE).
+        Falls back to 1.0x on any calculation error (fail-closed).
+        """
+        try:
+            max_lv = max(1.0, ORCH_MAX_LEVERAGE)
+
+            # Tier 4 -- maximum leverage
+            if (
+                confidence >= 0.90
+                and n_signals >= 2
+                and n_regions >= 2
+                and margin_health_ok
+                and recent_pnl_positive
+            ):
+                lvl = 3.0
+            # Tier 3 -- cross-region consensus + healthy margin
+            elif (
+                confidence >= 0.85
+                and n_signals >= 2
+                and n_regions >= 2
+                and margin_health_ok
+            ):
+                lvl = 2.2
+            # Tier 2 -- multi-signal confirmation
+            elif confidence >= 0.78 and n_signals >= 2:
+                lvl = 1.5
+            # Tier 1 -- baseline
+            else:
+                lvl = 1.0
+
+            result = max(1.0, min(lvl, max_lv))
+
+            if result > 1.0:
+                logger.info(
+                    "Leverage ladder: %.1fx (conf=%.2f, signals=%d, regions=%d, "
+                    "margin_ok=%s, pnl_pos=%s)",
+                    result, confidence, n_signals, n_regions,
+                    margin_health_ok, recent_pnl_positive,
+                )
+            return result
+        except Exception as e:
+            logger.warning("Leverage calculation error, falling back to 1.0x: %s", e)
+            return 1.0
+
+    def _recent_pnl_positive(self) -> bool:
+        """Return True if recent realized PnL (last 20 trades) is positive."""
+        try:
+            with self.performance_tracker.lock:
+                recent = list(self.performance_tracker.trade_history[-20:])
+            if not recent:
+                return False
+            return sum(t.get("pnl_usd", 0.0) for t in recent) > 0
+        except Exception:
+            return False
 
     async def run(self, duration_s: Optional[float] = None):
-        """Main orchestration loop."""
+        """Main orchestration loop.
+
+        In location_alpha mode, runs tighter cycles (25ms target) with
+        sub-second execution windows and nanosecond-resolution gains tracking.
+        """
         self.running = True
         start_time_s = time.time()
 
-        logger.info(f"Starting RealtimeOrchestrator (mock_mode={self.mock_mode}, target_cycle={CYCLE_TARGET_MS}ms)")
+        mode_str = "LOCATION-ALPHA" if self.location_alpha else "STANDARD"
+        logger.info(
+            f"Starting RealtimeOrchestrator ({mode_str}, mock_mode={self.mock_mode}, "
+            f"target_cycle={CYCLE_TARGET_MS}ms, exec_window={LOCATION_ALPHA_EXEC_WINDOW_S}s)"
+        )
+        if self.location_alpha:
+            logger.info(
+                f"Location-alpha config: cycle={CYCLE_TARGET_MS}ms, "
+                f"signal_timeout={SIGNAL_COLLECTION_TIMEOUT_MS}ms, "
+                f"exec_target={EXECUTION_LATENCY_TARGET_MS}ms, "
+                f"scan_interval={LOCATION_ALPHA_SCAN_INTERVAL_MS}ms"
+            )
         logger.info("Entering main orchestration loop...")
         self._start_background_tasks()
 
         while self.running:
-            cycle_start_ms = time.time() * 1000
+            cycle_start_ns = time.time_ns()
 
             try:
-                # 1. Collect signals from all agents (parallel, <50ms)
+                # 1. Collect signals from all agents
                 if self.cycle_count < 3:
                     logger.info(f"[Cycle {self.cycle_count+1}] Collecting signals...")
                 signals = await self.signal_collector.collect_all(timeout_ms=SIGNAL_COLLECTION_TIMEOUT_MS)
-                collection_latency_ms = time.time() * 1000 - cycle_start_ms
+                collection_latency_ms = (time.time_ns() - cycle_start_ns) / 1_000_000
 
                 # 2. Score and rank signals (C fast_engine, <10ms)
                 scored_signals = self.signal_scorer.score_signals(signals)
-                scoring_latency_ms = time.time() * 1000 - cycle_start_ms - collection_latency_ms
+                scoring_latency_ms = (time.time_ns() - cycle_start_ns) / 1_000_000 - collection_latency_ms
 
                 # 3. Route to optimal regions (NetTrace data, <5ms)
                 routed = self.router.batch_route(scored_signals)
-                routing_latency_ms = time.time() * 1000 - cycle_start_ms - collection_latency_ms - scoring_latency_ms
+                routing_latency_ms = (time.time_ns() - cycle_start_ns) / 1_000_000 - collection_latency_ms - scoring_latency_ms
 
-                # 4. Execute top signals (HF lane, <30ms)
+                # 4. Execute top signals (HF lane)
                 executed = await self._execute_signals(routed)
-                execution_latency_ms = time.time() * 1000 - cycle_start_ms - collection_latency_ms - scoring_latency_ms - routing_latency_ms
+                execution_latency_ms = (time.time_ns() - cycle_start_ns) / 1_000_000 - collection_latency_ms - scoring_latency_ms - routing_latency_ms
 
-                # 5. Update performance metrics
-                total_cycle_latency_ms = time.time() * 1000 - cycle_start_ms
+                # 5. Update performance metrics (nanosecond-resolution)
+                total_cycle_ns = time.time_ns() - cycle_start_ns
+                total_cycle_latency_ms = total_cycle_ns / 1_000_000
                 self.performance_tracker.record(executed, total_cycle_latency_ms)
 
                 # 5b. Persist metrics to database for API consumption
                 self._persist_metrics_to_db(total_cycle_latency_ms, len(signals), len(executed))
+
+                # 5c. Persist gains/ms to flywheel_status.json periodically
+                self._gains_ms_persist_counter += 1
+                if self._gains_ms_persist_counter >= GAINS_MS_PERSIST_INTERVAL_CYCLES:
+                    self._persist_gains_to_flywheel()
+                    self._gains_ms_persist_counter = 0
 
                 # 6. Rebalance capital
                 if not self.mock_mode:
@@ -548,19 +950,34 @@ class RealtimeOrchestrator:
                 self.cycle_count += 1
                 self.total_latency_ms += total_cycle_latency_ms
 
-                if self.cycle_count % 10 == 0:  # Log every 10 cycles
+                log_interval = 10 if not self.location_alpha else 50
+                if self.cycle_count % log_interval == 0:
                     perf = self.performance_tracker.snapshot()
+                    latency_info = ""
+                    if self.latency_probe:
+                        ls = self.latency_probe.snapshot()
+                        latency_info = f" | CB latency: {ls['avg_latency_ms']:.1f}ms"
                     logger.info(
                         f"Cycle {self.cycle_count} | "
-                        f"Latency: {total_cycle_latency_ms:.1f}ms (target {CYCLE_TARGET_MS}ms) | "
+                        f"Latency: {total_cycle_latency_ms:.2f}ms ({total_cycle_ns}ns) "
+                        f"(target {CYCLE_TARGET_MS}ms) | "
                         f"Signals: {len(signals)} | Executed: {len(executed)} | "
-                        f"Gains/ms: ${perf['gains_per_ms']:.8f} | "
-                        f"Total: ${perf['total_gains_usd']:.2f}"
+                        f"Gains/ms: ${perf['gains_per_ms']:.10f} | "
+                        f"Gains/ns: ${perf['gains_per_ns']:.14f} | "
+                        f"Cycle-G/ms: ${perf['cycle_gains_ms']:.10f} | "
+                        f"Peak-G/ms: ${perf['peak_gains_ms']:.10f} | "
+                        f"R50-G/ms: ${perf['rolling_50_gains_ms']:.10f} | "
+                        f"Total: ${perf['total_gains_usd']:.4f}"
+                        f"{latency_info}"
                     )
 
                 # Check if cycle exceeded target
                 if total_cycle_latency_ms > CYCLE_MAX_MS:
-                    logger.warning(f"Slow cycle: {total_cycle_latency_ms:.1f}ms > {CYCLE_MAX_MS}ms")
+                    logger.warning(
+                        f"Slow cycle: {total_cycle_latency_ms:.2f}ms > {CYCLE_MAX_MS}ms "
+                        f"(collect={collection_latency_ms:.2f}, score={scoring_latency_ms:.2f}, "
+                        f"route={routing_latency_ms:.2f}, exec={execution_latency_ms:.2f})"
+                    )
 
             except Exception as e:
                 logger.error(f"Error in orchestration loop: {e}", exc_info=True)
@@ -570,8 +987,17 @@ class RealtimeOrchestrator:
                 logger.info(f"Duration limit reached ({duration_s}s)")
                 break
 
-            # Maintain target cycle time
-            await asyncio.sleep(0.001)  # 1ms minimum sleep
+            # Maintain target cycle time -- location_alpha uses tighter sleep
+            if self.location_alpha:
+                # Calculate remaining time in cycle window, sleep only the residual
+                elapsed_ms = (time.time_ns() - cycle_start_ns) / 1_000_000
+                remaining_ms = max(0.1, CYCLE_TARGET_MS - elapsed_ms)
+                await asyncio.sleep(remaining_ms / 1000.0)
+            else:
+                await asyncio.sleep(0.001)  # 1ms minimum sleep
+
+        # Final persistence before shutdown
+        self._persist_gains_to_flywheel()
 
         # Shutdown background tasks
         self.running = False
@@ -589,10 +1015,40 @@ class RealtimeOrchestrator:
             top_signals = signals[:5]
 
             for agent_name, signal, score in top_signals:
+                # Route equity signals to dedicated handler
+                if signal.get("market_type") == "equity":
+                    equity_result = await self._execute_equity_signal(agent_name, signal, score, region)
+                    if equity_result:
+                        executed.append(equity_result)
+                    continue
+
                 pair = signal.get("pair")
                 direction = signal.get("direction", "HOLD").upper()
                 confidence = float(signal.get("confidence", 0.5))
                 theme = agent_name.split("_")[0] if agent_name else "unknown"
+
+                # Gather leverage ladder inputs from signal metadata
+                n_signals = max(1, int(signal.get("confirming_signals", 1)))
+                n_regions = max(1, int(signal.get("confirming_regions", signal.get("n_regions", 1))))
+                # Margin health: check live connector if available, else conservatively false
+                _margin_ok = False
+                try:
+                    if _orch_deriv and _orch_deriv.enabled:
+                        _mh = _orch_deriv.margin_health()
+                        _margin_ok = _mh.get("can_open_new", False)
+                except Exception:
+                    _margin_ok = False
+                _pnl_pos = self._recent_pnl_positive()
+
+                desired_leverage = self._leverage_for_signal(
+                    confidence=confidence,
+                    n_signals=n_signals,
+                    n_regions=n_regions,
+                    margin_health_ok=_margin_ok,
+                    recent_pnl_positive=_pnl_pos,
+                )
+                perp_cap = max(1.0, float(os.environ.get("PERP_MAX_LEVERAGE", str(ORCH_MAX_LEVERAGE))))
+                perp_leverage = max(1.0, min(desired_leverage, perp_cap))
 
                 # Defaults for tracking (set properly in live path)
                 use_perp = False
@@ -615,7 +1071,7 @@ class RealtimeOrchestrator:
                                         confirming_signals=int(signal.get("confirming_signals", 2)),
                                         direction=direction,
                                         market_regime=signal.get("market_regime", "neutral"),
-                                        leverage=1.0,  # Conservative launch: 1x only
+                                        leverage=perp_leverage,
                                         margin_health=margin_ratio,
                                     )
                                 else:
@@ -628,13 +1084,14 @@ class RealtimeOrchestrator:
 
                         # Portfolio + leverage
                         portfolio_value = self._get_portfolio_value()
-                        perf = self.performance_tracker.snapshot()
                         if use_perp:
-                            leverage = 1.0  # Conservative launch: force 1x for perps
+                            leverage = perp_leverage
                         else:
-                            leverage = self._leverage_for_signal(confidence, perf.get("gains_per_ms", 0.0))
+                            leverage = desired_leverage
                         base_order_usd = PERP_ORDER_NOTIONAL_USD if use_perp else ORDER_NOTIONAL_USD
-                        order_usd = base_order_usd * leverage
+                        signal_weight = max(0.0, float(signal.get("v333_weight", 0.0) or 0.0))
+                        size_multiplier = max(0.35, min(1.75, signal_weight * 5.0)) if signal_weight > 0 else 1.0
+                        order_usd = base_order_usd * leverage * size_multiplier
 
                         # Get current price from trader
                         ticker = self.trader.get_ticker(exec_pair)
@@ -671,7 +1128,7 @@ class RealtimeOrchestrator:
                                 side=direction,
                                 size=base_size,
                                 price=limit_price,
-                                leverage=1.0,
+                                leverage=leverage,
                                 post_only=True,
                                 reduce_only=reduce_only,
                             )
@@ -736,10 +1193,136 @@ class RealtimeOrchestrator:
                     "realized_pnl_usd": pnl,
                     "region": region,
                     "score": score,
+                    "v333_weight": signal.get("v333_weight", 0.0),
                     "timestamp_ms": time.time() * 1000,
                 })
 
         return executed
+
+    async def _execute_equity_signal(self, agent_name, signal, score, region):
+        """Execute an equity signal via E*Trade.
+
+        Returns execution result dict or None if skipped.
+        """
+        pair = signal.get("pair", "")
+        direction = signal.get("direction", "HOLD").upper()
+        confidence = float(signal.get("confidence", 0.5))
+
+        if direction == "HOLD":
+            return None
+
+        # Gate: market hours
+        if GoalValidator and hasattr(GoalValidator, "is_equity_market_open"):
+            if not GoalValidator.is_equity_market_open():
+                logger.debug("Equity signal %s blocked: market closed", pair)
+                return None
+
+        # Gate: GoalValidator equity check
+        if GoalValidator and hasattr(GoalValidator, "should_trade_equity"):
+            regime = signal.get("market_regime", "neutral")
+            n_signals = max(1, int(signal.get("confirming_signals", 1)))
+            if not GoalValidator.should_trade_equity(confidence, n_signals, direction, regime):
+                logger.debug("Equity signal %s blocked by GoalValidator", pair)
+                return None
+
+        # Extract ticker from pair (e.g., "AAPL-USD" -> "AAPL")
+        symbol = pair.split("-")[0].upper() if pair else ""
+        if not symbol:
+            return None
+
+        # Get price via ETradePriceFeed
+        price = None
+        if self.etrade_price_feed:
+            price = self.etrade_price_feed.get_price(symbol)
+        if price is None:
+            logger.warning("Could not get price for equity %s, skipping", symbol)
+            return None
+
+        # Dynamic trade sizing from risk_controller (same as crypto path)
+        try:
+            from risk_controller import get_controller
+            rc = get_controller()
+            portfolio_value = self._get_portfolio_value()
+            risk_params = rc.get_risk_params(portfolio_value)
+            max_trade_usd = risk_params.get("max_trade_usd", 5.0)
+        except Exception:
+            max_trade_usd = ORDER_NOTIONAL_USD
+
+        # Whole shares only (no fractional on E*Trade)
+        import math as _math
+        quantity = _math.floor(max_trade_usd / price)
+        if quantity < 1:
+            logger.info("Equity %s: price $%.2f > max_trade $%.2f, can't buy 1 share",
+                         symbol, price, max_trade_usd)
+            return None
+
+        order_usd = quantity * price
+        pnl = 0.0
+
+        # Execute via E*Trade
+        if self.etrade_trader and self.etrade_account_id:
+            try:
+                result = self.etrade_trader.place_order(
+                    account_id_key=self.etrade_account_id,
+                    symbol=symbol,
+                    side=direction,
+                    quantity=quantity,
+                    order_type="LIMIT",
+                    limit_price=price,
+                    signal_confidence=confidence,
+                    dry_run=ORCH_ETRADE_DRY_RUN,
+                )
+                order_id = result.get("order_id") or result.get("orderId")
+                dry_tag = " [DRY-RUN]" if ORCH_ETRADE_DRY_RUN else ""
+                if order_id or ORCH_ETRADE_DRY_RUN:
+                    logger.info(
+                        "✅ [EQUITY%s] %s %s x%d @ $%.2f ($%.2f) | agent=%s | order=%s",
+                        dry_tag, direction, symbol, quantity, price, order_usd,
+                        agent_name, order_id or "preview",
+                    )
+                else:
+                    error_msg = result.get("error", result.get("message", "Unknown"))
+                    logger.warning("Equity order failed for %s: %s", symbol, error_msg)
+            except Exception as e:
+                logger.error("Equity execution error for %s: %s", symbol, e, exc_info=True)
+        elif self.mock_mode:
+            import random
+            pnl = random.uniform(-0.5, 1.5)
+            logger.info("[MOCK-EQUITY] %s %s x%d @ $%.2f", direction, symbol, quantity, price)
+        else:
+            logger.debug("E*Trade not available for equity signal %s", pair)
+            return None
+
+        return {
+            "agent_name": agent_name,
+            "pair": pair,
+            "product_id": symbol,
+            "used_perp": False,
+            "direction": direction,
+            "realized_pnl_usd": pnl,
+            "region": region,
+            "score": score,
+            "market_type": "equity",
+            "v333_weight": signal.get("v333_weight", 0.0),
+            "timestamp_ms": time.time() * 1000,
+        }
+
+    async def _etrade_token_refresh_loop(self):
+        """Refresh E*Trade OAuth token every 90 min to avoid 2h inactivity timeout."""
+        logger.info("E*Trade token refresh loop started (interval=%.0fs)", ETRADE_TOKEN_REFRESH_INTERVAL_S)
+        while self.running:
+            try:
+                await asyncio.sleep(ETRADE_TOKEN_REFRESH_INTERVAL_S)
+                if self.etrade_auth and self.etrade_auth.is_authenticated:
+                    ok = self.etrade_auth.refresh_token()
+                    if ok:
+                        logger.info("E*Trade token refreshed successfully")
+                    else:
+                        logger.warning("E*Trade token refresh failed — may need re-auth")
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error("E*Trade token refresh error: %s", e)
 
     async def _funding_loop(self):
         """Generate funding skew signals for perps."""
@@ -823,6 +1406,67 @@ class RealtimeOrchestrator:
 
             await asyncio.sleep(FUNDING_INTERVAL_S)
 
+    async def _latency_probe_loop(self):
+        """Periodically probe Coinbase API latency for location_alpha mode."""
+        logger.info(
+            f"Location-alpha latency probe started "
+            f"(host={self.latency_probe.host}, interval={LOCATION_ALPHA_LATENCY_PROBE_S}s)"
+        )
+        while self.running:
+            try:
+                latency_ms = await asyncio.get_event_loop().run_in_executor(
+                    None, self.latency_probe.probe
+                )
+                if self.cycle_count % 100 == 0 or latency_ms > 50:
+                    snap = self.latency_probe.snapshot()
+                    logger.info(
+                        f"Coinbase latency: {latency_ms:.1f}ms "
+                        f"(avg={snap['avg_latency_ms']:.1f}ms, "
+                        f"min={snap['min_latency_ms']:.1f}ms, "
+                        f"probes={snap['probe_count']})"
+                    )
+            except Exception as e:
+                logger.debug(f"Latency probe error: {e}")
+            await asyncio.sleep(LOCATION_ALPHA_LATENCY_PROBE_S)
+
+    def _persist_gains_to_flywheel(self):
+        """Write gains/ms and gains/ns metrics to flywheel_status.json for other agents."""
+        try:
+            flywheel_path = Path(__file__).parent / "flywheel_status.json"
+            if flywheel_path.exists():
+                with open(flywheel_path, "r") as f:
+                    status = json.load(f)
+            else:
+                status = {}
+
+            perf = self.performance_tracker.snapshot()
+            latency_snap = self.latency_probe.snapshot() if self.latency_probe else {}
+
+            status["realtime_orchestrator"] = {
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "cycle_count": self.cycle_count,
+                "gains_per_ms": perf["gains_per_ms"],
+                "gains_per_ns": perf["gains_per_ns"],
+                "gains_per_second": perf["gains_per_second"],
+                "cycle_gains_ms": perf["cycle_gains_ms"],
+                "cycle_gains_ns": perf["cycle_gains_ns"],
+                "peak_gains_ms": perf["peak_gains_ms"],
+                "peak_gains_ns": perf["peak_gains_ns"],
+                "rolling_50_gains_ms": perf["rolling_50_gains_ms"],
+                "total_gains_usd": perf["total_gains_usd"],
+                "trade_count": perf["trade_count"],
+                "runtime_ms": perf["runtime_ms"],
+                "avg_cycle_latency_ms": self.total_latency_ms / max(self.cycle_count, 1),
+                "location_alpha": self.location_alpha,
+                "coinbase_latency": latency_snap,
+            }
+
+            with open(flywheel_path, "w") as f:
+                json.dump(status, f, indent=2)
+
+        except Exception as e:
+            logger.debug(f"Could not persist gains to flywheel_status.json: {e}")
+
     def _persist_metrics_to_db(self, cycle_latency_ms: float, signal_count: int, executed_count: int):
         """Persist orchestrator metrics to database for API consumption."""
         try:
@@ -874,7 +1518,8 @@ class RealtimeOrchestrator:
             logger.debug(f"Could not persist metrics to DB: {e}")
 
     def _get_portfolio_value(self) -> float:
-        """Get current portfolio value from DB."""
+        """Get current portfolio value from DB + E*Trade balance."""
+        crypto_value = 233.85
         try:
             db_path = Path(__file__).parent.parent / "traceroute.db"
             conn = sqlite3.connect(str(db_path))
@@ -883,10 +1528,24 @@ class RealtimeOrchestrator:
             cursor.execute("SELECT total_value_usd FROM trading_snapshots WHERE user_id=2 ORDER BY recorded_at DESC LIMIT 1")
             result = cursor.fetchone()
             conn.close()
-            return result[0] if result else 233.85
+            crypto_value = result[0] if result else 233.85
         except Exception as e:
-            logger.debug(f"Could not fetch portfolio value: {e}")
-            return 233.85
+            logger.debug(f"Could not fetch crypto portfolio value: {e}")
+
+        # Add E*Trade account balance if available
+        etrade_value = 0.0
+        if self.etrade_trader and self.etrade_account_id:
+            try:
+                balance = self.etrade_trader.get_balance(self.etrade_account_id)
+                etrade_value = float(
+                    balance.get("Computed", {}).get("RealTimeValues", {}).get("totalAccountValue", 0)
+                    or balance.get("totalAccountValue", 0)
+                    or 0
+                )
+            except Exception as e:
+                logger.debug("Could not fetch E*Trade balance: %s", e)
+
+        return crypto_value + etrade_value
 
     def shutdown(self):
         """Graceful shutdown."""
@@ -901,12 +1560,17 @@ async def main():
     parser = argparse.ArgumentParser(description="Real-Time Portfolio Orchestrator")
     parser.add_argument("--mock", action="store_true", help="Run in mock mode with simulated signals")
     parser.add_argument("--live", action="store_true", help="Run in live mode with real execution")
+    parser.add_argument("--location-alpha", action="store_true",
+                        help="Enable location-alpha mode for local low-latency execution (~1ms to Coinbase)")
     parser.add_argument("--duration", type=float, help="Run for N seconds then exit")
     args = parser.parse_args()
 
     mock_mode = args.mock or not args.live
 
-    orchestrator = RealtimeOrchestrator(mock_mode=mock_mode)
+    orchestrator = RealtimeOrchestrator(
+        mock_mode=mock_mode,
+        location_alpha=args.location_alpha,
+    )
 
     def signal_handler(sig, frame):
         logger.info("Received shutdown signal")

@@ -69,6 +69,7 @@ class CreativeAgentBridge:
         reasoning: str = "",
         region_hint: Optional[str] = None,
         expected_hold_ms: int = 60000,
+        market_type: str = "crypto",
     ) -> bool:
         """Submit signal to orchestrator priority queue.
 
@@ -80,6 +81,7 @@ class CreativeAgentBridge:
             reasoning: Brief explanation of the signal
             region_hint: Preferred region (e.g., "nrt" for Asia)
             expected_hold_ms: Expected position hold time
+            market_type: "crypto" (default) or "equity"
 
         Returns:
             True if submitted, False if rejected
@@ -112,6 +114,7 @@ class CreativeAgentBridge:
             "reasoning": reasoning,
             "region_hint": region_hint,
             "expected_hold_ms": expected_hold_ms,
+            "market_type": market_type,
             "timestamp_ms": time.time() * 1000,
         }
 
@@ -177,6 +180,7 @@ class CreativeAgentBridge:
         reasoning: str = "",
         region_hint: Optional[str] = None,
         expected_hold_ms: int = 60000,
+        market_type: str = "crypto",
     ) -> bool:
         """Broadcast signal without creating bridge instance (fire-and-forget)."""
         bridge = cls(agent_name)
@@ -188,6 +192,7 @@ class CreativeAgentBridge:
             reasoning=reasoning,
             region_hint=region_hint,
             expected_hold_ms=expected_hold_ms,
+            market_type=market_type,
         )
 
     @classmethod
@@ -232,6 +237,7 @@ def submit_signal(
     reasoning: str = "",
     region_hint: Optional[str] = None,
     expected_hold_ms: int = 60000,
+    market_type: str = "crypto",
 ) -> bool:
     """Global function to submit a signal."""
     return CreativeAgentBridge.broadcast_signal(
@@ -243,6 +249,7 @@ def submit_signal(
         reasoning=reasoning,
         region_hint=region_hint,
         expected_hold_ms=expected_hold_ms,
+        market_type=market_type,
     )
 
 

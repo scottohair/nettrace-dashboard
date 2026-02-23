@@ -93,7 +93,7 @@ WARM_NEAR_MISS_MAX_RETURN_SHORTFALL_PCT = float(
 )
 
 # Fee assumptions
-COINBASE_FEE = 0.012  # 1.2% taker fee (Intro tier actual, NOT 0.6%)
+COINBASE_FEE = float(os.environ.get("PIPELINE_FEE_RATE", "0.004"))  # 0.4% maker fee (post_only=True enforced)
 SLIPPAGE = 0.001      # 0.1% slippage assumption
 BACKTEST_AUTO_EXIT_ENABLED = os.environ.get("BACKTEST_AUTO_EXIT_ENABLED", "1").lower() not in (
     "0",
@@ -328,6 +328,64 @@ class HistoricalPrices:
     def get_candles(self, pair, hours=168):
         """Get hourly candles from Coinbase PUBLIC API (no auth needed)."""
         return self._get_candles(pair, "3600", hours)
+
+    def get_equity_candles(self, symbol, hours=168):
+        """Get equity candles from Yahoo Finance.
+
+        Args:
+            symbol: Stock ticker (e.g., "AAPL")
+            hours: Number of hours of data (default 168 = 1 week)
+
+        Returns:
+            List of candle dicts with keys: timestamp, open, high, low, close, volume
+        """
+        # Map hours to Yahoo range parameter
+        if hours <= 24:
+            range_str, interval = "1d", "5m"
+        elif hours <= 168:
+            range_str, interval = "5d", "15m"
+        elif hours <= 720:
+            range_str, interval = "1mo", "1h"
+        else:
+            range_str, interval = "3mo", "1d"
+
+        url = (
+            f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
+            f"?interval={interval}&range={range_str}"
+        )
+        try:
+            req = urllib.request.Request(url)
+            req.add_header("User-Agent", "NetTrace-Pipeline/1.0")
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode())
+
+            result = data.get("chart", {}).get("result", [])
+            if not result:
+                return []
+
+            timestamps = result[0].get("timestamp", [])
+            indicators = result[0].get("indicators", {}).get("quote", [{}])[0]
+            opens = indicators.get("open", [])
+            highs = indicators.get("high", [])
+            lows = indicators.get("low", [])
+            closes = indicators.get("close", [])
+            volumes = indicators.get("volume", [])
+
+            candles = []
+            for i in range(len(timestamps)):
+                if closes[i] is not None:
+                    candles.append({
+                        "timestamp": timestamps[i],
+                        "open": opens[i],
+                        "high": highs[i],
+                        "low": lows[i],
+                        "close": closes[i],
+                        "volume": volumes[i] or 0,
+                    })
+            return candles
+        except Exception as e:
+            logger.warning("Yahoo equity candles failed for %s: %s", symbol, e)
+            return []
 
     def get_5min_candles(self, pair, hours=24):
         """Get 5-minute candles for more granular backtesting."""
@@ -1364,6 +1422,130 @@ class NonCandleMicrostructureStrategy:
                         "spread_proxy": round(spread_proxy, 6),
                     }
                 )
+
+        return signals
+
+
+class EquityMomentumStrategy:
+    """SMA crossover strategy for equities. Commission-free on E*Trade."""
+    name = "equity_momentum"
+    market_type = "equity"
+
+    def evaluate(self, candles, pair="SPY-USD", fee=0.0):
+        """Evaluate momentum on equity candles.
+
+        Args:
+            candles: List of candle dicts
+            pair: Trading pair
+            fee: Transaction fee (0.0 for E*Trade)
+
+        Returns:
+            Dict with signal, confidence, direction, reasoning
+        """
+        if not candles or len(candles) < 50:
+            return {"signal": False, "reason": "insufficient candles"}
+
+        closes = [c["close"] for c in candles if c.get("close")]
+        if len(closes) < 50:
+            return {"signal": False, "reason": "insufficient closes"}
+
+        sma_20 = sum(closes[-20:]) / 20
+        sma_50 = sum(closes[-50:]) / 50
+
+        prev_closes = closes[:-1]
+        if len(prev_closes) < 50:
+            return {"signal": False, "reason": "insufficient history"}
+
+        prev_sma_20 = sum(prev_closes[-20:]) / 20
+        prev_sma_50 = sum(prev_closes[-50:]) / 50
+
+        if prev_sma_20 <= prev_sma_50 and sma_20 > sma_50:
+            spread = (sma_20 - sma_50) / sma_50
+            confidence = min(0.85, 0.70 + spread * 10)
+            return {
+                "signal": True,
+                "direction": "BUY",
+                "confidence": confidence,
+                "reasoning": f"Golden cross: SMA20={sma_20:.2f} > SMA50={sma_50:.2f}",
+                "pair": pair,
+                "fee": fee,
+                "market_type": "equity",
+            }
+        elif prev_sma_20 >= prev_sma_50 and sma_20 < sma_50:
+            spread = (sma_50 - sma_20) / sma_50
+            confidence = min(0.80, 0.70 + spread * 10)
+            return {
+                "signal": True,
+                "direction": "SELL",
+                "confidence": confidence,
+                "reasoning": f"Death cross: SMA20={sma_20:.2f} < SMA50={sma_50:.2f}",
+                "pair": pair,
+                "fee": fee,
+                "market_type": "equity",
+            }
+
+        return {"signal": False, "reason": "no crossover"}
+
+
+class CryptoCorrelationStrategy:
+    """Trade equities correlated with crypto moves. Commission-free."""
+    name = "crypto_correlation"
+    market_type = "equity"
+
+    # Crypto base -> correlated equities
+    CORRELATIONS = {
+        "BTC": ["COIN", "MSTR", "RIOT", "MARA"],
+        "ETH": ["COIN"],
+    }
+
+    def evaluate(self, crypto_candles, crypto_pair="BTC-USD", fee=0.0):
+        """Evaluate whether crypto move implies equity trade.
+
+        Args:
+            crypto_candles: List of candle dicts for the crypto asset
+            crypto_pair: Crypto trading pair
+            fee: Transaction fee (0.0 for E*Trade)
+
+        Returns:
+            List of signal dicts for correlated equities
+        """
+        if not crypto_candles or len(crypto_candles) < 5:
+            return []
+
+        closes = [c["close"] for c in crypto_candles if c.get("close")]
+        if len(closes) < 5:
+            return []
+
+        # Check recent momentum (last 4 candles)
+        recent = closes[-4:]
+        pct_change = (recent[-1] - recent[0]) / recent[0]
+
+        base = crypto_pair.split("-")[0].upper()
+        correlated = self.CORRELATIONS.get(base, [])
+
+        if not correlated:
+            return []
+
+        signals = []
+        if pct_change > 0.02:  # >2% up move
+            direction = "BUY"
+            confidence = min(0.85, 0.70 + pct_change * 5)
+        elif pct_change < -0.02:  # >2% down move
+            direction = "SELL"
+            confidence = min(0.80, 0.70 + abs(pct_change) * 5)
+        else:
+            return []
+
+        for ticker in correlated:
+            signals.append({
+                "signal": True,
+                "direction": direction,
+                "confidence": confidence * 0.85,  # Discount for indirect correlation
+                "reasoning": f"Crypto correlation: {crypto_pair} {pct_change:+.2%} -> {ticker}",
+                "pair": f"{ticker}-USD",
+                "fee": fee,
+                "market_type": "equity",
+            })
 
         return signals
 

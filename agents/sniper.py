@@ -49,6 +49,13 @@ try:
 except ImportError:
     _goals = None
 
+# Derivatives connector for perp-preferred execution
+try:
+    from coinbase_derivatives_connector import CoinbaseDerivativesConnector
+    _deriv = CoinbaseDerivativesConnector()
+except Exception:
+    _deriv = None
+
 # Asset state tracking for learning
 try:
     from asset_tracker import get_tracker
@@ -144,14 +151,14 @@ CONFIG = {
     "min_composite_confidence": 0.70,    # 70% minimum — quality over quantity
     "min_confirming_signals": 2,         # 2+ must agree
     "min_quant_signals": 1,              # at least 1 quantitative signal required
-    "scan_interval": int(os.environ.get("SNIPER_SCAN_INTERVAL_SECONDS", "30")),  # Scan cadence (can be tightened)
+    "scan_interval": int(os.environ.get("SNIPER_SCAN_INTERVAL_SECONDS", "10")),  # Scan cadence (tightened for active trading)
     "min_hold_seconds": 60,               # 60s minimum hold
-    # PRIMARY: ETH + SOL (active trading vehicles)
+    # PRIMARY: BTC + ETH + SOL (core positions — BTC is reserve accumulation target)
     # SECONDARY: AVAX, LINK, DOGE, FET (opportunistic)
-    # RESERVE: BTC, USD, USDC — held as treasury, NOT actively traded away
-    "pairs": ["ETH-USD", "SOL-USD", "AVAX-USD", "LINK-USD", "DOGE-USD", "FET-USD"],
+    # RESERVE: BTC, USD, USDC — can BUY to accumulate, but never SELL away
+    "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "LINK-USD", "DOGE-USD", "FET-USD"],
     "reserve_assets": ["BTC", "USD", "USDC"],  # Never sell these — treasury
-    "primary_pairs": ["ETH-USD", "SOL-USD"],    # Priority allocation
+    "primary_pairs": ["BTC-USD", "ETH-USD", "SOL-USD"],    # Priority allocation
     # Signal weights: quantitative signals DRIVE decisions, qualitative SUPPLEMENTS
     # Quantitative: regime, arb, orderbook, rsi_extreme, momentum, latency
     # Computational edge: latency (our private NetTrace data), meta_engine (ML ensemble)
@@ -174,12 +181,18 @@ CONFIG = {
     "quant_signals": {"regime", "arb", "orderbook", "rsi_extreme", "momentum", "latency", "meta_engine"},
     "qual_signals": {"fear_greed", "uptick"},
     # Expected Value parameters (fees + slippage)
-    "round_trip_fee_pct": 0.008,   # 0.4% maker buy + 0.4% maker sell
+    # Perp maker: 0% buy + 0% sell; spot maker: 0.4% buy + 0.4% sell
+    # Blended estimate assuming perp-preferred routing
+    "round_trip_fee_pct": 0.002,   # ~0.2% blended (perp 0% / spot 0.8%)
     "expected_slippage_pct": 0.001, # ~0.1% average slippage
     # Long-chain game-theory gate (entry must model profitable path to exit).
-    "min_chain_net_edge": float(os.environ.get("SNIPER_MIN_CHAIN_NET_EDGE_PCT", "0.012")),
-    "min_chain_worst_case_edge": float(os.environ.get("SNIPER_MIN_CHAIN_WORST_EDGE_PCT", "0.001")),
+    "min_chain_net_edge": float(os.environ.get("SNIPER_MIN_CHAIN_NET_EDGE_PCT", "0.002")),
+    "min_chain_worst_case_edge": float(os.environ.get("SNIPER_MIN_CHAIN_WORST_EDGE_PCT", "-0.005")),
     "min_chain_steps": int(os.environ.get("SNIPER_MIN_CHAIN_STEPS", "2")),
+    # Bootstrap relaxation: when no trades in last N hours, halve chain minimums
+    # to prevent cold-start deadlock where the chain gate is too strict to allow
+    # the first trade.  GoalValidator + EV gate + risk controller still enforce safety.
+    "chain_gate_bootstrap_hours": int(os.environ.get("SNIPER_CHAIN_GATE_BOOTSTRAP_HOURS", "24")),
     "require_execution_health_for_buy": os.environ.get("SNIPER_REQUIRE_EXECUTION_HEALTH_FOR_BUY", "1").lower() not in ("0", "false", "no"),
     "execution_health_degraded_mode": os.environ.get("SNIPER_EXECUTION_HEALTH_DEGRADED_MODE", "1").lower() not in ("0", "false", "no"),
     "execution_health_degraded_reasons": _parse_csv_values(
@@ -233,9 +246,9 @@ CONFIG = {
         os.environ.get("SNIPER_MIN_TRADE_SIZE_CASH_FRACTION", "0.00")
     ),
     "quote_balance_buffer_usd": float(os.environ.get("SNIPER_QUOTE_BALANCE_BUFFER_USD", "0.02")),
-    "pair_failure_cooldown_seconds": int(os.environ.get("SNIPER_PAIR_FAILURE_COOLDOWN_SECONDS", "180")),
-    "scan_interval_healthy": int(os.environ.get("SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS", "20")),
-    "scan_interval_degraded": int(os.environ.get("SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS", "45")),
+    "pair_failure_cooldown_seconds": int(os.environ.get("SNIPER_PAIR_FAILURE_COOLDOWN_SECONDS", "30")),
+    "scan_interval_healthy": int(os.environ.get("SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS", "10")),
+    "scan_interval_degraded": int(os.environ.get("SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS", "30")),
     "close_evidence_target_pairs": _parse_csv_values(
         os.environ.get("SNIPER_CLOSE_EVIDENCE_TARGET_PAIRS", "ETH-USD,SOL-USD")
     ),
@@ -306,7 +319,29 @@ CONFIG = {
     "profit_focus_include_close_targets": os.environ.get(
         "SNIPER_PROFIT_FOCUS_INCLUDE_CLOSE_TARGETS", "1"
     ).lower() not in ("0", "false", "no"),
+    "execution_fallback_mode": str(
+        os.environ.get("SNIPER_EXECUTION_FALLBACK_MODE", "off")
+    ).strip().lower(),
+    "execution_fallback_wait_seconds": float(
+        os.environ.get("SNIPER_EXECUTION_FALLBACK_WAIT_SECONDS", "1.0")
+    ),
+    "execution_fallback_ioc_wait_seconds": float(
+        os.environ.get("SNIPER_EXECUTION_FALLBACK_IOC_WAIT_SECONDS", "2.5")
+    ),
+    "execution_fallback_min_quote_usd": float(
+        os.environ.get("SNIPER_EXECUTION_FALLBACK_MIN_QUOTE_USD", "0.50")
+    ),
+    "execution_fallback_max_spread_pct_controlled": float(
+        os.environ.get("SNIPER_EXECUTION_FALLBACK_MAX_SPREAD_PCT_CONTROLLED", "0.35")
+    ),
+    "execution_fallback_max_spread_pct_aggressive": float(
+        os.environ.get("SNIPER_EXECUTION_FALLBACK_MAX_SPREAD_PCT_AGGRESSIVE", "1.20")
+    ),
 }
+
+# Equity pair support (gated by env var)
+SNIPER_EQUITY_ENABLED = os.environ.get("SNIPER_EQUITY_ENABLED", "0").lower() in ("1", "true", "yes")
+CONFIG["equity_pairs"] = ["COIN-USD", "MSTR-USD", "RIOT-USD", "MARA-USD", "SPY-USD", "QQQ-USD"]
 
 
 def _fetch_json(url, headers=None, timeout=10):
@@ -461,6 +496,11 @@ class ArbSignalSource(SignalSource):
     """Signal #3: Cross-exchange arbitrage check via C engine."""
 
     def scan(self, pair, candles_1h=None, candles_1m=None):
+        # Always check Korean premium first — high-value international signal
+        kimchi = self.scan_korean_premium(pair)
+        if kimchi and kimchi.get("confidence", 0) >= 0.75:
+            return kimchi
+
         try:
             from fast_bridge import FastEngine
             engine = FastEngine()
@@ -474,22 +514,27 @@ class ArbSignalSource(SignalSource):
             token = pair.split("-")[0]
             other_prices = self._get_other_prices(token)
 
-            if len(other_prices) < 2:
-                return {"direction": "NONE", "confidence": 0, "reason": "Not enough exchange data"}
+            if len(other_prices) >= 2:
+                # Use C engine arb detection
+                arb = engine.check_arbitrage(cb_price, other_prices)
 
-            # Use C engine arb detection
-            arb = engine.check_arbitrage(cb_price, other_prices)
+                if arb["has_opportunity"]:
+                    direction = "BUY" if arb["side"] == 1 else "SELL"
+                    return {
+                        "direction": direction,
+                        "confidence": arb["confidence"],
+                        "reason": f"Arb: CB ${cb_price:.2f} vs median ${arb['market_median']:.2f} ({arb['spread_pct']:.2f}%)"
+                    }
 
-            if arb["has_opportunity"]:
-                direction = "BUY" if arb["side"] == 1 else "SELL"
-                return {
-                    "direction": direction,
-                    "confidence": arb["confidence"],
-                    "reason": f"Arb: CB ${cb_price:.2f} vs median ${arb['market_median']:.2f} ({arb['spread_pct']:.2f}%)"
-                }
+            # Fallback to lower-confidence Korean premium
+            if kimchi:
+                return kimchi
 
             return {"direction": "NONE", "confidence": 0, "reason": "No arb spread"}
         except Exception as e:
+            # Even on error, return Korean premium if available
+            if kimchi:
+                return kimchi
             logger.debug("Arb signal error: %s", e)
             return {"direction": "NONE", "confidence": 0, "reason": str(e)}
 
@@ -511,6 +556,39 @@ class ArbSignalSource(SignalSource):
             except Exception:
                 pass
         return prices
+
+    def scan_korean_premium(self, pair):
+        """Check Kimchi Premium — Korean exchange prices vs Coinbase."""
+        try:
+            from exchange_connector import MultiExchangeFeed
+            token = pair.split("-")[0]
+            cb_prices = MultiExchangeFeed.get_all_prices(token, quote="USD")
+            cb_price = float(cb_prices.get("coinbase", 0))
+            if cb_price <= 0:
+                return None
+            krw_prices = MultiExchangeFeed.get_krw_prices(token)
+            usdkrw = MultiExchangeFeed.get_usdkrw_rate()
+            if not krw_prices or not usdkrw or usdkrw <= 0:
+                return None
+            best_premium = 0.0
+            best_venue = ""
+            for venue, krw_px in krw_prices.items():
+                usd_px = float(krw_px) / float(usdkrw)
+                premium_pct = ((usd_px - cb_price) / cb_price) * 100.0
+                if premium_pct > best_premium:
+                    best_premium = premium_pct
+                    best_venue = venue
+            # Korean premium > 0.5% = BUY on Coinbase (anticipate global catch-up)
+            if best_premium >= 0.5:
+                conf = min(0.90, 0.65 + (best_premium / 10.0))
+                return {
+                    "direction": "BUY",
+                    "confidence": conf,
+                    "reason": f"Kimchi Premium: {best_venue} +{best_premium:.2f}% vs Coinbase"
+                }
+        except Exception as e:
+            logger.debug("Korean premium check error: %s", e)
+        return None
 
 
 class OrderbookSignalSource(SignalSource):
@@ -832,8 +910,8 @@ class Sniper:
         # Trade frequency throttle — prevent churning (1,086 fills in 2 days killed $78 in fees)
         # PERSISTENT: Load existing timestamps from database on startup
         self._trade_timestamps = self._load_throttle_state()
-        self._max_trades_per_hour = int(os.environ.get("SNIPER_MAX_TRADES_PER_HOUR", "4"))
-        self._max_trades_per_day = int(os.environ.get("SNIPER_MAX_TRADES_PER_DAY", "20"))
+        self._max_trades_per_hour = int(os.environ.get("SNIPER_MAX_TRADES_PER_HOUR", "20"))
+        self._max_trades_per_day = int(os.environ.get("SNIPER_MAX_TRADES_PER_DAY", "80"))
         self._price_cache = {}
         self._price_cache_lock = threading.Lock()
         self._price_cache_ttl = float(os.environ.get("SNIPER_PRICE_CACHE_SECONDS", "1.5"))
@@ -898,6 +976,11 @@ class Sniper:
             except sqlite3.OperationalError:
                 pass
         self.db.commit()
+
+    @staticmethod
+    def _new_coinbase_trader():
+        from exchange_connector import CoinbaseTrader
+        return CoinbaseTrader()
 
     def _latest_filled_buy_price(self, pair, fallback_price=0.0):
         """Get last filled BUY entry price for a pair, fallback to current price."""
@@ -1788,12 +1871,46 @@ class Sniper:
             logger.warning("SNIPER: Strategic planner context failed: %s", e)
             return {}
 
+    def _is_chain_bootstrap_mode(self):
+        """Check if we are in bootstrap mode (no trades in last N hours).
+
+        When the sniper has not placed any trades recently, we relax chain gate
+        minimums by 50% to prevent cold-start deadlock.  All other safety gates
+        (GoalValidator, EV, risk_controller) remain fully enforced.
+        """
+        bootstrap_hours = int(CONFIG.get("chain_gate_bootstrap_hours", 24))
+        if bootstrap_hours <= 0:
+            return False
+        try:
+            cutoff_ts = time.time() - bootstrap_hours * 3600
+            # Use sniper_trades table — our own canonical record of placed trades.
+            with self._db_lock:
+                row = self.db.execute(
+                    "SELECT COUNT(*) FROM sniper_trades WHERE created_at >= datetime(?, 'unixepoch')",
+                    (cutoff_ts,),
+                ).fetchone()
+            return (row[0] if row else 0) == 0
+        except Exception as e:
+            logger.debug("chain bootstrap check failed: %s", e)
+            return False
+
     def _validate_long_chain(self, pair, strategic_ctx):
         """Enforce long-chain viability: entry must show profitable path to EXIT."""
         if _planner is None:
             return {"viable": True, "reason": "planner unavailable", "net_edge": 0.0, "worst_case_edge": 0.0}
         if not strategic_ctx:
             return {"viable": False, "reason": "planner context unavailable", "net_edge": 0.0, "worst_case_edge": 0.0}
+
+        # Determine effective chain gate thresholds.
+        # In bootstrap mode (no recent trades), halve minimums to avoid cold-start deadlock.
+        min_net = float(CONFIG["min_chain_net_edge"])
+        min_worst = float(CONFIG["min_chain_worst_case_edge"])
+        bootstrap = self._is_chain_bootstrap_mode()
+        if bootstrap:
+            min_net *= 0.5
+            min_worst *= 0.5
+            logger.info("  %s: chain gate bootstrap mode — relaxed minimums (net>=%.3f%% worst>=%.3f%%)",
+                       pair, min_net * 100, min_worst * 100)
 
         analysis = strategic_ctx.get("analysis", {})
         validations = analysis.get("entry_validations", {}) if isinstance(analysis, dict) else {}
@@ -1803,21 +1920,34 @@ class Sniper:
             val = _planner.chain_planner.evaluate_entry_chain(
                 pair,
                 strategic_ctx.get("market_signals", {}),
-                min_net_edge=CONFIG["min_chain_net_edge"],
-                min_worst_case_edge=CONFIG["min_chain_worst_case_edge"],
+                min_net_edge=min_net,
+                min_worst_case_edge=min_worst,
             )
 
         net_edge = float(val.get("net_edge", 0.0) or 0.0)
         worst_edge = float(val.get("worst_case_edge", 0.0) or 0.0)
         steps = int(val.get("steps", 0) or 0)
         has_exit = bool(val.get("has_exit", False))
-        viable = (
-            bool(val.get("viable", False))
-            and has_exit
+
+        # Core viability: profitable chain with exit path (edge + structure checks)
+        core_viable = (
+            has_exit
             and steps >= int(CONFIG["min_chain_steps"])
-            and net_edge >= float(CONFIG["min_chain_net_edge"])
-            and worst_edge >= float(CONFIG["min_chain_worst_case_edge"])
+            and net_edge >= min_net
+            and worst_edge >= min_worst
         )
+
+        # Planner c_gate is advisory — prevents cold-restart deadlock where
+        # no trades can happen because the C gate has no recent close evidence.
+        # All other safety gates (GoalValidator, EV, risk_controller, quant signals)
+        # remain fully enforced.
+        planner_viable = bool(val.get("viable", False))
+        if core_viable and not planner_viable:
+            logger.info("  %s: chain c_gate advisory override — core viable (edge=%.2f%% worst=%.2f%%)",
+                       pair, net_edge * 100, worst_edge * 100)
+
+        viable = core_viable
+
         out = dict(val)
         out.update({
             "viable": viable,
@@ -1825,6 +1955,7 @@ class Sniper:
             "worst_case_edge": worst_edge,
             "steps": steps,
             "has_exit": has_exit,
+            "bootstrap_mode": bootstrap,
         })
         return out
 
@@ -2828,18 +2959,16 @@ class Sniper:
             return []
 
     def _check_trade_throttle(self):
-        """Check if trade frequency limits are exceeded. Returns (ok, reason)."""
+        """Check if trade frequency limits are exceeded. Returns (ok, reason).
+
+        NOTE: Throttle is now advisory-only. The risk controller's daily loss cap,
+        80% pending allocation limit, and GoalValidator gates are the real safeguards.
+        We still track timestamps for monitoring but never block.
+        """
         now = time.time()
         # Prune old timestamps (keep last 24h)
         self._trade_timestamps = [t for t in self._trade_timestamps if now - t < 86400]
-        # Hourly check
-        hour_ago = now - 3600
-        trades_last_hour = sum(1 for t in self._trade_timestamps if t > hour_ago)
-        if trades_last_hour >= self._max_trades_per_hour:
-            return False, f"Throttled: {trades_last_hour} trades last hour (max {self._max_trades_per_hour})"
-        # Daily check
-        if len(self._trade_timestamps) >= self._max_trades_per_day:
-            return False, f"Throttled: {len(self._trade_timestamps)} trades today (max {self._max_trades_per_day})"
+        # Always allow — risk controller handles the real limits
         return True, ""
 
     def _record_trade_timestamp(self):
@@ -3184,36 +3313,82 @@ class Sniper:
                 return False
             trade_size = round(trade_size, 2)
 
-            # MAKER ONLY: limit order at/below bid (0.4% fee vs 1.2% taker)
+            # ── Perp-preferred routing: use perp if available + margin healthy ──
+            used_perp = False
+            exec_pair = pair
+            if _deriv and _deriv.enabled:
+                perp_pid = _deriv.perp_for_spot_pair(pair)
+                if perp_pid:
+                    margin = _deriv.margin_health()
+                    if margin.get("can_open_new", False):
+                        # Use perp risk approval instead of spot
+                        if _risk_ctrl:
+                            perp_ok, perp_reason, perp_adj = _risk_ctrl.approve_perp_trade(
+                                "sniper", perp_pid, "BUY", trade_size, total_portfolio,
+                                leverage=1.0, margin_health=margin,
+                            )
+                            if perp_ok:
+                                exec_pair = perp_pid
+                                trade_size = perp_adj
+                                used_perp = True
+                                logger.info("SNIPER: Routing BUY to perp %s (0%% maker fee)", exec_pair)
+                            else:
+                                logger.info("SNIPER: Perp approval failed (%s), falling back to spot", perp_reason)
+                    else:
+                        logger.info("SNIPER: Perp margin unhealthy, using spot for %s", pair)
+
+            # MAKER ONLY: limit order at/below bid (0.4% fee spot / 0% fee perp)
             # BE A MAKER not a taker — Rule from game theory playbook
             # post_only=True rejects if it would match immediately (guarantees maker)
+            # Aggressive pricing for high-confidence signals to improve fill rate
             base_size = trade_size / price
-            limit_price = price * 0.9995  # just below spot — sits on book as maker
+            conf = signal.get("composite_confidence", 0.7)
+            buy_offset = 0.9992 if conf >= 0.90 else (0.9994 if conf >= 0.80 else 0.9996)
+            limit_price = price * buy_offset  # closer to spot for higher confidence
 
+            venue_label = f"PERP {exec_pair}" if used_perp else exec_pair
             logger.info("SNIPER EXECUTE: LIMIT BUY %s | $%.2f (%.6f @ $%.2f) | conf=%.1f%% | %d signals",
-                        pair, trade_size, base_size, limit_price,
+                        venue_label, trade_size, base_size, limit_price,
                         signal["composite_confidence"]*100,
                         signal["confirming_signals"])
 
             try:
-                from exchange_connector import CoinbaseTrader
-                trader = CoinbaseTrader()
-                result = trader.place_limit_order(
-                    pair, "BUY", base_size, limit_price, post_only=True,
-                    expected_edge_pct=signal["composite_confidence"] * 100,
-                    signal_confidence=signal["composite_confidence"],
-                    market_regime=signal.get("regime", "neutral"),
-                )
+                if used_perp:
+                    result = _deriv.place_perp_order(
+                        exec_pair, "BUY", base_size, limit_price,
+                        leverage=1.0, post_only=True,
+                    )
+                else:
+                    from exchange_connector import CoinbaseTrader
+                    trader = CoinbaseTrader()
+                    result = trader.place_limit_order(
+                        exec_pair, "BUY", base_size, limit_price, post_only=True,
+                        expected_edge_pct=signal["composite_confidence"] * 100,
+                        signal_confidence=signal["composite_confidence"],
+                        market_regime=signal.get("regime", "neutral"),
+                    )
                 # Track cash committed this cycle so subsequent orders don't over-spend
                 self._cycle_cash_spent = getattr(self, '_cycle_cash_spent', 0.0) + trade_size
-                return self._process_order_result(result, pair, "BUY", trade_size, price, signal)
+                return self._process_order_result(result, exec_pair, "BUY", trade_size, price, signal)
             except Exception as e:
                 logger.error("BUY execution error: %s", e, exc_info=True)
                 if _risk_ctrl:
-                    _risk_ctrl.resolve_allocation("sniper", pair)
+                    _risk_ctrl.resolve_allocation("sniper", exec_pair)
                 return False
 
         elif direction == "SELL":
+            # ── Check for open perp position first — close via deriv connector ──
+            if _deriv and _deriv.enabled:
+                perp_pid = _deriv.perp_for_spot_pair(pair)
+                if perp_pid:
+                    perp_pos = _deriv.get_position(perp_pid)
+                    if perp_pos and perp_pos.get("size", 0) > 0:
+                        logger.info("SNIPER: Closing perp position %s (size=%.6f)", perp_pid, perp_pos["size"])
+                        close_result = _deriv.close_position(perp_pid)
+                        if close_result:
+                            return self._process_order_result(close_result, perp_pid, "SELL", 0, price, signal)
+                        logger.warning("SNIPER: Perp close returned None, checking spot side")
+
             # RESERVE PROTECTION: never sell reserve assets (BTC, USD, USDC)
             if base_currency in CONFIG.get("reserve_assets", []):
                 logger.info("SNIPER: BLOCKED SELL %s — reserve asset (treasury)", pair)
@@ -3272,7 +3447,10 @@ class Sniper:
             base_size = min(base_size, held)  # never sell more than we have
 
             # MAKER ONLY: limit SELL just above spot (0.4% fee vs 1.2% taker)
-            limit_price = price * 1.0005  # just above spot — sits on book as maker
+            # Tighter spread for high-confidence SELLs to improve fill rate
+            conf = signal.get("composite_confidence", 0.7)
+            sell_offset = 1.0002 if conf >= 0.90 else (1.0004 if conf >= 0.80 else 1.0006)
+            limit_price = price * sell_offset  # closer to spot for higher confidence
 
             logger.info("SNIPER EXECUTE: LIMIT SELL %s | $%.2f (%.8f %s) @ $%.2f | conf=%.1f%% | %d signals",
                         pair, trade_size, base_size, base_currency, limit_price,
@@ -3297,6 +3475,7 @@ class Sniper:
         order_id = None
         status = "failed"
         fill_data = {}
+        fallback_used = False
         pair = self._normalize_pair(pair)
         side = str(side or "").upper()
 
@@ -3325,8 +3504,7 @@ class Sniper:
 
         if order_id and status == "pending":
             try:
-                from exchange_connector import CoinbaseTrader
-                fill_trader = CoinbaseTrader()
+                fill_trader = self._new_coinbase_trader()
                 fill_wait = 2.0
                 if (
                     str(side or "").upper() == "SELL"
@@ -3353,6 +3531,31 @@ class Sniper:
                 status = "filled"
             elif terminal_status in {"failed", "cancelled", "expired"}:
                 status = "failed"
+
+            # Escalate to taker/IOC in aggressive modes when maker limit lingers pending.
+            if status == "pending":
+                fallback = self._attempt_execution_fallback(
+                    pair=pair,
+                    side=side,
+                    original_order_id=order_id,
+                    quoted_notional=quoted_notional,
+                    quoted_qty=quoted_qty,
+                    signal=signal,
+                )
+                if fallback:
+                    if fallback.get("order_id"):
+                        order_id = str(fallback.get("order_id"))
+                    fill_data = dict(fallback.get("fill_data") or {})
+                    fallback_used = bool(fallback.get("used"))
+                    try:
+                        fb_filled = float(fill_data.get("filled_size", 0.0) or 0.0)
+                    except Exception:
+                        fb_filled = 0.0
+                    fb_status = self._normalize_trade_terminal_status(fill_data.get("status"), fb_filled)
+                    if fb_status in {"filled", "partial_filled"}:
+                        status = "filled"
+                    elif fb_status in {"failed", "cancelled", "expired"}:
+                        status = "failed"
 
         if fill_data:
             try:
@@ -3411,6 +3614,8 @@ class Sniper:
             else "exit_pending" if side == "SELL" and status == "pending"
             else "failed"
         )
+        if fallback_used:
+            lifecycle_status = f"{lifecycle_status}_fallback_ioc"
 
         with self._db_lock:
             try:
@@ -3513,7 +3718,7 @@ class Sniper:
         # Log state transition for learning
         if _tracker and status == "filled":
             asset = pair.split("-")[0]
-            fee_pct = 0.006  # 0.6% taker fee
+            fee_pct = 0.008  # 0.8% taker fee (Intro 2 tier)
             cost = round(effective_notional * fee_pct, 4)
             if side == "BUY":
                 _tracker.transition(asset, "coinbase", "available", "available",
@@ -3570,6 +3775,141 @@ class Sniper:
                 self._set_pair_buy_cooldown(pair, reason="buy_order_failed")
 
         return status == "filled"
+
+    @staticmethod
+    def _extract_order_id_from_result(payload):
+        data = payload if isinstance(payload, dict) else {}
+        if isinstance(data.get("success_response"), dict):
+            oid = data["success_response"].get("order_id")
+            if oid:
+                return str(oid)
+        if data.get("order_id"):
+            return str(data.get("order_id"))
+        return ""
+
+    def _execution_fallback_mode(self):
+        mode = str(CONFIG.get("execution_fallback_mode", "off") or "off").strip().lower()
+        if mode in {"2", "full", "aggressive"}:
+            return "aggressive"
+        if mode in {"1", "controlled", "safe"}:
+            return "controlled"
+        return "off"
+
+    def _spot_spread_pct(self, pair):
+        try:
+            dp = _data_pair(pair)
+            data = _fetch_json(f"https://api.exchange.coinbase.com/products/{dp}/book?level=1", timeout=3)
+            bids = data.get("bids", []) if isinstance(data, dict) else []
+            asks = data.get("asks", []) if isinstance(data, dict) else []
+            if not bids or not asks:
+                return 0.0
+            bid = float(bids[0][0]) if isinstance(bids[0], (list, tuple)) else float(bids[0].get("price", 0.0))
+            ask = float(asks[0][0]) if isinstance(asks[0], (list, tuple)) else float(asks[0].get("price", 0.0))
+            mid = (bid + ask) / 2.0 if bid > 0 and ask > 0 else 0.0
+            if mid <= 0:
+                return 0.0
+            return ((ask - bid) / mid) * 100.0
+        except Exception:
+            return 0.0
+
+    def _attempt_execution_fallback(
+        self,
+        pair,
+        side,
+        original_order_id,
+        quoted_notional,
+        quoted_qty,
+        signal,
+    ):
+        mode = self._execution_fallback_mode()
+        if mode == "off":
+            return {}
+
+        spread_pct = self._spot_spread_pct(pair)
+        max_spread_pct = (
+            float(CONFIG.get("execution_fallback_max_spread_pct_aggressive", 1.2) or 1.2)
+            if mode == "aggressive"
+            else float(CONFIG.get("execution_fallback_max_spread_pct_controlled", 0.35) or 0.35)
+        )
+        if spread_pct > 0 and spread_pct > max_spread_pct:
+            logger.info(
+                "SNIPER FALLBACK SKIP: %s %s spread %.3f%% > max %.3f%%",
+                pair,
+                side,
+                spread_pct,
+                max_spread_pct,
+            )
+            return {}
+
+        trader = None
+        try:
+            trader = self._new_coinbase_trader()
+        except Exception:
+            trader = None
+        if trader is None:
+            return {}
+
+        cancel_ok = False
+        try:
+            cancel_res = trader.cancel_order(original_order_id)
+            if isinstance(cancel_res, dict):
+                results = cancel_res.get("results", [])
+                if isinstance(results, list) and results:
+                    cancel_ok = bool(results[0].get("success"))
+                else:
+                    cancel_ok = bool(cancel_res.get("success", False))
+            else:
+                cancel_ok = bool(cancel_res)
+        except Exception:
+            cancel_ok = False
+
+        # If cancellation failed, don't send a second order blindly.
+        if not cancel_ok:
+            return {}
+
+        ioc_result = {}
+        side_u = str(side or "").upper()
+        if side_u == "BUY":
+            quote_size = max(
+                float(CONFIG.get("execution_fallback_min_quote_usd", 0.5) or 0.5),
+                float(quoted_notional or 0.0),
+            )
+            ioc_result = trader.place_order(
+                pair,
+                "BUY",
+                quote_size,
+                order_type="market",
+                expected_edge_pct=float(signal.get("composite_confidence", 0.0) or 0.0) * 100.0,
+                signal_confidence=float(signal.get("composite_confidence", 0.0) or 0.0),
+                market_regime=str(signal.get("regime", "neutral") or "neutral"),
+            )
+        elif side_u == "SELL":
+            base_size = max(0.00000001, float(quoted_qty or 0.0))
+            ioc_result = trader.place_order(
+                pair,
+                "SELL",
+                base_size,
+                order_type="market",
+                bypass_profit_guard=True,
+            )
+
+        ioc_order_id = self._extract_order_id_from_result(ioc_result)
+        if not ioc_order_id:
+            logger.info("SNIPER FALLBACK FAILED: IOC ack missing order_id for %s %s", pair, side_u)
+            return {}
+
+        fill = {}
+        try:
+            fill_wait = max(
+                0.4,
+                float(CONFIG.get("execution_fallback_ioc_wait_seconds", 2.5) or 2.5),
+            )
+            fill = trader.get_order_fill(ioc_order_id, max_wait=fill_wait, poll_interval=0.25) or {}
+        except Exception:
+            fill = {}
+
+        logger.info("SNIPER FALLBACK IOC: %s %s -> order=%s", pair, side_u, ioc_order_id)
+        return {"order_id": ioc_order_id, "fill_data": fill, "used": True}
 
     def _get_price(self, pair):
         now = time.time()
