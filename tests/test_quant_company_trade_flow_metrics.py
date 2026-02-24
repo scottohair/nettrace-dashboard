@@ -20,6 +20,8 @@ def test_trade_flow_metrics_blocks_when_close_completion_rate_is_low(monkeypatch
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             side TEXT,
             status TEXT,
+            agent TEXT,
+            order_id TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """
