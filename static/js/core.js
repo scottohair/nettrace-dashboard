@@ -270,6 +270,18 @@ const Poller = {
   }
 };
 
+// ─── Global navigation stubs ───
+// showAuth() and showSettings() are defined in index.js but referenced
+// by onclick handlers in base.html which is shared across all pages.
+// If we're not on the index page, redirect there with a query param so
+// the index page can open the correct modal on load.
+if (typeof window.showAuth === 'undefined') {
+  window.showAuth = function() { window.location.href = '/?auth=1'; };
+}
+if (typeof window.showSettings === 'undefined') {
+  window.showSettings = function() { window.location.href = '/?settings=1'; };
+}
+
 // ─── Init on load ───
 document.addEventListener('DOMContentLoaded', () => {
   Theme.init();

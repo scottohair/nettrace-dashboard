@@ -875,4 +875,15 @@ async function init() {
   updateStats();
   buildSidebar('all');
   drawBgRoutes();
+
+  /* Handle cross-page redirects for auth/settings modals */
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('auth') === '1') {
+    history.replaceState(null, '', '/');
+    showAuth();
+  } else if (params.get('settings') === '1') {
+    history.replaceState(null, '', '/');
+    if (currentUser) showSettings();
+    else showAuth();
+  }
 }

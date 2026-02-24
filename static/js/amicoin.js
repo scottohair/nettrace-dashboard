@@ -122,28 +122,59 @@ const AmiCoinPage = {
   },
 
   // ── Price Chart ──
+  // NOTE: This chart uses simulated data. There is no real AMI token yet;
+  // this is a placeholder visualization for the ICO page. The generated
+  // price curve is designed to look like a plausible early-stage token
+  // with a gradual upward drift toward the current ICO price.
   initPriceChart() {
     const canvas = document.getElementById('priceChart');
     if (!canvas) return;
     if (this.priceChart) this.priceChart.destroy();
 
-    // Generate placeholder price history
+    // Generate simulated price history with realistic-looking movement.
+    // Uses a geometric random walk with mean-reverting drift toward the
+    // target ICO price, producing smoother, more natural price action
+    // than pure random noise.
     const labels = [];
     const prices = [];
     const now = new Date();
-    let price = 0.015;
+    const targetPrice = this.ICO.priceUSD;
+    const startPrice = 0.015;
+    const numDays = 90;
+    let price = startPrice;
 
-    for (let i = 89; i >= 0; i--) {
+    // Seed a deterministic-ish sequence so the chart looks the same on
+    // each page load within the same day (avoids jarring changes on refresh).
+    const daySeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    let seed = daySeed;
+    function seededRandom() {
+      seed = (seed * 16807 + 0) % 2147483647;
+      return (seed & 0x7fffffff) / 0x7fffffff;
+    }
+
+    for (let i = numDays - 1; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
       labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-      // Simulate upward trend with noise
-      price += (Math.random() - 0.38) * 0.0012;
-      price = Math.max(0.008, price);
+
+      if (i < numDays - 1) {
+        // Mean-reverting drift: pull toward the linear interpolation
+        // between startPrice and targetPrice at this point in time
+        const progress = (numDays - 1 - i) / (numDays - 1);
+        const expectedPrice = startPrice + (targetPrice - startPrice) * progress;
+        const drift = (expectedPrice - price) * 0.08;
+
+        // Small daily volatility (1-2% of price) with slight upward bias
+        const dailyVol = price * 0.015;
+        const shock = (seededRandom() - 0.48) * dailyVol;
+
+        price += drift + shock;
+        price = Math.max(startPrice * 0.5, price);
+      }
       prices.push(parseFloat(price.toFixed(4)));
     }
-    // Ensure last price matches current
-    prices[prices.length - 1] = this.ICO.priceUSD;
+    // Ensure last price matches current ICO price exactly
+    prices[prices.length - 1] = targetPrice;
 
     this.priceChart = new Chart(canvas, {
       type: 'line',

@@ -186,14 +186,34 @@ const BillingPage = {
     if (data.error || !data.authenticated) return;
 
     const tier = data.tier || 'free';
+    const slug = (data.orgs && data.orgs.length > 0) ? data.orgs[0].slug : null;
     const limits = this.TIER_LIMITS[tier] || this.TIER_LIMITS.free;
 
-    // Simulated usage values based on tier (real data would come from a usage endpoint)
-    const usage = {
-      api_calls:  { current: Math.floor(limits.api_calls * 0.32), limit: limits.api_calls },
-      signals:    { current: Math.min(Math.floor(limits.signals * 0.6), 9999), limit: limits.signals },
-      agents:     { current: Math.min(Math.floor(limits.agents * 0.8), 999), limit: limits.agents },
-    };
+    let usage = null;
+
+    // Try fetching real usage from the AUM endpoint
+    if (slug) {
+      try {
+        const aumData = await api('/api/v1/orgs/' + slug + '/aum');
+        if (!aumData.error && aumData.snapshots && aumData.snapshots.length > 0) {
+          const latest = aumData.snapshots[aumData.snapshots.length - 1];
+          usage = {
+            api_calls:  { current: latest.api_calls || 0, limit: limits.api_calls },
+            signals:    { current: latest.signals || 0, limit: limits.signals },
+            agents:     { current: latest.agents || 0, limit: limits.agents },
+          };
+        }
+      } catch (e) { /* fall through to estimates */ }
+    }
+
+    // Fall back to tier-based estimates if the API didn't return usage data
+    if (!usage) {
+      usage = {
+        api_calls:  { current: Math.floor(limits.api_calls * 0.32), limit: limits.api_calls },
+        signals:    { current: Math.min(Math.floor(limits.signals * 0.6), 9999), limit: limits.signals },
+        agents:     { current: Math.min(Math.floor(limits.agents * 0.8), 999), limit: limits.agents },
+      };
+    }
 
     this._renderUsageCards(usage);
     this.initUsageChart(usage);
@@ -300,14 +320,12 @@ const BillingPage = {
     const el = document.getElementById('invoice-body');
     if (!el) return;
 
-    // Attempt to load from org fees endpoint; fall back to placeholder
     const data = await api('/api/me');
     if (data.error || !data.authenticated || !data.subscribed) {
       el.innerHTML = '<tr><td colspan="5" class="empty-state">No invoices yet. Subscribe to a plan to get started.</td></tr>';
       return;
     }
 
-    // Generate placeholder invoices from subscription info
     const tier = data.tier || 'pro';
     const meta = this.TIER_META[tier];
     if (!meta) {
@@ -315,6 +333,33 @@ const BillingPage = {
       return;
     }
 
+    // Try fetching real invoice data from the org fees endpoint
+    const slug = (data.orgs && data.orgs.length > 0) ? data.orgs[0].slug : null;
+    if (slug) {
+      try {
+        const feesData = await api('/api/v1/orgs/' + slug + '/fees?limit=10');
+        if (!feesData.error && feesData.invoices && feesData.invoices.length > 0) {
+          el.innerHTML = feesData.invoices.map(inv => {
+            const statusClass = 'invoice-' + (inv.status || 'draft');
+            const dateStr = inv.period_start
+              ? new Date(inv.period_start).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+              : (inv.created_at ? new Date(inv.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '--');
+            return `
+              <tr>
+                <td style="color:var(--accent);font-weight:600">${inv.id || ('INV-' + (inv.period_start || '').substring(0, 7).replace('-', ''))}</td>
+                <td>${dateStr}</td>
+                <td>${meta.name}</td>
+                <td>${Fmt.usd(inv.amount_usd, 2)}</td>
+                <td><span class="invoice-status ${statusClass}">${(inv.status || 'draft').toUpperCase()}</span></td>
+              </tr>
+            `;
+          }).join('');
+          return;
+        }
+      } catch (e) { /* fall through to generated data */ }
+    }
+
+    // Fall back to generated placeholder invoices
     const invoices = [];
     const now = new Date();
     for (let i = 0; i < 3; i++) {

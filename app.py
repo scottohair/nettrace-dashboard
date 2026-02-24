@@ -1268,6 +1268,11 @@ def _decrypt_user_mfa_secret(row) -> str | None:
         return None
 
 
+@app.route("/health")
+def health_check():
+    return jsonify({"status": "ok", "ts": time.time()}), 200
+
+
 @app.route("/")
 def index():
     # Enterprise/Pro users go straight to trading dashboard
@@ -4894,6 +4899,745 @@ def update_risk_preferences():
     db.commit()
 
     return jsonify({"status": "updated", "risk_profile": profile, "settings": preset})
+
+
+# ---------------------------------------------------------------------------
+# Org-Scoped Dashboard API (session-auth routes for trading dashboard JS)
+# ---------------------------------------------------------------------------
+
+def _resolve_org_for_slug(slug):
+    """Resolve org + membership for the current session user.
+
+    Returns (org_row, membership_row, None) on success or
+    (None, None, error_response) on failure.
+    """
+    db = get_db()
+    row = db.execute(
+        "SELECT o.id, o.name, o.slug, o.tier, o.is_active, m.role "
+        "FROM organizations o "
+        "JOIN org_members m ON o.id = m.org_id "
+        "WHERE o.slug = ? AND m.user_id = ?",
+        (slug, current_user.id),
+    ).fetchone()
+    if not row:
+        return None, None, (jsonify({"error": "Organization not found or access denied"}), 404)
+    return row, row, None
+
+
+# ── GET /api/v1/orgs/<slug>/agents ────────────────────────────────────────
+
+@app.route("/api/v1/orgs/<slug>/agents")
+@login_required
+def dashboard_list_agents(slug):
+    """List registered agents for an org."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    db = get_db()
+    try:
+        agents = db.execute(
+            "SELECT id, org_id, agent_name, agent_type, status, strategy_description, "
+            "pipeline_stage, capital_allocation_usd, trades_total, wins, losses, "
+            "total_pnl, sharpe_ratio, max_drawdown, last_active, created_at "
+            "FROM agent_registrations WHERE org_id = ? ORDER BY total_pnl DESC",
+            (org["id"],)
+        ).fetchall()
+        return jsonify({"agents": [{
+            "id": a["id"],
+            "name": a["agent_name"],
+            "type": a["agent_type"],
+            "status": a["status"],
+            "strategy": a["strategy_description"],
+            "pipeline_stage": a["pipeline_stage"],
+            "capital_allocation_usd": a["capital_allocation_usd"],
+            "trades_total": a["trades_total"],
+            "wins": a["wins"],
+            "losses": a["losses"],
+            "total_pnl": a["total_pnl"],
+            "sharpe_ratio": a["sharpe_ratio"],
+            "max_drawdown": a["max_drawdown"],
+            "last_active": a["last_active"],
+            "created_at": a["created_at"],
+        } for a in agents], "count": len(agents)})
+    except sqlite3.OperationalError:
+        # Table doesn't exist yet
+        return jsonify({"agents": [], "count": 0})
+
+
+# ── POST /api/v1/orgs/<slug>/agents ───────────────────────────────────────
+
+@app.route("/api/v1/orgs/<slug>/agents", methods=["POST"])
+@login_required
+def dashboard_register_agent(slug):
+    """Register a new agent for an org."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    if membership["role"] not in ("owner", "admin"):
+        return jsonify({"error": "Only owners and admins can register agents"}), 403
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    agent_type = (data.get("type") or "internal").strip()
+    config = data.get("config") or {}
+
+    if not name or len(name) > 100:
+        return jsonify({"error": "name is required (max 100 chars)"}), 400
+
+    db = get_db()
+    try:
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS agent_registrations ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "org_id INTEGER NOT NULL, "
+            "agent_name TEXT NOT NULL, "
+            "agent_type TEXT DEFAULT 'internal', "
+            "api_key_id INTEGER, "
+            "status TEXT DEFAULT 'pending', "
+            "strategy_description TEXT, "
+            "pipeline_stage TEXT DEFAULT 'COLD', "
+            "capital_allocation_usd REAL DEFAULT 0.0, "
+            "trades_total INTEGER DEFAULT 0, "
+            "wins INTEGER DEFAULT 0, "
+            "losses INTEGER DEFAULT 0, "
+            "total_pnl REAL DEFAULT 0.0, "
+            "sharpe_ratio REAL DEFAULT 0.0, "
+            "max_drawdown REAL DEFAULT 0.0, "
+            "last_active TIMESTAMP, "
+            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+            "FOREIGN KEY (org_id) REFERENCES organizations(id))"
+        )
+        cur = db.execute(
+            "INSERT INTO agent_registrations (org_id, agent_name, agent_type, strategy_description) "
+            "VALUES (?, ?, ?, ?)",
+            (org["id"], name, agent_type, json.dumps(config))
+        )
+        db.commit()
+        agent_id = cur.lastrowid
+        return jsonify({
+            "id": agent_id,
+            "name": name,
+            "type": agent_type,
+            "status": "pending",
+            "pipeline_stage": "COLD",
+            "config": config,
+            "created_at": datetime.utcnow().isoformat(),
+        }), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── PUT /api/v1/orgs/<slug>/agents/<agent_id>/status ──────────────────────
+
+@app.route("/api/v1/orgs/<slug>/agents/<int:agent_id>/status", methods=["PUT"])
+@login_required
+def dashboard_update_agent_status(slug, agent_id):
+    """Update an agent's status (active/suspended/fired)."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    if membership["role"] not in ("owner", "admin"):
+        return jsonify({"error": "Only owners and admins can update agent status"}), 403
+
+    data = request.get_json(silent=True) or {}
+    status = (data.get("status") or "").strip().lower()
+    if status not in ("active", "suspended", "fired"):
+        return jsonify({"error": "status must be active, suspended, or fired"}), 400
+
+    db = get_db()
+    try:
+        # Verify agent belongs to this org
+        agent = db.execute(
+            "SELECT id FROM agent_registrations WHERE id = ? AND org_id = ?",
+            (agent_id, org["id"])
+        ).fetchone()
+        if not agent:
+            return jsonify({"error": "Agent not found in this organization"}), 404
+
+        db.execute(
+            "UPDATE agent_registrations SET status = ?, last_active = CURRENT_TIMESTAMP WHERE id = ?",
+            (status, agent_id)
+        )
+        db.commit()
+        return jsonify({"status": "updated", "agent_id": agent_id, "new_status": status})
+    except sqlite3.OperationalError:
+        return jsonify({"error": "Agent registrations table not initialized"}), 500
+
+
+# ── GET /api/v1/orgs/<slug>/proposals ─────────────────────────────────────
+
+@app.route("/api/v1/orgs/<slug>/proposals")
+@login_required
+def dashboard_list_proposals(slug):
+    """List trade proposals for an org."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    db = get_db()
+    try:
+        limit = min(int(request.args.get("limit", 50)), 200)
+        status_filter = request.args.get("status")
+        if status_filter and status_filter in ("pending", "approved", "rejected", "executed", "expired"):
+            rows = db.execute(
+                "SELECT p.*, a.agent_name FROM trade_proposals p "
+                "LEFT JOIN agent_registrations a ON p.agent_id = a.id "
+                "WHERE p.org_id = ? AND p.status = ? "
+                "ORDER BY p.created_at DESC LIMIT ?",
+                (org["id"], status_filter, limit)
+            ).fetchall()
+        else:
+            rows = db.execute(
+                "SELECT p.*, a.agent_name FROM trade_proposals p "
+                "LEFT JOIN agent_registrations a ON p.agent_id = a.id "
+                "WHERE p.org_id = ? "
+                "ORDER BY p.created_at DESC LIMIT ?",
+                (org["id"], limit)
+            ).fetchall()
+        return jsonify({"proposals": [{
+            "id": r["id"],
+            "agent_id": r["agent_id"],
+            "agent_name": r["agent_name"],
+            "pair": r["pair"],
+            "direction": r["direction"],
+            "confidence": r["confidence"],
+            "proposed_size_usd": r["proposed_size_usd"],
+            "entry_price": r["entry_price"],
+            "stop_loss": r["stop_loss"],
+            "take_profit": r["take_profit"],
+            "signals": json.loads(r["signals_json"] or "[]"),
+            "rationale": r["rationale"],
+            "status": r["status"],
+            "rejection_reason": r["rejection_reason"],
+            "created_at": r["created_at"],
+            "expires_at": r["expires_at"],
+        } for r in rows], "count": len(rows)})
+    except sqlite3.OperationalError:
+        return jsonify({"proposals": [], "count": 0})
+
+
+# ── POST /api/v1/orgs/<slug>/proposals ────────────────────────────────────
+
+@app.route("/api/v1/orgs/<slug>/proposals", methods=["POST"])
+@login_required
+def dashboard_submit_proposal(slug):
+    """Submit a new trade proposal."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+
+    data = request.get_json(silent=True) or {}
+    pair = (data.get("pair") or "").strip().upper()
+    side = (data.get("side") or "").strip().upper()
+    size = data.get("size")
+    confidence = data.get("confidence")
+    rationale = (data.get("rationale") or "").strip()
+    agent_id = data.get("agent_id")
+
+    if not pair:
+        return jsonify({"error": "pair is required"}), 400
+    if side not in ("BUY", "SELL"):
+        return jsonify({"error": "side must be BUY or SELL"}), 400
+    if confidence is None or not (0 <= float(confidence) <= 1):
+        return jsonify({"error": "confidence must be between 0 and 1"}), 400
+
+    db = get_db()
+    try:
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS trade_proposals ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "org_id INTEGER NOT NULL, "
+            "agent_id INTEGER NOT NULL, "
+            "pair TEXT NOT NULL, "
+            "direction TEXT NOT NULL, "
+            "confidence REAL NOT NULL, "
+            "proposed_size_usd REAL, "
+            "entry_price REAL, "
+            "stop_loss REAL, "
+            "take_profit REAL, "
+            "signals_json TEXT, "
+            "rationale TEXT, "
+            "status TEXT DEFAULT 'pending', "
+            "rejection_reason TEXT, "
+            "executed_order_id TEXT, "
+            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+            "expires_at TIMESTAMP, "
+            "FOREIGN KEY (org_id) REFERENCES organizations(id))"
+        )
+        # Use agent_id 0 if none provided (manual proposal)
+        effective_agent_id = agent_id if agent_id else 0
+        cur = db.execute(
+            "INSERT INTO trade_proposals "
+            "(org_id, agent_id, pair, direction, confidence, proposed_size_usd, "
+            "entry_price, stop_loss, take_profit, signals_json, rationale) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (org["id"], effective_agent_id, pair, side, float(confidence),
+             float(size) if size else None,
+             data.get("entry_price"), data.get("stop_loss"), data.get("take_profit"),
+             json.dumps(data.get("signals") or []), rationale)
+        )
+        db.commit()
+        return jsonify({
+            "id": cur.lastrowid,
+            "pair": pair,
+            "direction": side,
+            "confidence": float(confidence),
+            "status": "pending",
+            "created_at": datetime.utcnow().isoformat(),
+        }), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── PUT /api/v1/orgs/<slug>/proposals/<proposal_id>/review ────────────────
+
+@app.route("/api/v1/orgs/<slug>/proposals/<int:proposal_id>/review", methods=["PUT"])
+@login_required
+def dashboard_review_proposal(slug, proposal_id):
+    """Review (approve/reject) a trade proposal."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    if membership["role"] not in ("owner", "admin"):
+        return jsonify({"error": "Only owners and admins can review proposals"}), 403
+
+    data = request.get_json(silent=True) or {}
+    decision = (data.get("decision") or "").strip().lower()
+    reviewer_notes = (data.get("reviewer_notes") or data.get("notes") or "").strip()
+
+    if decision not in ("approved", "rejected"):
+        return jsonify({"error": "decision must be approved or rejected"}), 400
+
+    db = get_db()
+    try:
+        proposal = db.execute(
+            "SELECT id, status FROM trade_proposals WHERE id = ? AND org_id = ?",
+            (proposal_id, org["id"])
+        ).fetchone()
+        if not proposal:
+            return jsonify({"error": "Proposal not found in this organization"}), 404
+        if proposal["status"] != "pending":
+            return jsonify({"error": f"Proposal already {proposal['status']}"}), 409
+
+        db.execute(
+            "UPDATE trade_proposals SET status = ?, rejection_reason = ? WHERE id = ?",
+            (decision, reviewer_notes if decision == "rejected" else None, proposal_id)
+        )
+        db.commit()
+        return jsonify({
+            "status": "reviewed",
+            "proposal_id": proposal_id,
+            "decision": decision,
+            "reviewer_notes": reviewer_notes,
+        })
+    except sqlite3.OperationalError:
+        return jsonify({"error": "Proposals table not initialized"}), 500
+
+
+# ── GET /api/v1/orgs/<slug>/risk-policy ───────────────────────────────────
+
+@app.route("/api/v1/orgs/<slug>/risk-policy")
+@login_required
+def dashboard_get_risk_policy(slug):
+    """Get risk policy for an org."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    db = get_db()
+    try:
+        row = db.execute(
+            "SELECT * FROM org_risk_policies WHERE org_id = ?", (org["id"],)
+        ).fetchone()
+        if not row:
+            return jsonify({"risk_policy": {
+                "risk_profile": "moderate",
+                "max_daily_loss_pct": 3.0,
+                "max_position_pct": 5.0,
+                "max_trade_usd": 1000.0,
+                "min_confidence": 0.70,
+                "min_confirming_signals": 2,
+                "allowed_pairs": [],
+            }})
+        return jsonify({"risk_policy": {
+            "risk_profile": row["risk_profile"],
+            "max_daily_loss_pct": row["max_daily_loss_pct"],
+            "max_position_pct": row["max_position_pct"],
+            "max_trade_usd": row["max_trade_usd"],
+            "min_confidence": row["min_confidence"],
+            "min_confirming_signals": row["min_confirming_signals"],
+            "allowed_pairs": json.loads(row["allowed_pairs_json"] or "[]"),
+            "updated_at": row["updated_at"],
+        }})
+    except sqlite3.OperationalError:
+        return jsonify({"risk_policy": {
+            "risk_profile": "moderate",
+            "max_daily_loss_pct": 3.0,
+            "max_position_pct": 5.0,
+            "max_trade_usd": 1000.0,
+            "min_confidence": 0.70,
+            "min_confirming_signals": 2,
+            "allowed_pairs": [],
+        }})
+
+
+# ── PUT /api/v1/orgs/<slug>/risk-policy ───────────────────────────────────
+
+@app.route("/api/v1/orgs/<slug>/risk-policy", methods=["PUT"])
+@login_required
+def dashboard_update_risk_policy(slug):
+    """Update risk policy for an org."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    if membership["role"] not in ("owner", "admin"):
+        return jsonify({"error": "Only owners and admins can update risk policy"}), 403
+
+    data = request.get_json(silent=True) or {}
+    db = get_db()
+
+    # If a preset is specified, merge its values
+    profile = data.get("risk_profile")
+    if profile and profile in RISK_PRESETS:
+        preset = RISK_PRESETS[profile]
+        for k, v in preset.items():
+            data.setdefault(k, v)
+
+    updates = []
+    params = []
+    field_map = {
+        "risk_profile": "risk_profile",
+        "max_daily_loss_pct": "max_daily_loss_pct",
+        "max_position_pct": "max_position_pct",
+        "max_trade_usd": "max_trade_usd",
+        "min_confidence": "min_confidence",
+        "min_confirming_signals": "min_confirming_signals",
+        "allowed_pairs": "allowed_pairs_json",
+    }
+    for key, col in field_map.items():
+        if key in data:
+            val = data[key]
+            if col == "allowed_pairs_json":
+                val = json.dumps(val)
+            updates.append(f"{col} = ?")
+            params.append(val)
+
+    if not updates:
+        return jsonify({"error": "Nothing to update"}), 400
+
+    try:
+        updates.append("updated_at = CURRENT_TIMESTAMP")
+        params.append(org["id"])
+        db.execute(
+            f"UPDATE org_risk_policies SET {', '.join(updates)} WHERE org_id = ?",
+            params
+        )
+        db.commit()
+        return jsonify({"status": "updated", "risk_profile": profile or "custom"})
+    except sqlite3.OperationalError:
+        return jsonify({"error": "Risk policy table not initialized"}), 500
+
+
+# ── GET /api/v1/orgs/<slug>/aum ───────────────────────────────────────────
+
+@app.route("/api/v1/orgs/<slug>/aum")
+@login_required
+def dashboard_get_aum(slug):
+    """Get AUM snapshots with high water mark."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    db = get_db()
+    try:
+        days = min(int(request.args.get("days", 30)), 365)
+        rows = db.execute(
+            "SELECT id, total_aum_usd, high_water_mark_usd, gains_above_hwm, recorded_at "
+            "FROM org_aum_snapshots WHERE org_id = ? "
+            "AND recorded_at > datetime('now', ?) "
+            "ORDER BY recorded_at ASC",
+            (org["id"], f"-{days} days")
+        ).fetchall()
+        history = [{
+            "total_aum_usd": r["total_aum_usd"],
+            "high_water_mark_usd": r["high_water_mark_usd"],
+            "gains_above_hwm": r["gains_above_hwm"],
+            "recorded_at": r["recorded_at"],
+        } for r in rows]
+        return jsonify({
+            "org_id": org["id"],
+            "history": history,
+            "current": history[-1] if history else None,
+            "data_points": len(history),
+        })
+    except sqlite3.OperationalError:
+        # Table doesn't exist yet — create it and return empty
+        try:
+            db.execute(
+                "CREATE TABLE IF NOT EXISTS org_aum_snapshots ("
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "org_id INTEGER NOT NULL, "
+                "total_aum_usd REAL DEFAULT 0.0, "
+                "high_water_mark_usd REAL DEFAULT 0.0, "
+                "gains_above_hwm REAL DEFAULT 0.0, "
+                "recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "FOREIGN KEY (org_id) REFERENCES organizations(id))"
+            )
+            db.commit()
+        except Exception:
+            pass
+        return jsonify({"org_id": org["id"], "history": [], "current": None, "data_points": 0})
+
+
+# ── GET /api/v1/orgs/<slug>/fees ──────────────────────────────────────────
+
+@app.route("/api/v1/orgs/<slug>/fees")
+@login_required
+def dashboard_get_fees(slug):
+    """Get fee/invoice history for an org."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    db = get_db()
+    try:
+        limit = min(int(request.args.get("limit", 12)), 100)
+        rows = db.execute(
+            "SELECT id, invoice_type, period_start, period_end, amount_usd, "
+            "calculation_json, status, created_at, paid_at "
+            "FROM fee_invoices WHERE org_id = ? "
+            "ORDER BY created_at DESC LIMIT ?",
+            (org["id"], limit)
+        ).fetchall()
+        return jsonify({"invoices": [{
+            "id": r["id"],
+            "invoice_type": r["invoice_type"],
+            "period_start": r["period_start"],
+            "period_end": r["period_end"],
+            "amount_usd": r["amount_usd"],
+            "calculation": json.loads(r["calculation_json"] or "{}"),
+            "status": r["status"],
+            "created_at": r["created_at"],
+            "paid_at": r["paid_at"],
+        } for r in rows], "count": len(rows)})
+    except sqlite3.OperationalError:
+        # Table doesn't exist yet — create it and return empty
+        try:
+            db.execute(
+                "CREATE TABLE IF NOT EXISTS fee_invoices ("
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "org_id INTEGER NOT NULL, "
+                "invoice_type TEXT NOT NULL, "
+                "period_start TIMESTAMP, "
+                "period_end TIMESTAMP, "
+                "amount_usd REAL DEFAULT 0.0, "
+                "calculation_json TEXT, "
+                "stripe_invoice_id TEXT, "
+                "status TEXT DEFAULT 'draft', "
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "paid_at TIMESTAMP, "
+                "FOREIGN KEY (org_id) REFERENCES organizations(id))"
+            )
+            db.commit()
+        except Exception:
+            pass
+        return jsonify({"invoices": [], "count": 0})
+
+
+# ── POST /api/v1/orgs/<slug>/fees/preview ─────────────────────────────────
+
+_TIER_FEE_SCHEDULE = {
+    "free":           {"subscription_usd": 0,      "management_pct": 0.0,  "performance_pct": 0.0},
+    "pro":            {"subscription_usd": 249,     "management_pct": 1.0,  "performance_pct": 10.0},
+    "enterprise":     {"subscription_usd": 2499,    "management_pct": 1.5,  "performance_pct": 15.0},
+    "enterprise_pro": {"subscription_usd": 50000,   "management_pct": 2.0,  "performance_pct": 20.0},
+    "government":     {"subscription_usd": 500000,  "management_pct": 2.0,  "performance_pct": 20.0},
+}
+
+
+@app.route("/api/v1/orgs/<slug>/fees/preview", methods=["POST"])
+@login_required
+def dashboard_preview_fee(slug):
+    """Preview next fee calculation (subscription + performance + management)."""
+    org, membership, err = _resolve_org_for_slug(slug)
+    if err:
+        return err
+    db = get_db()
+    try:
+        tier = org["tier"] or "free"
+        schedule = _TIER_FEE_SCHEDULE.get(tier, _TIER_FEE_SCHEDULE["free"])
+
+        # Get latest AUM snapshot
+        aum_row = db.execute(
+            "SELECT total_aum_usd, high_water_mark_usd, gains_above_hwm "
+            "FROM org_aum_snapshots WHERE org_id = ? ORDER BY recorded_at DESC LIMIT 1",
+            (org["id"],)
+        ).fetchone()
+
+        total_aum = aum_row["total_aum_usd"] if aum_row else 0.0
+        gains_above_hwm = aum_row["gains_above_hwm"] if aum_row else 0.0
+
+        subscription_fee = schedule["subscription_usd"]
+        management_fee = round(total_aum * (schedule["management_pct"] / 100.0) / 12, 2)
+        performance_fee = round(max(0, gains_above_hwm) * (schedule["performance_pct"] / 100.0), 2)
+        total_fee = round(subscription_fee + management_fee + performance_fee, 2)
+
+        return jsonify({
+            "tier": tier,
+            "period": "monthly",
+            "subscription_fee_usd": subscription_fee,
+            "management_fee_usd": management_fee,
+            "performance_fee_usd": performance_fee,
+            "total_fee_usd": total_fee,
+            "calculation": {
+                "aum_usd": total_aum,
+                "gains_above_hwm_usd": gains_above_hwm,
+                "management_rate_pct": schedule["management_pct"],
+                "performance_rate_pct": schedule["performance_pct"],
+            },
+        })
+    except sqlite3.OperationalError:
+        # No AUM data yet — return zero fees
+        tier = org["tier"] or "free"
+        schedule = _TIER_FEE_SCHEDULE.get(tier, _TIER_FEE_SCHEDULE["free"])
+        return jsonify({
+            "tier": tier,
+            "period": "monthly",
+            "subscription_fee_usd": schedule["subscription_usd"],
+            "management_fee_usd": 0.0,
+            "performance_fee_usd": 0.0,
+            "total_fee_usd": float(schedule["subscription_usd"]),
+            "calculation": {
+                "aum_usd": 0.0,
+                "gains_above_hwm_usd": 0.0,
+                "management_rate_pct": schedule["management_pct"],
+                "performance_rate_pct": schedule["performance_pct"],
+            },
+        })
+
+
+# ── GET /api/v1/marketplace/leaderboard ───────────────────────────────────
+
+@app.route("/api/v1/marketplace/leaderboard")
+@login_required
+def marketplace_leaderboard():
+    """Agent leaderboard across all orgs — ranked by performance."""
+    db = get_db()
+    try:
+        limit = min(int(request.args.get("limit", 25)), 100)
+        rows = db.execute(
+            "SELECT a.id, a.agent_name, a.agent_type, a.status, a.pipeline_stage, "
+            "a.trades_total, a.wins, a.losses, a.total_pnl, a.sharpe_ratio, "
+            "a.max_drawdown, a.last_active, o.name as org_name, o.slug as org_slug "
+            "FROM agent_registrations a "
+            "JOIN organizations o ON a.org_id = o.id "
+            "WHERE a.status = 'active' AND a.trades_total > 0 "
+            "ORDER BY a.sharpe_ratio DESC, a.total_pnl DESC "
+            "LIMIT ?",
+            (limit,)
+        ).fetchall()
+        return jsonify({"leaderboard": [{
+            "rank": idx + 1,
+            "agent_id": r["id"],
+            "agent_name": r["agent_name"],
+            "agent_type": r["agent_type"],
+            "pipeline_stage": r["pipeline_stage"],
+            "trades_total": r["trades_total"],
+            "wins": r["wins"],
+            "losses": r["losses"],
+            "win_rate": round(r["wins"] / r["trades_total"] * 100, 1) if r["trades_total"] > 0 else 0,
+            "total_pnl": r["total_pnl"],
+            "sharpe_ratio": r["sharpe_ratio"],
+            "max_drawdown": r["max_drawdown"],
+            "last_active": r["last_active"],
+            "org_name": r["org_name"],
+            "org_slug": r["org_slug"],
+        } for idx, r in enumerate(rows)], "count": len(rows)})
+    except sqlite3.OperationalError:
+        return jsonify({"leaderboard": [], "count": 0})
+
+
+# ── GET /api/v1/meta-engine/status ────────────────────────────────────────
+
+@app.route("/api/v1/meta-engine/status")
+@login_required
+def meta_engine_status():
+    """Meta-engine status — reads from agent status files or DB."""
+    result = {
+        "status": "unknown",
+        "agents": [],
+        "predictions": [],
+        "cycle_count": 0,
+        "last_updated": None,
+    }
+
+    # Try reading from meta_engine.db
+    meta_db_path = AGENT_DATA_DIR / "meta_engine.db"
+    if meta_db_path.exists():
+        try:
+            conn = sqlite3.connect(str(meta_db_path))
+            conn.row_factory = sqlite3.Row
+
+            # Agent pool
+            agents = conn.execute(
+                "SELECT name, strategy, status, sharpe, total_pnl, trades, wins "
+                "FROM agents ORDER BY sharpe DESC LIMIT 50"
+            ).fetchall()
+            result["agents"] = [{
+                "name": a["name"],
+                "strategy": a["strategy"],
+                "status": a["status"],
+                "sharpe": a["sharpe"],
+                "total_pnl": a["total_pnl"],
+                "trades": a["trades"],
+                "wins": a["wins"],
+            } for a in agents]
+
+            # Predictions / paper trades
+            try:
+                preds = conn.execute(
+                    "SELECT pair, direction, confidence, entry_price, created_at "
+                    "FROM predictions ORDER BY created_at DESC LIMIT 20"
+                ).fetchall()
+                result["predictions"] = [{
+                    "pair": p["pair"],
+                    "direction": p["direction"],
+                    "confidence": p["confidence"],
+                    "entry_price": p["entry_price"],
+                    "created_at": p["created_at"],
+                } for p in preds]
+            except sqlite3.OperationalError:
+                pass  # predictions table may not exist
+
+            # Cycle count
+            try:
+                cycle_row = conn.execute(
+                    "SELECT MAX(cycle) as max_cycle FROM evolution_log"
+                ).fetchone()
+                if cycle_row and cycle_row["max_cycle"]:
+                    result["cycle_count"] = cycle_row["max_cycle"]
+            except sqlite3.OperationalError:
+                pass
+
+            conn.close()
+            result["status"] = "running"
+            result["last_updated"] = datetime.utcnow().isoformat()
+
+        except Exception as e:
+            result["status"] = "error"
+            result["error"] = str(e)
+    else:
+        # Fallback: try reading flywheel_status.json
+        flywheel_path = AGENT_DATA_DIR / "flywheel_status.json"
+        if flywheel_path.exists():
+            try:
+                with open(flywheel_path) as f:
+                    fw = json.load(f)
+                result["status"] = fw.get("status", "running")
+                result["cycle_count"] = fw.get("cycle_count", 0)
+                result["last_updated"] = fw.get("last_updated")
+            except Exception:
+                pass
+        else:
+            result["status"] = "not_started"
+
+    return jsonify(result)
 
 
 @app.route("/api/realtime-performance")

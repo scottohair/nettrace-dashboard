@@ -215,9 +215,30 @@ async function refreshData() {
 }
 
 // ── Ticker ─────────────────────────────────────────────────────────────
+let _tickerPairsInitialized = false;
+
 async function fetchTicker() {
   const tickerBar = document.getElementById('tickerBar');
   if (!tickerBar) return;
+
+  // On the first ticker fetch, try to get live holdings from the trading
+  // data endpoint so the ticker reflects actual positions rather than
+  // only the hardcoded fallback list.
+  if (!_tickerPairsInitialized) {
+    _tickerPairsInitialized = true;
+    try {
+      const qs = currentOrgSlug ? '?org_slug=' + encodeURIComponent(currentOrgSlug) : '';
+      const td = await api('/api/trading-data' + qs);
+      if (!td.error && td.holdings && Object.keys(td.holdings).length > 0) {
+        const holdingPairs = Object.keys(td.holdings)
+          .filter(function(k) { return k !== 'USD' && k !== 'USDC'; })
+          .map(function(k) { return k + '-USD'; });
+        if (holdingPairs.length > 0) {
+          tradedPairs = [...new Set([...holdingPairs, ...tradedPairs])];
+        }
+      }
+    } catch (e) { /* use existing hardcoded pairs */ }
+  }
 
   const results = [];
   for (const pair of tradedPairs) {
