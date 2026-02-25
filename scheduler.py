@@ -153,18 +153,21 @@ class ContinuousScanner:
                                      "ip": None, "rtt_ms": None})
         return hops
 
-    def _geolocate_ip(self, ip):
+    def _geolocate_ip(self, ip, include_fetch_meta=False):
         """Geolocate an IP, using cache first."""
         if not ip:
-            return None
+            return (None, False) if include_fetch_meta else None
         for prefix in ("10.", "192.168.", "172.16.", "172.17.", "172.18.",
                         "172.19.", "172.2", "172.30.", "172.31.", "127."):
             if ip.startswith(prefix):
-                return None
+                return (None, False) if include_fetch_meta else None
         with GEO_LOCK:
             if ip in GEO_CACHE:
-                return GEO_CACHE[ip]
+                cached = GEO_CACHE[ip]
+                return (cached, False) if include_fetch_meta else cached
+        fetched = False
         try:
+            fetched = True
             url = f"http://ip-api.com/json/{ip}?fields=status,country,regionName,city,lat,lon,isp,org,as"
             req = urllib.request.Request(url, headers={"User-Agent": "NetTrace/1.0"})
             with urllib.request.urlopen(req, timeout=5) as resp:
@@ -180,10 +183,10 @@ class ContinuousScanner:
                 with GEO_LOCK:
                     GEO_CACHE[ip] = geo
                 self._save_geo(ip, geo)
-                return geo
+                return (geo, True) if include_fetch_meta else geo
         except Exception:
             pass
-        return None
+        return (None, fetched) if include_fetch_meta else None
 
     def _compute_route_hash(self, hops):
         """SHA256 of the IP sequence for route change detection."""
@@ -201,22 +204,28 @@ class ContinuousScanner:
         return hops
 
     def _scan_target(self, target):
-        """Scan a single target and record metrics."""
+        """Scan a single target and return computed metrics + hops."""
         host = target["host"]
         name = target["name"]
         category = target["category"]
 
         hops = self._run_traceroute(host)
         if not hops:
-            return
+            return None
 
-        # Geolocate IPs (with rate limiting)
+        # Geolocate by unique IP: cache hits are instant, only fetched misses are rate-limited.
+        geo_by_ip = {}
         for h in hops:
-            if h.get("ip"):
-                h["geo"] = self._geolocate_ip(h["ip"])
-                time.sleep(0.1)  # rate limit geo API
-            else:
-                h["geo"] = None
+            ip = h.get("ip")
+            if not ip or ip in geo_by_ip:
+                continue
+            geo, fetched = self._geolocate_ip(ip, include_fetch_meta=True)
+            geo_by_ip[ip] = geo
+            if fetched:
+                time.sleep(0.1)
+        for h in hops:
+            ip = h.get("ip")
+            h["geo"] = geo_by_ip.get(ip) if ip else None
 
         # Sanitize first hops
         hops = self._sanitize_hops(hops)
@@ -238,78 +247,121 @@ class ContinuousScanner:
         hop_count = len(hops)
         route_hash = self._compute_route_hash(hops)
 
+        return {
+            "host": host,
+            "name": name,
+            "category": category,
+            "hops": hops,
+            "total_rtt": total_rtt,
+            "hop_count": hop_count,
+            "first_hop_rtt": first_hop_rtt,
+            "last_hop_rtt": last_hop_rtt,
+            "route_hash": route_hash,
+        }
+
+    def _record_scan_result(self, db, result):
+        """Persist one computed scan result (transaction managed by caller)."""
+        host = result["host"]
+        name = result["name"]
+        category = result["category"]
+        hops = result["hops"]
+        total_rtt = result["total_rtt"]
+        hop_count = result["hop_count"]
+        first_hop_rtt = result["first_hop_rtt"]
+        last_hop_rtt = result["last_hop_rtt"]
+        route_hash = result["route_hash"]
+
+        cur = db.execute(
+            """INSERT INTO scan_metrics (target_host, target_name, category, total_rtt,
+               hop_count, first_hop_rtt, last_hop_rtt, route_hash, scan_source)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'auto')""",
+            (host, name, category, total_rtt, hop_count, first_hop_rtt, last_hop_rtt, route_hash)
+        )
+        metric_id = cur.lastrowid
+
+        # Track scan count for snapshot decisions.
+        self.scan_counts[host] = self.scan_counts.get(host, 0) + 1
+
+        prev = db.execute(
+            "SELECT route_hash, id FROM scan_metrics WHERE target_host = ? AND id < ? ORDER BY id DESC LIMIT 1",
+            (host, metric_id)
+        ).fetchone()
+        route_changed = prev and prev["route_hash"] != route_hash
+        should_snapshot = route_changed or (self.scan_counts[host] % SNAPSHOT_EVERY == 0)
+
+        if route_changed:
+            rtt_delta = None
+            if total_rtt and prev:
+                prev_rtt_row = db.execute(
+                    "SELECT total_rtt FROM scan_metrics WHERE id = ?", (prev["id"],)
+                ).fetchone()
+                if prev_rtt_row and prev_rtt_row["total_rtt"]:
+                    rtt_delta = total_rtt - prev_rtt_row["total_rtt"]
+
+            db.execute(
+                """INSERT INTO route_changes (target_host, target_name, old_route_hash,
+                   new_route_hash, new_hops_json, rtt_delta)
+                   VALUES (?, ?, ?, ?, ?, ?)""",
+                (host, name, prev["route_hash"], route_hash,
+                 json.dumps([{"hop": h["hop"], "ip": h.get("ip"), "host": h.get("host"),
+                              "rtt_ms": h.get("rtt_ms")} for h in hops]),
+                 rtt_delta)
+            )
+            logger.info("Route change detected for %s (%s) rtt_delta=%.1f",
+                        name, host, rtt_delta or 0)
+
+        if should_snapshot:
+            db.execute(
+                "INSERT INTO scan_snapshots (metric_id, hops_json) VALUES (?, ?)",
+                (metric_id, json.dumps([{
+                    "hop": h["hop"], "ip": h.get("ip"), "host": h.get("host"),
+                    "rtt_ms": h.get("rtt_ms"),
+                    "geo": h.get("geo")
+                } for h in hops]))
+            )
+
+        if self.socketio:
+            self.socketio.emit("latency_update", {
+                "host": host,
+                "name": name,
+                "category": category,
+                "total_rtt": total_rtt,
+                "hop_count": hop_count,
+                "route_hash": route_hash,
+                "route_changed": route_changed,
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }, namespace="/api/v1/stream")
+
+    def _persist_scan_batch(self, scan_results):
+        """Persist one cycle of scan results with a single DB connect/commit."""
+        if not scan_results:
+            return
         db = sqlite3.connect(DB_PATH)
         db.row_factory = sqlite3.Row
+        wrote_any = False
         try:
-            # Insert scan_metrics
-            cur = db.execute(
-                """INSERT INTO scan_metrics (target_host, target_name, category, total_rtt,
-                   hop_count, first_hop_rtt, last_hop_rtt, route_hash, scan_source)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'auto')""",
-                (host, name, category, total_rtt, hop_count, first_hop_rtt, last_hop_rtt, route_hash)
-            )
-            metric_id = cur.lastrowid
+            for result in scan_results:
+                db.execute("SAVEPOINT scan_target")
+                try:
+                    self._record_scan_result(db, result)
+                    db.execute("RELEASE SAVEPOINT scan_target")
+                    wrote_any = True
+                except Exception as e:
+                    try:
+                        db.execute("ROLLBACK TO SAVEPOINT scan_target")
+                        db.execute("RELEASE SAVEPOINT scan_target")
+                    except sqlite3.Error:
+                        pass
+                    logger.error("Error recording metrics for %s: %s", result.get("host", "?"), e)
 
-            # Track scan count for snapshot decisions
-            self.scan_counts[host] = self.scan_counts.get(host, 0) + 1
-
-            # Check for route change
-            prev = db.execute(
-                "SELECT route_hash, id FROM scan_metrics WHERE target_host = ? AND id < ? ORDER BY id DESC LIMIT 1",
-                (host, metric_id)
-            ).fetchone()
-
-            route_changed = prev and prev["route_hash"] != route_hash
-            should_snapshot = route_changed or (self.scan_counts[host] % SNAPSHOT_EVERY == 0)
-
-            if route_changed:
-                rtt_delta = None
-                if total_rtt and prev:
-                    prev_rtt_row = db.execute(
-                        "SELECT total_rtt FROM scan_metrics WHERE id = ?", (prev["id"],)
-                    ).fetchone()
-                    if prev_rtt_row and prev_rtt_row["total_rtt"]:
-                        rtt_delta = total_rtt - prev_rtt_row["total_rtt"]
-
-                db.execute(
-                    """INSERT INTO route_changes (target_host, target_name, old_route_hash,
-                       new_route_hash, new_hops_json, rtt_delta)
-                       VALUES (?, ?, ?, ?, ?, ?)""",
-                    (host, name, prev["route_hash"], route_hash,
-                     json.dumps([{"hop": h["hop"], "ip": h.get("ip"), "host": h.get("host"),
-                                  "rtt_ms": h.get("rtt_ms")} for h in hops]),
-                     rtt_delta)
-                )
-                logger.info("Route change detected for %s (%s) rtt_delta=%.1f",
-                            name, host, rtt_delta or 0)
-
-            if should_snapshot:
-                db.execute(
-                    "INSERT INTO scan_snapshots (metric_id, hops_json) VALUES (?, ?)",
-                    (metric_id, json.dumps([{
-                        "hop": h["hop"], "ip": h.get("ip"), "host": h.get("host"),
-                        "rtt_ms": h.get("rtt_ms"),
-                        "geo": h.get("geo")
-                    } for h in hops]))
-                )
-
-            db.commit()
-
-            # Emit real-time update via WebSocket
-            if self.socketio:
-                self.socketio.emit("latency_update", {
-                    "host": host,
-                    "name": name,
-                    "category": category,
-                    "total_rtt": total_rtt,
-                    "hop_count": hop_count,
-                    "route_hash": route_hash,
-                    "route_changed": route_changed,
-                    "timestamp": datetime.now(timezone.utc).isoformat()
-                }, namespace="/api/v1/stream")
-
+            if wrote_any:
+                db.commit()
         except Exception as e:
-            logger.error("Error recording metrics for %s: %s", host, e)
+            try:
+                db.rollback()
+            except sqlite3.Error:
+                pass
+            logger.error("Batch persistence error: %s", e)
         finally:
             db.close()
 
@@ -326,15 +378,20 @@ class ContinuousScanner:
 
                 cycle_start = time.time()
                 logger.info("Starting scan cycle: %d targets", len(targets))
+                scan_results = []
 
                 for target in targets:
                     if not self.running:
                         break
                     try:
-                        self._scan_target(target)
+                        result = self._scan_target(target)
+                        if result:
+                            scan_results.append(result)
                     except Exception as e:
                         logger.error("Error scanning %s: %s", target["host"], e)
                     time.sleep(SCAN_STAGGER)
+
+                self._persist_scan_batch(scan_results)
 
                 cycle_duration = time.time() - cycle_start
                 logger.info("Scan cycle complete in %.0fs", cycle_duration)
@@ -393,15 +450,20 @@ class ContinuousScanner:
                 cycle_start = time.time()
                 logger.info("Crypto priority scan: %d targets (region=%s)",
                             len(priority_targets), FLY_REGION)
+                scan_results = []
 
                 for target in priority_targets:
                     if not self.running:
                         break
                     try:
-                        self._scan_target(target)
+                        result = self._scan_target(target)
+                        if result:
+                            scan_results.append(result)
                     except Exception as e:
                         logger.error("Crypto scan error %s: %s", target["host"], e)
                     time.sleep(max(2, SCAN_STAGGER // 2))  # tighter stagger for priority
+
+                self._persist_scan_batch(scan_results)
 
                 cycle_duration = time.time() - cycle_start
                 logger.info("Crypto priority scan complete in %.0fs (%d targets)",

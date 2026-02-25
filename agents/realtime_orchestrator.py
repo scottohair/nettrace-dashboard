@@ -38,6 +38,15 @@ import urllib.request
 # Shared signal bridge for creative agents
 from creative_agent_bridge import CreativeAgentBridge
 
+try:
+    from execution_telemetry import venue_health_snapshot as _venue_health_snapshot
+except Exception:
+    try:
+        from agents.execution_telemetry import venue_health_snapshot as _venue_health_snapshot  # type: ignore
+    except Exception:
+        def _venue_health_snapshot(*_args, **_kwargs):
+            return {}
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 # Load .env
@@ -185,6 +194,23 @@ URGENCY_PRIORITIES = {
 # Regions for cross-region arbitrage
 REGIONS = ["ewr", "ord", "lhr", "fra", "nrt", "sin", "bom"]
 
+# Venue-aware locality preferences (NY/NJ safe bias for US venues when latency is similar)
+ORCH_NYNJ_PREFERENCE_ENABLED = os.environ.get("ORCH_NYNJ_PREFERENCE_ENABLED", "1").lower() in ("1", "true", "yes")
+ORCH_NYNJ_HOME_REGION = os.environ.get("ORCH_NYNJ_HOME_REGION", "ewr").strip().lower() or "ewr"
+ORCH_NYNJ_TIE_MS = float(os.environ.get("ORCH_NYNJ_TIE_MS", "5.0"))
+ORCH_ROUTE_VENUE_PENALTY_MS = float(os.environ.get("ORCH_ROUTE_VENUE_PENALTY_MS", "12.0"))
+
+# Quantitative rollout gate (aggressive rollout behind validation metrics)
+ORCH_ROLLOUT_ENABLED = os.environ.get("ORCH_ROLLOUT_ENABLED", "1").lower() in ("1", "true", "yes")
+ORCH_ROLLOUT_MODE = (os.environ.get("ORCH_ROLLOUT_MODE", "aggressive") or "aggressive").strip().lower()
+ORCH_ROLLOUT_MIN_MULT = float(os.environ.get("ORCH_ROLLOUT_MIN_MULT", "0.50"))
+ORCH_ROLLOUT_MAX_MULT = float(os.environ.get("ORCH_ROLLOUT_MAX_MULT", "1.75"))
+ORCH_ROLLOUT_MIN_RECENT_TRADES = int(os.environ.get("ORCH_ROLLOUT_MIN_RECENT_TRADES", "8"))
+ORCH_ROLLOUT_RECENT_WINDOW = int(os.environ.get("ORCH_ROLLOUT_RECENT_WINDOW", "30"))
+ORCH_ROLLOUT_API_SUCCESS_FLOOR = float(os.environ.get("ORCH_ROLLOUT_API_SUCCESS_FLOOR", "0.85"))
+ORCH_ROLLOUT_MIN_FILL_PER_ACK = float(os.environ.get("ORCH_ROLLOUT_MIN_FILL_PER_ACK", "0.05"))
+ORCH_ROLLOUT_MAX_BLOCKED_RATE = float(os.environ.get("ORCH_ROLLOUT_MAX_BLOCKED_RATE", "0.85"))
+
 
 class PerformanceTracker:
     """Real-time performance tracking: gains/second, gains/ms, gains/ns."""
@@ -327,6 +353,176 @@ class PerformanceTracker:
                 "trade_count": len(self.trade_history),
                 "cycle_count": len(self.cycle_history),
             }
+
+
+class AdaptiveRolloutGate:
+    """Scale order size using live validation metrics before aggressive rollout."""
+
+    def __init__(self, performance_tracker: PerformanceTracker):
+        self.performance_tracker = performance_tracker
+        self.exec_db_path = Path(__file__).parent / "execution_telemetry.db"
+        self._cache_ttl_s = max(0.5, float(os.environ.get("ORCH_ROLLOUT_CACHE_TTL_S", "3.0")))
+        self._cache = {}
+        self._last_snapshot = {
+            "multiplier": 1.0,
+            "reason": "init",
+            "recent": {},
+            "api_health": {},
+            "flow": {},
+        }
+
+    @staticmethod
+    def _clamp(value: float, low: float, high: float) -> float:
+        return max(low, min(high, value))
+
+    def _recent_trade_stats(self) -> Dict[str, float]:
+        with self.performance_tracker.lock:
+            recent = list(self.performance_tracker.trade_history[-max(1, ORCH_ROLLOUT_RECENT_WINDOW):])
+        if not recent:
+            return {
+                "count": 0,
+                "pnl_usd": 0.0,
+                "win_rate": 0.0,
+            }
+        pnl = float(sum(float(x.get("pnl_usd", 0.0) or 0.0) for x in recent))
+        wins = int(sum(1 for x in recent if float(x.get("pnl_usd", 0.0) or 0.0) > 0.0))
+        count = len(recent)
+        return {
+            "count": count,
+            "pnl_usd": round(pnl, 6),
+            "win_rate": round(float(wins) / max(1, count), 4),
+        }
+
+    def _order_flow_metrics(self, venue: str, window_minutes: int = 30) -> Dict[str, float]:
+        if not self.exec_db_path.exists():
+            return {"events": 0, "ack_ok": 0, "fills": 0, "blocked": 0, "fill_per_ack": 0.0, "blocked_rate": 0.0}
+        cutoff = time.time() - max(1, int(window_minutes)) * 60.0
+        conn = None
+        try:
+            conn = sqlite3.connect(str(self.exec_db_path), timeout=3.0)
+            row = conn.execute(
+                """
+                SELECT
+                    COUNT(*) AS events,
+                    SUM(CASE WHEN status='ACK_OK' THEN 1 ELSE 0 END) AS ack_ok,
+                    SUM(CASE WHEN status='FILLED' THEN 1 ELSE 0 END) AS fills,
+                    SUM(CASE WHEN status LIKE 'BLOCKED_%' THEN 1 ELSE 0 END) AS blocked
+                  FROM order_lifecycle_metrics
+                 WHERE created_at >= ?
+                   AND lower(venue) = ?
+                """,
+                (cutoff, str(venue or "").lower()),
+            ).fetchone()
+            events = int(row[0] or 0)
+            ack_ok = int(row[1] or 0)
+            fills = int(row[2] or 0)
+            blocked = int(row[3] or 0)
+            return {
+                "events": events,
+                "ack_ok": ack_ok,
+                "fills": fills,
+                "blocked": blocked,
+                "fill_per_ack": round(float(fills) / max(1, ack_ok), 4),
+                "blocked_rate": round(float(blocked) / max(1, events), 4),
+            }
+        except Exception:
+            return {"events": 0, "ack_ok": 0, "fills": 0, "blocked": 0, "fill_per_ack": 0.0, "blocked_rate": 0.0}
+        finally:
+            if conn is not None:
+                with contextlib.suppress(Exception):
+                    conn.close()
+
+    def multiplier(self, signal: Dict, venue: str = "coinbase") -> Tuple[float, Dict]:
+        if not ORCH_ROLLOUT_ENABLED:
+            meta = {"multiplier": 1.0, "reason": "disabled"}
+            self._last_snapshot = meta
+            return 1.0, meta
+
+        now = time.time()
+        venue_name = str(venue or "coinbase").strip().lower()
+        cached = self._cache.get(venue_name, {})
+        cached_ts = float(cached.get("ts", 0.0) or 0.0)
+        if cached and (now - cached_ts) < self._cache_ttl_s:
+            mult = float(cached.get("mult", 1.0) or 1.0)
+            meta = dict(cached.get("meta", {"multiplier": mult, "reason": "cache"}))
+            self._last_snapshot = meta
+            return mult, meta
+
+        recent = self._recent_trade_stats()
+        api_health = _venue_health_snapshot(venue_name, window_minutes=30) or {}
+        flow = self._order_flow_metrics(venue=venue_name, window_minutes=30)
+
+        api_success = float(api_health.get("success_rate", 0.0) or 0.0)
+        api_samples = int(api_health.get("samples", 0) or 0)
+
+        mult = 1.0
+        reason_parts = []
+
+        if recent["count"] < ORCH_ROLLOUT_MIN_RECENT_TRADES:
+            mult = min(mult, 0.65)  # canary sizing until we collect enough samples
+            reason_parts.append("warmup_canary")
+
+        if recent["count"] >= ORCH_ROLLOUT_MIN_RECENT_TRADES:
+            if recent["pnl_usd"] > 0:
+                mult *= 1.10
+                reason_parts.append("recent_pnl_positive")
+            else:
+                mult *= 0.70
+                reason_parts.append("recent_pnl_nonpositive")
+
+            if recent["win_rate"] >= 0.60:
+                mult *= 1.10
+                reason_parts.append("win_rate_strong")
+            elif recent["win_rate"] < 0.45:
+                mult *= 0.80
+                reason_parts.append("win_rate_weak")
+
+        if api_samples >= 20:
+            if api_success < ORCH_ROLLOUT_API_SUCCESS_FLOOR:
+                mult *= 0.50
+                reason_parts.append("api_health_weak")
+            elif api_success >= 0.95:
+                mult *= 1.10
+                reason_parts.append("api_health_strong")
+
+        if flow["events"] >= 20:
+            if flow["fill_per_ack"] < ORCH_ROLLOUT_MIN_FILL_PER_ACK:
+                mult *= 0.70
+                reason_parts.append("fill_rate_weak")
+            elif flow["fill_per_ack"] >= 0.20:
+                mult *= 1.10
+                reason_parts.append("fill_rate_strong")
+
+            if flow["blocked_rate"] > ORCH_ROLLOUT_MAX_BLOCKED_RATE:
+                mult *= 0.65
+                reason_parts.append("blocked_rate_high")
+
+        if ORCH_ROLLOUT_MODE != "aggressive":
+            mult = min(mult, 1.0)
+            reason_parts.append("non_aggressive_cap")
+
+        min_mult = max(0.05, ORCH_ROLLOUT_MIN_MULT)
+        max_mult = max(min_mult, ORCH_ROLLOUT_MAX_MULT)
+        mult = self._clamp(mult, min_mult, max_mult)
+
+        meta = {
+            "multiplier": round(mult, 4),
+            "reason": ",".join(reason_parts) if reason_parts else "neutral",
+            "venue": venue_name,
+            "recent": recent,
+            "api_health": {
+                "samples": api_samples,
+                "success_rate": round(api_success, 4),
+                "p90_latency_ms": float(api_health.get("p90_latency_ms", 0.0) or 0.0),
+            },
+            "flow": flow,
+        }
+        self._last_snapshot = meta
+        self._cache[venue_name] = {"ts": now, "mult": mult, "meta": dict(meta)}
+        return mult, meta
+
+    def snapshot(self) -> Dict:
+        return dict(self._last_snapshot)
 
 
 class SignalCollector:
@@ -637,26 +833,76 @@ class CrossRegionRouter:
     def __init__(self):
         self.region_latencies = {region: 100.0 for region in REGIONS}  # Default 100ms
         self.region_exchange_map = {
-            "ewr": ["coinbase", "kraken"],  # US exchanges primary
+            "ewr": ["coinbase", "kraken", "equity", "etrade", "ibkr", "nyse", "nasdaq", "cme"],  # NY/NJ-adjacent
             "lhr": ["kraken", "bitstamp"],  # Europe
             "nrt": ["bybit", "okx"],        # Asia
             "sin": ["binance", "okx"],      # SE Asia
             "fra": ["kraken", "bitstamp"],  # EU (Frankfurt)
-            "ord": ["coinbase"],            # US (Chicago)
+            "ord": ["coinbase", "equity", "ibkr", "cme"],  # US futures/equities backup
             "bom": ["binance", "okx"],      # India
         }
+        self.nynj_venues = {"coinbase", "kraken", "equity", "etrade", "ibkr", "nyse", "nasdaq", "cme"}
 
     def update_latencies(self, latencies: Dict[str, float]):
         """Update region latency measurements."""
         self.region_latencies.update(latencies)
+
+    @staticmethod
+    def _normalize_venue(value: str) -> str:
+        v = str(value or "").strip().lower()
+        if not v:
+            return ""
+        if v in {"kraken_stock", "kraken_stocks"}:
+            return "equity"
+        return v
+
+    def _infer_venue(self, signal: Dict) -> str:
+        hint = self._normalize_venue(signal.get("venue_hint", ""))
+        if hint:
+            return hint
+        market_type = str(signal.get("market_type", "")).strip().lower()
+        if market_type == "equity":
+            return "equity"
+        pair = str(signal.get("pair", "")).upper()
+        # FX pairs often use XXX/YYY notation or end with major quote currencies.
+        if "/" in pair or pair.endswith(("-JPY", "-KRW", "-EUR", "-GBP", "-CHF")):
+            return "fx"
+        return "coinbase"
 
     def route_signal(self, signal: Dict, region_hint: Optional[str] = None) -> str:
         """Return optimal region for executing this signal."""
         if region_hint and region_hint in REGIONS:
             return region_hint
 
-        # Route to region with lowest latency by default
-        return min(self.region_latencies, key=self.region_latencies.get)
+        venue = self._infer_venue(signal)
+        latencies = {
+            r: float(self.region_latencies.get(r, 100.0) or 100.0)
+            for r in REGIONS
+        }
+        best_latency = min(latencies.values()) if latencies else 100.0
+
+        best_region = None
+        best_score = float("inf")
+        for region in REGIONS:
+            score = latencies[region]
+            supported = venue in self.region_exchange_map.get(region, [])
+            if venue and not supported:
+                score += ORCH_ROUTE_VENUE_PENALTY_MS
+
+            # If NY/NJ preference is enabled, prefer EWR for US venues when latency is close.
+            if (
+                ORCH_NYNJ_PREFERENCE_ENABLED
+                and venue in self.nynj_venues
+                and region == ORCH_NYNJ_HOME_REGION
+                and (latencies[region] - best_latency) <= ORCH_NYNJ_TIE_MS
+            ):
+                score -= ORCH_NYNJ_TIE_MS
+
+            if score < best_score:
+                best_score = score
+                best_region = region
+
+        return best_region or min(self.region_latencies, key=self.region_latencies.get)
 
     def batch_route(self, scored_signals: List[Tuple[str, Dict, float]]) -> Dict[str, List[Tuple[str, Dict, float]]]:
         """Route all signals to optimal regions."""
@@ -781,6 +1027,7 @@ class RealtimeOrchestrator:
         self.router = CrossRegionRouter()
         self.capital_manager = ContinuousCapitalManager()
         self.performance_tracker = PerformanceTracker()
+        self.rollout_gate = AdaptiveRolloutGate(self.performance_tracker)
         self.cycle_count = 0
         self.total_latency_ms = 0.0
         self.running = False
@@ -1093,9 +1340,16 @@ class RealtimeOrchestrator:
                 if self.cycle_count % log_interval == 0:
                     perf = self.performance_tracker.snapshot()
                     latency_info = ""
+                    rollout_info = ""
                     if self.latency_probe:
                         ls = self.latency_probe.snapshot()
                         latency_info = f" | CB latency: {ls['avg_latency_ms']:.1f}ms"
+                    if ORCH_ROLLOUT_ENABLED:
+                        rs = self.rollout_gate.snapshot()
+                        rollout_info = (
+                            f" | rollout x{float(rs.get('multiplier', 1.0) or 1.0):.2f}"
+                            f" [{str(rs.get('reason', 'neutral'))}]"
+                        )
                     logger.info(
                         f"Cycle {self.cycle_count} | "
                         f"Latency: {total_cycle_latency_ms:.2f}ms ({total_cycle_ns}ns) "
@@ -1107,6 +1361,7 @@ class RealtimeOrchestrator:
                         f"Peak-G/ms: ${perf['peak_gains_ms']:.10f} | "
                         f"R50-G/ms: ${perf['rolling_50_gains_ms']:.10f} | "
                         f"Total: ${perf['total_gains_usd']:.4f}"
+                        f"{rollout_info}"
                         f"{latency_info}"
                     )
 
@@ -1179,6 +1434,7 @@ class RealtimeOrchestrator:
                 direction = signal.get("direction", "HOLD").upper()
                 confidence = float(signal.get("confidence", 0.5))
                 theme = agent_name.split("_")[0] if agent_name else "unknown"
+                rollout_meta = {"multiplier": 1.0, "reason": "default"}
 
                 # Gather leverage ladder inputs from signal metadata
                 n_signals = max(1, int(signal.get("confirming_signals", 1)))
@@ -1245,6 +1501,14 @@ class RealtimeOrchestrator:
                         signal_weight = max(0.0, float(signal.get("v333_weight", 0.0) or 0.0))
                         size_multiplier = max(0.35, min(1.75, signal_weight * 5.0)) if signal_weight > 0 else 1.0
                         order_usd = base_order_usd * leverage * size_multiplier
+                        rollout_mult, rollout_meta = self.rollout_gate.multiplier(signal, venue="coinbase")
+                        if rollout_mult <= 0:
+                            logger.info(
+                                "Rollout gate blocked %s by %s (%s)",
+                                pair, agent_name, rollout_meta.get("reason", "blocked")
+                            )
+                            continue
+                        order_usd *= rollout_mult
 
                         # Get current price from trader
                         ticker = self.trader.get_ticker(exec_pair)
@@ -1347,6 +1611,7 @@ class RealtimeOrchestrator:
                     "region": region,
                     "score": score,
                     "v333_weight": signal.get("v333_weight", 0.0),
+                    "rollout_mult": rollout_meta.get("multiplier", 1.0),
                     "timestamp_ms": time.time() * 1000,
                 })
 
@@ -1400,6 +1665,9 @@ class RealtimeOrchestrator:
             max_trade_usd = risk_params.get("max_trade_usd", 5.0)
         except Exception:
             max_trade_usd = ORDER_NOTIONAL_USD
+
+        rollout_mult, _rollout_meta = self.rollout_gate.multiplier(signal, venue="etrade")
+        max_trade_usd = max(1.0, float(max_trade_usd) * float(rollout_mult))
 
         # Whole shares only (no fractional on E*Trade)
         import math as _math
@@ -1457,6 +1725,7 @@ class RealtimeOrchestrator:
             "score": score,
             "market_type": "equity",
             "v333_weight": signal.get("v333_weight", 0.0),
+            "rollout_mult": rollout_mult,
             "timestamp_ms": time.time() * 1000,
         }
 
@@ -1501,6 +1770,8 @@ class RealtimeOrchestrator:
         except Exception:
             max_trade_usd = ORDER_NOTIONAL_USD
 
+        rollout_mult, _rollout_meta = self.rollout_gate.multiplier(signal, venue="kraken")
+        max_trade_usd = max(1.0, float(max_trade_usd) * float(rollout_mult))
         volume = max_trade_usd / price
         order_usd = volume * price
         pnl = 0.0
@@ -1562,6 +1833,7 @@ class RealtimeOrchestrator:
             "score": score,
             "market_type": "crypto",
             "venue": "kraken",
+            "rollout_mult": rollout_mult,
             "timestamp_ms": time.time() * 1000,
         }
 
@@ -1577,6 +1849,7 @@ class RealtimeOrchestrator:
         symbol = pair.split("-")[0].upper() if pair else ""
         direction = signal.get("direction", "HOLD").upper()
         confidence = float(signal.get("confidence", 0.5))
+        rollout_mult = 1.0
 
         if direction == "HOLD" or not symbol:
             return None
@@ -1595,6 +1868,7 @@ class RealtimeOrchestrator:
                 "market_type": "equity",
                 "venue": "kraken_stock",
                 "v333_weight": signal.get("v333_weight", 0.0),
+                "rollout_mult": rollout_mult,
                 "timestamp_ms": time.time() * 1000,
             }
 
@@ -1624,6 +1898,8 @@ class RealtimeOrchestrator:
             except Exception:
                 trade_usd = ORDER_NOTIONAL_USD
 
+            rollout_mult, _rollout_meta = self.rollout_gate.multiplier(signal, venue="kraken")
+            trade_usd = max(1.0, float(trade_usd) * float(rollout_mult))
             shares = trade_usd / price
 
             # Intelligent auto-funding before stock trade
@@ -1682,6 +1958,7 @@ class RealtimeOrchestrator:
             "market_type": "equity",
             "venue": "kraken_stock",
             "v333_weight": signal.get("v333_weight", 0.0),
+            "rollout_mult": rollout_mult,
             "timestamp_ms": time.time() * 1000,
         }
 

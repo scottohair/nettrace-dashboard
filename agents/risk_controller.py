@@ -18,6 +18,7 @@ import json
 import logging
 import math
 import os
+import random
 import sqlite3
 import time
 import uuid
@@ -74,21 +75,136 @@ SMART_PROFILE_PRESETS = {
     },
     "smart_balanced": {
         "trade_pct": 0.03,
-        "trade_cap_usd": 20.0,
+        "trade_cap_usd": 100.0,
         "daily_loss_pct": 0.05,
-        "daily_loss_cap_usd": 35.0,
+        "daily_loss_cap_usd": 150.0,
         "open_orders_divisor_usd": 10.0,
         "open_orders_cap": 25,
     },
     "smart_aggressive": {
-        "trade_pct": 0.05,
-        "trade_cap_usd": 35.0,
+        "trade_pct": 0.07,
+        "trade_cap_usd": 75.0,
         "daily_loss_pct": 0.08,
-        "daily_loss_cap_usd": 60.0,
+        "daily_loss_cap_usd": 90.0,
         "open_orders_divisor_usd": 8.0,
         "open_orders_cap": 40,
     },
+    "growth_sprint": {
+        "trade_pct": 0.06,
+        "trade_cap_usd": 50.0,
+        "daily_loss_pct": 0.05,
+        "daily_loss_cap_usd": 40.0,
+        "open_orders_divisor_usd": 7.0,
+        "open_orders_cap": 12,
+        "max_portfolio_risk_pct": 0.08,
+        "max_single_trade_pct": 0.04,
+        "min_confidence": 0.65,
+        "use_kelly_fraction": True,
+    },
 }
+
+
+def _blend_profiles(profile_a, profile_b, blend_factor):
+    """Blend two risk profiles for smooth transitions.
+
+    blend_factor=0.0 -> pure profile_a
+    blend_factor=1.0 -> pure profile_b
+    Numeric values are linearly interpolated; non-numeric values
+    switch at the midpoint (blend_factor > 0.5 -> profile_b value).
+    """
+    blended = {}
+    for key in profile_a:
+        va = profile_a[key]
+        vb = profile_b.get(key, va)
+        if isinstance(va, (int, float)) and isinstance(vb, (int, float)):
+            blended[key] = va + (vb - va) * blend_factor
+        else:
+            blended[key] = vb if blend_factor > 0.5 else va
+    # Include any keys only in profile_b
+    for key in profile_b:
+        if key not in blended:
+            blended[key] = profile_b[key]
+    return blended
+
+
+def _resolve_risk_profile(portfolio_value=None):
+    """Resolve the effective risk profile, with auto-selection by portfolio size.
+
+    Auto-selects based on portfolio value when known:
+      - Portfolio < $500  -> growth_sprint   (aggressive growth for small accounts)
+      - Portfolio $500-$2000 -> smart_aggressive
+      - Portfolio > $2000 -> smart_balanced
+
+    Smooth blending over $50 transition zones avoids abrupt parameter jumps:
+      - $475-$525: blend growth_sprint -> smart_aggressive
+      - $1975-$2025: blend smart_aggressive -> smart_balanced
+
+    This auto-sizing ensures small portfolios trade aggressively enough to grow,
+    while larger portfolios protect capital with tighter limits.
+    The only way to disable auto-sizing is RISK_PROFILE=fixed_<name>.
+    """
+    profile = str(RISK_PROFILE or "").lower()
+
+    # Operator hard-lock: 'fixed_smart_balanced' etc. bypasses auto-sizing.
+    if profile.startswith("fixed_"):
+        fixed_name = profile[6:]  # strip 'fixed_' prefix
+        if fixed_name in SMART_PROFILE_PRESETS:
+            return fixed_name
+        return fixed_name  # let caller handle unknown
+
+    # Auto-select when portfolio size is known (the default path).
+    if portfolio_value is not None and portfolio_value > 0:
+        if portfolio_value < 500:
+            return "growth_sprint"
+        elif portfolio_value <= 2000:
+            return "smart_aggressive"
+        else:
+            return "smart_balanced"
+
+    # Portfolio unknown — fall back to env setting or legacy.
+    if profile in SMART_PROFILE_PRESETS:
+        return profile
+
+    # Fallback — return raw profile (may be 'legacy' or empty for logarithmic path)
+    return profile
+
+
+def _resolve_blended_profile(portfolio_value):
+    """Resolve risk profile with smooth blending across transition zones.
+
+    Instead of hard cutoffs, blends over $50 zones:
+      - $475-$525:   growth_sprint -> smart_aggressive
+      - $1975-$2025: smart_aggressive -> smart_balanced
+
+    Returns a blended preset dict, or None if not in a smart profile path.
+    """
+    if portfolio_value is None or portfolio_value <= 0:
+        return None
+
+    profile = str(RISK_PROFILE or "").lower()
+    if profile.startswith("fixed_"):
+        fixed_name = profile[6:]
+        return SMART_PROFILE_PRESETS.get(fixed_name)
+
+    # Transition zone 1: growth_sprint -> smart_aggressive ($475-$525)
+    if 475 <= portfolio_value <= 525:
+        a = SMART_PROFILE_PRESETS.get("growth_sprint")
+        b = SMART_PROFILE_PRESETS.get("smart_aggressive")
+        if a and b:
+            factor = (portfolio_value - 475) / 50.0  # 0.0 at $475, 1.0 at $525
+            return _blend_profiles(a, b, factor)
+
+    # Transition zone 2: smart_aggressive -> smart_balanced ($1975-$2025)
+    if 1975 <= portfolio_value <= 2025:
+        a = SMART_PROFILE_PRESETS.get("smart_aggressive")
+        b = SMART_PROFILE_PRESETS.get("smart_balanced")
+        if a and b:
+            factor = (portfolio_value - 1975) / 50.0  # 0.0 at $1975, 1.0 at $2025
+            return _blend_profiles(a, b, factor)
+
+    # Outside transition zones — use standard resolved profile
+    resolved = _resolve_risk_profile(portfolio_value)
+    return SMART_PROFILE_PRESETS.get(resolved)
 
 
 class MarketState:
@@ -279,6 +395,85 @@ class MarketState:
         # % change over 5 candles
         pct_change = (prices[0] - prices[-1]) / prices[-1]
         return max(-1.0, min(1.0, pct_change * 50))  # amplify
+
+
+class ThompsonSamplingSizer:
+    """Contextual bandit position sizer using Thompson Sampling.
+
+    Each (pair, regime, hour_bucket) context maintains a Beta(alpha, beta) posterior.
+    Alpha is incremented on profitable trades, beta on losses.
+    Position size = Kelly fraction * Thompson sample from posterior.
+    """
+
+    def __init__(self, prior_alpha=2.0, prior_beta=2.0):
+        self.prior_alpha = prior_alpha
+        self.prior_beta = prior_beta
+        self._posteriors = {}  # (pair, regime, hour_bucket) -> (alpha, beta)
+        self._state_file = Path(__file__).parent / "thompson_sizer_state.json"
+        self._load_state()
+
+    def _context_key(self, pair, regime="unknown", hour=None):
+        hour_bucket = ((hour or datetime.now(timezone.utc).hour) // 4)  # 6 buckets per day
+        return f"{pair}:{regime}:{hour_bucket}"
+
+    def _load_state(self):
+        try:
+            if self._state_file.exists():
+                with open(self._state_file) as f:
+                    data = json.load(f)
+                self._posteriors = {k: tuple(v) for k, v in data.items()}
+        except Exception:
+            pass
+
+    def _save_state(self):
+        try:
+            with open(self._state_file, 'w') as f:
+                json.dump({k: list(v) for k, v in self._posteriors.items()}, f)
+        except Exception:
+            pass
+
+    def record_outcome(self, pair, profitable, regime="unknown", hour=None):
+        """Update posterior after a trade completes."""
+        key = self._context_key(pair, regime, hour)
+        alpha, beta = self._posteriors.get(key, (self.prior_alpha, self.prior_beta))
+        if profitable:
+            alpha += 1.0
+        else:
+            beta += 1.0
+        # Decay to prevent stale data from dominating
+        decay = 0.995
+        alpha = max(self.prior_alpha, alpha * decay)
+        beta = max(self.prior_beta, beta * decay)
+        self._posteriors[key] = (alpha, beta)
+        self._save_state()
+
+    def sample_size_multiplier(self, pair, regime="unknown", hour=None):
+        """Sample a position size multiplier from the posterior.
+
+        Returns a value typically between 0.3 and 2.0.
+        - High win rate context -> samples tend higher (larger positions)
+        - Low win rate context -> samples tend lower (smaller positions)
+        """
+        key = self._context_key(pair, regime, hour)
+        alpha, beta = self._posteriors.get(key, (self.prior_alpha, self.prior_beta))
+
+        # Thompson sample: draw from Beta(alpha, beta)
+        sample = random.betavariate(alpha, beta)
+
+        # Kelly fraction: f = p - (1-p) = 2p - 1 (simplified for 1:1 payoff)
+        # But we use the sample as our estimate of p
+        kelly = max(0.0, 2.0 * sample - 1.0)
+
+        # Scale: half-Kelly for safety, then normalize to a multiplier around 1.0
+        # At p=0.6: kelly=0.2, half=0.1, multiplier=0.5
+        # At p=0.7: kelly=0.4, half=0.2, multiplier=1.0
+        # At p=0.8: kelly=0.6, half=0.3, multiplier=1.5
+        multiplier = 0.5 + kelly * 2.5
+        return round(min(2.0, max(0.3, multiplier)), 3)
+
+
+# Module-level Thompson Sampling sizer instance
+_thompson_sizer = ThompsonSamplingSizer()
 
 
 class RiskController:
@@ -486,17 +681,21 @@ class RiskController:
     # DYNAMIC SLIDING SCALE CALCULATIONS
     # ==========================================
 
-    def max_trade_usd(self, portfolio_value, volatility=None, trend=None):
+    def max_trade_usd(self, portfolio_value, volatility=None, trend=None, pair=None, regime=None):
         """Dynamic max trade size — scales logarithmically with portfolio.
 
         Formula: base = portfolio * trade_fraction
         trade_fraction = log10(portfolio) * 0.03, clamped [0.02, 0.15]
         Adjusted by: volatility (higher vol = smaller), trend (downtrend = smaller)
+        When use_kelly_fraction is enabled (e.g. growth_sprint profile), applies
+        Thompson Sampling contextual bandit multiplier for adaptive sizing.
         """
         if portfolio_value <= 0:
             return 0
 
-        preset = SMART_PROFILE_PRESETS.get(str(RISK_PROFILE or "").lower())
+        resolved = _resolve_risk_profile(portfolio_value)
+        # Use blended profile in transition zones for smooth parameter changes
+        preset = _resolve_blended_profile(portfolio_value) or SMART_PROFILE_PRESETS.get(resolved)
         if preset:
             base = float(portfolio_value) * float(preset["trade_pct"])
             if volatility is not None:
@@ -506,6 +705,14 @@ class RiskController:
             if trend is not None and float(trend) < 0:
                 base *= max(0.25, 1.0 + float(trend) * 0.5)
             base = min(base, float(preset["trade_cap_usd"]))
+            # Thompson Sampling adaptive sizing for Kelly-enabled profiles
+            if preset.get("use_kelly_fraction") and pair and _thompson_sizer:
+                ts_regime = str(regime or "unknown").lower()
+                ts_mult = _thompson_sizer.sample_size_multiplier(pair, regime=ts_regime)
+                base *= ts_mult
+                base = min(base, float(preset["trade_cap_usd"]))  # re-cap after multiplier
+                logger.debug("Thompson sizer: pair=%s regime=%s mult=%.3f base=$%.2f",
+                             pair, ts_regime, ts_mult, base)
             return max(1.0, round(base, 2))
 
         # Logarithmic scaling: larger portfolios trade proportionally less
@@ -537,7 +744,8 @@ class RiskController:
         if portfolio_value <= 0:
             return 1.00
 
-        preset = SMART_PROFILE_PRESETS.get(str(RISK_PROFILE or "").lower())
+        resolved = _resolve_risk_profile(portfolio_value)
+        preset = _resolve_blended_profile(portfolio_value) or SMART_PROFILE_PRESETS.get(resolved)
         if preset:
             raw = float(portfolio_value) * float(preset["daily_loss_pct"])
             capped = min(raw, float(preset["daily_loss_cap_usd"]))
@@ -595,7 +803,8 @@ class RiskController:
         if MAX_OPEN_ORDERS_OVERRIDE > 0:
             return max(1, int(MAX_OPEN_ORDERS_OVERRIDE))
 
-        preset = SMART_PROFILE_PRESETS.get(str(RISK_PROFILE or "").lower())
+        resolved = _resolve_risk_profile(portfolio_value)
+        preset = _resolve_blended_profile(portfolio_value) or SMART_PROFILE_PRESETS.get(resolved)
         if preset:
             divisor = max(1.0, float(preset["open_orders_divisor_usd"]))
             cap = max(1, int(preset["open_orders_cap"]))
@@ -628,6 +837,31 @@ class RiskController:
 
         # Fractional Kelly: 25% of optimal
         return max(0, min(0.25, kelly * 0.25 * downside_scale))
+
+    def _get_pair_stats(self, pair):
+        """Get win rate and avg win/loss for a pair from trade history."""
+        try:
+            rows = self._db.execute("""
+                SELECT direction, size_usd, pnl
+                FROM trade_audit
+                WHERE pair = ? AND resolved_at IS NOT NULL
+                ORDER BY id DESC LIMIT 100
+            """, (pair,)).fetchall()
+            if not rows or len(rows) < 5:
+                return None
+            wins = [float(r[2]) for r in rows if float(r[2] or 0) > 0]
+            losses = [abs(float(r[2])) for r in rows if float(r[2] or 0) < 0]
+            total = len(wins) + len(losses)
+            if total == 0:
+                return None
+            return {
+                "trades": total,
+                "win_rate": len(wins) / total,
+                "avg_win": sum(wins) / max(1, len(wins)) if wins else 1.0,
+                "avg_loss": sum(losses) / max(1, len(losses)) if losses else 1.0,
+            }
+        except Exception:
+            return None
 
     # ==========================================
     # TRADE APPROVAL SYSTEM
@@ -700,8 +934,24 @@ class RiskController:
             reserve = self.min_reserve(portfolio_value, vol)
             if direction == "BUY":
                 max_size = self.max_trade_usd(portfolio_value, vol,
-                                               self.market.compute_trend(pair))
+                                               self.market.compute_trend(pair),
+                                               pair=pair)
                 adjusted = min(size_usd, max_size)
+
+                # Kelly-informed sizing: scale down if Kelly fraction suggests smaller bet
+                try:
+                    rankings = self._get_pair_stats(pair)
+                    if rankings and rankings.get("trades", 0) >= 10:
+                        kf = self.kelly_fraction(
+                            rankings.get("win_rate", 0.5),
+                            rankings.get("avg_win", 1.0),
+                            rankings.get("avg_loss", 1.0),
+                        )
+                        if kf > 0:
+                            kelly_size = kf * portfolio_value
+                            adjusted = min(adjusted, kelly_size)
+                except Exception:
+                    pass  # Kelly is advisory; don't block on failure
                 # Respect configurable reserve so buys cannot consume all liquid capital.
                 max_affordable = max(0.0, portfolio_value - reserve)
                 if max_affordable < 1.00:
@@ -1060,7 +1310,7 @@ class RiskController:
             "volatility": round(vol, 4),
             "trend": round(trend, 3),
             "momentum": round(momentum, 3),
-            "max_trade_usd": self.max_trade_usd(portfolio_value, vol, trend),
+            "max_trade_usd": self.max_trade_usd(portfolio_value, vol, trend, pair=pair),
             "max_daily_loss": self.max_daily_loss(portfolio_value),
             "min_reserve": self.min_reserve(portfolio_value, vol),
             "max_position_pct": self.max_position_pct(portfolio_value, vol),
@@ -1079,7 +1329,7 @@ class RiskController:
             ),
             "can_buy": trend > -0.5,
             "regime": "UPTREND" if trend > 0.3 else "DOWNTREND" if trend < -0.3 else "RANGING",
-            "risk_profile": str(RISK_PROFILE or "legacy"),
+            "risk_profile": _resolve_risk_profile(portfolio_value),
         }
         return params
 

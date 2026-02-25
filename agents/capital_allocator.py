@@ -57,7 +57,7 @@ PROFIT_ALLOCATION = {
 }
 
 # Principle protection threshold — lock principle when gains exceed this multiplier
-PRINCIPLE_LOCK_THRESHOLD = 1.0  # 100% gains = lock principle
+PRINCIPLE_LOCK_THRESHOLD = 3.0  # 300% gains = lock principle (delay until portfolio triples)
 PULL_TO_USD_INTERVAL = 6 * 3600  # 4x daily = every 6 hours
 
 
@@ -485,9 +485,102 @@ class CapitalAllocator:
             logger.debug("Dashboard push failed: %s", e)
             return None
 
+    def deploy_idle_to_checking(self):
+        """Move idle savings capital to checking when checking is low.
+
+        Gated by CAPITAL_DEPLOY_IDLE_SAVINGS=1 env var.
+        Keeps CAPITAL_IDLE_RESERVE_MIN_USD in savings as reserve.
+        """
+        if os.environ.get("CAPITAL_DEPLOY_IDLE_SAVINGS") != "1":
+            return None
+        reserve_min = float(os.environ.get("CAPITAL_IDLE_RESERVE_MIN_USD", "20.0"))
+        checking_threshold = float(os.environ.get("CAPITAL_IDLE_CHECKING_THRESHOLD_USD", "10.0"))
+
+        checking = self.db.execute(
+            "SELECT balance_usd FROM treasury WHERE account = 'checking'"
+        ).fetchone()
+        savings = self.db.execute(
+            "SELECT balance_usd FROM treasury WHERE account = 'savings'"
+        ).fetchone()
+
+        checking_bal = float((checking["balance_usd"] if checking else 0) or 0)
+        savings_bal = float((savings["balance_usd"] if savings else 0) or 0)
+
+        if checking_bal >= checking_threshold:
+            return None  # checking has enough
+        deployable = savings_bal - reserve_min
+        if deployable <= 1.0:
+            return None  # nothing to deploy after keeping reserve
+
+        deploy_amount = round(min(deployable, max(checking_threshold - checking_bal, deployable * 0.5)), 2)
+        if deploy_amount < 1.0:
+            return None
+
+        self.db.execute(
+            "UPDATE treasury SET balance_usd = balance_usd - ?, updated_at = CURRENT_TIMESTAMP "
+            "WHERE account = 'savings'",
+            (deploy_amount,),
+        )
+        self.db.execute(
+            "UPDATE treasury SET balance_usd = balance_usd + ?, updated_at = CURRENT_TIMESTAMP "
+            "WHERE account = 'checking'",
+            (deploy_amount,),
+        )
+        self.db.execute(
+            "INSERT INTO allocations (from_account, to_account, amount_usd, reason) "
+            "VALUES ('savings', 'checking', ?, 'deploy_idle_capital')",
+            (deploy_amount,),
+        )
+        self.db.commit()
+        logger.info("DEPLOY IDLE CAPITAL: moved $%.2f from savings to checking "
+                     "(savings was $%.2f, reserve $%.2f, checking was $%.2f)",
+                     deploy_amount, savings_bal, reserve_min, checking_bal)
+        return {"deployed_usd": deploy_amount, "from": "savings", "to": "checking"}
+
+    def check_reserve_floors(self):
+        """Enforce hard USD/USDC reserve floors (Lisp+shell control plane).
+
+        If either balance drops below its floor, block further deployments
+        and write warning to runtime status. NEVER breaches reserve floors.
+        """
+        usd_floor = float(os.environ.get("CAPITAL_RESERVE_USD_FLOOR", "0"))
+        usdc_floor = float(os.environ.get("CAPITAL_RESERVE_USDC_FLOOR", "0"))
+        if usd_floor <= 0 and usdc_floor <= 0:
+            return None  # Floors not configured
+
+        try:
+            from exchange_connector import CoinbaseTrader
+            trader = CoinbaseTrader()
+            accounts = trader.get_accounts()
+            usd_bal = 0.0
+            usdc_bal = 0.0
+            for acc in accounts.get("accounts", []):
+                currency = acc.get("currency", "")
+                bal = float(acc.get("available_balance", {}).get("value", 0))
+                if currency == "USD":
+                    usd_bal += bal
+                elif currency == "USDC":
+                    usdc_bal += bal
+
+            breached = False
+            if usd_floor > 0 and usd_bal < usd_floor:
+                logger.warning("RESERVE FLOOR BREACH: USD $%.2f < floor $%.2f", usd_bal, usd_floor)
+                breached = True
+            if usdc_floor > 0 and usdc_bal < usdc_floor:
+                logger.warning("RESERVE FLOOR BREACH: USDC $%.2f < floor $%.2f", usdc_bal, usdc_floor)
+                breached = True
+
+            return {"usd": usd_bal, "usdc": usdc_bal, "usd_floor": usd_floor,
+                    "usdc_floor": usdc_floor, "breached": breached}
+        except Exception as e:
+            logger.debug("Reserve floor check failed: %s", e)
+            return None
+
     def run_cycle(self):
         """Run a single allocation cycle."""
         self.sync_balances()
+        self.check_reserve_floors()
+        self.deploy_idle_to_checking()
         self.check_principle_protection()
         if self.should_pull_to_usd():
             self.pull_to_usd()

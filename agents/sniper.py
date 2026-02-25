@@ -14,6 +14,14 @@ Stacks 10 independent signal sources for maximum conviction:
   8. Uptick timing (buy-low-sell-high inflection)
   9. Meta-Engine ML predictions (RSI+momentum+SMA ensemble from meta_engine.db)
   10. E*Trade risk pulse (equity lead-lag from SPY/QQQ/COIN/MSTR)
+  11. XGBoost-Lite (NumPy gradient boosted stumps: RSI/MACD/BB/volume features)
+  12. Wasserstein-1 regime shift detector (return distribution divergence)
+  13. VPIN flow toxicity (volume-synchronized probability of informed trading)
+  14. Graph analysis (multi-layer correlation + capital flow graph from meta_engine)
+  15. Pairs trading (cointegration-based spread z-score mean reversion)
+
+Signal weights are dynamically calibrated via entropy-based calibrator that
+tracks each signal's prediction accuracy and adjusts weights accordingly.
 
 Game Theory:
   - Only enters when the market is in a non-equilibrium state
@@ -31,6 +39,7 @@ RULES (NEVER VIOLATE):
 
 import json
 import logging
+import math
 import os
 import re
 import sqlite3
@@ -147,10 +156,80 @@ except Exception as _sp_err:
     _planner = None
     logging.getLogger("sniper").error("STRATEGIC_PLANNER FAILED TO LOAD: %s", _sp_err)
 
+# XGBoost-Lite signal source — NumPy-only gradient boosted stumps
+try:
+    from ml_signal_xgb import XGBoostSignalSource
+    _xgb_source = XGBoostSignalSource()
+except Exception as _xgb_err:
+    _xgb_source = None
+    logging.getLogger("sniper").warning("XGBoostSignalSource not available: %s", _xgb_err)
+
+# Wasserstein-1 regime shift detector
+try:
+    from regime_detector import RegimeShiftSignalSource
+    _w1_regime_source = RegimeShiftSignalSource()
+except Exception as _w1_err:
+    _w1_regime_source = None
+    logging.getLogger("sniper").warning("RegimeShiftSignalSource not available: %s", _w1_err)
+
+# VPIN flow toxicity signal source
+try:
+    from vpin_signal import VPINSignalSource
+    _vpin_source = VPINSignalSource()
+except Exception as _vpin_err:
+    _vpin_source = None
+    logging.getLogger("sniper").warning("VPINSignalSource not available: %s", _vpin_err)
+
+# CoinGlass funding rate & open interest signal
+try:
+    from coinglass_signal import CoinGlassSignal
+    _coinglass_source = CoinGlassSignal()
+except Exception as _cg_err:
+    _coinglass_source = None
+    logging.getLogger("sniper").warning("CoinGlassSignal not available: %s", _cg_err)
+
+# Reddit crypto sentiment signal
+try:
+    from reddit_sentiment import RedditSentiment
+    _reddit_source = RedditSentiment()
+except Exception as _rs_err:
+    _reddit_source = None
+    logging.getLogger("sniper").warning("RedditSentiment not available: %s", _rs_err)
+
+# Conviction Rally — test small, rally big position management
+try:
+    from conviction_rally import ConvictionRally
+    _conviction_rally_available = True
+except Exception as _cr_err:
+    _conviction_rally_available = False
+    logging.getLogger("sniper").warning("ConvictionRally not available: %s", _cr_err)
+
+# Graph signal source — multi-layer correlation + flow graph analysis
+try:
+    from meta_engine import GraphSignalSource
+    _graph_source = GraphSignalSource()
+except Exception as _gs_err:
+    _graph_source = None
+    logging.getLogger("sniper").warning("GraphSignalSource not available: %s", _gs_err)
+
+# Thompson Sampling sizer — record outcomes for contextual bandit sizing
+try:
+    from risk_controller import _thompson_sizer as _ts_sizer
+except Exception:
+    _ts_sizer = None
+
+# WebSocket feed — O(1) price lookups with sub-100ms latency
+try:
+    from coinbase_ws_feed import CoinbaseWSFeed
+    _ws_feed_available = True
+except Exception:
+    _ws_feed_available = False
+    CoinbaseWSFeed = None
+
 # Sniper configuration — static signal settings only
 # Trade sizes, reserves, position limits come from risk_controller dynamically
 CONFIG = {
-    "min_composite_confidence": 0.70,    # 70% minimum — quality over quantity
+    "min_composite_confidence": float(os.environ.get("GOAL_MIN_CONFIDENCE", "0.75")),  # Synced with agent_goals
     "min_confirming_signals": 2,         # 2+ must agree
     "min_quant_signals": 1,              # at least 1 quantitative signal required
     "scan_interval": int(os.environ.get("SNIPER_SCAN_INTERVAL_SECONDS", "10")),  # Scan cadence (tightened for active trading)
@@ -158,8 +237,9 @@ CONFIG = {
     # PRIMARY: BTC + ETH + SOL (core positions — BTC is reserve accumulation target)
     # SECONDARY: AVAX, LINK, DOGE, FET (opportunistic)
     # RESERVE: BTC, USD, USDC — can BUY to accumulate, but never SELL away
+    # Coinbase Advanced Trade uses USD pairs (USDC pairs delisted)
     "pairs": ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "LINK-USD", "DOGE-USD", "FET-USD"],
-    "reserve_assets": ["BTC", "USD", "USDC"],  # Never sell these — treasury
+    "reserve_assets": ["USD", "USDC"],  # Never sell stablecoins — BTC removed to enable profit-taking
     "primary_pairs": ["BTC-USD", "ETH-USD", "SOL-USD"],    # Priority allocation
     # Signal weights: quantitative signals DRIVE decisions, qualitative SUPPLEMENTS
     # Quantitative: regime, arb, orderbook, rsi_extreme, momentum, latency, etrade_pulse
@@ -169,27 +249,34 @@ CONFIG = {
         # --- QUANTITATIVE (core decision drivers) ---
         "regime": 0.20,        # C engine: SMA/RSI/BB/VWAP/ATR — most computational
         "arb": 0.15,           # Cross-exchange spread — pure math
-        "orderbook": 0.15,     # Market microstructure depth analysis
+        "orderbook": float(os.environ.get("SNIPER_WEIGHT_ORDERBOOK", "0.08")),  # Reduced: ask-side depth SELL bias in bear market
         "rsi_extreme": 0.10,   # Technical oversold/overbought
         "momentum": 0.08,      # 4h trend analysis
         # --- COMPUTATIONAL EDGE (private alpha) ---
-        "latency": 0.15,       # NetTrace infrastructure monitoring — our unique edge
+        "latency": float(os.environ.get("SNIPER_WEIGHT_LATENCY", "0.18")),  # Our private alpha — boosted
         "meta_engine": 0.10,   # ML ensemble predictions from evolution engine
+        "xgb_lite": 0.08,     # NumPy gradient boosted stumps (RSI/MACD/BB/vol features)
+        "w1_regime": 0.08,    # Wasserstein-1 regime shift detector
         "etrade_pulse": max(
             0.0,
             min(0.25, float(os.environ.get("SNIPER_ETRADE_PULSE_WEIGHT", "0.08"))),
         ),  # E*Trade/US equity risk pulse lead-lag
+        "vpin": 0.10,          # VPIN flow toxicity — detect informed trader dominance
         # --- QUALITATIVE (supplementary only) ---
-        "fear_greed": 0.04,    # Sentiment — supplements, doesn't drive
+        "fear_greed": float(os.environ.get("SNIPER_WEIGHT_FEAR_GREED", "0.08")),  # Contrarian — F&G=8 historically strong BUY
         "uptick": 0.03,        # Simple bounce — supplements, doesn't drive
+        "coinglass": 0.08,     # CoinGlass funding rate & OI — contrarian derivatives signal
+        "reddit_sentiment": 0.06,  # Reddit crypto sentiment — contrarian at extremes
+        "graph": 0.06,            # Multi-layer correlation + capital flow graph analysis
+        "pairs": 0.06,            # Cointegration-based pairs trading spread z-score
     },
     # Classify which signals are quantitative vs qualitative
-    "quant_signals": {"regime", "arb", "orderbook", "rsi_extreme", "momentum", "latency", "meta_engine", "etrade_pulse"},
-    "qual_signals": {"fear_greed", "uptick"},
+    "quant_signals": {"regime", "arb", "orderbook", "rsi_extreme", "momentum", "latency", "meta_engine", "etrade_pulse", "xgb_lite", "w1_regime", "vpin", "coinglass", "graph", "pairs"},
+    "qual_signals": {"fear_greed", "uptick", "reddit_sentiment"},
     # Expected Value parameters (fees + slippage)
     # Perp maker: 0% buy + 0% sell; spot maker: 0.4% buy + 0.4% sell
     # Blended estimate assuming perp-preferred routing
-    "round_trip_fee_pct": 0.002,   # ~0.2% blended (perp 0% / spot 0.8%)
+    "round_trip_fee_pct": float(os.environ.get("SNIPER_ROUND_TRIP_FEE_PCT", "0.008")),
     "expected_slippage_pct": 0.001, # ~0.1% average slippage
     # Long-chain game-theory gate (entry must model profitable path to exit).
     "min_chain_net_edge": float(os.environ.get("SNIPER_MIN_CHAIN_NET_EDGE_PCT", "0.002")),
@@ -1058,6 +1145,402 @@ class UptickTimingSource(SignalSource):
             return {"direction": "NONE", "confidence": 0, "reason": str(e)}
 
 
+class PairsSignalSource(SignalSource):
+    """Cointegration-based pairs trading signal.
+
+    Tracks spread z-scores between correlated pairs.
+    When z-score > 2: short overperformer, long underperformer.
+    Mean-reversion edge: correlated pairs that diverge tend to converge.
+    """
+
+    PAIRS = [
+        ("BTC-USD", "ETH-USD"),
+        ("SOL-USD", "AVAX-USD"),
+    ]
+
+    def __init__(self):
+        self._spread_history = {}  # (pairA, pairB) -> [spread_values]
+        self._price_cache = {}  # pair -> latest_price
+
+    def update_price(self, pair, price):
+        self._price_cache[pair] = price
+
+    def _compute_spread(self, pair_a, pair_b):
+        pa = self._price_cache.get(pair_a)
+        pb = self._price_cache.get(pair_b)
+        if not pa or not pb:
+            return None
+        # Log spread
+        return math.log(pa) - math.log(pb)
+
+    def scan(self, pair, candles_1h=None, candles_1m=None):
+        """Check if this pair has a pairs trading signal."""
+        # Update price cache from candles
+        if candles_1h and len(candles_1h) > 0:
+            last = candles_1h[-1]
+            # Handle both dict and list candle formats
+            if isinstance(last, dict):
+                self._price_cache[pair] = last.get("close", last.get("c", 0))
+            elif isinstance(last, (list, tuple)) and len(last) > 4:
+                self._price_cache[pair] = float(last[4])  # close price
+
+        for pair_a, pair_b in self.PAIRS:
+            if pair not in (pair_a, pair_b):
+                continue
+
+            spread = self._compute_spread(pair_a, pair_b)
+            if spread is None:
+                continue
+
+            key = (pair_a, pair_b)
+            if key not in self._spread_history:
+                self._spread_history[key] = []
+            self._spread_history[key].append(spread)
+
+            # Keep last 200 observations
+            if len(self._spread_history[key]) > 200:
+                self._spread_history[key] = self._spread_history[key][-200:]
+
+            history = self._spread_history[key]
+            if len(history) < 20:
+                continue
+
+            mean_spread = sum(history) / len(history)
+            variance = sum((x - mean_spread) ** 2 for x in history) / len(history)
+            std_spread = max(math.sqrt(variance), 1e-8)
+            zscore = (spread - mean_spread) / std_spread
+
+            if abs(zscore) > 2.0:
+                # Spread is extreme -- mean reversion expected
+                if pair == pair_a:
+                    # pair_a is overpriced relative to pair_b
+                    direction = "SELL" if zscore > 0 else "BUY"
+                else:
+                    direction = "BUY" if zscore > 0 else "SELL"
+
+                return {
+                    "direction": direction,
+                    "confidence": min(0.65, 0.50 + abs(zscore) * 0.05),
+                    "reason": f"pairs spread z={zscore:.2f} ({pair_a}/{pair_b})",
+                    "zscore": round(float(zscore), 4),
+                }
+
+        return {"direction": "NONE", "confidence": 0.0, "reason": "no pairs signal"}
+
+
+class SignalCalibrator:
+    """Dynamic signal weight calibration using prediction entropy.
+
+    Tracks each signal source's accuracy over a rolling window and
+    adjusts weights accordingly:
+      - High accuracy (low entropy) -> boost weight up to 3x
+      - Low accuracy (high entropy) -> reduce weight
+      - 50% accuracy (max entropy)  -> weight unchanged
+
+    This rewards signals that consistently predict correctly and
+    dampens noisy/random signals automatically.
+    """
+
+    def __init__(self, window=100):
+        self.window = window
+        self._records = {}  # signal_name -> [(predicted_direction, actual_outcome)]
+        self._pnl_ewma = {}  # signal_name -> ewma normalized pnl contribution
+        self._pnl_count = {}  # signal_name -> number of pnl observations
+
+    def record_outcome(self, signal_name, predicted_direction, actual_outcome):
+        """Record a signal's prediction vs actual market direction.
+
+        Args:
+            signal_name: Name of the signal source (e.g. 'regime', 'arb')
+            predicted_direction: What the signal predicted ('BUY' or 'SELL')
+            actual_outcome: What actually happened ('BUY' = price went up, 'SELL' = price went down)
+        """
+        if signal_name not in self._records:
+            self._records[signal_name] = []
+        self._records[signal_name].append((predicted_direction, actual_outcome))
+        if len(self._records[signal_name]) > self.window:
+            self._records[signal_name] = self._records[signal_name][-self.window:]
+
+    def record_realized_pnl(self, signal_name, pnl_usd, notional_usd=0.0):
+        """Track realized trade contribution for a signal source.
+
+        Normalizes pnl by notional when available so weighting is scale-invariant.
+        """
+        try:
+            pnl = float(pnl_usd or 0.0)
+        except Exception:
+            pnl = 0.0
+        try:
+            notional = float(notional_usd or 0.0)
+        except Exception:
+            notional = 0.0
+
+        if notional > 0.0:
+            pnl_norm = pnl / notional
+        else:
+            pnl_norm = max(-0.05, min(0.05, pnl / 50.0))
+
+        alpha = min(0.6, max(0.05, float(os.environ.get("SNIPER_SIGNAL_PNL_EWMA_ALPHA", "0.2") or 0.2)))
+        prev = float(self._pnl_ewma.get(signal_name, 0.0) or 0.0)
+        self._pnl_ewma[signal_name] = (1.0 - alpha) * prev + alpha * pnl_norm
+        self._pnl_count[signal_name] = int(self._pnl_count.get(signal_name, 0) or 0) + 1
+
+    def get_calibrated_weights(self, base_weights):
+        """Return adjusted weights based on signal accuracy and entropy.
+
+        Args:
+            base_weights: dict of {signal_name: base_weight}
+
+        Returns:
+            dict of {signal_name: calibrated_weight} summing to 1.0
+        """
+        if not self._records:
+            return dict(base_weights)
+
+        import math
+
+        adjusted = {}
+        for name, base_w in base_weights.items():
+            records = self._records.get(name, [])
+            if len(records) < 10:
+                adjusted[name] = float(base_w)
+                continue
+
+            # Compute accuracy
+            correct = sum(1 for pred, actual in records if pred == actual)
+            accuracy = correct / len(records)
+
+            # Compute binary entropy: -p*log2(p) - (1-p)*log2(1-p)
+            p = max(0.01, min(0.99, accuracy))
+            entropy = -(p * math.log2(p) + (1 - p) * math.log2(1 - p))
+
+            # High accuracy (low entropy) -> boost weight
+            # Low accuracy (high entropy) -> reduce weight
+            # At 50% accuracy, entropy=1.0, multiplier=1.0
+            # At 80% accuracy, entropy~0.72, multiplier~1.39
+            # At 90% accuracy, entropy~0.47, multiplier~2.13
+            multiplier = 1.0 / max(0.3, entropy)
+            adjusted[name] = float(base_w) * min(multiplier, 3.0)  # cap at 3x
+
+            # PnL-aware adaptive decay/boost:
+            # positive normalized pnl nudges weight up; negative nudges down.
+            pnl_obs = int(self._pnl_count.get(name, 0) or 0)
+            if pnl_obs >= 5:
+                pnl_edge = float(self._pnl_ewma.get(name, 0.0) or 0.0)
+                pnl_mult = 1.0 + max(-0.60, min(0.80, pnl_edge * 25.0))
+                adjusted[name] *= pnl_mult
+
+        # Normalize so weights sum to 1
+        total = sum(adjusted.values())
+        if total > 0:
+            adjusted = {k: v / total for k, v in adjusted.items()}
+
+        return adjusted
+
+
+class SignalAccuracyVerifier:
+    """Background verifier: checks signal predictions at 5m/15m/1h and updates signal_weights DB.
+
+    When a signal fires, we record the prediction. Later, we check actual price movement
+    and update rolling accuracy scores. Signal weights auto-calibrate: accurate signals
+    get more weight, bad ones get downweighted.
+    """
+
+    VERIFY_INTERVALS = [(300, "5m"), (900, "15m"), (3600, "1h"), (86400, "24h")]
+
+    def __init__(self, db_path=None):
+        self._db_path = db_path or str(Path(__file__).parent / "trader.db")
+        self._pending = []  # (signal_name, direction, pair, price, ts)
+        self._lock = threading.Lock()
+        self._running = False
+        self._init_tables()
+
+    def _init_tables(self):
+        """Ensure signal accuracy tables exist."""
+        try:
+            db = sqlite3.connect(self._db_path)
+            db.executescript("""
+                CREATE TABLE IF NOT EXISTS signal_accuracy (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    source TEXT NOT NULL,
+                    signal_type TEXT NOT NULL,
+                    direction TEXT NOT NULL,
+                    confidence REAL,
+                    pair TEXT,
+                    price_at_signal REAL,
+                    price_after_5m REAL,
+                    price_after_15m REAL,
+                    price_after_1h REAL,
+                    price_after_24h REAL,
+                    was_correct INTEGER,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    verified_at TIMESTAMP
+                );
+                CREATE TABLE IF NOT EXISTS signal_weights (
+                    source TEXT PRIMARY KEY,
+                    weight REAL DEFAULT 1.0,
+                    accuracy_30d REAL DEFAULT 0.5,
+                    total_signals INTEGER DEFAULT 0,
+                    correct_signals INTEGER DEFAULT 0,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE INDEX IF NOT EXISTS idx_sig_acc_source ON signal_accuracy(source);
+                CREATE INDEX IF NOT EXISTS idx_sig_acc_pair ON signal_accuracy(pair);
+            """)
+            # Migrate: add price_after_24h column if missing
+            try:
+                db.execute("ALTER TABLE signal_accuracy ADD COLUMN price_after_24h REAL")
+            except Exception:
+                pass  # Column already exists
+            db.commit()
+            db.close()
+        except Exception as e:
+            logger.debug("signal_accuracy table init: %s", e)
+
+    def record_prediction(self, signal_name, direction, pair, price, confidence=0.0):
+        """Record a signal prediction for later verification."""
+        with self._lock:
+            self._pending.append({
+                "source": signal_name,
+                "direction": direction,
+                "pair": pair,
+                "price_at_signal": price,
+                "confidence": confidence,
+                "ts": time.time(),
+                "verified": set(),
+            })
+            # Keep only last 500 pending signals
+            if len(self._pending) > 500:
+                self._pending = self._pending[-500:]
+
+    def start(self):
+        """Start background verification thread."""
+        if self._running:
+            return
+        self._running = True
+        t = threading.Thread(target=self._verify_loop, daemon=True, name="signal_verifier")
+        t.start()
+        logger.info("Signal accuracy verifier started")
+
+    def _verify_loop(self):
+        """Check pending predictions at verification intervals."""
+        while self._running:
+            try:
+                self._verify_pending()
+            except Exception as e:
+                logger.debug("Signal verify error: %s", e)
+            time.sleep(60)  # Check every minute
+
+    def _verify_pending(self):
+        """Verify pending predictions against actual price movements."""
+        now = time.time()
+        to_remove = []
+
+        with self._lock:
+            pending = list(self._pending)
+
+        for idx, pred in enumerate(pending):
+            elapsed = now - pred["ts"]
+            pair = pred["pair"]
+
+            for interval_s, label in self.VERIFY_INTERVALS:
+                if label in pred["verified"]:
+                    continue
+                if elapsed < interval_s:
+                    continue
+
+                # Get current price
+                current_price = self._get_price(pair)
+                if not current_price or current_price <= 0:
+                    continue
+
+                pred["verified"].add(label)
+                price_at = pred["price_at_signal"]
+                price_change = (current_price - price_at) / price_at if price_at > 0 else 0
+
+                # Was the prediction correct?
+                was_correct = (
+                    (pred["direction"] == "BUY" and price_change > 0) or
+                    (pred["direction"] == "SELL" and price_change < 0)
+                )
+
+                # Record to DB
+                self._record_verification(
+                    pred["source"], pred["direction"], pair,
+                    price_at, current_price, label, was_correct, pred["confidence"]
+                )
+
+            # Remove fully verified predictions (after 24h check)
+            if "24h" in pred["verified"]:
+                to_remove.append(idx)
+
+        # Clean up
+        if to_remove:
+            with self._lock:
+                for idx in sorted(to_remove, reverse=True):
+                    if idx < len(self._pending):
+                        self._pending.pop(idx)
+
+    def _record_verification(self, source, direction, pair, price_at, current_price,
+                             interval_label, was_correct, confidence):
+        """Write verification result to signal_accuracy and update signal_weights."""
+        try:
+            db = sqlite3.connect(self._db_path)
+            col = f"price_after_{interval_label}"
+
+            # Insert or update signal_accuracy row
+            db.execute(f"""
+                INSERT INTO signal_accuracy (source, signal_type, direction, confidence,
+                    pair, price_at_signal, {col}, was_correct, verified_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (source, interval_label, direction, confidence, pair,
+                  price_at, current_price, 1 if was_correct else 0))
+
+            # Update rolling accuracy in signal_weights (on 1h verification only)
+            if interval_label == "1h":
+                db.execute("""
+                    INSERT INTO signal_weights (source, weight, accuracy_30d, total_signals,
+                        correct_signals, updated_at)
+                    VALUES (?, 1.0, ?, 1, ?, CURRENT_TIMESTAMP)
+                    ON CONFLICT(source) DO UPDATE SET
+                        total_signals = total_signals + 1,
+                        correct_signals = correct_signals + ?,
+                        accuracy_30d = CAST(correct_signals + ? AS REAL) / MAX(1, total_signals + 1),
+                        weight = CASE
+                            WHEN CAST(correct_signals + ? AS REAL) / MAX(1, total_signals + 1) > 0.6
+                            THEN MIN(2.0, 1.0 + (CAST(correct_signals + ? AS REAL) / MAX(1, total_signals + 1) - 0.5))
+                            ELSE MAX(0.3, CAST(correct_signals + ? AS REAL) / MAX(1, total_signals + 1))
+                        END,
+                        updated_at = CURRENT_TIMESTAMP
+                """, (source, 1.0 if was_correct else 0.0,
+                      1 if was_correct else 0,
+                      1 if was_correct else 0,
+                      1 if was_correct else 0,
+                      1 if was_correct else 0,
+                      1 if was_correct else 0,
+                      1 if was_correct else 0))
+
+                logger.info("SIGNAL_ACCURACY: %s %s %s — %s (price: $%.2f -> $%.2f, change: %.2f%%)",
+                           source, direction, pair,
+                           "CORRECT" if was_correct else "WRONG",
+                           price_at, current_price,
+                           (current_price - price_at) / price_at * 100 if price_at > 0 else 0)
+
+            db.commit()
+            db.close()
+        except Exception as e:
+            logger.debug("Signal accuracy DB write error: %s", e)
+
+    @staticmethod
+    def _get_price(pair):
+        """Get current price."""
+        try:
+            from exchange_connector import PriceFeed
+            return PriceFeed.get_price(pair)
+        except Exception:
+            return None
+
+
 class Sniper:
     """High-confidence signal aggregator and trade executor."""
 
@@ -1092,6 +1575,25 @@ class Sniper:
         self._close_evidence_cache = {}
         self._profit_focus_cache = {"ts": 0.0, "pairs": []}
         self._balance_flow_cache = {"ts": 0.0, "state": {}}
+        self._db_signal_weight_cache = {"ts": 0.0, "weights": {}}
+        self._db_signal_weight_ttl_s = max(
+            5.0, float(os.environ.get("SNIPER_DB_SIGNAL_WEIGHTS_TTL_S", "60") or 60)
+        )
+        self._db_signal_weight_blend = min(
+            1.0, max(0.0, float(os.environ.get("SNIPER_DB_SIGNAL_WEIGHTS_BLEND", "0.35") or 0.35))
+        )
+        self._db_signal_weight_min_signals = max(
+            1, int(os.environ.get("SNIPER_DB_SIGNAL_WEIGHTS_MIN_SIGNALS", "10") or 10)
+        )
+        self._scan_batch_active = False
+        self._scan_write_pending = 0
+        self._scan_commit_interval_s = max(
+            0.10, float(os.environ.get("SNIPER_SCAN_COMMIT_INTERVAL_S", "1.0") or 1.0)
+        )
+        self._scan_commit_batch_size = max(
+            1, int(os.environ.get("SNIPER_SCAN_COMMIT_BATCH_SIZE", "8") or 8)
+        )
+        self._scan_last_commit_ts = time.time()
         self._last_interval_logged = None
         self._last_execution_health_autorefresh = 0.0
         self.sources = {
@@ -1105,7 +1607,38 @@ class Sniper:
             "uptick": UptickTimingSource(),
             "meta_engine": MetaEngineSignalSource(),
             "etrade_pulse": ETradePulseSource(),
+            **({"xgb_lite": _xgb_source} if _xgb_source else {}),
+            **({"w1_regime": _w1_regime_source} if _w1_regime_source else {}),
+            **({"vpin": _vpin_source} if _vpin_source else {}),
+            **({"coinglass": _coinglass_source} if _coinglass_source else {}),
+            **({"reddit_sentiment": _reddit_source} if _reddit_source else {}),
+            **({"graph": _graph_source} if _graph_source else {}),
+            "pairs": PairsSignalSource(),
         }
+        # Entropy-based signal calibrator: adjusts weights dynamically
+        # based on each signal's track record (accuracy -> entropy -> multiplier)
+        self._signal_calibrator = SignalCalibrator(window=100)
+        # Signal accuracy feedback loop: verifies predictions at 5m/15m/1h
+        self._signal_verifier = SignalAccuracyVerifier()
+        # Order TTL monitor: cancel stale orders and re-price at current market
+        self._order_ttl_seconds = int(os.environ.get("SNIPER_ORDER_TTL_SECONDS", "120"))
+        self._order_ttl_enabled = self._order_ttl_seconds > 0
+        self._ttl_tracked_orders = {}  # {order_id: {"placed_at": ts, "pair": p, ...}}
+        self._ttl_lock = threading.Lock()
+        # Conviction Rally: test small, rally big position management
+        self._conviction = ConvictionRally() if _conviction_rally_available else None
+        # WebSocket feed for O(1) price lookups — eliminates 400-900ms REST calls
+        self._ws_feed = None
+        if _ws_feed_available and CoinbaseWSFeed is not None:
+            try:
+                ws_pairs = [p for p in CONFIG.get("pairs", []) if p]
+                if ws_pairs:
+                    self._ws_feed = CoinbaseWSFeed(ws_pairs)
+                    self._ws_feed.start()
+                    logger.info("WebSocket feed started for %d pairs", len(ws_pairs))
+            except Exception as _ws_err:
+                logger.warning("WebSocket feed init failed: %s", _ws_err)
+                self._ws_feed = None
 
     def _init_db(self):
         self.db.executescript("""
@@ -1182,6 +1715,245 @@ class Sniper:
                 logger.warning("SmartRouter not available: %s", e)
         return Sniper._smart_router
 
+    @staticmethod
+    def _extract_kraken_order_id(payload):
+        data = payload if isinstance(payload, dict) else {}
+        result = data.get("result", {}) if isinstance(data.get("result"), dict) else {}
+        txids = result.get("txid")
+        if isinstance(txids, list) and txids:
+            return str(txids[0])
+        if isinstance(txids, str) and txids:
+            return txids
+        return ""
+
+    def _build_buy_bracket(self, pair, limit_price):
+        bracket = None
+        try:
+            from exit_manager import ExitManager
+            _em = ExitManager.__new__(ExitManager)
+            ep = _em.get_exit_params(pair)
+            if ep and "tp1_pct" in ep and "wide_stop_pct" in ep:
+                bracket = {
+                    "take_profit_price": round(limit_price * (1 + ep["tp1_pct"]), 2),
+                    "stop_loss_price": round(limit_price * (1 - ep["wide_stop_pct"]), 2),
+                }
+                logger.info(
+                    "BRACKET: %s TP=$%.2f SL=$%.2f (tp1=%.2f%% stop=%.2f%%)",
+                    pair,
+                    bracket["take_profit_price"],
+                    bracket["stop_loss_price"],
+                    ep["tp1_pct"] * 100,
+                    ep["wide_stop_pct"] * 100,
+                )
+        except Exception as be:
+            logger.debug("Bracket config unavailable: %s", be)
+        return bracket
+
+    def _execute_spot_limit_order(
+        self,
+        *,
+        pair,
+        side,
+        amount_usd,
+        price_ref,
+        limit_price,
+        signal,
+        venue_hint,
+        held_base=None,
+    ):
+        """Place a single spot maker order on the requested venue with safe fallback."""
+        side_u = str(side or "").upper()
+        venue_target = str(venue_hint or "coinbase").strip().lower()
+        px = float(price_ref or 0.0)
+        if px <= 0:
+            return {"error_response": {"error": "INVALID_PRICE", "message": "price_ref <= 0"}}, "coinbase", False
+        notional_usd = max(0.0, float(amount_usd or 0.0))
+        if notional_usd < 0.01:
+            return {"error_response": {"error": "INVALID_SIZE", "message": "amount_usd too small"}}, "coinbase", False
+
+        base_size = notional_usd / px
+        if side_u == "SELL" and held_base is not None:
+            try:
+                base_size = min(base_size, float(held_base or 0.0))
+            except Exception:
+                pass
+        if base_size <= 0:
+            return {"error_response": {"error": "INVALID_BASE_SIZE", "message": "base size <= 0"}}, "coinbase", False
+
+        if venue_target == "kraken":
+            if side_u == "BUY":
+                # Check if Kraken needs asset conversion (e.g., sell ETH→USD first)
+                try:
+                    from kraken_connector import KrakenConnector
+                    raw_bal = KrakenConnector.get_account_balance()
+                    if isinstance(raw_bal, dict) and "error" not in raw_bal:
+                        usd_avail = float(raw_bal.get("ZUSD", 0) or 0) + float(raw_bal.get("USDC", 0) or 0)
+                        if usd_avail < notional_usd:
+                            # Sell ETH to free up USD (if we have ETH and aren't buying ETH)
+                            eth_bal = float(raw_bal.get("XETH", raw_bal.get("ETH", 0)) or 0)
+                            if eth_bal > 0.001 and not pair.startswith("ETH"):
+                                sell_kraken = self._new_kraken_trader()
+                                if sell_kraken:
+                                    # Sell enough ETH to cover the buy + buffer
+                                    needed = notional_usd - usd_avail + 1.0  # $1 buffer
+                                    eth_price = float(self._get_price_fast("ETH-USD") or 0)
+                                    if eth_price > 0:
+                                        eth_to_sell = min(eth_bal * 0.95, needed / eth_price)
+                                        if eth_to_sell > 0.0001:
+                                            conv_result = sell_kraken.place_order(
+                                                pair="ETH-USD", side="sell", volume=eth_to_sell,
+                                                order_type="market", confidence=0.99,
+                                            )
+                                            logger.info("Kraken ETH→USD conversion: sold %.6f ETH ($%.2f) for BUY %s: %s",
+                                                       eth_to_sell, eth_to_sell * eth_price, pair, conv_result)
+                                            import time as _t; _t.sleep(1)  # Let settlement propagate
+                except Exception as e:
+                    logger.debug("Kraken pre-buy conversion check failed: %s", e)
+
+                try:
+                    from cross_venue_transfer import CrossVenueTransfer
+                    _xfer = CrossVenueTransfer()
+                    _xfer.ensure_venue_funded("kraken", "USDC", notional_usd, trade_pair=pair)
+                    _xfer.close()
+                except Exception:
+                    pass
+
+            kraken = self._new_kraken_trader()
+            if kraken:
+                kraken_result = kraken.place_order(
+                    pair=pair,
+                    side="buy" if side_u == "BUY" else "sell",
+                    volume=base_size,
+                    order_type="limit",
+                    price=limit_price,
+                    confidence=float(signal.get("composite_confidence", 0.7) or 0.7),
+                    oflags="post",
+                )
+                kraken_order_id = self._extract_kraken_order_id(kraken_result)
+                if kraken_order_id:
+                    return (
+                        {
+                            "success_response": {"order_id": kraken_order_id},
+                            "order_id": kraken_order_id,
+                            "venue": "kraken",
+                        },
+                        "kraken",
+                        True,
+                    )
+                logger.error("Kraken %s failed for %s: %s", side_u, pair, kraken_result.get("error"))
+            else:
+                logger.warning("Kraken connector unavailable, falling back to Coinbase for %s %s", side_u, pair)
+
+        from exchange_connector import CoinbaseTrader
+        trader = CoinbaseTrader()
+        bracket = self._build_buy_bracket(pair, limit_price) if side_u == "BUY" else None
+        cb_result = trader.place_limit_order(
+            pair,
+            side_u,
+            base_size,
+            limit_price,
+            post_only=True,
+            expected_edge_pct=float(signal.get("composite_confidence", 0.0) or 0.0) * 100.0,
+            signal_confidence=float(signal.get("composite_confidence", 0.0) or 0.0),
+            market_regime=str(signal.get("regime", signal.get("market_regime", "neutral")) or "neutral"),
+            bypass_profit_guard=(side_u == "SELL"),
+            bracket_config=bracket,
+        )
+        acked = bool(self._extract_order_id_from_result(cb_result))
+        return cb_result, "coinbase", acked
+
+    def _execute_split_plan_orders(
+        self,
+        *,
+        pair,
+        side,
+        total_notional_usd,
+        price_ref,
+        signal,
+        split_plan,
+        held_base=None,
+    ):
+        """Execute split plan slices sequentially and process each order result."""
+        side_u = str(side or "").upper()
+        if not isinstance(split_plan, dict) or not bool(split_plan.get("enabled", False)):
+            return {"handled": False, "any_filled": False}
+        raw_slices = split_plan.get("slices")
+        if not isinstance(raw_slices, list):
+            return {"handled": False, "any_filled": False}
+        slices = [s for s in raw_slices if isinstance(s, dict)]
+        if len(slices) <= 1:
+            return {"handled": False, "any_filled": False}
+
+        conf = float(signal.get("composite_confidence", 0.7) or 0.7)
+        if side_u == "BUY":
+            price_offset = 0.9992 if conf >= 0.90 else (0.9994 if conf >= 0.80 else 0.9996)
+        else:
+            price_offset = 1.0002 if conf >= 0.90 else (1.0004 if conf >= 0.80 else 1.0006)
+
+        remaining_notional = max(0.0, float(total_notional_usd or 0.0))
+        any_filled = False
+        acknowledged_notional = 0.0
+        attempted = 0
+
+        for idx, slice_row in enumerate(slices):
+            if remaining_notional < 0.5:
+                break
+            try:
+                requested_usd = float(slice_row.get("amount_usd", 0.0) or 0.0)
+            except Exception:
+                requested_usd = 0.0
+            if requested_usd < 0.5:
+                continue
+            slice_usd = min(requested_usd, remaining_notional)
+            if slice_usd < 0.5:
+                continue
+            venue = str(slice_row.get("venue", "coinbase") or "coinbase").lower()
+            limit_price = float(price_ref or 0.0) * price_offset
+            result, venue_used, acked = self._execute_spot_limit_order(
+                pair=pair,
+                side=side_u,
+                amount_usd=slice_usd,
+                price_ref=price_ref,
+                limit_price=limit_price,
+                signal=signal,
+                venue_hint=venue,
+                held_base=held_base,
+            )
+            attempted += 1
+            if acked:
+                acknowledged_notional += slice_usd
+            filled = self._process_order_result(
+                result,
+                pair,
+                side_u,
+                slice_usd,
+                price_ref,
+                signal,
+                venue=venue_used,
+            )
+            any_filled = any_filled or bool(filled)
+            remaining_notional = max(0.0, remaining_notional - slice_usd)
+            logger.info(
+                "SNIPER SPLIT: %s slice %d/%d venue=%s notional=$%.2f ack=%s filled=%s",
+                pair,
+                idx + 1,
+                len(slices),
+                venue_used,
+                slice_usd,
+                acked,
+                bool(filled),
+            )
+
+        if side_u == "BUY" and acknowledged_notional > 0:
+            self._cycle_cash_spent = getattr(self, "_cycle_cash_spent", 0.0) + float(acknowledged_notional)
+
+        return {
+            "handled": attempted > 0,
+            "any_filled": bool(any_filled),
+            "acknowledged_notional_usd": round(float(acknowledged_notional), 6),
+            "attempted_slices": attempted,
+        }
+
     def _latest_filled_buy_price(self, pair, fallback_price=0.0):
         """Get last filled BUY entry price for a pair, fallback to current price."""
         try:
@@ -1212,6 +1984,166 @@ class Sniper:
         elif p.endswith("-USDC"):
             aliases.append(p.replace("-USDC", "-USD"))
         return list(dict.fromkeys(aliases))
+
+    def _load_db_signal_weights(self):
+        now = time.time()
+        cached = self._db_signal_weight_cache if isinstance(self._db_signal_weight_cache, dict) else {}
+        if (
+            isinstance(cached.get("weights"), dict)
+            and (now - float(cached.get("ts", 0.0) or 0.0)) <= self._db_signal_weight_ttl_s
+        ):
+            return dict(cached.get("weights") or {})
+
+        weights = {}
+        try:
+            if TRADER_DB_PATH.exists():
+                conn = sqlite3.connect(str(TRADER_DB_PATH), timeout=3.0)
+                conn.row_factory = sqlite3.Row
+                rows = conn.execute(
+                    """
+                    SELECT source, weight, total_signals
+                    FROM signal_weights
+                    WHERE total_signals >= ?
+                    """,
+                    (self._db_signal_weight_min_signals,),
+                ).fetchall()
+                conn.close()
+                for row in rows:
+                    source = str(row["source"] or "").strip()
+                    if not source:
+                        continue
+                    try:
+                        w = float(row["weight"] or 0.0)
+                    except Exception:
+                        w = 0.0
+                    if w > 0:
+                        weights[source] = w
+        except Exception as e:
+            logger.debug("SNIPER: DB signal weight load failed: %s", e)
+
+        self._db_signal_weight_cache = {"ts": now, "weights": dict(weights)}
+        return dict(weights)
+
+    def _load_lisp_weights(self):
+        """Load signal weights from Lisp weight_adaptation engine output."""
+        lisp_path = os.environ.get("LISP_WEIGHTS_PATH", "agents/runtime/signal_weights.json")
+        try:
+            if not os.path.exists(lisp_path):
+                return {}
+            age = time.time() - os.path.getmtime(lisp_path)
+            if age > 300:  # Stale after 5 minutes
+                return {}
+            with open(lisp_path) as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                return {k: float(v) for k, v in data.items() if isinstance(v, (int, float))}
+        except Exception:
+            pass
+        return {}
+
+    def _effective_signal_base_weights(self):
+        base = dict(CONFIG["signal_weights"])
+        external = self._load_db_signal_weights()
+        if not external:
+            # Try Lisp weights as fallback
+            external = self._load_lisp_weights()
+        if not external:
+            base = self._apply_regime_adjustments(base)
+            return base
+
+        blend = self._db_signal_weight_blend
+        for name, ext_w in external.items():
+            if name not in base:
+                continue
+            base[name] = max(0.0001, (base[name] * (1.0 - blend)) + (float(ext_w) * blend))
+
+        base = self._apply_regime_adjustments(base)
+
+        total = sum(base.values())
+        if total > 0:
+            base = {k: float(v) / total for k, v in base.items()}
+        return base
+
+    def _apply_regime_adjustments(self, weights):
+        """Adjust signal weights based on current market regime.
+
+        BEAR: boost fear_greed (contrarian), reduce momentum
+        BULL: boost momentum, reduce fear_greed
+        SIDEWAYS: no adjustments
+        """
+        try:
+            from regime_detector import RegimeDetector
+            detector = RegimeDetector()
+            regime = detector.get_current_regime()
+        except Exception:
+            return weights
+
+        w = dict(weights)
+        if regime == "bear":
+            w["fear_greed"] = w.get("fear_greed", 0.08) + 0.04
+            w["momentum"] = max(0.02, w.get("momentum", 0.10) - 0.04)
+            w["orderbook"] = max(0.02, w.get("orderbook", 0.08) - 0.02)
+        elif regime == "bull":
+            w["momentum"] = w.get("momentum", 0.10) + 0.04
+            w["fear_greed"] = max(0.02, w.get("fear_greed", 0.08) - 0.02)
+        # SIDEWAYS: no changes
+
+        # Re-normalize
+        total = sum(w.values())
+        if total > 0:
+            w = {k: float(v) / total for k, v in w.items()}
+        return w
+
+    # ── Order TTL Monitor ──────────────────────────────────────────────
+
+    def track_order_ttl(self, order_id, pair, direction, amount_usd):
+        """Register an order for TTL monitoring."""
+        if not self._order_ttl_enabled or not order_id:
+            return
+        with self._ttl_lock:
+            self._ttl_tracked_orders[order_id] = {
+                "placed_at": time.time(),
+                "pair": pair,
+                "direction": direction,
+                "amount_usd": amount_usd,
+            }
+
+    def check_stale_orders(self, trader=None):
+        """Check for stale orders past TTL and cancel them.
+
+        Returns list of cancelled order IDs for potential re-submission.
+        """
+        if not self._order_ttl_enabled or not trader:
+            return []
+        now = time.time()
+        stale = []
+        with self._ttl_lock:
+            for oid, info in list(self._ttl_tracked_orders.items()):
+                age = now - info["placed_at"]
+                if age > self._order_ttl_seconds:
+                    stale.append((oid, info))
+
+        cancelled = []
+        for oid, info in stale:
+            try:
+                trader.cancel_order(oid)
+                logger.info("TTL_CANCEL: order %s age=%.0fs > ttl=%ds pair=%s",
+                           oid, now - info["placed_at"], self._order_ttl_seconds,
+                           info["pair"])
+                cancelled.append(info)
+            except Exception as e:
+                logger.debug("TTL cancel failed for %s: %s", oid, e)
+            with self._ttl_lock:
+                self._ttl_tracked_orders.pop(oid, None)
+
+        return cancelled
+
+    def clear_filled_order(self, order_id):
+        """Remove a filled order from TTL tracking."""
+        if not order_id:
+            return
+        with self._ttl_lock:
+            self._ttl_tracked_orders.pop(order_id, None)
 
     def _latest_filled_buy_price_any(self, pair, fallback_price=0.0):
         for alias in self._pair_aliases(pair):
@@ -1822,7 +2754,7 @@ class Sniper:
             chosen_pair = ""
             chosen_price = 0.0
             for alias in aliases:
-                px = float(self._get_price(alias) or 0.0)
+                px = float(self._get_price_fast(alias) or 0.0)
                 if px > 0.0:
                     chosen_pair = alias
                     chosen_price = px
@@ -2038,7 +2970,7 @@ class Sniper:
             pair = f"{asset}-USDC"
             if pair not in market_signals:
                 pair = f"{asset}-USD"
-            price = self._get_price(pair)
+            price = self._get_price_fast(pair)
             if not price:
                 continue
             value = float(amount) * float(price)
@@ -2102,15 +3034,17 @@ class Sniper:
             return {"viable": False, "reason": "planner context unavailable", "net_edge": 0.0, "worst_case_edge": 0.0}
 
         # Determine effective chain gate thresholds.
-        # In bootstrap mode (no recent trades), halve minimums to avoid cold-start deadlock.
+        # In bootstrap mode (no recent trades), bypass chain gate entirely to break
+        # cold-start deadlock.  GoalValidator + EV + risk_controller still enforce safety.
         min_net = float(CONFIG["min_chain_net_edge"])
         min_worst = float(CONFIG["min_chain_worst_case_edge"])
         bootstrap = self._is_chain_bootstrap_mode()
         if bootstrap:
-            min_net *= 0.5
-            min_worst *= 0.5
-            logger.info("  %s: chain gate bootstrap mode — relaxed minimums (net>=%.3f%% worst>=%.3f%%)",
-                       pair, min_net * 100, min_worst * 100)
+            logger.info("  %s: chain gate BOOTSTRAP BYPASS — no trades in %dh, allowing entry "
+                       "(GoalValidator+EV+risk still enforced)",
+                       pair, int(CONFIG.get("chain_gate_bootstrap_hours", 24)))
+            return {"viable": True, "reason": "bootstrap_bypass", "net_edge": 0.0,
+                    "worst_case_edge": 0.0, "bootstrap_mode": True}
 
         analysis = strategic_ctx.get("analysis", {})
         validations = analysis.get("entry_validations", {}) if isinstance(analysis, dict) else {}
@@ -2260,22 +3194,55 @@ class Sniper:
         qual_confirming = [(n, r) for n, r in confirming if n not in quant_set]
 
         # Weighted confidence (quantitative signals dominate due to higher weights)
-        weights = CONFIG["signal_weights"]
+        # Calibrator combines entropy accuracy, realized-PnL decay/boost, and DB-verified weights.
+        effective_base_weights = self._effective_signal_base_weights()
+        weights = self._signal_calibrator.get_calibrated_weights(effective_base_weights)
         total_weight = sum(weights.get(n, 0.1) for n, _ in confirming)
         if total_weight > 0:
             composite = sum(weights.get(n, 0.1) * r["confidence"] for n, r in confirming) / total_weight
         else:
             composite = 0
 
-        # Expected Value calculation — trade must have positive EV after costs
+        # Expected Value calculation — venue-specific (fee-driven tiering)
         # EV = (win_prob * avg_gain) - (loss_prob * avg_loss) - round_trip_costs
-        fees = CONFIG["round_trip_fee_pct"] + CONFIG["expected_slippage_pct"]
-        # Conservative: assume avg gain ≈ 2x avg loss for a good signal
+        slippage = CONFIG["expected_slippage_pct"]
         win_prob = composite
         avg_gain_pct = 0.02   # 2% average winner
         avg_loss_pct = 0.01   # 1% average loser (tight stops)
-        expected_value = (win_prob * avg_gain_pct) - ((1 - win_prob) * avg_loss_pct) - fees
-        ev_positive = expected_value > 0
+
+        # Tier 1: Coinbase spot (default — 1.2% RT)
+        fees_spot = CONFIG["round_trip_fee_pct"] + slippage
+        ev_spot = (win_prob * avg_gain_pct) - ((1 - win_prob) * avg_loss_pct) - fees_spot
+
+        # Tier 2: Kraken spot (0.32% RT)
+        kraken_rt_fee = float(os.environ.get("KRAKEN_ROUND_TRIP_FEE_PCT", "0.0032"))
+        fees_kraken = kraken_rt_fee + slippage
+        ev_kraken = (win_prob * avg_gain_pct) - ((1 - win_prob) * avg_loss_pct) - fees_kraken
+
+        # Tier 3: Perp (0.03% RT at 0% maker)
+        perp_rt_fee = float(os.environ.get("PERP_ROUND_TRIP_FEE_PCT", "0.0003"))
+        fees_perp = perp_rt_fee + slippage
+        ev_perp = (win_prob * avg_gain_pct) - ((1 - win_prob) * avg_loss_pct) - fees_perp
+
+        # Route to best EV venue — signal is tradeable if ANY venue has positive EV
+        expected_value = ev_spot  # default for backward compat
+        ev_positive = ev_spot > 0
+        best_ev_venue = "coinbase"
+
+        kraken_conf_floor = float(os.environ.get("SNIPER_KRAKEN_CONFIDENCE_FLOOR", "0.65"))
+        perp_conf_floor = float(os.environ.get("GOAL_MIN_CONFIDENCE_PERP", "0.60"))
+
+        if ev_perp > 0 and composite >= perp_conf_floor:
+            ev_positive = True
+            expected_value = ev_perp
+            best_ev_venue = "perp"
+        elif ev_kraken > 0 and composite >= kraken_conf_floor:
+            ev_positive = True
+            expected_value = ev_kraken
+            best_ev_venue = "kraken"
+
+        # fees variable for backward compat
+        fees = fees_spot
 
         # Record scan
         with self._db_lock:
@@ -2283,7 +3250,17 @@ class Sniper:
                 "INSERT INTO sniper_scans (pair, composite_confidence, direction, confirming_signals, signal_details) VALUES (?, ?, ?, ?, ?)",
                 (pair, composite, direction, len(confirming), json.dumps({n: r for n, r in results.items()}))
             )
-            self.db.commit()
+            self._scan_write_pending += 1
+            now_ts = time.time()
+            should_commit = (
+                (not self._scan_batch_active)
+                or self._scan_write_pending >= self._scan_commit_batch_size
+                or (now_ts - self._scan_last_commit_ts) >= self._scan_commit_interval_s
+            )
+            if should_commit:
+                self.db.commit()
+                self._scan_write_pending = 0
+                self._scan_last_commit_ts = now_ts
 
         # Growth engine algebraic enhancement
         growth_boost = {}
@@ -2309,11 +3286,16 @@ class Sniper:
                                old_composite * 100, composite * 100)
                 elif not lattice_passes and gf_quality < 0.4:
                     # Growth engine says weak setup — dampen confidence
+                    # Skip dampening in bootstrap (no recent trades) to avoid cold-start deadlock
+                    dampen_factor = float(os.environ.get("SNIPER_GF_DAMPEN_FACTOR", "0.85"))
+                    if self._is_chain_bootstrap_mode():
+                        dampen_factor = 1.0  # no dampening during bootstrap
                     old_composite = composite
-                    composite = composite * 0.85  # 15% reduction
+                    composite = composite * dampen_factor
                     logger.info("  [growth_engine] %s | GF quality=%.1f%% lattice=FAIL | "
-                               "conf %.1f%%->%.1f%% (dampened)",
-                               pair, gf_quality * 100, old_composite * 100, composite * 100)
+                               "conf %.1f%%->%.1f%% (%s)",
+                               pair, gf_quality * 100, old_composite * 100, composite * 100,
+                               "bootstrap-no-dampen" if dampen_factor >= 1.0 else "dampened")
             except Exception as e:
                 logger.debug("Growth engine analysis failed for %s: %s", pair, e)
 
@@ -2334,11 +3316,23 @@ class Sniper:
             "qual_signals": len(qual_confirming),
             "expected_value": round(expected_value, 6),
             "ev_positive": ev_positive,
+            "ev_spot": round(ev_spot, 6),
+            "ev_kraken": round(ev_kraken, 6),
+            "ev_perp": round(ev_perp, 6),
+            "best_ev_venue": best_ev_venue,
             "regime": inferred_regime,
             "momentum": inferred_momentum,
             "details": results,
             "growth_engine": growth_boost,
         }
+
+    def _flush_scan_writes(self):
+        """Flush pending scan analytics writes if batching is active."""
+        with self._db_lock:
+            if self._scan_write_pending > 0:
+                self.db.commit()
+                self._scan_write_pending = 0
+                self._scan_last_commit_ts = time.time()
 
     def scan_all(self):
         """Scan all pairs in parallel and return actionable signals.
@@ -2350,19 +3344,21 @@ class Sniper:
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
         logger.info("=== SNIPER SCAN ===")
+        self._scan_batch_active = True
         actionable = []
         scan_results = {}
         base_pairs = [self._normalize_pair(p) for p in CONFIG.get("pairs", []) if self._normalize_pair(p)]
         scan_pairs = self._profit_focus_scan_pairs(base_pairs)
         if not scan_pairs:
             scan_pairs = list(base_pairs)
+
         logger.info(
             "SNIPER: pair focus universe %s (base=%s)",
             scan_pairs,
             base_pairs,
         )
 
-        with ThreadPoolExecutor(max_workers=max(1, min(4, len(scan_pairs)))) as executor:
+        with ThreadPoolExecutor(max_workers=max(1, min(8, len(scan_pairs)))) as executor:
             futures = {executor.submit(self.scan_pair, pair): pair for pair in scan_pairs}
             for future in as_completed(futures):
                 pair = futures[future]
@@ -2393,7 +3389,13 @@ class Sniper:
             n_quant = result.get("quant_signals", 0)
             ev_ok = result.get("ev_positive", False)
 
-            if conf >= CONFIG["min_composite_confidence"] and n_signals >= CONFIG["min_confirming_signals"]:
+            # Pre-filter: use lowest venue confidence floor (perp=0.60) so perp-eligible signals aren't blocked
+            _min_conf_any_venue = min(
+                float(CONFIG["min_composite_confidence"]),
+                float(os.environ.get("GOAL_MIN_CONFIDENCE_PERP", "0.60")),
+                float(os.environ.get("SNIPER_KRAKEN_CONFIDENCE_FLOOR", "0.65")),
+            )
+            if conf >= _min_conf_any_venue and n_signals >= CONFIG["min_confirming_signals"]:
                 # QUANTITATIVE GATE: at least 1 quant signal must confirm
                 if n_quant < CONFIG["min_quant_signals"]:
                     logger.info("  %s: BLOCKED — only qualitative signals (%d quant < %d required)",
@@ -2406,14 +3408,21 @@ class Sniper:
                                pair, result.get("expected_value", 0) * 100)
                     continue
 
-                # GoalValidator gate — encoded rules check
-                if _goals and not _goals.should_trade(
-                    conf, n_signals, result["direction"],
-                    result.get("regime", "neutral"),
-                ):
-                    logger.info("  %s: BLOCKED by GoalValidator (conf=%.1f%%, %d signals, %s)",
-                               pair, conf*100, n_signals, result["direction"])
-                    continue
+                # GoalValidator gate — venue-aware (perp uses lower confidence floor)
+                _best_ev_venue = result.get("best_ev_venue", "coinbase")
+                if _goals:
+                    if _best_ev_venue == "perp":
+                        _gv_ok = _goals.should_trade_perp(
+                            conf, n_signals, result["direction"],
+                            result.get("regime", "neutral"), leverage=1.0)
+                    else:
+                        _gv_ok = _goals.should_trade(
+                            conf, n_signals, result["direction"],
+                            result.get("regime", "neutral"))
+                    if not _gv_ok:
+                        logger.info("  %s: BLOCKED by GoalValidator (conf=%.1f%%, %d signals, %s, venue=%s)",
+                                   pair, conf*100, n_signals, result["direction"], _best_ev_venue)
+                        continue
                 if result["direction"] == "BUY":
                     if _exit_mgr is None:
                         logger.info("  %s: BLOCKED — no ExitManager available for end-to-end buy/sell plan", pair)
@@ -2439,6 +3448,15 @@ class Sniper:
                            result["direction"], pair, conf*100,
                            n_signals, n_quant, result.get("qual_signals", 0),
                            result.get("expected_value", 0) * 100)
+                # Record signal predictions for accuracy feedback loop
+                try:
+                    price = result.get("price") or result.get("current_price", 0)
+                    for sig_name in result.get("signal_details", {}).keys():
+                        self._signal_verifier.record_prediction(
+                            sig_name, result["direction"], pair, float(price), conf
+                        )
+                except Exception:
+                    pass
             else:
                 logger.info("  %s: %s conf=%.1f%% (%d signals, %dQ) — below threshold",
                            pair, result["direction"], conf*100, n_signals, n_quant)
@@ -2494,6 +3512,8 @@ class Sniper:
 
         # Store actionable signals for opportunity-cost selling
         self._pending_buys = [s for s in actionable if s["direction"] == "BUY"]
+        self._scan_batch_active = False
+        self._flush_scan_writes()
         return actionable
 
     def _has_better_opportunity(self, sell_pair, sell_loss_pct):
@@ -2806,7 +3826,7 @@ class Sniper:
         realized_closes = int(metrics.get("realized_sell_closes", 0) or 0)
         realized_net = float(metrics.get("realized_sell_net_pnl_usd", 0.0) or 0.0)
 
-        min_sell_completions = max(0, int(CONFIG.get("balance_min_sell_completions", 2) or 2))
+        min_sell_completions = int(CONFIG.get("balance_min_sell_completions", 2))
         min_close_attempts = max(1, int(CONFIG.get("balance_min_close_attempts", 2) or 2))
         min_close_rate = max(
             0.0,
@@ -3419,7 +4439,7 @@ class Sniper:
                 logger.info("SNIPER: %s BUY blocked — no valid quant exit plan after quote routing", pair)
                 return False
 
-        price = self._get_price(pair)
+        price = self._get_price_fast(pair)
         if not price:
             logger.warning("Cannot get price for %s", pair)
             return False
@@ -3429,7 +4449,7 @@ class Sniper:
 
         # Calculate total portfolio value
         total_portfolio = cash + sum(
-            h * (self._get_price(f"{c}-USD") or 0) for c, h in holdings.items()
+            h * (self._get_price_fast(f"{c}-USD") or 0) for c, h in holdings.items()
         )
 
         # Get DYNAMIC risk parameters from centralized controller
@@ -3547,6 +4567,21 @@ class Sniper:
                     str((balance_state or {}).get("mode", "balanced")),
                 )
 
+            # Conviction Rally: test small, rally big
+            conviction_active = False
+            if self._conviction:
+                conf = float(signal.get("composite_confidence", 0.0) or 0.0)
+                can_test, test_reason = self._conviction.should_enter_test(pair, conf)
+                if can_test:
+                    test_mult = self._conviction.enter_test(pair, price, conf)
+                    trade_size *= test_mult
+                    trade_size = round(trade_size, 2)
+                    conviction_active = True
+                    logger.info("SNIPER: %s BUY conviction test entry — size x%.1f ($%.2f)",
+                                pair, test_mult, trade_size)
+                elif test_reason not in ("confidence too low",):
+                    logger.debug("SNIPER: %s conviction skip — %s", pair, test_reason)
+
             # Quote-aware reroute + bankroll-aware sizing (fixes USD-vs-USDC mismatches and over-sized proposals).
             fit_pair, fitted_size, fit_reason = self._fit_buy_to_quote_capacity(
                 pair,
@@ -3564,7 +4599,7 @@ class Sniper:
             if _exit_mgr and not _exit_mgr.has_exit_plan(pair):
                 logger.info("SNIPER: %s BUY blocked — routed pair missing exit plan", pair)
                 return False
-            price = self._get_price(pair)
+            price = self._get_price_fast(pair)
             if not price:
                 logger.warning("Cannot get price for routed pair %s", pair)
                 return False
@@ -3597,7 +4632,7 @@ class Sniper:
                 if _exit_mgr and not _exit_mgr.has_exit_plan(pair):
                     logger.info("SNIPER: %s BUY blocked — post-risk routed pair missing exit plan", pair)
                     return False
-                price = self._get_price(pair)
+                price = self._get_price_fast(pair)
                 if not price:
                     logger.warning("Cannot get price for post-risk routed pair %s", pair)
                     return False
@@ -3644,11 +4679,24 @@ class Sniper:
             # MAKER ONLY: limit order at/below bid (0.4% fee spot / 0% fee perp)
             # BE A MAKER not a taker — Rule from game theory playbook
             # post_only=True rejects if it would match immediately (guarantees maker)
-            # Aggressive pricing for high-confidence signals to improve fill rate
+            # Spread-relative pricing: adapts to each pair's microstructure
             base_size = trade_size / price
             conf = signal.get("composite_confidence", 0.7)
-            buy_offset = 0.9992 if conf >= 0.90 else (0.9994 if conf >= 0.80 else 0.9996)
-            limit_price = price * buy_offset  # closer to spot for higher confidence
+
+            # Spread-relative offset: use live BBO when available
+            spread_pct = self._spot_spread_pct(pair)
+            if spread_pct > 0.001:
+                # Place inside the spread — tighter for higher confidence
+                # 90%+ conf: 30% of half-spread from mid (aggressive, fills fast)
+                # 80%+ conf: 50% of half-spread (moderate)
+                # <80% conf: 80% of half-spread (conservative)
+                spread_frac = 0.30 if conf >= 0.90 else (0.50 if conf >= 0.80 else 0.80)
+                half_spread_pct = spread_pct / 200.0  # convert % to fraction, then half
+                buy_offset = 1.0 - half_spread_pct * spread_frac
+            else:
+                # Fallback to fixed offsets when spread unavailable
+                buy_offset = 0.9992 if conf >= 0.90 else (0.9994 if conf >= 0.80 else 0.9996)
+            limit_price = price * buy_offset
 
             venue_label = f"PERP {exec_pair}" if used_perp else exec_pair
             logger.info("SNIPER EXECUTE: LIMIT BUY %s | $%.2f (%.6f @ $%.2f) | conf=%.1f%% | %d signals",
@@ -3665,8 +4713,12 @@ class Sniper:
                     )
                     venue_used = "perp"
                 else:
-                    # ── Multi-venue routing: SmartRouter selects best venue ──
-                    best_venue = "coinbase"  # default
+                    # ── Multi-venue routing: EV-based tier + SmartRouter ──
+                    # Use EV analysis from scan phase as primary venue hint
+                    best_venue = signal.get("best_ev_venue", "coinbase")
+                    if best_venue == "perp":
+                        best_venue = "coinbase"  # perp handled above, spot fallback here
+                    split_plan = {}
                     router = self._get_smart_router()
                     if router:
                         try:
@@ -3675,59 +4727,72 @@ class Sniper:
                                 best_venue = quote["venue"]
                                 logger.info("SmartRouter selected venue=%s for %s (savings=%.4f%%)",
                                            best_venue, pair, quote.get("savings_vs_coinbase", 0))
+
+                                split_plan = quote.get("split_plan", {}) if isinstance(quote, dict) else {}
+                                split_enabled = isinstance(split_plan, dict) and bool(split_plan.get("enabled", False))
+                                if not split_enabled:
+                                    # Capacity-aware sizing for single-venue execution.
+                                    try:
+                                        cap_usd = float(quote.get("capacity_usd", trade_size) or trade_size)
+                                    except Exception:
+                                        cap_usd = float(trade_size or 0.0)
+                                    if cap_usd > 0 and cap_usd < trade_size:
+                                        old_size = trade_size
+                                        trade_size = max(0.5, cap_usd)
+                                        base_size = trade_size / price if price > 0 else 0.0
+                                        logger.info(
+                                            "SmartRouter capacity cap: %s BUY $%.2f -> $%.2f",
+                                            best_venue,
+                                            old_size,
+                                            trade_size,
+                                        )
                         except Exception as e:
                             logger.warning("SmartRouter failed, defaulting to coinbase: %s", e)
 
-                    if best_venue == "kraken":
-                        # Auto-fund Kraken if needed
-                        try:
-                            from cross_venue_transfer import CrossVenueTransfer
-                            _xfer = CrossVenueTransfer()
-                            _xfer.ensure_venue_funded("kraken", "USDC", notional_usd, trade_pair=pair)
-                            _xfer.close()
-                        except Exception:
-                            pass
-                        kraken = self._new_kraken_trader()
-                        if kraken:
-                            kraken_result = kraken.place_order(
-                                pair=pair,
-                                side="buy",
-                                volume=base_size,
-                                order_type="limit",
-                                price=limit_price,
-                                confidence=signal.get("composite_confidence", 0.7),
-                                oflags="post",  # BE A MAKER
-                            )
-                            # Extract order ID from Kraken response
-                            if kraken_result.get("result", {}).get("txid"):
-                                order_id = kraken_result["result"]["txid"][0]
-                                venue_used = "kraken"
-                                result = {
-                                    "success_response": {"order_id": order_id},
-                                    "order_id": order_id,
-                                    "venue": "kraken",
-                                }
-                            else:
-                                logger.error("Kraken order failed: %s", kraken_result.get("error"))
-                                best_venue = "coinbase"  # Fall back to Coinbase
-                        else:
-                            best_venue = "coinbase"  # KrakenConnector not available
+                    split_exec = self._execute_split_plan_orders(
+                        pair=pair,
+                        side="BUY",
+                        total_notional_usd=trade_size,
+                        price_ref=price,
+                        signal=signal,
+                        split_plan=split_plan,
+                    )
+                    if split_exec.get("handled"):
+                        return bool(split_exec.get("any_filled", False))
 
-                    if best_venue != "kraken" or venue_used != "kraken":
-                        # Coinbase execution path (default / fallback)
-                        from exchange_connector import CoinbaseTrader
-                        trader = CoinbaseTrader()
-                        result = trader.place_limit_order(
-                            exec_pair, "BUY", base_size, limit_price, post_only=True,
-                            expected_edge_pct=signal["composite_confidence"] * 100,
-                            signal_confidence=signal["composite_confidence"],
-                            market_regime=signal.get("regime", "neutral"),
-                        )
-                        venue_used = "coinbase"
+                    result, venue_used, acked = self._execute_spot_limit_order(
+                        pair=pair,
+                        side="BUY",
+                        amount_usd=trade_size,
+                        price_ref=price,
+                        limit_price=limit_price,
+                        signal=signal,
+                        venue_hint=best_venue,
+                    )
+                    if acked:
+                        # Track cash committed this cycle so subsequent orders don't over-spend.
+                        self._cycle_cash_spent = getattr(self, "_cycle_cash_spent", 0.0) + trade_size
+                    return self._process_order_result(
+                        result,
+                        pair,
+                        "BUY",
+                        trade_size,
+                        price,
+                        signal,
+                        venue=venue_used,
+                    )
 
-                # Track cash committed this cycle so subsequent orders don't over-spend
+                # Perp branch
                 self._cycle_cash_spent = getattr(self, '_cycle_cash_spent', 0.0) + trade_size
-                return self._process_order_result(result, exec_pair, "BUY", trade_size, price, signal, venue=venue_used)
+                return self._process_order_result(
+                    result,
+                    exec_pair,
+                    "BUY",
+                    trade_size,
+                    price,
+                    signal,
+                    venue=venue_used,
+                )
             except Exception as e:
                 logger.error("BUY execution error: %s", e, exc_info=True)
                 if _risk_ctrl:
@@ -3756,6 +4821,41 @@ class Sniper:
             held = holdings.get(base_currency, 0)
             held_usd = held * price
             if held_usd < 0.50:
+                # ── No spot to sell — open perp SHORT if enabled (0% maker fee) ──
+                if _deriv and _deriv.enabled:
+                    perp_pid = _deriv.perp_for_spot_pair(pair)
+                    if perp_pid:
+                        conf = signal.get("composite_confidence", 0)
+                        n_sig = signal.get("confirming_signals", 0)
+                        regime = signal.get("market_regime", "neutral")
+                        # GoalValidator perp gate (allows SELL in downtrends)
+                        if _goals and _goals.should_trade_perp(conf, n_sig, "SELL", regime, leverage=1.0):
+                            margin = _deriv.margin_health()
+                            if margin.get("can_open_new", False):
+                                # Conservative size: min($40, 5% of portfolio)
+                                perp_max_lev = float(os.environ.get("PERP_MAX_LEVERAGE", "1.0"))
+                                short_size = min(40.0, total_portfolio * 0.05)
+                                if short_size >= 1.0 and _risk_ctrl:
+                                    perp_ok, perp_reason, perp_adj = _risk_ctrl.approve_perp_trade(
+                                        "sniper", perp_pid, "SELL", short_size, total_portfolio,
+                                        leverage=perp_max_lev, margin_health=margin,
+                                    )
+                                    if perp_ok:
+                                        short_size = perp_adj
+                                        base_size = short_size / price
+                                        limit_price = price * 1.0002  # slight offset above spot
+                                        logger.info("SNIPER EXECUTE: PERP SHORT %s | $%.2f (%.6f @ $%.2f) | conf=%.1f%% | %d signals",
+                                                    perp_pid, short_size, base_size, limit_price, conf * 100, n_sig)
+                                        try:
+                                            result = _deriv.place_perp_order(
+                                                perp_pid, "SELL", base_size, limit_price,
+                                                leverage=perp_max_lev, post_only=True,
+                                            )
+                                            return self._process_order_result(result, perp_pid, "SELL", short_size, price, signal, venue="perp")
+                                        except Exception as e:
+                                            logger.error("PERP SHORT execution error: %s", e, exc_info=True)
+                                    else:
+                                        logger.info("SNIPER: Perp SHORT risk denied (%s)", perp_reason)
                 return False
 
             # Check minimum hold period — don't sell what we just bought (prevents churn)
@@ -3805,20 +4905,26 @@ class Sniper:
             base_size = min(base_size, held)  # never sell more than we have
 
             # MAKER ONLY: limit SELL just above spot (0.4% fee vs 1.2% taker)
-            # Tighter spread for high-confidence SELLs to improve fill rate
+            # Spread-relative pricing: adapts to each pair's microstructure
             conf = signal.get("composite_confidence", 0.7)
-            sell_offset = 1.0002 if conf >= 0.90 else (1.0004 if conf >= 0.80 else 1.0006)
-            limit_price = price * sell_offset  # closer to spot for higher confidence
+
+            spread_pct = self._spot_spread_pct(pair)
+            if spread_pct > 0.001:
+                spread_frac = 0.30 if conf >= 0.90 else (0.50 if conf >= 0.80 else 0.80)
+                half_spread_pct = spread_pct / 200.0
+                sell_offset = 1.0 + half_spread_pct * spread_frac
+            else:
+                sell_offset = 1.0002 if conf >= 0.90 else (1.0004 if conf >= 0.80 else 1.0006)
+            limit_price = price * sell_offset
 
             logger.info("SNIPER EXECUTE: LIMIT SELL %s | $%.2f (%.8f %s) @ $%.2f | conf=%.1f%% | %d signals",
                         pair, trade_size, base_size, base_currency, limit_price,
                         signal["composite_confidence"]*100, signal["confirming_signals"])
 
             try:
-                venue_used = "coinbase"
-
                 # ── Multi-venue routing for SELL ──
                 best_venue = "coinbase"  # default
+                split_plan = {}
                 router = self._get_smart_router()
                 if router:
                     try:
@@ -3827,44 +4933,58 @@ class Sniper:
                             best_venue = quote["venue"]
                             logger.info("SmartRouter selected venue=%s for SELL %s (savings=%.4f%%)",
                                        best_venue, pair, quote.get("savings_vs_coinbase", 0))
+                            split_plan = quote.get("split_plan", {}) if isinstance(quote, dict) else {}
+                            split_enabled = isinstance(split_plan, dict) and bool(split_plan.get("enabled", False))
+                            if not split_enabled:
+                                # Capacity-aware sizing for single-venue execution.
+                                try:
+                                    cap_usd = float(quote.get("capacity_usd", trade_size) or trade_size)
+                                except Exception:
+                                    cap_usd = float(trade_size or 0.0)
+                                if cap_usd > 0 and cap_usd < trade_size:
+                                    old_size = trade_size
+                                    trade_size = max(0.5, cap_usd)
+                                    base_size = min((trade_size / price) if price > 0 else 0.0, held)
+                                    logger.info(
+                                        "SmartRouter capacity cap: %s SELL $%.2f -> $%.2f",
+                                        best_venue,
+                                        old_size,
+                                        trade_size,
+                                    )
                     except Exception as e:
                         logger.warning("SmartRouter SELL failed, defaulting to coinbase: %s", e)
 
-                if best_venue == "kraken":
-                    kraken = self._new_kraken_trader()
-                    if kraken:
-                        kraken_result = kraken.place_order(
-                            pair=pair,
-                            side="sell",
-                            volume=base_size,
-                            order_type="limit",
-                            price=limit_price,
-                            confidence=signal.get("composite_confidence", 0.7),
-                            oflags="post",  # BE A MAKER
-                        )
-                        if kraken_result.get("result", {}).get("txid"):
-                            order_id = kraken_result["result"]["txid"][0]
-                            venue_used = "kraken"
-                            result = {
-                                "success_response": {"order_id": order_id},
-                                "order_id": order_id,
-                                "venue": "kraken",
-                            }
-                        else:
-                            logger.error("Kraken SELL failed: %s", kraken_result.get("error"))
-                            best_venue = "coinbase"
-                    else:
-                        best_venue = "coinbase"
+                split_exec = self._execute_split_plan_orders(
+                    pair=pair,
+                    side="SELL",
+                    total_notional_usd=trade_size,
+                    price_ref=price,
+                    signal=signal,
+                    split_plan=split_plan,
+                    held_base=held,
+                )
+                if split_exec.get("handled"):
+                    return bool(split_exec.get("any_filled", False))
 
-                if best_venue != "kraken" or venue_used != "kraken":
-                    from exchange_connector import CoinbaseTrader
-                    trader = CoinbaseTrader()
-                    result = trader.place_limit_order(
-                        pair, "SELL", base_size, limit_price, post_only=True,
-                        bypass_profit_guard=True)
-                    venue_used = "coinbase"
-
-                return self._process_order_result(result, pair, "SELL", trade_size, price, signal, venue=venue_used)
+                result, venue_used, _acked = self._execute_spot_limit_order(
+                    pair=pair,
+                    side="SELL",
+                    amount_usd=trade_size,
+                    price_ref=price,
+                    limit_price=limit_price,
+                    signal=signal,
+                    venue_hint=best_venue,
+                    held_base=held,
+                )
+                return self._process_order_result(
+                    result,
+                    pair,
+                    "SELL",
+                    trade_size,
+                    price,
+                    signal,
+                    venue=venue_used,
+                )
             except Exception as e:
                 logger.error("SELL execution error: %s", e, exc_info=True)
                 return False
@@ -3905,10 +5025,14 @@ class Sniper:
             if _risk_ctrl:
                 _risk_ctrl.resolve_allocation("sniper", pair)
 
-        if order_id and status == "pending":
+        poll_fill = str(venue_used or "coinbase").strip().lower() in {"coinbase", "perp"}
+        if order_id and status == "pending" and poll_fill:
             try:
                 fill_trader = self._new_coinbase_trader()
-                fill_wait = 2.0
+                # Extended fill wait: maker orders need time to fill
+                # BUY: 8s (spread-relative pricing needs ~5-15s to fill)
+                # SELL: 6-8s (close evidence + exit speed)
+                fill_wait = float(os.environ.get("SNIPER_FILL_WAIT_SECONDS", "8.0"))
                 if (
                     str(side or "").upper() == "SELL"
                     and self._normalize_pair(pair) in self._close_evidence_target_aliases()
@@ -3959,6 +5083,9 @@ class Sniper:
                         status = "filled"
                     elif fb_status in {"failed", "cancelled", "expired"}:
                         status = "failed"
+        elif order_id and status == "pending":
+            logger.info("SNIPER ORDER ACKED (external venue): %s %s order=%s venue=%s",
+                        pair, side, order_id, venue_used)
 
         if fill_data:
             try:
@@ -4008,6 +5135,18 @@ class Sniper:
                     pnl,
                     effective_price,
                 )
+                # Record outcome for signal calibrator: profit = BUY was correct
+                actual_outcome = "BUY" if pnl > 0 else "SELL"
+                signal_details = signal.get("details", {})
+                for sig_name, sig_result in signal_details.items():
+                    sig_dir = sig_result.get("direction", "NONE") if isinstance(sig_result, dict) else "NONE"
+                    if sig_dir in ("BUY", "SELL"):
+                        self._signal_calibrator.record_outcome(sig_name, sig_dir, actual_outcome)
+                        self._signal_calibrator.record_realized_pnl(
+                            sig_name,
+                            pnl_usd=pnl,
+                            notional_usd=effective_notional,
+                        )
 
         trade_uuid = f"{pair}:{side}:{int(time.time() * 1000)}:{(order_id or 'none')[:12]}"
         lifecycle_status = (
@@ -4019,6 +5158,16 @@ class Sniper:
         )
         if fallback_used:
             lifecycle_status = f"{lifecycle_status}_fallback_ioc"
+
+        venue_key = str(venue_used or "coinbase").strip().lower()
+        if venue_key == "perp":
+            venue_fee_rate = 0.0
+        elif venue_key == "kraken":
+            venue_fee_rate = float(os.environ.get("KRAKEN_MAKER_FEE_PCT", "0.16") or 0.16) / 100.0
+        elif venue_key == "kraken_stock":
+            venue_fee_rate = 0.0
+        else:
+            venue_fee_rate = float(os.environ.get("COINBASE_MAKER_FEE_PCT", "0.60") or 0.60) / 100.0
 
         with self._db_lock:
             try:
@@ -4082,10 +5231,10 @@ class Sniper:
                 from ledger_writer import LedgerWriter
                 _ledger = LedgerWriter()
                 asset = pair.split("-")[0] if "-" in pair else pair
-                fees = effective_notional * 0.004  # maker fee
+                fees = effective_notional * venue_fee_rate
                 _ledger.record_trade_fill(
                     asset=asset,
-                    venue="coinbase",
+                    venue=venue_used,
                     amount=effective_qty if side == "BUY" else -effective_qty,
                     value_usd=effective_notional if side == "BUY" else -effective_notional,
                     pair=pair,
@@ -4108,7 +5257,7 @@ class Sniper:
         # Record to KPI tracker for scorecard
         if _kpi and status in ("filled", "pending"):
             try:
-                fees = effective_notional * 0.004  # maker fee
+                fees = effective_notional * venue_fee_rate
                 _kpi.record_trade(
                     strategy_name="sniper", pair=pair, direction=side,
                     amount_usd=effective_notional, pnl=pnl or 0, fees=fees,
@@ -4121,17 +5270,16 @@ class Sniper:
         # Log state transition for learning
         if _tracker and status == "filled":
             asset = pair.split("-")[0]
-            fee_pct = 0.008  # 0.8% taker fee (Intro 2 tier)
-            cost = round(effective_notional * fee_pct, 4)
+            cost = round(effective_notional * venue_fee_rate, 4)
             if side == "BUY":
-                _tracker.transition(asset, "coinbase", "available", "available",
+                _tracker.transition(asset, venue_used, "available", "available",
                                     amount=effective_qty,
                                     value_usd=effective_notional, cost_usd=cost,
                                     trigger="sniper",
                                     metadata={"side": "BUY", "pair": pair,
                                               "confidence": float(signal.get("composite_confidence", 0.0) or 0.0)})
             else:
-                _tracker.transition(asset, "coinbase", "available", "available",
+                _tracker.transition(asset, venue_used, "available", "available",
                                     amount=effective_qty,
                                     value_usd=effective_notional, cost_usd=cost,
                                     trigger="sniper",
@@ -4314,6 +5462,31 @@ class Sniper:
         logger.info("SNIPER FALLBACK IOC: %s %s -> order=%s", pair, side_u, ioc_order_id)
         return {"order_id": ioc_order_id, "fill_data": fill, "used": True}
 
+    def _get_price_fast(self, pair):
+        """Get price from WS feed (O(1), no network call) with REST fallback."""
+        if self._ws_feed:
+            try:
+                quote = self._ws_feed.get_quote(pair)
+                if quote and float(quote.get("mid", 0) or 0) > 0:
+                    mid = float(quote["mid"])
+                    # Also update REST cache so other code paths benefit
+                    with self._price_cache_lock:
+                        self._price_cache[pair] = (mid, time.time())
+                    return mid
+                # Try data-pair alias (e.g. BTC-USDC -> BTC-USD for WS feed)
+                dp = _data_pair(pair)
+                if dp != pair:
+                    quote = self._ws_feed.get_quote(dp)
+                    if quote and float(quote.get("mid", 0) or 0) > 0:
+                        mid = float(quote["mid"])
+                        with self._price_cache_lock:
+                            self._price_cache[pair] = (mid, time.time())
+                        return mid
+            except Exception:
+                pass
+        # Fallback to REST
+        return self._get_price(pair)
+
     def _get_price(self, pair):
         now = time.time()
         with self._price_cache_lock:
@@ -4419,6 +5592,9 @@ class Sniper:
         else:
             logger.warning("Sniper: ExitManager not available — positions will NOT be monitored for exits")
 
+        # Start signal accuracy feedback loop
+        self._signal_verifier.start()
+
         cycle = 0
         while True:
             try:
@@ -4434,6 +5610,55 @@ class Sniper:
                     logger.info("SNIPER: Cash $%.2f < $2 — waiting for exit_manager to free capital", cycle_cash)
 
                 actionable = self.scan_all()
+
+                # Conviction Rally: evaluate monitored positions each cycle
+                if self._conviction:
+                    try:
+                        conv_status = self._conviction.get_status()
+                        for conv_pair in list(conv_status.get("positions", {}).keys()):
+                            conv_price = self._get_price(conv_pair)
+                            if not conv_price:
+                                continue
+                            ev = self._conviction.evaluate(conv_pair, conv_price)
+                            action = ev.get("action", "none")
+                            if action == "cut":
+                                # Failed test — trigger a SELL signal
+                                logger.info("CONVICTION CUT -> SELL %s (P&L=%.2f%%)", conv_pair, ev.get("pnl_pct", 0))
+                                cut_signal = {
+                                    "pair": conv_pair, "direction": "SELL",
+                                    "composite_confidence": 0.99, "confirming_signals": 3,
+                                    "reason": f"conviction_cut pnl={ev.get('pnl_pct', 0):.2f}%",
+                                }
+                                self.execute_trade(cut_signal)
+                                # Record loss outcome for Thompson Sampling
+                                if _ts_sizer:
+                                    _ts_sizer.record_outcome(conv_pair, profitable=False)
+                            elif action == "rally":
+                                # Winner — log follow-up BUY for additional sizing
+                                logger.info("CONVICTION RALLY -> scale up %s to %.1fx (P&L=%.2f%%)",
+                                            conv_pair, ev.get("size_mult", 2.0), ev.get("pnl_pct", 0))
+                                # Record win outcome for Thompson Sampling
+                                if _ts_sizer:
+                                    _ts_sizer.record_outcome(conv_pair, profitable=True)
+                            elif action == "rally_exit":
+                                # Rally ended — trigger SELL
+                                logger.info("CONVICTION RALLY EXIT -> SELL %s (P&L=%.2f%%, drawdown=%.2f%%)",
+                                            conv_pair, ev.get("pnl_pct", 0), ev.get("drawdown_pct", 0))
+                                exit_signal = {
+                                    "pair": conv_pair, "direction": "SELL",
+                                    "composite_confidence": 0.99, "confirming_signals": 3,
+                                    "reason": f"conviction_rally_exit pnl={ev.get('pnl_pct', 0):.2f}%",
+                                }
+                                self.execute_trade(exit_signal)
+                                # Record win (profitable rally exit) for Thompson Sampling
+                                if _ts_sizer:
+                                    profitable = float(ev.get("pnl_pct", 0)) > 0
+                                    _ts_sizer.record_outcome(conv_pair, profitable=profitable)
+                            elif action == "normalize":
+                                logger.info("CONVICTION NORMALIZE: %s -> 1.0x (P&L=%.2f%%)",
+                                            conv_pair, ev.get("pnl_pct", 0))
+                    except Exception as conv_err:
+                        logger.warning("Conviction rally evaluation error: %s", conv_err)
 
                 if not cash_too_low:
                     ordered = sorted(

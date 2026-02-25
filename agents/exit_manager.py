@@ -305,7 +305,23 @@ class ExitManager:
                 details_json TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            -- Performance indices for faster scan cycles
+            CREATE INDEX IF NOT EXISTS idx_exit_events_pair ON exit_events(pair);
+            CREATE INDEX IF NOT EXISTS idx_exit_events_created ON exit_events(created_at);
+            CREATE INDEX IF NOT EXISTS idx_position_snapshots_pair ON position_snapshots(pair);
+            CREATE INDEX IF NOT EXISTS idx_position_snapshots_action ON position_snapshots(action);
+            CREATE INDEX IF NOT EXISTS idx_exit_decision_pair ON exit_decision_telemetry(pair);
+            CREATE INDEX IF NOT EXISTS idx_exit_execution_pair ON exit_execution_attempts(pair);
         """)
+        # Backward-compatible schema migration for existing DBs.
+        # CREATE TABLE IF NOT EXISTS does not add new columns to already-created tables.
+        try:
+            cols = [str(r[1]).strip().lower() for r in self._db.execute("PRAGMA table_info(exit_events)").fetchall()]
+            if "venue" not in cols:
+                self._db.execute("ALTER TABLE exit_events ADD COLUMN venue TEXT DEFAULT 'coinbase'")
+        except Exception as e:
+            logger.warning("EXIT_MGR: exit_events migration warning: %s", e)
         self._db.commit()
 
     def _get_trader(self, venue=None):
@@ -467,8 +483,8 @@ class ExitManager:
         )
         self._db.commit()
 
-    def _record_realized_sell_trade(self, pair, order_type, order_id, price, amount, pnl_usd):
-        """Mirror successful SELL fills into trader.db for realized-PnL gating."""
+    def _record_realized_sell_trade(self, pair, order_type, order_id, price, amount, pnl_usd=None, status="accepted"):
+        """Mirror SELL order acknowledgements into trader.db for later fill reconciliation."""
         try:
             tdb = sqlite3.connect(TRADER_DB)
             tdb.execute(
@@ -486,8 +502,8 @@ class ExitManager:
                     float(amount) * float(price),
                     str(order_type or "market"),
                     str(order_id or ""),
-                    "filled",
-                    float(pnl_usd),
+                    str(status or "accepted"),
+                    None if pnl_usd is None else float(pnl_usd),
                 ),
             )
             tdb.commit()
@@ -507,6 +523,15 @@ class ExitManager:
             base += min(30, self._consecutive_api_failures * 3)
         if self._execution_failures > 0:
             base += min(20, self._execution_failures * 2)
+        # Fast perp monitoring: if perp scalper active with open positions, check faster
+        _perp_monitor_s = int(os.environ.get("EXIT_PERP_MONITOR_SECONDS", "5"))
+        if _deriv_connector and _deriv_connector.enabled:
+            try:
+                perps = _deriv_connector.get_positions()
+                if perps and any(float(p.get("size", 0)) > 0 for p in perps):
+                    base = min(base, _perp_monitor_s)
+            except Exception:
+                pass
         return int(self._clamp(base, MIN_MONITOR_INTERVAL_SECONDS, MAX_MONITOR_INTERVAL_SECONDS))
 
     def _write_status(self):
@@ -559,7 +584,7 @@ class ExitManager:
             ).read())
             fg_value = int(_fg_data["data"][0]["value"])
             if fg_value < 15:       # Extreme Fear
-                multiplier = 0.3   # 70% tighter stops
+                multiplier = max(float(os.environ.get("EXIT_FEAR_EXTREME_MULTIPLIER", "0.3")), 0.3)
                 logger.info("EXIT_MGR: EXTREME FEAR (F&G=%d) — stops at 30%%", fg_value)
             elif fg_value < 25:     # Fear
                 multiplier = 0.5   # 50% tighter stops
@@ -579,6 +604,32 @@ class ExitManager:
         price = _get_price(pair)
         self._cycle_cache[cache_key] = price
         return price
+
+    def _fetch_recent_closes(self, pair, hours=24):
+        """Fetch recent 1h candle close prices for realized volatility calculation.
+
+        Returns list of close prices (oldest first), or None on failure.
+        Uses per-cycle cache to avoid redundant API calls.
+        """
+        cache_key = f"closes_1h:{pair}"
+        if cache_key in self._cycle_cache:
+            return self._cycle_cache[cache_key]
+
+        try:
+            dp = _data_pair(pair)
+            url = f"https://api.exchange.coinbase.com/products/{dp}/candles?granularity=3600"
+            data = _fetch_json(url, timeout=8)
+            if not data or len(data) < 10:
+                self._cycle_cache[cache_key] = None
+                return None
+            # data: [[time, low, high, open, close, volume], ...] newest first
+            closes = [float(c[4]) for c in data[:hours]]
+            closes.reverse()  # oldest first
+            self._cycle_cache[cache_key] = closes
+            return closes
+        except Exception:
+            self._cycle_cache[cache_key] = None
+            return None
 
     def _estimate_portfolio_value_cached(self):
         """Estimate portfolio value with per-cycle caching."""
@@ -652,7 +703,8 @@ class ExitManager:
         # Dead money threshold: hours before we consider a position stale
         # Base: 3 hours (was 4h — faster capital recycling at small portfolio)
         # In extreme fear: cut dead money time aggressively (get out fast)
-        dead_money_hours = 3.0 * regime_time_mult * fear_multiplier
+        _dead_money_base = float(os.environ.get("EXIT_DEAD_MONEY_BASE_HOURS", "3.0"))
+        dead_money_hours = _dead_money_base * regime_time_mult * fear_multiplier
         # Minimum gain to avoid being considered dead money
         # Scales with volatility -- in high vol, 0.5% is nothing
         dead_money_min_gain = 0.005 * vol_multiplier
@@ -661,26 +713,59 @@ class ExitManager:
         # Base: 24 hours, adjusted by regime
         force_eval_hours = 24.0 * regime_time_mult
 
-        # === TAKE-PROFIT TARGETS ===
-        # Scale targets with volatility -- higher vol = larger targets
-        # TP0: Micro take-profit — free capital quickly for compounding
-        # At ~$200 portfolio, freeing $5-10 fast matters more than riding for 5%
-        tp0_pct = 0.008 * vol_multiplier   # ~0.8% in normal vol (covers fees + small profit)
+        # === TAKE-PROFIT TARGETS (volatility-scaled) ===
+        # Uses realized volatility from 1h candle closes when available.
+        # This adapts TPs to actual market conditions:
+        #   Low vol  (rv=0.01): TPs 1.2%, 2.0%, 4.0% — tight, capture small moves
+        #   Med vol  (rv=0.03): TPs 1.5%, 3.0%, 6.0% — normal
+        #   High vol (rv=0.06): TPs 3.0%, 6.0%, 12.0% — wide, ride the trend
+        # Falls back to vol_multiplier scaling if candle data unavailable.
+        recent_closes = self._fetch_recent_closes(pair)
+        if recent_closes is not None and len(recent_closes) > 10:
+            # Compute realized volatility from 1h log returns
+            log_returns = [math.log(recent_closes[i] / recent_closes[i - 1])
+                           for i in range(1, len(recent_closes))
+                           if recent_closes[i - 1] > 0]
+            if len(log_returns) > 5:
+                mean_r = sum(log_returns) / len(log_returns)
+                variance = sum((r - mean_r) ** 2 for r in log_returns) / len(log_returns)
+                realized_vol_1h = math.sqrt(max(0, variance))
+            else:
+                realized_vol_1h = 0.02  # fallback
+        else:
+            realized_vol_1h = 0.02  # fallback to ~2% default vol
+
+        # Venue-aware TP thresholds — scale to round-trip fee structure
+        # Detect venue: perps have dedicated exit path; spot routes to Kraken when preferred
+        _kraken_preferred = os.environ.get("SMART_ROUTER_KRAKEN_PREFERRED", "0") == "1"
+        venue = "kraken" if _kraken_preferred else "coinbase"
+        if venue == "perp":
+            # Perp-specific exits handled by dedicated code path (EXIT_PERP_TP_PCT)
+            tp0_pct = max(0.001, realized_vol_1h * 0.1)
+            tp1_pct = max(0.003, realized_vol_1h * 0.3)
+            tp2_pct = max(0.008, realized_vol_1h * 0.8)
+        elif venue == "kraken":
+            # Kraken: 0.32% RT (0.16% maker each side) — exit much sooner than Coinbase
+            tp0_pct = max(0.005, realized_vol_1h * 0.3)   # 0.5% floor (vs 1.2%)
+            tp1_pct = max(0.010, realized_vol_1h * 0.6)   # 1.0% (vs 2.0%)
+            tp2_pct = max(0.020, realized_vol_1h * 1.2)   # 2.0% (vs 4.0%)
+        else:
+            # Coinbase spot: 1.2% RT — keep current thresholds
+            tp0_pct = max(0.012, realized_vol_1h * 0.5)   # Half vol = quick scalp
+            tp1_pct = max(0.020, realized_vol_1h * 1.0)   # Full vol = normal target
+            tp2_pct = max(0.040, realized_vol_1h * 2.0)   # 2x vol = big move
+
         tp0_sell_frac = 0.20               # sell 20% at TP0 — free cash for next trade
-
-        tp1_pct = 0.02 * vol_multiplier    # ~2% in normal vol
-        tp1_sell_frac = 0.25               # sell 25% at TP1 (was 30%, reduced for TP0)
-
-        tp2_pct = 0.05 * vol_multiplier    # ~5% in normal vol
-        tp2_sell_frac = 0.25               # sell 25% at TP2 (was 30%, reduced for TP0)
+        tp1_sell_frac = 0.25               # sell 25% at TP1
+        tp2_sell_frac = 0.25               # sell 25% at TP2
 
         # Remaining 30% rides with trailing stop
         rider_frac = 1.0 - tp0_sell_frac - tp1_sell_frac - tp2_sell_frac
 
         # === SCALE-OUT AT TIME THRESHOLD ===
-        # Sell 50% of position at 2% profit if held > scale_out_hours
-        scale_out_hours = 2.0 * regime_time_mult
-        scale_out_profit_pct = 0.02 * vol_multiplier
+        # Sell 50% of position at profit threshold if held > scale_out_hours
+        scale_out_hours = 1.5 * regime_time_mult  # was 2.0 — exit 25% sooner
+        scale_out_profit_pct = (0.008 if venue == "kraken" else 0.02) * vol_multiplier
         scale_out_frac = 0.50
 
         # === MAX LOSS PER POSITION ===
@@ -1130,6 +1215,7 @@ class ExitManager:
         last_error = ""
         attempt = 0
         filled_order_type = "market"
+        accepted_price = current_price
         for order_type, cfg in plan:
             attempt += 1
             try:
@@ -1180,6 +1266,10 @@ class ExitManager:
             )
             if success:
                 filled_order_type = str(order_type or "market")
+                if isinstance(cfg, dict):
+                    accepted_price = float(cfg.get("price", current_price) or current_price)
+                else:
+                    accepted_price = current_price
                 break
 
         if not success:
@@ -1211,9 +1301,10 @@ class ExitManager:
             pair=pair,
             order_type=filled_order_type,
             order_id=order_id,
-            price=current_price,
+            price=accepted_price,
             amount=amount,
-            pnl_usd=pnl_usd,
+            pnl_usd=None,
+            status="accepted",
         )
 
         if _risk_ctrl:
@@ -1459,7 +1550,10 @@ class ExitManager:
                         logger.error("EXIT_MGR: Concentration check error %s: %s", base_currency, e)
 
                 # === PERP POSITION MONITORING ===
-                # Check all open perpetual positions for emergency conditions
+                # Env-driven thresholds for perp scalper (tiny TP/SL at 0% maker fee)
+                _perp_tp_pct = float(os.environ.get("EXIT_PERP_TP_PCT", "0.10")) / 100.0  # 0.10% default
+                _perp_sl_pct = float(os.environ.get("EXIT_PERP_SL_PCT", "0.15")) / 100.0  # 0.15% default
+                _perp_max_hold_s = float(os.environ.get("EXIT_PERP_MAX_HOLD_MINUTES", "5")) * 60.0
                 if _deriv_connector and _deriv_connector.enabled:
                     try:
                         perp_positions = _deriv_connector.get_positions()
@@ -1487,18 +1581,7 @@ class ExitManager:
                                 _deriv_connector.close_position(ppid)
                                 continue
 
-                            # Check 3: Unrealized loss > 1% of portfolio → close
-                            unrealized = ppos.get("unrealized_pnl", 0)
-                            if portfolio_value > 0 and unrealized < 0:
-                                loss_pct = abs(unrealized) / portfolio_value
-                                if loss_pct > 0.01:
-                                    logger.warning(
-                                        "EXIT_MGR: PERP LOSS CLOSE %s — unrealized $%.2f = %.2f%% of portfolio",
-                                        ppid, unrealized, loss_pct * 100)
-                                    _deriv_connector.close_position(ppid)
-                                    continue
-
-                            # Check 4: Take profit > 2% gain → close
+                            # Check 3: Unrealized loss > SL threshold → close
                             entry_px = ppos.get("entry_price", 0)
                             mark_px = ppos.get("mark_price", 0)
                             if entry_px > 0 and mark_px > 0:
@@ -1507,12 +1590,36 @@ class ExitManager:
                                     gain_pct = (mark_px - entry_px) / entry_px
                                 else:
                                     gain_pct = (entry_px - mark_px) / entry_px
-                                if gain_pct >= 0.02:
-                                    logger.info(
-                                        "EXIT_MGR: PERP TAKE PROFIT %s — gain %.2f%% >= 2%%",
-                                        ppid, gain_pct * 100)
+
+                                # Stop loss (env-driven, default -0.15%)
+                                if gain_pct <= -_perp_sl_pct:
+                                    logger.warning(
+                                        "EXIT_MGR: PERP STOP LOSS %s — loss %.3f%% >= %.3f%% SL",
+                                        ppid, abs(gain_pct) * 100, _perp_sl_pct * 100)
                                     _deriv_connector.close_position(ppid)
                                     continue
+
+                                # Take profit (env-driven, default +0.10%)
+                                if gain_pct >= _perp_tp_pct:
+                                    logger.info(
+                                        "EXIT_MGR: PERP TAKE PROFIT %s — gain %.3f%% >= %.3f%% TP",
+                                        ppid, gain_pct * 100, _perp_tp_pct * 100)
+                                    _deriv_connector.close_position(ppid)
+                                    continue
+
+                            # Check 4: Max hold time exceeded → close
+                            open_ts = ppos.get("opened_at") or ppos.get("created_at")
+                            if open_ts:
+                                try:
+                                    age_s = time.time() - float(open_ts)
+                                    if age_s > _perp_max_hold_s:
+                                        logger.info(
+                                            "EXIT_MGR: PERP TIME EXIT %s — held %.0fs > %.0fs max",
+                                            ppid, age_s, _perp_max_hold_s)
+                                        _deriv_connector.close_position(ppid)
+                                        continue
+                                except (TypeError, ValueError):
+                                    pass
 
                     except Exception as e:
                         logger.error("EXIT_MGR: Perp monitoring error: %s", e)

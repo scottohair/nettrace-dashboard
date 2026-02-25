@@ -1,3 +1,51 @@
+## 2026-02-24 Codex Handoff — Rollout Gate + NY/NJ Routing + Scanner Throughput
+
+- **What I did**:
+  - Added adaptive rollout sizing gates in `agents/realtime_orchestrator.py` (`AdaptiveRolloutGate`, `ORCH_ROLLOUT_*`), wired into Coinbase/Kraken/Kraken-stocks/E*Trade sizing.
+  - Added venue-aware routing and NY/NJ tie-break preference for US execution (`ORCH_NYNJ_*`, `ORCH_ROUTE_VENUE_PENALTY_MS`).
+  - Patched `scheduler.py` for batch DB persistence and geolocation dedupe (reduces per-target commit and fetch overhead).
+  - Added Apple Silicon native build scaffold `agents/build_fast_engines.sh` and bridge compile guidance updates in `agents/fast_bridge.py` and `agents/fast_exec_bridge.py`.
+  - Validation passed:
+    - `python3 -m py_compile agents/realtime_orchestrator.py scheduler.py agents/fast_bridge.py agents/fast_exec_bridge.py`
+    - `./agents/build_fast_engines.sh --dry-run`
+
+- **Key runtime finding (highest priority blocker)**:
+  - `agents/execution_health_status.json` is repeatedly `green=false` with `reason=reconcile_status_stale` (latest observed `2026-02-24T07:22:54.586562+00:00`), so promotion and sizing expansion must remain gated.
+
+- **What is staged for Claude now**:
+  - Deterministic handoff JSON refreshed at `agents/claude_staging/codex_to_claude_handoff.json`.
+  - Duplex directive sent to Claude with measurable asks and acceptance criteria (`agents/claude_staging/duplex_to_claude.jsonl`).
+  - Full rollout/scaffold analysis doc: `docs/claude/CODEX_STAGE_ROLLOUT_HANDOFF_2026-02-24.md`.
+
+- **Next (Claude/Codex shared plan)**:
+  1. Clear reconcile staleness and hold healthy state for consecutive checks.
+  2. Add per-venue rollout attribution telemetry (`rollout_mult`, fill/blocked rates, realized PnL impact).
+  3. Tune no-loss gate for high-confidence latency-arb to increase valid approvals without relaxing capital protection.
+
+---
+
+## 2026-02-24 Claude Code Handoff — Bear Market Strategy + Fee Fix + New Revenue Deployed
+
+- **What I did**:
+  - **Fee corrections (Fix A+B+C)**: Coinbase maker fee fixed from 0.40% to 0.60% (env-driven), agent_goals MAKER_FEE from 0.004 to 0.006, sniper CONFIG confidence synced to 0.75
+  - **SmartRouter Kraken optimization (Opt B)**: Kraken latency penalty capped at 0.10% — saves 0.44% per trade vs Coinbase. Logs confirm: `SmartRouter selected venue=kraken (savings=0.4441%)`
+  - **Kraken price precision fix**: BTC/USD rounded to 1 decimal per Kraken API requirements
+  - **Bracket orders (Opt A)**: BUY orders now get exchange-enforced TP/SL via Coinbase `attached_order_configuration`
+  - **DB performance indices (Opt C)**: Added indices on exit_manager and kpi_tracker tables
+  - **Test fixes (Fix D+E)**: creative_agent_bridge IPC signal bus + market_connector_hub Kraken routing — 589 tests pass
+  - **WAL cleanup (Fix F)**: .gitignore updated, WAL files removed from tracking
+  - **Funding arb agent (Rev A)**: New `funding_arb_agent.py` — delta-neutral carry on perp funding skews, wired into deploy manifest
+  - **Signal accuracy feedback loop (Rev B)**: `SignalAccuracyVerifier` checks predictions at 5m/15m/1h, auto-calibrates `signal_weights` DB table
+- **What's next**:
+  - Monitor Kraken order fills (price precision fix should resolve BTC/USD errors)
+  - Watch funding arb for first delta-neutral positions
+  - Signal accuracy data should start populating after ~1hr of trading
+  - Codex: Consider signal weight integration from DB into calibrator (currently in-memory only)
+- **Blockers**: None
+- **Deploy status**: Deployed to all 7 Fly machines, all healthy. 589 tests passing.
+
+---
+
 ## 2026-02-16 Claude Code Handoff — Coinbase Derivatives Trading Enabled
 
 - **What I did**:

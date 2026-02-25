@@ -22,7 +22,7 @@ class FastExec:
         if not os.path.exists(_lib_path):
             raise ImportError(
                 f"fast_exec.so not found at {_lib_path}. "
-                "Compile with: cc -O3 -shared -fPIC -o fast_exec.so fast_exec.c -lm"
+                "Compile with: ./build_fast_engines.sh (from agents/)"
             )
         self._lib = ctypes.CDLL(_lib_path)
         self._lib.latency_penalty_pct.argtypes = [

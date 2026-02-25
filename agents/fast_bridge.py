@@ -20,7 +20,7 @@ from pathlib import Path
 _lib_path = str(Path(__file__).parent / "fast_engine.so")
 if not os.path.exists(_lib_path):
     raise ImportError(f"fast_engine.so not found at {_lib_path}. Compile with: "
-                      "cc -O3 -mcpu=apple-m1 -shared -fPIC -o fast_engine.so fast_engine.c -lm")
+                      "./build_fast_engines.sh (from agents/)")
 
 
 # C struct definitions

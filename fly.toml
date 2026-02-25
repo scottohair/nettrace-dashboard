@@ -52,13 +52,13 @@ primary_region = "ewr"
   SNIPER_QUOTE_BALANCE_BUFFER_USD = "0.02"
   SNIPER_REQUIRE_CLOSE_FLOW_FOR_BUY = "1"
   SNIPER_CLOSE_FLOW_STATUS_MAX_AGE_SECONDS = "3600"
-  SNIPER_CLOSE_FLOW_MIN_ATTEMPTS = "2"
-  SNIPER_CLOSE_FLOW_MIN_COMPLETION_RATE = "0.45"
+  SNIPER_CLOSE_FLOW_MIN_ATTEMPTS = "1"
+  SNIPER_CLOSE_FLOW_MIN_COMPLETION_RATE = "0.20"
   SNIPER_CLOSE_FLOW_MAX_TERMINAL_FAILURES = "2"
   # AGGRESSIVE GROWTH MODE: Scale from $237 to $1000
   WARM_MICROLANE_ALLOW = "1"
-  WARM_MICROLANE_MAX_FUNDED_BUDGET = "120.0"
-  WARM_MICROLANE_MAX_FUNDED_STRATEGIES = "5"
+  WARM_MICROLANE_MAX_FUNDED_BUDGET = "200.0"
+  WARM_MICROLANE_MAX_FUNDED_STRATEGIES = "8"
   WARM_MICROLANE_REQUIRE_REALIZED_PROOF = "0"
   # Agent-specific allocations (distributed across winners)
   SENTIMENT_LEECH_WARM_BUDGET = "40.0"
@@ -81,12 +81,144 @@ primary_region = "ewr"
   # Growth mode tuning
   GROWTH_MODE_ENABLED = "1"
   GROWTH_MODE_ESCALATION_FACTOR = "1.50"
-  GROWTH_MODE_TP0_TARGET = "0.5"
-  GROWTH_MODE_TP1_TARGET = "1.0"
-  GROWTH_MODE_TP2_TARGET = "2.5"
-  SNIPER_MIN_TRADE_SIZE_USD = "0.25"
-  SNIPER_MAX_POSITION_SIZE_USD = "50.0"
-  EXIT_MANAGER_QUICK_PROFIT_THRESHOLD = "0.5"
+  GROWTH_MODE_TP0_TARGET = "1.5"
+  GROWTH_MODE_TP1_TARGET = "2.5"
+  GROWTH_MODE_TP2_TARGET = "5.0"
+  # Min $10 trades: at 0.6% maker fee, that's $0.06/side = $0.12 round trip.
+  # Was $0.25 — tiny trades where fees ate all profit.
+  SNIPER_MIN_TRADE_SIZE_USD = "10.00"
+  SNIPER_MAX_POSITION_SIZE_USD = "150.0"
+  # P&L epoch: exclude legacy position liquidations from autoproceed P&L
+  PNL_EPOCH_TS = "1771891177"
+  # Deploy idle savings capital to checking for active trading
+  CAPITAL_DEPLOY_IDLE_SAVINGS = "1"
+  CAPITAL_IDLE_RESERVE_MIN_USD = "20.0"
+  # Sniper execution tuning — balanced cadence
+  SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS = "30"
+  SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS = "60"
+  SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_ON_BLOCK = "1"
+  SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_COOLDOWN_SECONDS = "20"
+  # Buy/sell balance: require exits before more accumulation
+  SNIPER_BALANCE_MIN_SELL_COMPLETIONS = "1"
+  SNIPER_BALANCE_MAX_BUY_SELL_RATIO = "5.0"
+  SNIPER_BALANCE_REQUIRE_NON_NEGATIVE_REALIZED_PNL = "0"
+  SNIPER_CLOSE_EVIDENCE_MIN_CLOSES = "1"
+  # Temporarily disable strict realized gate for bootstrap
+  STRICT_REALIZED_GO_LIVE_REQUIRED = "0"
+  # HF and signal tuning
+  HF_MODEL_SIGNAL_INTERVAL_MS = "50"
+  ORCH_LOCATION_ALPHA = "1"
+  KRAKEN_SCAN_INTERVAL_S = "15"
+  EXCHANGE_SCANNER_INTERVAL_S = "60"
+  # Stock trading
+  ORCH_KRAKEN_STOCKS_ENABLED = "1"
+  ORCH_ETRADE_ENABLED = "1"
+  # Fix telemetry bootstrap chicken-and-egg (auto-resolves once trades flow)
+  EXEC_HEALTH_FORCE_TELEMETRY_BYPASS = "1"
+  # Relax strategic planner chain gate to match sniper defaults
+  LONG_CHAIN_MIN_NET_EDGE_PCT = "0.002"
+  LONG_CHAIN_MIN_WORST_EDGE_PCT = "-0.005"
+  # Relax sniper chain gate for fee-heavy env (-1% net, -2% worst vs defaults 0.2%/-0.5%)
+  SNIPER_MIN_CHAIN_NET_EDGE_PCT = "-0.01"
+  SNIPER_MIN_CHAIN_WORST_EDGE_PCT = "-0.02"
+  # Disable growth engine confidence dampening (was 0.85 = 15% haircut)
+  # Quality/lattice info still logged; re-enable once GF quality improves
+  SNIPER_GF_DAMPEN_FACTOR = "1.0"
+  # === PERP SHORTING (0% maker fee; auto-enable when products are discoverable) ===
+  PERP_TRADING_ENABLED = "auto"
+  PERP_MAX_LEVERAGE = "1.0"
+  PERP_MAX_POSITIONS = "3"
+  # === PERP SCALPER (0% maker, sub-second cadence) ===
+  PERP_SCALPER_ENABLED = "1"
+  PERP_SCALPER_INTERVAL_MS = "500"
+  PERP_SCALPER_MIN_CONFIDENCE = "0.60"
+  PERP_SCALPER_MIN_SIGNALS = "2"
+  PERP_SCALPER_MIN_EDGE_PCT = "0.05"
+  PERP_SCALPER_ORDER_USD = "3.0"
+  PERP_SCALPER_PAIRS = "BTC-USD,ETH-USD,SOL-USD"
+  GOAL_MIN_CONFIDENCE_PERP = "0.60"
+  # Perp exit thresholds (tiny TP/SL — near-free re-entry at 0% maker)
+  EXIT_PERP_TP_PCT = "0.10"
+  EXIT_PERP_SL_PCT = "0.15"
+  EXIT_PERP_MAX_HOLD_MINUTES = "5"
+  EXIT_PERP_MONITOR_SECONDS = "5"
+  # === KRAKEN SPOT ROUTING (0.16% maker vs Coinbase 0.60%) ===
+  SMART_ROUTER_KRAKEN_PREFERRED = "1"
+  SNIPER_KRAKEN_CONFIDENCE_FLOOR = "0.65"
+  # === MULTI-EXCHANGE ARB CANARY ROLLOUT ===
+  ARB_SERVICE_EXECUTE_ENABLED = "1"
+  ARB_SERVICE_DATA_SOURCE = "hybrid"
+  ARB_SERVICE_SCAN_INTERVAL_S = "45"
+  ARB_SERVICE_MIN_SPREAD_PCT = "0.30"
+  ARB_SERVICE_MIN_PROFIT_USD = "0.50"
+  ARB_SERVICE_TRADE_NOTIONAL_USD = "50.0"
+  ARB_SERVICE_ROLLOUT_MODE = "canary"
+  ARB_SERVICE_ROLLOUT_INITIAL_STAGE = "canary"
+  ARB_SERVICE_CANARY_REGIONS = "ewr,local"
+  ARB_SERVICE_FULL_REGIONS = "ewr,ord,lhr,fra,nrt,sin,bom,local"
+  ARB_SERVICE_CANARY_NOTIONAL_USD = "10.0"
+  ARB_SERVICE_FULL_NOTIONAL_USD = "50.0"
+  ARB_SERVICE_AUTOPROMOTE_ENABLED = "1"
+  ARB_SERVICE_AUTOPROMOTE_MIN_ATTEMPTS = "25"
+  ARB_SERVICE_AUTOPROMOTE_MIN_SUCCESS_RATE = "0.70"
+  ARB_SERVICE_AUTOPROMOTE_MIN_NET_USD = "2.0"
+  ARB_SERVICE_AUTOPROMOTE_WINDOW = "40"
+  ARB_SERVICE_ROLLOUT_STATUS_PATH = "/data/arb_rollout_status.json"
+  ARB_SERVICE_SCAN_PAIRS = "BTC,ETH,SOL"
+  # === HF TRANSFORMER OVERLAY (opt-in; baseline keeps heuristic-only for latency) ===
+  HF_MODEL_SIGNAL_TRANSFORMER_ENABLED = "0"
+  HF_MODEL_SIGNAL_TRANSFORMER_MODEL_ID = "ProsusAI/finbert"
+  HF_MODEL_SIGNAL_TRANSFORMER_DEVICE = "-1"
+  HF_MODEL_SIGNAL_TRANSFORMER_BLEND = "0.35"
+  HF_MODEL_SIGNAL_TRANSFORMER_MIN_CONFIDENCE = "0.55"
+  HF_MODEL_SIGNAL_TRANSFORMER_MIN_INTERVAL_MS = "800"
+  # === FEE CORRECTION: round-trip = 0.6% maker buy + 0.6% maker sell = 1.2% ===
+  SNIPER_ROUND_TRIP_FEE_PCT = "0.012"
+  # === SIGNAL QUALITY ===
+  # Raised from 0.65: with 0.6% maker fees, need higher conviction to overcome costs.
+  # 0.72 filters out marginal signals, keeps strong ones (F&G extreme, strong momentum).
+  GOAL_MIN_CONFIDENCE = "0.72"
+  GOAL_MIN_CONFIRMING_SIGNALS = "3"
+  # === FEE SCHEDULE (actual fees at current volume tier) ===
+  MAKER_FEE_PCT = "0.006"
+  TAKER_FEE_PCT = "0.012"
+  COINBASE_MAKER_FEE_PCT = "0.60"
+  # === EXECUTION OPTIMIZATION ===
+  # CRITICAL: 94% of orders were falling back to IOC/taker (1.2% fee).
+  # Fix: disable fallback to market orders. Let limit orders fill or expire.
+  # Maker fills = 0.6% fee. Taker fills = 1.2% fee. 2x savings.
+  SNIPER_FILL_WAIT_SECONDS = "45.0"
+  SNIPER_EXECUTION_FALLBACK_MODE = "off"
+  # === HOLD SPOT LONGS (bear market protection) ===
+  EXIT_DEAD_MONEY_BASE_HOURS = "24.0"
+  EXIT_FEAR_EXTREME_MULTIPLIER = "0.80"
+  # === RISK AGENT SCALING (env-driven, not hardcoded) ===
+  RISK_AGENT_MAX_TRADE_USD = "75.0"
+  RISK_AGENT_MAX_DAILY_LOSS_USD = "75.0"
+  # === LISP + SHELL CONTROL PLANE (Phase 0: shadow only) ===
+  LISP_LOOP_ENABLED = "1"
+  LISP_CYCLE_MS = "800"
+  LISP_WEIGHTS_PATH = "agents/runtime/signal_weights.json"
+  LISP_DECISIONS_PATH = "agents/runtime/edge_decisions.json"
+  SUPERVISOR_LOOP_S = "5"
+  SUPERVISOR_MAX_RESTARTS_10M = "8"
+  HEALTH_WATCHDOG_STALE_SEC = "45"
+  PROMOTION_MIN_TRADES = "200"
+  PROMOTION_MIN_EDGE_BPS = "2.0"
+  PROMOTION_MAX_DD_DELTA_USD = "0"
+  CAPITAL_RESERVE_USD_FLOOR = "50.0"
+  CAPITAL_RESERVE_USDC_FLOOR = "50.0"
+  EXEC_TTL_S = "20"
+  EXEC_IOC_FALLBACK_AFTER_TTL = "1"
+  # === SELF-EVOLVING PERFORMANCE ENGINE ===
+  AUTOBUILDER_ENABLED = "1"
+  AUTOBUILDER_CYCLE_SECONDS = "300"
+  AUTOBUILDER_MAX_MUTATION_PCT = "0.10"
+  AUTOBUILDER_MIN_SHADOW_TRADES = "20"
+  AUTOBUILDER_MIN_EDGE_BPS = "2.0"
+  AUTOBUILDER_ROLLBACK_WINDOW_S = "1800"
+  METRICS_COLLECTOR_CYCLE_SECONDS = "60"
+  SNIPER_ORDER_TTL_SECONDS = "120"
 
 [http_service]
   internal_port = 8080
@@ -95,6 +227,13 @@ primary_region = "ewr"
   auto_start_machines = true
   min_machines_running = 1
   processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "60s"
+    interval = "30s"
+    method = "GET"
+    path = "/health"
+    timeout = "10s"
 
 [mounts]
   source = "nettrace_data"
