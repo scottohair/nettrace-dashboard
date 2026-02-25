@@ -128,8 +128,11 @@ class AutoBuilder:
         }
 
     def mine_bottlenecks(self):
-        """Read existing DBs, rank performance bottlenecks by impact."""
+        """Read existing DBs + flywheel telemetry, rank performance bottlenecks by impact."""
         bottlenecks = []
+
+        # 0. Flywheel telemetry: real-time gate blockage detection (highest priority)
+        bottlenecks.extend(self._mine_flywheel_telemetry())
 
         # 1. Signal accuracy: identify underperforming and outperforming signals
         bottlenecks.extend(self._mine_signal_accuracy())
@@ -267,6 +270,50 @@ class AutoBuilder:
             logger.debug("Fill rate mining error: %s", e)
         finally:
             conn.close()
+        return bottlenecks
+
+    def _mine_flywheel_telemetry(self):
+        """Read sniper flywheel telemetry to detect gate blockage.
+
+        Closed loop: sniper → flywheel_telemetry.json → auto_builder → champion_config → sniper
+        """
+        tel_path = RUNTIME_DIR / "flywheel_telemetry.json"
+        if not tel_path.exists():
+            return []
+        bottlenecks = []
+        try:
+            data = json.loads(tel_path.read_text())
+            gate_health = data.get("gate_health", "green")
+            avg_actionable = float(data.get("avg_actionable_per_cycle", 0))
+            avg_sells = float(data.get("avg_sells_per_cycle", 0))
+            window_size = int(data.get("window_size", 0))
+
+            if window_size < 5:
+                return []  # Not enough data
+
+            if gate_health == "red":
+                bottlenecks.append(Bottleneck(
+                    "gate_blockage_critical", "sniper_gates",
+                    severity=0.95,
+                    current_value=f"avg_actionable={avg_actionable:.2f}",
+                    suggestion={"confidence_threshold": -0.02},  # Loosen confidence
+                ))
+            elif gate_health == "yellow":
+                bottlenecks.append(Bottleneck(
+                    "gate_blockage_moderate", "sniper_gates",
+                    severity=0.60,
+                    current_value=f"avg_actionable={avg_actionable:.2f}",
+                    suggestion={"confidence_threshold": -0.01},
+                ))
+            elif gate_health == "yellow_sell_blocked":
+                bottlenecks.append(Bottleneck(
+                    "sell_blockage", "exit_manager",
+                    severity=0.75,
+                    current_value=f"avg_sells={avg_sells:.2f}",
+                    suggestion={"tp_targets": {"tp0": -0.002}},  # Lower TP0
+                ))
+        except Exception as e:
+            logger.debug("Flywheel telemetry mining error: %s", e)
         return bottlenecks
 
     def generate_hypothesis(self, bottleneck):

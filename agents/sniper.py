@@ -5549,6 +5549,79 @@ class Sniper:
         except Exception:
             return []
 
+    # ── Flywheel telemetry: feeds back into auto_builder via runtime/flywheel_telemetry.json ──
+    _flywheel_telemetry_window = []  # Rolling window of cycle stats
+    _flywheel_telemetry_max_window = 60  # Keep last 60 cycles (~30 min at 30s intervals)
+
+    def _write_flywheel_telemetry(self, cycle, actionable, scan_pairs=None):
+        """Write per-cycle telemetry for the auto_builder feedback loop.
+
+        Tracks: signal generation rate, gate block rate, trade execution rate,
+        and the specific gates that are blocking.
+
+        This data feeds into: auto_builder → alpha_researcher → sniper (closed loop)
+        """
+        n_pairs = len(scan_pairs or [])
+        n_actionable = len(actionable) if actionable else 0
+        n_buys = sum(1 for s in (actionable or []) if s.get("direction") == "BUY")
+        n_sells = sum(1 for s in (actionable or []) if s.get("direction") == "SELL")
+
+        cycle_stat = {
+            "cycle": cycle,
+            "ts": time.time(),
+            "pairs_scanned": n_pairs,
+            "actionable": n_actionable,
+            "buys": n_buys,
+            "sells": n_sells,
+        }
+
+        # Rolling window
+        self._flywheel_telemetry_window.append(cycle_stat)
+        if len(self._flywheel_telemetry_window) > self._flywheel_telemetry_max_window:
+            self._flywheel_telemetry_window = self._flywheel_telemetry_window[-self._flywheel_telemetry_max_window:]
+
+        # Compute rolling averages
+        window = self._flywheel_telemetry_window
+        n = len(window)
+        avg_actionable = sum(c["actionable"] for c in window) / max(1, n)
+        avg_buys = sum(c["buys"] for c in window) / max(1, n)
+        avg_sells = sum(c["sells"] for c in window) / max(1, n)
+        total_actionable = sum(c["actionable"] for c in window)
+        total_scans = sum(c["pairs_scanned"] for c in window)
+        signal_rate = total_actionable / max(1, total_scans)
+
+        # Gate health assessment
+        gate_health = "green"
+        if avg_actionable < 0.1 and n >= 10:
+            gate_health = "red"  # Almost nothing getting through
+        elif avg_actionable < 0.5 and n >= 10:
+            gate_health = "yellow"  # Low throughput
+        elif avg_sells < 0.05 and avg_buys > 0.3 and n >= 10:
+            gate_health = "yellow_sell_blocked"  # Buys flowing but no sells
+
+        telemetry = {
+            "cycle": cycle,
+            "window_size": n,
+            "avg_actionable_per_cycle": round(avg_actionable, 3),
+            "avg_buys_per_cycle": round(avg_buys, 3),
+            "avg_sells_per_cycle": round(avg_sells, 3),
+            "signal_rate": round(signal_rate, 4),
+            "gate_health": gate_health,
+            "last_updated": datetime.now(timezone.utc).isoformat(),
+        }
+
+        # Write atomically for consumption by auto_builder and metrics_collector
+        try:
+            runtime_dir = os.path.join(os.path.dirname(__file__), "runtime")
+            os.makedirs(runtime_dir, exist_ok=True)
+            tel_path = os.path.join(runtime_dir, "flywheel_telemetry.json")
+            tmp_path = tel_path + ".tmp"
+            with open(tmp_path, "w") as f:
+                json.dump(telemetry, f, indent=2)
+            os.replace(tmp_path, tel_path)
+        except Exception:
+            pass
+
     def print_report(self):
         """Print scan results report."""
         print(f"\n{'='*70}")
@@ -5700,6 +5773,12 @@ class Sniper:
                     for signal in actionable:
                         if signal.get("direction") == "SELL":
                             self.execute_trade(signal)
+
+                # Flywheel telemetry: track scan→signal→trade conversion rate
+                try:
+                    self._write_flywheel_telemetry(cycle, actionable, scan_pairs=CONFIG.get("pairs", []))
+                except Exception:
+                    pass
 
                 # Report every 30 cycles (~15 min)
                 if cycle % 30 == 0:
