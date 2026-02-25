@@ -130,18 +130,20 @@ class QuantOptimizerAgent:
     def _derive_risk_overrides(self, posture, algorithm_tuning, ranking, memo=None):
         base_min_conf = float(algorithm_tuning.get("min_confidence", 0.55))
         min_confidence = base_min_conf
-        max_trade_usd = 5.0
+        # Scale with env-driven risk limits (was hardcoded $5.00)
+        _env_max = float(os.environ.get("RISK_AGENT_MAX_TRADE_USD", "75.0"))
+        max_trade_usd = _env_max * 0.60  # 60% of env cap as base
         max_trades_per_cycle = 2
         size_multiplier = 1.0
 
         if posture == "DEFENSIVE":
             min_confidence += 0.07
-            max_trade_usd = 3.5
+            max_trade_usd = _env_max * 0.40  # 40% of env cap (was $3.50)
             max_trades_per_cycle = 1
             size_multiplier = 0.75
         elif posture == "OFFENSIVE":
             min_confidence -= 0.02
-            max_trade_usd = 5.0
+            max_trade_usd = _env_max * 0.80  # 80% of env cap (was $5.00)
             max_trades_per_cycle = 3
             size_multiplier = 1.10
 
@@ -162,7 +164,7 @@ class QuantOptimizerAgent:
             size_multiplier = size_multiplier * 0.9
 
         min_confidence = round(self._clamp(min_confidence, 0.45, 0.85), 4)
-        max_trade_usd = round(self._clamp(max_trade_usd, 1.0, 5.0), 2)
+        max_trade_usd = round(self._clamp(max_trade_usd, 1.0, _env_max), 2)
         max_trades_per_cycle = int(self._clamp(max_trades_per_cycle, 1, 4))
         size_multiplier = round(self._clamp(size_multiplier, 0.6, 1.2), 4)
 

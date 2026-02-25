@@ -87,7 +87,10 @@ class TestAdvancedTeamResilienceFixes(unittest.TestCase):
 
         self.assertEqual(overrides["data_quality_mode"], "degraded")
         self.assertLess(overrides["min_confidence"], 0.73)
-        self.assertEqual(overrides["max_trade_usd"], 2.8)
+        # Degraded reduces trade cap by 20% (0.80x); exact value scales with env RISK_AGENT_MAX_TRADE_USD
+        _env_max = float(os.environ.get("RISK_AGENT_MAX_TRADE_USD", "75.0"))
+        expected_degraded = round(_env_max * 0.40 * 0.80, 2)  # DEFENSIVE 40% * degraded 80%
+        self.assertEqual(overrides["max_trade_usd"], expected_degraded)
         self.assertEqual(overrides["max_trades_per_cycle"], 1)
         self.assertLessEqual(overrides["size_multiplier"], 0.9)
 

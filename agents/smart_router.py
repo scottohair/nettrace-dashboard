@@ -417,9 +417,11 @@ class SmartRouter:
             if side.upper() == "BUY":
                 # Check total available: USD + USDC + value of held crypto
                 kraken_quote_usd = float(kraken_bal.get("quote_usd", 0) or 0)
-                # Also count ETH/BTC that could be sold first
-                eth_val = float(kraken_bal.get("ETH", 0) or 0) * float(kraken_quote.get("price", 0) or 0) if base_asset != "ETH" else 0
-                btc_val = float(kraken_bal.get("BTC", 0) or 0) * float(kraken_quote.get("price", 0) or 0) if base_asset != "BTC" else 0
+                # Also count ETH/BTC that could be sold first (use actual ETH/BTC prices, not traded asset price)
+                eth_amt = float(kraken_bal.get("ETH", 0) or 0) if base_asset != "ETH" else 0
+                btc_amt = float(kraken_bal.get("BTC", 0) or 0) if base_asset != "BTC" else 0
+                eth_val = eth_amt * self._get_ref_price("ETH") if eth_amt > 0 else 0
+                btc_val = btc_amt * self._get_ref_price("BTC") if btc_amt > 0 else 0
                 total_available = kraken_quote_usd + eth_val + btc_val
                 if total_available >= amount_usd * 0.50:  # route if at least 50% fundable
                     kraken_quote["kraken_needs_conversion"] = kraken_quote_usd < amount_usd
@@ -812,6 +814,10 @@ class SmartRouter:
             if isinstance(cached, tuple) and len(cached) == 2:
                 return float(cached[0])
             return 0
+
+    def _get_ref_price(self, symbol):
+        """Get reference price for valuing held assets (e.g., ETH, BTC)."""
+        return self._get_spot_price(symbol)
 
     def compare_venues(self, pair, amount_usd=5.00):
         """Quick comparison table of all venues for display.
