@@ -4373,17 +4373,22 @@ class Sniper:
 
             health_ok, health_reason = self._execution_health_allows_buy()
             if not health_ok:
-                logger.info("SNIPER: %s BUY blocked — %s", pair, health_reason)
-                return False
+                if _extreme_fear_active:
+                    logger.info("SNIPER: %s EXTREME FEAR override — execution health (%s) bypassed (F&G=%d)", pair, health_reason, fg_val)
+                else:
+                    logger.info("SNIPER: %s BUY blocked — %s", pair, health_reason)
+                    return False
             em_ok, em_reason = self._exit_manager_status_allows_buy()
             if not em_ok:
-                logger.info("SNIPER: %s BUY blocked — %s", pair, em_reason)
-                return False
+                if _extreme_fear_active:
+                    logger.info("SNIPER: %s EXTREME FEAR override — exit manager status (%s) bypassed (F&G=%d)", pair, em_reason, fg_val)
+                else:
+                    logger.info("SNIPER: %s BUY blocked — %s", pair, em_reason)
+                    return False
             close_ok, close_reason = self._close_flow_allows_buy()
             if not close_ok:
-                # In extreme fear, only block if close flow has terminal failures (not just stale)
-                if _extreme_fear_active and "stale" in close_reason:
-                    logger.info("SNIPER: %s EXTREME FEAR override — close flow stale (%s) bypassed", pair, close_reason)
+                if _extreme_fear_active:
+                    logger.info("SNIPER: %s EXTREME FEAR override — close flow (%s) bypassed (F&G=%d)", pair, close_reason, fg_val)
                 else:
                     logger.info("SNIPER: %s BUY blocked — %s", pair, close_reason)
                     return False
