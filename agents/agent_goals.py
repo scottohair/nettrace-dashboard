@@ -19,6 +19,7 @@ GAME THEORY:
 
 import logging
 import math
+import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -38,8 +39,8 @@ RULES = {
 # Trade execution preferences (game theory)
 # ──────────────────────────────────────────────────────────────────────────────
 
-MAKER_FEE = 0.004   # 0.4% — limit orders
-TAKER_FEE = 0.006   # 0.6% — market orders
+MAKER_FEE = float(os.environ.get("MAKER_FEE_PCT", "0.006"))   # 0.6% at <$1K tier
+TAKER_FEE = float(os.environ.get("TAKER_FEE_PCT", "0.012"))  # 1.2% at <$1K tier
 PREFERRED_ORDER_TYPE = "limit"  # BE A MAKER
 
 # Derivatives fee schedule (perpetual futures)
@@ -53,8 +54,10 @@ MIN_MARGIN_HEALTH = 2.0
 LIQUIDATION_BUFFER_PCT = 50
 
 # Minimum thresholds
-MIN_CONFIDENCE = 0.65        # Rule 1+2: 65%+ confidence required (lowered for buy-side activation)
-MIN_CONFIRMING_SIGNALS = 1   # Rule 1: at least 1 signal (lowered temporarily to increase flow)
+MIN_CONFIDENCE = float(os.environ.get("GOAL_MIN_CONFIDENCE", "0.75"))
+MIN_CONFIDENCE_PERP = float(os.environ.get("GOAL_MIN_CONFIDENCE_PERP", "0.60"))
+MIN_CONFIRMING_SIGNALS = int(os.environ.get("GOAL_MIN_CONFIRMING_SIGNALS", "2"))
+MIN_CONFIRMING_SIGNALS_PERP = int(os.environ.get("GOAL_MIN_CONFIRMING_SIGNALS_PERP", "1"))
 DOWNTREND_BLOCKED = True     # Rule 1: no buying in downtrends
 
 # Agent performance thresholds (evolutionary)
@@ -178,20 +181,45 @@ class GoalValidator:
                 return False
 
         # Scaled confidence: higher leverage demands higher confidence
-        # At 1x: normal confidence threshold. At 3x: confidence must be ~25% higher.
+        # At 1x: perp confidence threshold. At 3x: confidence must be ~25% higher.
         try:
             conf = float(confidence)
         except (TypeError, ValueError):
             return False
         leverage_confidence_penalty = (lev - 1.0) * 0.10  # 10% per 1x above 1
-        adjusted_min = MIN_CONFIDENCE + leverage_confidence_penalty
+        adjusted_min = MIN_CONFIDENCE_PERP + leverage_confidence_penalty
         if conf < adjusted_min:
             logger.debug("BLOCKED: perp confidence %.2f < %.2f (leverage-adjusted minimum)",
                          conf, adjusted_min)
             return False
 
-        # Delegate to standard should_trade for remaining checks
-        return GoalValidator.should_trade(confidence, confirming_signals, direction, market_regime)
+        # Perp-specific validation (uses perp fee floor, not spot MIN_CONFIDENCE)
+        try:
+            signals = int(confirming_signals)
+        except (TypeError, ValueError):
+            return False
+
+        if signals < MIN_CONFIRMING_SIGNALS_PERP:
+            logger.debug("BLOCKED: perp %d confirming signals < %d minimum",
+                         signals, MIN_CONFIRMING_SIGNALS_PERP)
+            return False
+
+        direction_u = str(direction or "").strip().upper()
+        if direction_u not in {"BUY", "SELL"}:
+            return False
+
+        regime_n = str(market_regime or "").strip().lower()
+        if DOWNTREND_BLOCKED and direction_u == "BUY" and regime_n in {"downtrend", "markdown", "bearish", "down"}:
+            logger.debug("BLOCKED: perp BUY in downtrend regime")
+            return False
+
+        # EV check with perp fee (0% maker vs 0.6% spot)
+        fee_drag = PERP_MAKER_FEE
+        if conf <= fee_drag:
+            logger.debug("BLOCKED: perp confidence %.2f <= perp fee drag %.4f", conf, fee_drag)
+            return False
+
+        return True
 
     @staticmethod
     def optimal_venue(product_has_perp):
