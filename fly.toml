@@ -102,6 +102,9 @@ primary_region = "ewr"
   SNIPER_BALANCE_MIN_SELL_COMPLETIONS = "1"
   SNIPER_BALANCE_MAX_BUY_SELL_RATIO = "5.0"
   SNIPER_BALANCE_REQUIRE_NON_NEGATIVE_REALIZED_PNL = "0"
+  # Lower balanced growth close-completion-rate gate (was 0.45 default, blocked all buys)
+  SNIPER_BALANCE_MIN_CLOSE_COMPLETION_RATE = "0.0"
+  SNIPER_BALANCE_MIN_CLOSE_ATTEMPTS = "1"
   SNIPER_CLOSE_EVIDENCE_MIN_CLOSES = "1"
   # Temporarily disable strict realized gate for bootstrap
   STRICT_REALIZED_GO_LIVE_REQUIRED = "0"

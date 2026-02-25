@@ -3946,6 +3946,17 @@ class Sniper:
         allow_buy = bool((state or {}).get("allow_buy", True))
         mode = str((state or {}).get("mode", "balanced"))
         reason = str((state or {}).get("reason", "balanced_flow"))
+
+        # Extreme fear override: bypass balanced growth gate entirely
+        # F&G < 15 is historically strongest contrarian signal — don't block buys
+        if not allow_buy:
+            fg_val = self._get_fear_greed_value()
+            if fg_val is not None and fg_val < 15:
+                logger.info(
+                    "SNIPER: EXTREME FEAR override — balanced growth gate (%s) bypassed (F&G=%d)",
+                    reason, fg_val,
+                )
+                allow_buy = True
         conf_factor = float((state or {}).get("buy_confidence_factor", 1.0) or 1.0)
         size_factor = float((state or {}).get("buy_size_factor", 1.0) or 1.0)
         metrics = (state or {}).get("metrics", {}) if isinstance((state or {}).get("metrics"), dict) else {}
