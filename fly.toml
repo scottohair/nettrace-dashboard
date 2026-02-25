@@ -182,6 +182,9 @@ primary_region = "ewr"
   # 0.72 filters out marginal signals, keeps strong ones (F&G extreme, strong momentum).
   GOAL_MIN_CONFIDENCE = "0.72"
   GOAL_MIN_CONFIRMING_SIGNALS = "3"
+  # No-loss policy confidence floor: match GoalValidator minimum (0.60 for extreme fear)
+  # Was 0.70 default — blocked 64-69% confidence signals that passed all other gates
+  NO_LOSS_MIN_CONFIDENCE = "0.60"
   # === FEE SCHEDULE (actual fees at current volume tier) ===
   MAKER_FEE_PCT = "0.006"
   TAKER_FEE_PCT = "0.012"
