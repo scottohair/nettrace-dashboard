@@ -28,7 +28,34 @@ from pathlib import Path
 logger = logging.getLogger("smart_router")
 
 # ── Dynamic Kraken fee cache (refreshed every hour) ──
-_kraken_fee_cache = {"maker": 0.16, "taker": 0.26, "expires": 0}
+_kraken_fee_cache = {"maker": 0.25, "taker": 0.40, "expires": 0}  # Kraken base tier ($0-$10k vol)
+
+# ── Venue balance cache (refreshed every 60s) ──
+_venue_balance_cache = {"kraken": {}, "coinbase": {}, "expires": 0}
+
+
+def _get_venue_balances():
+    """Get cached venue balances for routing decisions."""
+    global _venue_balance_cache
+    if time.time() < _venue_balance_cache["expires"]:
+        return _venue_balance_cache
+    try:
+        from kraken_connector import KrakenConnector
+        raw = KrakenConnector.get_account_balance()
+        if isinstance(raw, dict) and "error" not in raw:
+            # Kraken uses ZUSD, XXBT, XETH etc.
+            usd = float(raw.get("ZUSD", 0) or 0)
+            usdc = float(raw.get("USDC", 0) or 0)
+            xbt = float(raw.get("XXBT", raw.get("XBT", 0)) or 0)
+            eth = float(raw.get("XETH", raw.get("ETH", 0)) or 0)
+            _venue_balance_cache["kraken"] = {
+                "USD": usd, "USDC": usdc, "BTC": xbt, "ETH": eth,
+                "quote_usd": usd + usdc,  # total quote currency available
+            }
+    except Exception:
+        pass
+    _venue_balance_cache["expires"] = time.time() + 60
+    return _venue_balance_cache
 
 
 def _get_kraken_fees():
@@ -108,7 +135,14 @@ class SmartRouter:
         self._coinbase = coinbase_tools
         self._dex = dex_connector
         self._price_cache = {}
-        self._cache_time = 0
+        self._price_cache_ttl_s = max(1.0, float(os.environ.get("SMART_ROUTER_SPOT_CACHE_TTL_S", "30")))
+        self._split_enabled = os.environ.get("SMART_ROUTER_SPLIT_ENABLED", "1").lower() in ("1", "true", "yes")
+        self._split_max_venues = max(1, int(os.environ.get("SMART_ROUTER_SPLIT_MAX_VENUES", "2") or 2))
+        self._split_min_order_usd = max(0.1, float(os.environ.get("SMART_ROUTER_SPLIT_MIN_ORDER_USD", "1.0") or 1.0))
+        self._split_min_savings_pct = max(0.0, float(os.environ.get("SMART_ROUTER_SPLIT_MIN_SAVINGS_PCT", "0.03") or 0.03))
+        self._split_max_share_per_venue = min(
+            1.0, max(0.2, float(os.environ.get("SMART_ROUTER_SPLIT_MAX_SHARE_PER_VENUE", "0.75") or 0.75))
+        )
         self._strategy_tags = [str(x).strip().lower() for x in (strategy_tags or []) if str(x).strip()]
         if route_registry is not None:
             self._route_registry = route_registry
@@ -120,9 +154,193 @@ class SmartRouter:
         else:
             self._route_registry = None
 
+    def _estimate_capacity_usd(self, quote, amount_usd):
+        """Estimate notional capacity for low-slippage execution on a venue."""
+        venue = str(quote.get("venue", "") or "").lower()
+        chain = str(quote.get("chain", "") or "").lower()
+        price = float(quote.get("price", 0.0) or 0.0)
+        volume_24h = float(quote.get("volume_24h", 0.0) or 0.0)
+        slippage_pct = max(0.0, float(quote.get("slippage_pct", 0.0) or 0.0))
+        baseline = max(0.0, float(amount_usd or 0.0))
+
+        capacity = baseline
+        if volume_24h > 0 and price > 0:
+            notional_24h = volume_24h * price
+            # Conservative share of daily venue liquidity.
+            capacity = max(baseline, min(notional_24h * 0.008, notional_24h * 0.02))
+        elif chain in {"base", "arbitrum", "ethereum", "solana"}:
+            # AMM routes can handle moderate clips if price impact is low.
+            slippage_guard = max(0.05, slippage_pct)
+            capacity = max(baseline, baseline * max(1.0, 0.35 / slippage_guard))
+        elif venue == "coinbase":
+            capacity = max(baseline, baseline * 2.5)
+        elif venue == "kraken":
+            capacity = max(baseline, baseline * 2.0)
+        else:
+            capacity = max(baseline, baseline * 1.5)
+
+        if slippage_pct >= 0.20:
+            capacity *= 0.75
+        if slippage_pct >= 0.35:
+            capacity *= 0.60
+
+        cap = max(self._split_min_order_usd, float(capacity))
+        liq_score = min(5.0, max(0.1, cap / max(self._split_min_order_usd, baseline, 1.0)))
+        return cap, liq_score
+
+    @staticmethod
+    def _estimate_slice_cost_pct(quote, slice_amount_usd, full_amount_usd):
+        """Estimate per-slice effective cost from quote primitives."""
+        slice_amt = max(0.01, float(slice_amount_usd or 0.0))
+        full_amt = max(slice_amt, float(full_amount_usd or slice_amt))
+        fee_pct = max(0.0, float(quote.get("fee_pct", 0.0) or 0.0))
+        gas_usd = max(0.0, float(quote.get("gas_usd", 0.0) or 0.0))
+        slippage_full = max(0.0, float(quote.get("slippage_pct", 0.0) or 0.0))
+        latency_penalty = max(0.0, float(quote.get("latency_penalty_pct", 0.0) or 0.0))
+        cap_usd = max(0.0, float(quote.get("capacity_usd", full_amt) or full_amt))
+
+        # Slippage generally grows sub-linearly with order size.
+        scale = max(0.25, min(2.0, (slice_amt / full_amt) ** 0.5))
+        slippage_pct = slippage_full * scale
+        gas_pct = (gas_usd / slice_amt) * 100.0 if slice_amt > 0 else 0.0
+
+        capacity_penalty = 0.0
+        if cap_usd > 0 and slice_amt > cap_usd:
+            overflow_ratio = (slice_amt - cap_usd) / slice_amt
+            capacity_penalty = min(0.60, max(0.0, overflow_ratio * 1.2))
+
+        return round(fee_pct + slippage_pct + gas_pct + latency_penalty + capacity_penalty, 6)
+
+    def _build_split_plan(self, venues, amount_usd):
+        """Build a cost/liquidity-aware split plan across venues."""
+        notional = max(0.0, float(amount_usd or 0.0))
+        if not self._split_enabled or notional <= 0 or not venues:
+            return {
+                "enabled": False,
+                "strategy": "single",
+                "reason": "split_disabled_or_no_notional",
+                "slices": [],
+            }
+
+        ranked = [dict(v) for v in venues if float(v.get("capacity_usd", 0.0) or 0.0) >= self._split_min_order_usd]
+        if not ranked:
+            return {
+                "enabled": False,
+                "strategy": "single",
+                "reason": "no_capacity",
+                "slices": [],
+            }
+
+        ranked = ranked[: max(1, self._split_max_venues)]
+        min_order = self._split_min_order_usd
+        max_share = self._split_max_share_per_venue
+
+        scored = []
+        for v in ranked:
+            cost_pct = max(0.0001, float(v.get("total_cost_pct", 0.0) or 0.0))
+            liq = max(0.1, float(v.get("liquidity_score", 1.0) or 1.0))
+            score = (1.0 / cost_pct) * min(4.0, max(0.25, liq))
+            scored.append((v, score))
+
+        score_total = sum(score for _, score in scored) or float(len(scored))
+        remaining = notional
+        slices = []
+
+        for v, score in scored:
+            target = notional * (score / score_total)
+            target = min(target, notional * max_share, float(v.get("capacity_usd", notional) or notional), remaining)
+            if target >= min_order:
+                slices.append(
+                    {
+                        "venue": str(v.get("venue", "coinbase")),
+                        "amount_usd": round(target, 4),
+                        "expected_cost_pct": self._estimate_slice_cost_pct(v, target, notional),
+                        "capacity_usd": float(v.get("capacity_usd", notional) or notional),
+                        "liquidity_score": float(v.get("liquidity_score", 1.0) or 1.0),
+                    }
+                )
+                remaining -= target
+
+        # Greedy top-off by cheapest venues while respecting capacity/share constraints.
+        if remaining >= min_order:
+            for v, _score in scored:
+                if remaining < min_order:
+                    break
+                venue_name = str(v.get("venue", "coinbase"))
+                cap = float(v.get("capacity_usd", notional) or notional)
+                hard_cap = min(cap, notional * max_share)
+                entry = next((s for s in slices if s["venue"] == venue_name), None)
+                used = float(entry.get("amount_usd", 0.0) or 0.0) if entry else 0.0
+                room = max(0.0, hard_cap - used)
+                if room < min_order:
+                    continue
+                add = min(room, remaining)
+                if entry:
+                    entry["amount_usd"] = round(float(entry["amount_usd"]) + add, 4)
+                    entry["expected_cost_pct"] = self._estimate_slice_cost_pct(v, float(entry["amount_usd"]), notional)
+                else:
+                    slices.append(
+                        {
+                            "venue": venue_name,
+                            "amount_usd": round(add, 4),
+                            "expected_cost_pct": self._estimate_slice_cost_pct(v, add, notional),
+                            "capacity_usd": cap,
+                            "liquidity_score": float(v.get("liquidity_score", 1.0) or 1.0),
+                        }
+                    )
+                remaining -= add
+
+        # If still small remainder, assign to cheapest venue.
+        if remaining > 0 and slices:
+            slices[0]["amount_usd"] = round(float(slices[0]["amount_usd"]) + remaining, 4)
+            ref_quote = next((v for v in ranked if str(v.get("venue", "")) == str(slices[0].get("venue", ""))), None)
+            if isinstance(ref_quote, dict):
+                slices[0]["expected_cost_pct"] = self._estimate_slice_cost_pct(
+                    ref_quote,
+                    float(slices[0]["amount_usd"]),
+                    notional,
+                )
+            remaining = 0.0
+
+        slices = [s for s in slices if float(s.get("amount_usd", 0.0) or 0.0) >= min_order]
+        if not slices:
+            return {
+                "enabled": False,
+                "strategy": "single",
+                "reason": "no_valid_slices",
+                "slices": [],
+            }
+
+        total_alloc = sum(float(s.get("amount_usd", 0.0) or 0.0) for s in slices) or notional
+        blended_cost_pct = 0.0
+        for s in slices:
+            blended_cost_pct += float(s.get("expected_cost_pct", 0.0) or 0.0) * (
+                float(s.get("amount_usd", 0.0) or 0.0) / total_alloc
+            )
+
+        single_cost_pct = float(venues[0].get("total_cost_pct", 0.0) or 0.0)
+        savings_pct = max(0.0, single_cost_pct - blended_cost_pct)
+        use_split = len(slices) > 1 and savings_pct >= self._split_min_savings_pct
+
+        return {
+            "enabled": use_split,
+            "strategy": "split" if use_split else "single",
+            "reason": "cost_and_liquidity_optimized" if use_split else "savings_below_threshold",
+            "single_venue_cost_pct": round(single_cost_pct, 6),
+            "blended_cost_pct": round(blended_cost_pct, 6),
+            "estimated_savings_pct": round(savings_pct, 6),
+            "estimated_savings_usd": round(notional * savings_pct / 100.0, 6),
+            "total_amount_usd": round(notional, 6),
+            "slices": slices,
+        }
+
     @staticmethod
     def _latency_penalty_pct(venue_key, amount_usd):
-        """Translate observed p90 latency into cost penalty (%)."""
+        """Translate observed p90 latency into cost penalty (%).
+
+        Kraken penalty is capped at 0.10% since fee savings (0.44% vs Coinbase)
+        far outweigh any latency cost for limit orders.
+        """
         venue = "coinbase" if venue_key.startswith("coinbase") else venue_key
         health = _venue_health_snapshot(venue, window_minutes=30) if venue else {}
         p90_ms = float(health.get("p90_latency_ms", 0.0) or 0.0)
@@ -134,6 +352,9 @@ class SmartRouter:
         reliability_component = min(0.30, max(0.0, failure_rate * 0.50))  # 20% fail -> 0.10%
         size_component = min(0.20, max(0.0, float(amount_usd or 0.0) / 10000.0))
         penalty = latency_component + reliability_component + size_component
+        # Cap Kraken penalty — fee savings (0.44%) dwarf latency for limit orders
+        if venue == "kraken":
+            penalty = min(penalty, 0.10)
         return round(penalty, 4), round(p90_ms, 3), round(failure_rate, 4)
 
     @property
@@ -184,10 +405,38 @@ class SmartRouter:
         if cb_quote:
             venues.append(cb_quote)
 
-        # ── 2. Kraken quote ──
+        # ── 2. Kraken quote (balance-aware routing) ──
+        # Strategy: Kraken has 0.16% maker fees vs Coinbase 0.60% — always prefer
+        # Kraken when we have assets there. For BUYs, check if we have quote currency
+        # (USD/USDC) OR if we can convert held assets. For SELLs, always include
+        # Kraken if we hold the base asset there (this converts to stablecoins/USD).
         kraken_quote = self._get_kraken_quote(pair, side, amount_usd)
         if kraken_quote:
-            venues.append(kraken_quote)
+            balances = _get_venue_balances()
+            kraken_bal = balances.get("kraken", {})
+            if side.upper() == "BUY":
+                # Check total available: USD + USDC + value of held crypto
+                kraken_quote_usd = float(kraken_bal.get("quote_usd", 0) or 0)
+                # Also count ETH/BTC that could be sold first
+                eth_val = float(kraken_bal.get("ETH", 0) or 0) * float(kraken_quote.get("price", 0) or 0) if base_asset != "ETH" else 0
+                btc_val = float(kraken_bal.get("BTC", 0) or 0) * float(kraken_quote.get("price", 0) or 0) if base_asset != "BTC" else 0
+                total_available = kraken_quote_usd + eth_val + btc_val
+                if total_available >= amount_usd * 0.50:  # route if at least 50% fundable
+                    kraken_quote["kraken_needs_conversion"] = kraken_quote_usd < amount_usd
+                    venues.append(kraken_quote)
+                else:
+                    logger.debug("Kraken skipped for BUY: total available $%.2f < 50%% of $%.2f",
+                                total_available, amount_usd)
+            elif side.upper() == "SELL":
+                # ALWAYS include Kraken for sells — this converts crypto → USD at lower fees
+                # Even if the asset is on Coinbase, sniper will handle routing
+                kraken_base = float(kraken_bal.get(base_asset, 0) or 0)
+                if kraken_base > 0:
+                    kraken_quote["kraken_has_base"] = True
+                    kraken_quote["kraken_base_balance"] = kraken_base
+                venues.append(kraken_quote)
+            else:
+                venues.append(kraken_quote)
 
         # ── 3. Uniswap quotes (Base, then Ethereum) ──
         for chain in ["base", "arbitrum", "ethereum"]:
@@ -243,6 +492,17 @@ class SmartRouter:
 
         # Sort by total_cost_pct (lowest cost wins)
         for v in venues:
+            v["quoted_amount_usd"] = round(float(amount_usd or 0.0), 6)
+            cap_usd, liq_score = self._estimate_capacity_usd(v, amount_usd)
+            v["capacity_usd"] = round(cap_usd, 4)
+            v["liquidity_score"] = round(liq_score, 4)
+            if amount_usd > 0 and cap_usd > 0 and amount_usd > cap_usd:
+                overflow_ratio = (amount_usd - cap_usd) / amount_usd
+                capacity_penalty = min(0.60, max(0.0, overflow_ratio * 1.2))
+                v["capacity_penalty_pct"] = round(capacity_penalty, 4)
+                v["total_cost_pct"] = round(float(v.get("total_cost_pct", 0.0) or 0.0) + capacity_penalty, 4)
+                v["total_cost_usd"] = round(amount_usd * v["total_cost_pct"] / 100.0, 4)
+
             venue_key = str(v.get("venue", ""))
             penalty, p90_ms, fail_rate = self._latency_penalty_pct(venue_key, amount_usd)
             if penalty > 0:
@@ -278,8 +538,38 @@ class SmartRouter:
                     best["selected_account"] = str(venue_accounts[0])
                     best["candidate_accounts"] = [str(x) for x in venue_accounts[:5]]
 
+        split_plan = self._build_split_plan(venues, amount_usd)
+        best["split_plan"] = split_plan
         best["all_venues"] = venues
+
+        # Net-edge computation: expected_return - total_cost
+        # If caller provides expected_return_pct via self._expected_return_pct,
+        # compute net_edge. Otherwise just embed total_cost for caller to use.
+        total_cost = float(best.get("total_cost_pct", 0.0) or 0.0)
+        best["net_edge_cost_pct"] = round(total_cost, 4)
+
         return best
+
+    @staticmethod
+    def compute_net_edge(expected_return_pct, total_cost_pct):
+        """Compute net edge: expected return minus total execution cost.
+
+        Returns net_edge_pct. Negative means the trade costs more than it returns.
+        Used by sniper to reject negative-edge trades before execution.
+        """
+        return round(float(expected_return_pct or 0) - float(total_cost_pct or 0), 4)
+
+    def plan_split_execution(self, pair, side, amount_usd):
+        """Public helper: compute split-capable execution plan for a trade."""
+        best = self.find_best_execution(pair, side, amount_usd)
+        if "error" in best:
+            return best
+        plan = dict(best.get("split_plan", {}) or {})
+        plan.setdefault("strategy", "single")
+        plan.setdefault("enabled", False)
+        plan["best_venue"] = str(best.get("venue", "coinbase"))
+        plan["best_total_cost_pct"] = float(best.get("total_cost_pct", 0.0) or 0.0)
+        return plan
 
     def _get_coinbase_quote(self, pair, side, amount_usd):
         """Get Coinbase price + fee estimate."""
@@ -291,9 +581,9 @@ class SmartRouter:
             if price <= 0:
                 return None
 
-            # Coinbase fees: 0.4% maker (limit), 0.6% taker (market)
+            # Coinbase fees at <$1K/month tier: 0.60% maker, 1.20% taker
             # We use maker fee since our strategy is limit orders
-            fee_pct = 0.40  # maker
+            fee_pct = float(os.environ.get("COINBASE_MAKER_FEE_PCT", "0.60"))
             base_amount = amount_usd / price
             fee_usd = amount_usd * (fee_pct / 100)
 
@@ -506,17 +796,21 @@ class SmartRouter:
     def _get_spot_price(self, symbol):
         """Get spot price from cache or Coinbase."""
         now = time.time()
-        if symbol in self._price_cache and now - self._cache_time < 30:
-            return self._price_cache[symbol]
+        cached = self._price_cache.get(symbol)
+        if isinstance(cached, tuple) and len(cached) == 2:
+            cached_price, cached_ts = cached
+            if (now - float(cached_ts)) < self._price_cache_ttl_s:
+                return float(cached_price)
 
         try:
             url = f"https://api.exchange.coinbase.com/products/{symbol}-USD/ticker"
             data = _fetch_json(url)
             price = float(data.get("price", 0))
-            self._price_cache[symbol] = price
-            self._cache_time = now
+            self._price_cache[symbol] = (price, now)
             return price
         except Exception:
+            if isinstance(cached, tuple) and len(cached) == 2:
+                return float(cached[0])
             return 0
 
     def compare_venues(self, pair, amount_usd=5.00):

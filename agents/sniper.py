@@ -2041,11 +2041,35 @@ class Sniper:
             pass
         return {}
 
+    def _load_champion_weights(self):
+        """Load signal weights from AutoBuilder champion config (flywheel feedback loop).
+
+        Chain: alpha_researcher → auto_builder → champion_config.json → sniper
+        """
+        champion_path = os.path.join(os.path.dirname(__file__), "runtime", "champion_config.json")
+        try:
+            if not os.path.exists(champion_path):
+                return {}
+            age = time.time() - os.path.getmtime(champion_path)
+            if age > 600:  # Stale after 10 minutes
+                return {}
+            with open(champion_path) as f:
+                data = json.load(f)
+            weights = data.get("signal_weights", {})
+            if isinstance(weights, dict) and weights:
+                return {k: float(v) for k, v in weights.items() if isinstance(v, (int, float)) and float(v) > 0}
+        except Exception:
+            pass
+        return {}
+
     def _effective_signal_base_weights(self):
         base = dict(CONFIG["signal_weights"])
+
+        # Priority chain: DB weights → Champion config → Lisp weights → defaults
         external = self._load_db_signal_weights()
         if not external:
-            # Try Lisp weights as fallback
+            external = self._load_champion_weights()
+        if not external:
             external = self._load_lisp_weights()
         if not external:
             base = self._apply_regime_adjustments(base)
@@ -4455,12 +4479,12 @@ class Sniper:
         # Get DYNAMIC risk parameters from centralized controller
         if _risk_ctrl:
             params = _risk_ctrl.get_risk_params(total_portfolio, pair)
-            max_trade = params["max_trade_usd"]
-            max_daily_loss = params["max_daily_loss"]
-            reserve = params["min_reserve"]
-            max_pos_pct = params["max_position_pct"]
-            can_buy = params["can_buy"]
-            regime = params["regime"]
+            max_trade = params.get("max_trade_usd", total_portfolio * 0.05)
+            max_daily_loss = params.get("max_daily_loss", total_portfolio * 0.08)
+            reserve = params.get("min_reserve", 20.0)
+            max_pos_pct = params.get("max_position_pct", 0.20)
+            can_buy = params.get("can_buy", True)
+            regime = params.get("regime", "neutral")
         else:
             # BLOCK new trades when risk controller is unavailable
             logger.error("SNIPER: Risk controller unavailable — BLOCKING %s %s trade", direction, pair)
