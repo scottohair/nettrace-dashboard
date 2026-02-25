@@ -583,13 +583,13 @@ class ExitManager:
                 "https://api.alternative.me/fng/?limit=1", timeout=3
             ).read())
             fg_value = int(_fg_data["data"][0]["value"])
-            if fg_value < 15:       # Extreme Fear
-                multiplier = max(float(os.environ.get("EXIT_FEAR_EXTREME_MULTIPLIER", "0.3")), 0.3)
-                logger.info("EXIT_MGR: EXTREME FEAR (F&G=%d) — stops at 30%%", fg_value)
-            elif fg_value < 25:     # Fear
-                multiplier = 0.5   # 50% tighter stops
+            if fg_value < 15:       # Extreme Fear — we BUY here, so WIDEN stops (don't get whipsawed)
+                multiplier = max(float(os.environ.get("EXIT_FEAR_EXTREME_MULTIPLIER", "1.5")), 1.0)
+                logger.info("EXIT_MGR: EXTREME FEAR (F&G=%d) — stops WIDENED to %.0f%% (contrarian hold)", fg_value, multiplier * 100)
+            elif fg_value < 25:     # Fear — still widen slightly
+                multiplier = 1.2   # 20% wider stops
             elif fg_value < 40:     # Mild Fear
-                multiplier = 0.75  # 25% tighter stops
+                multiplier = 1.0   # normal stops
         except Exception:
             pass  # can't reach API, use defaults
 
@@ -1510,8 +1510,8 @@ class ExitManager:
 
                 # === CONCENTRATION CHECK: sell over-weighted positions to free cash ===
                 # Scans ALL holdings (not just tracked positions) so it works on fresh deploys
-                MAX_CONCENTRATION_PCT = 0.25  # 25% max per asset
-                TARGET_CONCENTRATION_PCT = 0.18  # sell down to 18%
+                MAX_CONCENTRATION_PCT = float(os.environ.get("EXIT_MAX_CONCENTRATION_PCT", "0.40"))  # 40% max per asset
+                TARGET_CONCENTRATION_PCT = float(os.environ.get("EXIT_TARGET_CONCENTRATION_PCT", "0.30"))  # sell down to 30%
                 QUOTE_CURRENCIES = {"USDC", "USD"}
                 RESERVE_ASSETS = {"BTC", "USD", "USDC"}  # Treasury — never auto-sell
                 for base_currency, held_amount in holdings.items():

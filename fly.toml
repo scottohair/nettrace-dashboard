@@ -197,7 +197,8 @@ primary_region = "ewr"
   SNIPER_EXECUTION_FALLBACK_MODE = "off"
   # === HOLD SPOT LONGS (bear market protection) ===
   EXIT_DEAD_MONEY_BASE_HOURS = "24.0"
-  EXIT_FEAR_EXTREME_MULTIPLIER = "0.80"
+  # Extreme fear: WIDEN stops (we buy here, don't want to get whipsawed by noise)
+  EXIT_FEAR_EXTREME_MULTIPLIER = "1.50"
   # === RISK AGENT SCALING (env-driven, not hardcoded) ===
   RISK_AGENT_MAX_TRADE_USD = "75.0"
   RISK_AGENT_MAX_DAILY_LOSS_USD = "75.0"
