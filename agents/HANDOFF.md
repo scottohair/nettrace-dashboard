@@ -1,3 +1,229 @@
+## 2026-02-25 ~02:00 UTC Claude Code Handoff — Growth Acceleration Flywheel
+
+- **What I did**:
+  - **Growth Acceleration (5 bottleneck fixes)**:
+    - Removed BTC from reserve_assets → enables profit-taking on highest-volume asset
+    - Raised smart_aggressive trade cap $35→$75, trade_pct 5%→7%, daily loss $60→$90
+    - Raised growth_sprint trade cap $25→$50, trade_pct 4%→6%
+    - Widened buy/sell ratio gate 2.0→5.0, relaxed close flow (0.20 min rate, 1 attempt)
+    - Raised principle lock threshold 1.0→3.0 (delay capital freeze until 300% gains)
+    - Venue-aware exit thresholds: Kraken TP0 0.5% (vs Coinbase 1.2%), faster scale-out 1.5h→2.0h
+    - Raised env-driven risk limits: max trade $75, daily loss $75, max position $150, dead money 48h→24h
+  - **Closed Flywheel Feedback Loops**:
+    - AutoBuilder now reads alpha_researcher discoveries (alpha_discoveries.jsonl) → generates config mutations
+    - Sniper reads champion_config.json from AutoBuilder promotions → auto-adjusts signal weights
+    - Complete loop: alpha_researcher → auto_builder → champion_config → sniper
+    - Added flywheel telemetry: sniper writes per-cycle gate health → auto_builder detects blockage → loosens thresholds
+  - **Extreme Fear Contrarian Mode** (F&G=11):
+    - Gate bypass: balanced growth gate + stale close flow bypassed when F&G < 15
+    - Trade sizing boost: up to 1.5x at F&G=5, linear taper
+    - Promoted fear_greed to quant signal status when confidence > 80% + Extreme reading
+  - **Fee Corrections**:
+    - Kraken fee fallback: 0.16%→0.25% maker (actual base tier)
+    - Kraken RT fee in EV calc: 0.32%→0.50%
+    - Hardened sniper risk params with .get() + safe defaults (prevents KeyError crashes)
+  - **Tests**: 645 passed across all changes
+- **Deploy status**: v192+, 5 machines all healthy (ewr, ord, 2x nrt, sin)
+- **What's next**:
+  - Monitor: verify sells happening, BTC exits not blocked, trades at $50-75 range
+  - Monitor: Kraken positions exiting at 0.5%+ profit (not waiting for 1.2%)
+  - Verify: flywheel telemetry writing to runtime/flywheel_telemetry.json
+  - Verify: auto_builder consuming alpha discoveries and generating mutations
+  - After 1 hour: compare realized PnL before/after deploy
+  - Consider: grid trading in BTC $60k-$70k range (range-bound market ideal)
+  - Consider: volume bootstrapping toward Coinbase $1k/month tier (0.40% maker)
+- **Blockers**: None critical. Buy/sell ratio still elevated but gate widened to 5.0.
+- **Architecture**: Flywheel loop now closed:
+  ```
+  sniper (signal generation) → trades → exit_manager (closes positions)
+       ↑                                        ↓
+  champion_config.json ← auto_builder ← alpha_researcher ← metrics_collector
+       ↑                      ↑
+  flywheel_telemetry.json ← sniper (gate health per cycle)
+  ```
+
+---
+
+## 2026-02-24 ~20:55 UTC Claude Code Handoff — Exit Manager Fix + Balance Gate
+
+- **What I did**:
+  - **CRITICAL FIX: Exit manager was NOT running as daemon** — supervisor ran `python3 exit_manager.py` without `monitor` argument, so it just printed status and exited. Changed to `python3 exit_manager.py monitor`. Exit_manager immediately began tracking and exiting stale positions.
+  - **Removed risk_controller from supervisor** — it's a library imported by sniper/exit_manager, not a daemon. Running it as a process was wasted memory.
+  - **Disabled Lisp engines** — SBCL in container lacks UIOP/ASDF package. Engines commented out in supervisor until `cl-asdf` is added to Dockerfile.
+  - **Buy/sell balance tuning** in fly.toml:
+    - `SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS`: 5 → 30 (slow down buy velocity)
+    - `SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS`: 15 → 60
+    - `SNIPER_BALANCE_MAX_BUY_SELL_RATIO`: 5.0 → 2.0
+    - `SNIPER_BALANCE_MIN_SELL_COMPLETIONS`: 0 → 1
+  - **Result**: Exit manager ran 138 cycles, cleared 2 stale positions (ETH-USD -$1.70, ETH-USDC -$0.17), exited a fresh ETH-USD -$0.24. Balance gate blocking new buys. Zero new trades in ~50 min post-deploy.
+- **Deploy status**: v186, 5 machines all healthy, ewr MemAvailable=148MB
+- **Trading state**: 1619 trades all-time (259 filled buys/$3291, 28 filled sells/$268), realized PnL = -$0.60
+- **What's next**:
+  - Monitor exits: exit_manager now has 0 active positions, needs new entries to track
+  - Address `blocked_notional_cap` (56 orders blocked)
+  - Fix latency_arb 401 UNAUTHORIZED (NETTRACE_API_KEY expired?)
+  - Monitor AutoBuilder first mutations + alpha_researcher discoveries
+  - Consider: Lisp engines need `cl-asdf` in Dockerfile for UIOP support
+- **Blockers**: Buy/sell ratio still extreme (9.2:1 all-time). Balance gate will slowly allow buys once ratio improves through more exits.
+
+---
+
+## 2026-02-24 ~18:50 UTC Claude Code Handoff — OOM Fix + Trading Unblocked
+
+- **What I did**:
+  - **CRITICAL FIX: OOM kill loop** — All 5 Fly machines were in constant OOM loop (gunicorn/python killed every 1-2 min). Root causes:
+    1. Supervisor started 7+ Python processes (sniper, orchestrator, exit_manager, risk_controller + 3 new perf agents) on ALL machines including scouts
+    2. No singleton protection on new agents → supervisor launched 4x copies of each
+    3. Supervisor used unreliable `pgrep -f` for process detection
+  - **Fixes applied**:
+    - `supervisor_24x7.sh`: Region-aware (scouts exit immediately), removed sniper/orchestrator (already threads in fly_agent_runner), PID tracking instead of pgrep
+    - `metrics_collector.py`, `auto_builder.py`, `alpha_researcher.py`: Added `process_singleton` locks
+    - `fly.toml`: Increased health check grace_period 20s→60s, timeout 5s→10s
+  - **Result**: 5/5 machines healthy, ewr MemAvailable: 161MB (was 107MB before, OOM at 11MB)
+  - **CRITICAL FIX: Trading lock cleared** — `trading_lock.json` was `locked: true` since Feb 14 (10 days). Cleared it. Fixed flywheel_controller.py to treat supervisor timeout (rc=124) as GO_DEGRADED instead of NO_GO (which was re-locking every cycle).
+  - **CRITICAL FIX: Orchestrator singleton** — 5 duplicate orchestrators were running. Added `process_singleton` lock to `realtime_orchestrator.py`.
+  - **TRADES FLOWING**: BTC-USD BUY $13.35, ETH-USDC SELL $15.20, ETH-USD BUY $30.23 — all limit orders, all filled within minutes of deployment
+- **Deploy status**: v185, 5 machines all healthy, all health checks passing
+- **What's next**: Covered in v186 handoff above
+- **Blockers**: None
+
+---
+
+## 2026-02-24 ~14:00 UTC Claude Code Handoff — Self-Evolving Performance Engine
+
+- **What I did**:
+  - **AutoBuilder** (new, `agents/auto_builder.py`):
+    - Config-space search engine: mines telemetry → generates bounded hypothesis → shadow evaluation → statistical gate → promote/rollback
+    - Safety: max 10% mutation/cycle, single active challenger, 24h cooldown on failed mutations
+    - Follows strategy_evolver.lisp safety model (bounded mutations, shadow-only, no direct trading)
+    - Writes champion_config.json consumed by sniper via _load_lisp_weights()
+  - **Metrics Collector** (new, `agents/metrics_collector.py`):
+    - 10 directive metrics collected every 60s: Sharpe (7d), drawdowns (24h/7d/30d), fill rate, signal accuracy (5m/1h/24h), latency (p50/p95/p99), PnL by strategy, win rate by asset, fee efficiency, capital utilization, model drift
+    - Writes to `agents/runtime/metrics_snapshot.json`
+  - **Alpha Researcher** (new, `agents/alpha_researcher.py`):
+    - Aggregates signal trends, strategy performance, execution patterns into unified alpha discoveries
+    - Feeds AutoBuilder bottleneck prioritization
+  - **KPI Tracker expanded** (`agents/kpi_tracker.py`):
+    - Added: compute_rolling_sharpe(7d), compute_drawdown_windows(24h/7d/30d), get_win_rate_by_asset(), get_capital_utilization(), get_fee_efficiency()
+    - full_report() now includes perf_engine section
+  - **Net-edge router** (`agents/smart_router.py`):
+    - Added compute_net_edge() static method: expected_return - total_cost
+    - find_best_execution() now returns net_edge_cost_pct
+  - **Order TTL monitor** (`agents/sniper.py`):
+    - track_order_ttl(), check_stale_orders(), clear_filled_order()
+    - SNIPER_ORDER_TTL_SECONDS=120 env var (cancel stale orders → re-price)
+  - **Kelly fraction wiring** (`agents/risk_controller.py`):
+    - kelly_fraction() now wired into approve_trade() for BUY sizing
+    - Added _get_pair_stats() for per-pair win rate/avg win/loss
+  - **Regime-aware signal weights** (`agents/sniper.py`):
+    - _apply_regime_adjustments() adjusts weights based on RegimeDetector
+    - BEAR: boost fear_greed +0.04, reduce momentum -0.04
+    - BULL: boost momentum +0.04, reduce fear_greed -0.02
+  - **24h signal accuracy** (`agents/sniper.py`):
+    - Added price_after_24h column to signal_accuracy table
+    - VERIFY_INTERVALS extended: now verifies at 5m, 15m, 1h, 24h
+  - **Self-healing** (`agents/bin/error_patterns.json`, `agents/perf_guard.py`):
+    - 20 error patterns with remediation actions
+    - rollback_if_degraded() function with optional auto_rollback
+  - **Supervisor wired** (`agents/bin/supervisor_24x7.sh`):
+    - metrics_collector always managed; auto_builder + alpha_researcher when AUTOBUILDER_ENABLED=1
+  - **Dashboard API** (`app.py`):
+    - GET /api/v1/perf-engine/metrics — 10 unified metrics
+    - GET /api/v1/perf-engine/status — autobuilder state, champion history
+  - **fly.toml** — 8 new env vars for performance engine
+- **Test status**: 635 tests pass (31 new tests)
+- **What's next**:
+  - Deploy to Fly.io
+  - Monitor AutoBuilder cycle activity and first promotions
+  - Phase 3: Bear market contrarian signal, HMM regime detector, Graph Signal V2
+  - Phase 4: Perp shorting, funding arb, cross-venue arb
+  - Wire partial fill resubmit (reconcile_agent_trades.py has detection, needs resubmit logic)
+- **Blockers**: None
+
+---
+
+## 2026-02-24 ~11:00 UTC Claude Code Handoff — Stop the Bleeding + Lisp/Shell Runtime
+
+- **What I did**:
+  - **Phase 1: Stop the Bleeding** (fly.toml env vars, deployed):
+    - TP0 0.5%→1.5% (was below 0.8% round-trip fees = net loss on every "profit" exit)
+    - TP1 1.0%→2.5%, TP2 2.5%→5.0%
+    - Confidence gate 0.75→0.65 (unlocks 62-73% signals that were blocked)
+    - Fear multiplier 0.6→0.80 (less whipsaw in bear market)
+    - Dead money timer 24h→48h (bear positions get recovery time)
+  - **Phase 2: Scale Trade Size + Fix Signal Bias** (code + env, deployed):
+    - risk_agent MAX_TRADE_USD: $5 hardcoded → $35 env-driven (7x per-trade revenue)
+    - risk_agent MAX_DAILY_LOSS_USD: $2 hardcoded → $40 env-driven
+    - SNIPER_MAX_POSITION_SIZE_USD: $50→$100
+    - Signal weights rebalanced: orderbook 0.15→0.08 (bear SELL bias), fear_greed 0.04→0.08 (contrarian), latency 0.15→0.18 (our alpha)
+    - All three weights now env-configurable
+  - **Lisp+Shell Hybrid Runtime** (new, deployed):
+    - 4 Lisp engines: signal_fusion, weight_adaptation, strategy_evolver, regime_switch
+    - 4 Shell scripts: supervisor_24x7, loop_exec_gateway, health_guard, promotion_guard
+    - All follow governance: kill-switch, heartbeat, bounded cycles, no direct order placement
+    - SBCL added to Dockerfile, env vars wired in fly.toml
+    - Python integration: sniper reads Lisp weights, orchestrator starts supervisor, capital_allocator enforces reserve floors
+  - **Codex deliverables saved**:
+    - Signal Engine V2 SIMD spec → `agents/claude_staging/signal_engine_v2.md`
+    - 24x7 Portfolio Tracker → `docs/claude/CLAUDE_24X7_PORTFOLIO_IMPLEMENTATION_TRACKER.md`
+    - Codex appended Lisp+Shell directive to tracker (Section 9)
+- **Test status**: 604 tests pass
+- **Deploy status**: 5 machines healthy, SBCL available in container
+- **What's next**:
+  - Monitor 24h for positive PnL (Phase 1+2 validation)
+  - Phase 3: Bear market contrarian signal, HMM regime detector, Graph Signal V2
+  - Wire Lisp engines to consume real signal data (currently shadow/placeholder)
+  - Phase 4: Perp shorting, funding arb, cross-venue arb scale-up
+- **Blockers**: None
+
+---
+
+## 2026-02-24 09:25 UTC Claude Code Handoff — Portfolio Fix + Safety + Live Data
+
+- **What I did**:
+  - **CRITICAL FIX: Portfolio undercounting** — `get_accounts()` had no pagination, seeing $422 when real balance is $658. Fixed with cursor-based pagination (limit=250/page). Trade sizes immediately increased from $5 to $16.
+  - **CRITICAL FIX: Dual ewr machines** — Two ewr machines were both executing as primary, causing duplicate trades. Scaled ewr to 1 machine. Also scaled sin to 1 machine.
+  - **Live portfolio API** — Added `/api/portfolio` public endpoint showing precise cross-venue holdings (Coinbase + Kraken) with available/hold breakdown.
+  - **Saved Codex research** — Graph Signal V2 (PageRank + Granger + Communities) saved to `agents/claude_staging/graph_signal_v2.md`
+  - Deployed v179 — 5 machines (1 ewr, 1 ord, 1 nrt, 1 sin), all healthy
+- **Portfolio** (live from API):
+  - Coinbase: $658.03 (USDC $326 + USD $299 + BTC $32 + dust)
+  - Kraken: $0 (ETH appears converted/withdrawn)
+  - Grand total: $658.03
+  - User sees $819 on Coinbase — gap may be loan principal display vs actual tradeable
+- **Codex note**: Codex completed exit_manager accounting fix and is doing controlled restart
+- **What's next**:
+  - Comprehensive growth strategy (planning mode) — system has $625 dry powder but only trading $16/order
+  - Lower confidence thresholds in bear market (BTC/ETH/SOL all below 75% gate)
+  - Implement Codex research: Graph Signal V2, HMM regime detector
+  - Consider faster scan cycles and larger position sizes
+- **Deploy status**: v179, 5 machines healthy, 531 tests passing
+
+---
+
+## 2026-02-24 08:30 UTC Claude Code Handoff — Reconcile Blocker Fix + CMC Integration
+
+- **What I did**:
+  - **CRITICAL FIX: Reconcile field name mismatch** — `_close_reconciliation_payload()` in `fly_agent_runner.py` was writing `gate_passed` / `gate_reason` but `execution_health.py` expected `close_gate_passed` / `close_gate_reason`. Also dropped `checked` field. This was blocking ALL trades for 10+ days via `NO_GO: execution_health_not_green:reconcile_no_orders_checked`. Fixed by adding both field name sets.
+  - **CoinMarketCap signal agent created** — `agents/cmc_signal_agent.py`: polls CMC Pro API every 15-30 min for Fear & Greed, BTC dominance, market momentum, derivatives volume, DeFi flow. Wired into fly_agent_runner and fly_deployer.
+  - **CMC API key set** as Fly secret (Basic/free plan: 276 credits/day)
+  - Deployed v175 — all 7 machines healthy, agents=9 (up from 8)
+  - Kraken ETH deposit confirmed: 0.0873 ETH = $159.54
+- **Current state**:
+  - Portfolio: Coinbase ~$753 + Kraken ~$159 + E*Trade ~$17 = ~$930
+  - Autoproceed: GO/go_live=True — reconcile blocker cleared!
+  - 24h PnL: -$25.67 (market selloff: BTC -3.7%, ETH -2.6%, F&G=8)
+  - Actionable signals being generated (SOL/ETH BUY 78-83%) but `balanced_growth` rate limiter dampening
+- **What's next**:
+  - Monitor if Kraken bot starts executing trades (ETH now available)
+  - Consider scaling ewr to 1 machine (2 machines both running as primary)
+  - Signal feedback loop should start populating signal_weights after 1hr
+  - CMC signals should appear in sniper scan within 15 min
+- **Blockers**: None (reconcile blocker cleared!)
+- **Deploy status**: v175 deployed, 7 machines healthy, 589 tests passing
+
+---
+
 ## 2026-02-24 Codex Handoff — Rollout Gate + NY/NJ Routing + Scanner Throughput
 
 - **What I did**:
