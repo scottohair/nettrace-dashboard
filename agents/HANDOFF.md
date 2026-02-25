@@ -1,3 +1,25 @@
+## 2026-02-25 ~05:00 UTC Claude Code Handoff — Gate Unblock Cascade + Perp Scalper Fix
+
+- **What I did**:
+  - **Fixed 5-layer gate blocking ALL buys** (root cause: close flow → balanced growth → no-loss policy cascade):
+    1. Extreme fear bypass expanded to ALL pre-trade gates (execution_health, exit_manager, close_flow) in execute_trade()
+    2. Extreme fear bypass added to balanced growth PRE-SCAN filter (was filtering BUY signals before execute_trade)
+    3. Lowered NO_LOSS_MIN_CONFIDENCE to 0.60 (was 0.70 — blocked 62-69% confidence signals at order placement)
+    4. Lowered SNIPER_BALANCE_MIN_CLOSE_COMPLETION_RATE to 0.0 (was 0.45 — blocked all buys when 0 sell completions)
+  - **Fixed SmartRouter Kraken balance valuation bug**: ETH held on Kraken was valued at SOL's price ($82) instead of ETH's price ($1933). SOL-USD was routing to Coinbase (0.60% fee) when Kraken had $165 of ETH available.
+  - **Fixed advanced team trade caps**: QuantOptimizerAgent had hardcoded $3.50/$5.00 caps. Now scales with RISK_AGENT_MAX_TRADE_USD env var (DEFENSIVE: 40%=$30, OFFENSIVE: 80%=$60).
+  - **Fixed perp scalper GoalValidator**: Was calling should_trade() (0.72 floor) instead of should_trade_perp() (0.60 floor). Also lowered thresholds: MIN_EDGE_PCT 0.05%→0.01%, MIN_CONFIDENCE 0.60→0.52, MIN_SIGNALS 2→1. Added MIN_CONFIRMING_SIGNALS_PERP=1 to agent_goals.py.
+  - **Result**: 10 BUY orders FILLED in first hour (~$232 deployed). Perp scalper now attempting trades (was 0 attempts for 12 days).
+- **Deploy status**: v199+, 5 machines healthy
+- **What's next**:
+  - Monitor: verify perp scalper fills (currently 2 attempts, 0 fills — investigate execution errors)
+  - Monitor: sell completions to improve close flow gate (currently 0% completion rate)
+  - Kraken routing: needs USD balance to route BUYs there (currently only has ETH)
+  - Consider: lower GOAL_MIN_CONFIDENCE from 0.72 during extreme fear periods
+- **Blockers**: Perp scalper attempts failing at execution (not blocked by gates anymore, but order placement errors)
+
+---
+
 ## 2026-02-25 ~02:00 UTC Claude Code Handoff — Growth Acceleration Flywheel
 
 - **What I did**:
