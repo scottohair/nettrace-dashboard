@@ -377,6 +377,145 @@ class ModelRunner:
         except Exception as e:
             return {"direction": "NONE", "confidence": 0, "error": str(e), "framework": self._framework}
 
+    def _compute_correlation_graph(self, price_histories):
+        """Build correlation adjacency matrix between all pairs.
+
+        Args:
+            price_histories: dict of pair -> list of recent prices (24h)
+
+        Returns:
+            dict with 'adjacency' (NxN matrix), 'pairs' (list), 'breakouts' (list of decorrelated pairs)
+        """
+        pairs = sorted(price_histories.keys())
+        n = len(pairs)
+        if n < 2:
+            return {"pairs": pairs, "adjacency": None, "breakouts": []}
+
+        # Compute log returns
+        returns = {}
+        for pair in pairs:
+            prices = price_histories[pair]
+            if len(prices) < 10:
+                continue
+            r = [math.log(prices[i] / prices[i - 1]) for i in range(1, len(prices)) if prices[i - 1] > 0]
+            if len(r) >= 9:
+                returns[pair] = r
+
+        # Build correlation matrix
+        active_pairs = [p for p in pairs if p in returns]
+        n = len(active_pairs)
+        if n < 2:
+            return {"pairs": active_pairs, "adjacency": None, "breakouts": []}
+
+        # Align to shortest length
+        min_len = min(len(returns[p]) for p in active_pairs)
+
+        def _pearson(xs, ys):
+            n_ = len(xs)
+            if n_ < 2:
+                return 0.0
+            mx = sum(xs) / n_
+            my = sum(ys) / n_
+            cov = sum((xs[i] - mx) * (ys[i] - my) for i in range(n_)) / n_
+            sx = math.sqrt(max(0, sum((x - mx) ** 2 for x in xs) / n_))
+            sy = math.sqrt(max(0, sum((y - my) ** 2 for y in ys) / n_))
+            if sx < 1e-12 or sy < 1e-12:
+                return 0.0
+            return cov / (sx * sy)
+
+        matrix = [[0.0] * n for _ in range(n)]
+        for i in range(n):
+            matrix[i][i] = 1.0
+            for j in range(i + 1, n):
+                ri = returns[active_pairs[i]][-min_len:]
+                rj = returns[active_pairs[j]][-min_len:]
+                corr = _pearson(ri, rj)
+                matrix[i][j] = corr
+                matrix[j][i] = corr
+
+        # Detect breakouts: pairs that normally correlate but diverged
+        breakouts = []
+        for i in range(n):
+            for j in range(i + 1, n):
+                if matrix[i][j] < 0.5:  # Low correlation
+                    breakouts.append({
+                        "pair_a": active_pairs[i],
+                        "pair_b": active_pairs[j],
+                        "correlation": round(float(matrix[i][j]), 4),
+                    })
+
+        return {"pairs": active_pairs, "adjacency": matrix, "breakouts": breakouts}
+
+    def _compute_flow_graph(self, volume_histories):
+        """Track capital flow direction between pairs.
+
+        Pairs gaining volume while others lose -> capital rotation signal.
+
+        Args:
+            volume_histories: dict of pair -> list of volume values (hourly)
+
+        Returns:
+            dict with 'flows', 'inflows' (capital coming in), 'outflows' (capital leaving)
+        """
+        flows = {}
+        for pair, volumes in volume_histories.items():
+            if len(volumes) < 2:
+                continue
+            recent = sum(volumes[-6:]) / min(6, len(volumes)) if len(volumes) >= 6 else volumes[-1]
+            if len(volumes) >= 24:
+                older = sum(volumes[-24:-6]) / max(1, len(volumes[-24:-6]))
+            else:
+                older = sum(volumes) / len(volumes)
+            if older > 0:
+                flow_ratio = recent / older
+                flows[pair] = round(float(flow_ratio), 4)
+
+        if not flows:
+            return {"flows": {}, "inflows": [], "outflows": []}
+
+        # Pairs gaining capital (flow_ratio > 1.2)
+        inflows = [p for p, f in sorted(flows.items(), key=lambda x: -x[1]) if f > 1.2]
+        # Pairs losing capital (flow_ratio < 0.8)
+        outflows = [p for p, f in sorted(flows.items(), key=lambda x: x[1]) if f < 0.8]
+
+        return {"flows": flows, "inflows": inflows, "outflows": outflows}
+
+    def _graph_centrality(self, adjacency_matrix):
+        """Simple eigenvector centrality from correlation adjacency matrix.
+
+        No NetworkX dependency -- uses power iteration on the absolute-value adjacency.
+
+        Args:
+            adjacency_matrix: NxN list-of-lists correlation matrix
+
+        Returns:
+            list of centrality scores (sums to ~1.0)
+        """
+        n = len(adjacency_matrix)
+        if n < 2:
+            return [1.0 / max(1, n)] * n
+
+        # Make non-negative for power iteration (absolute correlations, zero diagonal)
+        A_pos = [[abs(adjacency_matrix[i][j]) if i != j else 0.0 for j in range(n)] for i in range(n)]
+
+        # Power iteration for dominant eigenvector
+        v = [1.0 / n] * n
+        for _ in range(50):
+            v_new = [0.0] * n
+            for i in range(n):
+                for j in range(n):
+                    v_new[i] += A_pos[i][j] * v[j]
+            norm = math.sqrt(sum(x * x for x in v_new))
+            if norm > 0:
+                v_new = [x / norm for x in v_new]
+            # Check convergence
+            diff = sum(abs(v_new[i] - v[i]) for i in range(n))
+            v = v_new
+            if diff < 1e-6:
+                break
+
+        return v
+
     def dispatch_to_node(self, task_type, data, node="local"):
         """Dispatch ML task to a compute pool node."""
         node_info = COMPUTE_NODES.get(node)
@@ -394,6 +533,108 @@ class ModelRunner:
         except Exception as e:
             logger.debug("Node dispatch to %s failed: %s", node, e)
             return {"error": str(e)}
+
+
+class GraphSignalSource:
+    """Signal source derived from multi-layer graph analysis.
+
+    Reads correlation graph and flow graph from ModelRunner to produce
+    trading signals:
+      - Pair in 'inflows' -> mild BUY (capital flowing in)
+      - Pair in 'outflows' -> mild SELL (capital flowing out)
+      - Pair in 'breakouts' (low correlation) -> flag for pairs trading
+
+    Designed to be registered in sniper.py with weight 0.06.
+    """
+
+    def __init__(self):
+        self._model_runner = ModelRunner()
+        self._last_graph = {"ts": 0, "corr": None, "flow": None}
+        self._graph_ttl = 300  # Refresh every 5 minutes
+
+    def _refresh_graphs(self):
+        """Fetch candle data and rebuild correlation + flow graphs."""
+        now = time.time()
+        if now - self._last_graph["ts"] < self._graph_ttl and self._last_graph["corr"]:
+            return
+
+        pairs = ["BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD"]
+        price_histories = {}
+        volume_histories = {}
+
+        for pair in pairs:
+            try:
+                url = f"https://api.exchange.coinbase.com/products/{pair}/candles?granularity=3600"
+                data = _fetch_json(url, timeout=8)
+                if data and len(data) >= 10:
+                    # data: [[time, low, high, open, close, volume], ...]
+                    closes = [float(c[4]) for c in data[:48]]
+                    volumes = [float(c[5]) for c in data[:48]]
+                    closes.reverse()
+                    volumes.reverse()
+                    price_histories[pair] = closes
+                    volume_histories[pair] = volumes
+            except Exception:
+                pass
+
+        if len(price_histories) >= 2:
+            self._last_graph["corr"] = self._model_runner._compute_correlation_graph(price_histories)
+            self._last_graph["flow"] = self._model_runner._compute_flow_graph(volume_histories)
+            self._last_graph["ts"] = now
+
+    def scan(self, pair, candles_1h=None, candles_1m=None):
+        """Produce a signal for the given pair based on graph analysis.
+
+        Returns: {"direction": "BUY"|"SELL"|"NONE", "confidence": 0.0-1.0, "reason": "..."}
+        """
+        try:
+            self._refresh_graphs()
+
+            corr = self._last_graph.get("corr")
+            flow = self._last_graph.get("flow")
+            if not corr and not flow:
+                return {"direction": "NONE", "confidence": 0, "reason": "no graph data"}
+
+            # Normalize pair name for lookup (sniper uses -USDC, graph uses -USD)
+            lookup_pair = pair.replace("-USDC", "-USD")
+            reasons = []
+            direction_score = 0.0  # positive = BUY, negative = SELL
+
+            # Flow graph signal
+            if flow:
+                if lookup_pair in flow.get("inflows", []):
+                    direction_score += 0.5
+                    ratio = flow.get("flows", {}).get(lookup_pair, 1.0)
+                    reasons.append(f"capital inflow {ratio:.2f}x")
+                elif lookup_pair in flow.get("outflows", []):
+                    direction_score -= 0.5
+                    ratio = flow.get("flows", {}).get(lookup_pair, 1.0)
+                    reasons.append(f"capital outflow {ratio:.2f}x")
+
+            # Correlation breakout signal
+            if corr:
+                for b in corr.get("breakouts", []):
+                    if lookup_pair in (b["pair_a"], b["pair_b"]):
+                        reasons.append(f"decorrelated from {b['pair_b'] if lookup_pair == b['pair_a'] else b['pair_a']} (r={b['correlation']:.2f})")
+                        # Decorrelation is informational -- mild directional nudge from flow
+                        direction_score += 0.1 if direction_score >= 0 else -0.1
+                        break
+
+            if abs(direction_score) < 0.1:
+                return {"direction": "NONE", "confidence": 0, "reason": "no graph signal"}
+
+            direction = "BUY" if direction_score > 0 else "SELL"
+            confidence = min(0.65, 0.40 + abs(direction_score) * 0.3)
+
+            return {
+                "direction": direction,
+                "confidence": round(confidence, 4),
+                "reason": f"graph: {'; '.join(reasons)}",
+            }
+
+        except Exception as e:
+            logger.debug("GraphSignalSource error: %s", e)
+            return {"direction": "NONE", "confidence": 0, "reason": str(e)}
 
 
 class AgentPool:
@@ -1093,14 +1334,14 @@ class MetaEngine:
 
             losers = tconn.execute(
                 """
-                SELECT strategy_name, pair,
+                SELECT agent as strategy_name, pair,
                        SUM(COALESCE(pnl, 0)) as net_pnl,
                        COUNT(*) as closes
                 FROM agent_trades
                 WHERE UPPER(COALESCE(side, '')) = 'SELL'
                   AND pnl IS NOT NULL
                   AND created_at >= datetime('now', ?)
-                GROUP BY strategy_name, pair
+                GROUP BY agent, pair
                 HAVING COUNT(*) >= ? AND SUM(COALESCE(pnl, 0)) < ?
                 """,
                 (lookback_expr, FIRE_MIN_CLOSES, -abs(FIRE_MIN_LOSS_USD)),

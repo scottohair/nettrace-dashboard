@@ -1831,15 +1831,44 @@ class Sniper:
                 )
                 kraken_order_id = self._extract_kraken_order_id(kraken_result)
                 if kraken_order_id:
-                    return (
-                        {
-                            "success_response": {"order_id": kraken_order_id},
-                            "order_id": kraken_order_id,
-                            "venue": "kraken",
-                        },
-                        "kraken",
-                        True,
-                    )
+                    # Quick fill check: wait up to 30s for Kraken fill, cancel+fallback if unfilled
+                    kraken_fill_timeout = int(os.environ.get("SNIPER_KRAKEN_FILL_TIMEOUT_S", "30"))
+                    filled = False
+                    try:
+                        poll_start = time.time()
+                        while time.time() - poll_start < kraken_fill_timeout:
+                            status_resp = kraken.query_orders(txid=kraken_order_id)
+                            if isinstance(status_resp, dict):
+                                order_info = status_resp.get(kraken_order_id, {})
+                                order_status = str(order_info.get("status", "")).lower()
+                                if order_status == "closed":
+                                    filled = True
+                                    break
+                                if order_status in ("canceled", "cancelled", "expired"):
+                                    break
+                            time.sleep(3)
+                    except Exception as e:
+                        logger.debug("Kraken fill poll error: %s", e)
+                        filled = True  # Assume filled if we can't check — don't cancel blindly
+
+                    if filled:
+                        return (
+                            {
+                                "success_response": {"order_id": kraken_order_id},
+                                "order_id": kraken_order_id,
+                                "venue": "kraken",
+                            },
+                            "kraken",
+                            True,
+                        )
+                    else:
+                        # Cancel unfilled Kraken order and fall through to Coinbase
+                        try:
+                            kraken.cancel_order(kraken_order_id)
+                            logger.warning("Kraken %s order %s not filled in %ds, cancelled → fallback to Coinbase",
+                                         side_u, kraken_order_id, kraken_fill_timeout)
+                        except Exception as e:
+                            logger.debug("Kraken cancel error: %s", e)
                 logger.error("Kraken %s failed for %s: %s", side_u, pair, kraken_result.get("error"))
             else:
                 logger.warning("Kraken connector unavailable, falling back to Coinbase for %s %s", side_u, pair)

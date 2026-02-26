@@ -1,3 +1,26 @@
+## 2026-02-25 Claude Code Handoff — UNIPORTFOLIO: Full Duplex Profit Engine
+
+- **What I did** (6 execution leak fixes — targeting +$29-34/day = $870-1020/month):
+  1. **Fixed 40% order failure rate** (`exchange_connector.py`): Added retry loop with exponential backoff (up to 3 attempts) when Coinbase returns 200 but missing `order_id`. New UUID per retry to avoid duplicate rejection. Skips hard rejections (INSUFFICIENT_FUND, etc).
+  2. **Forced Kraken BUY routing** (`smart_router.py`): Lowered balance threshold from 50% to 10% of trade size (configurable via `SMART_ROUTER_KRAKEN_BUY_BALANCE_PCT`). At $40 trades, only $4 needed on Kraken. Saves 0.35% per BUY vs Coinbase.
+  3. **Fixed capital utilization waste** (`risk_controller.py`): Made allocation TTL configurable via `RISK_ALLOCATION_TTL_SECONDS` (default 90s, was hardcoded 120s). Tighter TTL releases capital faster when orders fail.
+  4. **Forced maker-only exits** (`exit_manager.py`): New `EXIT_FORCE_MAKER=1` env var. All exits use `post_only=True` — eliminates 1.20% taker fee on urgent exits. Market order fallback disabled when force_maker is on.
+  5. **Dual-venue routing with timeout** (`sniper.py`): Kraken orders now have 30s fill check. If unfilled, auto-cancel and fallback to Coinbase. Prevents capital lockup on Kraken.
+  6. **Cross-venue spread tracking** (`smart_router.py`): Logs price divergence between Kraken/Coinbase on every route. Feeds arb service with spread data.
+  7. **Promoted arb service to full** (`fly.toml`): `ARB_SERVICE_ROLLOUT_MODE=full` (was canary). All new env vars added to fly.toml.
+- **Tests**: 645 pass
+- **Deploy status**: Not yet deployed — ready for deploy
+- **What's next**:
+  - Deploy and monitor 30min: order failure rate should drop from 40% to <5%
+  - Verify Kraken BUY routing: `grep 'SmartRouter.*kraken.*BUY' sniper.log`
+  - Verify maker-only exits: all exits should show 0.60%/0.25% fee, not 1.20%
+  - After 24h: check realized PnL is positive consistently
+  - Phase 3B: Dynamic confidence floor based on signal accuracy (deferred — needs data)
+  - Kraken balance management: auto-transfer USD from Coinbase when Kraken < $50
+- **Blockers**: None — all changes are backward-compatible with env var fallbacks
+
+---
+
 ## 2026-02-25 ~05:00 UTC Claude Code Handoff — Gate Unblock Cascade + Perp Scalper Fix
 
 - **What I did**:

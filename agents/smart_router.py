@@ -423,12 +423,14 @@ class SmartRouter:
                 eth_val = eth_amt * self._get_ref_price("ETH") if eth_amt > 0 else 0
                 btc_val = btc_amt * self._get_ref_price("BTC") if btc_amt > 0 else 0
                 total_available = kraken_quote_usd + eth_val + btc_val
-                if total_available >= amount_usd * 0.50:  # route if at least 50% fundable
+                # Configurable threshold (default 10% — at $40 trades only $4 needed on Kraken)
+                _kraken_buy_bal_pct = float(os.environ.get("SMART_ROUTER_KRAKEN_BUY_BALANCE_PCT", "0.10"))
+                if total_available >= amount_usd * _kraken_buy_bal_pct:  # route if fundable
                     kraken_quote["kraken_needs_conversion"] = kraken_quote_usd < amount_usd
                     venues.append(kraken_quote)
                 else:
-                    logger.debug("Kraken skipped for BUY: total available $%.2f < 50%% of $%.2f",
-                                total_available, amount_usd)
+                    logger.debug("Kraken skipped for BUY: total available $%.2f < %.0f%% of $%.2f",
+                                total_available, _kraken_buy_bal_pct * 100, amount_usd)
             elif side.upper() == "SELL":
                 # ALWAYS include Kraken for sells — this converts crypto → USD at lower fees
                 # Even if the asset is on Coinbase, sniper will handle routing
@@ -549,6 +551,25 @@ class SmartRouter:
         # compute net_edge. Otherwise just embed total_cost for caller to use.
         total_cost = float(best.get("total_cost_pct", 0.0) or 0.0)
         best["net_edge_cost_pct"] = round(total_cost, 4)
+
+        # Cross-venue spread tracking: log price divergence between Kraken and Coinbase
+        # This feeds the arb service and helps identify profitable cross-venue opportunities
+        kraken_v = next((v for v in venues if v.get("venue") == "kraken"), None)
+        cb_v = next((v for v in venues if v.get("venue") == "coinbase"), None)
+        if kraken_v and cb_v:
+            kr_price = float(kraken_v.get("price", 0) or 0)
+            cb_price = float(cb_v.get("price", 0) or 0)
+            if kr_price > 0 and cb_price > 0:
+                spread_pct = abs(cb_price - kr_price) / min(cb_price, kr_price) * 100
+                best["cross_venue_spread_pct"] = round(spread_pct, 4)
+                best["cross_venue_spread_direction"] = "cb_premium" if cb_price > kr_price else "kr_premium"
+                if spread_pct > 0.30:
+                    logger.info("CROSS-VENUE SPREAD: %s %.3f%% (%s: $%.2f vs %s: $%.2f)",
+                               pair, spread_pct,
+                               "CB" if cb_price > kr_price else "KR",
+                               max(cb_price, kr_price),
+                               "KR" if cb_price > kr_price else "CB",
+                               min(cb_price, kr_price))
 
         return best
 

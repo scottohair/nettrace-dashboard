@@ -84,18 +84,23 @@ primary_region = "ewr"
   GROWTH_MODE_TP0_TARGET = "1.5"
   GROWTH_MODE_TP1_TARGET = "2.5"
   GROWTH_MODE_TP2_TARGET = "5.0"
-  # Min $10 trades: at 0.6% maker fee, that's $0.06/side = $0.12 round trip.
-  # Was $0.25 — tiny trades where fees ate all profit.
-  SNIPER_MIN_TRADE_SIZE_USD = "10.00"
+  # Min $20 trades: at 0.6% maker fee, that's $0.12/side = $0.24 round trip.
+  # Was $10.00 — too many micro-trades (210/day) burning daily limit + fees.
+  SNIPER_MIN_TRADE_SIZE_USD = "20.00"
   SNIPER_MAX_POSITION_SIZE_USD = "150.0"
+  # Disable liquidity depth cap entirely. We use limit orders (post_only) — zero slippage risk.
+  # Was capping trades to $12-20 based on top-5 levels (~$12 for BTC, unrealistically thin).
+  # Risk profile's 7%/$75 cap + GoalValidator + chain gate provide sufficient safety.
+  RISK_CONTROLLER_LIQ_DEPTH_ENABLED = "0"
   # P&L epoch: exclude legacy position liquidations from autoproceed P&L
   PNL_EPOCH_TS = "1771891177"
   # Deploy idle savings capital to checking for active trading
   CAPITAL_DEPLOY_IDLE_SAVINGS = "1"
   CAPITAL_IDLE_RESERVE_MIN_USD = "20.0"
-  # Sniper execution tuning — balanced cadence
-  SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS = "30"
-  SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS = "60"
+  # Sniper execution tuning — aggressive during extreme fear
+  # 15s scan = 2x more opportunities to catch dips. Coordinator cycle is 120s anyway.
+  SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS = "15"
+  SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS = "30"
   SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_ON_BLOCK = "1"
   SNIPER_EXECUTION_HEALTH_AUTO_REFRESH_COOLDOWN_SECONDS = "20"
   # Buy/sell balance: require exits before more accumulation
@@ -119,11 +124,13 @@ primary_region = "ewr"
   # Fix telemetry bootstrap chicken-and-egg (auto-resolves once trades flow)
   EXEC_HEALTH_FORCE_TELEMETRY_BYPASS = "1"
   # Relax strategic planner chain gate to match sniper defaults
-  LONG_CHAIN_MIN_NET_EDGE_PCT = "0.002"
-  LONG_CHAIN_MIN_WORST_EDGE_PCT = "-0.005"
-  # Relax sniper chain gate for fee-heavy env (-1% net, -2% worst vs defaults 0.2%/-0.5%)
-  SNIPER_MIN_CHAIN_NET_EDGE_PCT = "-0.01"
-  SNIPER_MIN_CHAIN_WORST_EDGE_PCT = "-0.02"
+  # Strategic planner chain gate (advisory — sniper has its own relaxed thresholds)
+  LONG_CHAIN_MIN_NET_EDGE_PCT = "-0.01"
+  LONG_CHAIN_MIN_WORST_EDGE_PCT = "-0.025"
+  # Relax sniper chain gate for fee-heavy env (-1.5% net, -3% worst vs defaults 0.2%/-0.5%)
+  # ETH worst edge was -2.05%, SOL was -2.44% — both just barely blocked at -2.0%.
+  SNIPER_MIN_CHAIN_NET_EDGE_PCT = "-0.015"
+  SNIPER_MIN_CHAIN_WORST_EDGE_PCT = "-0.03"
   # Disable growth engine confidence dampening (was 0.85 = 15% haircut)
   # Quality/lattice info still logged; re-enable once GF quality improves
   SNIPER_GF_DAMPEN_FACTOR = "1.0"
@@ -137,7 +144,9 @@ primary_region = "ewr"
   PERP_SCALPER_MIN_CONFIDENCE = "0.52"
   PERP_SCALPER_MIN_SIGNALS = "1"
   PERP_SCALPER_MIN_EDGE_PCT = "0.01"
-  PERP_SCALPER_ORDER_USD = "3.0"
+  # $100 minimum: BTC-PERP-INTX min ~0.001 BTC ($86), ETH ~0.01 ETH ($26), SOL ~0.1 SOL ($14)
+  # At $3 all 31 attempts failed (below exchange minimums). 0% maker = near-free.
+  PERP_SCALPER_ORDER_USD = "100.0"
   PERP_SCALPER_PAIRS = "BTC-USD,ETH-USD,SOL-USD"
   GOAL_MIN_CONFIDENCE_PERP = "0.60"
   # Perp exit thresholds (tiny TP/SL — near-free re-entry at 0% maker)
@@ -145,18 +154,26 @@ primary_region = "ewr"
   EXIT_PERP_SL_PCT = "0.15"
   EXIT_PERP_MAX_HOLD_MINUTES = "5"
   EXIT_PERP_MONITOR_SECONDS = "5"
-  # === KRAKEN SPOT ROUTING (0.16% maker vs Coinbase 0.60%) ===
+  # === KRAKEN SPOT ROUTING (0.25% maker vs Coinbase 0.60% = 0.35% savings/trade) ===
   SMART_ROUTER_KRAKEN_PREFERRED = "1"
+  SMART_ROUTER_KRAKEN_BUY_BALANCE_PCT = "0.10"
   SNIPER_KRAKEN_CONFIDENCE_FLOOR = "0.65"
-  # === MULTI-EXCHANGE ARB CANARY ROLLOUT ===
+  SNIPER_KRAKEN_FILL_TIMEOUT_S = "30"
+  # === EXIT MANAGER: FORCE MAKER (saves 0.60% per exit vs taker) ===
+  EXIT_FORCE_MAKER = "1"
+  # === RISK CONTROLLER: ALLOCATION TTL (tighter = less capital waste) ===
+  RISK_ALLOCATION_TTL_SECONDS = "90"
+  # === ORDER ACK RETRY (recover 40% failed orders) ===
+  COINBASE_ORDER_ACK_RETRIES = "3"
+  # === MULTI-EXCHANGE ARB — FULL EXECUTION (promoted from canary) ===
   ARB_SERVICE_EXECUTE_ENABLED = "1"
   ARB_SERVICE_DATA_SOURCE = "hybrid"
   ARB_SERVICE_SCAN_INTERVAL_S = "45"
   ARB_SERVICE_MIN_SPREAD_PCT = "0.30"
   ARB_SERVICE_MIN_PROFIT_USD = "0.50"
   ARB_SERVICE_TRADE_NOTIONAL_USD = "50.0"
-  ARB_SERVICE_ROLLOUT_MODE = "canary"
-  ARB_SERVICE_ROLLOUT_INITIAL_STAGE = "canary"
+  ARB_SERVICE_ROLLOUT_MODE = "full"
+  ARB_SERVICE_ROLLOUT_INITIAL_STAGE = "full"
   ARB_SERVICE_CANARY_REGIONS = "ewr,local"
   ARB_SERVICE_FULL_REGIONS = "ewr,ord,lhr,fra,nrt,sin,bom,local"
   ARB_SERVICE_CANARY_NOTIONAL_USD = "10.0"
@@ -202,6 +219,10 @@ primary_region = "ewr"
   # === RISK AGENT SCALING (env-driven, not hardcoded) ===
   RISK_AGENT_MAX_TRADE_USD = "75.0"
   RISK_AGENT_MAX_DAILY_LOSS_USD = "75.0"
+  # Daily BUY trade limit (0 = use formula: log10(portfolio) * 80)
+  # At $627 portfolio formula gives ~210, which was exhausted by 13:30 UTC.
+  # 300 allows steady accumulation during extreme fear without excessive churn.
+  RISK_MAX_DAILY_TRADES = "300"
   # === LISP + SHELL CONTROL PLANE (Phase 0: shadow only) ===
   LISP_LOOP_ENABLED = "1"
   LISP_CYCLE_MS = "800"

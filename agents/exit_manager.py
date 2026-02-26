@@ -69,6 +69,9 @@ EXIT_MIN_SELL_USD = float(os.environ.get("EXIT_MIN_SELL_USD", "1.0"))
 EXIT_DUST_UNTRACK_USD = float(os.environ.get("EXIT_DUST_UNTRACK_USD", "0.75"))
 EXIT_LOCK_GAIN_PCT = float(os.environ.get("EXIT_LOCK_GAIN_PCT", "0.01"))
 EXIT_LOCK_GAIN_MAX_NOTIONAL_USD = float(os.environ.get("EXIT_LOCK_GAIN_MAX_NOTIONAL_USD", "25.0"))
+# Force maker-only on ALL exit orders (saves 0.60% per exit vs taker).
+# Only emergency liquidations (loss_limit, force_eval_stop) bypass this when disabled.
+EXIT_FORCE_MAKER = os.environ.get("EXIT_FORCE_MAKER", "1").lower() not in ("0", "false", "no")
 
 try:
     from smart_router import SmartRouter
@@ -1127,7 +1130,11 @@ class ExitManager:
             actual_balance = amount
 
         if actual_balance <= 0:
-            logger.info("EXIT SKIP: %s actual balance is 0", pair)
+            # Base asset already fully sold (likely by a sibling pair, e.g. SOL-USD sold all SOL,
+            # then SOL-USDC tries to sell the same SOL). Untrack to prevent repeated failures.
+            logger.info("EXIT SKIP: %s actual balance is 0 — untracking (base %s already sold)", pair, base_currency)
+            if pair in self._positions:
+                del self._positions[pair]
             return False
         if amount > actual_balance:
             logger.info("EXIT: Adjusting %s sell amount from %.8f to actual balance %.8f",
@@ -1194,20 +1201,26 @@ class ExitManager:
 
         urgent_types = {"loss_limit", "trailing_stop", "force_eval_stop"}
         urgent = str(exit_type) in urgent_types
-        # MAKER ONLY for non-urgent: sell just above spot (0.4% fee vs 1.2%)
-        # Urgent exits: sell at spot - slippage (still limit, but allows taker)
+        # MAKER ONLY: sell just above spot (0.60% maker vs 1.20% taker saves 0.60% per exit)
+        # EXIT_FORCE_MAKER=1 forces maker-only on ALL exits including urgent (default: on)
         slippage_frac = max(1e-6, float(EXIT_EXECUTION_SLIPPAGE_BPS) / 10000.0)
 
         plan = []
-        if not urgent:
+        if not urgent or EXIT_FORCE_MAKER:
             # Maker: sell just above spot, post_only=True ensures maker fee
             maker_price = current_price * 1.0005
             plan.append(("limit", {"price": maker_price, "post_only": True}))
+            if urgent and not EXIT_FORCE_MAKER:
+                # If urgent but force-maker is off, also try taker as backup
+                taker_price = current_price * (1.0 - slippage_frac)
+                plan.append(("limit", {"price": taker_price, "post_only": False}))
         else:
-            # Urgent: accept taker to guarantee fill
+            # Urgent + force_maker disabled: accept taker to guarantee fill
             taker_price = current_price * (1.0 - slippage_frac)
             plan.append(("limit", {"price": taker_price, "post_only": False}))
-        plan.append(("market", {}))  # last resort fallback
+        # Market order fallback ONLY when force_maker is off (avoids 1.20% taker fee)
+        if not EXIT_FORCE_MAKER:
+            plan.append(("market", {}))
         plan = plan[:max(1, int(EXIT_EXECUTION_RETRY_LIMIT))]
 
         success = False

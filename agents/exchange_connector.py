@@ -1463,12 +1463,50 @@ class CoinbaseTrader:
         return last_error or {"error": "All retries exhausted"}
 
     def get_accounts(self):
-        """List all accounts/wallets."""
-        return self._request("GET", "/api/v3/brokerage/accounts")
+        """List all accounts/wallets with pagination to capture full portfolio."""
+        all_accounts = []
+        cursor = None
+        for _ in range(10):  # max 10 pages
+            url = "/api/v3/brokerage/accounts?limit=250"
+            if cursor:
+                url += f"&cursor={cursor}"
+            resp = self._request("GET", url)
+            if not isinstance(resp, dict):
+                break
+            accounts = resp.get("accounts", [])
+            all_accounts.extend(accounts)
+            cursor = resp.get("cursor")
+            if not cursor or not resp.get("has_next", False):
+                break
+        return {"accounts": all_accounts}
 
     def get_product(self, product_id):
         """Get product details (e.g., BTC-USD)."""
         return self._request("GET", f"/api/v3/brokerage/products/{product_id}")
+
+    def list_perpetual_products(self):
+        """List available perpetual futures products from Coinbase Advanced Trade."""
+        try:
+            resp = self._request(
+                "GET",
+                "/api/v3/brokerage/products?product_type=FUTURE&contract_expiry_type=PERPETUAL",
+            )
+            products = resp.get("products", []) if isinstance(resp, dict) else []
+            # Filter to confirmed perps (product_id contains 'PERP' or contract_expiry_type is PERPETUAL)
+            perps = []
+            for p in products:
+                pid = str(p.get("product_id", ""))
+                ctype = str(p.get("contract_expiry_type", "")).upper()
+                ptype = str(p.get("product_type", "")).upper()
+                if "PERP" in pid or ctype == "PERPETUAL" or ptype in ("FUTURE", "PERPETUAL"):
+                    perps.append(p)
+            if perps:
+                logger.info("Discovered %d perpetual products: %s",
+                           len(perps), [p.get("product_id") for p in perps[:5]])
+            return perps
+        except Exception as e:
+            logger.debug("list_perpetual_products failed: %s", e)
+            return []
 
     def get_candles(self, product_id, granularity="ONE_HOUR", limit=100):
         """Get price candles."""
@@ -1831,8 +1869,10 @@ class CoinbaseTrader:
         signal_confidence=None,
         market_regime=None,
         bypass_profit_guard=False,
+        bracket_config=None,
+        **kwargs,
     ):
-        """Place a limit order (MAKER — 0.4% fee instead of 0.6%).
+        """Place a limit order (MAKER — 0.6% fee at current tier).
 
         Game theory: Be the house, not the player.
         Limit orders let us SET the price. If filled, we entered at our chosen level.
@@ -1844,6 +1884,8 @@ class CoinbaseTrader:
             base_size: amount of base currency (e.g., 0.0001 BTC)
             limit_price: price to buy/sell at
             post_only: if True, reject order if it would take liquidity
+            bracket_config: optional dict with take_profit_price and stop_loss_price
+                for exchange-enforced exits (Coinbase attached_order_configuration)
         """
         import uuid
         product_id = self._normalize_product_id(product_id)
@@ -2018,20 +2060,91 @@ class CoinbaseTrader:
             }
         }
 
+        # Perp orders: add leverage and margin type (required by Coinbase for FUTURE products)
+        if "PERP" in product_id.upper() or "INTX" in product_id.upper():
+            order["leverage"] = str(kwargs.get("leverage", "1"))
+            order["margin_type"] = str(kwargs.get("margin_type", "CROSS"))
+
+        # Bracket orders: attach TP + SL for exchange-enforced exits
+        if bracket_config and isinstance(bracket_config, dict):
+            tp_price = bracket_config.get("take_profit_price")
+            sl_price = bracket_config.get("stop_loss_price")
+            attached = {}
+            if tp_price:
+                attached["take_profit"] = {
+                    "limit_price": str(tp_price),
+                }
+            if sl_price:
+                attached["stop_loss"] = {
+                    "stop_price": str(sl_price),
+                    "limit_price": str(round(float(sl_price) * 0.995, 2)),  # 0.5% slippage buffer
+                }
+            if attached:
+                order["attached_order_configuration"] = attached
+                logger.info("BRACKET order: TP=$%s SL=$%s for %s",
+                           tp_price, sl_price, product_id)
+
         logger.info("Placing LIMIT %s: %s %s @ $%s (post_only=%s)",
                      side, product_id, base_size, limit_price, post_only)
-        request_t0 = time.perf_counter()
-        result = self._request("POST", "/api/v3/brokerage/orders", order)
-        ack_latency_ms = (time.perf_counter() - request_t0) * 1000.0
+
+        # Retry loop: Coinbase sometimes returns 200 without order_id (40% failure rate observed).
+        # Retry up to 3 times with exponential backoff before giving up.
+        max_order_attempts = _env_int("COINBASE_ORDER_ACK_RETRIES", 3)
         order_id = None
-        if isinstance(result, dict):
-            if "success_response" in result and isinstance(result["success_response"], dict):
-                order_id = result["success_response"].get("order_id")
-            elif "order_id" in result:
-                order_id = result.get("order_id")
+        result = None
+        total_ack_latency_ms = 0.0
+
+        for attempt in range(max_order_attempts):
+            if attempt > 0:
+                # New client_order_id for each retry to avoid duplicate rejection
+                order["client_order_id"] = str(uuid.uuid4())
+                backoff = 0.5 * (attempt + 1)
+                logger.warning("Order ack retry %d/%d for %s %s (backoff %.1fs)",
+                              attempt + 1, max_order_attempts, side_u, product_id, backoff)
+                time.sleep(backoff)
+
+            request_t0 = time.perf_counter()
+            result = self._request("POST", "/api/v3/brokerage/orders", order)
+            ack_latency_ms = (time.perf_counter() - request_t0) * 1000.0
+            total_ack_latency_ms += ack_latency_ms
+
+            if isinstance(result, dict):
+                if "success_response" in result and isinstance(result["success_response"], dict):
+                    order_id = result["success_response"].get("order_id")
+                elif "order_id" in result:
+                    order_id = result.get("order_id")
+
+                # Detect API-level errors (403 rate limit, circuit breaker, etc.) — don't retry
+                api_status = result.get("status")
+                if api_status in (403, 401, 429):
+                    logger.warning("Order blocked by API (status=%s), not retrying: %s", api_status, str(result)[:200])
+                    break
+                if result.get("error") and "Circuit breaker" in str(result.get("error", "")):
+                    logger.warning("Order blocked by circuit breaker, not retrying")
+                    break
+
+                # Also check for error_response indicating a hard rejection (don't retry)
+                err_resp = result.get("error_response", {})
+                if isinstance(err_resp, dict) and err_resp.get("error"):
+                    err_code = str(err_resp.get("error", ""))
+                    # Don't retry hard rejections — only retry missing order_id
+                    if err_code in ("INSUFFICIENT_FUND", "INVALID_LIMIT_PRICE_POST_ONLY",
+                                    "INVALID_PRODUCT_ID", "TRADING_LOCKED", "SELL_AT_LOSS_BLOCKED"):
+                        logger.warning("Order hard-rejected (%s), not retrying: %s", err_code, err_resp)
+                        break
+
+            if order_id:
+                if attempt > 0:
+                    logger.info("Order ack recovered on attempt %d/%d: %s", attempt + 1, max_order_attempts, order_id)
+                break
+
+            logger.warning("Order ack missing order_id (attempt %d/%d): %s",
+                          attempt + 1, max_order_attempts, result)
+
         requested_usd = base_size * limit_price
         status = "ack_ok" if order_id else "ack_failed"
-        details = {"response": result if isinstance(result, dict) else {"raw": str(result)}}
+        details = {"response": result if isinstance(result, dict) else {"raw": str(result)},
+                   "attempts": attempt + 1, "total_ack_latency_ms": total_ack_latency_ms}
         _record_order_lifecycle(
             "coinbase",
             pair=product_id,
@@ -2039,7 +2152,7 @@ class CoinbaseTrader:
             status=status,
             order_id=order_id,
             requested_usd=requested_usd,
-            ack_latency_ms=ack_latency_ms,
+            ack_latency_ms=total_ack_latency_ms,
             details=details,
         )
         if not order_id:
@@ -2047,8 +2160,8 @@ class CoinbaseTrader:
                 product_id,
                 side_u,
                 "order_ack_failed",
-                "Coinbase limit order request did not return order_id",
-                details={"response": result, "ack_latency_ms": ack_latency_ms},
+                f"Coinbase limit order failed after {attempt + 1} attempts",
+                details={"response": result, "ack_latency_ms": total_ack_latency_ms, "attempts": attempt + 1},
             )
         return result
 

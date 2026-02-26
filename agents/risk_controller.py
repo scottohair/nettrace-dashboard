@@ -63,6 +63,10 @@ RISK_PROFILE = str(
     os.environ.get("RISK_PROFILE", os.environ.get("RISK_CONTROLLER_PROFILE", "legacy"))
 ).strip().lower()
 MAX_OPEN_ORDERS_OVERRIDE = int(os.environ.get("RISK_CONTROLLER_MAX_OPEN_ORDERS", "0") or 0)
+MAX_DAILY_TRADES_OVERRIDE = int(os.environ.get("RISK_MAX_DAILY_TRADES", "0") or 0)
+# Allocation TTL: how long a pending allocation stays valid before auto-expiry.
+# 90s (was 120s) — tighter TTL means capital is released faster when orders fail.
+ALLOCATION_TTL_SECONDS = int(os.environ.get("RISK_ALLOCATION_TTL_SECONDS", "90") or 90)
 
 SMART_PROFILE_PRESETS = {
     "smart_safe": {
@@ -962,7 +966,8 @@ class RiskController:
                 # Remove stale allocations before calculating concentration/usage.
                 cur.execute(
                     "UPDATE pending_allocations SET status='expired', resolved_at=CURRENT_TIMESTAMP "
-                    "WHERE status='pending' AND created_at < datetime('now', '-2 minutes')")
+                    "WHERE status='pending' AND created_at < datetime('now', ?)",
+                    (f'-{ALLOCATION_TTL_SECONDS} seconds',))
                 pair_cap = portfolio_value * self.max_position_pct(portfolio_value, vol)
                 pair_pending_row = cur.execute(
                     "SELECT COALESCE(SUM(size_usd), 0) FROM pending_allocations "
@@ -1032,7 +1037,10 @@ class RiskController:
 
             # 6. Rate limiting: max trades per day scales with portfolio
             # SELL/exit orders are EXEMPT — you must ALWAYS be able to exit a position
-            max_trades = max(100, int(math.log10(max(1, portfolio_value)) * 80))
+            if MAX_DAILY_TRADES_OVERRIDE > 0:
+                max_trades = MAX_DAILY_TRADES_OVERRIDE
+            else:
+                max_trades = max(100, int(math.log10(max(1, portfolio_value)) * 80))
             if direction == "BUY" and self._trade_count_today >= max_trades:
                 self._db.rollback()
                 return False, f"Trade limit reached ({self._trade_count_today}/{max_trades})", 0

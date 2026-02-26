@@ -10,6 +10,7 @@ Tests cover:
 """
 
 import os
+import sqlite3
 import sys
 import tempfile
 import unittest
@@ -149,6 +150,31 @@ class TestNoDoubleRecordPartialExit(unittest.TestCase):
         self._tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
         exit_manager.EXIT_DB = self._tmp.name
         self._tmp.close()
+        self._trader_tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self._trader_tmp.close()
+        exit_manager.TRADER_DB = self._trader_tmp.name
+
+        con = sqlite3.connect(self._trader_tmp.name)
+        con.execute(
+            """
+            CREATE TABLE IF NOT EXISTS agent_trades (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                agent TEXT NOT NULL,
+                pair TEXT NOT NULL,
+                side TEXT NOT NULL,
+                price REAL,
+                quantity REAL,
+                total_usd REAL,
+                order_type TEXT DEFAULT 'limit',
+                order_id TEXT,
+                status TEXT DEFAULT 'pending',
+                pnl REAL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        con.commit()
+        con.close()
 
         exit_manager._risk_ctrl = MagicMock()
         exit_manager._risk_ctrl.get_risk_params.return_value = {
@@ -162,6 +188,7 @@ class TestNoDoubleRecordPartialExit(unittest.TestCase):
 
     def tearDown(self):
         os.unlink(self._tmp.name)
+        os.unlink(self._trader_tmp.name)
 
     def test_execute_exit_records_partial(self):
         """execute_exit should call record_partial_exit internally."""
@@ -169,9 +196,10 @@ class TestNoDoubleRecordPartialExit(unittest.TestCase):
         pos = PositionState("BTC-USDC", 100000, datetime.now(timezone.utc).isoformat(), 0.001)
         self.em._positions["BTC-USDC"] = pos
 
-        # Mock the trader
+        # Mock the trader (both market and limit order paths)
         mock_trader = MagicMock()
         mock_trader.place_order.return_value = {"success_response": {"order_id": "test123"}}
+        mock_trader.place_limit_order.return_value = {"success_response": {"order_id": "test123"}}
         mock_trader._request.return_value = {
             "accounts": [{"currency": "BTC", "available_balance": {"value": "0.001"}}]
         }
@@ -184,6 +212,84 @@ class TestNoDoubleRecordPartialExit(unittest.TestCase):
         self.assertIn("tp1", pos.partial_exits_done)
         # And held_amount should be reduced by exactly 0.0003 (not double)
         self.assertAlmostEqual(pos.held_amount, 0.0007, places=6)
+
+
+class TestExitMirrorStatus(unittest.TestCase):
+    """Ensure mirrored SELLs are acknowledged first, then reconciled later."""
+
+    def setUp(self):
+        import exit_manager
+        self._exit_tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self._exit_tmp.close()
+        self._trader_tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self._trader_tmp.close()
+        exit_manager.EXIT_DB = self._exit_tmp.name
+        exit_manager.TRADER_DB = self._trader_tmp.name
+
+        con = sqlite3.connect(self._trader_tmp.name)
+        con.execute(
+            """
+            CREATE TABLE IF NOT EXISTS agent_trades (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                agent TEXT NOT NULL,
+                pair TEXT NOT NULL,
+                side TEXT NOT NULL,
+                price REAL,
+                quantity REAL,
+                total_usd REAL,
+                order_type TEXT DEFAULT 'limit',
+                order_id TEXT,
+                status TEXT DEFAULT 'pending',
+                pnl REAL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        con.commit()
+        con.close()
+
+        exit_manager._risk_ctrl = MagicMock()
+        exit_manager._risk_ctrl.get_risk_params.return_value = {
+            "volatility": 0.02,
+            "max_daily_loss": 10.0,
+            "regime": "RANGING",
+        }
+        exit_manager._risk_ctrl.market.compute_volatility.return_value = 0.02
+        exit_manager._risk_ctrl.approve_trade.return_value = (True, "OK", 5.0)
+
+        self.em = exit_manager.ExitManager()
+        self.em._estimate_portfolio_value = MagicMock(return_value=290.0)
+
+    def tearDown(self):
+        os.unlink(self._exit_tmp.name)
+        os.unlink(self._trader_tmp.name)
+
+    def test_execute_exit_mirrors_as_accepted_not_filled(self):
+        from exit_manager import PositionState
+
+        pos = PositionState("BTC-USDC", 100000, datetime.now(timezone.utc).isoformat(), 0.001)
+        self.em._positions["BTC-USDC"] = pos
+
+        mock_trader = MagicMock()
+        mock_trader.place_limit_order.return_value = {"success_response": {"order_id": "ack123"}}
+        mock_trader._request.return_value = {
+            "accounts": [{"currency": "BTC", "available_balance": {"value": "0.001"}}]
+        }
+        self.em._trader = mock_trader
+
+        with patch("exit_manager._get_price", return_value=101000):
+            ok = self.em.execute_exit("BTC-USDC", 0.0003, "test", "take_profit_tp1")
+        self.assertTrue(ok)
+
+        con = sqlite3.connect(self._trader_tmp.name)
+        row = con.execute(
+            "SELECT status, pnl, order_id FROM agent_trades ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+        con.close()
+        self.assertIsNotNone(row)
+        self.assertEqual(row[0], "accepted")
+        self.assertIsNone(row[1])
+        self.assertEqual(row[2], "ack123")
 
 
 if __name__ == "__main__":
