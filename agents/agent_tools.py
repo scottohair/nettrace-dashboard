@@ -38,6 +38,7 @@ STRICT_PROFIT_ONLY = os.environ.get("STRICT_PROFIT_ONLY", "1").lower() not in ("
 ORDER_FILL_SYNC_ENABLED = os.environ.get("AGENT_ORDER_FILL_SYNC_ENABLED", "1").lower() not in ("0", "false", "no")
 ORDER_FILL_WAIT_SEC = float(os.environ.get("AGENT_ORDER_FILL_WAIT_SEC", "2.0") or 2.0)
 ORDER_FILL_POLL_SEC = float(os.environ.get("AGENT_ORDER_FILL_POLL_SEC", "0.4") or 0.4)
+STABLE_USD_ASSETS = {"USD", "USDC", "USDT", "DAI", "PYUSD"}
 
 try:
     from no_loss_policy import (
@@ -692,18 +693,153 @@ class AgentTools:
 
     # ── Portfolio ─────────────────────────────────────────────────
 
+    def _portfolio_snapshot_fallback(self):
+        """Return latest non-zero snapshot when live account fetch is unavailable."""
+        def _age_seconds(ts_text):
+            text = str(ts_text or "").strip()
+            if not text:
+                return None
+            try:
+                dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return max(0.0, (datetime.now(timezone.utc) - dt).total_seconds())
+            except Exception:
+                return None
+
+        def _to_pos(value):
+            try:
+                parsed = float(value)
+            except Exception:
+                return 0.0
+            return parsed if parsed > 0 else 0.0
+
+        candidates = []
+
+        try:
+            row = self.db.execute(
+                """
+                SELECT total_value_usd, available_cash, held_in_orders, holdings_json, recorded_at
+                FROM portfolio_snapshots
+                WHERE total_value_usd > 0
+                ORDER BY id DESC
+                LIMIT 1
+                """
+            ).fetchone()
+            if row:
+                holdings = {}
+                try:
+                    holdings = json.loads(row["holdings_json"] or "{}")
+                    if not isinstance(holdings, dict):
+                        holdings = {}
+                except Exception:
+                    holdings = {}
+                candidates.append(
+                    {
+                        "total_usd": round(float(row["total_value_usd"] or 0.0), 2),
+                        "holdings": holdings,
+                        "available_cash": round(float(row["available_cash"] or 0.0), 2),
+                        "held_in_orders": round(float(row["held_in_orders"] or 0.0), 2),
+                        "source": "portfolio_snapshots_fallback",
+                        "age_seconds": _age_seconds(row["recorded_at"]),
+                    }
+                )
+        except Exception:
+            pass
+
+        status_candidates = (
+            Path(__file__).parent / "flywheel_status.json",
+            Path(__file__).parent / "treasury_registry_status.json",
+            Path(__file__).parent / "treasury_registry.json",
+        )
+        for path in status_candidates:
+            try:
+                payload = json.loads(path.read_text())
+            except Exception:
+                continue
+            if not isinstance(payload, dict):
+                continue
+
+            portfolio = payload.get("portfolio")
+            if not isinstance(portfolio, dict):
+                portfolio = {}
+
+            total = (
+                _to_pos(portfolio.get("total_usd"))
+                or _to_pos(payload.get("portfolio_total_usd"))
+            )
+            if total <= 0:
+                continue
+
+            holdings = portfolio.get("holdings", {})
+            if not isinstance(holdings, dict):
+                holdings = {}
+
+            candidates.append(
+                {
+                    "total_usd": round(total, 2),
+                    "holdings": holdings,
+                    "available_cash": round(
+                        _to_pos(portfolio.get("available_cash")),
+                        2,
+                    ),
+                    "held_in_orders": round(
+                        _to_pos(portfolio.get("held_in_orders")),
+                        2,
+                    ),
+                    "source": f"{path.name}_fallback",
+                    "age_seconds": _age_seconds(payload.get("updated_at")),
+                }
+            )
+
+        if not candidates:
+            return None
+
+        fresh = [
+            c for c in candidates
+            if c.get("age_seconds") is None or float(c.get("age_seconds") or 0.0) <= 3600.0
+        ]
+        pool = fresh if fresh else candidates
+        selected = max(pool, key=lambda c: float(c.get("total_usd", 0.0) or 0.0))
+        selected.pop("age_seconds", None)
+        return selected
+
+    def _fetch_coinbase_accounts(self):
+        """Fetch paginated accounts when connector exposes get_accounts()."""
+        try:
+            if hasattr(self.exchange, "get_accounts"):
+                payload = self.exchange.get_accounts()
+            else:
+                payload = self.exchange._request("GET", "/api/v3/brokerage/accounts?limit=250")
+            if isinstance(payload, dict):
+                accounts = payload.get("accounts", [])
+                if isinstance(accounts, list):
+                    return accounts
+        except Exception as e:
+            logger.warning("get_portfolio account fetch failed: %s", e)
+        return []
+
     def get_portfolio(self):
         """Get full portfolio including funds locked in open orders."""
-        accounts = self.exchange._request("GET", "/api/v3/brokerage/accounts?limit=250")
-        if "accounts" not in accounts:
-            return {"total_usd": 0, "holdings": {}, "available_cash": 0, "held_in_orders": 0}
+        accounts = self._fetch_coinbase_accounts()
+        if not accounts:
+            fallback = self._portfolio_snapshot_fallback()
+            if fallback:
+                return fallback
+            return {
+                "total_usd": 0.0,
+                "holdings": {},
+                "available_cash": 0.0,
+                "held_in_orders": 0.0,
+                "source": "coinbase_accounts_unavailable",
+            }
 
         total_usd = 0
         holdings = {}
         available_cash = 0
         held_in_orders = 0
 
-        for acc in accounts["accounts"]:
+        for acc in accounts:
             bal = acc.get("available_balance", {})
             hold = acc.get("hold", {})
             amount = float(bal.get("value", 0))
@@ -713,7 +849,7 @@ class AgentTools:
             if total_amount <= 0:
                 continue
 
-            if currency in ("USD", "USDC"):
+            if currency in STABLE_USD_ASSETS:
                 usd_value = total_amount
                 available_cash += amount
                 held_in_orders += held
@@ -732,11 +868,62 @@ class AgentTools:
                 }
                 total_usd += usd_value
 
+        # --- Include perpetual derivatives collateral ---
+        perp_value = 0.0
+        try:
+            from coinbase_derivatives_connector import CoinbaseDerivativesConnector
+            deriv = CoinbaseDerivativesConnector(self.exchange)
+            if deriv.enabled:
+                psummary = deriv.get_portfolio_summary()
+                perp_value = float(psummary.get("portfolio_value", 0) or 0)
+                if perp_value > 0:
+                    holdings["PERP_COLLATERAL"] = {
+                        "amount": perp_value,
+                        "available": float(psummary.get("buying_power", 0) or 0),
+                        "held": float(psummary.get("margin_used", 0) or 0),
+                        "usd_value": round(perp_value, 2),
+                    }
+                    total_usd += perp_value
+        except Exception:
+            pass  # perp balance unavailable, skip
+
+        # --- Include Kraken balances ---
+        try:
+            from kraken_connector import KrakenConnector
+            kbalances = KrakenConnector.get_account_balance()
+            if isinstance(kbalances, dict) and not kbalances.get("error"):
+                kresult = kbalances.get("result", kbalances)
+                kraken_map = {"XXBT": ("BTC", None), "XETH": ("ETH", None), "ZUSD": ("USD", 1.0),
+                              "XXRP": ("XRP", None), "SOL": ("SOL", None), "DOT": ("DOT", None)}
+                for kasset, kbal in kresult.items():
+                    kval = float(kbal or 0)
+                    if kval <= 0:
+                        continue
+                    mapped = kraken_map.get(kasset, (kasset, None))
+                    cur, fixed_price = mapped
+                    if fixed_price:
+                        kusd = kval * fixed_price
+                    else:
+                        kprice = self.pricefeed.get_price(f"{cur}-USD") if hasattr(self, 'pricefeed') else 0
+                        kusd = kval * kprice if kprice else 0
+                    if kusd > 0.01:
+                        kkey = f"KRAKEN_{cur}"
+                        holdings[kkey] = {
+                            "amount": kval, "available": kval, "held": 0,
+                            "usd_value": round(kusd, 2),
+                        }
+                        total_usd += kusd
+                        if cur == "USD":
+                            available_cash += kval
+        except Exception:
+            pass  # Kraken unavailable, skip
+
         return {
             "total_usd": round(total_usd, 2),
             "holdings": holdings,
             "available_cash": round(available_cash, 2),
             "held_in_orders": round(held_in_orders, 2),
+            "source": "agent_tools",
         }
 
     def get_available_cash(self):

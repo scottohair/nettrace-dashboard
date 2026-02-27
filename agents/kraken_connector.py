@@ -591,11 +591,11 @@ def test_kraken_connection():
     try:
         # Test public endpoint (no auth required)
         result = KrakenConnector.get_orderbook("BTC-USD", depth=5)
-        if "error" not in result:
-            logger.info("Kraken connection OK: %s orderbook fetched", result["pair"])
+        if not result.get("error"):
+            logger.info("Kraken connection OK: orderbook fetched")
             return True
         else:
-            logger.error("Kraken API error: %s", result["error"])
+            logger.error("Kraken API error: %s", result.get("error"))
             return False
     except Exception as e:
         logger.error("Kraken connection failed: %s", e)

@@ -42,12 +42,13 @@ def _get_venue_balances():
     try:
         from kraken_connector import KrakenConnector
         raw = KrakenConnector.get_account_balance()
-        if isinstance(raw, dict) and "error" not in raw:
-            # Kraken uses ZUSD, XXBT, XETH etc.
-            usd = float(raw.get("ZUSD", 0) or 0)
-            usdc = float(raw.get("USDC", 0) or 0)
-            xbt = float(raw.get("XXBT", raw.get("XBT", 0)) or 0)
-            eth = float(raw.get("XETH", raw.get("ETH", 0)) or 0)
+        if isinstance(raw, dict) and not raw.get("error"):
+            # Kraken returns {error:[], result:{ZUSD:..., XETH:...}}
+            r = raw.get("result", raw)  # unwrap result envelope
+            usd = float(r.get("ZUSD", 0) or 0)
+            usdc = float(r.get("USDC", 0) or 0)
+            xbt = float(r.get("XXBT", r.get("XBT", 0)) or 0)
+            eth = float(r.get("XETH", r.get("ETH", 0)) or 0)
             _venue_balance_cache["kraken"] = {
                 "USD": usd, "USDC": usdc, "BTC": xbt, "ETH": eth,
                 "quote_usd": usd + usdc,  # total quote currency available

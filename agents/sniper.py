@@ -1858,11 +1858,12 @@ class Sniper:
                 try:
                     from kraken_connector import KrakenConnector
                     raw_bal = KrakenConnector.get_account_balance()
-                    if isinstance(raw_bal, dict) and "error" not in raw_bal:
-                        usd_avail = float(raw_bal.get("ZUSD", 0) or 0) + float(raw_bal.get("USDC", 0) or 0)
+                    if isinstance(raw_bal, dict) and not raw_bal.get("error"):
+                        r = raw_bal.get("result", raw_bal)
+                        usd_avail = float(r.get("ZUSD", 0) or 0) + float(r.get("USDC", 0) or 0)
                         if usd_avail < notional_usd:
                             # Sell ETH to free up USD (if we have ETH and aren't buying ETH)
-                            eth_bal = float(raw_bal.get("XETH", raw_bal.get("ETH", 0)) or 0)
+                            eth_bal = float(r.get("XETH", r.get("ETH", 0)) or 0)
                             if eth_bal > 0.001 and not pair.startswith("ETH"):
                                 sell_kraken = self._new_kraken_trader()
                                 if sell_kraken:
