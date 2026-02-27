@@ -46,6 +46,9 @@ VENUE_ONBOARDING_STATUS_FILE = _agent_data_file(
     "AGENT_VENUE_ONBOARDING_WORKER_STATUS_PATH",
     "venue_onboarding_worker_status.json",
 )
+MCP_WAN_INGEST_FILE = _agent_data_file("AGENT_MCP_WAN_INGEST_PATH", "mcp_wan_ingest_latest.json")
+MCP_WAN_INGEST_EVENTS_FILE = _agent_data_file("AGENT_MCP_WAN_INGEST_EVENTS_PATH", "mcp_wan_ingest_events.jsonl")
+MCP_WAN_INGEST_STATS_FILE = _agent_data_file("AGENT_MCP_WAN_INGEST_STATS_PATH", "mcp_wan_ingest_stats.json")
 
 
 def _env_flag(name: str, default: str = "0") -> bool:
@@ -186,6 +189,8 @@ COINBASE_WEBHOOK_SECRET = (
 )
 APP_URL = os.environ.get("APP_URL", "http://localhost:12034")
 MCP_AGENT_SECRET = os.environ.get("MCP_AGENT_SECRET", "")
+MCP_WAN_SHARED_SECRET = (os.environ.get("MCP_WAN_SHARED_SECRET", "") or MCP_AGENT_SECRET).strip()
+MCP_WAN_INGEST_MAX_BYTES = int(os.environ.get("MCP_WAN_INGEST_MAX_BYTES", str(256 * 1024)))
 
 # Rate limiting
 MAX_SCANS_PER_HOUR = int(os.environ.get("MAX_SCANS_PER_HOUR", "10"))
@@ -4460,6 +4465,12 @@ def _atomic_write_json_file(path: Path, payload):
     tmp.replace(path)
 
 
+def _append_jsonl_file(path: Path, payload):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a") as f:
+        f.write(json.dumps(payload, separators=(",", ":")) + "\n")
+
+
 def _task_idx(task):
     task_id = str(task.get("task_id", "") or "")
     parts = task_id.split(":")
@@ -4758,6 +4769,111 @@ def agent_control_venues_status():
             "updated_at": queue.get("updated_at") or queue.get("generated_at"),
         },
     })
+
+
+@app.route("/api/mcp/wan-ingest", methods=["POST"])
+def mcp_wan_ingest():
+    """Ingest MCP WAN packets from trusted broadcasters (shared-secret auth)."""
+    if not MCP_WAN_SHARED_SECRET:
+        return jsonify({"ok": False, "error": "mcp_wan_secret_not_configured"}), 503
+
+    provided = str(request.headers.get("X-MCP-Shared-Secret", "") or "").strip()
+    if not provided or not hmac.compare_digest(provided, MCP_WAN_SHARED_SECRET):
+        return jsonify({"ok": False, "error": "unauthorized"}), 401
+
+    content_len = int(request.content_length or 0)
+    if content_len > MCP_WAN_INGEST_MAX_BYTES:
+        return jsonify({"ok": False, "error": "payload_too_large"}), 413
+
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({"ok": False, "error": "invalid_json"}), 400
+
+    now = datetime.now(timezone.utc).isoformat()
+    trace_id = str(payload.get("trace_id", "") or "").strip()
+    topic = str(payload.get("topic", "") or "").strip()
+    packet_type = str(payload.get("type", "") or "").strip()
+    source_id = str(
+        payload.get("sender")
+        or payload.get("source")
+        or payload.get("agent_id")
+        or payload.get("node_id")
+        or ""
+    ).strip()
+
+    record = {
+        "received_at": now,
+        "source_ip": request.remote_addr,
+        "source_id": source_id,
+        "trace_id": trace_id,
+        "topic": topic,
+        "type": packet_type,
+        "payload": payload,
+    }
+    _atomic_write_json_file(MCP_WAN_INGEST_FILE, record)
+    _append_jsonl_file(
+        MCP_WAN_INGEST_EVENTS_FILE,
+        {
+            "received_at": now,
+            "source_ip": request.remote_addr,
+            "source_id": source_id,
+            "trace_id": trace_id,
+            "topic": topic,
+            "type": packet_type,
+        },
+    )
+    stats = _load_json_file(MCP_WAN_INGEST_STATS_FILE) if MCP_WAN_INGEST_STATS_FILE.exists() else {}
+    if not isinstance(stats, dict):
+        stats = {}
+    totals = stats.get("totals", {})
+    if not isinstance(totals, dict):
+        totals = {}
+    totals["packets"] = int(totals.get("packets", 0) or 0) + 1
+    stats["totals"] = totals
+    unique_ips = set(stats.get("unique_source_ips", []) or [])
+    if request.remote_addr:
+        unique_ips.add(str(request.remote_addr))
+    stats["unique_source_ips"] = sorted(unique_ips)
+    unique_ids = set(stats.get("unique_source_ids", []) or [])
+    if source_id:
+        unique_ids.add(source_id)
+    stats["unique_source_ids"] = sorted(unique_ids)
+    stats["last_received_at"] = now
+    stats["last_topic"] = topic
+    stats["last_type"] = packet_type
+    _atomic_write_json_file(MCP_WAN_INGEST_STATS_FILE, stats)
+    return jsonify(
+        {
+            "ok": True,
+            "received_at": now,
+            "trace_id": trace_id,
+            "topic": topic,
+            "type": packet_type,
+            "path": str(MCP_WAN_INGEST_FILE),
+        }
+    )
+
+
+@app.route("/api/mcp/wan-stats")
+def mcp_wan_stats():
+    stats = _load_json_file(MCP_WAN_INGEST_STATS_FILE) if MCP_WAN_INGEST_STATS_FILE.exists() else {}
+    if not isinstance(stats, dict):
+        stats = {}
+    totals = stats.get("totals", {})
+    if not isinstance(totals, dict):
+        totals = {}
+    return jsonify(
+        {
+            "ok": True,
+            "totals": {
+                "packets": int(totals.get("packets", 0) or 0),
+                "unique_source_ips": len(stats.get("unique_source_ips", []) or []),
+                "unique_source_ids": len(stats.get("unique_source_ids", []) or []),
+            },
+            "stats": stats,
+            "path": str(MCP_WAN_INGEST_STATS_FILE),
+        }
+    )
 
 
 # ---------------------------------------------------------------------------

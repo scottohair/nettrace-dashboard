@@ -1,0 +1,20 @@
+{
+  "wallets": [
+    {
+      "label": "Primary EVM Donation Wallet",
+      "wallet_type": "direct_evm",
+      "address": "0x2Efbef64bdFc6D80E835B8312e051444716299aC",
+      "chains": ["ethereum", "base", "arbitrum", "polygon"],
+      "custody": "self",
+      "public_receive": true
+    },
+    {
+      "label": "Primary Solana Donation Wallet",
+      "wallet_type": "direct_solana",
+      "address": "5zpnxwKFXrQDzac81hfePinjNmicAuqNhvpkpds79w38",
+      "chains": ["solana"],
+      "custody": "self",
+      "public_receive": true
+    }
+  ]
+}
