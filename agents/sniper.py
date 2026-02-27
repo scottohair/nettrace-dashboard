@@ -226,13 +226,33 @@ except Exception:
     _ws_feed_available = False
     CoinbaseWSFeed = None
 
+RUNTIME_TRADING_MODE = (
+    os.environ.get("TRADING_MODE", os.environ.get("SNIPER_TRADING_MODE", "HF")) or "HF"
+).strip().upper()
+SNIPER_CONTINUOUS_MODE = RUNTIME_TRADING_MODE in {"CF", "CONTINUOUS", "CONTINUOUS_TRADING"}
+SNIPER_DEFAULT_SCAN_INTERVAL = "3" if SNIPER_CONTINUOUS_MODE else "10"
+SNIPER_DEFAULT_SCAN_INTERVAL_HEALTHY = "3" if SNIPER_CONTINUOUS_MODE else "10"
+SNIPER_DEFAULT_SCAN_INTERVAL_DEGRADED = "8" if SNIPER_CONTINUOUS_MODE else "30"
+SNIPER_CF_MIN_INTERVAL_SECONDS = max(
+    0.5, float(os.environ.get("SNIPER_CF_MIN_INTERVAL_SECONDS", "1.5"))
+)
+SNIPER_CF_IDLE_INTERVAL_SECONDS = max(
+    SNIPER_CF_MIN_INTERVAL_SECONDS,
+    float(os.environ.get("SNIPER_CF_IDLE_INTERVAL_SECONDS", "3.0")),
+)
+SNIPER_CF_ERROR_BACKOFF_SECONDS = max(
+    1.0, float(os.environ.get("SNIPER_CF_ERROR_BACKOFF_SECONDS", "5.0"))
+)
+
 # Sniper configuration — static signal settings only
 # Trade sizes, reserves, position limits come from risk_controller dynamically
 CONFIG = {
     "min_composite_confidence": float(os.environ.get("GOAL_MIN_CONFIDENCE", "0.75")),  # Synced with agent_goals
     "min_confirming_signals": 2,         # 2+ must agree
     "min_quant_signals": 1,              # at least 1 quantitative signal required
-    "scan_interval": int(os.environ.get("SNIPER_SCAN_INTERVAL_SECONDS", "10")),  # Scan cadence (tightened for active trading)
+    "scan_interval": int(
+        os.environ.get("SNIPER_SCAN_INTERVAL_SECONDS", SNIPER_DEFAULT_SCAN_INTERVAL)
+    ),  # Scan cadence (tightened for active trading)
     "min_hold_seconds": 60,               # 60s minimum hold
     # PRIMARY: BTC + ETH + SOL (core positions — BTC is reserve accumulation target)
     # SECONDARY: AVAX, LINK, DOGE, FET (opportunistic)
@@ -361,8 +381,18 @@ CONFIG = {
     ),
     "quote_balance_buffer_usd": float(os.environ.get("SNIPER_QUOTE_BALANCE_BUFFER_USD", "0.02")),
     "pair_failure_cooldown_seconds": int(os.environ.get("SNIPER_PAIR_FAILURE_COOLDOWN_SECONDS", "30")),
-    "scan_interval_healthy": int(os.environ.get("SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS", "10")),
-    "scan_interval_degraded": int(os.environ.get("SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS", "30")),
+    "scan_interval_healthy": int(
+        os.environ.get(
+            "SNIPER_SCAN_INTERVAL_HEALTHY_SECONDS",
+            SNIPER_DEFAULT_SCAN_INTERVAL_HEALTHY,
+        )
+    ),
+    "scan_interval_degraded": int(
+        os.environ.get(
+            "SNIPER_SCAN_INTERVAL_DEGRADED_SECONDS",
+            SNIPER_DEFAULT_SCAN_INTERVAL_DEGRADED,
+        )
+    ),
     "close_evidence_target_pairs": _parse_csv_values(
         os.environ.get("SNIPER_CLOSE_EVIDENCE_TARGET_PAIRS", "ETH-USD,SOL-USD")
     ),
@@ -1544,20 +1574,49 @@ class SignalAccuracyVerifier:
 class Sniper:
     """High-confidence signal aggregator and trade executor."""
 
-    def __init__(self):
-        self._db_lock = threading.Lock()
-        self.db = sqlite3.connect(SNIPER_DB, check_same_thread=False)
-        self.db.row_factory = sqlite3.Row
-        self.db.execute("PRAGMA journal_mode=WAL")
-        self.db.execute("PRAGMA busy_timeout=5000")
-        self.db.execute("PRAGMA synchronous=NORMAL")
-        self.db.execute("PRAGMA temp_store=MEMORY")
-        self.db.execute("PRAGMA cache_size=-65536")
+    @staticmethod
+    def _backup_corrupt_db_files(reason):
+        ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        for suffix in ("", "-wal", "-shm"):
+            src = Path(f"{SNIPER_DB}{suffix}")
+            if not src.exists():
+                continue
+            dst = src.with_name(f"{src.name}.corrupt_{ts}")
+            try:
+                src.rename(dst)
+                logger.error("SNIPER DB: moved corrupt artifact %s -> %s (%s)", src, dst, reason)
+            except Exception as e:
+                logger.error("SNIPER DB: failed to move corrupt artifact %s: %s", src, e)
+
+    @staticmethod
+    def _open_sniper_db_connection():
+        db = sqlite3.connect(SNIPER_DB, check_same_thread=False)
+        db.row_factory = sqlite3.Row
+        db.execute("PRAGMA journal_mode=WAL")
+        db.execute("PRAGMA busy_timeout=5000")
+        db.execute("PRAGMA synchronous=NORMAL")
+        db.execute("PRAGMA temp_store=MEMORY")
+        db.execute("PRAGMA cache_size=-65536")
         try:
-            self.db.execute("PRAGMA mmap_size=268435456")
+            db.execute("PRAGMA mmap_size=268435456")
         except Exception:
             pass
-        self._init_db()
+        return db
+
+    def __init__(self):
+        self.continuous_mode = bool(SNIPER_CONTINUOUS_MODE)
+        self._cf_min_interval_s = float(SNIPER_CF_MIN_INTERVAL_SECONDS)
+        self._cf_idle_interval_s = float(SNIPER_CF_IDLE_INTERVAL_SECONDS)
+        self._cf_error_backoff_s = float(SNIPER_CF_ERROR_BACKOFF_SECONDS)
+        self._db_lock = threading.Lock()
+        try:
+            self.db = self._open_sniper_db_connection()
+            self._init_db()
+        except sqlite3.DatabaseError as e:
+            logger.error("SNIPER DB open failed: %s -- attempting recovery", e)
+            self._backup_corrupt_db_files(str(e))
+            self.db = self._open_sniper_db_connection()
+            self._init_db()
         self.daily_loss = 0.0
         self.trades_today = 0
         # Trade frequency throttle — prevent churning (1,086 fills in 2 days killed $78 in fees)
@@ -1681,6 +1740,19 @@ class Sniper:
             except sqlite3.OperationalError:
                 pass
         self.db.commit()
+
+    def _recover_db_connection(self, reason):
+        logger.error("SNIPER DB recovery requested (%s)", reason)
+        with self._db_lock:
+            try:
+                self.db.close()
+            except Exception:
+                pass
+            self._backup_corrupt_db_files(reason)
+            self.db = self._open_sniper_db_connection()
+            self._init_db()
+        self._trade_timestamps = self._load_throttle_state()
+        logger.info("SNIPER DB recovery complete")
 
     @staticmethod
     def _new_coinbase_trader():
@@ -4318,7 +4390,11 @@ class Sniper:
         logger.info("SNIPER: %s BUY cooldown armed %ss (%s)", pair, seconds, reason)
 
     def _effective_scan_interval(self):
-        healthy = max(5, int(CONFIG.get("scan_interval_healthy", CONFIG.get("scan_interval", 30)) or 20))
+        min_healthy = 1 if self.continuous_mode else 5
+        healthy = max(
+            min_healthy,
+            int(CONFIG.get("scan_interval_healthy", CONFIG.get("scan_interval", 30)) or 20),
+        )
         degraded = max(healthy, int(CONFIG.get("scan_interval_degraded", max(healthy, 45)) or 45))
         ok, reason = self._execution_health_allows_buy()
         if not ok:
@@ -4326,6 +4402,14 @@ class Sniper:
         if str(reason).startswith("execution_health_degraded:"):
             return degraded
         return healthy
+
+    def _continuous_sleep_interval(self, base_interval_s, actionable_count=0):
+        interval = max(0.25, float(base_interval_s or 0.0))
+        if not self.continuous_mode:
+            return interval
+        if actionable_count <= 0:
+            return max(interval, self._cf_idle_interval_s)
+        return max(self._cf_min_interval_s, min(interval, self._cf_idle_interval_s))
 
     def _load_throttle_state(self):
         """Load trade timestamps from database (last 24 hours).
@@ -4404,6 +4488,18 @@ class Sniper:
         balance_size_factor = 1.0
 
         if direction == "BUY":
+            # Position registry: don't double-buy what another agent owns
+            try:
+                from position_registry import get_registry
+                _pos_reg = get_registry()
+                if _pos_reg and not _pos_reg.is_pair_available(pair):
+                    reg_owner = _pos_reg.get_owner(pair)
+                    if reg_owner and reg_owner != "sniper":
+                        logger.info("SNIPER: %s BUY skipped — owned by %s (registry)", pair, reg_owner)
+                        return False
+            except Exception:
+                pass
+
             # Fear & Greed — extreme fear is a historically strong contrarian edge
             # F&G < 15: every historical instance yielded +150-200% 12-month returns
             fg_val = self._get_fear_greed_value()
@@ -5417,6 +5513,26 @@ class Sniper:
             except Exception as e:
                 logger.warning("SNIPER: Failed to register with ExitManager: %s", e)
 
+        # Register with shared position registry (after ExitManager registration)
+        if side == "BUY" and order_id:
+            try:
+                from position_registry import get_registry
+                _pos_reg = get_registry()
+                if _pos_reg:
+                    _fill_price = float(fill_snapshot.get("avg_price", effective_price) or effective_price) if fill_snapshot else effective_price
+                    _fill_amount = float(fill_snapshot.get("filled_size", effective_qty) or effective_qty) if fill_snapshot else effective_qty
+                    _pos_reg.register(
+                        pair, "sniper",
+                        entry_price=_fill_price,
+                        entry_amount=_fill_amount,
+                        order_id=order_id,
+                        exit_owner="exit_manager",
+                        min_hold_seconds=300,
+                        reason=f"composite_conf={signal.get('composite_confidence', 0):.2f}",
+                    )
+            except Exception:
+                pass
+
         if side == "BUY":
             if status in ("filled", "pending"):
                 self._pair_buy_cooldown_until.pop(str(pair), None)
@@ -5735,10 +5851,22 @@ class Sniper:
 
     def run(self):
         """Main sniper loop — scan and trade."""
-        logger.info("Sniper starting — scanning %d pairs every %ds",
-                    len(CONFIG["pairs"]), CONFIG["scan_interval"])
+        mode = "CF" if self.continuous_mode else "HF"
+        logger.info(
+            "Sniper starting (%s) — scanning %d pairs every %ss",
+            mode,
+            len(CONFIG["pairs"]),
+            CONFIG["scan_interval"],
+        )
         logger.info("Thresholds: conf >= %.0f%%, signals >= %d",
                     CONFIG["min_composite_confidence"]*100, CONFIG["min_confirming_signals"])
+        if self.continuous_mode:
+            logger.info(
+                "CF cadence: min_interval=%.2fs idle_interval=%.2fs error_backoff=%.2fs",
+                self._cf_min_interval_s,
+                self._cf_idle_interval_s,
+                self._cf_error_backoff_s,
+            )
 
         # Cancel stale open orders from previous process (OOM, restart, etc.)
         # These hold cash on Coinbase causing "Insufficient balance" errors
@@ -5861,8 +5989,13 @@ class Sniper:
                         _exit_mgr.print_status()
 
                 scan_interval = self._effective_scan_interval()
+                scan_interval = self._continuous_sleep_interval(
+                    scan_interval,
+                    actionable_count=len(actionable),
+                )
                 if scan_interval != self._last_interval_logged:
-                    logger.info("SNIPER: scan interval now %ss (health-adaptive)", scan_interval)
+                    mode_tag = "cf-adaptive" if self.continuous_mode else "health-adaptive"
+                    logger.info("SNIPER: scan interval now %.2fs (%s)", scan_interval, mode_tag)
                     self._last_interval_logged = scan_interval
                 time.sleep(scan_interval)
 
@@ -5874,7 +6007,14 @@ class Sniper:
                 break
             except Exception as e:
                 logger.error("Sniper error: %s", e, exc_info=True)
-                time.sleep(30)
+                err_text = str(e).lower()
+                if "database disk image is malformed" in err_text or "disk i/o error" in err_text:
+                    try:
+                        self._recover_db_connection(str(e))
+                    except Exception as rec_err:
+                        logger.error("SNIPER DB recovery failed: %s", rec_err, exc_info=True)
+                backoff_s = self._cf_error_backoff_s if self.continuous_mode else 30.0
+                time.sleep(backoff_s)
 
 
 if __name__ == "__main__":

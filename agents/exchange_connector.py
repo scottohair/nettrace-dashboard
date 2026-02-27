@@ -18,10 +18,16 @@ import sqlite3
 import math
 import threading
 import time
+import asyncio
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
+
+try:
+    import aiohttp
+except Exception:
+    aiohttp = None
 
 logger = logging.getLogger("exchange")
 
@@ -143,6 +149,68 @@ COINBASE_MAX_TRADE_NOTIONAL_PCT_OF_PORTFOLIO = _env_float(
 COINBASE_PORTFOLIO_VALUE_ESTIMATE_FALLBACK_USD = _env_float(
     "COINBASE_PORTFOLIO_VALUE_ESTIMATE_FALLBACK_USD",
     "0.0",
+)
+
+
+def _env_symbol_set(name, default=""):
+    raw = str(os.environ.get(name, default) or "")
+    out = []
+    seen = set()
+    for part in raw.split(","):
+        token = str(part or "").strip().upper()
+        if not token or token in seen:
+            continue
+        seen.add(token)
+        out.append(token)
+    return tuple(out)
+
+
+RECOVERY_STABLE_ASSETS = {"USD", "USDC", "USDT", "DAI", "PYUSD", "ZUSD"}
+COINBASE_RECOVERY_MODE_ENABLED = _env_flag("COINBASE_RECOVERY_MODE_ENABLED", "1")
+COINBASE_RECOVERY_FAIL_CLOSED = _env_flag("COINBASE_RECOVERY_FAIL_CLOSED", "1")
+COINBASE_RECOVERY_REQUIRE_HEALTHY_EXECUTION = _env_flag(
+    "COINBASE_RECOVERY_REQUIRE_HEALTHY_EXECUTION",
+    "1",
+)
+COINBASE_RECOVERY_DRAWDOWN_TRIGGER_PCT = _env_float(
+    "COINBASE_RECOVERY_DRAWDOWN_TRIGGER_PCT",
+    "0.08",
+)
+if COINBASE_RECOVERY_DRAWDOWN_TRIGGER_PCT > 1.0:
+    COINBASE_RECOVERY_DRAWDOWN_TRIGGER_PCT /= 100.0
+COINBASE_RECOVERY_DRAWDOWN_TRIGGER_PCT = max(
+    0.0, min(0.95, float(COINBASE_RECOVERY_DRAWDOWN_TRIGGER_PCT))
+)
+COINBASE_RECOVERY_MAX_HELD_RATIO = _env_float(
+    "COINBASE_RECOVERY_MAX_HELD_RATIO",
+    "0.22",
+)
+if COINBASE_RECOVERY_MAX_HELD_RATIO > 1.0:
+    COINBASE_RECOVERY_MAX_HELD_RATIO /= 100.0
+COINBASE_RECOVERY_MAX_HELD_RATIO = max(
+    0.0, min(0.99, float(COINBASE_RECOVERY_MAX_HELD_RATIO))
+)
+COINBASE_RECOVERY_MIN_CASH_RATIO = _env_float(
+    "COINBASE_RECOVERY_MIN_CASH_RATIO",
+    "0.10",
+)
+if COINBASE_RECOVERY_MIN_CASH_RATIO > 1.0:
+    COINBASE_RECOVERY_MIN_CASH_RATIO /= 100.0
+COINBASE_RECOVERY_MIN_CASH_RATIO = max(
+    0.0, min(0.99, float(COINBASE_RECOVERY_MIN_CASH_RATIO))
+)
+COINBASE_RECOVERY_MAX_BUY_NOTIONAL_USD = _env_float(
+    "COINBASE_RECOVERY_MAX_BUY_NOTIONAL_USD",
+    "20.0",
+)
+COINBASE_RECOVERY_BASELINE_USD = _env_float("COINBASE_RECOVERY_BASELINE_USD", "0.0")
+COINBASE_RECOVERY_SNAPSHOT_MAX_AGE_SECONDS = _env_int(
+    "COINBASE_RECOVERY_SNAPSHOT_MAX_AGE_SECONDS",
+    900,
+)
+COINBASE_RECOVERY_BUY_ALLOWLIST = _env_symbol_set(
+    "COINBASE_RECOVERY_BUY_ALLOWLIST",
+    "BTC,ETH,BTC-USD,BTC-USDC,ETH-USD,ETH-USDC",
 )
 
 
@@ -272,6 +340,231 @@ def _portfolio_value_estimate_from_status():
     return 0.0
 
 
+def _json_float(value):
+    if value is None:
+        return 0.0
+    try:
+        return float(json.loads(value))
+    except Exception:
+        return _to_positive_or_zero(value)
+
+
+def _asset_symbol(product_id):
+    token = str(product_id or "").strip().upper()
+    if not token:
+        return ""
+    return token.split("-", 1)[0].strip()
+
+
+def _recovery_allowlisted(product_id):
+    token = str(product_id or "").strip().upper()
+    if not token:
+        return False
+    if token in COINBASE_RECOVERY_BUY_ALLOWLIST:
+        return True
+    asset = _asset_symbol(token)
+    return bool(asset and asset in COINBASE_RECOVERY_BUY_ALLOWLIST)
+
+
+def _portfolio_liquidity_snapshot():
+    candidates = (
+        Path(__file__).parent / "treasury_registry.json",
+        Path(__file__).parent / "flywheel_status.json",
+        Path(__file__).parent / "treasury_registry_status.json",
+    )
+
+    best = None
+    for path in candidates:
+        payload = _read_json_file(path)
+        if not isinstance(payload, dict):
+            continue
+
+        portfolio = payload.get("portfolio")
+        if not isinstance(portfolio, dict):
+            portfolio = {}
+
+        total = _to_positive_or_zero(portfolio.get("total_usd"))
+        if total <= 0:
+            total = _to_positive_or_zero(payload.get("portfolio_total_usd"))
+        if total <= 0:
+            continue
+
+        available_cash = _to_positive_or_zero(portfolio.get("available_cash"))
+        held_in_orders = _to_positive_or_zero(portfolio.get("held_in_orders"))
+        holdings = portfolio.get("holdings", {})
+        if not isinstance(holdings, dict):
+            holdings = {}
+
+        stable_usd = 0.0
+        for symbol, item in holdings.items():
+            sym = str(symbol or "").strip().upper()
+            if not sym:
+                continue
+            base = sym.split("_", 1)[-1]
+            if sym not in RECOVERY_STABLE_ASSETS and base not in RECOVERY_STABLE_ASSETS:
+                continue
+            if isinstance(item, dict):
+                stable_usd += _to_positive_or_zero(item.get("usd_value"))
+            else:
+                stable_usd += _to_positive_or_zero(item)
+        if stable_usd <= 0:
+            stable_usd = available_cash
+
+        age_seconds = _iso_age_seconds(payload.get("updated_at"))
+        candidate = {
+            "source": path.name,
+            "total_usd": total,
+            "available_cash_usd": available_cash,
+            "held_in_orders_usd": held_in_orders,
+            "stable_usd": stable_usd,
+            "cash_ratio": (available_cash / total) if total > 0 else 0.0,
+            "held_ratio": (held_in_orders / total) if total > 0 else 0.0,
+            "stable_ratio": (stable_usd / total) if total > 0 else 0.0,
+            "age_seconds": age_seconds,
+        }
+        if best is None:
+            best = candidate
+            continue
+        curr_age = candidate.get("age_seconds")
+        best_age = best.get("age_seconds")
+        if curr_age is None and best_age is not None:
+            best = candidate
+            continue
+        if curr_age is not None and best_age is not None and curr_age < best_age:
+            best = candidate
+
+    return best
+
+
+def _allocator_peak_equity_usd():
+    db_path = Path(__file__).parent / "allocator.db"
+    if not db_path.exists():
+        return 0.0
+    try:
+        db = sqlite3.connect(str(db_path))
+        row = db.execute(
+            "SELECT value FROM allocator_state WHERE key='peak_mark_to_market_usd' LIMIT 1"
+        ).fetchone()
+        db.close()
+    except Exception:
+        return 0.0
+    if not row:
+        return 0.0
+    return _json_float(row[0])
+
+
+def _recovery_baseline_usd(snapshot):
+    baseline_candidates = [_to_positive_or_zero(COINBASE_RECOVERY_BASELINE_USD)]
+    baseline_candidates.append(_allocator_peak_equity_usd())
+    if isinstance(snapshot, dict):
+        baseline_candidates.append(_to_positive_or_zero(snapshot.get("total_usd")))
+
+    flywheel = _read_json_file(Path(__file__).parent / "flywheel_status.json")
+    if isinstance(flywheel, dict):
+        guard = flywheel.get("portfolio_drawdown_guard", {})
+        if isinstance(guard, dict):
+            baseline_candidates.append(_to_positive_or_zero(guard.get("peak_total_usd")))
+
+    baseline = max((v for v in baseline_candidates if v > 0), default=0.0)
+    return baseline
+
+
+def _recovery_buy_gate(product_id, requested_usd=None):
+    if not COINBASE_RECOVERY_MODE_ENABLED:
+        return True, {"enabled": False, "reason": "recovery_mode_disabled"}
+
+    snapshot = _portfolio_liquidity_snapshot()
+    requested = _to_positive_or_zero(requested_usd)
+    if not isinstance(snapshot, dict):
+        details = {"reason": "portfolio_snapshot_unavailable", "requested_usd": requested}
+        if COINBASE_RECOVERY_FAIL_CLOSED:
+            return False, details
+        return True, details
+
+    age_seconds = snapshot.get("age_seconds")
+    max_age = max(60, int(COINBASE_RECOVERY_SNAPSHOT_MAX_AGE_SECONDS))
+    if age_seconds is not None and float(age_seconds) > float(max_age):
+        details = {
+            "reason": "portfolio_snapshot_stale",
+            "snapshot_age_seconds": float(age_seconds),
+            "max_snapshot_age_seconds": float(max_age),
+        }
+        if COINBASE_RECOVERY_FAIL_CLOSED:
+            return False, details
+        return True, details
+
+    total = _to_positive_or_zero(snapshot.get("total_usd"))
+    held_ratio = _to_positive_or_zero(snapshot.get("held_ratio"))
+    cash_ratio = _to_positive_or_zero(snapshot.get("cash_ratio"))
+
+    baseline = _recovery_baseline_usd(snapshot)
+    drawdown_pct = 0.0
+    if baseline > 0 and total > 0 and total < baseline:
+        drawdown_pct = max(0.0, (baseline - total) / baseline)
+
+    health_payload = _read_json_file(Path(COINBASE_CIRCUIT_REOPEN_HEALTH_PATH))
+    health_green = True
+    health_reason = "unknown"
+    if isinstance(health_payload, dict):
+        health_green = bool(health_payload.get("green", False))
+        health_reason = str(health_payload.get("reason", "") or "execution_health_unhealthy")
+
+    recovery_active = False
+    triggers = []
+    if COINBASE_RECOVERY_REQUIRE_HEALTHY_EXECUTION and not health_green:
+        recovery_active = True
+        triggers.append(f"execution_health:{health_reason}")
+    if COINBASE_RECOVERY_MAX_HELD_RATIO > 0 and held_ratio >= COINBASE_RECOVERY_MAX_HELD_RATIO:
+        recovery_active = True
+        triggers.append(
+            f"held_ratio:{held_ratio:.4f}>={COINBASE_RECOVERY_MAX_HELD_RATIO:.4f}"
+        )
+    if (
+        COINBASE_RECOVERY_DRAWDOWN_TRIGGER_PCT > 0
+        and drawdown_pct >= COINBASE_RECOVERY_DRAWDOWN_TRIGGER_PCT
+    ):
+        recovery_active = True
+        triggers.append(
+            f"drawdown_pct:{drawdown_pct:.4f}>={COINBASE_RECOVERY_DRAWDOWN_TRIGGER_PCT:.4f}"
+        )
+
+    details = {
+        "recovery_active": bool(recovery_active),
+        "triggers": triggers,
+        "product_id": str(product_id or "").upper(),
+        "requested_usd": requested,
+        "total_usd": total,
+        "baseline_usd": baseline,
+        "drawdown_pct": round(drawdown_pct, 6),
+        "cash_ratio": round(cash_ratio, 6),
+        "held_ratio": round(held_ratio, 6),
+        "allowlisted": _recovery_allowlisted(product_id),
+        "source": snapshot.get("source", ""),
+    }
+
+    if not recovery_active:
+        return True, details
+
+    if COINBASE_RECOVERY_MIN_CASH_RATIO > 0 and cash_ratio < COINBASE_RECOVERY_MIN_CASH_RATIO:
+        details["reason"] = (
+            f"cash_ratio {cash_ratio:.4f} < min {COINBASE_RECOVERY_MIN_CASH_RATIO:.4f}"
+        )
+        return False, details
+
+    if not details["allowlisted"]:
+        details["reason"] = "non_allowlisted_asset_during_recovery_mode"
+        return False, details
+
+    cap = _to_positive_or_zero(COINBASE_RECOVERY_MAX_BUY_NOTIONAL_USD)
+    if cap > 0 and requested > cap:
+        details["reason"] = f"requested_notional {requested:.2f} > cap {cap:.2f}"
+        details["max_buy_notional_usd"] = cap
+        return False, details
+
+    details["reason"] = "allowlisted_asset_within_recovery_cap"
+    return True, details
+
+
 COINBASE_DNS_FAILOVER_ENABLED = _env_flag("COINBASE_DNS_FAILOVER_ENABLED", "1")
 COINBASE_DNS_FAILOVER_PROFILE = str(
     os.environ.get("COINBASE_DNS_FAILOVER_PROFILE", "system_then_fallback")
@@ -395,11 +688,29 @@ def _load_trading_lock():
         return {"locked": True, "reason": "Unreadable lock file", "source": "exchange_connector"}
 
 
-def _is_trading_locked(side="BUY"):
-    """Check if trading is locked. SELL orders are NEVER locked — you must always exit."""
-    if str(side).upper() == "SELL":
-        return False, "", ""
+def _is_trading_locked(side="BUY", product_id=None):
+    """Check if trading is locked.
+
+    SELL orders are normally exempt (must always be able to exit).
+    Exception: if 'protected_pairs' is set in trading_lock.json and the
+    product matches, SELL is also blocked — operator wants to HOLD that position.
+    """
     lock = _load_trading_lock()
+    side_u = str(side).upper()
+
+    if side_u == "SELL":
+        # Check if this specific pair is protected from auto-selling
+        protected = lock.get("protected_pairs", [])
+        if product_id and protected:
+            variants = _normalize_pair_variants(product_id)
+            for p in protected:
+                if p in variants or product_id == p:
+                    return True, f"HOLD: {product_id} is operator-protected", str(lock.get("source", ""))
+                # Also match base asset (e.g., "ICP" matches "ICP-USD" and "ICP-USDC")
+                if "-" not in p and product_id.startswith(p + "-"):
+                    return True, f"HOLD: {product_id} is operator-protected ({p})", str(lock.get("source", ""))
+        return False, "", ""
+
     return bool(lock.get("locked", False)), str(lock.get("reason", "")), str(lock.get("source", ""))
 
 
@@ -1228,6 +1539,51 @@ class CoinbaseTrader:
             finally:
                 socket.getaddrinfo = original_getaddrinfo
 
+    @staticmethod
+    def _aiohttp_request_sync(method, url, headers=None, body_data=None, timeout=10):
+        """Fallback transport path for runtimes where urllib DNS resolution fails."""
+        if aiohttp is None:
+            return None
+
+        async def _run():
+            timeout_obj = aiohttp.ClientTimeout(total=float(timeout))
+            async with aiohttp.ClientSession(timeout=timeout_obj) as session:
+                async with session.request(
+                    method=str(method or "GET").upper(),
+                    url=str(url),
+                    headers=headers or {},
+                    data=body_data,
+                ) as resp:
+                    text = await resp.text()
+                    return int(resp.status), text
+
+        try:
+            status, text = asyncio.run(_run())
+        except RuntimeError as e:
+            logger.debug("Coinbase aiohttp fallback runtime error: %s", e)
+            # Handle nested-loop edge cases in embedded runtimes.
+            try:
+                loop = asyncio.new_event_loop()
+                try:
+                    status, text = loop.run_until_complete(_run())
+                finally:
+                    loop.close()
+            except Exception as inner:
+                logger.debug("Coinbase aiohttp fallback inner loop failed: %s", inner)
+                return None
+        except Exception as e:
+            logger.debug("Coinbase aiohttp fallback exception: %s", e)
+            return None
+
+        try:
+            payload = json.loads(text)
+        except Exception:
+            payload = {"raw": text}
+
+        if 200 <= status < 300:
+            return payload if isinstance(payload, dict) else {"data": payload}
+        return {"error": str(payload)[:400], "status": int(status)}
+
     def _request(self, method, path, body=None):
         """Make API request with retry logic and circuit breaker."""
         return self._request_with_retry(method, path, body)
@@ -1404,6 +1760,39 @@ class CoinbaseTrader:
                         return result
                     if dns_fallback_error and self._is_egress_failure(dns_fallback_error):
                         saw_egress_issue = True
+
+                # Fallback transport: aiohttp often succeeds where urllib DNS fails.
+                if saw_dns_issue or saw_egress_issue:
+                    aio_result = CoinbaseTrader._aiohttp_request_sync(
+                        method=method,
+                        url=url,
+                        headers=headers,
+                        body_data=body_data,
+                        timeout=10,
+                    )
+                    if isinstance(aio_result, dict) and "status" not in aio_result:
+                        CoinbaseTrader._consecutive_failures = 0
+                        CoinbaseTrader._clear_dns_degraded()
+                        CoinbaseTrader._close_circuit(reason="aiohttp_fallback_recovered")
+                        _record_api_call(
+                            "coinbase",
+                            method,
+                            sign_path,
+                            0.0,
+                            ok=True,
+                            status_code=200,
+                            context={"attempt": attempt + 1, "transport_fallback": "aiohttp"},
+                        )
+                        logger.info("Coinbase aiohttp fallback succeeded for %s %s", method, sign_path)
+                        return aio_result
+                    if isinstance(aio_result, dict) and "status" in aio_result:
+                        logger.warning(
+                            "Coinbase aiohttp fallback failed status=%s path=%s",
+                            aio_result.get("status"),
+                            sign_path,
+                        )
+                    elif aio_result is None:
+                        logger.warning("Coinbase aiohttp fallback unavailable for %s %s", method, sign_path)
 
                 dt_ms = (time.perf_counter() - t0) * 1000.0
                 last_error = {"error": str(e)}
@@ -1694,8 +2083,8 @@ class CoinbaseTrader:
             )
             return {"error_response": {"error": "INVALID_ORDER_TYPE", "message": msg}}
 
-        # Global lock guard (SELLs exempt — must always be able to exit).
-        locked, lock_reason, lock_source = _is_trading_locked(side=side_u)
+        # Global lock guard (SELLs exempt UNLESS pair is operator-protected).
+        locked, lock_reason, lock_source = _is_trading_locked(side=side_u, product_id=product_id)
         if locked:
             msg = f"Trading locked by {lock_source}: {lock_reason}"
             logger.error("Order blocked: %s", msg)
@@ -1729,7 +2118,42 @@ class CoinbaseTrader:
                 )
                 return {"error_response": notional_reject}
 
-        if side_u == "BUY" and STRICT_PROFIT_ONLY:
+            # Recovery mode: in degraded conditions, only permit allowlisted BUYs.
+            if str(self.key_id or "").strip().lower() != "test":
+                recovery_ok, recovery_details = _recovery_buy_gate(
+                    product_id,
+                    requested_usd=request_notional,
+                )
+                if not recovery_ok:
+                    msg = (
+                        "BUY blocked by recovery guard: "
+                        f"{str(recovery_details.get('reason', 'recovery_mode_blocked'))}"
+                    )
+                    logger.warning(msg)
+                    _record_no_loss_root_cause(
+                        product_id,
+                        side_u,
+                        "recovery_mode_blocked",
+                        msg,
+                        details=recovery_details,
+                    )
+                    _record_order_lifecycle(
+                        "coinbase",
+                        pair=product_id,
+                        side=side_u,
+                        status="blocked_recovery_mode",
+                        requested_usd=request_notional,
+                        details=recovery_details,
+                    )
+                    return {
+                        "error_response": {
+                            "error": "RECOVERY_MODE_BLOCKED",
+                            "message": msg,
+                            "details": recovery_details,
+                        }
+                    }
+
+        if side_u == "BUY" and STRICT_PROFIT_ONLY and not bypass_profit_guard:
             no_loss = self._no_loss_gate(
                 product_id=product_id,
                 side=side_u,
@@ -1934,8 +2358,8 @@ class CoinbaseTrader:
             )
             return {"error_response": {"error": "INVALID_PRICE", "message": msg}}
 
-        # Global lock guard (SELLs exempt — must always be able to exit).
-        locked, lock_reason, lock_source = _is_trading_locked(side=side_u)
+        # Global lock guard (SELLs exempt UNLESS pair is operator-protected).
+        locked, lock_reason, lock_source = _is_trading_locked(side=side_u, product_id=product_id)
         if locked:
             msg = f"Trading locked by {lock_source}: {lock_reason}"
             logger.error("Limit order blocked: %s", msg)
@@ -1975,6 +2399,40 @@ class CoinbaseTrader:
                 )
                 return {"error_response": precheck_reject}
 
+            if str(self.key_id or "").strip().lower() != "test":
+                recovery_ok, recovery_details = _recovery_buy_gate(
+                    product_id,
+                    requested_usd=precheck_notional,
+                )
+                if not recovery_ok:
+                    msg = (
+                        "LIMIT BUY blocked by recovery guard: "
+                        f"{str(recovery_details.get('reason', 'recovery_mode_blocked'))}"
+                    )
+                    logger.warning(msg)
+                    _record_no_loss_root_cause(
+                        product_id,
+                        side_u,
+                        "recovery_mode_blocked",
+                        msg,
+                        details=recovery_details,
+                    )
+                    _record_order_lifecycle(
+                        "coinbase",
+                        pair=product_id,
+                        side=side_u,
+                        status="blocked_recovery_mode",
+                        requested_usd=precheck_notional,
+                        details=recovery_details,
+                    )
+                    return {
+                        "error_response": {
+                            "error": "RECOVERY_MODE_BLOCKED",
+                            "message": msg,
+                            "details": recovery_details,
+                        }
+                    }
+
         # Get quote increment for price precision
         info = self.get_product(product_id)
         if not isinstance(info, dict):
@@ -1988,7 +2446,7 @@ class CoinbaseTrader:
             logger.error("Limit order blocked: %s", msg)
             return {"error_response": {"error": "INVALID_PRICE", "message": msg}}
 
-        if side_u == "BUY" and STRICT_PROFIT_ONLY:
+        if side_u == "BUY" and STRICT_PROFIT_ONLY and not bypass_profit_guard:
             # Use maker round-trip cost estimate for strict buy gating.
             maker_roundtrip_pct = (0.004 + 0.004 + MIN_NET_PROFIT_PCT) * 100.0
             no_loss = self._no_loss_gate(

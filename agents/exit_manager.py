@@ -221,11 +221,36 @@ class ExitManager:
     ALL thresholds are DYNAMIC -- derived from risk_controller and market state.
     """
 
+    @staticmethod
+    def _open_db_connection():
+        db = sqlite3.connect(EXIT_DB, check_same_thread=False)
+        db.row_factory = sqlite3.Row
+        db.execute("PRAGMA journal_mode=WAL")
+        db.execute("PRAGMA busy_timeout=5000")
+        return db
+
+    @staticmethod
+    def _backup_corrupt_db_files(reason):
+        ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        base = Path(EXIT_DB)
+        for suffix in ("", "-wal", "-shm"):
+            src = base if suffix == "" else Path(f"{EXIT_DB}{suffix}")
+            if not src.exists():
+                continue
+            try:
+                dst = src.with_name(f"{src.name}.corrupt_{ts}")
+                src.rename(dst)
+                logger.error("EXIT_MGR: moved corrupt DB artifact %s -> %s (%s)", src, dst, reason)
+            except Exception as e:
+                logger.error("EXIT_MGR: failed to move corrupt DB artifact %s: %s", src, e)
+
     def __init__(self):
-        self._db = sqlite3.connect(EXIT_DB, check_same_thread=False)
-        self._db.row_factory = sqlite3.Row
-        self._db.execute("PRAGMA journal_mode=WAL")
-        self._db.execute("PRAGMA busy_timeout=5000")
+        try:
+            self._db = self._open_db_connection()
+        except sqlite3.OperationalError as e:
+            logger.error("EXIT_MGR DB open failed: %s -- attempting DB recovery", e)
+            self._backup_corrupt_db_files(str(e))
+            self._db = self._open_db_connection()
         self._init_db()
         self._positions = {}  # pair -> PositionState
         self._lock = threading.Lock()
@@ -1095,6 +1120,18 @@ class ExitManager:
         """Execute a SELL with optimized exit routing and retry logic."""
         venue = venue or "coinbase"
 
+        # Position registry: check if we have permission to exit this position
+        try:
+            from position_registry import get_registry
+            _pos_reg = get_registry()
+            if _pos_reg:
+                if not _pos_reg.can_exit(pair, "exit_manager", venue=venue):
+                    reg_owner = _pos_reg.get_owner(pair, venue=venue)
+                    logger.info("EXIT_MGR: %s owned by %s — NOT exiting (registry)", pair, reg_owner)
+                    return False
+        except Exception:
+            pass
+
         # E*Trade market hours gate — never execute equity exits when market is closed
         if venue == "etrade":
             try:
@@ -1331,6 +1368,14 @@ class ExitManager:
                     if pair in self._positions:
                         del self._positions[pair]
                 logger.info("EXIT COMPLETE: %s position fully closed", pair)
+                # Close in shared registry
+                try:
+                    from position_registry import get_registry
+                    _pos_reg = get_registry()
+                    if _pos_reg:
+                        _pos_reg.close(pair, close_price=current_price, pnl_usd=pnl_usd)
+                except Exception:
+                    pass
 
         return True
 
@@ -1445,8 +1490,16 @@ class ExitManager:
             logger.info("EXIT_MGR: No holdings found on Coinbase for auto-discovery")
             return
 
-        # Reserve assets — never exit these (treasury)
-        reserve_assets = {"BTC", "USD", "USDC"}
+        # Only exclude stablecoins — all crypto should be tracked for exits
+        reserve_assets = {"USD", "USDC"}
+
+        # Load position registry to respect ownership
+        _pos_reg = None
+        try:
+            from position_registry import get_registry
+            _pos_reg = get_registry()
+        except Exception:
+            pass
 
         discovered = 0
         for currency, amount in holdings.items():
@@ -1456,6 +1509,13 @@ class ExitManager:
             pair = f"{currency}-USD"
             if pair in self._positions:
                 continue
+
+            # Position registry: skip if owned by another agent
+            if _pos_reg:
+                reg_owner = _pos_reg.get_owner(pair)
+                if reg_owner and reg_owner != "sniper" and reg_owner != "exit_manager":
+                    logger.info("EXIT_MGR: %s owned by %s — not adopting (registry)", pair, reg_owner)
+                    continue
 
             current_price = _get_price(pair)
             if not current_price or current_price <= 0:
@@ -1513,6 +1573,38 @@ class ExitManager:
                     self._consecutive_api_failures += 1
                 else:
                     self._consecutive_api_failures = 0
+
+                    # --- Auto-discover new positions from Coinbase holdings ---
+                    # The sniper runs in a separate process (gunicorn) so its
+                    # register_position() calls don't reach this supervisor instance.
+                    # Scan holdings every cycle and register any un-tracked positions.
+                    _ad_reserve = {"USD", "USDC"}
+                    for _cur, _amt in holdings.items():
+                        if _cur in _ad_reserve or _amt <= 0:
+                            continue
+                        _already_tracked = False
+                        with self._lock:
+                            for _tp in self._positions:
+                                _tb = _tp.split("-")[0] if "-" in _tp else _tp
+                                if _tb == _cur:
+                                    _already_tracked = True
+                                    break
+                        if _already_tracked:
+                            continue
+                        for _suffix in ("-USDC", "-USD"):
+                            _test_pair = f"{_cur}{_suffix}"
+                            _cprice = self._get_price_cached(_test_pair)
+                            if _cprice and _cprice > 0:
+                                _pos_val = _amt * _cprice
+                                if _pos_val >= 1.0:
+                                    self.register_position(
+                                        _test_pair, _cprice,
+                                        datetime.now(timezone.utc).isoformat(),
+                                        _amt)
+                                    logger.info(
+                                        "EXIT_MGR: AUTO-DISCOVERED %s | %.8f units ($%.2f) @ $%.4f",
+                                        _test_pair, _amt, _pos_val, _cprice)
+                                break
 
                 # Compute portfolio value once for concentration checks (cached for cycle)
                 portfolio_value = self._estimate_portfolio_value_cached()
