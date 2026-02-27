@@ -931,3 +931,150 @@
   .marketplace-tabs { flex-wrap: wrap; }
   .agent-profile-metrics { grid-template-columns: 1fr 1fr; }
 }
+
+/* ══════════════════════════════════════════════════
+   SCADA — Trading Lock Banner
+   ══════════════════════════════════════════════════ */
+.trading-lock-banner {
+  background: #ef444418;
+  border: 1px solid #ef444444;
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+.trading-lock-banner.unlocked {
+  background: #00ff8808;
+  border-color: #00ff8844;
+}
+.trading-lock-banner .lock-icon {
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--red);
+}
+.trading-lock-banner.unlocked .lock-icon { color: var(--green); }
+.trading-lock-banner .lock-reason { color: var(--text); flex: 1; }
+.trading-lock-banner .lock-time { color: var(--muted); font-size: 9px; }
+
+/* ══════════════════════════════════════════════════
+   SCADA — System Health Bar
+   ══════════════════════════════════════════════════ */
+.scada-health-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.health-check {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  transition: border-color .2s, background .2s;
+}
+.health-check.pass {
+  border-color: #00ff8844;
+  background: #00ff8808;
+}
+.health-check.fail {
+  border-color: #ef444444;
+  background: #ef444408;
+}
+.health-check .hc-label { color: var(--muted); font-weight: 600; }
+.health-check .hc-val { font-weight: 700; }
+.health-check.pass .hc-val { color: var(--green); }
+.health-check.fail .hc-val { color: var(--red); }
+
+/* ══════════════════════════════════════════════════
+   SCADA — Safety Audit Grid
+   ══════════════════════════════════════════════════ */
+.safety-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.safety-check {
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  transition: border-color .2s;
+}
+.safety-check.pass { border-color: #00ff8844; }
+.safety-check.fail { border-color: #ef444444; }
+.safety-check .sc-label { color: var(--muted); text-transform: capitalize; }
+.safety-check .sc-val { font-weight: 700; }
+.safety-check.pass .sc-val { color: var(--green); }
+.safety-check.fail .sc-val { color: var(--red); }
+
+/* ══════════════════════════════════════════════════
+   SCADA — Growth Decision
+   ══════════════════════════════════════════════════ */
+.growth-decision {
+  font-size: 18px;
+  font-weight: 700;
+  min-width: 60px;
+}
+
+/* ══════════════════════════════════════════════════
+   SCADA — Reserve Target Bars
+   ══════════════════════════════════════════════════ */
+.reserve-item { padding: 4px 0; }
+.reserve-bar {
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.reserve-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width .6s ease;
+}
+
+/* ══════════════════════════════════════════════════
+   SCADA — Flywheel Cycle Rows
+   ══════════════════════════════════════════════════ */
+.flywheel-cycle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--bg3);
+  font-size: 10px;
+}
+.flywheel-cycle-row:last-child { border-bottom: none; }
+
+/* ══════════════════════════════════════════════════
+   SCADA — Pipeline Detail
+   ══════════════════════════════════════════════════ */
+.pipeline-detail {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* ══════════════════════════════════════════════════
+   SCADA — Responsive
+   ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .scada-health-bar { grid-template-columns: repeat(2, 1fr); }
+  .safety-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .scada-health-bar { grid-template-columns: 1fr; }
+  .safety-grid { grid-template-columns: 1fr; }
+  .trading-lock-banner { flex-direction: column; align-items: flex-start; }
+}

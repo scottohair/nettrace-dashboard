@@ -99,6 +99,59 @@
     </div>
   </div>
 
+  <!-- Trading Lock Banner (conditionally shown) -->
+  <div class="trading-lock-banner unlocked" id="tradingLock" style="display:none">
+    <span class="lock-icon" id="lockIcon">UNLOCKED</span>
+    <span class="lock-reason" id="lockReason">Trading active</span>
+    <span class="lock-time" id="lockTime"></span>
+  </div>
+
+  <!-- System Health Bar -->
+  <div class="section-header">SYSTEM HEALTH</div>
+  <div class="scada-health-bar" id="scadaHealth">
+    <div class="health-check" id="hcDns"><span class="hc-label">DNS</span><span class="hc-val">--</span></div>
+    <div class="health-check" id="hcTelemetry"><span class="hc-label">Telemetry</span><span class="hc-val">--</span></div>
+    <div class="health-check" id="hcCandles"><span class="hc-label">Candle Feed</span><span class="hc-val">--</span></div>
+    <div class="health-check" id="hcExecution"><span class="hc-label">Execution</span><span class="hc-val">--</span></div>
+    <div class="health-check" id="hcIntegration"><span class="hc-label">Integration</span><span class="hc-val">--</span></div>
+    <div class="health-check" id="hcRunner"><span class="hc-label">Agent Runner</span><span class="hc-val">--</span></div>
+  </div>
+
+  <!-- Strategy Pipeline (real SCADA counts) -->
+  <div class="section-header">STRATEGY PIPELINE</div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="pipeline-bar" id="pipelineBarScada">
+      <div class="pipeline-stage cold">COLD <span id="scadaColdCount">--</span></div>
+      <div class="pipeline-stage warm">WARM <span id="scadaWarmCount">--</span></div>
+      <div class="pipeline-stage hot">HOT <span id="scadaHotCount">--</span></div>
+    </div>
+    <div class="pipeline-detail" id="pipelineDetail" style="font-size:10px;color:var(--muted);margin-top:4px"></div>
+  </div>
+
+  <!-- Safety Audit Grid -->
+  <div class="section-header">PROFIT SAFETY AUDIT</div>
+  <div class="safety-grid" id="safetyGrid">
+    <div class="safety-check"><span class="sc-label">Loading...</span></div>
+  </div>
+
+  <!-- Growth Decision -->
+  <div class="section-header">GROWTH STATUS</div>
+  <div class="card" style="margin-bottom:12px" id="growthStatus">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="growth-decision" id="growthDecision">--</span>
+      <span class="growth-reasons" id="growthReasons" style="font-size:10px;color:var(--muted)"></span>
+    </div>
+    <div id="growthBlockers" style="font-size:10px;color:var(--red);margin-top:4px"></div>
+  </div>
+
+  <!-- Reserve Allocation -->
+  <div class="section-header">RESERVE ALLOCATION</div>
+  <div class="card" style="margin-bottom:12px">
+    <div id="reserveTargets" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">
+      <div style="text-align:center;padding:8px;color:var(--muted);font-size:10px;grid-column:1/-1">Loading reserves...</div>
+    </div>
+  </div>
+
   <!-- Risk Policy (Collapsible) -->
   <div class="card" style="margin-bottom:12px" id="riskPolicySection">
     <div class="collapsible-header" onclick="this.classList.toggle('expanded');this.nextElementSibling.classList.toggle('show')">
@@ -324,6 +377,25 @@
     <div style="margin-top:6px;font-size:9px;color:var(--muted)">
       <span style="color:var(--gold);font-weight:700">Excluded from real holdings and portfolio value</span>
       &mdash; <a href="/amicoin" style="color:#22d3ee">View full AmiCoin dashboard</a>
+    </div>
+  </div>
+
+  <!-- Recent Asset Transitions (real trades from SCADA) -->
+  <div class="section-header">RECENT TRADES (Asset Transitions)</div>
+  <div class="card" style="margin-bottom:12px">
+    <table>
+      <thead><tr><th>Time</th><th>Asset</th><th>Action</th><th>From</th><th>To</th><th>Amount</th><th>Venue</th></tr></thead>
+      <tbody id="transitionsBody">
+        <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px">Loading transitions...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Flywheel Cycle Log -->
+  <div class="section-header">FLYWHEEL CYCLES</div>
+  <div class="card" style="margin-bottom:12px">
+    <div id="flywheelCycles" style="max-height:200px;overflow-y:auto">
+      <div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">Loading flywheel cycles...</div>
     </div>
   </div>
 

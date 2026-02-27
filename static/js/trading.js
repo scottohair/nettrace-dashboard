@@ -38,6 +38,7 @@ function init() {
   // Start all pollers
   Poller.start('ticker', fetchTicker, 10000);
   Poller.start('trading-data', refreshData, 60000);
+  Poller.start('system-status', fetchSystemStatus, 10000);
   Poller.start('asset-pools', refreshAssetPools, 30000);
   Poller.start('venue-comparison', fetchVenueComparison, 30000);
   Poller.start('opportunities', fetchOpportunities, 60000);
@@ -47,6 +48,9 @@ function init() {
   Poller.start('agents', loadAgents, 30000);
   Poller.start('leaderboard', loadLeaderboard, 60000);
   Poller.start('meta-engine', loadMetaEngine, 30000);
+
+  // Initial SCADA fetch
+  fetchSystemStatus();
 }
 
 // ── WebSocket ──────────────────────────────────────────────────────────
@@ -1236,6 +1240,241 @@ function _renderMetaScatter(agents) {
 // ── Theme Toggle ───────────────────────────────────────────────────────
 function toggleTheme() {
   Theme.toggle();
+}
+
+// ── System SCADA Status ────────────────────────────────────────────────
+async function fetchSystemStatus() {
+  var data = await api('/api/system/status');
+  if (data.error) return;
+
+  _renderTradingLock(data.trading_lock || {});
+  _renderHealthBar(data.execution_health || {}, data.integration_guard || {}, data.agent_runner || {});
+  _renderPipelineScada(data.flywheel || {}, data.flywheel_cog || {});
+  _renderSafetyAudit(data.safety_audit || {});
+  _renderGrowthStatus(data.growth || {});
+  _renderReserveTargets(data.reserve_targets || {});
+  _renderTransitions(data.recent_transitions || []);
+  _renderFlywheelCycles(data.flywheel_cycles || []);
+
+  // Update treasury with SCADA data
+  var tr = data.treasury_registry || {};
+  if (tr.connectors) {
+    var total = 0;
+    Object.values(tr.connectors).forEach(function(c) { total += Number(c.balance_usd || 0); });
+    if (total > 0) _setText('treasuryBalance', Fmt.usd(total, 2));
+  }
+}
+
+function _renderTradingLock(lock) {
+  var el = document.getElementById('tradingLock');
+  if (!el) return;
+
+  var locked = lock.locked || lock.is_locked || false;
+  var reason = lock.reason || lock.lock_reason || '';
+
+  if (locked || reason) {
+    el.style.display = 'flex';
+    el.className = 'trading-lock-banner' + (locked ? '' : ' unlocked');
+    _setText('lockIcon', locked ? 'LOCKED' : 'UNLOCKED');
+    _setText('lockReason', reason || (locked ? 'Trading halted' : 'Trading active'));
+    if (lock.locked_at) _setText('lockTime', 'since ' + Fmt.shortTime(lock.locked_at));
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function _renderHealthBar(exec, integration, runner) {
+  var checks = exec.checks || exec.health_checks || {};
+
+  function _setHc(id, label, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var pass = val === true || val === 'ok' || val === 'pass' || val === 'healthy';
+    var fail = val === false || val === 'fail' || val === 'error' || val === 'unhealthy';
+    el.className = 'health-check' + (pass ? ' pass' : (fail ? ' fail' : ''));
+    var valEl = el.querySelector('.hc-val');
+    if (valEl) valEl.textContent = pass ? 'OK' : (fail ? 'FAIL' : (val || '--'));
+  }
+
+  _setHc('hcDns', 'DNS', checks.dns || checks.dns_resolution || exec.dns);
+  _setHc('hcTelemetry', 'Telemetry', checks.telemetry || exec.telemetry);
+  _setHc('hcCandles', 'Candle Feed', checks.candle_feed || checks.candles || exec.candle_feed);
+  _setHc('hcExecution', 'Execution', checks.execution || exec.status || exec.overall);
+  _setHc('hcIntegration', 'Integration', integration.status || integration.overall);
+  _setHc('hcRunner', 'Agent Runner', runner.status || runner.state);
+}
+
+function _renderPipelineScada(flywheel, cog) {
+  var pipeline = flywheel.pipeline || flywheel.strategy_pipeline || cog.pipeline || {};
+  var cold = pipeline.cold || pipeline.COLD || 0;
+  var warm = pipeline.warm || pipeline.WARM || 0;
+  var hot = pipeline.hot || pipeline.HOT || 0;
+
+  _setText('scadaColdCount', cold);
+  _setText('scadaWarmCount', warm);
+  _setText('scadaHotCount', hot);
+
+  // Also update the original pipeline display
+  _setText('coldCount', cold);
+  _setText('warmCount', warm);
+  _setText('hotCount', hot);
+
+  var detail = document.getElementById('pipelineDetail');
+  if (detail) {
+    var parts = [];
+    if (flywheel.cycle_count) parts.push('Cycles: ' + flywheel.cycle_count);
+    if (flywheel.total_pnl_usd) parts.push('PnL: ' + Fmt.pnl(flywheel.total_pnl_usd));
+    if (flywheel.total_trades) parts.push('Trades: ' + flywheel.total_trades);
+    detail.textContent = parts.join(' | ');
+  }
+}
+
+function _renderSafetyAudit(safety) {
+  var grid = document.getElementById('safetyGrid');
+  if (!grid) return;
+
+  var checks = safety.checks || safety.audit || {};
+  var keys = Object.keys(checks);
+
+  if (keys.length === 0) {
+    // Try flat top-level keys
+    var ignore = ['updated_at', 'timestamp', 'overall', 'status', 'version'];
+    keys = Object.keys(safety).filter(function(k) { return ignore.indexOf(k) === -1; });
+    if (keys.length > 0) checks = safety;
+  }
+
+  if (keys.length === 0) {
+    grid.innerHTML = '<div class="safety-check"><span class="sc-label">No audit data</span></div>';
+    return;
+  }
+
+  grid.innerHTML = keys.map(function(k) {
+    var v = checks[k];
+    var pass = v === true || v === 'pass' || v === 'ok';
+    var fail = v === false || v === 'fail' || v === 'blocked';
+    var cls = pass ? 'pass' : (fail ? 'fail' : '');
+    var icon = pass ? 'PASS' : (fail ? 'FAIL' : String(v).substring(0, 12));
+    var label = k.replace(/_/g, ' ');
+    return '<div class="safety-check ' + cls + '">' +
+      '<span class="sc-label">' + _escapeHtml(label) + '</span>' +
+      '<span class="sc-val">' + icon + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+function _renderGrowthStatus(growth) {
+  var el = document.getElementById('growthDecision');
+  if (!el) return;
+
+  var decision = growth.decision || growth.status || growth.go || '--';
+  var isGo = decision === 'GO' || decision === 'go' || decision === true;
+  el.textContent = isGo ? 'GO' : (decision === '--' ? '--' : 'NO_GO');
+  el.style.color = isGo ? 'var(--green)' : 'var(--red)';
+  el.style.fontWeight = '700';
+  el.style.fontSize = '18px';
+
+  var reasons = growth.reasons || growth.go_reasons || [];
+  if (Array.isArray(reasons) && reasons.length > 0) {
+    _setText('growthReasons', reasons.join(', '));
+  }
+
+  var blockers = growth.blockers || growth.no_go_reasons || [];
+  var blockEl = document.getElementById('growthBlockers');
+  if (blockEl && Array.isArray(blockers) && blockers.length > 0) {
+    blockEl.textContent = 'Blockers: ' + blockers.join(', ');
+  }
+}
+
+function _renderReserveTargets(reserve) {
+  var el = document.getElementById('reserveTargets');
+  if (!el) return;
+
+  var targets = reserve.targets || reserve.allocations || {};
+  var keys = Object.keys(targets);
+
+  if (keys.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:8px;color:var(--muted);font-size:10px;grid-column:1/-1">No reserve target data</div>';
+    return;
+  }
+
+  el.innerHTML = keys.map(function(k) {
+    var t = targets[k];
+    var target_pct = Number(t.target_pct || t.target || 0);
+    var actual_pct = Number(t.actual_pct || t.actual || 0);
+    var fill = target_pct > 0 ? Math.min((actual_pct / target_pct) * 100, 100) : 0;
+    var color = fill >= 80 ? 'var(--green)' : (fill >= 50 ? 'var(--gold)' : 'var(--red)');
+
+    return '<div class="reserve-item">' +
+      '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px">' +
+        '<span style="color:var(--accent);font-weight:700">' + _escapeHtml(k) + '</span>' +
+        '<span style="color:var(--muted)">' + actual_pct.toFixed(1) + '% / ' + target_pct.toFixed(1) + '%</span>' +
+      '</div>' +
+      '<div class="reserve-bar"><div class="reserve-fill" style="width:' + fill + '%;background:' + color + '"></div></div>' +
+      '</div>';
+  }).join('');
+}
+
+function _renderTransitions(transitions) {
+  var body = document.getElementById('transitionsBody');
+  if (!body) return;
+
+  if (transitions.length === 0) {
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px">No recent transitions</td></tr>';
+    return;
+  }
+
+  body.innerHTML = transitions.slice(0, 20).map(function(t) {
+    var time = t.timestamp || t.created_at || t.time || '';
+    var timeStr = time ? Fmt.shortTime(time) : '--';
+    var asset = t.asset || t.currency || '--';
+    var action = t.action || t.type || t.direction || '--';
+    var from = t.from_state || t.from || '--';
+    var to = t.to_state || t.to || '--';
+    var amount = t.amount || t.size || t.quantity || '';
+    var amountStr = amount ? (Number(amount) < 0.001 ? Number(amount).toExponential(3) : Number(amount).toFixed(6)) : '--';
+    var venue = t.venue || t.exchange || '--';
+
+    var actionCls = (action === 'BUY' || action === 'buy') ? 'b-buy' :
+                    (action === 'SELL' || action === 'sell') ? 'b-sell' : '';
+
+    return '<tr>' +
+      '<td>' + timeStr + '</td>' +
+      '<td style="color:var(--accent);font-weight:700">' + _escapeHtml(asset) + '</td>' +
+      '<td>' + (actionCls ? '<span class="badge ' + actionCls + '">' + action.toUpperCase() + '</span>' : _escapeHtml(action)) + '</td>' +
+      '<td><span class="state-badge state-' + from + '" style="font-size:8px">' + _escapeHtml(from) + '</span></td>' +
+      '<td><span class="state-badge state-' + to + '" style="font-size:8px">' + _escapeHtml(to) + '</span></td>' +
+      '<td>' + amountStr + '</td>' +
+      '<td style="color:var(--muted)">' + _escapeHtml(venue) + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function _renderFlywheelCycles(cycles) {
+  var el = document.getElementById('flywheelCycles');
+  if (!el) return;
+
+  if (cycles.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">No flywheel cycle data</div>';
+    return;
+  }
+
+  el.innerHTML = cycles.map(function(c) {
+    var time = c.timestamp || c.created_at || c.time || '';
+    var timeStr = time ? Fmt.shortTime(time) : '--';
+    var decision = c.decision || c.action || c.status || '--';
+    var isGo = decision === 'GO' || decision === 'go' || decision === 'execute';
+    var pnl = c.pnl || c.total_pnl || 0;
+    var trades = c.trades || c.trade_count || 0;
+    var reason = c.reason || c.details || '';
+
+    return '<div class="flywheel-cycle-row">' +
+      '<span style="color:var(--muted);min-width:60px;font-size:9px">' + timeStr + '</span>' +
+      '<span class="growth-decision" style="font-size:10px;font-weight:700;color:' + (isGo ? 'var(--green)' : 'var(--red)') + ';min-width:40px">' + _escapeHtml(decision) + '</span>' +
+      (pnl ? '<span style="font-size:10px;color:' + (pnl >= 0 ? 'var(--green)' : 'var(--red)') + '">' + Fmt.pnl(pnl) + '</span>' : '') +
+      (trades ? '<span style="font-size:9px;color:var(--muted)">' + trades + ' trades</span>' : '') +
+      (reason ? '<span style="font-size:9px;color:var(--muted);flex:1">' + _escapeHtml(reason).substring(0, 60) + '</span>' : '') +
+      '</div>';
+  }).join('');
 }
 
 // ── Helper: Quant 100 Status ───────────────────────────────────────────

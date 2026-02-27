@@ -1521,6 +1521,17 @@ def me():
         # Grandfathered: old $20/mo subscribers get Pro tier
         if user_tier == "free" and user.is_subscribed:
             user_tier = "pro"
+        orgs = []
+        try:
+            org_rows = db.execute(
+                "SELECT o.id, o.slug, o.name, o.tier, m.role FROM organizations o "
+                "JOIN org_members m ON o.id = m.org_id WHERE m.user_id = ?",
+                (current_user.id,)
+            ).fetchall()
+            orgs = [{"id": r["id"], "slug": r["slug"], "name": r["name"],
+                     "tier": r["tier"], "role": r["role"]} for r in org_rows]
+        except Exception:
+            pass
         return jsonify({
             "authenticated": True,
             "username": user.username,
@@ -1533,6 +1544,7 @@ def me():
             "created_at": user.created_at,
             "subscription_expires_at": expires if pm == "crypto" else None,
             "has_stripe_billing": bool(cust_id),
+            "orgs": orgs,
         })
     return jsonify({"authenticated": False})
 
@@ -2628,21 +2640,74 @@ def trading_data():
     trades_total = 0
     initial_value = 13.66  # Starting capital
 
-    if snap:
+    # Try live Coinbase balance first (same pattern as /api/agent-control/portfolio)
+    _live_coinbase = False
+    try:
+        import sys as _sys
+        _agents = str(BASE_DIR / "agents")
+        if _agents not in _sys.path:
+            _sys.path.insert(0, _agents)
+        from exchange_connector import CoinbaseTrader
+        _trader = CoinbaseTrader()
+        _accts = _trader._request("GET", "/api/v3/brokerage/accounts?limit=250")
+        _cb_holdings = {}
+        _cb_total = 0.0
+        for _a in (_accts or {}).get("accounts", []):
+            _cur = _a.get("currency", "")
+            _bal = float(_a.get("available_balance", {}).get("value", 0))
+            if _bal > 0:
+                if _cur in ("USD", "USDC"):
+                    _usd_val = _bal
+                else:
+                    try:
+                        _req = urllib.request.Request(
+                            f"https://api.coinbase.com/v2/prices/{_cur}-USD/spot",
+                            headers={"User-Agent": "NetTrace/1.0"})
+                        with urllib.request.urlopen(_req, timeout=3) as _resp:
+                            _usd_val = _bal * float(json.loads(_resp.read().decode())["data"]["amount"])
+                    except Exception:
+                        _usd_val = 0.0
+                _cb_holdings[_cur] = {"amount": round(_bal, 8), "usd_value": round(_usd_val, 4)}
+                _cb_total += _usd_val
+        portfolio_value = round(_cb_total, 2)
+        holdings = _cb_holdings
+        _live_coinbase = True
+    except Exception:
+        pass
+
+    # Fall back to DB snapshot if Coinbase API failed
+    if not _live_coinbase and snap:
         portfolio_value = snap["total_value_usd"] or 0
-        daily_pnl = snap["daily_pnl"] or 0
-        trades_today = snap["trades_today"] or 0
-        trades_total = snap["trades_total"] or 0
         if snap["holdings_json"]:
             try:
                 holdings = json.loads(snap["holdings_json"])
             except Exception:
                 pass
+
+    # Always load these from DB snapshot if available
+    if snap:
+        daily_pnl = snap["daily_pnl"] or 0
+        trades_today = snap["trades_today"] or 0
+        trades_total = snap["trades_total"] or 0
         if snap["trades_json"]:
             try:
                 trades = json.loads(snap["trades_json"])
             except Exception:
                 pass
+
+    # Supplement with flywheel status for P&L data
+    try:
+        _fw_file = BASE_DIR / "agents" / "flywheel_status.json"
+        if _fw_file.exists():
+            _fw = json.loads(_fw_file.read_text())
+            _fw_pnl = float(_fw.get("total_pnl_usd", 0) or 0)
+            if _fw_pnl != 0 and daily_pnl == 0:
+                daily_pnl = _fw_pnl
+            _fw_trades = int(_fw.get("total_trades", 0) or 0)
+            if _fw_trades > 0 and trades_total == 0:
+                trades_total = _fw_trades
+    except Exception:
+        pass
 
     # Snapshot age
     snapshot_age = "no data yet"
@@ -2911,6 +2976,67 @@ def trading_data():
         "claude_duplex": claude_duplex,
         "amicoin": amicoin,
         "amicoin_agent": amicoin_agent,
+    })
+
+
+@app.route("/api/system/status")
+@login_required
+def system_status():
+    """Aggregate SCADA status from all agent status files."""
+    agents_dir = BASE_DIR / "agents"
+
+    def _read_json(name):
+        try:
+            return json.loads((agents_dir / name).read_text())
+        except Exception:
+            return None
+
+    def _tail_jsonl(name, n=20):
+        try:
+            lines = (agents_dir / name).read_text().strip().split("\n")
+            return [json.loads(l) for l in lines[-n:] if l.strip()]
+        except Exception:
+            return []
+
+    flywheel = _read_json("flywheel_status.json") or {}
+    exec_health = _read_json("execution_health_status.json") or {}
+    trading_lock = _read_json("trading_lock.json") or {}
+    safety = _read_json("profit_safety_audit.json") or {}
+    growth = _read_json("growth_go_no_go_report.json") or {}
+    treasury = _read_json("treasury_registry.json") or {}
+    exit_mgr = _read_json("exit_manager_status.json") or {}
+    multi_hop = _read_json("multi_hop_arb_status.json") or {}
+    oil = _read_json("oil_market_agent_status.json") or {}
+    mcp_opp = _read_json("mcp_opportunity_status.json") or {}
+    reserve = _read_json("reserve_targets_status.json") or {}
+    integration = _read_json("integration_guard_status.json") or {}
+    runner = _read_json("fly_agent_runner_status.json") or {}
+    warm_promo = _read_json("warm_promotion_report.json") or {}
+    advanced = _read_json("advanced_team/dashboard_insights.json") or {}
+    quant_co = _read_json("quant_company_status.json") or {}
+    flywheel_cog = _read_json("flywheel_cog_state.json") or {}
+
+    return jsonify({
+        "flywheel": flywheel,
+        "execution_health": exec_health,
+        "trading_lock": trading_lock,
+        "safety_audit": safety,
+        "growth": growth,
+        "treasury_registry": treasury,
+        "exit_manager": exit_mgr,
+        "multi_hop_arb": multi_hop,
+        "oil_market": oil,
+        "mcp_opportunities": mcp_opp,
+        "reserve_targets": reserve,
+        "integration_guard": integration,
+        "agent_runner": runner,
+        "warm_promotions": warm_promo,
+        "advanced_team": advanced,
+        "quant_company": quant_co,
+        "flywheel_cog": flywheel_cog,
+        "recent_transitions": _tail_jsonl("asset_transitions.jsonl", 30),
+        "health_history": _tail_jsonl("execution_health_history.jsonl", 20),
+        "flywheel_cycles": _tail_jsonl("flywheel_cycles.jsonl", 20),
     })
 
 
@@ -4069,6 +4195,29 @@ def treasury_balance():
     ).fetchone()
 
     if not acct:
+        # Fall back to treasury_registry.json for real SCADA data
+        try:
+            _tr_file = BASE_DIR / "agents" / "treasury_registry.json"
+            if _tr_file.exists():
+                _tr = json.loads(_tr_file.read_text())
+                _total = 0.0
+                _deployed = 0.0
+                _connectors = _tr.get("connectors", {})
+                for _k, _v in _connectors.items():
+                    _bal = float(_v.get("balance_usd", 0) or 0)
+                    _total += _bal
+                    if _v.get("status") == "active":
+                        _deployed += _bal
+                return jsonify({
+                    "has_treasury": True,
+                    "balance": round(_total, 2),
+                    "yield_earned": 0,
+                    "deployed": round(_deployed, 2),
+                    "status": "scada",
+                    "connectors": _connectors,
+                })
+        except Exception:
+            pass
         return jsonify({
             "has_treasury": False,
             "balance": 0,
