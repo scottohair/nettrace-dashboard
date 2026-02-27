@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: donation-mcp-broadcast
+    runtime: docker
+    plan: free
+    rootDir: .
+    dockerfilePath: ./services/donation_mcp/Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
